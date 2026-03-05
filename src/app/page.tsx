@@ -17,6 +17,9 @@ export default function Home() {
             <Link href="/team" className="text-zinc-600 dark:text-zinc-400 hover:text-cyan-500 transition-colors">
               团队成员
             </Link>
+            <Link href="/blog" className="text-zinc-600 dark:text-zinc-400 hover:text-cyan-500 transition-colors">
+              博客
+            </Link>
             <Link
               href="/contact"
               className="px-5 py-2 bg-cyan-500 text-white rounded-full font-medium hover:bg-cyan-600 transition-colors"
@@ -243,6 +246,7 @@ export default function Home() {
               <Link href="/" className="hover:text-white transition-colors">首页</Link>
               <Link href="/about" className="hover:text-white transition-colors">关于我们</Link>
               <Link href="/team" className="hover:text-white transition-colors">团队成员</Link>
+              <Link href="/blog" className="hover:text-white transition-colors">博客</Link>
             </div>
             <div className="text-sm">
               © 2024 7zi Studio. All rights reserved.
