@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/Providers";
+import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
+import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -127,6 +129,8 @@ export default function RootLayout({
       >
         <Providers>
           {children}
+          <ServiceWorkerRegistration />
+          <PWAInstallPrompt />
         </Providers>
       </body>
     </html>
