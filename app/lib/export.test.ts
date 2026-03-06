@@ -12,27 +12,30 @@ import {
 } from './export';
 import type { Task, TaskPriority, TaskStatus } from './tasks/types';
 
-// Mock jsPDF and other dependencies
+// Mock jsPDF - 使用命名导出 jsPDF
 vi.mock('jspdf', () => ({
-  default: class MockPDF {
-    text = vi.fn();
-    save = vi.fn();
-    setFontSize = vi.fn();
-    addPage = vi.fn();
-    setDrawColor = vi.fn();
-    setLineWidth = vi.fn();
-    line = vi.fn();
-    rect = vi.fn();
-  },
+  jsPDF: vi.fn().mockImplementation(() => ({
+    text: vi.fn(),
+    save: vi.fn(),
+    setFontSize: vi.fn(),
+    addPage: vi.fn(),
+    setDrawColor: vi.fn(),
+    setLineWidth: vi.fn(),
+    line: vi.fn(),
+    rect: vi.fn(),
+    setTextColor: vi.fn(),
+    output: vi.fn(() => new Blob(['pdf content'], { type: 'application/pdf' })),
+  })),
 }));
 
+// Mock xlsx
 vi.mock('xlsx', () => ({
   utils: {
     json_to_sheet: vi.fn(() => ({})),
     book_new: vi.fn(() => ({})),
     book_append_sheet: vi.fn(),
   },
-  write: vi.fn(),
+  write: vi.fn(() => new ArrayBuffer(8)),
 }));
 
 describe('Export API', () => {

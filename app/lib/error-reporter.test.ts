@@ -16,23 +16,33 @@ import {
   addSentryBreadcrumb,
 } from './error-reporter';
 
-// Mock Sentry
-vi.mock('@sentry/nextjs', () => ({
-  captureException: vi.fn(),
-  withScope: vi.fn((callback) => {
+// Mock Sentry - 使用 importOriginal 部分模拟
+vi.mock('@sentry/nextjs', async () => {
+  const mockCaptureException = vi.fn();
+  const mockWithScope = vi.fn((callback) => {
     const scope = {
       setTag: vi.fn(),
       setExtra: vi.fn(),
       setUser: vi.fn(),
     };
     callback(scope);
-  }),
-  setUser: vi.fn(),
-  setContext: vi.fn(),
-  setTag: vi.fn(),
-  setExtra: vi.fn(),
-  addBreadcrumb: vi.fn(),
-}));
+  });
+  const mockSetUser = vi.fn();
+  const mockSetContext = vi.fn();
+  const mockSetTag = vi.fn();
+  const mockSetExtra = vi.fn();
+  const mockAddBreadcrumb = vi.fn();
+
+  return {
+    captureException: mockCaptureException,
+    withScope: mockWithScope,
+    setUser: mockSetUser,
+    setContext: mockSetContext,
+    setTag: mockSetTag,
+    setExtra: mockSetExtra,
+    addBreadcrumb: mockAddBreadcrumb,
+  };
+});
 
 describe('Error Reporter', () => {
   const originalWindow = global.window as any;
@@ -40,10 +50,10 @@ describe('Error Reporter', () => {
     location: { href: 'https://example.com/test' },
     navigator: {
       userAgent: 'Mozilla/5.0',
-      sendBeacon: vi.fn(),
+      sendBeacon: vi.fn(() => true),
     },
     addEventListener: vi.fn(),
-    fetch: vi.fn(),
+    fetch: vi.fn().mockResolvedValue({ ok: true }),
     __user_id__: undefined as string | undefined,
   } as any;
 
@@ -52,6 +62,9 @@ describe('Error Reporter', () => {
     vi.clearAllMocks();
     // Set up window mock
     global.window = mockWindow;
+    // Reset fetch mock
+    mockWindow.fetch = vi.fn().mockResolvedValue({ ok: true });
+    mockWindow.navigator.sendBeacon = vi.fn(() => true);
   });
 
   afterEach(() => {

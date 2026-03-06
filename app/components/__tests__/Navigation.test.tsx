@@ -21,6 +21,26 @@ vi.mock('next/link', () => ({
   ),
 }));
 
+// Mock next-intl - 必须在导入被测组件之前设置
+vi.mock('next-intl', () => ({
+  useTranslations: (namespace: string) => (key: string) => {
+    const translations: Record<string, string> = {
+      'home': '首页',
+      'dashboard': '实时看板',
+      'subagents': '子代理',
+      'tasks': '任务',
+      'profile': '个人资料',
+      'settings': '设置',
+      'notifications': '通知',
+      'mainNavigation': '主导航',
+      'pageNavigation': '页面导航',
+      'aiTeamHome': 'AI 团队首页',
+      'currentPage': '当前页面',
+    };
+    return translations[key] || key;
+  },
+}));
+
 // Mock ThemeProvider
 vi.mock('../ThemeProvider', () => ({
   useTheme: () => ({
@@ -36,6 +56,15 @@ vi.mock('../ThemeToggle', () => ({
   ThemeToggle: ({ size }: { size: string }) => (
     <button data-testid="theme-toggle" aria-label="切换主题" data-size={size}>
       🌓
+    </button>
+  ),
+}));
+
+// Mock LanguageSwitcher
+vi.mock('../LanguageSwitcher', () => ({
+  LanguageSwitcher: () => (
+    <button data-testid="language-switcher" aria-label="切换语言">
+      🌐
     </button>
   ),
 }));
@@ -119,40 +148,40 @@ describe('Navigation', () => {
       mockUsePathname.mockReturnValue('/');
       render(<Navigation />);
       
-      const homeLink = screen.getByRole('link', { name: /首页/ });
-      expect(homeLink.getAttribute('aria-current')).toBe('page');
+      const homeLinks = screen.getAllByRole('link', { name: /首页/ });
+      expect(homeLinks[0].getAttribute('aria-current')).toBe('page');
     });
 
     it('should highlight dashboard when on dashboard', () => {
       mockUsePathname.mockReturnValue('/dashboard');
       render(<Navigation />);
       
-      const dashboardLink = screen.getByRole('link', { name: /实时看板/ });
-      expect(dashboardLink.getAttribute('aria-current')).toBe('page');
+      const dashboardLinks = screen.getAllByRole('link', { name: /实时看板/ });
+      expect(dashboardLinks[0].getAttribute('aria-current')).toBe('page');
     });
 
     it('should highlight subagents when on subagents page', () => {
       mockUsePathname.mockReturnValue('/subagents');
       render(<Navigation />);
       
-      const subagentsLink = screen.getByRole('link', { name: /子代理/ });
-      expect(subagentsLink.getAttribute('aria-current')).toBe('page');
+      const subagentsLinks = screen.getAllByRole('link', { name: /子代理/ });
+      expect(subagentsLinks[0].getAttribute('aria-current')).toBe('page');
     });
 
     it('should highlight tasks when on tasks page', () => {
       mockUsePathname.mockReturnValue('/tasks');
       render(<Navigation />);
       
-      const tasksLink = screen.getByRole('link', { name: /任务/ });
-      expect(tasksLink.getAttribute('aria-current')).toBe('page');
+      const tasksLinks = screen.getAllByRole('link', { name: /任务/ });
+      expect(tasksLinks[0].getAttribute('aria-current')).toBe('page');
     });
 
     it('should not highlight other pages when on different page', () => {
       mockUsePathname.mockReturnValue('/dashboard');
       render(<Navigation />);
       
-      const homeLink = screen.getByRole('link', { name: /首页/ });
-      expect(homeLink.getAttribute('aria-current')).toBeNull();
+      const homeLinks = screen.getAllByRole('link', { name: /首页/ });
+      expect(homeLinks[0].getAttribute('aria-current')).toBeNull();
     });
   });
 
@@ -250,8 +279,8 @@ describe('Navigation', () => {
     it('should render notification button', () => {
       render(<Navigation />);
       
-      const notificationButton = screen.getByRole('button', { name: /通知/i });
-      expect(notificationButton).toBeDefined();
+      const notificationButtons = screen.getAllByRole('button', { name: /通知/i });
+      expect(notificationButtons.length).toBeGreaterThan(0);
     });
 
     it('should render settings link', () => {
@@ -268,10 +297,10 @@ describe('Navigation', () => {
       mockUsePathname.mockReturnValue('/settings');
       render(<Navigation />);
       
-      const settingsButtons = screen.getAllByRole('link').filter(
+      const settingsLinks = screen.getAllByRole('link').filter(
         link => link.getAttribute('href') === '/settings' && link.getAttribute('aria-label') === '设置'
       );
-      const settingsIcon = settingsButtons.find(btn => btn.textContent.includes('⚙️'));
+      const settingsIcon = settingsLinks.find(btn => btn.textContent?.includes('⚙️'));
       expect(settingsIcon?.getAttribute('aria-current')).toBe('page');
     });
   });
@@ -322,7 +351,12 @@ describe('Navigation', () => {
       mockUsePathname.mockReturnValue('/dashboard');
       render(<Navigation />);
       
-      const dashboardLink = screen.getByRole('link', { name: /实时看板.*当前页面/i });
+      // 查找包含"当前页面"的链接
+      const links = screen.getAllByRole('link');
+      const dashboardLink = links.find(link => 
+        link.getAttribute('aria-label')?.includes('实时看板') && 
+        link.getAttribute('aria-label')?.includes('当前')
+      );
       expect(dashboardLink).toBeDefined();
     });
 
@@ -330,8 +364,11 @@ describe('Navigation', () => {
       mockUsePathname.mockReturnValue('/');
       render(<Navigation />);
       
-      const dashboardLink = screen.getByRole('menuitem', { name: /实时看板/ });
-      expect(dashboardLink.getAttribute('aria-label')).not.toContain('当前页面');
+      const menuItems = screen.getAllByRole('menuitem');
+      const dashboardItem = menuItems.find(item => 
+        item.getAttribute('aria-label')?.includes('实时看板')
+      );
+      expect(dashboardItem?.getAttribute('aria-label')).not.toContain('当前页面');
     });
 
     it('should have focus styles on logo link', () => {
@@ -351,16 +388,22 @@ describe('Navigation', () => {
       mockUsePathname.mockReturnValue('/dashboard');
       render(<Navigation />);
       
-      const dashboardLink = screen.getByRole('menuitem', { name: /实时看板/ });
-      expect(dashboardLink.className).toContain('bg-blue-50');
+      const menuItems = screen.getAllByRole('menuitem');
+      const dashboardItem = menuItems.find(item => 
+        item.getAttribute('aria-label')?.includes('实时看板')
+      );
+      expect(dashboardItem?.className).toContain('bg-blue-50');
     });
 
     it('should apply hover styles to non-current links', () => {
       mockUsePathname.mockReturnValue('/');
       render(<Navigation />);
       
-      const dashboardLink = screen.getByRole('menuitem', { name: /实时看板/ });
-      expect(dashboardLink.className).toContain('hover:bg-gray-100');
+      const menuItems = screen.getAllByRole('menuitem');
+      const dashboardItem = menuItems.find(item => 
+        item.getAttribute('aria-label')?.includes('实时看板')
+      );
+      expect(dashboardItem?.className).toContain('hover:bg-gray-100');
     });
 
     it('should have sticky positioning', () => {
@@ -404,15 +447,18 @@ describe('Navigation', () => {
       mockUsePathname.mockReturnValue('/dashboard?tab=tasks');
       render(<Navigation />);
       
-      const dashboardLink = screen.getByRole('menuitem', { name: /实时看板/ });
-      expect(dashboardLink.getAttribute('aria-current')).toBe('page');
+      const menuItems = screen.getAllByRole('menuitem');
+      const dashboardItem = menuItems.find(item => 
+        item.getAttribute('aria-label')?.includes('实时看板')
+      );
+      expect(dashboardItem?.getAttribute('aria-current')).toBe('page');
     });
 
     it('should have notification button with correct type', () => {
       render(<Navigation />);
       
-      const notificationButton = screen.getByRole('button', { name: /通知/i });
-      expect(notificationButton.getAttribute('type')).toBe('button');
+      const notificationButtons = screen.getAllByRole('button', { name: /通知/i });
+      expect(notificationButtons[0].getAttribute('type')).toBe('button');
     });
   });
 });

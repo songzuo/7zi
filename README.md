@@ -104,23 +104,35 @@
   - 自动进度追踪
   - 优先级动态调整
   - 任务标签系统
+  - ⭐ **批量操作** - 支持批量更新状态、优先级、标签、截止日期等
 
 - **🤝 团队协作**
   - 多 AI 角色协同工作
   - 实时消息传递
   - 会议系统支持
+  - ⭐ **WebSocket 实时通信** - 支持实时数据同步和协作
 
 - **📊 可视化 Dashboard**
   - 实时任务状态
   - 团队工作效率
   - 历史数据分析
+  - ⭐ **API 缓存机制** - 智能缓存提升性能
 
-- **🎨 主题系统** ⭐ 新增
+- **🎨 主题系统** ⭐ 增强
   - 浅色/深色/跟随系统三种模式
   - localStorage 持久化存储
   - 平滑过渡动画效果
   - 自动跟随系统主题偏好
   - 完整的无障碍支持
+  - ⭐ **主题自定义** - 7种预设主题 + 自定义颜色/间距/圆角/字体
+  - ⭐ **导入导出** - 主题配置可导入导出
+
+- **⚙️ 用户偏好** ⭐ 新增
+  - 显示设置（动画、紧凑模式、字体大小）
+  - 通知设置（桌面通知、声音、持续时间）
+  - 语言和地区（语言、时区、日期/时间格式）
+  - 隐私设置（在线状态、数据收集）
+  - 高级设置（自动保存、页面大小、实验性功能）
 
 - **🔌 扩展系统**
   - 技能插件架构
@@ -137,10 +149,12 @@
   - 操作审计
   - 数据加密
 
-- **📤 数据导出** ⭐ 新增
+- **📤 数据导出** ⭐ 增强
   - PDF 报告导出
   - CSV 数据导出
   - JSON 结构化导出
+  - Excel 导出
+  - ⭐ **自定义数据导出** - 支持筛选条件和自定义数据
 
 - **🔔 通知系统** ⭐ 新增
   - NotificationToast 组件
@@ -376,6 +390,15 @@ pnpm test:run         # 运行测试 (单次)
 ├── app/                          # Next.js 应用主目录
 │   ├── app/                      # App Router 页面
 │   │   ├── api/                  # API 路由
+│   │   │   ├── auth/             # 认证接口
+│   │   │   ├── dashboard/        # Dashboard 数据
+│   │   │   ├── export/           # 导出功能
+│   │   │   ├── feedback/         # 反馈系统
+│   │   │   ├── notifications/    # 通知接口
+│   │   │   ├── reports/          # 报告生成
+│   │   │   ├── tags/             # 标签管理
+│   │   │   ├── tasks/            # 任务管理
+│   │   │   └── users/            # 用户管理
 │   │   ├── messages/             # 消息中心页面
 │   │   ├── notifications/        # 通知中心页面
 │   │   ├── layout.tsx            # 根布局
@@ -383,13 +406,54 @@ pnpm test:run         # 运行测试 (单次)
 │   ├── components/               # React 组件
 │   │   ├── messages/             # 消息相关组件
 │   │   ├── notifications/        # 通知相关组件
+│   │   ├── tasks/                # 任务相关组件
+│   │   ├── charts/               # 图表组件
 │   │   ├── ui/                   # UI 基础组件
-│   │   └── *.tsx                 # 功能组件
-│   ├── hooks/                    # 自定义 Hooks
+│   │   ├── ActivityLog.tsx       # 活动日志
+│   │   ├── BatchOperationsToolbar.tsx  # ⭐ 批量操作工具栏
+│   │   ├── ContributionChart.tsx # 贡献图表
+│   │   ├── Dashboard.tsx         # 仪表盘
+│   │   ├── ErrorBoundary.tsx     # 错误边界
+│   │   ├── FeedbackSystem.tsx    # 反馈系统
+│   │   ├── LanguageSwitcher.tsx  # 语言切换
+│   │   ├── MemberCard.tsx        # 成员卡片
+│   │   ├── Navigation.tsx        # 导航栏
+│   │   ├── NotificationToast.tsx # ⭐ 通知提示
+│   │   ├── ProfilePage.tsx       # ⭐ 个人资料页
+│   │   ├── ProgressBar.tsx       # 进度条
+│   │   ├── RealtimeChart.tsx     # 实时图表
+│   │   ├── RealtimeCollaborationPanel.tsx  # ⭐ 实时协作面板
+│   │   ├── TaskBoard.tsx         # 任务看板
+│   │   ├── ThemeCustomizer.tsx   # ⭐ 主题定制器
+│   │   ├── ThemeProvider.tsx     # 主题提供者
+│   │   └── ThemeToggle.tsx       # 主题切换
+│   ├── hooks/                    # 自定义 Hooks ⭐
+│   │   ├── useBatchOperations.ts # ⭐ 批量操作
+│   │   ├── useDashboardData.ts   # Dashboard 数据
+│   │   ├── useExport.ts          # ⭐ 导出功能
+│   │   ├── useNotifications.ts   # ⭐ 通知管理
+│   │   ├── useRealtimeDashboard.ts  # 实时 Dashboard
+│   │   ├── useTheme.ts           # 主题管理
+│   │   ├── useThemeCustomization.ts  # ⭐ 主题定制
+│   │   ├── useUserPreferences.ts # ⭐ 用户偏好
+│   │   ├── useUserSettings.ts    # 用户设置
+│   │   ├── useWebSocket.ts       # ⭐ WebSocket 通信
+│   │   └── useWebVitals.ts       # 性能指标
 │   ├── lib/                      # 工具库
-│   │   ├── messages/             # 消息工具
+│   │   ├── api/                  # API 客户端
+│   │   ├── db/                   # 数据库操作
 │   │   ├── notifications/        # 通知工具
-│   │   └── *.ts                  # 通用工具
+│   │   ├── performance/          # 性能监控
+│   │   ├── query/                # 查询工具
+│   │   ├── realtime/             # ⭐ 实时通信
+│   │   ├── tasks/                # 任务管理
+│   │   ├── templates/            # 模板
+│   │   ├── users/                # 用户管理
+│   │   ├── auth.ts               # 认证工具
+│   │   ├── export.ts             # ⭐ 导出工具
+│   │   ├── report-generator.ts   # 报告生成
+│   │   └── swagger.ts            # API 文档
+│   ├── contexts/                 # React Context
 │   ├── server/                   # 服务端代码
 │   ├── __tests__/                # 测试文件
 │   ├── Dockerfile                # Docker 构建配置
@@ -406,7 +470,12 @@ pnpm test:run         # 运行测试 (单次)
 ├── docs/                         # 项目文档
 │   ├── API-REFERENCE.md          # API 参考
 │   ├── ARCHITECTURE.md           # 架构设计
+│   ├── CODE_STYLE.md             # 代码风格
+│   ├── COMPONENTS.md             # 组件文档
 │   ├── DEVELOPMENT.md            # 开发指南
+│   ├── ERROR-HANDLING.md         # 错误处理
+│   ├── MONITORING.md             # 监控文档
+│   ├── TESTING.md                # 测试指南
 │   └── QUICKSTART.md             # 快速开始
 ├── memory/                       # 记忆系统
 │   └── YYYY-MM-DD.md             # 每日笔记
@@ -415,11 +484,32 @@ pnpm test:run         # 运行测试 (单次)
 ├── skills/                       # 技能插件
 ├── subagents/                    # 子代理配置
 ├── AGENTS.md                     # 代理指南
-├── CHANGELOG.md                  # 变更日志 ⭐ 新增
-├── DEPLOYMENT.md                 # 部署指南 ⭐ 新增
+├── CHANGELOG.md                  # 变更日志
+├── DEPLOYMENT.md                 # 部署指南
 ├── README.md                     # 项目说明
 └── SOUL.md                       # 核心身份
 ```
+
+---
+
+## 🪝 自定义 Hooks
+
+项目提供了一系列自定义 Hooks，简化常用操作：
+
+| Hook | 说明 | 文件 |
+|------|------|------|
+| `useThemeCustomization` | 主题定制（颜色/间距/圆角/字体） | `hooks/useThemeCustomization.ts` |
+| `useUserPreferences` | 用户偏好设置管理 | `hooks/useUserPreferences.ts` |
+| `useBatchOperations` | 任务批量操作 | `hooks/useBatchOperations.ts` |
+| `useWebSocket` | WebSocket 实时通信 | `hooks/useWebSocket.ts` |
+| `useExport` | 数据导出功能 | `hooks/useExport.ts` |
+| `useNotifications` | 通知管理 | `hooks/useNotifications.ts` |
+| `useDashboardData` | Dashboard 数据获取 | `hooks/useDashboardData.ts` |
+| `useRealtimeDashboard` | 实时 Dashboard | `hooks/useRealtimeDashboard.ts` |
+| `useTheme` | 基础主题管理 | `hooks/useTheme.ts` |
+| `useWebVitals` | 性能指标收集 | `hooks/useWebVitals.ts` |
+
+详细 API 文档请参考 [docs/API.md](./docs/API.md)
 
 ---
 
@@ -500,6 +590,60 @@ docker-compose ps
 - **商业版本**: 商业许可证 - 适用于企业部署和商业用途
 
 [查看许可证详情](./LICENSE)
+
+---
+
+## 🤝 贡献指南
+
+我们欢迎所有形式的贡献！请阅读以下指南：
+
+### 如何贡献
+
+1. **Fork 项目** - 点击右上角 Fork 按钮
+2. **创建分支** - `git checkout -b feature/amazing-feature`
+3. **提交更改** - `git commit -m 'feat: add amazing feature'`
+4. **推送分支** - `git push origin feature/amazing-feature`
+5. **提交 PR** - 在 GitHub 上创建 Pull Request
+
+### 代码规范
+
+- 遵循 [Conventional Commits](https://www.conventionalcommits.org/) 规范
+- 代码必须通过 ESLint 和 TypeScript 检查
+- 新功能需要添加测试用例
+- 测试覆盖率不低于 80%
+
+### 提交类型
+
+| 类型 | 说明 |
+|------|------|
+| `feat` | 新功能 |
+| `fix` | Bug 修复 |
+| `docs` | 文档更新 |
+| `style` | 代码格式（不影响功能） |
+| `refactor` | 代码重构 |
+| `test` | 测试相关 |
+| `chore` | 构建/工具 |
+
+### 开发流程
+
+```bash
+# 安装依赖
+cd app && pnpm install
+
+# 运行开发服务器
+pnpm dev
+
+# 运行测试
+pnpm test
+
+# 代码检查
+pnpm lint
+
+# 类型检查
+pnpm type-check
+```
+
+详细贡献指南请参考 [CONTRIBUTING.md](./app/CONTRIBUTING.md)
 
 ---
 
