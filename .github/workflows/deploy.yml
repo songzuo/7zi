@@ -1,13 +1,12 @@
 # ============================================
-# 7zi-frontend 自动部署到私有服务器
-# 使用 SSH 部署到 7zi.com
+# 7zi-frontend 快速部署
+# 仅用于紧急情况下手动触发快速部署
+# 正常部署请使用主 CI/CD Pipeline
 # ============================================
 
-name: Deploy to Production
+name: Quick Deploy
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
     inputs:
       environment:
@@ -18,16 +17,21 @@ on:
         options:
           - production
           - staging
+      skip_tests:
+        description: 'Skip tests (use with caution)'
+        required: false
+        default: false
+        type: boolean
 
 env:
   NODE_VERSION: '22'
 
 jobs:
   # ============================================
-  # 构建和测试
+  # 快速构建（跳过测试可选）
   # ============================================
-  build:
-    name: Build & Test
+  quick-build:
+    name: Quick Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -42,14 +46,13 @@ jobs:
       - name: Install dependencies
         run: npm ci --prefer-offline
 
-      - name: Run linter
+      - name: Quick lint check
+        if: ${{ !inputs.skip_tests }}
         run: npm run lint
 
-      - name: Type check
+      - name: Quick type check
+        if: ${{ !inputs.skip_tests }}
         run: npm run type-check
-
-      - name: Run tests
-        run: npm run test:run
 
       - name: Build application
         run: npm run build
@@ -60,7 +63,7 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: build-artifacts
+          name: quick-build
           path: |
             .next/standalone
             .next/static
@@ -68,16 +71,15 @@ jobs:
           retention-days: 1
 
   # ============================================
-  # 部署到生产服务器
+  # 快速部署
   # ============================================
   deploy:
-    name: Deploy to ${{ github.event.inputs.environment || 'production' }}
+    name: Quick Deploy to ${{ inputs.environment }}
     runs-on: ubuntu-latest
-    needs: [build]
-    if: github.ref == 'refs/heads/main'
+    needs: [quick-build]
     environment:
-      name: ${{ github.event.inputs.environment || 'production' }}
-      url: https://7zi.com
+      name: ${{ inputs.environment }}
+      url: ${{ inputs.environment == 'production' && 'https://7zi.com' || 'https://staging.7zi.com' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -85,7 +87,7 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: build-artifacts
+          name: quick-build
           path: .
 
       - name: Install sshpass
@@ -103,19 +105,19 @@ jobs:
 
       - name: Deploy to server
         env:
-          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+          SSH_HOST: ${{ inputs.environment == 'production' && secrets.PRODUCTION_HOST || secrets.STAGING_HOST }}
           SSH_USER: ${{ secrets.DEPLOY_USER }}
           SSH_PASS: ${{ secrets.DEPLOY_PASS }}
           DEPLOY_PATH: /opt/7zi-frontend
         run: |
-          echo "🚀 开始部署..."
+          echo "🚀 Quick deploying to ${{ inputs.environment }}..."
           
           # 上传部署包
           sshpass -p "$SSH_PASS" scp -o StrictHostKeyChecking=no \
             deploy-package.tar.gz \
             $SSH_USER@$SSH_HOST:/tmp/
           
-          # 在服务器上执行部署
+          # 执行部署
           sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST << 'ENDSSH'
             set -e
             
@@ -129,16 +131,11 @@ jobs:
             
             # 确保环境配置存在
             if [ ! -f .env.production ]; then
-              echo "⚠️ .env.production 不存在，创建默认配置"
-              cat > .env.production << 'EOF'
-          NODE_ENV=production
-          PORT=3000
-          HOSTNAME=0.0.0.0
-          EOF
+              echo "⚠️ .env.production 不存在"
             fi
             
             echo "🐳 构建 Docker 镜像..."
-            docker-compose -f docker-compose.prod.yml build --no-cache
+            docker-compose -f docker-compose.prod.yml build
             
             echo "🔄 重启服务..."
             docker-compose -f docker-compose.prod.yml down || true
@@ -148,12 +145,12 @@ jobs:
             sleep 15
             
             # 健康检查
-            for i in {1..10}; do
+            for i in {1..5}; do
               if curl -sf http://localhost:3000/ > /dev/null 2>&1; then
-                echo "✅ 部署成功！"
+                echo "✅ 快速部署成功！"
                 exit 0
               fi
-              echo "健康检查 $i/10 失败，等待重试..."
+              echo "健康检查 $i/5 失败，等待重试..."
               sleep 5
             done
             
@@ -161,29 +158,13 @@ jobs:
             docker-compose -f docker-compose.prod.yml logs --tail=50
             exit 1
           ENDSSH
-          
-          echo "🎉 部署完成！"
 
       - name: Verify deployment
         run: |
-          echo "验证部署状态..."
-          curl -sf https://7zi.com/ > /dev/null && echo "✅ 网站可访问" || echo "⚠️ 无法访问"
+          URL="${{ inputs.environment == 'production' && 'https://7zi.com' || 'https://staging.7zi.com' }}"
+          echo "验证部署: $URL"
+          curl -sf "$URL/" > /dev/null && echo "✅ 网站可访问" || echo "⚠️ 无法访问"
 
       - name: Cleanup
         if: always()
         run: rm -f deploy-package.tar.gz
-
-  # ============================================
-  # 部署失败通知
-  # ============================================
-  notify-failure:
-    name: Notify on Failure
-    runs-on: ubuntu-latest
-    needs: [deploy]
-    if: failure()
-    steps:
-      - name: Send failure notification
-        run: |
-          echo "❌ 部署失败！"
-          echo "请检查 GitHub Actions 日志获取详细信息"
-          # 可以在这里添加通知逻辑（邮件、Slack、Telegram等）
