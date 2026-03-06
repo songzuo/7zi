@@ -7,7 +7,7 @@
 export type AlertSeverity = 'p0' | 'p1' | 'p2' | 'p3';
 
 // Alert configuration
-interface AlertConfig {
+export interface AlertConfig {
   severity: AlertSeverity;
   title: string;
   message: string;
