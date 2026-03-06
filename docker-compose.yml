@@ -1,41 +1,47 @@
+# ============================================
+# 7zi-frontend Docker Compose (开发/测试)
+# ============================================
+
 version: "3.8"
 
 services:
-  # Next.js Frontend
+  # Next.js Frontend (standalone 模式)
   7zi-frontend:
     build:
       context: .
       dockerfile: Dockerfile
+      # 构建参数
+      args:
+        - NODE_ENV=production
     image: 7zi-frontend:latest
     container_name: 7zi-frontend
     restart: unless-stopped
     
     ports:
-      - "3000:3000"
+      - "${PORT:-3000}:3000"
     
     environment:
-      # 生产环境
       - NODE_ENV=production
-      
-      # 统计服务配置（从 .env 文件读取）
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+      # 统计服务
       - NEXT_PUBLIC_GA_ID=${NEXT_PUBLIC_GA_ID:-}
       - NEXT_PUBLIC_UMAMI_ID=${NEXT_PUBLIC_UMAMI_ID:-}
       - NEXT_PUBLIC_UMAMI_URL=${NEXT_PUBLIC_UMAMI_URL:-https://analytics.umami.is}
       - NEXT_PUBLIC_PLAUSIBLE_ID=${NEXT_PUBLIC_PLAUSIBLE_ID:-}
       - NEXT_PUBLIC_BAIDU_ID=${NEXT_PUBLIC_BAIDU_ID:-}
-      
-      # 邮件服务配置
+      # 邮件服务
       - RESEND_API_KEY=${RESEND_API_KEY:-}
       - CONTACT_EMAIL=${CONTACT_EMAIL:-business@7zi.studio}
       - FROM_EMAIL=${FROM_EMAIL:-noreply@7zi.studio}
     
     # 健康检查
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
+      start_period: 15s
     
     # 资源限制
     deploy:
@@ -54,11 +60,10 @@ services:
         max-size: "10m"
         max-file: "3"
     
-    # 网络
     networks:
       - 7zi-network
 
-  # Nginx 反向代理（可选，用于生产环境）
+  # Nginx 反向代理（可选）
   nginx:
     image: nginx:alpine
     container_name: 7zi-nginx
@@ -76,6 +81,20 @@ services:
     depends_on:
       7zi-frontend:
         condition: service_healthy
+    
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    
+    # 日志配置
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     
     networks:
       - 7zi-network

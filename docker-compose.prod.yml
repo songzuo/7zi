@@ -1,22 +1,24 @@
 # ============================================
-# 生产环境 Docker Compose 配置
-# 用于 7zi.com 服务器部署
+# 7zi-frontend Docker Compose (生产环境)
+# 优化版本 - 用于 7zi.com 服务器部署
 # ============================================
 
 version: "3.8"
 
 services:
-  # Next.js Frontend
+  # Next.js Frontend (standalone 模式)
   7zi-frontend:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - NODE_ENV=production
     image: registry.7zi.com/7zi-frontend:${VERSION:-latest}
     container_name: 7zi-frontend
     restart: unless-stopped
     
     ports:
-      - "3000:3000"
+      - "${PORT:-3000}:3000"
     
     env_file:
       - .env.production
@@ -25,14 +27,18 @@ services:
       - NODE_ENV=production
       - PORT=3000
       - HOSTNAME=0.0.0.0
+      # 性能优化
+      - NEXT_TELEMETRY_DISABLED=1
     
+    # 健康检查
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
+      start_period: 20s
     
+    # 资源限制（生产环境）
     deploy:
       resources:
         limits:
@@ -45,12 +51,24 @@ services:
         condition: on-failure
         delay: 5s
         max_attempts: 3
+        window: 120s
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
     
+    # 日志配置（生产级别）
     logging:
       driver: "json-file"
       options:
         max-size: "50m"
         max-file: "5"
+        labels: "service,environment"
+        tag: "{{.Name}}/{{.ID}}"
+    
+    # 安全配置
+    security_opt:
+      - no-new-privileges:true
     
     networks:
       - 7zi-network
@@ -69,11 +87,31 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/ssl:/etc/nginx/ssl:ro
       - ./nginx/logs:/var/log/nginx
+      # SSL 证书
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     
     depends_on:
       7zi-frontend:
         condition: service_healthy
     
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    
+    # 资源限制
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.1"
+          memory: 64M
+    
+    # 日志配置
     logging:
       driver: "json-file"
       options:
@@ -83,6 +121,21 @@ services:
     networks:
       - 7zi-network
 
+  # 可选：Watchtower 自动更新
+  # watchtower:
+  #   image: containrrr/watchtower
+  #   container_name: watchtower
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   environment:
+  #     - WATCHTOWER_POLL_INTERVAL=3600  # 每小时检查更新
+  #     - WATCHTOWER_CLEANUP=true
+  #   networks:
+  #     - 7zi-network
+
 networks:
   7zi-network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
