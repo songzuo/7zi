@@ -19,10 +19,6 @@ interface LanguageSwitcherProps {
 
 const LANGUAGE_STORAGE_KEY = 'preferred-language';
 
-// ============================================================================
-// 常量配置 - 移到模块级别避免每次渲染重新创建
-// ============================================================================
-
 const SIZE_CLASSES = {
   sm: 'px-2 py-1 text-xs',
   md: 'px-3 py-1.5 text-sm',

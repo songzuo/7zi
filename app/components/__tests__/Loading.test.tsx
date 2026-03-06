@@ -86,39 +86,43 @@ describe('LoadingPage', () => {
 describe('LoadingContent', () => {
   describe('骨架屏类型', () => {
     it('渲染卡片类型骨架屏', () => {
-      render(<LoadingContent type="card" count={2} />);
+      const { container } = render(<LoadingContent type="card" count={2} />);
 
-      // 验证有2个卡片（通过查找卡片中的元素）
-      const cards = screen.getAllByText(/Lines/);
-      expect(cards.length).toBeGreaterThanOrEqual(2);
+      // 验证有2个卡片（通过查找卡片中的骨架屏元素）
+      const cards = container.querySelectorAll('.bg-white.rounded-xl');
+      expect(cards.length).toBe(2);
     });
 
     it('渲染列表类型骨架屏', () => {
-      render(<LoadingContent type="list" count={3} />);
+      const { container } = render(<LoadingContent type="list" count={3} />);
 
-      // 列表项应该有头像和文本
-      const avatars = screen.getAllByRole('img', { hidden: true });
-      expect(avatars.length).toBeGreaterThan(0);
+      // 列表项应该有圆形头像
+      const avatars = container.querySelectorAll('.rounded-full');
+      expect(avatars.length).toBe(3);
     });
 
     it('渲染表格类型骨架屏', () => {
-      render(<LoadingContent type="table" count={4} />);
+      const { container } = render(<LoadingContent type="table" count={4} />);
 
-      // 表格应该渲染
-      expect(screen.getByRole('table', { hidden: true })).toBeDefined();
+      // 表格容器应该渲染
+      const tableContainer = container.querySelector('.bg-white.rounded-xl.shadow');
+      expect(tableContainer).toBeInTheDocument();
     });
 
     it('渲染统计类型骨架屏', () => {
-      render(<LoadingContent type="stats" count={4} />);
+      const { container } = render(<LoadingContent type="stats" count={4} />);
 
       // 统计卡片应该渲染
-      expect(screen.getByText(/Stats/)).toBeDefined();
+      const statCards = container.querySelectorAll('.bg-white.rounded-xl.shadow');
+      expect(statCards.length).toBe(4);
     });
 
     it('默认渲染卡片类型', () => {
-      render(<LoadingContent />);
+      const { container } = render(<LoadingContent />);
 
-      expect(screen.getByRole('img', { hidden: true })).toBeDefined();
+      // 默认渲染3个卡片
+      const cards = container.querySelectorAll('.bg-white.rounded-xl');
+      expect(cards.length).toBe(3);
     });
   });
 
@@ -218,13 +222,14 @@ describe('memo 优化', () => {
   });
 
   it('LoadingContent 使用 memo 避免不必要重渲染', () => {
-    const { rerender } = render(<LoadingContent type="card" count={3} />);
+    const { container, rerender } = render(<LoadingContent type="card" count={3} />);
     
     // 相同 props 重渲染
     rerender(<LoadingContent type="card" count={3} />);
     
     // 组件应该稳定
-    expect(screen.getByRole('img', { hidden: true })).toBeDefined();
+    const cards = container.querySelectorAll('.bg-white.rounded-xl');
+    expect(cards.length).toBe(3);
   });
 
   it('LoadingWithProgress 使用 memo 避免不必要重渲染', () => {

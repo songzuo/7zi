@@ -166,15 +166,131 @@
     "avatar": "Avatar"
   },
   "settings": {
-    "title": "Settings",
-    "general": "General",
-    "appearance": "Appearance",
-    "notifications": "Notifications",
-    "language": "Language",
-    "theme": {
-      "light": "Light",
-      "dark": "Dark",
-      "system": "System"
+    "title": "User Settings",
+    "subtitle": "Customize your app experience and preferences",
+    "sections": {
+      "general": "General",
+      "display": "Display",
+      "notifications": "Notifications",
+      "locale": "Language & Region",
+      "privacy": "Privacy",
+      "theme": "Theme Customization",
+      "advanced": "Advanced"
+    },
+    "appearance": {
+      "title": "Appearance Theme",
+      "light": "Light Mode",
+      "lightDesc": "Always use light theme",
+      "dark": "Dark Mode",
+      "darkDesc": "Always use dark theme",
+      "system": "System",
+      "systemDesc": "Follow system theme settings",
+      "currentTheme": "Current applied theme"
+    },
+    "quickSettings": {
+      "animations": "Animations",
+      "animationsDesc": "Enable page transitions and interaction animations",
+      "compactMode": "Compact Mode",
+      "compactModeDesc": "Reduce element spacing to show more content",
+      "sidebarExpanded": "Expand Sidebar",
+      "sidebarExpandedDesc": "Expand sidebar by default"
+    },
+    "display": {
+      "fontSize": "Font Size",
+      "fontSizeDesc": "Adjust interface text size",
+      "showAvatars": "Show Avatars",
+      "showAvatarsDesc": "Display user avatars in lists",
+      "showStatusIndicators": "Status Indicators",
+      "showStatusIndicatorsDesc": "Show online status and activity indicators",
+      "fontSizeOptions": {
+        "small": "Small",
+        "medium": "Medium",
+        "large": "Large"
+      }
+    },
+    "notifications": {
+      "enabled": "Enable Notifications",
+      "enabledDesc": "Receive desktop notifications",
+      "taskUpdates": "Task Updates",
+      "taskUpdatesDesc": "Notify when task status changes",
+      "mentions": "Mentions",
+      "mentionsDesc": "Notify when someone mentions you",
+      "system": "System Notifications",
+      "systemDesc": "Important system messages",
+      "sounds": "Notification Sounds",
+      "soundsDesc": "Play sound with notifications"
+    },
+    "locale": {
+      "language": "Interface Language",
+      "languageDesc": "Select interface display language",
+      "timezone": "Timezone",
+      "timezoneDesc": "Set your timezone",
+      "dateFormat": "Date Format",
+      "dateFormatDesc": "Date display format",
+      "timeFormat": "Time Format",
+      "timeFormatDesc": "Time display format",
+      "weekStartsOn": "Week Starts On",
+      "weekStartsOnDesc": "First day of the calendar week",
+      "languages": {
+        "zhCN": "Simplified Chinese",
+        "zhTW": "Traditional Chinese",
+        "en": "English",
+        "ja": "Japanese"
+      },
+      "timezones": {
+        "asiaShanghai": "China Standard Time (UTC+8)",
+        "asiaTokyo": "Japan Standard Time (UTC+9)",
+        "americaNewYork": "US Eastern Time",
+        "americaLosAngeles": "US Pacific Time",
+        "europeLondon": "London Time",
+        "europeBerlin": "Berlin Time"
+      },
+      "timeFormats": {
+        "24h": "24-hour",
+        "12h": "12-hour"
+      },
+      "weekStarts": {
+        "sunday": "Sunday",
+        "monday": "Monday",
+        "saturday": "Saturday"
+      }
+    },
+    "privacy": {
+      "showOnlineStatus": "Show Online Status",
+      "showOnlineStatusDesc": "Allow others to see your online status",
+      "allowAnalytics": "Allow Analytics",
+      "allowAnalyticsDesc": "Help us improve the product experience",
+      "publicProfile": "Public Profile",
+      "publicProfileDesc": "Allow others to view your public information",
+      "dataManagement": "Data Management",
+      "localStorage": "Local Storage",
+      "localStorageEnabled": "Enabled",
+      "localStorageDesc": "Your settings are stored securely in your browser and are not uploaded to the server.",
+      "clearAllSettings": "Clear All Settings"
+    },
+    "advanced": {
+      "pageSize": "Items Per Page",
+      "pageSizeDesc": "Number of items displayed per page in lists",
+      "experimentalFeatures": "Experimental Features",
+      "experimentalFeaturesDesc": "Enable new features in development",
+      "debugMode": "Debug Mode",
+      "debugModeDesc": "Show detailed debug information",
+      "importExport": "Import/Export Settings",
+      "exportSettings": "Export Settings",
+      "importSettings": "Import Settings",
+      "importExportDesc": "Export your settings as a JSON file for backup or import on other devices.",
+      "about": "About",
+      "version": "Version",
+      "framework": "Framework",
+      "team": "Team",
+      "visitWebsite": "Visit Website"
+    },
+    "import": {
+      "title": "Import Settings",
+      "placeholder": "Paste exported JSON settings...",
+      "success": "Settings imported successfully!",
+      "failed": "Import failed",
+      "import": "Import"
     }
   },
   "theme": {
