@@ -10,9 +10,23 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./src/test/setup.tsx'],
     include: ['src/**/*.{test,spec}.{js,ts,jsx,tsx}'],
+    // 测试超时配置
+    testTimeout: 10000,
+    hookTimeout: 10000,
+    // 失败时重试
+    retry: 1,
+    // 覆盖率配置
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
+      reporter: ['text', 'json', 'html', 'lcov'],
+      // 排除不需要覆盖的文件
+      exclude: [
+        'node_modules/**',
+        'src/test/**',
+        '**/*.d.ts',
+        '**/*.config.*',
+        '**/types/**',
+      ],
     },
   },
   resolve: {

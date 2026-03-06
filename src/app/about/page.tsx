@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import AboutContent from "./AboutContent";
 
 const baseUrl = "https://7zi.studio";

@@ -1,0 +1,85 @@
+version: "3.8"
+
+services:
+  # Next.js Frontend
+  7zi-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: 7zi-frontend:latest
+    container_name: 7zi-frontend
+    restart: unless-stopped
+    
+    ports:
+      - "3000:3000"
+    
+    environment:
+      # 生产环境
+      - NODE_ENV=production
+      
+      # 统计服务配置（从 .env 文件读取）
+      - NEXT_PUBLIC_GA_ID=${NEXT_PUBLIC_GA_ID:-}
+      - NEXT_PUBLIC_UMAMI_ID=${NEXT_PUBLIC_UMAMI_ID:-}
+      - NEXT_PUBLIC_UMAMI_URL=${NEXT_PUBLIC_UMAMI_URL:-https://analytics.umami.is}
+      - NEXT_PUBLIC_PLAUSIBLE_ID=${NEXT_PUBLIC_PLAUSIBLE_ID:-}
+      - NEXT_PUBLIC_BAIDU_ID=${NEXT_PUBLIC_BAIDU_ID:-}
+      
+      # 邮件服务配置
+      - RESEND_API_KEY=${RESEND_API_KEY:-}
+      - CONTACT_EMAIL=${CONTACT_EMAIL:-business@7zi.studio}
+      - FROM_EMAIL=${FROM_EMAIL:-noreply@7zi.studio}
+    
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    
+    # 资源限制
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+    
+    # 日志配置
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    # 网络
+    networks:
+      - 7zi-network
+
+  # Nginx 反向代理（可选，用于生产环境）
+  nginx:
+    image: nginx:alpine
+    container_name: 7zi-nginx
+    restart: unless-stopped
+    
+    ports:
+      - "80:80"
+      - "443:443"
+    
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./nginx/logs:/var/log/nginx
+    
+    depends_on:
+      7zi-frontend:
+        condition: service_healthy
+    
+    networks:
+      - 7zi-network
+
+networks:
+  7zi-network:
+    driver: bridge

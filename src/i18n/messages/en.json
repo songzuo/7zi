@@ -1,0 +1,442 @@
+{
+  "common": {
+    "siteName": "7zi Studio",
+    "siteNameShort": "7ziStudio",
+    "tagline": "AI-Powered Digital Innovation Studio",
+    "taglineShort": "AI-Powered Studio",
+    "logo": "7ziStudio"
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "team": "Team",
+    "blog": "Blog",
+    "dashboard": "Dashboard",
+    "contact": "Contact",
+    "global": "7zi Global"
+  },
+  "home": {
+    "title": "Home - AI-Powered Digital Innovation Studio",
+    "description": "7zi Studio consists of 11 professional AI agents, providing comprehensive digital services including web development, brand design, and marketing. Efficient, professional, and innovative.",
+    "hero": {
+      "badge": "AI-Powered Digital Innovation Studio",
+      "badgeShort": "AI-Powered Studio",
+      "title1": "Redefining",
+      "title2": "Team Collaboration",
+      "title1Prefix": "Redefining Team Collaboration with AI",
+      "description": "7zi Studio consists of 11 professional AI agents, from strategic planning to product delivery, providing you with one-stop digital solutions.",
+      "cta1": "Learn More",
+      "cta2": "Our Team",
+      "stats": {
+        "experts": {
+          "value": "11+",
+          "label": "AI Experts"
+        },
+        "service": {
+          "value": "24/7",
+          "label": "Online Service"
+        },
+        "delivery": {
+          "value": "100%",
+          "label": "Project Delivery"
+        }
+      }
+    },
+    "teamPreview": {
+      "title": "11 AI Experts at Your Service",
+      "description": "Our team covers strategy, technology, and operations - every project has dedicated AI members",
+      "viewTeam": "View Full Team"
+    },
+    "services": {
+      "title": "What We Can Do For You",
+      "description": "Comprehensive digital services to meet all your needs",
+      "web": {
+        "title": "Web Development",
+        "description": "From design to implementation, building high-performance modern websites and web applications",
+        "features": ["Responsive Design", "Performance Optimization", "SEO Friendly"]
+      },
+      "design": {
+        "title": "Brand Design",
+        "description": "Professional UI/UX design to create unique brand visual identity",
+        "features": ["Logo Design", "Visual Identity", "User Experience"]
+      },
+      "marketing": {
+        "title": "Marketing & Promotion",
+        "description": "SEO optimization, content marketing, and social media management to enhance brand influence",
+        "features": ["SEO Optimization", "Content Strategy", "Social Media"]
+      }
+    },
+    "whyUs": {
+      "title": "Why Choose 7zi Studio",
+      "efficient": {
+        "title": "Efficient Execution",
+        "description": "AI team works 24/7 with rapid response and doubled efficiency"
+      },
+      "professional": {
+        "title": "Professional Focus",
+        "description": "11 AI experts each with their specialty, ensuring professional standards at every stage"
+      },
+      "cost": {
+        "title": "Cost Optimization",
+        "description": "Enjoy high-quality professional services without hiring multiple teams"
+      },
+      "iteration": {
+        "title": "Continuous Iteration",
+        "description": "Rapid iteration and optimization based on feedback to improve products and experiences"
+      }
+    },
+    "cta": {
+      "title": "Ready to Get Started?",
+      "description": "Let's build your next digital project together",
+      "button": "Contact Us Now"
+    }
+  },
+  "team": {
+    "title": "Our Team",
+    "description": "Introduction to our 11 professional AI agents",
+    "hero": {
+      "badge": "11 AI Experts",
+      "title": "Our Team",
+      "description": "From strategic planning to execution, experts at every stage to guide you",
+      "stats": {
+        "members": {
+          "value": "11",
+          "label": "Professional Agents"
+        },
+        "coverage": {
+          "value": "100%",
+          "label": "Coverage"
+        },
+        "support": {
+          "value": "24/7",
+          "label": "Online Support"
+        }
+      }
+    },
+    "filters": {
+      "all": "All",
+      "strategy": "Strategy",
+      "tech": "Tech",
+      "creative": "Creative",
+      "business": "Business"
+    },
+    "members": {
+      "expert": {
+        "name": "AI World Expert",
+        "role": "Strategy & Future Planning",
+        "description": "Focuses on AI Agent development trends and future layout, providing strategic perspectives and forward-thinking for the team.",
+        "skills": ["Strategic Analysis", "Trend Prediction", "Innovative Thinking"]
+      },
+      "consultant": {
+        "name": "Consultant",
+        "role": "Research & Analysis",
+        "description": "Deep research on market dynamics and technology trends, providing data-driven decision support for projects.",
+        "skills": ["Market Research", "Data Analysis", "Decision Support"]
+      },
+      "architect": {
+        "name": "Architect",
+        "role": "Design & Planning",
+        "description": "Designs system architecture and technical solutions, ensuring project feasibility and scalability.",
+        "skills": ["System Architecture", "Tech Selection", "Solution Design"]
+      },
+      "executor": {
+        "name": "Executor",
+        "role": "Execution & Implementation",
+        "description": "Efficiently executes tasks, transforming design solutions into high-quality code implementations.",
+        "skills": ["Code Implementation", "Task Execution", "Efficiency Optimization"]
+      },
+      "admin": {
+        "name": "System Admin",
+        "role": "Operations & Deployment",
+        "description": "Responsible for system operations, server management, and automated deployment to ensure stable service operation.",
+        "skills": ["System Operations", "Auto Deployment", "Security Hardening"]
+      },
+      "tester": {
+        "name": "Tester",
+        "role": "Testing & Debugging",
+        "description": "Writes test cases, performs functional testing and performance optimization to ensure product quality.",
+        "skills": ["Functional Testing", "Performance Optimization", "Quality Assurance"]
+      },
+      "designer": {
+        "name": "Designer",
+        "role": "UI & Frontend Design",
+        "description": "Creates beautiful and user-friendly interfaces, providing excellent user experience design.",
+        "skills": ["UI Design", "User Experience", "Visual Creativity"]
+      },
+      "promoter": {
+        "name": "Marketing Specialist",
+        "role": "Promotion & SEO",
+        "description": "Develops promotion strategies, optimizes search engine rankings, and enhances brand awareness.",
+        "skills": ["SEO Optimization", "Content Marketing", "Brand Promotion"]
+      },
+      "sales": {
+        "name": "Sales & Support",
+        "role": "Sales & Customer Service",
+        "description": "Communicates with customers, understands needs, provides solutions and quality service support.",
+        "skills": ["Customer Communication", "Needs Analysis", "Solutions"]
+      },
+      "finance": {
+        "name": "Finance",
+        "role": "Accounting & Auditing",
+        "description": "Manages financial income and expenses, conducts cost accounting and financial analysis to ensure financial health.",
+        "skills": ["Financial Management", "Cost Control", "Financial Analysis"]
+      },
+      "media": {
+        "name": "Media",
+        "role": "Media & Publicity",
+        "description": "Plans and produces content, spreading through multiple channels to enhance brand influence.",
+        "skills": ["Content Planning", "Media Operations", "Brand Communication"]
+      }
+    },
+    "availability": "24/7",
+    "collaboration": {
+      "title": "Efficient Collaboration Mode",
+      "description": "11 AI agents working seamlessly together to ensure smooth project progress",
+      "items": {
+        "strategy": {
+          "title": "Strategy → Execution",
+          "description": "From AI World Expert's strategic planning to Executor's efficient implementation"
+        },
+        "design": {
+          "title": "Design → Development",
+          "description": "Designer's creative solutions perfectly implemented by Architect and Executor"
+        },
+        "testing": {
+          "title": "Testing → Deployment",
+          "description": "Tester ensures quality, System Admin deploys stably online"
+        },
+        "promotion": {
+          "title": "Promotion → Conversion",
+          "description": "Marketing Specialist drives traffic, Sales converts, Finance accurately accounts"
+        }
+      }
+    },
+    "cta": {
+      "title": "Ready to Work With Us?",
+      "description": "11 AI experts ready to create excellent digital projects for you",
+      "button": "Contact Us"
+    }
+  },
+  "about": {
+    "title": "About Us",
+    "description": "Learn about 7zi Studio - An innovative digital studio powered by 11 AI agents",
+    "hero": {
+      "badge": "Innovative AI-Powered Studio",
+      "title": "About",
+      "description": "Redefining team collaboration — An intelligent team of 11 AI agents, creating digital value for you 24/7",
+      "scrollHint": "Explore More"
+    },
+    "intro": {
+      "title": "About 7zi Studio",
+      "p1": "is an innovative digital studio. We've redefined the concept of a team — composed of 11 professional AI agents, each leveraging their expertise to collaboratively complete various digital projects.",
+      "p2": "Our team combines the creativity of humans with the efficient execution of AI. From strategic planning to product delivery, from design to promotion, every stage has dedicated AI members responsible.",
+      "p3": "Whether it's web development, brand design, SEO optimization, or content marketing, 7zi Studio provides you with one-stop digital solutions.",
+      "stats": {
+        "experts": {
+          "value": "11",
+          "label": "AI Experts",
+          "sub": "Each Specialized"
+        },
+        "projects": {
+          "value": "50+",
+          "label": "Completed Projects",
+          "sub": "Client Satisfaction"
+        },
+        "delivery": {
+          "value": "100%",
+          "label": "Delivery Rate",
+          "sub": "On-Time Delivery"
+        },
+        "support": {
+          "value": "24/7",
+          "label": "Online Support",
+          "sub": "Always Responsive"
+        }
+      }
+    },
+    "team": {
+      "badge": "Core Team",
+      "title": "Our Team Members",
+      "description": "11 AI agents with unique expertise, forming an efficiently collaborative intelligent team"
+    },
+    "timeline": {
+      "badge": "Our Journey",
+      "title": "Our Growth Trajectory",
+      "description": "From startup to growth, every step forward with our clients",
+      "items": [
+        {
+          "year": "2024",
+          "title": "Foundation",
+          "description": "7zi Studio officially established, opening a new era of AI-powered digital studios"
+        },
+        {
+          "year": "2024",
+          "title": "Team Formation",
+          "description": "All 11 AI agents in place, forming a complete collaborative system"
+        },
+        {
+          "year": "2025",
+          "title": "Service Expansion",
+          "description": "Services expanded to web development, brand design, SEO optimization, and more"
+        },
+        {
+          "year": "2025",
+          "title": "Technology Upgrade",
+          "description": "Introduced latest AI technology, continuously optimizing team collaboration efficiency and output quality"
+        }
+      ]
+    },
+    "partners": {
+      "badge": "Partners",
+      "title": "Trusted By",
+      "description": "Partnering with excellent companies to create a digital future together",
+      "count": "{count} companies have chosen to work with us"
+    },
+    "values": {
+      "badge": "Core Values",
+      "title": "Our Philosophy",
+      "items": {
+        "collaboration": {
+          "title": "Efficient Collaboration",
+          "description": "11 AI agents working together with complementary strengths, ensuring every project progresses efficiently."
+        },
+        "innovation": {
+          "title": "Innovation Driven",
+          "description": "Continuously exploring new technologies and solutions, providing clients with the most innovative solutions."
+        },
+        "quality": {
+          "title": "Quality Focused",
+          "description": "Strictly controlling quality at every stage to ensure deliverables exceed client expectations."
+        },
+        "customer": {
+          "title": "Customer First",
+          "description": "Deeply understanding customer needs, providing personalized service and support."
+        }
+      }
+    },
+    "process": {
+      "badge": "Workflow",
+      "title": "How We Work",
+      "items": [
+        {
+          "title": "Requirements Analysis",
+          "description": "Deeply understand your goals and needs, develop detailed project plans"
+        },
+        {
+          "title": "Solution Design",
+          "description": "Architects and designers collaborate to create complete technical and visual solutions"
+        },
+        {
+          "title": "Development",
+          "description": "Executor codes efficiently, Tester performs quality control simultaneously"
+        },
+        {
+          "title": "Delivery",
+          "description": "System Admin deploys online, Marketing Specialist launches marketing plans"
+        }
+      ]
+    },
+    "cta": {
+      "title": "Ready to Work With Us?",
+      "description": "Let's build your digital project together and create infinite possibilities",
+      "button": "Contact Us"
+    }
+  },
+  "contact": {
+    "title": "Contact Us",
+    "description": "Contact 7zi Studio - AI-powered digital innovation studio. Business cooperation, technical support, project consultation. We respond within 24 hours.",
+    "hero": {
+      "title": "Contact",
+      "description": "Have questions or partnership ideas? We're always ready to serve you"
+    },
+    "form": {
+      "title": "Send Message",
+      "name": "Name",
+      "email": "Email",
+      "subject": "Subject",
+      "message": "Message",
+      "submit": "Send",
+      "sending": "Sending...",
+      "success": "Message sent successfully!",
+      "error": "Failed to send, please try again"
+    },
+    "info": {
+      "title": "Email Contact",
+      "business": {
+        "title": "Business Cooperation",
+        "email": "business@7zi.studio",
+        "description": "Project consultation, business cooperation"
+      },
+      "support": {
+        "title": "Technical Support",
+        "email": "support@7zi.studio",
+        "description": "Technical issues, after-sales service"
+      },
+      "careers": {
+        "title": "Join Us",
+        "email": "careers@7zi.studio",
+        "description": "AI partner recruitment"
+      }
+    },
+    "social": {
+      "title": "Follow Us"
+    },
+    "response": {
+      "title": "Response Time",
+      "description": "We typically respond within 24 hours. Faster response during weekdays!"
+    },
+    "faq": {
+      "title": "FAQ",
+      "items": [
+        {
+          "question": "What services does 7zi Studio offer?",
+          "answer": "We provide comprehensive digital services including web development, brand design, UI/UX design, SEO optimization, and content marketing."
+        },
+        {
+          "question": "How to start collaboration?",
+          "answer": "You can contact us by filling out the contact form or sending an email. Our team will respond within 24 hours."
+        },
+        {
+          "question": "What is your pricing model?",
+          "answer": "We provide customized quotes based on project needs, including project-based pricing and monthly service models."
+        },
+        {
+          "question": "Do you offer free consultation?",
+          "answer": "Yes, we offer a free initial consultation. You can describe your needs in detail, and we'll provide preliminary suggestions."
+        }
+      ]
+    },
+    "cta": {
+      "title": "Still Hesitating?",
+      "description": "Start your digital project now and create the future with 7zi Studio",
+      "emailButton": "Send Email",
+      "homeButton": "Back to Home"
+    }
+  },
+  "blog": {
+    "title": "Blog",
+    "description": "7zi Studio Blog - Sharing AI technology, digital transformation, and industry insights",
+    "readMore": "Read More",
+    "backToList": "Back to Blog List"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "description": "Project Dashboard - View project progress and data"
+  },
+  "footer": {
+    "copyright": "© 2024 7zi Studio. All rights reserved."
+  },
+  "errors": {
+    "notFound": {
+      "title": "Page Not Found",
+      "description": "The page you're looking for doesn't exist",
+      "backHome": "Back to Home"
+    },
+    "general": {
+      "title": "Error Occurred",
+      "description": "Sorry, something went wrong",
+      "retry": "Retry",
+      "backHome": "Back to Home"
+    }
+  }
+}

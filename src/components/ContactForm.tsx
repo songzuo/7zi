@@ -63,18 +63,21 @@ export function ContactForm() {
     setSubmitStatus("idle");
 
     try {
-      // TODO: 替换为实际的 API 端点
-      // 这里可以集成:
-      // - Formspree
-      // - EmailJS
-      // - 自定义后端 API
-      // - Nodemailer + Serverless Function
-      
-      console.log("Form submitted:", formData);
-      
-      // 模拟 API 调用
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      
+      // 调用联系表单 API
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "发送失败");
+      }
+
       // 成功处理
       setSubmitStatus("success");
       setFormData({

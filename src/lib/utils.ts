@@ -57,6 +57,7 @@ class Cache<T> {
 }
 
 // Global cache instance
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const globalCache = new Cache<any>();
 
 export function createCache<T>(ttl: number = 5 * 60 * 1000) {
@@ -71,7 +72,7 @@ export function createCache<T>(ttl: number = 5 * 60 * 1000) {
 /**
  * Debounce function
  */
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {
@@ -92,7 +93,7 @@ export function debounce<T extends (...args: any[]) => any>(
 /**
  * Throttle function
  */
-export function throttle<T extends (...args: any[]) => any>(
+export function throttle<T extends (...args: unknown[]) => unknown>(
   func: T,
   limit: number
 ): (...args: Parameters<T>) => void {
@@ -113,7 +114,7 @@ export function throttle<T extends (...args: any[]) => any>(
 /**
  * Memoize function with cache key generator
  */
-export function memoize<T extends (...args: any[]) => any>(
+export function memoize<T extends (...args: unknown[]) => unknown>(
   func: T,
   resolver?: (...args: Parameters<T>) => string
 ): (...args: Parameters<T>) => ReturnType<T> {
@@ -126,7 +127,7 @@ export function memoize<T extends (...args: any[]) => any>(
       return cache.get(key)!;
     }
 
-    const result = func(...args);
+    const result = func(...args) as ReturnType<T>;
     cache.set(key, result);
     return result;
   };

@@ -1,0 +1,388 @@
+/**
+ * 响应式布局优化 - CSS 补丁
+ * 
+ * 使用方法: 在 globals.css 末尾添加 @import "responsive-fixes.css";
+ * 或直接将内容合并到 globals.css
+ */
+
+/* ============================================
+   1. 触摸目标优化 (44x44px 最小尺寸)
+   ============================================ */
+
+/* 导航链接 - 增大触摸区域 */
+@media (hover: none) and (pointer: coarse) {
+  .nav-link,
+  nav a,
+  nav button {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px 16px;
+  }
+  
+  /* 汉堡菜单按钮 */
+  .hamburger-btn,
+  button[aria-label="Toggle menu"] {
+    min-width: 48px;
+    min-height: 48px;
+  }
+  
+  /* 发送按钮 */
+  button[type="submit"],
+  .send-btn {
+    min-width: 48px;
+    min-height: 48px;
+  }
+  
+  /* 筛选按钮 */
+  .filter-btn {
+    min-height: 48px;
+    padding: 12px 20px;
+  }
+}
+
+/* ============================================
+   2. 安全区域适配 (刘海屏/底部横条)
+   ============================================ */
+
+/* 全局安全区域 */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+  }
+  
+  /* 固定底部元素 */
+  .fixed.bottom-0,
+  footer.fixed,
+  .chat-button {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+  
+  /* 固定顶部元素 */
+  .fixed.top-0,
+  nav.fixed {
+    padding-top: max(0px, env(safe-area-inset-top));
+  }
+}
+
+/* ============================================
+   3. AI 聊天组件移动端优化
+   ============================================ */
+
+/* 小屏幕全屏聊天 */
+@media (max-width: 480px) {
+  .chat-window {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    border-radius: 0 !important;
+    bottom: 0 !important;
+    right: 0 !important;
+  }
+  
+  .chat-window .messages-container {
+    height: calc(100vh - 180px) !important;
+  }
+  
+  /* 聊天按钮位置调整 */
+  .chat-toggle-btn {
+    bottom: max(24px, calc(16px + env(safe-area-inset-bottom)));
+    right: 16px;
+  }
+}
+
+/* 中等屏幕优化 */
+@media (min-width: 481px) and (max-width: 768px) {
+  .chat-window {
+    width: calc(100vw - 32px) !important;
+    max-width: 400px !important;
+    right: 16px !important;
+  }
+}
+
+/* ============================================
+   4. 网格布局优化
+   ============================================ */
+
+/* Dashboard 统计卡片 - 添加中间断点 */
+@media (min-width: 640px) and (max-width: 767px) {
+  .stats-grid,
+  .dashboard-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* 团队成员卡片 - 优化小屏显示 */
+@media (max-width: 639px) {
+  .team-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .team-card {
+    padding: 16px;
+  }
+  
+  .team-card .emoji {
+    font-size: 2.5rem;
+  }
+}
+
+/* Dashboard 三栏布局 - 添加 lg 断点 */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .dashboard-grid > *:last-child {
+    grid-column: span 2;
+  }
+}
+
+/* ============================================
+   5. 字体大小优化
+   ============================================ */
+
+/* Hero 标题 - 平滑过渡 */
+@media (max-width: 639px) {
+  .hero-title {
+    font-size: 2rem; /* 32px */
+    line-height: 1.2;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 767px) {
+  .hero-title {
+    font-size: 2.5rem; /* 40px */
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .hero-title {
+    font-size: 3.5rem; /* 56px */
+  }
+}
+
+/* 统计数字 - 小屏优化 */
+@media (max-width: 639px) {
+  .stat-value {
+    font-size: 1.5rem; /* 24px */
+  }
+  
+  .stat-label {
+    font-size: 0.75rem; /* 12px */
+  }
+}
+
+/* ============================================
+   6. 移动端菜单优化
+   ============================================ */
+
+/* 菜单面板 - 安全区域 + 滚动优化 */
+.mobile-menu-panel {
+  width: min(280px, 85vw);
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* 菜单项 - 触摸优化 */
+.mobile-menu-item {
+  min-height: 56px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: background-color 0.15s ease;
+}
+
+.mobile-menu-item:active {
+  background-color: rgba(6, 182, 212, 0.1);
+}
+
+/* ============================================
+   7. 表单优化
+   ============================================ */
+
+/* 输入框 - 移动端优化 */
+@media (hover: none) and (pointer: coarse) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important; /* 防止 iOS 缩放 */
+    min-height: 48px;
+    padding: 14px 16px;
+  }
+  
+  textarea {
+    min-height: 120px;
+  }
+  
+  /* 表单标签 */
+  label {
+    font-size: 14px;
+    padding-bottom: 8px;
+  }
+}
+
+/* ============================================
+   8. 图片响应式优化
+   ============================================ */
+
+/* 图片容器 - 防止溢出 */
+.responsive-image-container {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.responsive-image-container img {
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+/* 图片网格 - 响应式 */
+.image-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+
+@media (min-width: 768px) {
+  .image-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+/* ============================================
+   9. 滚动优化
+   ============================================ */
+
+/* 平滑滚动 - 移动端 */
+@media (hover: none) {
+  html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* 防止滚动穿透 */
+  .modal-open,
+  .menu-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+  }
+}
+
+/* ============================================
+   10. 性能优化
+   ============================================ */
+
+/* 减少动画 - 低性能设备 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* GPU 加速 */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* ============================================
+   11. 打印优化
+   ============================================ */
+
+@media print {
+  /* 隐藏不必要的元素 */
+  nav,
+  .chat-toggle-btn,
+  .chat-window,
+  footer,
+  .mobile-menu {
+    display: none !important;
+  }
+  
+  /* 优化打印布局 */
+  body {
+    font-size: 12pt;
+    line-height: 1.5;
+    color: black;
+    background: white;
+  }
+  
+  a {
+    text-decoration: underline;
+  }
+  
+  /* 避免分页 */
+  .team-card,
+  .project-card {
+    break-inside: avoid;
+  }
+}
+
+/* ============================================
+   12. 工具类
+   ============================================ */
+
+/* 触摸反馈 */
+.touch-active:active {
+  transform: scale(0.97);
+  opacity: 0.9;
+}
+
+/* 隐藏滚动条但保持功能 */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* 文本截断 */
+.truncate-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.truncate-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 响应式隐藏 */
+@media (max-width: 639px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .hide-on-tablet {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hide-on-desktop {
+    display: none !important;
+  }
+}

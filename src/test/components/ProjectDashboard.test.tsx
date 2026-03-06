@@ -170,10 +170,8 @@ describe('ProjectDashboard', () => {
     const projectsTab = buttons.find(btn => btn.textContent?.includes('项目'))
     fireEvent.click(projectsTab!)
     
-    await waitFor(() => {
-      // Team members are displayed as avatar initials
-      expect(screen.getByTitle('Executor')).toBeInTheDocument()
-      expect(screen.getByTitle('设计师')).toBeInTheDocument()
-    })
+    // Use findByTitle which waits for element to appear
+    expect(await screen.findByTitle('Executor')).toBeInTheDocument()
+    expect(await screen.findByTitle('设计师')).toBeInTheDocument()
   })
 })

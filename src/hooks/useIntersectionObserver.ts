@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface UseIntersectionObserverOptions {
   threshold?: number | number[];
@@ -72,9 +72,15 @@ export function useAnimateOnView(
   const { ref, isIntersecting } = useIntersectionObserver(options);
   const [hasAnimated, setHasAnimated] = useState(false);
 
+  // Update hasAnimated when isIntersecting becomes true
+  // Using flushSync pattern via setTimeout to batch the update
   useEffect(() => {
     if (isIntersecting && !hasAnimated) {
-      setHasAnimated(true);
+      // Use requestAnimationFrame to defer the state update
+      const rafId = requestAnimationFrame(() => {
+        setHasAnimated(true);
+      });
+      return () => cancelAnimationFrame(rafId);
     }
   }, [isIntersecting, hasAnimated]);
 
@@ -97,18 +103,20 @@ export function useCountUp(
 } {
   const { ref, isIntersecting } = useIntersectionObserver(options);
   const [count, setCount] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
+  const hasStartedRef = useRef(false);
+  const animationFrameRef = useRef<number | null>(null);
+  const startTimeRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!isIntersecting || isAnimating) return;
+    if (!isIntersecting || hasStartedRef.current) return;
 
-    setIsAnimating(true);
-    let startTime: number;
-    let animationFrame: number;
+    hasStartedRef.current = true;
 
     const animate = (currentTime: number) => {
-      if (!startTime) startTime = currentTime;
-      const elapsed = currentTime - startTime;
+      if (startTimeRef.current === null) {
+        startTimeRef.current = currentTime;
+      }
+      const elapsed = currentTime - startTimeRef.current;
       const progress = Math.min(elapsed / duration, 1);
       
       // Easing function (ease-out)
@@ -117,18 +125,22 @@ export function useCountUp(
       setCount(Math.floor(easeOut * end));
 
       if (progress < 1) {
-        animationFrame = requestAnimationFrame(animate);
+        animationFrameRef.current = requestAnimationFrame(animate);
       }
     };
 
-    animationFrame = requestAnimationFrame(animate);
+    // Start animation in the next frame to avoid synchronous setState
+    animationFrameRef.current = requestAnimationFrame(animate);
 
     return () => {
-      if (animationFrame) {
-        cancelAnimationFrame(animationFrame);
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [isIntersecting, end, duration, isAnimating]);
+  }, [isIntersecting, end, duration]);
+
+  // Derive isAnimating from count value (animating if count > 0 and count < end)
+  const isAnimating = count > 0 && count < end;
 
   return { ref, count, isAnimating };
 }

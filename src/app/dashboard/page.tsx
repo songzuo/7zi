@@ -10,7 +10,7 @@
  * - 自动刷新 (30 秒)
  */
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MemberCard } from '@/components/MemberCard';
 import { TaskBoard } from '@/components/TaskBoard';
 import { ActivityLog } from '@/components/ActivityLog';
@@ -208,7 +208,6 @@ const REFRESH_INTERVAL = 30000; // 30 秒
 export default function DashboardPage() {
   const {
     issues,
-    commits,
     activities,
     isLoading,
     error,
@@ -254,40 +253,46 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* 顶部导航栏 */}
-      <header className="bg-white shadow-sm border-b sticky top-0 z-50">
-        <div className="max-w-[1800px] mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
+      <header className="bg-white dark:bg-zinc-900 shadow-sm border-b border-gray-200 dark:border-zinc-700 sticky top-0 z-50">
+        <div className="max-w-[1800px] mx-auto px-4 py-3 md:py-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div className="flex items-center gap-4">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                   🤖 AI 团队实时看板
                 </h1>
-                <p className="text-sm text-gray-500 mt-1">
-                  {stats.totalMembers} 位成员 · {stats.openIssues} 个进行中任务 · 最后更新：{lastUpdated?.toLocaleTimeString() || '-'}
+                <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  {stats.totalMembers} 位成员 · {stats.openIssues} 个进行中任务
                 </p>
               </div>
             </div>
             
-            <div className="flex items-center gap-3">
+            <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3">
               {/* 自动刷新开关 */}
-              <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+              <label className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400 cursor-pointer touch-active py-2 px-1">
                 <input
                   type="checkbox"
                   checked={autoRefresh}
                   onChange={(e) => setAutoRefresh(e.target.checked)}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  className="rounded border-gray-300 dark:border-zinc-600 text-blue-600 focus:ring-blue-500 w-4 h-4"
                 />
-                自动刷新
+                <span className="hidden sm:inline">自动刷新</span>
+                <span className="sm:hidden">自动</span>
               </label>
+              
+              {/* 最后更新时间 - 仅桌面端 */}
+              <span className="hidden lg:block text-xs text-gray-400 dark:text-gray-500">
+                更新: {lastUpdated?.toLocaleTimeString() || '-'}
+              </span>
               
               {/* 手动刷新按钮 */}
               <button
                 onClick={refreshData}
                 disabled={isLoading}
-                className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                className="px-3 sm:px-4 py-2 text-xs sm:text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 touch-active min-h-[44px]"
               >
                 <span className={isLoading ? 'animate-spin' : ''}>🔄</span>
-                刷新
+                <span className="hidden sm:inline">刷新</span>
               </button>
             </div>
           </div>
@@ -295,16 +300,16 @@ export default function DashboardPage() {
       </header>
 
       {/* 主内容区 */}
-      <main className="max-w-[1800px] mx-auto px-4 py-6">
+      <main className="max-w-[1800px] mx-auto px-3 sm:px-4 py-4 sm:py-6">
         {/* 错误提示 */}
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-800">⚠️ {error}</p>
+          <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            <p className="text-red-800 dark:text-red-200 text-sm">⚠️ {error}</p>
           </div>
         )}
 
-        {/* 统计卡片 */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-6">
+        {/* 统计卡片 - 响应式网格 */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 sm:gap-3 md:gap-4 mb-4 sm:mb-6">
           <StatCard label="总成员" value={stats.totalMembers} color="blue" />
           <StatCard label="工作中" value={stats.working} color="green" />
           <StatCard label="忙碌" value={stats.busy} color="yellow" />
@@ -314,19 +319,20 @@ export default function DashboardPage() {
           <StatCard label="已完成" value={stats.closedIssues} color="emerald" />
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          {/* 左侧：成员状态 (占 1 列) */}
-          <div className="xl:col-span-1">
+        {/* 三栏布局 - 响应式 */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+          {/* 左侧：成员状态 */}
+          <div className="lg:col-span-1 order-2 lg:order-1">
             <MemberStatus members={AI_MEMBERS} />
           </div>
 
-          {/* 中间：任务看板 (占 1 列) */}
-          <div className="xl:col-span-1">
+          {/* 中间：任务看板 */}
+          <div className="lg:col-span-1 order-1 lg:order-2">
             <TaskBoard issues={issues} />
           </div>
 
-          {/* 右侧：活动日志 (占 1 列) */}
-          <div className="xl:col-span-1">
+          {/* 右侧：活动日志 */}
+          <div className="lg:col-span-1 order-3">
             <ActivityLog activities={activities} />
           </div>
         </div>
@@ -347,19 +353,19 @@ interface StatCardProps {
 
 function StatCard({ label, value, color }: StatCardProps) {
   const colorClasses = {
-    blue: 'bg-blue-50 text-blue-700 border-blue-200',
-    green: 'bg-green-50 text-green-700 border-green-200',
-    yellow: 'bg-yellow-50 text-yellow-700 border-yellow-200',
-    gray: 'bg-gray-50 text-gray-700 border-gray-200',
-    slate: 'bg-slate-50 text-slate-700 border-slate-200',
-    indigo: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-    emerald: 'bg-emerald-50 text-emerald-700 border-emerald-200'
+    blue: 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800',
+    green: 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800',
+    yellow: 'bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800',
+    gray: 'bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700',
+    slate: 'bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700',
+    indigo: 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800',
+    emerald: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
   };
 
   return (
-    <div className={`p-4 rounded-xl border ${colorClasses[color]}`}>
-      <p className="text-sm font-medium opacity-80">{label}</p>
-      <p className="text-2xl font-bold mt-1">{value}</p>
+    <div className={`p-3 sm:p-4 rounded-xl border ${colorClasses[color]} transition-transform hover:scale-[1.02] active:scale-[0.98]`}>
+      <p className="text-xs sm:text-sm font-medium opacity-80 truncate">{label}</p>
+      <p className="text-xl sm:text-2xl font-bold mt-1">{value}</p>
     </div>
   );
 }

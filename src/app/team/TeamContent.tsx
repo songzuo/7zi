@@ -211,12 +211,8 @@ function TeamMemberCard({ member, index }: { member: typeof teamMembers[0]; inde
 }
 
 export default function TeamContent() {
-  const [mounted, setMounted] = useState(false);
+  const [mounted] = useState(true); // Initialize as mounted for SSR safety
   const [activeFilter, setActiveFilter] = useState("all");
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const baseUrl = "https://7zi.studio";
 

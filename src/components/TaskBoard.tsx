@@ -1,18 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import Image from 'next/image';
-
-export interface GitHubIssue {
-  number: number;
-  title: string;
-  state: 'open' | 'closed';
-  labels: Array<{ name: string; color: string }>;
-  assignee?: { login: string; avatar_url: string } | null;
-  created_at: string;
-  updated_at: string;
-  html_url: string;
-}
+import { GitHubIssue } from '@/types';
+import { formatTimeAgo } from '@/lib/date';
+import { ProgressBar, Card, EmptyState } from '@/components/shared';
 
 interface TaskBoardProps {
   issues: GitHubIssue[];
@@ -35,18 +27,18 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ issues }) => {
     : 0;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+    <Card padding="none">
       {/* 看板头部 */}
-      <div className="px-6 py-4 border-b bg-gray-50">
+      <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
             <span>📋</span> GitHub 任务
           </h2>
           <div className="flex items-center gap-2">
             <select
               value={filter}
-              onChange={(e) => setFilter(e.target.value as any)}
-              className="text-sm border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white"
+              onChange={(e) => setFilter(e.target.value as 'open' | 'closed' | 'all')}
+              className="text-sm border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm focus:border-cyan-500 focus:ring-cyan-500 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white"
             >
               <option value="open">进行中</option>
               <option value="closed">已完成</option>
@@ -57,17 +49,8 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ issues }) => {
 
         {/* 进度条 */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600">任务进度</span>
-            <span className="font-medium text-gray-900">{progress}%</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-green-500 h-2 rounded-full transition-all duration-500"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-          <div className="flex items-center justify-between text-xs text-gray-500">
+          <ProgressBar progress={progress} showLabel />
+          <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
             <span>🟢 {openIssues.length} 进行中</span>
             <span>✅ {closedIssues.length} 已完成</span>
           </div>
@@ -75,15 +58,15 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ issues }) => {
       </div>
 
       {/* 任务列表 */}
-      <div className="divide-y max-h-[600px] overflow-y-auto">
+      <div className="divide-y divide-zinc-200 dark:divide-zinc-700 max-h-[600px] overflow-y-auto">
         {filteredIssues.length === 0 ? (
-          <div className="px-6 py-12 text-center text-gray-500">
-            <p className="text-lg mb-2">📭</p>
-            <p>暂无任务</p>
-            <p className="text-sm mt-1">
-              {filter === 'open' ? '所有任务都已完成！' : '还没有 GitHub Issues'}
-            </p>
-          </div>
+          <EmptyState
+            icon="📭"
+            title="暂无任务"
+            description={
+              filter === 'open' ? '所有任务都已完成！' : '还没有 GitHub Issues'
+            }
+          />
         ) : (
           filteredIssues.map(issue => (
             <TaskCard key={issue.number} issue={issue} />
@@ -93,40 +76,37 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ issues }) => {
 
       {/* 底部统计 */}
       {filteredIssues.length > 0 && (
-        <div className="px-6 py-3 border-t bg-gray-50 text-xs text-gray-500">
+        <div className="px-6 py-3 border-t border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-xs text-zinc-500 dark:text-zinc-400">
           显示 {filteredIssues.length} / {issues.length} 个任务
         </div>
       )}
-    </div>
+    </Card>
   );
 };
 
 // ============================================================================
-// 任务卡片组件
+// 任务卡片组件 - 使用 React.memo 优化
 // ============================================================================
 
 interface TaskCardProps {
   issue: GitHubIssue;
 }
 
-export const TaskCard: React.FC<TaskCardProps> = ({ issue }) => {
-  const stateColors = {
-    open: 'text-green-600 bg-green-50 border-green-200',
-    closed: 'text-gray-500 bg-gray-50 border-gray-200'
+const TaskCardBase: React.FC<TaskCardProps> = ({ issue }) => {
+  const stateConfig = {
+    open: { color: 'text-green-600 bg-green-50 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800', label: '🟢 进行中' },
+    closed: { color: 'text-zinc-500 bg-zinc-50 border-zinc-200 dark:bg-zinc-900/30 dark:text-zinc-400 dark:border-zinc-700', label: '✅ 已完成' },
   };
 
-  const stateLabels = {
-    open: '🟢 进行中',
-    closed: '✅ 已完成'
-  };
+  const config = stateConfig[issue.state];
 
   return (
-    <div className="px-6 py-4 hover:bg-gray-50 transition-colors group">
+    <div className="px-6 py-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors group">
       <div className="flex items-start gap-3">
         {/* 状态图标 */}
         <div className="mt-1 flex-shrink-0">
-          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${stateColors[issue.state]}`}>
-            {stateLabels[issue.state]}
+          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${config.color}`}>
+            {config.label}
           </span>
         </div>
 
@@ -137,11 +117,11 @@ export const TaskCard: React.FC<TaskCardProps> = ({ issue }) => {
               href={issue.html_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline"
+              className="text-sm font-medium text-cyan-600 hover:text-cyan-800 dark:text-cyan-400 hover:underline"
             >
               #{issue.number}
             </a>
-            <h3 className="text-sm font-medium text-gray-900 truncate group-hover:text-blue-600 transition-colors">
+            <h3 className="text-sm font-medium text-zinc-900 dark:text-white truncate group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
               {issue.title}
             </h3>
           </div>
@@ -155,20 +135,20 @@ export const TaskCard: React.FC<TaskCardProps> = ({ issue }) => {
                   className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
                   style={{
                     backgroundColor: `#${label.color}20`,
-                    color: `#${label.color}`
+                    color: `#${label.color}`,
                   }}
                 >
                   {label.name}
                 </span>
               ))}
               {issue.labels.length > 5 && (
-                <span className="text-xs text-gray-400">+{issue.labels.length - 5}</span>
+                <span className="text-xs text-zinc-400">+{issue.labels.length - 5}</span>
               )}
             </div>
           )}
 
           {/* 元信息 */}
-          <div className="flex items-center gap-3 text-xs text-gray-500">
+          <div className="flex items-center gap-3 text-xs text-zinc-500 dark:text-zinc-400">
             {issue.assignee && (
               <div className="flex items-center gap-1">
                 <Image
@@ -195,7 +175,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ issue }) => {
             href={issue.html_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-blue-600 hover:text-blue-800 opacity-0 group-hover:opacity-100 transition-opacity"
+            className="text-sm text-cyan-600 hover:text-cyan-800 dark:text-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity"
           >
             查看 →
           </a>
@@ -205,21 +185,13 @@ export const TaskCard: React.FC<TaskCardProps> = ({ issue }) => {
   );
 };
 
-// ============================================================================
-// 工具函数
-// ============================================================================
-
-function formatTimeAgo(dateString: string): string {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMins < 1) return '刚刚';
-  if (diffMins < 60) return `${diffMins} 分钟前`;
-  if (diffHours < 24) return `${diffHours} 小时前`;
-  if (diffDays < 7) return `${diffDays} 天前`;
-  return date.toLocaleDateString();
-}
+// 使用 React.memo 优化 TaskCard，避免不必要的重渲染
+const TaskCard = memo(TaskCardBase, (prevProps, nextProps) => {
+  // 只在 issue 的关键字段变化时才重新渲染
+  return (
+    prevProps.issue.number === nextProps.issue.number &&
+    prevProps.issue.state === nextProps.issue.state &&
+    prevProps.issue.title === nextProps.issue.title &&
+    prevProps.issue.updated_at === nextProps.issue.updated_at
+  );
+});

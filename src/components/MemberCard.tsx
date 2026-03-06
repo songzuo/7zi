@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { memo } from 'react';
 import Image from 'next/image';
 
 export interface AIMember {
@@ -20,7 +20,11 @@ interface MemberCardProps {
   compact?: boolean;
 }
 
-export const MemberCard: React.FC<MemberCardProps> = ({ member, compact = false }) => {
+/**
+ * MemberCard 组件 - 使用 React.memo 优化
+ * 避免不必要的重渲染
+ */
+const MemberCardBase: React.FC<MemberCardProps> = ({ member, compact = false }) => {
   const statusColors = {
     working: 'bg-green-500',
     busy: 'bg-yellow-500',
@@ -130,3 +134,15 @@ export const MemberCard: React.FC<MemberCardProps> = ({ member, compact = false 
     </div>
   );
 };
+
+// 使用 React.memo 优化，自定义比较函数避免不必要的重渲染
+export const MemberCard = memo(MemberCardBase, (prevProps, nextProps) => {
+  // 只在 member 的关键字段变化时才重新渲染
+  return (
+    prevProps.member.id === nextProps.member.id &&
+    prevProps.member.status === nextProps.member.status &&
+    prevProps.member.currentTask === nextProps.member.currentTask &&
+    prevProps.member.completedTasks === nextProps.member.completedTasks &&
+    prevProps.compact === nextProps.compact
+  );
+});

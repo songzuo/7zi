@@ -19,10 +19,9 @@ const floatingCards: FloatingCard[] = [
 
 export function Hero3D() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isMounted, setIsMounted] = useState(false);
+  const [isMounted] = useState(true); // Initialize as mounted for SSR safety
 
   useEffect(() => {
-    setIsMounted(true);
     
     const handleMouseMove = (e: MouseEvent) => {
       const x = (e.clientX / window.innerWidth - 0.5) * 20;

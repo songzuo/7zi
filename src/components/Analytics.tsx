@@ -2,6 +2,16 @@
 
 import { useEffect } from "react";
 
+// Type for gtag function
+type GtagFunction = (...args: unknown[]) => void;
+
+declare global {
+  interface Window {
+    dataLayer?: unknown[];
+    gtag?: GtagFunction;
+  }
+}
+
 /**
  * 网站统计代码组件
  * 
@@ -45,9 +55,9 @@ export function Analytics() {
       script.async = true;
       document.head.appendChild(script);
 
-      (window as any).dataLayer = (window as any).dataLayer || [];
-      function gtag(...args: any[]) {
-        (window as any).dataLayer.push(args);
+      window.dataLayer = window.dataLayer || [];
+      function gtag(...args: unknown[]) {
+        window.dataLayer?.push(args);
       }
       gtag("js", new Date());
       gtag("config", gaId, {

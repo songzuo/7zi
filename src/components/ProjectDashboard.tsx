@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface Project {
   id: string;
@@ -74,24 +74,13 @@ const mockActivities: ActivityLog[] = [
 ];
 
 export function ProjectDashboard() {
-  const [projects, setProjects] = useState<Project[]>(mockProjects);
-  const [activities, setActivities] = useState<ActivityLog[]>(mockActivities);
+  const [projects] = useState<Project[]>(mockProjects);
+  const [activities] = useState<ActivityLog[]>(mockActivities);
   const [activeTab, setActiveTab] = useState<'overview' | 'projects' | 'activity'>('overview');
 
   const totalTasks = projects.reduce((acc, p) => acc + p.tasks.total, 0);
   const completedTasks = projects.reduce((acc, p) => acc + p.tasks.completed, 0);
   const overallProgress = Math.round((completedTasks / totalTasks) * 100);
-
-  const getStatusColor = (status: Project['status']) => {
-    switch (status) {
-      case 'active':
-        return 'bg-green-500';
-      case 'completed':
-        return 'bg-blue-500';
-      case 'paused':
-        return 'bg-yellow-500';
-    }
-  };
 
   const getActivityColor = (type: ActivityLog['type']) => {
     switch (type) {

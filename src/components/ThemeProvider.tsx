@@ -1,92 +1,41 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+/**
+ * ThemeProvider - Backward Compatibility Layer
+ * 
+ * This component now delegates to SettingsProvider for unified state management.
+ * The theme functionality is fully integrated into SettingsContext.
+ * 
+ * @deprecated Use SettingsProvider from '@/contexts/SettingsContext' instead
+ * @see SettingsContext for the new unified context
+ */
 
-type Theme = 'light' | 'dark' | 'system';
+import { SettingsProvider, useTheme } from '@/contexts/SettingsContext';
+import type { Theme } from '@/contexts/SettingsContext';
+
+// Re-export useTheme for backward compatibility
+export { useTheme };
+
+// Re-export Theme type
+export type { Theme };
 
 interface ThemeProviderProps {
   children: React.ReactNode;
   defaultTheme?: Theme;
-  storageKey?: string;
+  storageKey?: string; // Kept for API compatibility, but ignored
 }
 
-interface ThemeContextType {
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
-  toggleTheme: () => void;
-  isDark: boolean;
-}
-
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
-
-const defaultContext: ThemeContextType = {
-  theme: 'system',
-  setTheme: () => {},
-  toggleTheme: () => {},
-  isDark: false,
-};
-
-export function ThemeProvider({
-  children,
+/**
+ * @deprecated Use SettingsProvider directly instead
+ */
+export function ThemeProvider({ 
+  children, 
   defaultTheme = 'system',
-  storageKey = '7zi-theme',
+  storageKey: _storageKey, // eslint-disable-line @typescript-eslint/no-unused-vars
 }: ThemeProviderProps) {
-  const [theme, setThemeState] = useState<Theme>(defaultTheme);
-  const [isDark, setIsDark] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    const stored = localStorage.getItem(storageKey) as Theme | null;
-    if (stored) {
-      setThemeState(stored);
-    }
-  }, [storageKey]);
-
-  useEffect(() => {
-    if (!mounted) return;
-
-    const root = document.documentElement;
-    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const shouldUseDark = theme === 'dark' || (theme === 'system' && systemDark);
-
-    setIsDark(shouldUseDark);
-
-    if (shouldUseDark) {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-
-    localStorage.setItem(storageKey, theme);
-  }, [theme, storageKey, mounted]);
-
-  const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme);
-  };
-
-  const toggleTheme = () => {
-    setThemeState((prev) => {
-      if (prev === 'light') return 'dark';
-      if (prev === 'dark') return 'light';
-      const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      return systemDark ? 'light' : 'dark';
-    });
-  };
-
-  if (!mounted) {
-    return <>{children}</>;
-  }
-
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme, isDark }}>
+    <SettingsProvider defaultSettings={{ theme: defaultTheme }}>
       {children}
-    </ThemeContext.Provider>
+    </SettingsProvider>
   );
-}
-
-export function useTheme() {
-  const context = useContext(ThemeContext);
-  // Return default context instead of throwing error
-  return context || defaultContext;
 }

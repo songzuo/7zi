@@ -1,6 +1,6 @@
 'use client';
 
-import { ThemeProvider } from './ThemeProvider';
+import { SettingsProvider } from '@/contexts/SettingsContext';
 import { ThemeToggle } from './ThemeToggle';
 import { AIChat } from './AIChat';
 
@@ -10,9 +10,9 @@ interface ClientProvidersProps {
 
 export function ClientProviders({ children }: ClientProvidersProps) {
   return (
-    <ThemeProvider defaultTheme="system">
+    <SettingsProvider>
       {children}
-    </ThemeProvider>
+    </SettingsProvider>
   );
 }
 

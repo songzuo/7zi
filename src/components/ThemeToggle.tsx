@@ -1,6 +1,6 @@
 'use client';
 
-import { useTheme } from './ThemeProvider';
+import { useTheme } from '@/contexts/SettingsContext';
 
 export function ThemeToggle() {
   const { toggleTheme, isDark } = useTheme();

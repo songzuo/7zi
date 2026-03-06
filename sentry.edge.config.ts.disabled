@@ -1,0 +1,39 @@
+// ============================================
+// Sentry Edge Configuration
+// Runs on the edge (middleware, edge functions)
+// ============================================
+
+import * as Sentry from '@sentry/nextjs';
+
+Sentry.init({
+  // DSN from environment
+  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+
+  // Performance monitoring
+  tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE ?? 0.1),
+
+  // Environment
+  environment: process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT ?? process.env.NODE_ENV,
+
+  // Release version
+  release: process.env.NEXT_PUBLIC_SENTRY_RELEASE,
+
+  // Debug mode
+  debug: process.env.NODE_ENV === 'development',
+
+  // Ignore errors
+  ignoreErrors: [
+    'ResizeObserver loop limit exceeded',
+    'Network request failed',
+  ],
+
+  // Before send hook
+  beforeSend(event) {
+    // Don't send events in development
+    if (process.env.NODE_ENV === 'development') {
+      return null;
+    }
+
+    return event;
+  },
+});

@@ -1,0 +1,312 @@
+# ============================================
+# Alert Rules Configuration
+# 7zi-frontend Monitoring
+# ============================================
+
+# This file defines the alert rules for the monitoring system.
+# Implement these rules in Sentry, UptimeRobot, or your monitoring platform.
+
+# ============================================
+# P0 - Critical (Immediate Response Required)
+# ============================================
+
+p0_rules:
+  # Service completely down
+  - name: "Service Down"
+    description: "Main service is not responding"
+    condition:
+      type: "uptime_check_failed"
+      consecutive_failures: 3
+    response_time: "5 minutes"
+    notification:
+      channels: ["slack", "email", "sms"]
+      escalation: "immediate"
+    runbook: "docs/runbooks/service-down.md"
+
+  # 100% error rate
+  - name: "Complete Service Failure"
+    description: "All requests are failing"
+    condition:
+      type: "error_rate"
+      threshold: 100
+      time_window: "5m"
+    response_time: "5 minutes"
+    notification:
+      channels: ["slack", "email", "sms"]
+      escalation: "immediate"
+
+  # SSL certificate expired
+  - name: "SSL Certificate Expired"
+    description: "SSL certificate has expired"
+    condition:
+      type: "ssl_expiry"
+      days_remaining: 0
+    response_time: "5 minutes"
+    notification:
+      channels: ["slack", "email"]
+      escalation: "immediate"
+
+# ============================================
+# P1 - High Priority (Response < 15 min)
+# ============================================
+
+p1_rules:
+  # High error rate
+  - name: "High Error Rate"
+    description: "Error rate above 5%"
+    condition:
+      type: "error_rate"
+      threshold: 5
+      time_window: "15m"
+    response_time: "15 minutes"
+    notification:
+      channels: ["slack", "email"]
+      escalation: "15 minutes"
+
+  # Error rate spike (3x baseline)
+  - name: "Error Rate Spike"
+    description: "Error rate increased significantly from baseline"
+    condition:
+      type: "error_rate_change"
+      baseline_window: "1w"
+      multiplier: 3
+    response_time: "15 minutes"
+    notification:
+      channels: ["slack", "email"]
+
+  # New error type detected
+  - name: "New Error Type"
+    description: "Previously unseen error detected"
+    condition:
+      type: "new_issue"
+    response_time: "15 minutes"
+    notification:
+      channels: ["slack"]
+
+  # SSL certificate expiring soon
+  - name: "SSL Certificate Expiring"
+    description: "SSL certificate will expire in 7 days"
+    condition:
+      type: "ssl_expiry"
+      days_remaining: 7
+    response_time: "1 hour"
+    notification:
+      channels: ["slack", "email"]
+
+  # API endpoint failing
+  - name: "API Endpoint Failure"
+    description: "Critical API endpoint returning errors"
+    condition:
+      type: "api_error"
+      endpoint: "/api/*"
+      status_codes: [500, 502, 503, 504]
+      threshold: 10
+      time_window: "5m"
+    response_time: "15 minutes"
+    notification:
+      channels: ["slack", "email"]
+
+# ============================================
+# P2 - Warning (Response < 1 hour)
+# ============================================
+
+p2_rules:
+  # Performance degradation - LCP
+  - name: "Slow LCP"
+    description: "Largest Contentful Paint above 4 seconds"
+    condition:
+      type: "web_vital"
+      metric: "LCP"
+      threshold: 4000
+      percentile: 75
+      time_window: "1h"
+    response_time: "1 hour"
+    notification:
+      channels: ["slack"]
+
+  # Performance degradation - FID
+  - name: "Slow FID"
+    description: "First Input Delay above 300ms"
+    condition:
+      type: "web_vital"
+      metric: "FID"
+      threshold: 300
+      percentile: 75
+      time_window: "1h"
+    response_time: "1 hour"
+    notification:
+      channels: ["slack"]
+
+  # Performance degradation - CLS
+  - name: "High CLS"
+    description: "Cumulative Layout Shift above 0.25"
+    condition:
+      type: "web_vital"
+      metric: "CLS"
+      threshold: 0.25
+      percentile: 75
+      time_window: "1h"
+    response_time: "1 hour"
+    notification:
+      channels: ["slack"]
+
+  # Slow API response
+  - name: "Slow API Response"
+    description: "API response time above 2 seconds"
+    condition:
+      type: "api_latency"
+      threshold: 2000
+      percentile: 95
+      time_window: "15m"
+    response_time: "1 hour"
+    notification:
+      channels: ["slack"]
+
+  # Increased bundle size
+  - name: "Large Bundle Size"
+    description: "JavaScript bundle size increased significantly"
+    condition:
+      type: "bundle_size"
+      threshold: 500000  # 500KB
+      change_percent: 20
+    response_time: "4 hours"
+    notification:
+      channels: ["slack"]
+
+# ============================================
+# P3 - Informational (Response < 24 hours)
+# ============================================
+
+p3_rules:
+  # SSL certificate reminder
+  - name: "SSL Certificate Reminder"
+    description: "SSL certificate will expire in 30 days"
+    condition:
+      type: "ssl_expiry"
+      days_remaining: 30
+    response_time: "24 hours"
+    notification:
+      channels: ["email"]
+
+  # Low error rate (non-critical)
+  - name: "Error Rate Above Normal"
+    description: "Error rate between 1-5%"
+    condition:
+      type: "error_rate"
+      threshold: 1
+      time_window: "1h"
+    response_time: "24 hours"
+    notification:
+      channels: ["slack"]
+
+  # Traffic spike
+  - name: "Traffic Spike"
+    description: "Unusual traffic increase detected"
+    condition:
+      type: "traffic_change"
+      baseline_window: "1w"
+      multiplier: 5
+    response_time: "24 hours"
+    notification:
+      channels: ["slack"]
+
+# ============================================
+# Alert Suppression Rules
+# ============================================
+
+suppression:
+  # Suppress during maintenance windows
+  maintenance_windows:
+    - start: "Sunday 02:00 UTC"
+      duration: "2h"
+      description: "Weekly maintenance"
+
+  # Suppress specific errors
+  ignore_patterns:
+    - "ResizeObserver loop limit exceeded"
+    - "Network request failed"
+    - "Script error"
+
+  # Suppress during deployments
+  deployment_grace_period: "5m"
+
+# ============================================
+# Notification Channels
+# ============================================
+
+channels:
+  slack:
+    webhook_url: "${SLACK_WEBHOOK_URL}"
+    channel_p0: "#alerts-critical"
+    channel_p1: "#alerts-high"
+    channel_p2: "#alerts-warning"
+    channel_p3: "#alerts-info"
+
+  email:
+    recipients_p0: ["admin@7zi.studio", "ops@7zi.studio"]
+    recipients_p1: ["admin@7zi.studio"]
+    recipients_p2: ["dev@7zi.studio"]
+    recipients_p3: ["dev@7zi.studio"]
+
+  sms:
+    # Only for P0
+    provider: "twilio"
+    recipients: ["+86-xxx-xxxx-xxxx"]
+
+# ============================================
+# Escalation Policy
+# ============================================
+
+escalation:
+  p0:
+    - after: "0m"
+      notify: ["slack", "email", "sms"]
+    - after: "5m"
+      notify: ["slack", "email", "sms"]
+      escalate_to: ["manager@7zi.studio"]
+    - after: "15m"
+      notify: ["slack", "email", "sms"]
+      escalate_to: ["director@7zi.studio"]
+
+  p1:
+    - after: "0m"
+      notify: ["slack", "email"]
+    - after: "15m"
+      notify: ["slack", "email"]
+      repeat: true
+      interval: "15m"
+
+  p2:
+    - after: "0m"
+      notify: ["slack"]
+    - after: "1h"
+      notify: ["slack", "email"]
+
+  p3:
+    - after: "0m"
+      notify: ["slack"]
+    - after: "4h"
+      notify: ["email"]
+
+# ============================================
+# SLA Targets
+# ============================================
+
+sla:
+  availability:
+    target: 99.9%
+    measurement_window: "30d"
+    
+  response_time:
+    p50: 200   # 50% of requests < 200ms
+    p95: 500   # 95% of requests < 500ms
+    p99: 1000  # 99% of requests < 1000ms
+
+  error_rate:
+    target: 0.1%  # < 0.1% error rate
+
+  mttr:  # Mean Time To Recovery
+    p0: 15m
+    p1: 1h
+    p2: 4h
+    p3: 24h

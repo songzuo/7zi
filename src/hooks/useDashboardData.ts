@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 
 export interface GitHubIssue {
   number: number;
@@ -61,15 +61,18 @@ export function useDashboardData(
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-  // 构建 API 请求头
-  const headers: HeadersInit = {
-    'Accept': 'application/vnd.github.v3+json',
-    'Content-Type': 'application/json'
-  };
+  // 构建 API 请求头 - 使用 useMemo 避免依赖问题
+  const headers = useMemo<HeadersInit>(() => {
+    const h: HeadersInit = {
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json'
+    };
 
-  if (token) {
-    headers['Authorization'] = `token ${token}`;
-  }
+    if (token) {
+      h['Authorization'] = `token ${token}`;
+    }
+    return h;
+  }, [token]);
 
   // 获取 Issues
   const fetchIssues = useCallback(async (): Promise<GitHubIssue[]> => {
@@ -92,14 +95,14 @@ export function useDashboardData(
 
       const data = await response.json();
       // 过滤掉 PR（GitHub API 中 PR 也作为 issue 返回）
-      const issuesOnly = data.filter((item: any) => !item.pull_request);
+      const issuesOnly = data.filter((item: { pull_request?: unknown }) => !item.pull_request);
       setIssues(issuesOnly);
       return issuesOnly;
     } catch (err) {
       console.error('Failed to fetch issues:', err);
       throw err;
     }
-  }, [owner, repo, token]);
+  }, [owner, repo, headers]);
 
   // 获取 Commits
   const fetchCommits = useCallback(async (): Promise<GitHubCommit[]> => {
@@ -127,7 +130,7 @@ export function useDashboardData(
       console.error('Failed to fetch commits:', err);
       throw err;
     }
-  }, [owner, repo, token]);
+  }, [owner, repo, headers]);
 
   // 合并活动和排序
   const mergeActivities = useCallback((issuesData: GitHubIssue[], commitsData: GitHubCommit[]) => {

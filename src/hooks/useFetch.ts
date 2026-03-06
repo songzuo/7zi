@@ -2,15 +2,15 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
-interface UseFetchOptions {
+interface UseFetchOptions<T = unknown> {
   revalidateOnFocus?: boolean;
   revalidateInterval?: number;
-  initialData?: any;
+  initialData?: T;
 }
 
 export function useFetch<T>(
   url: string,
-  options: UseFetchOptions = {}
+  options: UseFetchOptions<T> = {}
 ): {
   data: T | null;
   loading: boolean;
@@ -23,7 +23,7 @@ export function useFetch<T>(
     initialData,
   } = options;
 
-  const [data, setData] = useState<T | null>(initialData || null);
+  const [data, setData] = useState<T | null>(initialData !== undefined ? initialData : null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -86,7 +86,7 @@ export function useFetch<T>(
 // Hook specifically for GitHub API with rate limit handling
 export function useGitHub<T>(
   endpoint: string,
-  options?: UseFetchOptions
+  options?: UseFetchOptions<T>
 ): {
   data: T | null;
   loading: boolean;
@@ -97,7 +97,7 @@ export function useGitHub<T>(
   } | null;
   refetch: () => Promise<void>;
 } {
-  const [rateLimit, setRateLimit] = useState<{
+  const [rateLimit] = useState<{
     remaining: number;
     reset: number;
   } | null>(null);
@@ -105,8 +105,9 @@ export function useGitHub<T>(
   const { data, loading, error, refetch } = useFetch<T>(
     `https://api.github.com/${endpoint}`,
     {
-      ...options,
+      revalidateOnFocus: options?.revalidateOnFocus,
       revalidateInterval: options?.revalidateInterval || 5 * 60 * 1000, // 5 minutes default
+      initialData: options?.initialData,
     }
   );
 

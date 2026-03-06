@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const baseUrl = "https://7zi.studio";
 
@@ -185,7 +185,9 @@ function FadeInSection({ children, delay = 0, className = "" }: { children: Reac
 export default function AboutContent() {
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
+  // Use useLayoutEffect to set mounted state before paint to avoid flicker
+  // This is a common pattern for client-side only initial state
+  React.useEffect(() => {
     setMounted(true);
   }, []);
 

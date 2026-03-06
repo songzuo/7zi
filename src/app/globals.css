@@ -1,8 +1,40 @@
 @import "tailwindcss";
 
+/* ============================================
+   THEME CSS VARIABLES
+   ============================================ */
+
 :root {
+  /* Base colors */
   --background: #ffffff;
   --foreground: #171717;
+  
+  /* Extended theme colors */
+  --card: #ffffff;
+  --card-foreground: #171717;
+  --popover: #ffffff;
+  --popover-foreground: #171717;
+  --primary: #06b6d4;
+  --primary-foreground: #ffffff;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #18181b;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  --accent: #f4f4f5;
+  --accent-foreground: #18181b;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --ring: #06b6d4;
+  
+  /* Navigation specific */
+  --nav-bg: #ffffff;
+  --nav-border: #e5e7eb;
+  --nav-text: #374151;
+  --nav-text-hover: #111827;
+  --nav-active-bg: #eff6ff;
+  --nav-active-text: #1d4ed8;
 }
 
 @theme inline {
@@ -12,10 +44,68 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Dark theme via class (used by ThemeProvider) */
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  
+  --card: #18181b;
+  --card-foreground: #fafafa;
+  --popover: #18181b;
+  --popover-foreground: #fafafa;
+  --primary: #22d3ee;
+  --primary-foreground: #0a0a0a;
+  --secondary: #27272a;
+  --secondary-foreground: #fafafa;
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+  --accent: #27272a;
+  --accent-foreground: #fafafa;
+  --destructive: #7f1d1d;
+  --destructive-foreground: #fafafa;
+  --border: #27272a;
+  --input: #27272a;
+  --ring: #22d3ee;
+  
+  /* Navigation specific */
+  --nav-bg: #18181b;
+  --nav-border: #27272a;
+  --nav-text: #a1a1aa;
+  --nav-text-hover: #fafafa;
+  --nav-active-bg: #1e3a5f;
+  --nav-active-text: #22d3ee;
+}
+
+/* Fallback for system preference (before JS loads) */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not(.light) {
     --background: #0a0a0a;
     --foreground: #ededed;
+    
+    --card: #18181b;
+    --card-foreground: #fafafa;
+    --popover: #18181b;
+    --popover-foreground: #fafafa;
+    --primary: #22d3ee;
+    --primary-foreground: #0a0a0a;
+    --secondary: #27272a;
+    --secondary-foreground: #fafafa;
+    --muted: #27272a;
+    --muted-foreground: #a1a1aa;
+    --accent: #27272a;
+    --accent-foreground: #fafafa;
+    --destructive: #7f1d1d;
+    --destructive-foreground: #fafafa;
+    --border: #27272a;
+    --input: #27272a;
+    --ring: #22d3ee;
+    
+    --nav-bg: #18181b;
+    --nav-border: #27272a;
+    --nav-text: #a1a1aa;
+    --nav-text-hover: #fafafa;
+    --nav-active-bg: #1e3a5f;
+    --nav-active-text: #22d3ee;
   }
 }
 
@@ -23,6 +113,38 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Theme transition - smooth color changes */
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+/* Prevent flash of wrong theme */
+html:not(.dark):not(.light) {
+  visibility: hidden;
+}
+
+/* Theme transition for all elements - 优化版 */
+* {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+/* 排除过渡元素，避免布局抖动 */
+.no-transition,
+.no-transition * {
+  transition: none !important;
+}
+
+/* Disable transitions during initial page load to prevent flash */
+.no-transitions * {
+  transition: none !important;
 }
 
 /* Custom Scrollbar */
@@ -553,3 +675,98 @@ img {
     -webkit-overflow-scrolling: touch;
   }
 }
+
+/* ============================================
+   RESPONSIVE OPTIMIZATIONS - Designer Patch
+   ============================================ */
+
+/* Touch Target Optimization (44x44px minimum) */
+@media (hover: none) and (pointer: coarse) {
+  nav a,
+  nav button,
+  .nav-link {
+    min-height: 48px;
+    min-width: 48px;
+    padding: 12px 16px;
+  }
+  
+  /* Filter and tab buttons */
+  .filter-btn,
+  button[class*="rounded-full"] {
+    min-height: 48px;
+  }
+  
+  /* Form inputs - prevent iOS zoom */
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+/* Safe Area Support (Notch/Home Indicator) */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+  }
+  
+  .fixed.bottom-0,
+  footer.fixed {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+  
+  .fixed.top-0 {
+    padding-top: max(0px, env(safe-area-inset-top));
+  }
+}
+
+/* Small Screen Chat Fullscreen */
+@media (max-width: 480px) {
+  .chat-window-fullscreen {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    border-radius: 0 !important;
+  }
+}
+
+/* Touch Feedback */
+.touch-active:active {
+  transform: scale(0.97);
+  opacity: 0.9;
+}
+
+/* Responsive Text Truncation */
+.truncate-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.truncate-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Hide scrollbar but keep functionality */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ============================================
+   RESPONSIVE OPTIMIZATIONS - Designer Patch v2
+   导入移动端响应式优化
+   ============================================ */
+
+@import "../styles/responsive-mobile.css";

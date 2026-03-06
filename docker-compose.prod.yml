@@ -1,0 +1,88 @@
+# ============================================
+# 生产环境 Docker Compose 配置
+# 用于 7zi.com 服务器部署
+# ============================================
+
+version: "3.8"
+
+services:
+  # Next.js Frontend
+  7zi-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: registry.7zi.com/7zi-frontend:${VERSION:-latest}
+    container_name: 7zi-frontend
+    restart: unless-stopped
+    
+    ports:
+      - "3000:3000"
+    
+    env_file:
+      - .env.production
+    
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+    
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1G
+        reservations:
+          cpus: "0.5"
+          memory: 256M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+    
+    networks:
+      - 7zi-network
+
+  # Nginx 反向代理
+  nginx:
+    image: nginx:alpine
+    container_name: 7zi-nginx
+    restart: unless-stopped
+    
+    ports:
+      - "80:80"
+      - "443:443"
+    
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./nginx/logs:/var/log/nginx
+    
+    depends_on:
+      7zi-frontend:
+        condition: service_healthy
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+    
+    networks:
+      - 7zi-network
+
+networks:
+  7zi-network:
+    driver: bridge

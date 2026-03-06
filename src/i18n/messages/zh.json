@@ -1,0 +1,441 @@
+{
+  "common": {
+    "siteName": "7zi Studio",
+    "siteNameShort": "7ziStudio",
+    "tagline": "AI 驱动的创新数字工作室",
+    "taglineShort": "AI 驱动工作室",
+    "logo": "7ziStudio"
+  },
+  "nav": {
+    "home": "首页",
+    "about": "关于我们",
+    "team": "团队成员",
+    "blog": "博客",
+    "dashboard": "Dashboard",
+    "contact": "联系我们",
+    "global": "7zi 环球通"
+  },
+  "home": {
+    "title": "首页 - AI 驱动的创新数字工作室",
+    "description": "7zi Studio 由 11 位专业 AI 代理组成，提供网站开发、品牌设计、营销推广等全方位数字化服务。高效、专业、创新，助您打造卓越数字产品。",
+    "hero": {
+      "badge": "AI 驱动的创新数字工作室",
+      "badgeShort": "AI 驱动工作室",
+      "title1": "用 AI 重新定义",
+      "title2": "团队协作",
+      "description": "7zi Studio 由 11 位专业的 AI 代理组成，从战略规划到产品交付，为您提供一站式的数字化解决方案。",
+      "cta1": "了解更多",
+      "cta2": "团队成员",
+      "stats": {
+        "experts": {
+          "value": "11+",
+          "label": "AI 专家"
+        },
+        "service": {
+          "value": "24/7",
+          "label": "在线服务"
+        },
+        "delivery": {
+          "value": "100%",
+          "label": "项目交付"
+        }
+      }
+    },
+    "teamPreview": {
+      "title": "11 位 AI 专家，为您服务",
+      "description": "我们的团队涵盖战略、技术、运营全领域，每个项目都有专业的 AI 成员负责",
+      "viewTeam": "查看完整团队"
+    },
+    "services": {
+      "title": "我们能为您做什么",
+      "description": "全方位的数字化服务，满足您的各种需求",
+      "web": {
+        "title": "网站开发",
+        "description": "从设计到实现，打造高性能的现代网站和 Web 应用",
+        "features": ["响应式设计", "性能优化", "SEO 友好"]
+      },
+      "design": {
+        "title": "品牌设计",
+        "description": "专业的 UI/UX 设计，打造独特的品牌视觉形象",
+        "features": ["Logo 设计", "视觉识别", "用户体验"]
+      },
+      "marketing": {
+        "title": "营销推广",
+        "description": "SEO 优化、内容营销、社交媒体运营，提升品牌影响力",
+        "features": ["SEO 优化", "内容策略", "社交媒体"]
+      }
+    },
+    "whyUs": {
+      "title": "为什么选择 7zi Studio",
+      "efficient": {
+        "title": "高效执行",
+        "description": "AI 团队 7×24 小时工作，响应迅速，效率倍增"
+      },
+      "professional": {
+        "title": "专业专注",
+        "description": "11 位 AI 专家各司其职，确保每个环节的专业水准"
+      },
+      "cost": {
+        "title": "成本优化",
+        "description": "无需雇佣多人团队，享受高性价比的专业服务"
+      },
+      "iteration": {
+        "title": "持续迭代",
+        "description": "快速迭代优化，根据反馈不断完善产品和体验"
+      }
+    },
+    "cta": {
+      "title": "准备好开始了吗？",
+      "description": "让我们一起打造您的下一个数字项目",
+      "button": "立即咨询"
+    }
+  },
+  "team": {
+    "title": "团队成员",
+    "description": "11 位专业的 AI 代理团队介绍",
+    "hero": {
+      "badge": "11 位 AI 专家",
+      "title": "我们的团队",
+      "description": "从战略规划到执行落地，每个环节都有专家为您护航",
+      "stats": {
+        "members": {
+          "value": "11",
+          "label": "专业代理"
+        },
+        "coverage": {
+          "value": "100%",
+          "label": "覆盖率"
+        },
+        "support": {
+          "value": "24/7",
+          "label": "在线支持"
+        }
+      }
+    },
+    "filters": {
+      "all": "全部",
+      "strategy": "战略",
+      "tech": "技术",
+      "creative": "创意",
+      "business": "商务"
+    },
+    "members": {
+      "expert": {
+        "name": "智能体世界专家",
+        "role": "战略规划 & 未来布局",
+        "description": "专注于 AI Agent 发展趋势和未来布局，为团队提供战略视角和前瞻性思考。",
+        "skills": ["战略分析", "趋势预测", "创新思维"]
+      },
+      "consultant": {
+        "name": "咨询师",
+        "role": "研究 & 分析",
+        "description": "深入研究市场动态和技术趋势，为项目提供数据驱动的决策支持。",
+        "skills": ["市场研究", "数据分析", "决策支持"]
+      },
+      "architect": {
+        "name": "架构师",
+        "role": "设计 & 规划",
+        "description": "设计系统架构和技术方案，确保项目的技术可行性和可扩展性。",
+        "skills": ["系统架构", "技术选型", "方案设计"]
+      },
+      "executor": {
+        "name": "Executor",
+        "role": "执行 & 实现",
+        "description": "高效执行任务，将设计方案转化为高质量的代码实现。",
+        "skills": ["代码实现", "任务执行", "效率优化"]
+      },
+      "admin": {
+        "name": "系统管理员",
+        "role": "运维 & 部署",
+        "description": "负责系统运维、服务器管理和自动化部署，确保服务稳定运行。",
+        "skills": ["系统运维", "自动化部署", "安全加固"]
+      },
+      "tester": {
+        "name": "测试员",
+        "role": "测试 & 调试",
+        "description": "编写测试用例，进行功能测试和性能优化，保证产品质量。",
+        "skills": ["功能测试", "性能优化", "质量保障"]
+      },
+      "designer": {
+        "name": "设计师",
+        "role": "UI & 前端设计",
+        "description": "打造美观易用的用户界面，提供优秀的用户体验设计。",
+        "skills": ["UI 设计", "用户体验", "视觉创意"]
+      },
+      "promoter": {
+        "name": "推广专员",
+        "role": "推广 & SEO",
+        "description": "制定推广策略，优化搜索引擎排名，提升品牌知名度。",
+        "skills": ["SEO 优化", "内容营销", "品牌推广"]
+      },
+      "sales": {
+        "name": "销售客服",
+        "role": "销售 & 客服",
+        "description": "与客户沟通，了解需求，提供解决方案和优质的服务支持。",
+        "skills": ["客户沟通", "需求分析", "解决方案"]
+      },
+      "finance": {
+        "name": "财务",
+        "role": "会计 & 审计",
+        "description": "管理财务收支，进行成本核算和财务分析，确保资金健康。",
+        "skills": ["财务管理", "成本控制", "财务分析"]
+      },
+      "media": {
+        "name": "媒体",
+        "role": "媒体 & 宣传",
+        "description": "策划和制作内容，通过多渠道传播提升品牌影响力。",
+        "skills": ["内容策划", "媒体运营", "品牌传播"]
+      }
+    },
+    "availability": "全天候",
+    "collaboration": {
+      "title": "高效协作模式",
+      "description": "11 位 AI 代理无缝配合，确保项目顺利推进",
+      "items": {
+        "strategy": {
+          "title": "战略 → 执行",
+          "description": "从智能体世界专家的战略规划，到 Executor 的高效实现"
+        },
+        "design": {
+          "title": "设计 → 开发",
+          "description": "设计师的创意方案，由架构师和 Executor 完美实现"
+        },
+        "testing": {
+          "title": "测试 → 部署",
+          "description": "测试员严格把关，系统管理员稳定部署上线"
+        },
+        "promotion": {
+          "title": "推广 → 转化",
+          "description": "推广专员引流，销售客服转化，财务精准核算"
+        }
+      }
+    },
+    "cta": {
+      "title": "准备好与我们合作了吗？",
+      "description": "11 位 AI 专家已就绪，随时为您打造卓越数字项目",
+      "button": "联系我们"
+    }
+  },
+  "about": {
+    "title": "关于我们",
+    "description": "了解 7zi Studio 团队 - 由 11 位 AI 代理组成的创新数字工作室",
+    "hero": {
+      "badge": "创新的 AI 驱动工作室",
+      "title": "关于",
+      "description": "重新定义团队协作 — 由 11 位 AI 代理组成的智能团队，24/7 不间断为您创造数字价值",
+      "scrollHint": "探索更多"
+    },
+    "intro": {
+      "title": "7zi Studio 简介",
+      "p1": "是一个创新的数字工作室，我们重新定义了团队的概念 — 由 11 位专业的 AI 代理组成，各自发挥专长，协同完成各类数字项目。",
+      "p2": "我们的团队结合了人类创意的灵性和 AI 的高效执行力，从战略规划到产品交付，从设计到推广，每一个环节都有专业的 AI 成员负责。",
+      "p3": "无论是网站开发、品牌设计、SEO 优化还是内容营销，7zi Studio 都能为您提供一站式的数字化解决方案。",
+      "stats": {
+        "experts": {
+          "value": "11",
+          "label": "AI 专家",
+          "sub": "各司其职"
+        },
+        "projects": {
+          "value": "50+",
+          "label": "完成项目",
+          "sub": "客户满意"
+        },
+        "delivery": {
+          "value": "100%",
+          "label": "交付率",
+          "sub": "准时交付"
+        },
+        "support": {
+          "value": "24/7",
+          "label": "在线支持",
+          "sub": "随时响应"
+        }
+      }
+    },
+    "team": {
+      "badge": "核心团队",
+      "title": "我们的团队成员",
+      "description": "11 位各具专长的 AI 代理，组成一个高效协作的智能团队"
+    },
+    "timeline": {
+      "badge": "发展历程",
+      "title": "我们的成长轨迹",
+      "description": "从初创到成长，每一步都与客户共同进步",
+      "items": [
+        {
+          "year": "2024",
+          "title": "创立起源",
+          "description": "7zi Studio 正式成立，开启 AI 驱动数字工作室新纪元"
+        },
+        {
+          "year": "2024",
+          "title": "团队组建",
+          "description": "11 位 AI 代理全部就位，形成完整的协作体系"
+        },
+        {
+          "year": "2025",
+          "title": "服务扩展",
+          "description": "服务范围扩展至网站开发、品牌设计、SEO 优化等多领域"
+        },
+        {
+          "year": "2025",
+          "title": "技术升级",
+          "description": "引入最新 AI 技术，持续优化团队协作效率和输出质量"
+        }
+      ]
+    },
+    "partners": {
+      "badge": "合作伙伴",
+      "title": "信赖我们的伙伴",
+      "description": "与优秀企业携手，共创数字化未来",
+      "count": "已有 {count} 企业选择与我们合作"
+    },
+    "values": {
+      "badge": "核心价值观",
+      "title": "我们的理念",
+      "items": {
+        "collaboration": {
+          "title": "高效协作",
+          "description": "11 位 AI 代理协同工作，优势互补，确保每个项目都能高效推进。"
+        },
+        "innovation": {
+          "title": "创新驱动",
+          "description": "不断探索新技术、新方案，为客户提供最具创新性的解决方案。"
+        },
+        "quality": {
+          "title": "专注品质",
+          "description": "严格把控每个环节的质量，确保交付成果超出客户预期。"
+        },
+        "customer": {
+          "title": "客户至上",
+          "description": "深入理解客户需求，提供个性化的服务和支持。"
+        }
+      }
+    },
+    "process": {
+      "badge": "工作流程",
+      "title": "我们如何工作",
+      "items": [
+        {
+          "title": "需求分析",
+          "description": "深入了解您的目标和需求，制定详细的项目计划"
+        },
+        {
+          "title": "方案设计",
+          "description": "架构师和设计师协作，创建完整的技术和视觉方案"
+        },
+        {
+          "title": "开发实现",
+          "description": "Executor 高效编码，测试员同步进行质量把控"
+        },
+        {
+          "title": "交付上线",
+          "description": "系统管理员部署上线，推广专员启动营销计划"
+        }
+      ]
+    },
+    "cta": {
+      "title": "准备好与我们合作了吗？",
+      "description": "让我们一起打造您的数字项目，创造无限可能",
+      "button": "联系我们"
+    }
+  },
+  "contact": {
+    "title": "联系我们",
+    "description": "联系 7zi Studio - AI 驱动的创新数字工作室。商务合作、技术支持、项目咨询，我们 24 小时内回复。",
+    "hero": {
+      "title": "联系",
+      "description": "有任何问题或合作意向？我们随时准备为您服务"
+    },
+    "form": {
+      "title": "发送消息",
+      "name": "姓名",
+      "email": "邮箱",
+      "subject": "主题",
+      "message": "消息",
+      "submit": "发送",
+      "sending": "发送中...",
+      "success": "消息发送成功！",
+      "error": "发送失败，请重试"
+    },
+    "info": {
+      "title": "邮箱联系",
+      "business": {
+        "title": "商务合作",
+        "email": "business@7zi.studio",
+        "description": "项目咨询、商务合作"
+      },
+      "support": {
+        "title": "技术支持",
+        "email": "support@7zi.studio",
+        "description": "技术问题、售后服务"
+      },
+      "careers": {
+        "title": "加入我们",
+        "email": "careers@7zi.studio",
+        "description": "AI 合作伙伴招募"
+      }
+    },
+    "social": {
+      "title": "关注我们"
+    },
+    "response": {
+      "title": "响应时间",
+      "description": "我们通常在 24 小时内 回复您的消息。工作日期间响应更快！"
+    },
+    "faq": {
+      "title": "常见问题",
+      "items": [
+        {
+          "question": "7zi Studio 能提供哪些服务？",
+          "answer": "我们提供网站开发、品牌设计、UI/UX 设计、SEO 优化、内容营销等全方位数字化服务。"
+        },
+        {
+          "question": "如何开始合作？",
+          "answer": "您可以通过填写联系表单或发送邮件与我们取得联系，我们的团队会在 24 小时内回复您。"
+        },
+        {
+          "question": "你们的定价模式是怎样的？",
+          "answer": "我们根据项目需求提供定制化报价，包括项目定价和月度服务两种模式。"
+        },
+        {
+          "question": "是否提供免费咨询？",
+          "answer": "是的，我们提供首次免费咨询，您可以详细描述您的需求，我们会给出初步建议。"
+        }
+      ]
+    },
+    "cta": {
+      "title": "还在犹豫？",
+      "description": "立即开始您的数字项目，与 7zi Studio 一起创造未来",
+      "emailButton": "发送邮件",
+      "homeButton": "返回首页"
+    }
+  },
+  "blog": {
+    "title": "博客",
+    "description": "7zi Studio 博客 - 分享 AI 技术、数字化转型、行业洞察",
+    "readMore": "阅读更多",
+    "backToList": "返回博客列表"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "description": "项目仪表盘 - 查看项目进度和数据"
+  },
+  "footer": {
+    "copyright": "© 2024 7zi Studio. All rights reserved."
+  },
+  "errors": {
+    "notFound": {
+      "title": "页面未找到",
+      "description": "您访问的页面不存在",
+      "backHome": "返回首页"
+    },
+    "general": {
+      "title": "出错了",
+      "description": "抱歉，发生了一些错误",
+      "retry": "重试",
+      "backHome": "返回首页"
+    }
+  }
+}

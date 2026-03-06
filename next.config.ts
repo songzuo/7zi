@@ -1,8 +1,11 @@
+import createNextIntlPlugin from 'next-intl/plugin';
 import type { NextConfig } from "next";
 
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
+
 const nextConfig: NextConfig = {
-  // 启用静态导出
-  output: 'export',
+  // Docker 部署使用 standalone 输出模式
+  output: 'standalone',
   
   // 图片优化配置
   images: {
@@ -20,15 +23,10 @@ const nextConfig: NextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     // 最小缓存时间（秒）
     minimumCacheTTL: 60,
-    // 静态导出时外部图片需要 unoptimized
-    unoptimized: true,
   },
   
   // 压缩配置
   compress: true,
-  
-  // 生产环境源码映射（调试用，生产建议关闭）
-  // productionBrowserSourceMaps: false,
   
   // React 严格模式（开发环境）
   reactStrictMode: true,
@@ -36,8 +34,7 @@ const nextConfig: NextConfig = {
   // 禁用 x-powered-by 头（安全）
   poweredByHeader: false,
   
-  // 静态导出模式下 headers 不生效，需要在 CDN/服务器配置
-  // 这里是开发时的配置参考，实际部署需要在服务器层面设置
+  // 安全头配置
   headers: async () => [
     {
       source: '/:path*',
@@ -94,12 +91,6 @@ const nextConfig: NextConfig = {
     },
   ],
   
-  // 导出路径配置
-  trailingSlash: true,
-  
-  // 生成的静态文件目录
-  // outDir: './out',
-  
   // 忽略 TypeScript 错误
   // typescript: {
   //   ignoreBuildErrors: true,
@@ -111,4 +102,5 @@ const nextConfig: NextConfig = {
   // },
 };
 
-export default nextConfig;
+// Export with next-intl wrapper
+export default withNextIntl(nextConfig);

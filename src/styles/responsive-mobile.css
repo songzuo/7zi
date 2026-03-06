@@ -1,0 +1,747 @@
+/**
+ * 响应式布局优化 - 设计师补丁 v2
+ * 
+ * 针对 375px 和 768px 断点优化
+ * 
+ * 优化目标:
+ * - Sidebar/Navigation 移动端折叠
+ * - Dashboard 卡片布局
+ * - TaskBoard 看板视图
+ * - 触摸目标优化
+ * - 安全区域适配
+ */
+
+/* ============================================
+   1. 移动端导航优化 (375px - 768px)
+   ============================================ */
+
+/* 导航栏 - 移动端优化 */
+@media (max-width: 768px) {
+  nav {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+  }
+
+  /* Logo 缩小 */
+  nav .logo-text,
+  nav span[class*="font-bold"] {
+    font-size: 1rem;
+  }
+
+  /* 隐藏桌面端元素 */
+  .nav-desktop-only,
+  nav .hidden.md\:flex {
+    display: none !important;
+  }
+
+  /* 导航按钮组 - 紧凑布局 */
+  .nav-actions {
+    gap: 4px;
+  }
+
+  .nav-actions button,
+  .nav-actions a {
+    padding: 8px;
+    min-width: 40px;
+    min-height: 40px;
+  }
+}
+
+/* 汉堡菜单按钮 - 触摸优化 */
+.hamburger-btn,
+button[aria-label*="menu"],
+button[aria-label*="菜单"] {
+  min-width: 48px !important;
+  min-height: 48px !important;
+  padding: 12px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.hamburger-btn:active,
+button[aria-label*="menu"]:active {
+  background-color: rgba(6, 182, 212, 0.15);
+  transform: scale(0.95);
+}
+
+/* ============================================
+   2. Dashboard 统计卡片网格优化
+   ============================================ */
+
+/* 统计卡片 - 375px 断点 (2列) */
+@media (max-width: 424px) {
+  .stats-grid,
+  [class*="grid-cols-"][class*="gap-4"]:has(.stat-card),
+  .dashboard-stats {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .stat-card,
+  [class*="p-4"][class*="rounded"] {
+    padding: 12px !important;
+  }
+
+  .stat-value,
+  [class*="text-2xl"][class*="font-bold"],
+  [class*="text-3xl"][class*="font-bold"] {
+    font-size: 1.25rem !important;
+  }
+
+  .stat-label,
+  [class*="text-sm"][class*="text-zinc"] {
+    font-size: 0.7rem !important;
+  }
+}
+
+/* 统计卡片 - 425px - 640px 断点 (3列) */
+@media (min-width: 425px) and (max-width: 639px) {
+  .stats-grid,
+  [class*="grid-cols-"][class*="gap-4"]:has(.stat-card),
+  .dashboard-stats {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 10px !important;
+  }
+}
+
+/* 统计卡片 - 640px - 768px 断点 (4列) */
+@media (min-width: 640px) and (max-width: 767px) {
+  .stats-grid,
+  [class*="grid-cols-"][class*="gap-4"]:has(.stat-card),
+  .dashboard-stats {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 12px !important;
+  }
+}
+
+/* 7 列统计卡片优化 (Dashboard) */
+@media (max-width: 1023px) {
+  [class*="grid-cols-7"],
+  .grid-cols-7 {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+
+@media (max-width: 639px) {
+  [class*="grid-cols-7"],
+  .grid-cols-7 {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  /* 更小的统计卡片 */
+  [class*="grid-cols-7"] > div,
+  .grid-cols-7 > div {
+    padding: 10px 12px !important;
+  }
+
+  [class*="grid-cols-7"] p:first-child,
+  .grid-cols-7 p:first-child {
+    font-size: 0.65rem !important;
+  }
+
+  [class*="grid-cols-7"] p:last-child,
+  .grid-cols-7 p:last-child {
+    font-size: 1.25rem !important;
+  }
+}
+
+/* ============================================
+   3. Dashboard 主布局网格优化
+   ============================================ */
+
+/* 三栏布局 - 响应式 */
+@media (max-width: 1279px) {
+  [class*="xl:grid-cols-3"],
+  .xl\:grid-cols-3 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* 第三列全宽 */
+  [class*="xl:grid-cols-3"] > *:nth-child(3) {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 1023px) {
+  [class*="xl:grid-cols-3"],
+  .xl\:grid-cols-3 {
+    grid-template-columns: 1fr !important;
+  }
+
+  [class*="xl:grid-cols-3"] > *:nth-child(3) {
+    grid-column: span 1;
+  }
+}
+
+/* 项目卡片网格 - 2列变1列 */
+@media (max-width: 639px) {
+  [class*="md:grid-cols-2"],
+  .md\:grid-cols-2 {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* 卡片内边距 */
+  [class*="md:grid-cols-2"] > div,
+  .md\:grid-cols-2 > div {
+    padding: 16px !important;
+  }
+}
+
+/* ============================================
+   4. TaskBoard 看板视图优化
+   ============================================ */
+
+/* 看板头部 - 移动端 */
+@media (max-width: 639px) {
+  /* 头部布局调整 */
+  .task-board-header,
+  [class*="px-6"][class*="py-4"][class*="border-b"] {
+    padding: 12px 16px !important;
+  }
+
+  /* 标题和筛选器 */
+  .task-board-header > div:first-child {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 12px;
+  }
+
+  /* 标题缩小 */
+  .task-board-header h2,
+  [class*="text-lg"][class*="font-semibold"] {
+    font-size: 1rem !important;
+  }
+
+  /* 筛选下拉框 */
+  .task-board-header select {
+    width: 100%;
+    min-height: 44px;
+    font-size: 14px;
+  }
+
+  /* 进度条区域 */
+  .task-board-header .progress-section {
+    margin-top: 8px;
+  }
+}
+
+/* 任务卡片 - 移动端优化 */
+@media (max-width: 639px) {
+  .task-card,
+  [class*="px-6"][class*="py-4"][class*="hover:bg"] {
+    padding: 12px 16px !important;
+  }
+
+  /* 状态标签 */
+  .task-card span[class*="rounded text-xs"],
+  [class*="inline-flex"][class*="px-2"][class*="py-0.5"] {
+    font-size: 0.65rem !important;
+    padding: 2px 6px !important;
+  }
+
+  /* 任务标题 */
+  .task-card h3,
+  [class*="text-sm"][class*="font-medium"][class*="truncate"] {
+    font-size: 0.85rem !important;
+  }
+
+  /* 标签容器 - 滚动 */
+  .task-card .labels-container,
+  [class*="flex"][class*="items-center"][class*="gap-1"][class*="mb-2"] {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+    margin-bottom: 8px !important;
+  }
+
+  .task-card .labels-container::-webkit-scrollbar,
+  [class*="flex"][class*="items-center"][class*="gap-1"][class*="mb-2"]::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* 标签项 */
+  .task-card .labels-container span,
+  [class*="inline-flex"][class*="px-2"][class*="rounded text-xs"][style*="backgroundColor"] {
+    flex-shrink: 0;
+    font-size: 0.65rem !important;
+    padding: 2px 6px !important;
+  }
+
+  /* 元信息 */
+  .task-card .meta-info,
+  [class*="flex"][class*="items-center"][class*="gap-3"][class*="text-xs"] {
+    flex-wrap: wrap;
+    gap: 6px !important;
+    font-size: 0.7rem !important;
+  }
+
+  /* 隐藏外部链接文字，只保留图标 */
+  .task-card .external-link span,
+  [class*="group-hover:opacity-100"] span:not(:first-child) {
+    display: none;
+  }
+}
+
+/* 任务列表 - 最大高度调整 */
+@media (max-width: 639px) {
+  [class*="max-h-[600px]"],
+  .max-h-600px {
+    max-height: 400px !important;
+  }
+}
+
+/* ============================================
+   5. MemberCard 成员卡片优化
+   ============================================ */
+
+/* 紧凑模式卡片 - 移动端 */
+@media (max-width: 639px) {
+  .member-card-compact,
+  [class*="px-4"][class*="py-3"][class*="hover:bg-gray-50"] {
+    padding: 10px 12px !important;
+  }
+
+  /* 头像缩小 */
+  .member-card-compact img,
+  [class*="w-10"][class*="h-10"][class*="rounded-full"] {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  /* 状态指示点 */
+  .member-card-compact .status-dot,
+  [class*="absolute"][class*="bottom-0"][class*="right-0"][class*="w-3"][class*="h-3"] {
+    width: 10px !important;
+    height: 10px !important;
+  }
+
+  /* 成员名称 */
+  .member-card-compact .member-name,
+  [class*="text-sm"][class*="font-medium"][class*="text-gray-900"] {
+    font-size: 0.85rem !important;
+  }
+
+  /* 角色信息 */
+  .member-card-compact .member-role,
+  [class*="text-xs"][class*="text-gray-500"] {
+    font-size: 0.7rem !important;
+  }
+
+  /* 状态标签 */
+  .member-card-compact .status-badge,
+  [class*="inline-flex"][class*="px-2"][class*="rounded text-xs"][class*="font-medium"] {
+    font-size: 0.65rem !important;
+    padding: 1px 6px !important;
+  }
+
+  /* 当前任务 */
+  .member-card-compact .current-task,
+  [class*="text-xs"][class*="text-blue-600"][class*="truncate"] {
+    font-size: 0.7rem !important;
+    max-width: 150px;
+  }
+
+  /* 完成任务数 */
+  .member-card-compact .completed-tasks,
+  [class*="text-right"] [class*="text-xs"][class*="font-medium"] {
+    font-size: 0.7rem !important;
+  }
+}
+
+/* 成员状态分组容器 */
+@media (max-width: 639px) {
+  .member-status-group,
+  [class*="bg-white"][class*="rounded-xl"][class*="shadow-sm"][class*="border"] {
+    margin-bottom: 12px !important;
+  }
+
+  /* 分组标题 */
+  .member-status-group h3,
+  [class*="px-4"][class*="py-3"][class*="border-b"] [class*="text-sm"][class*="font-semibold"] {
+    font-size: 0.8rem !important;
+    padding: 10px 12px !important;
+  }
+
+  /* 最大高度 */
+  .member-status-group [class*="max-h-96"],
+  .max-h-96 {
+    max-height: 250px !important;
+  }
+}
+
+/* ============================================
+   6. ActivityLog 活动日志优化
+   ============================================ */
+
+@media (max-width: 639px) {
+  /* 头部 */
+  .activity-log-header,
+  [class*="px-6"][class*="py-4"][class*="border-b"][class*="bg-gray-50"] {
+    padding: 12px 16px !important;
+  }
+
+  .activity-log-header h2,
+  [class*="text-lg"][class*="font-semibold"][class*="text-gray-900"] {
+    font-size: 1rem !important;
+  }
+
+  .activity-log-header p,
+  [class*="text-sm"][class*="text-gray-500"][class*="mt-1"] {
+    font-size: 0.75rem !important;
+  }
+
+  /* 活动项 */
+  .activity-item,
+  [class*="px-6"][class*="py-4"][class*="hover:bg-gray-50"][class*="transition-colors"] {
+    padding: 10px 16px !important;
+  }
+
+  /* 图标容器 */
+  .activity-item .icon-container,
+  [class*="flex-shrink-0"][class*="w-10"][class*="h-10"][class*="rounded-full"] {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 1rem !important;
+  }
+
+  /* 活动标题 */
+  .activity-item .title,
+  [class*="text-sm"][class*="text-gray-900"][class*="truncate"] {
+    font-size: 0.85rem !important;
+  }
+
+  /* 类型标签 */
+  .activity-item .type-badge,
+  [class*="inline-flex"][class*="px-2"][class*="py-0.5"][class*="rounded text-xs"] {
+    font-size: 0.65rem !important;
+    padding: 1px 6px !important;
+  }
+
+  /* 底部 */
+  .activity-log-footer,
+  [class*="px-6"][class*="py-3"][class*="border-t"][class*="bg-gray-50"] {
+    padding: 8px 16px !important;
+    font-size: 0.7rem !important;
+  }
+}
+
+/* ============================================
+   7. ProjectDashboard 项目仪表盘优化
+   ============================================ */
+
+@media (max-width: 639px) {
+  /* 区块内边距 */
+  .project-dashboard,
+  section[class*="py-16"][class*="px-6"] {
+    padding: 24px 12px !important;
+  }
+
+  /* 标题 */
+  .project-dashboard h2,
+  section [class*="text-3xl"][class*="md:text-4xl"][class*="font-bold"] {
+    font-size: 1.5rem !important;
+    line-height: 1.3 !important;
+  }
+
+  /* 描述 */
+  .project-dashboard p,
+  section [class*="text-zinc-600"][class*="max-w-2xl"][class*="mx-auto"] {
+    font-size: 0.85rem !important;
+    padding: 0 8px;
+  }
+
+  /* Tab 按钮 */
+  .project-dashboard .tab-button,
+  section button[class*="px-6"][class*="py-3"][class*="rounded-full"] {
+    padding: 10px 16px !important;
+    font-size: 0.85rem !important;
+    min-height: 44px;
+  }
+
+  /* 进度条容器 */
+  .project-dashboard .progress-container,
+  section [class*="bg-white"][class*="rounded-2xl"][class*="p-8"] {
+    padding: 16px !important;
+  }
+
+  /* 进度条标题 */
+  .project-dashboard .progress-title,
+  section [class*="text-xl"][class*="font-bold"][class*="mb-6"] {
+    font-size: 1rem !important;
+    margin-bottom: 16px !important;
+  }
+
+  /* 项目进度项 */
+  .project-dashboard .progress-item {
+    margin-bottom: 16px !important;
+  }
+
+  /* 项目名称 */
+  .project-dashboard .project-name,
+  [class*="font-medium"][class*="text-zinc-800"] {
+    font-size: 0.85rem !important;
+  }
+
+  /* 进度百分比 */
+  .project-dashboard .progress-percent,
+  [class*="text-sm"][class*="text-zinc-600"]:last-child {
+    font-size: 0.75rem !important;
+  }
+}
+
+/* ============================================
+   8. 通用移动端优化
+   ============================================ */
+
+/* 触摸目标最小尺寸 */
+@media (hover: none) and (pointer: coarse) {
+  button,
+  a,
+  input,
+  select,
+  textarea,
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* 小图标按钮例外 */
+  button:has(.icon-only),
+  button:has(svg):not(:has(span)),
+  .icon-btn {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 10px;
+  }
+
+  /* 链接按钮 */
+  a:has(.text-sm) {
+    min-height: auto;
+    min-width: auto;
+  }
+
+  /* 输入框 - 防止 iOS 缩放 */
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+/* 安全区域 - 底部固定元素 */
+@supports (padding: max(0px)) {
+  .fixed.bottom-0,
+  footer.fixed,
+  .bottom-nav,
+  [class*="fixed"][class*="bottom-0"] {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+  }
+
+  .fixed.top-0,
+  nav.fixed,
+  header.fixed,
+  [class*="fixed"][class*="top-0"] {
+    padding-top: max(0px, env(safe-area-inset-top));
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+  }
+
+  /* 全屏 modal */
+  .modal-fullscreen,
+  [role="dialog"][class*="fixed inset-0"] {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* ============================================
+   9. 滚动优化
+   ============================================ */
+
+/* 移动端滚动优化 */
+@media (hover: none) {
+  .scroll-container,
+  [class*="overflow-y-auto"],
+  [class*="overflow-x-auto"] {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  /* 隐藏滚动条但保持功能 */
+  .hide-scrollbar-mobile,
+  [class*="overflow-x-auto"]:not(:hover) {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+
+  .hide-scrollbar-mobile::-webkit-scrollbar,
+  [class*="overflow-x-auto"]:not(:hover)::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .hide-scrollbar-mobile::-webkit-scrollbar-thumb,
+  [class*="overflow-x-auto"]:not(:hover)::-webkit-scrollbar-thumb {
+    background: transparent;
+  }
+}
+
+/* ============================================
+   10. 动画优化 - 移动端减少动画
+   ============================================ */
+
+@media (max-width: 768px) {
+  /* 减少动画复杂度 */
+  .hover-lift:hover,
+  .card-3d:hover,
+  [class*="hover:shadow-xl"]:hover {
+    transform: translateY(-2px) !important;
+  }
+
+  /* 缩短动画时间 */
+  .animate-fade-in,
+  .animate-slide-up,
+  .animate-slide-down,
+  [class*="animate-"] {
+    animation-duration: 0.3s !important;
+  }
+
+  /* 过渡时间 */
+  [class*="transition-"] {
+    transition-duration: 0.15s !important;
+  }
+}
+
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================
+   11. 工具类
+   ============================================ */
+
+/* 触摸反馈 */
+.touch-active:active,
+.touch-feedback:active {
+  transform: scale(0.97);
+  opacity: 0.9;
+  transition: transform 0.1s ease, opacity 0.1s ease;
+}
+
+/* 响应式文本截断 */
+.truncate-mobile {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 639px) {
+  .truncate-mobile-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .truncate-mobile-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* 响应式隐藏 */
+@media (max-width: 639px) {
+  .hide-on-mobile,
+  .hidden-xs {
+    display: none !important;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .hide-on-tablet,
+  .hidden-sm {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hide-on-desktop,
+  .hidden-lg {
+    display: none !important;
+  }
+}
+
+/* 仅移动端显示 */
+@media (min-width: 640px) {
+  .show-on-mobile-only,
+  .visible-xs {
+    display: none !important;
+  }
+}
+
+@media (max-width: 639px) {
+  .show-on-mobile-only,
+  .visible-xs {
+    display: block !important;
+  }
+}
+
+/* ============================================
+   12. 打印优化
+   ============================================ */
+
+@media print {
+  /* 隐藏交互元素 */
+  nav,
+  .mobile-menu,
+  .chat-toggle-btn,
+  .chat-window,
+  footer,
+  button:not(.print-btn),
+  .no-print {
+    display: none !important;
+  }
+
+  /* 优化打印布局 */
+  body {
+    font-size: 12pt;
+    line-height: 1.5;
+    color: black;
+    background: white;
+  }
+
+  /* 避免分页 */
+  .member-card,
+  .task-card,
+  .activity-item,
+  .project-card {
+    break-inside: avoid;
+  }
+
+  /* 链接显示 URL */
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #666;
+  }
+}
