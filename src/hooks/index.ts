@@ -6,3 +6,16 @@ export {
   useAnimateOnView,
   useCountUp,
 } from './useIntersectionObserver';
+
+// 性能优化 Hooks
+export {
+  useInView,
+  usePreload,
+  useDebounce,
+  useThrottle,
+  useDevicePerformance,
+  useUserPreferences,
+  useMounted,
+  useWindowSize,
+  useScrollPosition,
+} from './usePerformance';

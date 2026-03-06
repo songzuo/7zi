@@ -1,17 +1,20 @@
 'use client';
 
 /**
- * @fileoverview 性能优化 - Lazy Loading 组件
+ * @fileoverview 性能优化 - Lazy Loading 组件 (增强版)
  * @description 集中管理大型组件的动态导入，减少初始包体积
  * 
  * 优化策略:
  * 1. 使用 next/dynamic 进行代码分割
  * 2. 添加 loading 占位符
  * 3. 按需加载非首屏组件
+ * 4. 视口检测懒加载
+ * 5. 预加载关键组件
  */
 
 import dynamic from 'next/dynamic';
 import { LoadingSpinner } from './LoadingSpinner';
+import { useCallback, useEffect, useState, useRef, ComponentType } from 'react';
 
 // Loading 占位组件
 const LoadingPlaceholder = () => (
@@ -19,6 +22,65 @@ const LoadingPlaceholder = () => (
     <LoadingSpinner size="lg" />
   </div>
 );
+
+// 骨架屏占位组件 - 更好的用户体验
+const SkeletonPlaceholder = ({ height = 200 }: { height?: number }) => (
+  <div 
+    className="animate-pulse bg-zinc-200 dark:bg-zinc-800 rounded-2xl"
+    style={{ minHeight: height }}
+  />
+);
+
+/**
+ * 视口检测 Hook - 只有进入视口才加载组件
+ */
+function useIntersectionObserver(
+  ref: React.RefObject<Element | null>,
+  options: IntersectionObserverInit = { rootMargin: '200px' }
+) {
+  const [isIntersecting, setIsIntersecting] = useState(false);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setIsIntersecting(true);
+        observer.disconnect();
+      }
+    }, options);
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [ref, options]);
+
+  return isIntersecting;
+}
+
+/**
+ * 高阶组件：视口懒加载包装器
+ */
+interface LazyWrapperProps {
+  component: ComponentType;
+  height?: number;
+  rootMargin?: string;
+}
+
+export function LazyViewportWrapper({ 
+  component: Component, 
+  height = 200,
+  rootMargin = '200px' 
+}: LazyWrapperProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  const shouldLoad = useIntersectionObserver(ref, { rootMargin });
+
+  return (
+    <div ref={ref} style={{ minHeight: height }}>
+      {shouldLoad ? <Component /> : <SkeletonPlaceholder height={height} />}
+    </div>
+  );
+}
 
 /**
  * AI 聊天组件 - 仅在用户交互时加载
@@ -40,7 +102,7 @@ export const LazyProjectDashboard = dynamic(
   () => import('./ProjectDashboard').then((mod) => ({ default: mod.ProjectDashboard })),
   {
     ssr: true,
-    loading: LoadingPlaceholder,
+    loading: () => <SkeletonPlaceholder height={400} />,
   }
 );
 
@@ -52,7 +114,7 @@ export const LazyGitHubActivity = dynamic(
   () => import('./GitHubActivity').then((mod) => ({ default: mod.GitHubActivity })),
   {
     ssr: true,
-    loading: LoadingPlaceholder,
+    loading: () => <SkeletonPlaceholder height={300} />,
   }
 );
 
@@ -102,7 +164,7 @@ export const LazyTaskBoard = dynamic(
   () => import('./TaskBoard').then((mod) => ({ default: mod.TaskBoard })),
   {
     ssr: true,
-    loading: LoadingPlaceholder,
+    loading: () => <SkeletonPlaceholder height={400} />,
   }
 );
 
@@ -142,6 +204,15 @@ export const LazyPWAInstallPrompt = dynamic(
     loading: () => null,
   }
 );
+
+/**
+ * 预加载函数 - 用于关键组件的预加载
+ */
+export const preloadComponents = {
+  aiChat: () => import('./AIChat'),
+  projectDashboard: () => import('./ProjectDashboard'),
+  githubActivity: () => import('./GitHubActivity'),
+};
 
 /**
  * 导出类型

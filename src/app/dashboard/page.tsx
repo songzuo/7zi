@@ -195,10 +195,10 @@ const AI_MEMBERS: AIMember[] = [
 // ============================================================================
 // GitHub API 配置
 // ============================================================================
+// 注意：GITHUB_TOKEN 已移至服务端 API 代理，不再在客户端暴露
 
 const GITHUB_OWNER = process.env.NEXT_PUBLIC_GITHUB_OWNER || 'songzhuo';
 const GITHUB_REPO = process.env.NEXT_PUBLIC_GITHUB_REPO || 'openclaw-workspace';
-const GITHUB_TOKEN = process.env.NEXT_PUBLIC_GITHUB_TOKEN;
 const REFRESH_INTERVAL = 30000; // 30 秒
 
 // ============================================================================
@@ -213,7 +213,8 @@ export default function DashboardPage() {
     error,
     lastUpdated,
     refreshData
-  } = useDashboardData(GITHUB_OWNER, GITHUB_REPO, GITHUB_TOKEN);
+  } = useDashboardData(GITHUB_OWNER, GITHUB_REPO);
+  // 注意：Token 不再传递给客户端 hook，由服务端 API 代理处理
 
   const [autoRefresh, setAutoRefresh] = useState(true);
 

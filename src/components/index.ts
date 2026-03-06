@@ -28,6 +28,28 @@ export { ProjectDashboard } from './ProjectDashboard';
 export { Hero3D } from './Hero3D';
 export { LazyImage, ImageGalleryOptimized, SkeletonOptimized, CardSkeletonOptimized } from './LazyImage';
 
+// Optimized Image Components
+export { OptimizedImage, ResponsiveImage } from './OptimizedImage';
+
+// Lazy Loading Components
+export {
+  LazyAIChat,
+  LazyProjectDashboard,
+  LazyGitHubActivity,
+  LazyHero3D,
+  LazyNotificationCenter,
+  LazySettingsPanel,
+  LazyTaskBoard,
+  LazyContactForm,
+  LazyUserSettingsPage,
+  LazyPWAInstallPrompt,
+  LazyViewportWrapper,
+  preloadComponents,
+} from './LazyComponents';
+
+// Performance Monitoring
+export { PerformanceMonitor, ResourceTimingMonitor } from './PerformanceMonitor';
+
 // Skeleton Loading Components (Designer Patch v4)
 export { 
   SkeletonText, 
@@ -45,6 +67,19 @@ export { ErrorBoundary } from './ErrorBoundary';
 export { ErrorDisplay } from './ErrorDisplay';
 export { ErrorBoundaryWrapper, withErrorBoundary } from './ErrorBoundaryWrapper';
 
+// Error Boundary Factory (for page-level errors)
+export { 
+  createPageErrorBoundary,
+  HomeError,
+  AboutError,
+  BlogError,
+  BlogSlugError,
+  ContactError,
+  DashboardError,
+  TeamError,
+  LocaleError,
+} from './errors';
+
 // Contact & Social
 export { ContactForm } from './ContactForm';
 export { SocialLinks } from './SocialLinks';
@@ -54,3 +89,14 @@ export { Analytics } from './Analytics';
 
 // Footer
 export { Footer } from './Footer';
+
+// Shared UI Components
+export {
+  StatusBadge,
+  ProgressBar,
+  Avatar,
+  Card,
+  EmptyState,
+  StatCard,
+  TimeAgo,
+} from './shared';

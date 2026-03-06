@@ -46,13 +46,14 @@ interface UseDashboardDataReturn {
 /**
  * Dashboard 数据 Hook
  * 
- * 从 GitHub API 获取 Issues 和 Commits 数据
- * 支持自动刷新和错误处理
+ * 通过服务端 API 代理获取 GitHub 数据
+ * Token 不再暴露在客户端
  */
 export function useDashboardData(
   owner: string,
   repo: string,
-  token?: string | null
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _token?: string | null // 保留参数签名以保持向后兼容，但不再使用
 ): UseDashboardDataReturn {
   const [issues, setIssues] = useState<GitHubIssue[]>([]);
   const [commits, setCommits] = useState<GitHubCommit[]>([]);
@@ -61,66 +62,39 @@ export function useDashboardData(
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-  // 构建 API 请求头 - 使用 useMemo 避免依赖问题
-  const headers = useMemo<HeadersInit>(() => {
-    const h: HeadersInit = {
-      'Accept': 'application/vnd.github.v3+json',
-      'Content-Type': 'application/json'
-    };
-
-    if (token) {
-      h['Authorization'] = `token ${token}`;
-    }
-    return h;
-  }, [token]);
-
-  // 获取 Issues
+  // 获取 Issues - 通过服务端 API 代理
   const fetchIssues = useCallback(async (): Promise<GitHubIssue[]> => {
     try {
+      // 使用服务端 API 代理，不再直接调用 GitHub API
       const response = await fetch(
-        `https://api.github.com/repos/${owner}/${repo}/issues?state=all&per_page=50`,
-        { headers }
+        `/api/github/issues?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(repo)}`
       );
 
       if (!response.ok) {
-        if (response.status === 404) {
-          throw new Error(`仓库 ${owner}/${repo} 不存在`);
-        } else if (response.status === 401) {
-          throw new Error('GitHub Token 无效');
-        } else if (response.status === 403) {
-          throw new Error('GitHub API 速率限制，请稍后重试');
-        }
-        throw new Error(`获取 Issues 失败：${response.statusText}`);
+        const data = await response.json();
+        throw new Error(data.error || `获取 Issues 失败：${response.statusText}`);
       }
 
       const data = await response.json();
-      // 过滤掉 PR（GitHub API 中 PR 也作为 issue 返回）
-      const issuesOnly = data.filter((item: { pull_request?: unknown }) => !item.pull_request);
-      setIssues(issuesOnly);
-      return issuesOnly;
+      setIssues(data);
+      return data;
     } catch (err) {
       console.error('Failed to fetch issues:', err);
       throw err;
     }
-  }, [owner, repo, headers]);
+  }, [owner, repo]);
 
-  // 获取 Commits
+  // 获取 Commits - 通过服务端 API 代理
   const fetchCommits = useCallback(async (): Promise<GitHubCommit[]> => {
     try {
+      // 使用服务端 API 代理，不再直接调用 GitHub API
       const response = await fetch(
-        `https://api.github.com/repos/${owner}/${repo}/commits?per_page=30`,
-        { headers }
+        `/api/github/commits?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(repo)}`
       );
 
       if (!response.ok) {
-        if (response.status === 404) {
-          throw new Error(`仓库 ${owner}/${repo} 不存在`);
-        } else if (response.status === 401) {
-          throw new Error('GitHub Token 无效');
-        } else if (response.status === 403) {
-          throw new Error('GitHub API 速率限制，请稍后重试');
-        }
-        throw new Error(`获取 Commits 失败：${response.statusText}`);
+        const data = await response.json();
+        throw new Error(data.error || `获取 Commits 失败：${response.statusText}`);
       }
 
       const data = await response.json();
@@ -130,7 +104,7 @@ export function useDashboardData(
       console.error('Failed to fetch commits:', err);
       throw err;
     }
-  }, [owner, repo, headers]);
+  }, [owner, repo]);
 
   // 合并活动和排序
   const mergeActivities = useCallback((issuesData: GitHubIssue[], commitsData: GitHubCommit[]) => {

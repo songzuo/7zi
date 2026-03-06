@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useEffect } from "react";
 import { useTranslations } from "next-intl";
 
 interface FormData {
@@ -35,6 +35,24 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
+  const [csrfToken, setCsrfToken] = useState<string | null>(null);
+
+  // 获取 CSRF Token
+  useEffect(() => {
+    const fetchCsrfToken = async () => {
+      try {
+        const response = await fetch('/api/csrf-token');
+        if (response.ok) {
+          const data = await response.json();
+          setCsrfToken(data.csrfToken);
+        }
+      } catch (error) {
+        console.error('Failed to fetch CSRF token:', error);
+      }
+    };
+    
+    fetchCsrfToken();
+  }, []);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -70,12 +88,19 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
     setSubmitStatus("idle");
 
     try {
-      // 调用联系表单 API
+      // 调用联系表单 API，添加 CSRF 保护
+      const headers: HeadersInit = {
+        "Content-Type": "application/json",
+      };
+      
+      // 添加 CSRF Token 到请求头
+      if (csrfToken) {
+        headers["X-CSRF-Token"] = csrfToken;
+      }
+
       const response = await fetch("/api/contact", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers,
         body: JSON.stringify({ ...formData, locale }),
       });
 
