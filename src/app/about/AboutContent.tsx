@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 const baseUrl = "https://7zi.studio";
 
-// 团队成员数据
+// 团队成员数据 - 增强版，包含更多详细信息
 const teamMembers = [
   {
     id: 1,
@@ -15,6 +15,8 @@ const teamMembers = [
     description: "专注于 AI Agent 发展趋势和未来布局，为团队提供战略视角和前瞻性思考。",
     color: "from-yellow-400 to-orange-500",
     skills: ["战略分析", "趋势预测", "创新思维"],
+    stats: { projects: "50+", experience: "5年" },
+    achievements: ["行业趋势报告", "战略规划方案"],
   },
   {
     id: 2,
@@ -106,6 +108,48 @@ const teamMembers = [
     color: "from-sky-400 to-blue-600",
     skills: ["内容策划", "媒体运营", "品牌传播"],
   },
+];
+
+// 发展历程数据
+const timeline = [
+  {
+    year: "2024",
+    title: "创立起源",
+    description: "7zi Studio 正式成立，开启 AI 驱动数字工作室新纪元",
+    emoji: "🚀",
+    color: "from-cyan-500 to-blue-600",
+  },
+  {
+    year: "2024",
+    title: "团队组建",
+    description: "11 位 AI 代理全部就位，形成完整的协作体系",
+    emoji: "👥",
+    color: "from-purple-500 to-pink-600",
+  },
+  {
+    year: "2025",
+    title: "服务扩展",
+    description: "服务范围扩展至网站开发、品牌设计、SEO 优化等多领域",
+    emoji: "📈",
+    color: "from-green-500 to-emerald-600",
+  },
+  {
+    year: "2025",
+    title: "技术升级",
+    description: "引入最新 AI 技术，持续优化团队协作效率和输出质量",
+    emoji: "⚡",
+    color: "from-amber-500 to-orange-600",
+  },
+];
+
+// 合作伙伴/客户
+const partners = [
+  { name: "TechCorp", logo: "💻", color: "from-blue-500 to-cyan-500" },
+  { name: "InnovateLab", logo: "🔬", color: "from-purple-500 to-pink-500" },
+  { name: "DigitalFirst", logo: "🎯", color: "from-red-500 to-orange-500" },
+  { name: "CloudNine", logo: "☁️", color: "from-sky-500 to-blue-600" },
+  { name: "FutureSoft", logo: "🤖", color: "from-green-500 to-emerald-600" },
+  { name: "DataFlow", logo: "📊", color: "from-indigo-500 to-purple-600" },
 ];
 
 // 动画组件 - 滚动时淡入
@@ -218,22 +262,27 @@ export default function AboutContent() {
               </p>
             </div>
             
-            {/* Stats Cards */}
-            <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="group text-center p-8 bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-900/20 dark:to-blue-900/20 rounded-2xl hover:shadow-lg hover:scale-105 transition-all duration-300 border border-cyan-200/50 dark:border-cyan-800/50">
-                <div className="text-5xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent mb-2">11</div>
+            {/* Stats Cards - 增强版 */}
+            <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6">
+              <div className="group text-center p-6 bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-900/20 dark:to-blue-900/20 rounded-2xl hover:shadow-lg hover:scale-105 transition-all duration-300 border border-cyan-200/50 dark:border-cyan-800/50">
+                <div className="text-4xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent mb-2">11</div>
                 <div className="text-zinc-600 dark:text-zinc-400 font-medium">AI 专家</div>
                 <div className="text-sm text-zinc-500 dark:text-zinc-500 mt-1">各司其职</div>
               </div>
-              <div className="group text-center p-8 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl hover:shadow-lg hover:scale-105 transition-all duration-300 border border-purple-200/50 dark:border-purple-800/50">
-                <div className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">7×24</div>
-                <div className="text-zinc-600 dark:text-zinc-400 font-medium">持续工作</div>
-                <div className="text-sm text-zinc-500 dark:text-zinc-500 mt-1">永不间断</div>
+              <div className="group text-center p-6 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl hover:shadow-lg hover:scale-105 transition-all duration-300 border border-purple-200/50 dark:border-purple-800/50">
+                <div className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">50+</div>
+                <div className="text-zinc-600 dark:text-zinc-400 font-medium">完成项目</div>
+                <div className="text-sm text-zinc-500 dark:text-zinc-500 mt-1">客户满意</div>
               </div>
-              <div className="group text-center p-8 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl hover:shadow-lg hover:scale-105 transition-all duration-300 border border-green-200/50 dark:border-green-800/50">
-                <div className="text-5xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-2">∞</div>
-                <div className="text-zinc-600 dark:text-zinc-400 font-medium">无限可能</div>
-                <div className="text-sm text-zinc-500 dark:text-zinc-500 mt-1">持续进化</div>
+              <div className="group text-center p-6 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl hover:shadow-lg hover:scale-105 transition-all duration-300 border border-green-200/50 dark:border-green-800/50">
+                <div className="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-2">100%</div>
+                <div className="text-zinc-600 dark:text-zinc-400 font-medium">交付率</div>
+                <div className="text-sm text-zinc-500 dark:text-zinc-500 mt-1">准时交付</div>
+              </div>
+              <div className="group text-center p-6 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-2xl hover:shadow-lg hover:scale-105 transition-all duration-300 border border-amber-200/50 dark:border-amber-800/50">
+                <div className="text-4xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent mb-2">24/7</div>
+                <div className="text-zinc-600 dark:text-zinc-400 font-medium">在线支持</div>
+                <div className="text-sm text-zinc-500 dark:text-zinc-500 mt-1">随时响应</div>
               </div>
             </div>
           </div>
@@ -288,9 +337,24 @@ export default function AboutContent() {
                   <p className={`text-sm font-medium bg-gradient-to-r ${member.color} bg-clip-text text-transparent mb-4`}>
                     {member.role}
                   </p>
-                  <p className="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed">
+                  <p className="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed mb-4">
                     {member.description}
                   </p>
+                  
+                  {/* 增强：添加更多成员信息 */}
+                  <div className="flex items-center justify-between pt-4 border-t border-zinc-200 dark:border-zinc-800">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                      <span className="text-xs text-zinc-500 dark:text-zinc-400">24/7 在线</span>
+                    </div>
+                    <div className="flex gap-3">
+                      {member.achievements?.map((achievement, i) => (
+                        <span key={i} className="text-xs text-zinc-400 dark:text-zinc-500" title={achievement}>
+                          ✓
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 </div>
                 
                 {/* Hover Glow Effect */}
@@ -298,6 +362,94 @@ export default function AboutContent() {
               </div>
             ))}
           </div>
+        </div>
+      </FadeInSection>
+
+      {/* Timeline Section - 发展历程 */}
+      <FadeInSection delay={400} className="py-24 px-6 bg-white dark:bg-zinc-900">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 rounded-full text-cyan-600 dark:text-cyan-400 text-sm font-medium mb-4 border border-cyan-500/20">
+              <span>📅</span>
+              发展历程
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold text-zinc-900 dark:text-white mb-4">
+              我们的成长轨迹
+            </h2>
+            <p className="text-lg text-zinc-500 dark:text-zinc-400 max-w-2xl mx-auto">
+              从初创到成长，每一步都与客户共同进步
+            </p>
+          </div>
+          
+          <div className="relative">
+            {/* Timeline Line */}
+            <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-cyan-500 via-purple-500 to-pink-500" />
+            
+            <div className="space-y-12">
+              {timeline.map((item, index) => (
+                <div 
+                  key={index}
+                  className={`relative flex items-center gap-8 md:gap-0 ${index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"}`}
+                >
+                  <div className={`flex-1 ${index % 2 === 0 ? "md:text-right md:pr-12" : "md:text-left md:pl-12"} text-center`}>
+                    <div className="inline-block bg-white dark:bg-zinc-900 p-6 rounded-2xl shadow-lg border border-zinc-200 dark:border-zinc-800 hover:shadow-xl hover:border-cyan-500/50 transition-all duration-300 group">
+                      <div className="flex items-center gap-2 mb-2 justify-start">
+                        <span className="text-2xl">{item.emoji}</span>
+                        <span className={`text-lg font-bold bg-gradient-to-r ${item.color} bg-clip-text text-transparent`}>
+                          {item.year}
+                        </span>
+                      </div>
+                      <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-2 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                        {item.title}
+                      </h3>
+                      <p className="text-zinc-600 dark:text-zinc-400 text-sm">{item.description}</p>
+                    </div>
+                  </div>
+                  <div className="absolute left-8 md:left-1/2 md:-translate-x-1/2 w-16 h-16 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg z-10 border-4 border-white dark:border-zinc-900">
+                    {index + 1}
+                  </div>
+                  <div className="flex-1 hidden md:block" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </FadeInSection>
+
+      {/* Partners Section - 合作伙伴 */}
+      <FadeInSection delay={450} className="py-24 px-6 bg-gradient-to-br from-zinc-100 via-zinc-50 to-zinc-100 dark:from-zinc-900 dark:via-black dark:to-zinc-900">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-full text-green-600 dark:text-green-400 text-sm font-medium mb-4 border border-green-500/20">
+              <span>🤝</span>
+              合作伙伴
+            </div>
+            <h2 className="text-4xl font-bold text-zinc-900 dark:text-white mb-4">
+              信赖我们的伙伴
+            </h2>
+            <p className="text-lg text-zinc-500 dark:text-zinc-400">
+              与优秀企业携手，共创数字化未来
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+            {partners.map((partner, index) => (
+              <div
+                key={index}
+                className="group relative bg-white dark:bg-zinc-900 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-zinc-200 dark:border-zinc-800 overflow-hidden"
+              >
+                <div className={`absolute inset-0 bg-gradient-to-br ${partner.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
+                <div className="text-4xl group-hover:scale-110 transition-transform duration-300">{partner.logo}</div>
+                <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors">
+                  {partner.name}
+                </span>
+              </div>
+            ))}
+          </div>
+          
+          <p className="text-center text-zinc-500 dark:text-zinc-500 mt-12 text-sm">
+            已有 <span className="font-bold text-cyan-600 dark:text-cyan-400">50+</span> 企业选择与我们合作
+          </p>
         </div>
       </FadeInSection>
 

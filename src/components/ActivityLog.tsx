@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 
 export interface ActivityItem {
   id: string;
@@ -115,13 +116,13 @@ function ActivityItemCard({ activity, icon, colorClass, label }: ActivityItemCar
 
           <div className="flex items-center gap-2 text-xs text-gray-500">
             {activity.avatar && (
-              <img
+              <Image
                 src={activity.avatar}
                 alt={activity.author}
-                className="w-4 h-4 rounded-full"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = 'https://api.dicebear.com/7.x/bottts/svg?seed=' + activity.author;
-                }}
+                width={16}
+                height={16}
+                className="rounded-full"
+                unoptimized
               />
             )}
             <span>{activity.author}</span>

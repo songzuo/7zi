@@ -45,9 +45,9 @@ export function Analytics() {
       script.async = true;
       document.head.appendChild(script);
 
-      window.dataLayer = window.dataLayer || [];
+      (window as any).dataLayer = (window as any).dataLayer || [];
       function gtag(...args: any[]) {
-        window.dataLayer.push(args);
+        (window as any).dataLayer.push(args);
       }
       gtag("js", new Date());
       gtag("config", gaId, {

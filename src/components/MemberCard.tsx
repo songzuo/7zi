@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 
 export interface AIMember {
   id: string;
@@ -46,13 +47,13 @@ export const MemberCard: React.FC<MemberCardProps> = ({ member, compact = false 
       <div className="px-4 py-3 hover:bg-gray-50 transition-colors">
         <div className="flex items-center gap-3">
           <div className="relative flex-shrink-0">
-            <img
+            <Image
               src={member.avatar}
               alt={member.name}
-              className="w-10 h-10 rounded-full"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/bottts/svg?seed=${member.id}`;
-              }}
+              width={40}
+              height={40}
+              className="rounded-full"
+              unoptimized
             />
             <div
               className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${statusColors[member.status]}`}
@@ -91,13 +92,13 @@ export const MemberCard: React.FC<MemberCardProps> = ({ member, compact = false 
     <div className="p-4 border rounded-lg hover:shadow-md transition-shadow">
       <div className="flex items-start gap-3">
         <div className="relative flex-shrink-0">
-          <img
+          <Image
             src={member.avatar}
             alt={member.name}
-            className="w-12 h-12 rounded-full"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/bottts/svg?seed=${member.id}`;
-            }}
+            width={48}
+            height={48}
+            className="rounded-full"
+            unoptimized
           />
           <div
             className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${statusColors[member.status]}`}

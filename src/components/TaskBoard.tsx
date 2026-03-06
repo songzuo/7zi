@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 
 export interface GitHubIssue {
   number: number;
@@ -170,13 +171,13 @@ export const TaskCard: React.FC<TaskCardProps> = ({ issue }) => {
           <div className="flex items-center gap-3 text-xs text-gray-500">
             {issue.assignee && (
               <div className="flex items-center gap-1">
-                <img
+                <Image
                   src={issue.assignee.avatar_url}
                   alt={issue.assignee.login}
-                  className="w-4 h-4 rounded-full"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://api.dicebear.com/7.x/bottts/svg?seed=unknown';
-                  }}
+                  width={16}
+                  height={16}
+                  className="rounded-full"
+                  unoptimized
                 />
                 <span>{issue.assignee.login}</span>
               </div>
