@@ -11,11 +11,11 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { useWebSocket, WebSocketMessage } from './useWebSocket';
 
 // Mock WebSocket class
-class MockWebSocket {
+class MockWebSocketClass {
   static CONNECTING = 0;
   static OPEN = 1;
   static CLOSING = 2;
@@ -32,28 +32,28 @@ class MockWebSocket {
 
   constructor(url: string) {
     this.url = url;
-    this.readyState = MockWebSocket.CONNECTING;
+    this.readyState = MockWebSocketClass.CONNECTING;
     
     // Store instance for access in tests
-    MockWebSocket.instances.push(this);
+    MockWebSocketClass.instances.push(this);
     
     // Simulate async connection
     setTimeout(() => {
-      if (this.readyState === MockWebSocket.CONNECTING) {
-        this.readyState = MockWebSocket.OPEN;
+      if (this.readyState === MockWebSocketClass.CONNECTING) {
+        this.readyState = MockWebSocketClass.OPEN;
         this.onopen?.(new Event('open'));
       }
     }, 0);
   }
 
   send(data: string) {
-    if (this.readyState === MockWebSocket.OPEN) {
+    if (this.readyState === MockWebSocketClass.OPEN) {
       this.sentMessages.push(data);
     }
   }
 
   close() {
-    this.readyState = MockWebSocket.CLOSED;
+    this.readyState = MockWebSocketClass.CLOSED;
     this.onclose?.(new CloseEvent('close'));
   }
 
@@ -67,7 +67,7 @@ class MockWebSocket {
   }
 
   simulateClose() {
-    this.readyState = MockWebSocket.CLOSED;
+    this.readyState = MockWebSocketClass.CLOSED;
     this.onclose?.(new CloseEvent('close'));
   }
 
@@ -80,47 +80,34 @@ class MockWebSocket {
   }
 
   // Static helper for tests
-  static instances: MockWebSocket[] = [];
+  static instances: MockWebSocketClass[] = [];
   
   static clearInstances() {
-    MockWebSocket.instances = [];
+    MockWebSocketClass.instances = [];
   }
   
-  static getLastInstance(): MockWebSocket | undefined {
-    return MockWebSocket.instances[MockWebSocket.instances.length - 1];
+  static getLastInstance(): MockWebSocketClass | undefined {
+    return MockWebSocketClass.instances[MockWebSocketClass.instances.length - 1];
   }
 }
 
-// Create mock WebSocket constructor
-const MockWebSocketConstructor = vi.fn((url: string) => new MockWebSocket(url)) as any;
-
-// Set static properties
-MockWebSocketConstructor.CONNECTING = 0;
-MockWebSocketConstructor.OPEN = 1;
-MockWebSocketConstructor.CLOSING = 2;
-MockWebSocketConstructor.CLOSED = 3;
-
-// Override global WebSocket before tests
+// Store original WebSocket
 const originalWebSocket = global.WebSocket;
-
-beforeEach(() => {
-  global.WebSocket = MockWebSocketConstructor;
-  MockWebSocket.clearInstances();
-});
-
-afterEach(() => {
-  global.WebSocket = originalWebSocket;
-});
 
 describe('useWebSocket', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();
-    MockWebSocket.clearInstances();
+    
+    // Replace global WebSocket with our mock class
+    // @ts-expect-error - Mock WebSocket for testing
+    global.WebSocket = MockWebSocketClass;
+    MockWebSocketClass.clearInstances();
   });
 
   afterEach(() => {
     vi.useRealTimers();
+    global.WebSocket = originalWebSocket;
   });
 
   describe('Connection Establishment', () => {
@@ -138,15 +125,15 @@ describe('useWebSocket', () => {
       });
 
       expect(result.current.isConnected).toBe(true);
-      expect(MockWebSocket.instances.length).toBe(1);
-      expect(MockWebSocket.instances[0].url).toBe(url);
+      expect(MockWebSocketClass.instances.length).toBe(1);
+      expect(MockWebSocketClass.instances[0].url).toBe(url);
     });
 
     it('should not connect when url is not provided', () => {
       const { result } = renderHook(() => useWebSocket({}));
 
       expect(result.current.isConnected).toBe(false);
-      expect(MockWebSocket.instances.length).toBe(0);
+      expect(MockWebSocketClass.instances.length).toBe(0);
     });
 
     it('should not create duplicate connections when already connected', async () => {
@@ -159,7 +146,7 @@ describe('useWebSocket', () => {
       });
 
       expect(result.current.isConnected).toBe(true);
-      const initialCount = MockWebSocket.instances.length;
+      const initialCount = MockWebSocketClass.instances.length;
 
       // Try to connect again
       act(() => {
@@ -170,7 +157,7 @@ describe('useWebSocket', () => {
         vi.runAllTimers();
       });
 
-      expect(MockWebSocket.instances.length).toBe(initialCount);
+      expect(MockWebSocketClass.instances.length).toBe(initialCount);
     });
 
     it('should call onOpen callback when connection opens', async () => {
@@ -209,7 +196,7 @@ describe('useWebSocket', () => {
 
       // Simulate receiving a message
       await act(async () => {
-        MockWebSocket.instances[0].simulateMessage(testMessage);
+        MockWebSocketClass.instances[0].simulateMessage(testMessage);
       });
 
       expect(onMessage).toHaveBeenCalledWith(testMessage);
@@ -234,7 +221,7 @@ describe('useWebSocket', () => {
         result.current.send(message);
       });
 
-      const sentMessages = MockWebSocket.instances[0].getSentMessages();
+      const sentMessages = MockWebSocketClass.instances[0].getSentMessages();
       expect(sentMessages.length).toBe(1);
       expect(JSON.parse(sentMessages[0])).toEqual(message);
     });
@@ -252,7 +239,7 @@ describe('useWebSocket', () => {
         result.current.send(message);
       });
 
-      expect(MockWebSocket.instances.length).toBe(0);
+      expect(MockWebSocketClass.instances.length).toBe(0);
     });
 
     it('should handle invalid JSON messages gracefully', async () => {
@@ -268,7 +255,7 @@ describe('useWebSocket', () => {
 
       // Simulate receiving invalid JSON
       await act(async () => {
-        MockWebSocket.instances[0].onmessage?.(new MessageEvent('message', { 
+        MockWebSocketClass.instances[0].onmessage?.(new MessageEvent('message', { 
           data: 'invalid json' 
         }));
       });
@@ -317,7 +304,7 @@ describe('useWebSocket', () => {
 
       // Close the connection
       act(() => {
-        MockWebSocket.instances[0].close();
+        MockWebSocketClass.instances[0].close();
       });
 
       expect(onClose).toHaveBeenCalled();
@@ -337,7 +324,7 @@ describe('useWebSocket', () => {
 
       // Simulate error
       act(() => {
-        MockWebSocket.instances[0].simulateError();
+        MockWebSocketClass.instances[0].simulateError();
       });
 
       expect(onError).toHaveBeenCalled();
@@ -357,11 +344,11 @@ describe('useWebSocket', () => {
       });
 
       expect(result.current.isConnected).toBe(true);
-      expect(MockWebSocket.instances.length).toBe(1);
+      expect(MockWebSocketClass.instances.length).toBe(1);
 
       // Simulate connection close
       act(() => {
-        MockWebSocket.instances[0].simulateClose();
+        MockWebSocketClass.instances[0].simulateClose();
       });
 
       expect(result.current.isConnected).toBe(false);
@@ -372,7 +359,7 @@ describe('useWebSocket', () => {
       });
 
       // Should have created a new WebSocket instance
-      expect(MockWebSocket.instances.length).toBe(2);
+      expect(MockWebSocketClass.instances.length).toBe(2);
     });
 
     it('should not reconnect when reconnect is disabled', async () => {
@@ -390,7 +377,7 @@ describe('useWebSocket', () => {
 
       // Simulate connection close
       act(() => {
-        MockWebSocket.instances[0].simulateClose();
+        MockWebSocketClass.instances[0].simulateClose();
       });
 
       // Advance timers
@@ -399,7 +386,7 @@ describe('useWebSocket', () => {
       });
 
       // Should NOT have created a new WebSocket instance
-      expect(MockWebSocket.instances.length).toBe(1);
+      expect(MockWebSocketClass.instances.length).toBe(1);
     });
 
     it('should use custom reconnect interval', async () => {
@@ -417,7 +404,7 @@ describe('useWebSocket', () => {
 
       // Simulate connection close
       act(() => {
-        MockWebSocket.instances[0].simulateClose();
+        MockWebSocketClass.instances[0].simulateClose();
       });
 
       // Advance time by less than reconnect interval
@@ -425,14 +412,14 @@ describe('useWebSocket', () => {
         vi.advanceTimersByTime(reconnectInterval - 1);
       });
 
-      expect(MockWebSocket.instances.length).toBe(1);
+      expect(MockWebSocketClass.instances.length).toBe(1);
 
       // Advance past reconnect interval
       await act(async () => {
         vi.advanceTimersByTime(1);
       });
 
-      expect(MockWebSocket.instances.length).toBe(2);
+      expect(MockWebSocketClass.instances.length).toBe(2);
     });
   });
 
@@ -454,7 +441,7 @@ describe('useWebSocket', () => {
       });
 
       expect(result.current.isConnected).toBe(false);
-      expect(MockWebSocket.instances[0].readyState).toBe(MockWebSocket.CLOSED);
+      expect(MockWebSocketClass.instances[0].readyState).toBe(MockWebSocketClass.CLOSED);
     });
 
     it('should cleanup on unmount', async () => {
@@ -466,11 +453,11 @@ describe('useWebSocket', () => {
         vi.runAllTimers();
       });
 
-      expect(MockWebSocket.instances[0].readyState).toBe(MockWebSocket.OPEN);
+      expect(MockWebSocketClass.instances[0].readyState).toBe(MockWebSocketClass.OPEN);
 
       unmount();
 
-      expect(MockWebSocket.instances[0].readyState).toBe(MockWebSocket.CLOSED);
+      expect(MockWebSocketClass.instances[0].readyState).toBe(MockWebSocketClass.CLOSED);
     });
 
     it('should clear reconnect timeout on disconnect', async () => {
@@ -486,7 +473,7 @@ describe('useWebSocket', () => {
 
       // Simulate connection close (starts reconnect timer)
       act(() => {
-        MockWebSocket.instances[0].simulateClose();
+        MockWebSocketClass.instances[0].simulateClose();
       });
 
       // Disconnect before reconnect happens
@@ -500,7 +487,7 @@ describe('useWebSocket', () => {
       });
 
       // Should not have reconnected (only initial connection)
-      expect(MockWebSocket.instances.length).toBe(1);
+      expect(MockWebSocketClass.instances.length).toBe(1);
     });
   });
 
@@ -518,7 +505,7 @@ describe('useWebSocket', () => {
         result.current.subscribe('owner', 'repo');
       });
 
-      const sentMessages = MockWebSocket.instances[0].getSentMessages();
+      const sentMessages = MockWebSocketClass.instances[0].getSentMessages();
       const lastMessage = JSON.parse(sentMessages[sentMessages.length - 1]);
       
       expect(lastMessage).toEqual({
@@ -541,7 +528,7 @@ describe('useWebSocket', () => {
         result.current.unsubscribe('owner', 'repo');
       });
 
-      const sentMessages = MockWebSocket.instances[0].getSentMessages();
+      const sentMessages = MockWebSocketClass.instances[0].getSentMessages();
       const lastMessage = JSON.parse(sentMessages[sentMessages.length - 1]);
       
       expect(lastMessage).toEqual({
@@ -559,7 +546,7 @@ describe('useWebSocket', () => {
       });
 
       // No WebSocket instance should exist
-      expect(MockWebSocket.instances.length).toBe(0);
+      expect(MockWebSocketClass.instances.length).toBe(0);
     });
   });
 
@@ -575,7 +562,7 @@ describe('useWebSocket', () => {
       });
 
       expect(result.current.isConnected).toBe(true);
-      expect(MockWebSocket.instances.length).toBe(1);
+      expect(MockWebSocketClass.instances.length).toBe(1);
 
       // Disconnect
       act(() => {
@@ -591,7 +578,7 @@ describe('useWebSocket', () => {
       });
 
       expect(result.current.isConnected).toBe(true);
-      expect(MockWebSocket.instances.length).toBe(2);
+      expect(MockWebSocketClass.instances.length).toBe(2);
     });
   });
 });
