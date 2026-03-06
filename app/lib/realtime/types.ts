@@ -22,6 +22,7 @@ export interface BaseWebSocketMessage {
   type: string;
   timestamp: string;
   id: string;
+  payload?: Record<string, unknown>;
 }
 
 /** 任务状态变更通知 */
