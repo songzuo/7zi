@@ -27,7 +27,7 @@ export interface NotificationOptions {
 
 type NotificationListener = (notifications: Notification[]) => void;
 
-class NotificationManager {
+export class NotificationManager {
   private notifications: Notification[] = [];
   private listeners: Set<NotificationListener> = new Set();
   private timers: Map<string, NodeJS.Timeout> = new Map();
