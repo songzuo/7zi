@@ -101,11 +101,11 @@ const TaskCardBase: React.FC<TaskCardProps> = ({ issue }) => {
   const config = stateConfig[issue.state];
 
   return (
-    <div className="px-6 py-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors group">
+    <div className="px-6 py-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all duration-200 group border-l-2 border-transparent hover:border-cyan-500 hover:translate-x-1">
       <div className="flex items-start gap-3">
         {/* 状态图标 */}
         <div className="mt-1 flex-shrink-0">
-          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${config.color}`}>
+          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${config.color} transition-transform group-hover:scale-105`}>
             {config.label}
           </span>
         </div>
@@ -117,7 +117,7 @@ const TaskCardBase: React.FC<TaskCardProps> = ({ issue }) => {
               href={issue.html_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm font-medium text-cyan-600 hover:text-cyan-800 dark:text-cyan-400 hover:underline"
+              className="text-sm font-medium text-cyan-600 hover:text-cyan-800 dark:text-cyan-400 hover:underline transition-colors"
             >
               #{issue.number}
             </a>

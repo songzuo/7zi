@@ -353,19 +353,19 @@ interface StatCardProps {
 
 function StatCard({ label, value, color }: StatCardProps) {
   const colorClasses = {
-    blue: 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800',
-    green: 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800',
-    yellow: 'bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800',
-    gray: 'bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700',
-    slate: 'bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700',
-    indigo: 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800',
-    emerald: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
+    blue: 'bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/20 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800',
+    green: 'bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/20 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800',
+    yellow: 'bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/30 dark:to-yellow-800/20 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800',
+    gray: 'bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-700/30 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700',
+    slate: 'bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800/50 dark:to-slate-700/30 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700',
+    indigo: 'bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/30 dark:to-indigo-800/20 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800',
+    emerald: 'bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/30 dark:to-emerald-800/20 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
   };
 
   return (
-    <div className={`p-3 sm:p-4 rounded-xl border ${colorClasses[color]} transition-transform hover:scale-[1.02] active:scale-[0.98]`}>
-      <p className="text-xs sm:text-sm font-medium opacity-80 truncate">{label}</p>
-      <p className="text-xl sm:text-2xl font-bold mt-1">{value}</p>
+    <div className={`p-3 sm:p-4 rounded-xl border ${colorClasses[color]} transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg group cursor-default`}>
+      <p className="text-xs sm:text-sm font-medium opacity-80 truncate group-hover:opacity-100 transition-opacity">{label}</p>
+      <p className="text-xl sm:text-2xl font-bold mt-1 group-hover:scale-110 transition-transform origin-left">{value}</p>
     </div>
   );
 }
@@ -387,13 +387,13 @@ function MemberStatus({ members }: MemberStatusProps) {
   return (
     <div className="space-y-4">
       {/* 工作中 */}
-      <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-        <div className="px-4 py-3 border-b bg-green-50 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-green-800 flex items-center gap-2">
-            <span>🔥</span> 工作中 ({workingMembers.length})
+      <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 overflow-hidden hover:shadow-md transition-shadow duration-300">
+        <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-700 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-green-800 dark:text-green-300 flex items-center gap-2">
+            <span className="animate-pulse">🔥</span> 工作中 ({workingMembers.length})
           </h3>
         </div>
-        <div className="divide-y max-h-96 overflow-y-auto">
+        <div className="divide-y divide-zinc-100 dark:divide-zinc-700 max-h-96 overflow-y-auto scrollbar-thin">
           {workingMembers.map(member => (
             <MemberCard key={member.id} member={member} compact />
           ))}
@@ -406,13 +406,13 @@ function MemberStatus({ members }: MemberStatusProps) {
       </div>
 
       {/* 忙碌中 */}
-      <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-        <div className="px-4 py-3 border-b bg-yellow-50 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-yellow-800 flex items-center gap-2">
-            <span>⚡</span> 忙碌中 ({busyMembers.length})
+      <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 overflow-hidden hover:shadow-md transition-shadow duration-300">
+        <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-700 bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-yellow-800 dark:text-yellow-300 flex items-center gap-2">
+            <span className="animate-bounce">⚡</span> 忙碌中 ({busyMembers.length})
           </h3>
         </div>
-        <div className="divide-y max-h-96 overflow-y-auto">
+        <div className="divide-y divide-zinc-100 dark:divide-zinc-700 max-h-96 overflow-y-auto scrollbar-thin">
           {busyMembers.map(member => (
             <MemberCard key={member.id} member={member} compact />
           ))}
@@ -425,13 +425,13 @@ function MemberStatus({ members }: MemberStatusProps) {
       </div>
 
       {/* 空闲中 */}
-      <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-        <div className="px-4 py-3 border-b bg-gray-50 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+      <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 overflow-hidden hover:shadow-md transition-shadow duration-300">
+        <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-700 bg-gradient-to-r from-gray-50 to-zinc-50 dark:from-zinc-700/30 dark:to-zinc-600/30 flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
             <span>😊</span> 空闲中 ({idleMembers.length})
           </h3>
         </div>
-        <div className="divide-y max-h-96 overflow-y-auto">
+        <div className="divide-y divide-zinc-100 dark:divide-zinc-700 max-h-96 overflow-y-auto scrollbar-thin">
           {idleMembers.map(member => (
             <MemberCard key={member.id} member={member} compact />
           ))}
@@ -444,13 +444,13 @@ function MemberStatus({ members }: MemberStatusProps) {
       </div>
 
       {/* 离线 */}
-      <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-        <div className="px-4 py-3 border-b bg-slate-50 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-slate-600 flex items-center gap-2">
+      <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 overflow-hidden hover:shadow-md transition-shadow duration-300">
+        <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-700 bg-gradient-to-r from-slate-50 to-zinc-50 dark:from-slate-800/30 dark:to-zinc-700/30 flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 flex items-center gap-2">
             <span>⚫</span> 离线 ({offlineMembers.length})
           </h3>
         </div>
-        <div className="divide-y max-h-96 overflow-y-auto">
+        <div className="divide-y divide-zinc-100 dark:divide-zinc-700 max-h-96 overflow-y-auto scrollbar-thin">
           {offlineMembers.map(member => (
             <MemberCard key={member.id} member={member} compact />
           ))}

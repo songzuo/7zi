@@ -102,12 +102,13 @@ export const Navigation: React.FC = () => {
     const isActive = pathname === itemHref;
     return `
       px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300
-      flex items-center gap-2
+      flex items-center gap-2 relative overflow-hidden
       ${
         isActive
           ? 'bg-[var(--nav-active-bg)] text-[var(--nav-active-text)] shadow-sm ring-1 ring-[var(--primary)]'
           : 'text-[var(--nav-text)] hover:bg-[var(--secondary)] hover:text-[var(--nav-text-hover)]'
       }
+      hover:scale-105 active:scale-95
     `;
   };
 
@@ -115,12 +116,13 @@ export const Navigation: React.FC = () => {
     const isActive = pathname === itemHref;
     return `
       flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-200
-      min-h-[56px] w-full text-left
+      min-h-[56px] w-full text-left relative overflow-hidden
       ${
         isActive
           ? 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400'
           : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 active:bg-zinc-200 dark:active:bg-zinc-700'
       }
+      hover:translate-x-1 active:scale-[0.98]
     `;
   };
 
