@@ -50,26 +50,31 @@ describe('Navigation', () => {
   describe('渲染测试', () => {
     it('应该渲染 Logo', () => {
       render(<Navigation />);
-      expect(screen.getByText('AI 团队')).toBeInTheDocument();
+      // 使用 getAllByText 因为 AI 团队 出现多次（桌面和移动端）
+      const logoElements = screen.getAllByText('AI 团队');
+      expect(logoElements.length).toBeGreaterThan(0);
     });
 
     it('应该渲染所有导航链接', () => {
       render(<Navigation />);
-      expect(screen.getByText('首页')).toBeInTheDocument();
-      expect(screen.getByText('实时看板')).toBeInTheDocument();
-      expect(screen.getByText('子代理')).toBeInTheDocument();
-      expect(screen.getByText('任务')).toBeInTheDocument();
-      expect(screen.getByText('记忆')).toBeInTheDocument();
+      // 使用 getAllByText 因为元素在桌面和移动端都有
+      expect(screen.getAllByText('首页').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('实时看板').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('子代理').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('任务').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('记忆').length).toBeGreaterThan(0);
     });
 
     it('应该渲染主题切换按钮', () => {
       render(<Navigation />);
-      expect(screen.getByTestId('theme-toggle')).toBeInTheDocument();
+      // 桌面和移动端各有一个
+      expect(screen.getAllByTestId('theme-toggle').length).toBeGreaterThan(0);
     });
 
     it('应该渲染语言切换按钮', () => {
       render(<Navigation />);
-      expect(screen.getByTestId('language-switcher')).toBeInTheDocument();
+      // 桌面和移动端各有一个
+      expect(screen.getAllByTestId('language-switcher').length).toBeGreaterThan(0);
     });
 
     it('应该渲染设置按钮', () => {
@@ -83,57 +88,69 @@ describe('Navigation', () => {
       mockUsePathname.mockReturnValue('/');
       render(<Navigation />);
       
-      const homeLink = screen.getByRole('link', { name: /首页/ });
-      expect(homeLink).toHaveClass('bg-[var(--nav-active-bg)]');
+      const homeLinks = screen.getAllByRole('link', { name: /首页/ });
+      // 至少有一个首页链接有活跃状态
+      const hasActiveLink = homeLinks.some(link => 
+        link.className.includes('bg-[var(--nav-active-bg)]')
+      );
+      expect(hasActiveLink).toBe(true);
     });
 
     it('Dashboard 路径时，实时看板链接应该有活跃状态', () => {
       mockUsePathname.mockReturnValue('/dashboard');
       render(<Navigation />);
       
-      const dashboardLink = screen.getByRole('link', { name: /实时看板/ });
-      expect(dashboardLink).toHaveClass('bg-[var(--nav-active-bg)]');
+      const dashboardLinks = screen.getAllByRole('link', { name: /实时看板/ });
+      const hasActiveLink = dashboardLinks.some(link => 
+        link.className.includes('bg-[var(--nav-active-bg)]')
+      );
+      expect(hasActiveLink).toBe(true);
     });
 
     it('非活跃链接应该有默认样式', () => {
       mockUsePathname.mockReturnValue('/');
       render(<Navigation />);
       
-      const dashboardLink = screen.getByRole('link', { name: /实时看板/ });
-      expect(dashboardLink).toHaveClass('text-[var(--nav-text)]');
+      const dashboardLinks = screen.getAllByRole('link', { name: /实时看板/ });
+      const hasDefaultStyle = dashboardLinks.some(link => 
+        link.className.includes('text-[var(--nav-text)]')
+      );
+      expect(hasDefaultStyle).toBe(true);
     });
   });
 
   describe('移动端菜单', () => {
     it('默认情况下移动端菜单应该关闭', () => {
       render(<Navigation />);
-      expect(screen.getByText('☰')).toBeInTheDocument();
+      // 检查菜单按钮存在（使用 aria-label）
+      const menuButton = screen.getByRole('button', { name: /打开菜单/ });
+      expect(menuButton).toBeInTheDocument();
     });
 
     it('点击汉堡按钮应该打开移动端菜单', () => {
       render(<Navigation />);
       
-      const menuButton = screen.getByRole('button', { name: 'Toggle menu' });
+      const menuButton = screen.getByRole('button', { name: /打开菜单/ });
       fireEvent.click(menuButton);
       
-      // 菜单打开后按钮显示关闭图标
-      expect(screen.getByText('✕')).toBeInTheDocument();
+      // 菜单打开后按钮 aria-label 变为关闭
+      expect(screen.getByRole('button', { name: /关闭菜单/ })).toBeInTheDocument();
     });
 
     it('再次点击汉堡按钮应该关闭移动端菜单', () => {
       render(<Navigation />);
       
-      const menuButton = screen.getByRole('button', { name: 'Toggle menu' });
+      const menuButton = screen.getByRole('button', { name: /打开菜单/ });
       fireEvent.click(menuButton);
-      fireEvent.click(menuButton);
+      fireEvent.click(screen.getByRole('button', { name: /关闭菜单/ }));
       
-      expect(screen.getByText('☰')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /打开菜单/ })).toBeInTheDocument();
     });
 
     it('移动端菜单打开时应该显示所有导航链接', () => {
       render(<Navigation />);
       
-      const menuButton = screen.getByRole('button', { name: 'Toggle menu' });
+      const menuButton = screen.getByRole('button', { name: /打开菜单/ });
       fireEvent.click(menuButton);
       
       // 移动端菜单中也有所有导航链接
@@ -146,18 +163,27 @@ describe('Navigation', () => {
     it('所有导航链接应该有正确的 href', () => {
       render(<Navigation />);
       
-      expect(screen.getByRole('link', { name: /首页/ })).toHaveAttribute('href', '/');
-      expect(screen.getByRole('link', { name: /实时看板/ })).toHaveAttribute('href', '/dashboard');
-      expect(screen.getByRole('link', { name: /子代理/ })).toHaveAttribute('href', '/subagents');
-      expect(screen.getByRole('link', { name: /任务/ })).toHaveAttribute('href', '/tasks');
-      expect(screen.getByRole('link', { name: /记忆/ })).toHaveAttribute('href', '/memory');
+      const homeLinks = screen.getAllByRole('link', { name: /首页/ });
+      expect(homeLinks.some(link => link.getAttribute('href') === '/')).toBe(true);
+      
+      const dashboardLinks = screen.getAllByRole('link', { name: /实时看板/ });
+      expect(dashboardLinks.some(link => link.getAttribute('href') === '/dashboard')).toBe(true);
+      
+      const subagentsLinks = screen.getAllByRole('link', { name: /子代理/ });
+      expect(subagentsLinks.some(link => link.getAttribute('href') === '/subagents')).toBe(true);
+      
+      const tasksLinks = screen.getAllByRole('link', { name: /任务/ });
+      expect(tasksLinks.some(link => link.getAttribute('href') === '/tasks')).toBe(true);
+      
+      const memoryLinks = screen.getAllByRole('link', { name: /记忆/ });
+      expect(memoryLinks.some(link => link.getAttribute('href') === '/memory')).toBe(true);
     });
 
     it('Logo 链接应该指向首页', () => {
       render(<Navigation />);
       
-      const logoLink = screen.getByRole('link', { name: /AI 团队/ });
-      expect(logoLink).toHaveAttribute('href', '/');
+      const logoLinks = screen.getAllByRole('link', { name: /AI 团队/ });
+      expect(logoLinks.some(link => link.getAttribute('href') === '/')).toBe(true);
     });
   });
 

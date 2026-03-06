@@ -88,9 +88,10 @@ describe('GitHubActivity', () => {
     render(<GitHubActivity />)
     
     await waitFor(() => {
-      expect(screen.getByText('Stars')).toBeInTheDocument()
-      expect(screen.getByText('Forks')).toBeInTheDocument()
-      expect(screen.getByText('Issues')).toBeInTheDocument()
+      // Stats labels include emoji prefixes
+      expect(screen.getByText(/Stars/)).toBeInTheDocument()
+      expect(screen.getByText(/Forks/)).toBeInTheDocument()
+      expect(screen.getByText(/Issues/)).toBeInTheDocument()
     })
   })
 
