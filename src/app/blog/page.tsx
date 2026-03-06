@@ -1,16 +1,33 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+const baseUrl = "https://7zi.studio";
+
 export const metadata: Metadata = {
-  title: "博客 - 7zi Studio",
-  description: "7zi Studio博客 - 分享AI、数字化、创新的见解和资讯",
+  title: "博客 - AI 与数字化前沿洞察",
+  description: "7zi Studio 博客 - 分享 AI、数字化、Web 开发、设计、营销的最新见解和深度分析。探索技术趋势，获取实战经验。",
+  keywords: ["AI 博客", "数字化趋势", "Web 开发", "SEO 优化", "UI/UX 设计", "内容营销", "技术博客"],
+  openGraph: {
+    title: "博客 - 7zi Studio",
+    description: "分享 AI、数字化、创新的见解和资讯",
+    url: `${baseUrl}/blog`,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "博客 - 7zi Studio",
+    description: "探索 AI 与数字化的前沿",
+  },
+  alternates: {
+    canonical: `${baseUrl}/blog`,
+  },
 };
 
 // 博客分类
 const categories = [
   {
     id: "ai-insights",
-    name: "AI洞察",
+    name: "AI 洞察",
     emoji: "🤖",
     description: "关于人工智能的最新动态、趋势和深度分析",
     color: "from-blue-400 to-indigo-600",
@@ -20,7 +37,7 @@ const categories = [
     id: "digital-trends",
     name: "数字化趋势",
     emoji: "📱",
-    description: "数字化转型、Web开发、移动端的最新技术",
+    description: "数字化转型、Web 开发、移动端的最新技术",
     color: "from-green-400 to-emerald-600",
     articleCount: 8,
   },
@@ -28,7 +45,7 @@ const categories = [
     id: "design",
     name: "设计前沿",
     emoji: "🎨",
-    description: "UI/UX设计、品牌设计、用户体验的最佳实践",
+    description: "UI/UX 设计、品牌设计、用户体验的最佳实践",
     color: "from-pink-400 to-rose-500",
     articleCount: 15,
   },
@@ -52,7 +69,7 @@ const categories = [
     id: "team-updates",
     name: "团队动态",
     emoji: "📰",
-    description: "7zi Studio团队的最新消息和更新",
+    description: "7zi Studio 团队的最新消息和更新",
     color: "from-cyan-400 to-sky-500",
     articleCount: 4,
   },
@@ -63,84 +80,84 @@ const blogPosts = [
   {
     id: 1,
     slug: "ai-agent-future-work",
-    title: "AI Agent将如何改变未来的工作方式",
-    excerpt: "探索AI代理在各行业的应用前景，以及它们如何重塑我们的工作方式。从自动化客服到智能决策支持，AI正在彻底改变企业的运营模式。",
-    category: "AI洞察",
+    title: "AI Agent 将如何改变未来的工作方式",
+    excerpt: "探索 AI 代理在各行业的应用前景，以及它们如何重塑我们的工作方式。从自动化客服到智能决策支持，AI 正在彻底改变企业的运营模式。",
+    category: "AI 洞察",
     categoryId: "ai-insights",
     date: "2024-01-15",
-    readTime: "5分钟",
+    readTime: "5 分钟",
     featured: true,
   },
   {
     id: 2,
     slug: "web-development-trends-2024",
-    title: "2024年Web开发趋势预测",
-    excerpt: "从AI辅助开发到边缘计算，今年的Web开发有哪些值得关注的技术趋势？探索React Server Components、WebAssembly等新技术的应用。",
+    title: "2024 年 Web 开发趋势预测",
+    excerpt: "从 AI 辅助开发到边缘计算，今年的 Web 开发有哪些值得关注的技术趋势？探索 React Server Components、WebAssembly 等新技术的应用。",
     category: "数字化趋势",
     categoryId: "digital-trends",
     date: "2024-01-12",
-    readTime: "7分钟",
+    readTime: "7 分钟",
     featured: true,
   },
   {
     id: 3,
     slug: "design-system-ux",
     title: "设计系统：打造一致的用户体验",
-    excerpt: "分享如何构建可扩展的设计系统，确保产品在各端保持一致的用户体验。包含组件库设计、Token管理、文档编写等最佳实践。",
+    excerpt: "分享如何构建可扩展的设计系统，确保产品在各端保持一致的用户体验。包含组件库设计、Token 管理、文档编写等最佳实践。",
     category: "设计前沿",
     categoryId: "design",
     date: "2024-01-10",
-    readTime: "6分钟",
+    readTime: "6 分钟",
   },
   {
     id: 4,
     slug: "ai-content-marketing",
-    title: "内容营销的AI革命",
-    excerpt: "AI如何改变内容创作的方式，以及如何利用AI工具提升营销效果。从SEO文章到社交媒体内容，AI正在成为营销团队的得力助手。",
+    title: "内容营销的 AI 革命",
+    excerpt: "AI 如何改变内容创作的方式，以及如何利用 AI 工具提升营销效果。从 SEO 文章到社交媒体内容，AI 正在成为营销团队的得力助手。",
     category: "营销增长",
     categoryId: "marketing",
     date: "2024-01-08",
-    readTime: "4分钟",
+    readTime: "4 分钟",
   },
   {
     id: 5,
     slug: "llm-prompt-engineering",
-    title: "LLM提示工程：解锁AI的真正潜力",
-    excerpt: "深入探讨如何编写有效的提示词，让AI模型产生更高质量的输出。包含思维链、few-shot learning等高级技巧。",
-    category: "AI洞察",
+    title: "LLM 提示工程：解锁 AI 的真正潜力",
+    excerpt: "深入探讨如何编写有效的提示词，让 AI 模型产生更高质量的输出。包含思维链、few-shot learning 等高级技巧。",
+    category: "AI 洞察",
     categoryId: "ai-insights",
     date: "2024-01-05",
-    readTime: "8分钟",
+    readTime: "8 分钟",
   },
   {
     id: 6,
     slug: "seo-strategies-2024",
-    title: "2024年SEO优化完全指南",
-    excerpt: "AI搜索时代下的SEO策略发生了哪些变化？如何优化内容以获得更好的排名？最新算法解读和实操技巧。",
+    title: "2024 年 SEO 优化完全指南",
+    excerpt: "AI 搜索时代下的 SEO 策略发生了哪些变化？如何优化内容以获得更好的排名？最新算法解读和实操技巧。",
     category: "营销增长",
     categoryId: "marketing",
     date: "2024-01-03",
-    readTime: "6分钟",
+    readTime: "6 分钟",
   },
   {
     id: 7,
     slug: "nextjs-14-features",
-    title: "Next.js 14新特性深度解析",
-    excerpt: "全面解读Next.js 14的服务器动作、路由增强和性能优化。帮助您快速上手最新版本，提升开发效率。",
+    title: "Next.js 14 新特性深度解析",
+    excerpt: "全面解读 Next.js 14 的服务器动作、路由增强和性能优化。帮助您快速上手最新版本，提升开发效率。",
     category: "数字化趋势",
     categoryId: "digital-trends",
     date: "2023-12-28",
-    readTime: "10分钟",
+    readTime: "10 分钟",
   },
   {
     id: 8,
     slug: "brand-identity-design",
-    title: "品牌视觉Identity设计流程",
-    excerpt: "从品牌调研到视觉系统建立，完整分享品牌设计项目的全流程。包含Logo设计、色彩规范、字体选择等关键环节。",
+    title: "品牌视觉 Identity 设计流程",
+    excerpt: "从品牌调研到视觉系统建立，完整分享品牌设计项目的全流程。包含 Logo 设计、色彩规范、字体选择等关键环节。",
     category: "设计前沿",
     categoryId: "design",
     date: "2023-12-25",
-    readTime: "7分钟",
+    readTime: "7 分钟",
   },
 ];
 
@@ -183,7 +200,7 @@ export default function BlogPage() {
             7zi <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">博客</span>
           </h1>
           <p className="text-xl md:text-2xl text-zinc-300 max-w-2xl mx-auto">
-            探索AI与数字化的前沿，分享洞察与见解
+            探索 AI 与数字化的前沿，分享洞察与见解
           </p>
         </div>
       </section>
@@ -297,7 +314,7 @@ export default function BlogPage() {
               订阅我们的更新
             </h2>
             <p className="text-white/80 mb-8">
-              获取最新的AI洞察和数字化趋势，每周精选内容直接送达您的邮箱
+              获取最新的 AI 洞察和数字化趋势，每周精选内容直接送达您的邮箱
             </p>
             <form className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
               <input
@@ -313,7 +330,7 @@ export default function BlogPage() {
               </button>
             </form>
             <p className="text-white/60 text-sm mt-4">
-              每周六发送， unsubscribe随时退订
+              每周六发送，unsubscribe 随时退订
             </p>
           </div>
         </div>
@@ -326,8 +343,8 @@ export default function BlogPage() {
           <div className="flex flex-wrap justify-center gap-3">
             {[
               "AI", "ChatGPT", "LLM", "Next.js", "React", 
-              "TypeScript", "UI设计", "UX", "SEO", "营销",
-              "数字化转型", "Web开发", "前端", "后端", "云服务"
+              "TypeScript", "UI 设计", "UX", "SEO", "营销",
+              "数字化转型", "Web 开发", "前端", "后端", "云服务"
             ].map((tag) => (
               <Link
                 key={tag}
@@ -360,6 +377,36 @@ export default function BlogPage() {
           </div>
         </div>
       </footer>
+
+      {/* Structured Data for Blog */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Blog",
+            name: "7zi Studio 博客",
+            description: "分享 AI、数字化、创新的见解和资讯",
+            url: `${baseUrl}/blog`,
+            publisher: {
+              "@type": "Organization",
+              name: "7zi Studio",
+              url: baseUrl,
+            },
+            blogPost: blogPosts.map((post) => ({
+              "@type": "BlogPosting",
+              headline: post.title,
+              description: post.excerpt,
+              url: `${baseUrl}/blog/${post.slug}`,
+              datePublished: post.date,
+              author: {
+                "@type": "Organization",
+                name: "7zi Studio",
+              },
+            })),
+          }),
+        }}
+      />
     </div>
   );
 }

@@ -1,9 +1,26 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+const baseUrl = "https://7zi.studio";
+
 export const metadata: Metadata = {
-  title: "联系我们 - 7zi Studio",
-  description: "联系7zi Studio - AI驱动的创新数字工作室，我们随时准备为您服务",
+  title: "联系我们 - 获取专业数字化服务",
+  description: "联系 7zi Studio - AI 驱动的创新数字工作室。商务合作、技术支持、项目咨询，我们 24 小时内回复。",
+  keywords: ["联系 7zi Studio", "商务合作", "项目咨询", "技术支持", "数字化服务"],
+  openGraph: {
+    title: "联系我们 - 7zi Studio",
+    description: "有任何问题或合作意向？我们随时准备为您服务",
+    url: `${baseUrl}/contact`,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "联系我们 - 7zi Studio",
+    description: "商务合作、技术支持、项目咨询",
+  },
+  alternates: {
+    canonical: `${baseUrl}/contact`,
+  },
 };
 
 // 社交媒体链接
@@ -56,7 +73,7 @@ const contactInfo = [
     emoji: "🤝",
     title: "加入我们",
     email: "careers@7zi.studio",
-    description: "AI合作伙伴招募",
+    description: "AI 合作伙伴招募",
   },
 ];
 
@@ -233,7 +250,7 @@ export default function ContactPage() {
               <div className="bg-gradient-to-r from-cyan-500 to-purple-600 rounded-3xl p-8 text-white">
                 <h3 className="text-xl font-bold mb-2">响应时间</h3>
                 <p className="text-white/80">
-                  我们通常在 <strong>24小时内</strong> 回复您的消息。
+                  我们通常在 <strong>24 小时内</strong> 回复您的消息。
                   工作日期间响应更快！
                 </p>
               </div>
@@ -251,12 +268,12 @@ export default function ContactPage() {
           <div className="space-y-6">
             {[
               {
-                question: "7zi Studio能提供哪些服务？",
-                answer: "我们提供网站开发、品牌设计、UI/UX设计、SEO优化、内容营销等全方位数字化服务。",
+                question: "7zi Studio 能提供哪些服务？",
+                answer: "我们提供网站开发、品牌设计、UI/UX 设计、SEO 优化、内容营销等全方位数字化服务。",
               },
               {
                 question: "如何开始合作？",
-                answer: "您可以通过填写联系表单或发送邮件与我们取得联系，我们的团队会在24小时内回复您。",
+                answer: "您可以通过填写联系表单或发送邮件与我们取得联系，我们的团队会在 24 小时内回复您。",
               },
               {
                 question: "你们的定价模式是怎样的？",
@@ -308,7 +325,7 @@ export default function ContactPage() {
             还在犹豫？
           </h2>
           <p className="text-xl text-white/80 mb-8">
-            立即开始您的数字项目，与7zi Studio一起创造未来
+            立即开始您的数字项目，与 7zi Studio 一起创造未来
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
@@ -347,6 +364,32 @@ export default function ContactPage() {
           </div>
         </div>
       </footer>
+
+      {/* Structured Data for Contact Page */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ContactPage",
+            name: "联系 7zi Studio",
+            description: "商务合作、技术支持、项目咨询",
+            url: `${baseUrl}/contact`,
+            mainEntity: {
+              "@type": "Organization",
+              name: "7zi Studio",
+              url: baseUrl,
+              contactPoint: contactInfo.map((info) => ({
+                "@type": "ContactPoint",
+                contactType: info.title,
+                email: info.email,
+                description: info.description,
+              })),
+              sameAs: socialLinks.map((s) => s.link).filter((l) => l !== "#"),
+            },
+          }),
+        }}
+      />
     </div>
   );
 }

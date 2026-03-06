@@ -19,6 +19,13 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+const defaultContext: ThemeContextType = {
+  theme: 'system',
+  setTheme: () => {},
+  toggleTheme: () => {},
+  isDark: false,
+};
+
 export function ThemeProvider({
   children,
   defaultTheme = 'system',
@@ -62,7 +69,6 @@ export function ThemeProvider({
     setThemeState((prev) => {
       if (prev === 'light') return 'dark';
       if (prev === 'dark') return 'light';
-      // If system, toggle to opposite of current system
       const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       return systemDark ? 'light' : 'dark';
     });
@@ -81,8 +87,6 @@ export function ThemeProvider({
 
 export function useTheme() {
   const context = useContext(ThemeContext);
-  if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
-  return context;
+  // Return default context instead of throwing error
+  return context || defaultContext;
 }

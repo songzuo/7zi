@@ -1,80 +1,77 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata: Metadata = {
-  title: "博客文章 - 7zi Studio",
-  description: "AI Agent将如何改变未来的工作方式 - 7zi Studio博客",
-};
+const baseUrl = "https://7zi.studio";
 
 // 博客文章数据
 const blogPosts = [
   {
     id: "ai-agent-future-work",
-    title: "AI Agent将如何改变未来的工作方式",
-    excerpt: "探索AI代理在各行业的应用前景，以及它们如何重塑我们的工作方式。",
+    title: "AI Agent 将如何改变未来的工作方式",
+    excerpt: "探索 AI 代理在各行业的应用前景，以及它们如何重塑我们的工作方式。",
     content: `
       <h2>引言</h2>
-      <p>人工智能正在以惊人的速度发展，其中AI Agent（AI代理）已经成为最引人注目的技术趋势之一。与传统的AI工具不同，AI Agent具备自主规划、执行和学习的能力，正在重新定义人类与机器的协作方式。</p>
+      <p>人工智能正在以惊人的速度发展，其中 AI Agent（AI 代理）已经成为最引人注目的技术趋势之一。与传统的 AI 工具不同，AI Agent 具备自主规划、执行和学习的能力，正在重新定义人类与机器的协作方式。</p>
       
-      <h2>什么是AI Agent？</h2>
-      <p>AI Agent是一种能够感知环境、制定计划并执行任务的人工智能系统。与简单的问答机器人不同，AI Agent可以：</p>
+      <h2>什么是 AI Agent？</h2>
+      <p>AI Agent 是一种能够感知环境、制定计划并执行任务的人工智能系统。与简单的问答机器人不同，AI Agent 可以：</p>
       <ul>
         <li>自主分析复杂问题</li>
         <li>分解大型任务为可执行的子任务</li>
         <li>根据反馈持续学习和优化</li>
-        <li>与其他Agent或系统协作</li>
+        <li>与其他 Agent 或系统协作</li>
       </ul>
       
-      <h2>AI Agent在各行业的应用</h2>
-      <p>从软件开发到内容创作，从医疗诊断到金融服务，AI Agent正在改变各个行业的工作方式。</p>
+      <h2>AI Agent 在各行业的应用</h2>
+      <p>从软件开发到内容创作，从医疗诊断到金融服务，AI Agent 正在改变各个行业的工作方式。</p>
       
       <h3>软件开发</h3>
-      <p>AI Agent可以自动编写代码、调试程序、甚至进行代码审查，极大提高了开发效率。</p>
+      <p>AI Agent 可以自动编写代码、调试程序、甚至进行代码审查，极大提高了开发效率。</p>
       
       <h3>内容创作</h3>
-      <p>从撰写文章到制作视频，AI Agent正在成为创作者的强大助手。</p>
+      <p>从撰写文章到制作视频，AI Agent 正在成为创作者的强大助手。</p>
       
       <h2>未来展望</h2>
-      <p>随着技术的不断进步，我们可以预见AI Agent将在更多领域发挥重要作用。7zi Studio正是基于这一理念，组建了由11位AI Agent组成的专业团队，为客户提供全方位的数字化服务。</p>
+      <p>随着技术的不断进步，我们可以预见 AI Agent 将在更多领域发挥重要作用。7zi Studio 正是基于这一理念，组建了由 11 位 AI Agent 组成的专业团队，为客户提供全方位的数字化服务。</p>
       
       <h2>结语</h2>
-      <p>AI Agent不是要取代人类，而是要与人类协作，共同创造更大的价值。拥抱这一技术变革，将帮助我们在未来保持竞争力。</p>
+      <p>AI Agent 不是要取代人类，而是要与人类协作，共同创造更大的价值。拥抱这一技术变革，将帮助我们在未来保持竞争力。</p>
     `,
-    category: "AI洞察",
+    category: "AI 洞察",
     categoryColor: "from-blue-400 to-indigo-600",
     date: "2024-01-15",
-    readTime: "5分钟",
+    readTime: "5 分钟",
     author: "智能体世界专家",
     authorEmoji: "🌟",
     tags: ["AI", "Agent", "未来工作", "数字化转型"],
   },
   {
     id: "web-development-trends-2024",
-    title: "2024年Web开发趋势预测",
-    excerpt: "从AI辅助开发到边缘计算，今年的Web开发有哪些值得关注的技术趋势？",
+    title: "2024 年 Web 开发趋势预测",
+    excerpt: "从 AI 辅助开发到边缘计算，今年的 Web 开发有哪些值得关注的技术趋势？",
     content: `
       <h2>引言</h2>
-      <p>Web开发领域正在经历快速变革。2024年，哪些技术趋势值得关注？让我们一起来探索。</p>
+      <p>Web 开发领域正在经历快速变革。2024 年，哪些技术趋势值得关注？让我们一起来探索。</p>
       
-      <h2>AI辅助开发</h2>
-      <p>AI代码助手正在成为开发者的标准工具。从代码补全到自动重构，AI大大提高了开发效率。</p>
+      <h2>AI 辅助开发</h2>
+      <p>AI 代码助手正在成为开发者的标准工具。从代码补全到自动重构，AI 大大提高了开发效率。</p>
       
       <h2>边缘计算</h2>
       <p>边缘计算将计算资源推向网络边缘，提供更低的延迟和更好的用户体验。</p>
       
-      <h2>WebAssembly成熟</h2>
-      <p>WASM正在开启Web应用的新可能，让Web应用能够实现接近原生的性能。</p>
+      <h2>WebAssembly 成熟</h2>
+      <p>WASM 正在开启 Web 应用的新可能，让 Web 应用能够实现接近原生的性能。</p>
       
       <h2>结论</h2>
-      <p>2024年将是Web开发激动人心的一年。新技术的涌现为开发者提供了更多可能性，也带来了新的挑战。</p>
+      <p>2024 年将是 Web 开发激动人心的一年。新技术的涌现为开发者提供了更多可能性，也带来了新的挑战。</p>
     `,
     category: "数字化趋势",
     categoryColor: "from-green-400 to-emerald-600",
     date: "2024-01-12",
-    readTime: "7分钟",
+    readTime: "7 分钟",
     author: "架构师",
     authorEmoji: "🏗️",
-    tags: ["Web开发", "趋势", "AI", "边缘计算"],
+    tags: ["Web 开发", "趋势", "AI", "边缘计算"],
   },
   {
     id: "design-system-ux",
@@ -87,7 +84,7 @@ const blogPosts = [
       <h2>构建设计系统的关键要素</h2>
       <ul>
         <li><strong>设计原则</strong>：指导设计决策的核心原则</li>
-        <li><strong>组件库</strong>：可复用的UI组件</li>
+        <li><strong>组件库</strong>：可复用的 UI 组件</li>
         <li><strong>设计令牌</strong>：颜色、间距等设计变量的统一管理</li>
         <li><strong>文档</strong>：组件使用说明和最佳实践</li>
       </ul>
@@ -101,45 +98,42 @@ const blogPosts = [
     category: "设计前沿",
     categoryColor: "from-pink-400 to-rose-500",
     date: "2024-01-10",
-    readTime: "6分钟",
+    readTime: "6 分钟",
     author: "设计师",
     authorEmoji: "🎨",
     tags: ["设计系统", "UI/UX", "组件库"],
   },
   {
     id: "ai-content-marketing",
-    title: "内容营销的AI革命",
-    excerpt: "AI如何改变内容创作的方式，以及如何利用AI工具提升营销效果。",
+    title: "内容营销的 AI 革命",
+    excerpt: "AI 如何改变内容创作的方式，以及如何利用 AI 工具提升营销效果。",
     content: `
-      <h2>AI与内容创作</h2>
-      <p>人工智能正在彻底改变内容创作的方式。从选题到撰写，AI工具正在成为营销人员的得力助手。</p>
+      <h2>AI 与内容创作</h2>
+      <p>人工智能正在彻底改变内容创作的方式。从选题到撰写，AI 工具正在成为营销人员的得力助手。</p>
       
-      <h2>AI内容工具的应用场景</h2>
+      <h2>AI 内容工具的应用场景</h2>
       <ul>
         <li>内容构思和选题</li>
         <li>文章初稿撰写</li>
-        <li>SEO优化建议</li>
+        <li>SEO 优化建议</li>
         <li>社交媒体内容生成</li>
       </ul>
       
-      <h2>如何有效利用AI</h2>
-      <p>AI是工具，不是替代品。最好的内容仍然需要人类的创意和情感洞察。</p>
+      <h2>如何有效利用 AI</h2>
+      <p>AI 是工具，不是替代品。最好的内容仍然需要人类的创意和情感洞察。</p>
       
       <h2>结论</h2>
-      <p>拥抱AI，但保持人性化。找到AI效率与人类创意的平衡点。</p>
+      <p>拥抱 AI，但保持人性化。找到 AI 效率与人类创意的平衡点。</p>
     `,
     category: "营销增长",
     categoryColor: "from-purple-400 to-violet-600",
     date: "2024-01-08",
-    readTime: "4分钟",
+    readTime: "4 分钟",
     author: "推广专员",
     authorEmoji: "📣",
     tags: ["AI", "内容营销", "数字营销"],
   },
 ];
-
-// 获取文章ID - 在实际应用中会从params获取
-// 这里为了演示，我们硬编码第一篇文章
 
 // 生成静态参数
 export function generateStaticParams() {
@@ -151,7 +145,6 @@ export function generateStaticParams() {
 // 获取文章
 export default function BlogPostPage({ params }: { params: { slug: string } }) {
   const post = blogPosts.find((p) => p.id === params.slug) || blogPosts[0];
-
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black">
@@ -214,7 +207,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
             </div>
             <div>
               <div className="font-medium text-white">{post.author}</div>
-              <div className="text-sm text-zinc-400">7zi Studio团队</div>
+              <div className="text-sm text-zinc-400">7zi Studio 团队</div>
             </div>
           </div>
         </article>
@@ -311,7 +304,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
             订阅我们的更新
           </h2>
           <p className="text-zinc-600 dark:text-zinc-400 mb-8">
-            获取更多AI洞察和数字化趋势
+            获取更多 AI 洞察和数字化趋势
           </p>
           <form className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
             <input
@@ -348,6 +341,43 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
           </div>
         </div>
       </footer>
+
+      {/* Structured Data for Blog Post */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            headline: post.title,
+            description: post.excerpt,
+            url: `${baseUrl}/blog/${post.id}`,
+            datePublished: post.date,
+            dateModified: post.date,
+            author: {
+              "@type": "Person",
+              name: post.author,
+            },
+            publisher: {
+              "@type": "Organization",
+              name: "7zi Studio",
+              url: baseUrl,
+              logo: {
+                "@type": "ImageObject",
+                url: `${baseUrl}/logo.png`,
+              },
+            },
+            mainEntityOfPage: {
+              "@type": "WebPage",
+              "@id": `${baseUrl}/blog/${post.id}`,
+            },
+            articleBody: post.excerpt,
+            wordCount: post.readTime,
+            keywords: post.tags.join(", "),
+            articleSection: post.category,
+          }),
+        }}
+      />
     </div>
   );
 }
