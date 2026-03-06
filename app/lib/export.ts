@@ -790,7 +790,7 @@ export function filterTasksForExport(
  */
 export function exportTasksToExcelWithOptions(
   tasks: Task[],
-  options: EnhancedExportOptions = {}
+  options: EnhancedExportOptions = { format: 'excel' }
 ): Blob {
   const filteredTasks = filterTasksForExport(tasks, options);
   return exportTasksToExcel(filteredTasks);
@@ -801,7 +801,7 @@ export function exportTasksToExcelWithOptions(
  */
 export function exportTasksToCSVWithOptions(
   tasks: Task[],
-  options: EnhancedExportOptions = {}
+  options: EnhancedExportOptions = { format: 'csv' }
 ): Blob {
   const filteredTasks = filterTasksForExport(tasks, options);
   return exportTasksToCSV(filteredTasks);
@@ -812,7 +812,7 @@ export function exportTasksToCSVWithOptions(
  */
 export function exportTasksToJSONWithOptions(
   tasks: Task[],
-  options: EnhancedExportOptions = {}
+  options: EnhancedExportOptions = { format: 'json' }
 ): Blob {
   const filteredTasks = filterTasksForExport(tasks, options);
   return exportTasksToJSON(filteredTasks);

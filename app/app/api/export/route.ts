@@ -15,6 +15,7 @@ import {
   exportTasksToPDFWithOptions,
   exportTasksToExcelWithOptions,
   EnhancedExportOptions,
+  ExportFormat,
 } from '../../../lib/export';
 
 // 获取任务统计数据
@@ -59,8 +60,10 @@ async function getTaskStats(): Promise<TaskStats> {
 }
 
 // 从查询参数构建导出选项
-function buildExportOptions(searchParams: URLSearchParams): Partial<EnhancedExportOptions> {
-  const options: Partial<EnhancedExportOptions> = {};
+function buildExportOptions(searchParams: URLSearchParams, format: ExportFormat): EnhancedExportOptions {
+  const options: EnhancedExportOptions = {
+    format,
+  };
 
   // 日期范围
   const startDate = searchParams.get('startDate');
@@ -127,7 +130,7 @@ export async function GET(request: NextRequest) {
     const { getTasks } = await import('../../../lib/tasks/api');
     const tasks = await getTasks();
     const stats = await getTaskStats();
-    const options = buildExportOptions(searchParams);
+    const options = buildExportOptions(searchParams, format);
 
     // 验证格式
     if (!['json', 'csv', 'pdf', 'excel'].includes(format)) {
@@ -226,7 +229,10 @@ export async function POST(request: NextRequest) {
       tasks = tasks.filter(t => taskIds.includes(t.id));
     }
 
-    const exportOptions: Partial<EnhancedExportOptions> = options || {};
+    const exportOptions: EnhancedExportOptions = {
+      format: format || 'json',
+      ...options,
+    };
 
     switch (type) {
       case 'tasks': {

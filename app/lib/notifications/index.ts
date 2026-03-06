@@ -5,6 +5,7 @@ import {
   Notification, 
   NotificationOptions, 
   NotificationType,
+  NotificationPosition,
   notificationManager 
 } from './NotificationManager';
 
@@ -63,4 +64,4 @@ if (typeof window !== 'undefined') {
   });
 }
 
-export type { Notification, NotificationOptions, NotificationType };
+export type { Notification, NotificationOptions, NotificationType, NotificationPosition };

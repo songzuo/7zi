@@ -4,7 +4,7 @@
  */
 
 import { useState, useCallback } from 'react';
-import { TaskPriority, TaskStatus } from '../tasks/types';
+import { TaskPriority, TaskStatus } from '../lib/tasks/types';
 
 // 导出格式
 export type ExportFormat = 'json' | 'csv' | 'pdf' | 'excel';

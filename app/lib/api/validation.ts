@@ -288,14 +288,14 @@ export const commonSchemas = {
       type: 'number',
       default: 1,
       min: 1,
-      transform: (v) => Math.max(1, Number(v) || 1),
+      transform: (v: unknown) => Math.max(1, Number(v) || 1),
     },
     limit: {
       type: 'number',
       default: 20,
       min: 1,
       max: 100,
-      transform: (v) => Math.min(100, Math.max(1, Number(v) || 20)),
+      transform: (v: unknown) => Math.min(100, Math.max(1, Number(v) || 20)),
     },
   },
 
