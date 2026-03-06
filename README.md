@@ -281,6 +281,39 @@ docker run -p 3000:3000 --env-file .env 7zi-team
 
 ---
 
+## 📚 文档导航
+
+### 核心文档
+
+| 文档 | 说明 |
+|------|------|
+| [📋 DOCS_INDEX.md](./DOCS_INDEX.md) | **完整文档索引** |
+| [🏗️ ARCHITECTURE.md](./ARCHITECTURE.md) | 技术架构说明 |
+| [📊 PROJECT_STATUS.md](./PROJECT_STATUS.md) | 项目当前状态 |
+| [🚀 NEXT_FEATURES.md](./NEXT_FEATURES.md) | 功能规划路线图 |
+| [🔧 TECH_DEBT.md](./TECH_DEBT.md) | 技术债务清单 |
+
+### 运维文档
+
+| 文档 | 说明 |
+|------|------|
+| [✅ DEPLOYMENT-CHECKLIST.md](./DEPLOYMENT-CHECKLIST.md) | 部署检查清单 |
+| [🔄 CI-CD-REPORT.md](./CI-CD-REPORT.md) | CI/CD 配置报告 |
+| [📖 CONTRIBUTING.md](./CONTRIBUTING.md) | 贡献指南 |
+
+### docs/ 详细文档
+
+| 类别 | 文档 |
+|------|------|
+| 架构设计 | [ARCHITECTURE_REVIEW.md](./docs/ARCHITECTURE_REVIEW.md), [UI_REVIEW.md](./docs/UI_REVIEW.md) |
+| 性能优化 | [OPTIMIZATION_REPORT.md](./docs/optimization-report.md), [PERFORMANCE-OPTIMIZATION-REPORT.md](./docs/PERFORMANCE-OPTIMIZATION-REPORT.md) |
+| 响应式 | [RESPONSIVE_OPTIMIZATION_REPORT.md](./docs/RESPONSIVE_OPTIMIZATION_REPORT.md) |
+| 状态管理 | [STATE_MANAGEMENT_MIGRATION.md](./docs/STATE_MANAGEMENT_MIGRATION.md) |
+| 监控运维 | [MONITORING_DESIGN.md](./docs/MONITORING_DESIGN.md), [OPERATIONS_MANUAL.md](./docs/OPERATIONS_MANUAL.md) |
+| 市场分析 | [COMPETITION_ANALYSIS.md](./docs/competition-analysis.md) |
+
+---
+
 ## 📄 许可证
 
 **双模式许可**
