@@ -46,6 +46,14 @@ export default function Home() {
               <Link href="/blog" className="hidden md:block text-zinc-600 dark:text-zinc-400 hover:text-cyan-500 transition-colors">
                 博客
               </Link>
+              <a
+                href="https://visa.7zi.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden md:block text-zinc-600 dark:text-zinc-400 hover:text-cyan-500 transition-colors"
+              >
+                7zi 环球通 (旧项目)
+              </a>
               <ThemeToggle />
               <Link
                 href="/contact"
