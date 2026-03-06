@@ -1,13 +1,173 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
 import { User, UserProfile } from '@/lib/users/types';
+
+// ============================================================================
+// 类型定义
+// ============================================================================
 
 interface ProfilePageProps {
   userId: string;
 }
 
-export const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
+interface FormData {
+  name: string;
+  email: string;
+  displayName: string;
+  bio: string;
+  location: string;
+  website: string;
+}
+
+// ============================================================================
+// 消息提示组件 - 提取并使用 memo
+// ============================================================================
+
+interface MessageBannerProps {
+  type: 'error' | 'success';
+  message: string;
+}
+
+const MessageBanner = memo(function MessageBanner({ type, message }: MessageBannerProps) {
+  const baseClasses = 'mb-4 p-4 rounded-lg';
+  const typeClasses = type === 'error'
+    ? 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+    : 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400';
+
+  return <div className={`${baseClasses} ${typeClasses}`}>{message}</div>;
+});
+
+// ============================================================================
+// 头像上传组件 - 提取并使用 memo
+// ============================================================================
+
+interface AvatarUploadProps {
+  userId: string;
+  avatarUrl?: string;
+  uploading: boolean;
+  onUpload: (file: File) => void;
+}
+
+const AvatarUpload = memo(function AvatarUpload({
+  userId,
+  avatarUrl,
+  uploading,
+  onUpload,
+}: AvatarUploadProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleClick = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      onUpload(file);
+      // 清空文件输入
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  }, [onUpload]);
+
+  return (
+    <div className="relative group">
+      <img
+        src={avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userId}`}
+        alt="头像"
+        className="w-24 h-24 rounded-full object-cover border-4 border-gray-200 dark:border-gray-700"
+      />
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={uploading}
+        className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        {uploading ? (
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+        ) : (
+          <span className="text-white text-sm">更换</span>
+        )}
+      </button>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/gif,image/webp"
+        onChange={handleChange}
+        className="hidden"
+      />
+    </div>
+  );
+});
+
+// ============================================================================
+// 表单输入组件 - 提取并使用 memo
+// ============================================================================
+
+interface FormInputProps {
+  id: string;
+  name: string;
+  label: string;
+  value: string;
+  type?: string;
+  placeholder?: string;
+  disabled?: boolean;
+  required?: boolean;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+const FormInput = memo(function FormInput({
+  id,
+  name,
+  label,
+  value,
+  type = 'text',
+  placeholder,
+  disabled = false,
+  required = false,
+  onChange,
+}: FormInputProps) {
+  return (
+    <div>
+      <label htmlFor={id} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        {label} {required && '*'}
+      </label>
+      <input
+        type={type}
+        id={id}
+        name={name}
+        value={value}
+        onChange={onChange}
+        required={required}
+        disabled={disabled}
+        placeholder={placeholder}
+        className={`w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white ${
+          disabled ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed' : ''
+        }`}
+      />
+    </div>
+  );
+});
+
+// ============================================================================
+// 加载指示器组件
+// ============================================================================
+
+const LoadingSpinner = memo(function LoadingSpinner() {
+  return (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    </div>
+  );
+});
+
+// ============================================================================
+// 主组件
+// ============================================================================
+
+export const ProfilePage: React.FC<ProfilePageProps> = memo(function ProfilePage({ userId }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -15,8 +175,8 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  
-  const [formData, setFormData] = useState({
+
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
     displayName: '',
@@ -24,36 +184,33 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
     location: '',
     website: '',
   });
-  
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 加载用户数据
-  useEffect(() => {
-    loadUserData();
-  }, [userId]);
+  // ============================================================================
+  // 使用 useCallback 缓存所有事件处理函数
+  // ============================================================================
 
-  const loadUserData = async () => {
+  const loadUserData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const [userRes, profileRes] = await Promise.all([
         fetch(`/api/users/${userId}`),
         fetch(`/api/users/${userId}/profile`),
       ]);
-      
+
       if (!userRes.ok) {
         throw new Error('Failed to load user');
       }
-      
+
       const userData = await userRes.json();
       setUser(userData.user);
-      
+
       if (profileRes.ok) {
         const profileData = await profileRes.json();
         setProfile(profileData.profile);
       }
-      
+
       // 填充表单
       setFormData({
         name: userData.user.name || '',
@@ -68,21 +225,21 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId, profile?.displayName, profile?.bio, profile?.location, profile?.website]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       setSaving(true);
       setError(null);
       setSuccess(null);
-      
+
       // 更新用户基本信息
       const userRes = await fetch(`/api/users/${userId}`, {
         method: 'PUT',
@@ -92,11 +249,11 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
           bio: formData.bio,
         }),
       });
-      
+
       if (!userRes.ok) {
         throw new Error('Failed to update user');
       }
-      
+
       // 更新用户资料
       const profileRes = await fetch(`/api/users/${userId}/profile`, {
         method: 'PUT',
@@ -108,18 +265,18 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
           website: formData.website,
         }),
       });
-      
+
       if (!profileRes.ok) {
         throw new Error('Failed to update profile');
       }
-      
+
       const userData = await userRes.json();
       const profileData = await profileRes.json();
-      
+
       setUser(userData.user);
       setProfile(profileData.profile);
       setSuccess('个人资料已更新！');
-      
+
       // 3秒后清除成功消息
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
@@ -127,59 +284,69 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
     } finally {
       setSaving(false);
     }
-  };
+  }, [userId, formData]);
 
-  const handleAvatarClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
+  const handleAvatarUpload = useCallback(async (file: File) => {
     try {
       setUploading(true);
       setError(null);
-      
-      const formData = new FormData();
-      formData.append('avatar', file);
-      
+
+      const formDataObj = new FormData();
+      formDataObj.append('avatar', file);
+
       const res = await fetch(`/api/users/${userId}/avatar`, {
         method: 'POST',
-        body: formData,
+        body: formDataObj,
       });
-      
+
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error || 'Failed to upload avatar');
       }
-      
+
       const data = await res.json();
-      
+
       // 更新用户头像
       if (user) {
         setUser({ ...user, avatar: data.avatarUrl });
       }
-      
+
       setSuccess('头像已更新！');
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to upload avatar');
     } finally {
       setUploading(false);
-      // 清空文件输入
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
     }
-  };
+  }, [userId, user]);
+
+  // ============================================================================
+  // 使用 useMemo 缓存计算结果
+  // ============================================================================
+
+  const accountInfo = useMemo(() => {
+    if (!user) return null;
+    return {
+      role: user.role,
+      provider: user.provider,
+      createdAt: new Date(user.createdAt).toLocaleDateString('zh-CN'),
+    };
+  }, [user]);
+
+  // ============================================================================
+  // 生命周期
+  // ============================================================================
+
+  useEffect(() => {
+    loadUserData();
+  }, [loadUserData]);
+
+  // ============================================================================
+  // 渲染
+  // ============================================================================
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (!user) {
@@ -195,49 +362,20 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
         个人资料
       </h1>
-      
+
       {/* 消息提示 */}
-      {error && (
-        <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg">
-          {error}
-        </div>
-      )}
-      
-      {success && (
-        <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg">
-          {success}
-        </div>
-      )}
-      
+      {error && <MessageBanner type="error" message={error} />}
+      {success && <MessageBanner type="success" message={success} />}
+
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* 头像上传 */}
         <div className="flex items-center gap-6">
-          <div className="relative group">
-            <img
-              src={user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userId}`}
-              alt="头像"
-              className="w-24 h-24 rounded-full object-cover border-4 border-gray-200 dark:border-gray-700"
-            />
-            <button
-              type="button"
-              onClick={handleAvatarClick}
-              disabled={uploading}
-              className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-              {uploading ? (
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
-              ) : (
-                <span className="text-white text-sm">更换</span>
-              )}
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/gif,image/webp"
-              onChange={handleAvatarChange}
-              className="hidden"
-            />
-          </div>
+          <AvatarUpload
+            userId={userId}
+            avatarUrl={user.avatar}
+            uploading={uploading}
+            onUpload={handleAvatarUpload}
+          />
           <div>
             <h3 className="text-lg font-medium text-gray-900 dark:text-white">
               头像
@@ -247,84 +385,57 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
             </p>
           </div>
         </div>
-        
+
         {/* 基本信息 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              姓名 *
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              required
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white"
-            />
-          </div>
-          
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              邮箱
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              disabled
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 dark:text-white cursor-not-allowed"
-            />
-          </div>
-          
-          <div>
-            <label htmlFor="displayName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              显示名称
-            </label>
-            <input
-              type="text"
-              id="displayName"
-              name="displayName"
-              value={formData.displayName}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white"
-            />
-          </div>
-          
-          <div>
-            <label htmlFor="location" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              位置
-            </label>
-            <input
-              type="text"
-              id="location"
-              name="location"
-              value={formData.location}
-              onChange={handleInputChange}
-              placeholder="例如：北京，中国"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white"
-            />
-          </div>
-        </div>
-        
-        {/* 网站 */}
-        <div>
-          <label htmlFor="website" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            个人网站
-          </label>
-          <input
-            type="url"
-            id="website"
-            name="website"
-            value={formData.website}
+          <FormInput
+            id="name"
+            name="name"
+            label="姓名"
+            value={formData.name}
             onChange={handleInputChange}
-            placeholder="https://example.com"
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white"
+            required
+          />
+
+          <FormInput
+            id="email"
+            name="email"
+            label="邮箱"
+            type="email"
+            value={formData.email}
+            onChange={handleInputChange}
+            disabled
+          />
+
+          <FormInput
+            id="displayName"
+            name="displayName"
+            label="显示名称"
+            value={formData.displayName}
+            onChange={handleInputChange}
+          />
+
+          <FormInput
+            id="location"
+            name="location"
+            label="位置"
+            value={formData.location}
+            onChange={handleInputChange}
+            placeholder="例如：北京，中国"
           />
         </div>
-        
+
+        {/* 网站 */}
+        <FormInput
+          id="website"
+          name="website"
+          label="个人网站"
+          type="url"
+          value={formData.website}
+          onChange={handleInputChange}
+          placeholder="https://example.com"
+        />
+
         {/* 个人简介 */}
         <div>
           <label htmlFor="bio" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -340,7 +451,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white resize-none"
           />
         </div>
-        
+
         {/* 提交按钮 */}
         <div className="flex justify-end gap-3">
           <button
@@ -366,16 +477,20 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
           </button>
         </div>
       </form>
-      
+
       {/* 用户信息卡片 */}
-      <div className="mt-8 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">账户信息</h3>
-        <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
-          <p>角色: <span className="text-gray-900 dark:text-white">{user.role}</span></p>
-          <p>提供商: <span className="text-gray-900 dark:text-white">{user.provider}</span></p>
-          <p>创建时间: <span className="text-gray-900 dark:text-white">{new Date(user.createdAt).toLocaleDateString('zh-CN')}</span></p>
+      {accountInfo && (
+        <div className="mt-8 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">账户信息</h3>
+          <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+            <p>角色: <span className="text-gray-900 dark:text-white">{accountInfo.role}</span></p>
+            <p>提供商: <span className="text-gray-900 dark:text-white">{accountInfo.provider}</span></p>
+            <p>创建时间: <span className="text-gray-900 dark:text-white">{accountInfo.createdAt}</span></p>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
-};
+});
+
+export default ProfilePage;

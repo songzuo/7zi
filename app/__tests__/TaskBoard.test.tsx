@@ -2,7 +2,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import React from 'react';
 import { TaskBoard, TaskCard } from '../components/TaskBoard';
-import type { GitHubIssue } from '../dashboard/page';
+import type { GitHubIssue } from '../app/dashboard/page';
 
 // Mock ProgressBar component
 vi.mock('../components/ProgressBar', () => ({

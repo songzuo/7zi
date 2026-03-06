@@ -2,7 +2,7 @@ import React from 'react';
 import { describe, it, expect, afterEach } from 'vitest';
 import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import { MemberCard } from '../components/MemberCard';
-import { AIMember } from '../dashboard/page';
+import { AIMember } from '../app/dashboard/page';
 
 // 清理 React StrictMode 导致的重复渲染
 afterEach(() => {

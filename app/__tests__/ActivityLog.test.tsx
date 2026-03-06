@@ -2,7 +2,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import React from 'react';
 import { ActivityLog } from '../components/ActivityLog';
-import type { ActivityItem } from '../dashboard/page';
+import type { ActivityItem } from '../app/dashboard/page';
 
 // 清理 React StrictMode 导致的重复渲染
 afterEach(() => {

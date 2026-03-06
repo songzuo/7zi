@@ -2,7 +2,7 @@
 
 import React, { memo, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { AIMember } from '../dashboard/page';
+import { AIMember } from '../app/dashboard/page';
 
 interface MemberCardProps {
   member: AIMember;

@@ -2,7 +2,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
-import '../../globals.css';
+import '../globals.css';
 import { Navigation } from '../../components/Navigation';
 import { ThemeProvider } from '../../components/ThemeProvider';
 import { GlobalErrorHandler } from '../../components/GlobalErrorHandler';

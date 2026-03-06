@@ -3,7 +3,7 @@
  */
 
 import type { Task, TaskStats } from './tasks/types';
-import type { AIMember, GitHubIssue, GitHubCommit, ActivityItem } from '../dashboard/page';
+import type { AIMember, GitHubIssue, GitHubCommit, ActivityItem } from '../app/dashboard/page';
 import { exportCompleteReport, downloadJSON, downloadCSV, exportTasksPDF } from './export';
 
 // ============================================================================

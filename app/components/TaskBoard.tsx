@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useId, useMemo, useCallback, memo } from 'react';
 import { useTranslations } from 'next-intl';
-import { GitHubIssue } from '../dashboard/page';
+import { GitHubIssue } from '../app/dashboard/page';
 import ProgressBar from './ProgressBar';
 
 interface TaskBoardProps {

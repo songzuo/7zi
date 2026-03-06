@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef, memo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -8,11 +8,19 @@ import { useTheme } from './ThemeProvider';
 import { ThemeToggle } from './ThemeToggle';
 import { LanguageSwitcher } from './LanguageSwitcher';
 
+// ============================================================================
+// 类型定义
+// ============================================================================
+
 interface NavItem {
   href: string;
   labelKey: string;
   icon: string;
 }
+
+// ============================================================================
+// 常量配置 - 移到模块级别避免每次渲染重新创建
+// ============================================================================
 
 const NAV_ITEMS: NavItem[] = [
   {
@@ -47,28 +55,127 @@ const NAV_ITEMS: NavItem[] = [
   },
 ];
 
-// 汉堡菜单图标组件
-const HamburgerIcon = ({ isOpen }: { isOpen: boolean }) => (
-  <div className="w-6 h-6 relative flex items-center justify-center">
-    <span
-      className={`absolute h-0.5 w-5 bg-current transform transition-all duration-300 ease-in-out ${
-        isOpen ? 'rotate-45' : '-translate-y-1.5'
-      }`}
-    />
-    <span
-      className={`absolute h-0.5 w-5 bg-current transition-all duration-300 ease-in-out ${
-        isOpen ? 'opacity-0 scale-0' : 'opacity-100 scale-100'
-      }`}
-    />
-    <span
-      className={`absolute h-0.5 w-5 bg-current transform transition-all duration-300 ease-in-out ${
-        isOpen ? '-rotate-45' : 'translate-y-1.5'
-      }`}
-    />
-  </div>
-);
+// ============================================================================
+// 汉堡菜单图标组件 - 使用 memo 优化
+// ============================================================================
 
-export const Navigation: React.FC = () => {
+const HamburgerIcon = memo(function HamburgerIcon({ isOpen }: { isOpen: boolean }) {
+  return (
+    <div className="w-6 h-6 relative flex items-center justify-center">
+      <span
+        className={`absolute h-0.5 w-5 bg-current transform transition-all duration-300 ease-in-out ${
+          isOpen ? 'rotate-45' : '-translate-y-1.5'
+        }`}
+      />
+      <span
+        className={`absolute h-0.5 w-5 bg-current transition-all duration-300 ease-in-out ${
+          isOpen ? 'opacity-0 scale-0' : 'opacity-100 scale-100'
+        }`}
+      />
+      <span
+        className={`absolute h-0.5 w-5 bg-current transform transition-all duration-300 ease-in-out ${
+          isOpen ? '-rotate-45' : 'translate-y-1.5'
+        }`}
+      />
+    </div>
+  );
+});
+
+// ============================================================================
+// 桌面端导航链接组件 - 提取并使用 memo 优化
+// ============================================================================
+
+interface DesktopNavItemProps {
+  item: NavItem;
+  index: number;
+  isActive: boolean;
+  onKeyDown: (e: React.KeyboardEvent, index: number) => void;
+  t: ReturnType<typeof useTranslations<'navigation'>>;
+}
+
+const DesktopNavItem = memo(function DesktopNavItem({
+  item,
+  index,
+  isActive,
+  onKeyDown,
+  t,
+}: DesktopNavItemProps) {
+  return (
+    <Link
+      href={item.href}
+      data-nav-index={index}
+      role="menuitem"
+      tabIndex={0}
+      aria-current={isActive ? 'page' : undefined}
+      aria-label={`${t(item.labelKey)}${isActive ? `（${t('current')}）` : ''}`}
+      className={`
+        px-3 lg:px-4 py-2 rounded-lg text-sm font-medium transition-colors
+        flex items-center gap-2
+        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900
+        ${
+          isActive
+            ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+            : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
+        }
+      `}
+      onKeyDown={(e) => onKeyDown(e, index)}
+    >
+      <span aria-hidden="true">{item.icon}</span>
+      <span className="hidden lg:inline">{t(item.labelKey)}</span>
+    </Link>
+  );
+});
+
+// ============================================================================
+// 移动端导航链接组件 - 提取并使用 memo 优化
+// ============================================================================
+
+interface MobileNavItemProps {
+  item: NavItem;
+  index: number;
+  isActive: boolean;
+  onClick: () => void;
+  firstFocusableRef?: React.Ref<HTMLAnchorElement>;
+  t: ReturnType<typeof useTranslations<'navigation'>>;
+}
+
+const MobileNavItem = memo(function MobileNavItem({
+  item,
+  index,
+  isActive,
+  onClick,
+  firstFocusableRef,
+  t,
+}: MobileNavItemProps) {
+  return (
+    <Link
+      href={item.href}
+      ref={index === 0 ? firstFocusableRef : null}
+      role="menuitem"
+      tabIndex={0}
+      aria-current={isActive ? 'page' : undefined}
+      onClick={onClick}
+      className={`
+        flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-colors
+        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset
+        ${
+          isActive
+            ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+        }
+      `}
+    >
+      <span className="text-xl" aria-hidden="true">{item.icon}</span>
+      <span>{t(item.labelKey)}</span>
+    </Link>
+  );
+});
+
+// ============================================================================
+// 主导航组件
+// ============================================================================
+
+export const Navigation: React.FC = memo(function Navigation() {
   const pathname = usePathname();
   const { resolvedTheme } = useTheme();
   const t = useTranslations('navigation');
@@ -381,4 +488,6 @@ export const Navigation: React.FC = () => {
       </div>
     </nav>
   );
-};
+});
+
+export default Navigation;

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { GitHubIssue, GitHubCommit, ActivityItem } from '../dashboard/page';
+import { GitHubIssue, GitHubCommit, ActivityItem } from '../app/dashboard/page';
 
 interface UseDashboardDataReturn {
   issues: GitHubIssue[];

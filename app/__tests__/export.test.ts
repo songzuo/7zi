@@ -10,7 +10,7 @@ import {
   exportCommitsCSV,
   exportActivitiesCSV,
 } from '../lib/export';
-import type { AIMember, GitHubIssue, GitHubCommit, ActivityItem } from '../dashboard/page';
+import type { AIMember, GitHubIssue, GitHubCommit, ActivityItem } from '../app/dashboard/page';
 
 // 模拟 document.createElement
 const mockCreateElement = vi.fn();

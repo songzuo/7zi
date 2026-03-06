@@ -11,18 +11,18 @@
  */
 
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { MemberCard } from '../components/MemberCard';
-import { TaskBoard } from '../components/TaskBoard';
-import { ActivityLog } from '../components/ActivityLog';
-import { useDashboardData } from '../hooks/useDashboardData';
-import { LoadingSpinner, LoadingContent } from '../components/Loading';
+import { MemberCard } from '../../components/MemberCard';
+import { TaskBoard } from '../../components/TaskBoard';
+import { ActivityLog } from '../../components/ActivityLog';
+import { useDashboardData } from '../../hooks/useDashboardData';
+import { LoadingSpinner, LoadingContent } from '../../components/Loading';
 import {
   exportMembersCSV,
   exportIssuesCSV,
   exportCommitsCSV,
   exportActivitiesCSV,
   exportToPDF,
-} from '../lib/export';
+} from '../../lib/export';
 
 // ============================================================================
 // 类型定义

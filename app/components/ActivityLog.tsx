@@ -2,7 +2,7 @@
 
 import React, { memo, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { ActivityItem } from '../dashboard/page';
+import { ActivityItem } from '../app/dashboard/page';
 
 interface ActivityLogProps {
   activities: ActivityItem[];

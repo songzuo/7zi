@@ -4,7 +4,7 @@
 
 import { jsPDF } from 'jspdf';
 import * as XLSX from 'xlsx';
-import type { AIMember, GitHubIssue, GitHubCommit, ActivityItem } from '../dashboard/page';
+import type { AIMember, GitHubIssue, GitHubCommit, ActivityItem } from '../app/dashboard/page';
 import type { Task, TaskStats } from './tasks/types';
 
 // ============================================================================
