@@ -1,12 +1,12 @@
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { Locale, locales } from '@/i18n/config';
 import { Link } from '@/i18n/routing';
-import { ClientProviders, ThemeToggle, AIChat } from '@/components/ClientProviders';
-import { GitHubActivity } from '@/components/GitHubActivity';
-import { ProjectDashboard } from '@/components/ProjectDashboard';
+import { ClientProviders, ThemeToggle } from '@/components/ClientProviders';
+// 性能优化：使用 Lazy Loading 组件
+import { LazyAIChat, LazyGitHubActivity, LazyProjectDashboard } from '@/components/LazyComponents';
 import MobileMenu from '@/components/MobileMenu';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
-import { StructuredData, Breadcrumbs } from '@/components/SEO';
+import { StructuredData } from '@/components/SEO';
 import type { Metadata } from 'next';
 
 type Params = Promise<{ locale: string }>;
@@ -336,11 +336,11 @@ export default async function HomePage({ params }: { params: Params }) {
           </div>
         </section>
 
-        {/* GitHub Activity */}
-        <GitHubActivity />
+        {/* GitHub Activity - Lazy Loaded */}
+        <LazyGitHubActivity />
 
-        {/* Project Dashboard */}
-        <ProjectDashboard />
+        {/* Project Dashboard - Lazy Loaded */}
+        <LazyProjectDashboard />
 
         {/* Services */}
         <section className="py-16 sm:py-20 px-6 bg-gradient-to-b from-transparent via-zinc-50/50 to-transparent dark:via-zinc-900/50" aria-labelledby="services-title">
@@ -493,8 +493,8 @@ export default async function HomePage({ params }: { params: Params }) {
           </div>
         </section>
 
-        {/* AI Chat Component */}
-        <AIChat />
+        {/* AI Chat Component - Lazy Loaded (SSR: false) */}
+        <LazyAIChat />
 
         {/* Footer */}
         <footer className="py-12 px-6 bg-zinc-900 text-zinc-400" role="contentinfo">

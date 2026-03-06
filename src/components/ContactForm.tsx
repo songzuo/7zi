@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, FormEvent } from "react";
+import { useTranslations } from "next-intl";
 
 interface FormData {
   name: string;
@@ -16,7 +17,13 @@ interface FormErrors {
   message?: string;
 }
 
-export function ContactForm() {
+interface ContactFormProps {
+  locale?: 'zh' | 'en';
+}
+
+export function ContactForm({ locale = 'zh' }: ContactFormProps) {
+  const t = useTranslations('contact.form');
+  
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
@@ -33,19 +40,19 @@ export function ContactForm() {
     const newErrors: FormErrors = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = "请输入您的姓名";
+      newErrors.name = locale === 'zh' ? "请输入您的姓名" : "Please enter your name";
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = "请输入您的邮箱";
+      newErrors.email = locale === 'zh' ? "请输入您的邮箱" : "Please enter your email";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "请输入有效的邮箱地址";
+      newErrors.email = locale === 'zh' ? "请输入有效的邮箱地址" : "Please enter a valid email address";
     }
 
     if (!formData.message.trim()) {
-      newErrors.message = "请输入消息内容";
+      newErrors.message = locale === 'zh' ? "请输入消息内容" : "Please enter your message";
     } else if (formData.message.trim().length < 10) {
-      newErrors.message = "消息内容至少需要 10 个字符";
+      newErrors.message = locale === 'zh' ? "消息内容至少需要 10 个字符" : "Message must be at least 10 characters";
     }
 
     setErrors(newErrors);
@@ -69,7 +76,7 @@ export function ContactForm() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, locale }),
       });
 
       const result = await response.json();
@@ -107,6 +114,24 @@ export function ContactForm() {
     }
   };
 
+  const subjectOptions = locale === 'zh' 
+    ? [
+        { value: '', label: '选择咨询主题' },
+        { value: 'project', label: '项目咨询' },
+        { value: 'cooperation', label: '商务合作' },
+        { value: 'support', label: '技术支持' },
+        { value: 'careers', label: '加入我们' },
+        { value: 'other', label: '其他' },
+      ]
+    : [
+        { value: '', label: 'Select a topic' },
+        { value: 'project', label: 'Project Inquiry' },
+        { value: 'cooperation', label: 'Business Cooperation' },
+        { value: 'support', label: 'Technical Support' },
+        { value: 'careers', label: 'Join Us' },
+        { value: 'other', label: 'Other' },
+      ];
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -115,7 +140,7 @@ export function ContactForm() {
             htmlFor="name"
             className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
           >
-            姓名 <span className="text-red-500">*</span>
+            {t('name')} <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -123,7 +148,7 @@ export function ContactForm() {
             name="name"
             value={formData.name}
             onChange={handleChange}
-            placeholder="您的姓名"
+            placeholder={locale === 'zh' ? "您的姓名" : "Your name"}
             className={`w-full px-6 py-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border ${
               errors.name
                 ? "border-red-500 focus:border-red-500"
@@ -139,7 +164,7 @@ export function ContactForm() {
             htmlFor="email"
             className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
           >
-            邮箱 <span className="text-red-500">*</span>
+            {t('email')} <span className="text-red-500">*</span>
           </label>
           <input
             type="email"
@@ -165,7 +190,7 @@ export function ContactForm() {
           htmlFor="company"
           className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
         >
-          公司（可选）
+          {locale === 'zh' ? '公司（可选）' : 'Company (Optional)'}
         </label>
         <input
           type="text"
@@ -173,7 +198,7 @@ export function ContactForm() {
           name="company"
           value={formData.company}
           onChange={handleChange}
-          placeholder="您的公司"
+          placeholder={locale === 'zh' ? "您的公司" : "Your company"}
           className="w-full px-6 py-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:border-cyan-500 transition-colors"
         />
       </div>
@@ -183,7 +208,7 @@ export function ContactForm() {
           htmlFor="subject"
           className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
         >
-          主题
+          {t('subject')}
         </label>
         <select
           id="subject"
@@ -192,12 +217,11 @@ export function ContactForm() {
           onChange={handleChange}
           className="w-full px-6 py-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:border-cyan-500 transition-colors"
         >
-          <option value="">选择咨询主题</option>
-          <option value="project">项目咨询</option>
-          <option value="cooperation">商务合作</option>
-          <option value="support">技术支持</option>
-          <option value="careers">加入我们</option>
-          <option value="other">其他</option>
+          {subjectOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -206,7 +230,7 @@ export function ContactForm() {
           htmlFor="message"
           className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
         >
-          消息内容 <span className="text-red-500">*</span>
+          {t('message')} <span className="text-red-500">*</span>
         </label>
         <textarea
           id="message"
@@ -214,7 +238,7 @@ export function ContactForm() {
           rows={6}
           value={formData.message}
           onChange={handleChange}
-          placeholder="请描述您的需求..."
+          placeholder={locale === 'zh' ? "请描述您的需求..." : "Describe your needs..."}
           className={`w-full px-6 py-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border ${
             errors.message
               ? "border-red-500 focus:border-red-500"
@@ -231,7 +255,7 @@ export function ContactForm() {
         <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-2xl">
           <p className="text-green-700 dark:text-green-400 flex items-center gap-2">
             <span>✅</span>
-            消息发送成功！我们会尽快与您联系。
+            {t('success')}
           </p>
         </div>
       )}
@@ -240,7 +264,7 @@ export function ContactForm() {
         <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl">
           <p className="text-red-700 dark:text-red-400 flex items-center gap-2">
             <span>❌</span>
-            发送失败，请稍后重试或直接发送邮件至 business@7zi.studio
+            {t('error')}
           </p>
         </div>
       )}
@@ -276,14 +300,12 @@ export function ContactForm() {
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               />
             </svg>
-            发送中...
+            {t('sending')}
           </span>
         ) : (
-          "发送消息"
+          t('submit')
         )}
       </button>
     </form>
   );
 }
-
-export default ContactForm;
