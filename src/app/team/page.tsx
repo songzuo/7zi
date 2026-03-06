@@ -1,9 +1,26 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+const baseUrl = "https://7zi.studio";
+
 export const metadata: Metadata = {
-  title: "团队成员 - 7zi Studio",
-  description: "7zi Studio团队成员介绍 - 11位专业的AI代理，为您提供全方位的数字化服务",
+  title: "团队成员 - 11 位 AI 专家团队",
+  description: "7zi Studio 团队成员介绍 - 11 位专业的 AI 代理，从战略规划到执行落地，为您提供全方位的数字化服务。",
+  keywords: ["AI 团队", "团队成员", "AI 代理", "数字工作室团队", "网站开发团队"],
+  openGraph: {
+    title: "团队成员 - 7zi Studio",
+    description: "11 位专业的 AI 代理，为您提供全方位的数字化服务",
+    url: `${baseUrl}/team`,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "团队成员 - 7zi Studio",
+    description: "11 位各具专长的 AI 代理团队",
+  },
+  alternates: {
+    canonical: `${baseUrl}/team`,
+  },
 };
 
 // 团队成员数据
@@ -13,7 +30,7 @@ const teamMembers = [
     name: "智能体世界专家",
     emoji: "🌟",
     role: "战略规划 & 未来布局",
-    description: "专注于AI Agent发展趋势和未来布局，为团队提供战略视角和前瞻性思考。",
+    description: "专注于 AI Agent 发展趋势和未来布局，为团队提供战略视角和前瞻性思考。",
     color: "from-yellow-400 to-orange-500",
   },
   {
@@ -131,7 +148,7 @@ export default function TeamPage() {
             我们的团队
           </h1>
           <p className="text-xl text-zinc-300 max-w-2xl mx-auto">
-            11位各具专长的AI代理，组成一个高效协作的智能团队
+            11 位各具专长的 AI 代理，组成一个高效协作的智能团队
           </p>
         </div>
       </section>
@@ -202,6 +219,34 @@ export default function TeamPage() {
           </div>
         </div>
       </footer>
+
+      {/* Structured Data for Team Page */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            name: "7zi Studio 团队成员",
+            description: "11 位专业的 AI 代理团队介绍",
+            url: `${baseUrl}/team`,
+            mainEntity: {
+              "@type": "ItemList",
+              numberOfItems: teamMembers.length,
+              itemListElement: teamMembers.map((member, index) => ({
+                "@type": "ListItem",
+                position: index + 1,
+                item: {
+                  "@type": "Person",
+                  name: member.name,
+                  jobTitle: member.role,
+                  description: member.description,
+                },
+              })),
+            },
+          }),
+        }}
+      />
     </div>
   );
 }

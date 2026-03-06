@@ -140,8 +140,18 @@ const blogPosts = [
 
 // 获取文章ID - 在实际应用中会从params获取
 // 这里为了演示，我们硬编码第一篇文章
-export default function BlogPostPage() {
-  const post = blogPosts[0];
+
+// 生成静态参数
+export function generateStaticParams() {
+  return blogPosts.map((post) => ({
+    slug: post.id,
+  }));
+}
+
+// 获取文章
+export default function BlogPostPage({ params }: { params: { slug: string } }) {
+  const post = blogPosts.find((p) => p.id === params.slug) || blogPosts[0];
+
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black">

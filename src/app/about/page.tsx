@@ -1,9 +1,26 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+const baseUrl = "https://7zi.studio";
+
 export const metadata: Metadata = {
-  title: "关于我们 - 7zi Studio",
-  description: "了解7zi Studio团队 - 由11位AI代理组成的创新数字工作室",
+  title: "关于我们 - AI 驱动的创新数字工作室",
+  description: "了解 7zi Studio 团队 - 由 11 位 AI 代理组成的创新数字工作室，提供网站开发、品牌设计、营销推广等全方位数字化服务。",
+  keywords: ["关于 7zi Studio", "AI 团队", "数字工作室", "AI 代理", "网站开发团队"],
+  openGraph: {
+    title: "关于我们 - 7zi Studio",
+    description: "由 11 位 AI 代理组成的创新数字工作室",
+    url: `${baseUrl}/about`,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "关于我们 - 7zi Studio",
+    description: "由 11 位 AI 代理组成的创新数字工作室",
+  },
+  alternates: {
+    canonical: `${baseUrl}/about`,
+  },
 };
 
 // 团队成员数据
@@ -13,7 +30,7 @@ const teamMembers = [
     name: "智能体世界专家",
     emoji: "🌟",
     role: "战略规划 & 未来布局",
-    description: "专注于AI Agent发展趋势和未来布局，为团队提供战略视角和前瞻性思考。",
+    description: "专注于 AI Agent 发展趋势和未来布局，为团队提供战略视角和前瞻性思考。",
     color: "from-yellow-400 to-orange-500",
   },
   {
@@ -108,7 +125,7 @@ export default function AboutPage() {
             关于 <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">7zi Studio</span>
           </h1>
           <p className="text-xl md:text-2xl text-zinc-300 max-w-2xl mx-auto">
-            创新数字工作室，由11位AI代理组成的智能团队
+            创新数字工作室，由 11 位 AI 代理组成的智能团队
           </p>
         </div>
       </section>
@@ -123,14 +140,14 @@ export default function AboutPage() {
             <div className="space-y-4 text-lg text-zinc-600 dark:text-zinc-300 leading-relaxed">
               <p>
                 <strong className="text-cyan-600 dark:text-cyan-400">7zi Studio</strong> 是一个创新的数字工作室，我们重新定义了团队的概念 —— 
-                由11位专业的AI代理组成，各自发挥专长，协同完成各类数字项目。
+                由 11 位专业的 AI 代理组成，各自发挥专长，协同完成各类数字项目。
               </p>
               <p>
-                我们的团队结合了人类创意的灵性和AI的高效执行力，从战略规划到产品交付，
-                从设计到推广，每一个环节都有专业的AI成员负责。
+                我们的团队结合了人类创意的灵性和 AI 的高效执行力，从战略规划到产品交付，
+                从设计到推广，每一个环节都有专业的 AI 成员负责。
               </p>
               <p>
-                无论是网站开发、品牌设计、SEO优化还是内容营销，7zi Studio都能为您提供
+                无论是网站开发、品牌设计、SEO 优化还是内容营销，7zi Studio 都能为您提供
                 一站式的数字化解决方案。
               </p>
             </div>
@@ -138,7 +155,7 @@ export default function AboutPage() {
             <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center p-6 bg-cyan-50 dark:bg-cyan-900/20 rounded-2xl">
                 <div className="text-4xl font-bold text-cyan-600 dark:text-cyan-400">11</div>
-                <div className="text-zinc-600 dark:text-zinc-400">AI专家</div>
+                <div className="text-zinc-600 dark:text-zinc-400">AI 专家</div>
               </div>
               <div className="text-center p-6 bg-purple-50 dark:bg-purple-900/20 rounded-2xl">
                 <div className="text-4xl font-bold text-purple-600 dark:text-purple-400">7×24</div>
@@ -160,7 +177,7 @@ export default function AboutPage() {
             我们的团队成员
           </h2>
           <p className="text-center text-zinc-500 dark:text-zinc-400 mb-16 max-w-2xl mx-auto">
-            11位各具专长的AI代理，组成一个高效协作的智能团队
+            11 位各具专长的 AI 代理，组成一个高效协作的智能团队
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -200,7 +217,7 @@ export default function AboutPage() {
               <div className="text-4xl mb-4">🚀</div>
               <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-3">高效协作</h3>
               <p className="text-zinc-600 dark:text-zinc-400">
-                11位AI代理协同工作，优势互补，确保每个项目都能高效推进。
+                11 位 AI 代理协同工作，优势互补，确保每个项目都能高效推进。
               </p>
             </div>
             <div className="bg-white dark:bg-zinc-900 rounded-2xl p-8">
@@ -246,6 +263,32 @@ export default function AboutPage() {
           </a>
         </div>
       </section>
+
+      {/* Structured Data for About Page */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "AboutPage",
+            name: "关于 7zi Studio",
+            description: "了解 7zi Studio 团队 - 由 11 位 AI 代理组成的创新数字工作室",
+            url: `${baseUrl}/about`,
+            mainEntity: {
+              "@type": "Organization",
+              name: "7zi Studio",
+              description: "由 11 位 AI 代理组成的创新数字工作室",
+              url: baseUrl,
+              member: teamMembers.map((member) => ({
+                "@type": "Person",
+                name: member.name,
+                jobTitle: member.role,
+                description: member.description,
+              })),
+            },
+          }),
+        }}
+      />
     </div>
   );
 }

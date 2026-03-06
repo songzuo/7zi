@@ -1,5 +1,28 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+
+const baseUrl = "https://7zi.studio";
+
+export const metadata: Metadata = {
+  title: "首页 - AI 驱动的创新数字工作室",
+  description: "7zi Studio 由 11 位专业 AI 代理组成，提供网站开发、品牌设计、营销推广等全方位数字化服务。高效、专业、创新，助您打造卓越数字产品。",
+  keywords: ["AI 工作室", "网站开发", "品牌设计", "SEO 优化", "数字营销", "UI/UX 设计", "AI 代理团队"],
+  openGraph: {
+    title: "7zi Studio - AI 驱动的创新数字工作室",
+    description: "由 11 位 AI 代理组成的创新数字工作室，提供网站开发、品牌设计、营销推广等全方位数字化服务",
+    url: baseUrl,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "7zi Studio - AI 驱动的创新数字工作室",
+    description: "由 11 位 AI 代理组成的创新数字工作室",
+  },
+  alternates: {
+    canonical: baseUrl,
+  },
+};
 
 export default function Home() {
   return (
@@ -35,11 +58,11 @@ export default function Home() {
         <div className="max-w-5xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-100 dark:bg-cyan-900/30 rounded-full text-cyan-600 dark:text-cyan-400 text-sm font-medium mb-8">
             <span className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></span>
-            AI驱动的创新数字工作室
+            AI 驱动的创新数字工作室
           </div>
           
           <h1 className="text-5xl md:text-7xl font-bold text-zinc-900 dark:text-white mb-6 leading-tight">
-            用AI重新定义
+            用 AI 重新定义
             <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500">
               团队协作
@@ -47,7 +70,7 @@ export default function Home() {
           </h1>
           
           <p className="text-xl md:text-2xl text-zinc-600 dark:text-zinc-400 max-w-3xl mx-auto mb-12">
-            7zi Studio 由11位专业的AI代理组成，从战略规划到产品交付，
+            7zi Studio 由 11 位专业的 AI 代理组成，从战略规划到产品交付，
             为您提供一站式的数字化解决方案。
           </p>
           
@@ -74,10 +97,10 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-zinc-900 dark:text-white mb-4">
-              11位AI专家，为您服务
+              11 位 AI 专家，为您服务
             </h2>
             <p className="text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
-              我们的团队涵盖战略、技术、运营全领域，每个项目都有专业的AI成员负责
+              我们的团队涵盖战略、技术、运营全领域，每个项目都有专业的 AI 成员负责
             </p>
           </div>
           
@@ -134,19 +157,19 @@ export default function Home() {
               {
                 emoji: "💻",
                 title: "网站开发",
-                desc: "从设计到实现，打造高性能的现代网站和Web应用",
+                desc: "从设计到实现，打造高性能的现代网站和 Web 应用",
                 color: "from-blue-400 to-cyan-500",
               },
               {
                 emoji: "🎨",
                 title: "品牌设计",
-                desc: "专业的UI/UX设计，打造独特的品牌视觉形象",
+                desc: "专业的 UI/UX 设计，打造独特的品牌视觉形象",
                 color: "from-pink-400 to-rose-500",
               },
               {
                 emoji: "📈",
                 title: "营销推广",
-                desc: "SEO优化、内容营销、社交媒体运营，提升品牌影响力",
+                desc: "SEO 优化、内容营销、社交媒体运营，提升品牌影响力",
                 color: "from-purple-400 to-violet-500",
               },
             ].map((service) => (
@@ -174,7 +197,7 @@ export default function Home() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-zinc-900 dark:text-white mb-4">
-              为什么选择7zi Studio
+              为什么选择 7zi Studio
             </h2>
           </div>
           
@@ -183,12 +206,12 @@ export default function Home() {
               {
                 icon: "⚡",
                 title: "高效执行",
-                desc: "AI团队7×24小时工作，响应迅速，效率倍增",
+                desc: "AI 团队 7×24 小时工作，响应迅速，效率倍增",
               },
               {
                 icon: "🎯",
                 title: "专业专注",
-                desc: "11位AI专家各司其职，确保每个环节的专业水准",
+                desc: "11 位 AI 专家各司其职，确保每个环节的专业水准",
               },
               {
                 icon: "💰",
@@ -254,6 +277,25 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* Structured Data for Homepage */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            name: "7zi Studio - 首页",
+            description: "AI 驱动的创新数字工作室，提供网站开发、品牌设计、营销推广等全方位数字化服务",
+            url: baseUrl,
+            publisher: {
+              "@type": "Organization",
+              name: "7zi Studio",
+              url: baseUrl,
+            },
+          }),
+        }}
+      />
     </div>
   );
 }
