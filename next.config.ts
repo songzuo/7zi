@@ -13,15 +13,15 @@ const nextConfig: NextConfig = {
         hostname: '**',
       },
     ],
-    // 图片格式
+    // 图片格式（AVIF 和 WebP）
     formats: ['image/avif', 'image/webp'],
     // 设备尺寸断点
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     // 最小缓存时间（秒）
     minimumCacheTTL: 60,
-    // 未优化图片的最大尺寸
-    unoptimized: false,
+    // 静态导出时外部图片需要 unoptimized
+    unoptimized: true,
   },
   
   // 压缩配置
@@ -36,7 +36,8 @@ const nextConfig: NextConfig = {
   // 禁用 x-powered-by 头（安全）
   poweredByHeader: false,
   
-  // 头部配置
+  // 静态导出模式下 headers 不生效，需要在 CDN/服务器配置
+  // 这里是开发时的配置参考，实际部署需要在服务器层面设置
   headers: async () => [
     {
       source: '/:path*',
@@ -93,11 +94,21 @@ const nextConfig: NextConfig = {
     },
   ],
   
-  // 重定向配置（如需要）
-  // redirects: async () => [],
+  // 导出路径配置
+  trailingSlash: true,
   
-  // 重写配置（如需要）
-  // rewrites: async () => [],
+  // 生成的静态文件目录
+  // outDir: './out',
+  
+  // 忽略 TypeScript 错误
+  // typescript: {
+  //   ignoreBuildErrors: true,
+  // },
+  
+  // 忽略 ESLint 错误
+  // eslint: {
+  //   ignoreDuringBuilds: true,
+  // },
 };
 
 export default nextConfig;
