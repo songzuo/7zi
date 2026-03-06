@@ -717,3 +717,200 @@ export async function copyToClipboard(data: unknown): Promise<boolean> {
     return false;
   }
 }
+
+// ============================================================================
+// 增强导出功能 - 支持高级选项
+// ============================================================================
+
+/**
+ * 增强导出选项
+ */
+export interface EnhancedExportOptions extends ExportOptions {
+  includeCompleted?: boolean;
+  dateRange?: {
+    start: Date;
+    end: Date;
+  };
+  priority?: Task['priority'];
+  status?: Task['status'];
+  assignee?: string;
+  tags?: string[];
+}
+
+/**
+ * 根据选项过滤任务
+ */
+export function filterTasksForExport(
+  tasks: Task[],
+  options: EnhancedExportOptions
+): Task[] {
+  let filtered = [...tasks];
+
+  // 按日期范围过滤
+  if (options.dateRange) {
+    const { start, end } = options.dateRange;
+    filtered = filtered.filter(task => {
+      const createdAt = new Date(task.createdAt);
+      return createdAt >= start && createdAt <= end;
+    });
+  }
+
+  // 按优先级过滤
+  if (options.priority) {
+    filtered = filtered.filter(task => task.priority === options.priority);
+  }
+
+  // 按状态过滤
+  if (options.status) {
+    filtered = filtered.filter(task => task.status === options.status);
+  }
+
+  // 按负责人过滤
+  if (options.assignee) {
+    filtered = filtered.filter(task => task.assignee === options.assignee);
+  }
+
+  // 按标签过滤
+  if (options.tags && options.tags.length > 0) {
+    filtered = filtered.filter(task =>
+      options.tags!.some(tagId => task.tags.some(tag => tag.id === tagId))
+    );
+  }
+
+  // 是否包含已完成任务
+  if (!options.includeCompleted) {
+    filtered = filtered.filter(task => task.status !== 'done');
+  }
+
+  return filtered;
+}
+
+/**
+ * 导出任务报告为 Excel (增强版，支持选项)
+ */
+export function exportTasksToExcelWithOptions(
+  tasks: Task[],
+  options: EnhancedExportOptions = {}
+): Blob {
+  const filteredTasks = filterTasksForExport(tasks, options);
+  return exportTasksToExcel(filteredTasks);
+}
+
+/**
+ * 导出任务报告为 CSV (增强版，支持选项)
+ */
+export function exportTasksToCSVWithOptions(
+  tasks: Task[],
+  options: EnhancedExportOptions = {}
+): Blob {
+  const filteredTasks = filterTasksForExport(tasks, options);
+  return exportTasksToCSV(filteredTasks);
+}
+
+/**
+ * 导出任务报告为 JSON (增强版，支持选项)
+ */
+export function exportTasksToJSONWithOptions(
+  tasks: Task[],
+  options: EnhancedExportOptions = {}
+): Blob {
+  const filteredTasks = filterTasksForExport(tasks, options);
+  return exportTasksToJSON(filteredTasks);
+}
+
+/**
+ * 导出任务报告为 PDF (增强版，支持选项)
+ */
+export function exportTasksToPDFWithOptions(
+  tasks: Task[],
+  stats?: TaskStats,
+  options: EnhancedExportOptions = {}
+): Blob {
+  const filteredTasks = filterTasksForExport(tasks, options);
+
+  if (stats) {
+    // 使用提供的统计数据
+    return exportTasksPDF(filteredTasks, stats);
+  }
+
+  // 计算过滤后任务的统计
+  const computedStats: TaskStats = {
+    total: filteredTasks.length,
+    done: filteredTasks.filter(t => t.status === 'done').length,
+    inProgress: filteredTasks.filter(t => t.status === 'in_progress').length,
+    todo: filteredTasks.filter(t => t.status === 'todo').length,
+    review: filteredTasks.filter(t => t.status === 'review').length,
+    overdue: filteredTasks.filter(t => {
+      if (!t.dueDate || t.status === 'done') return false;
+      return new Date(t.dueDate) < new Date();
+    }).length,
+    dueSoon: filteredTasks.filter(t => {
+      if (!t.dueDate || t.status === 'done') return false;
+      const dueDate = new Date(t.dueDate);
+      const hoursUntilDue = (dueDate.getTime() - Date.now()) / (1000 * 60 * 60);
+      return hoursUntilDue > 0 && hoursUntilDue <= 24;
+    }).length,
+    completionRate: 0,
+    byPriority: {
+      high: filteredTasks.filter(t => t.priority === 'high').length,
+      medium: filteredTasks.filter(t => t.priority === 'medium').length,
+      low: filteredTasks.filter(t => t.priority === 'low').length,
+    },
+  };
+  computedStats.completionRate = filteredTasks.length > 0
+    ? Math.round((computedStats.done / filteredTasks.length) * 100)
+    : 0;
+
+  return exportTasksPDF(filteredTasks, computedStats);
+}
+
+/**
+ * 批量导出 - 一次性生成多种格式
+ */
+export interface BatchExportResult {
+  csv?: Blob;
+  json?: Blob;
+  pdf?: Blob;
+  excel?: Blob;
+}
+
+export function batchExportTasks(
+  tasks: Task[],
+  formats: ExportFormat[],
+  options: EnhancedExportOptions = {}
+): BatchExportResult {
+  const result: BatchExportResult = {};
+
+  for (const format of formats) {
+    switch (format) {
+      case 'csv':
+        result.csv = exportTasksToCSVWithOptions(tasks, options);
+        break;
+      case 'json':
+        result.json = exportTasksToJSONWithOptions(tasks, options);
+        break;
+      case 'pdf':
+        result.pdf = exportTasksToPDFWithOptions(tasks, undefined, options);
+        break;
+      case 'excel':
+        result.excel = exportTasksToExcelWithOptions(tasks, options);
+        break;
+    }
+  }
+
+  return result;
+}
+
+/**
+ * 下载 Blob 文件
+ */
+export function downloadBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}

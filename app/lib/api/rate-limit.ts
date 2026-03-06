@@ -19,6 +19,13 @@ interface RateLimitStore {
 // 内存存储（生产环境应使用 Redis）
 const rateLimitStore = new Map<string, RateLimitStore>();
 
+/**
+ * 清理存储（测试用）
+ */
+export function clearRateLimitStore(): void {
+  rateLimitStore.clear();
+}
+
 // 清理过期记录的定时器
 if (typeof setInterval !== 'undefined') {
   setInterval(() => {

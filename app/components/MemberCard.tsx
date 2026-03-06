@@ -93,47 +93,47 @@ const MemberCardCompact = memo(function MemberCardCompact({
 }: MemberCardBaseProps) {
   return (
     <article 
-      className="px-4 py-3 hover:bg-gray-50 transition-colors focus-within:bg-gray-50"
+      className="px-3 sm:px-4 py-2.5 sm:py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors focus-within:bg-gray-50 dark:focus-within:bg-gray-700/50 active:bg-gray-100 dark:active:bg-gray-700"
       aria-labelledby={`member-${member.id}-name`}
     >
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         <div className="relative flex-shrink-0">
           <img
             src={member.avatar}
             alt=""
-            className="w-10 h-10 rounded-full"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full"
             onError={onImageError}
           />
           <div
-            className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${statusColors[member.status]}`}
+            className={`absolute bottom-0 right-0 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full border-2 border-white dark:border-gray-800 ${statusColors[member.status]}`}
             aria-hidden="true"
           />
           <span className="sr-only">{member.name}，状态：{statusLabels[member.status]}</span>
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <span id={`member-${member.id}-name`} className="text-sm font-medium text-gray-900">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            <span id={`member-${member.id}-name`} className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">
               {member.emoji} {member.name}
             </span>
             <span
-              className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${statusBgColors[member.status]}`}
+              className={`inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded text-xs font-medium ${statusBgColors[member.status]}`}
               aria-label={`状态：${statusLabels[member.status]}`}
             >
               {statusLabels[member.status]}
             </span>
           </div>
-          <div className="flex items-center gap-2 mt-1">
-            <span className="text-xs text-gray-500">{member.role}</span>
+          <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5 sm:mt-1">
+            <span className="text-xs text-gray-500 dark:text-gray-400">{member.role}</span>
             <span className="text-xs text-gray-400" aria-hidden="true">·</span>
-            <span className="text-xs text-gray-500">{member.provider}</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">{member.provider}</span>
           </div>
           {member.currentTask && (
-            <p className="text-xs text-blue-600 mt-1 truncate" aria-label={`当前任务：${member.currentTask}`}>📌 {member.currentTask}</p>
+            <p className="text-xs text-blue-600 dark:text-blue-400 mt-0.5 sm:mt-1 truncate" aria-label={`当前任务：${member.currentTask}`}>📌 {member.currentTask}</p>
           )}
         </div>
         <div className="text-right flex-shrink-0" aria-label={`已完成 ${member.completedTasks} 个任务`}>
-          <p className="text-sm font-medium text-gray-700">{member.completedTasks}</p>
-          <p className="text-xs text-gray-500">完成任务</p>
+          <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">{member.completedTasks}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">完成任务</p>
         </div>
       </div>
     </article>
@@ -149,45 +149,45 @@ const MemberCardDefault = memo(function MemberCardDefault({
 }: MemberCardBaseProps) {
   return (
     <article 
-      className="p-4 border rounded-lg hover:shadow-md transition-shadow focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500"
+      className="p-3 sm:p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-md transition-shadow focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 bg-white dark:bg-gray-800"
       aria-labelledby={`member-${member.id}-title`}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-2 sm:gap-3">
         <div className="relative flex-shrink-0">
           <img
             src={member.avatar}
             alt=""
-            className="w-12 h-12 rounded-full"
+            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full"
             onError={onImageError}
           />
           <div
-            className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${statusColors[member.status]}`}
+            className={`absolute bottom-0 right-0 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full border-2 border-white dark:border-gray-800 ${statusColors[member.status]}`}
             aria-hidden="true"
           />
           <span className="sr-only">{member.name}，状态：{statusLabels[member.status]}</span>
         </div>
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <h4 id={`member-${member.id}-title`} className="text-base font-semibold text-gray-900">
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1">
+            <h4 id={`member-${member.id}-title`} className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
               {member.emoji} {member.name}
             </h4>
             <span
-              className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${statusBgColors[member.status]}`}
+              className={`inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded text-xs font-medium ${statusBgColors[member.status]}`}
               aria-label={`状态：${statusLabels[member.status]}`}
             >
               {statusLabels[member.status]}
             </span>
           </div>
-          <p className="text-sm text-gray-600 mb-2" aria-label={`角色：${member.role}`}>{member.role}</p>
-          <p className="text-xs text-gray-500 mb-2">提供商：{member.provider}</p>
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1.5 sm:mb-2" aria-label={`角色：${member.role}`}>{member.role}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1.5 sm:mb-2">提供商：{member.provider}</p>
           {member.currentTask && (
-            <div className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded mb-2" aria-label={`当前任务：${member.currentTask}`}>
+            <div className="text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 px-2 py-1 rounded mb-1.5 sm:mb-2" aria-label={`当前任务：${member.currentTask}`}>
               📌 {member.currentTask}
             </div>
           )}
-          <div className="flex items-center gap-4 text-sm">
-            <span className="text-gray-700" aria-label={`已完成 ${member.completedTasks} 个任务`}>
-              <strong className="text-gray-900">{member.completedTasks}</strong> 完成任务
+          <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm">
+            <span className="text-gray-700 dark:text-gray-300" aria-label={`已完成 ${member.completedTasks} 个任务`}>
+              <strong className="text-gray-900 dark:text-white">{member.completedTasks}</strong> 完成任务
             </span>
           </div>
         </div>

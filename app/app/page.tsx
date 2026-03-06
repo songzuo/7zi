@@ -1,4 +1,33 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'AI 团队管理系统 - 智能团队协作平台',
+  description: 'AI 团队管理系统 - 由宋琢环球旅行团队打造的专业智能团队协作平台。实时监控 11 个专业 AI 代理工作状态、GitHub 任务进度、活动日志。提升团队效率 300%。',
+  keywords: ['AI团队管理', '团队协作', '智能体管理', 'AI代理', '团队效率', '宋琢环球旅行'],
+  openGraph: {
+    title: 'AI 团队管理系统 - 智能团队协作平台',
+    description: '实时监控 AI 团队成员状态、任务进度和活动日志',
+    url: 'https://7zi.com',
+    images: [
+      {
+        url: '/og-home.png',
+        width: 1200,
+        height: 630,
+        alt: 'AI 团队管理系统',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'AI 团队管理系统',
+    description: '实时监控 AI 团队成员状态、任务进度和活动日志',
+    images: ['/og-home.png'],
+  },
+  alternates: {
+    canonical: 'https://7zi.com',
+  },
+};
 
 export default function Home() {
   return (
@@ -6,7 +35,7 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-4 py-16">
         {/* Hero Section */}
         <section className="text-center mb-16" aria-labelledby="hero-title">
-          <h1 id="hero-title" className="text-5xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 id="hero-title" className="text-3xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
             🤖 AI 团队管理系统
           </h1>
           <p className="text-xl text-gray-700 dark:text-gray-300 mb-8">

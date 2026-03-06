@@ -49,12 +49,12 @@ const StatsCard = memo(function StatsCard({ icon, label, value, color }: StatsCa
   const colorClasses = STATS_CARD_COLORS[color];
 
   return (
-    <div className={`rounded-lg border-2 p-4 ${colorClasses} transition-colors`}>
-      <div className="flex items-center gap-3">
-        <div className="text-3xl" aria-hidden="true">{icon}</div>
-        <div>
-          <div className="text-sm font-medium opacity-75">{label}</div>
-          <div className="text-2xl font-bold">{value}</div>
+    <div className={`rounded-lg border-2 p-3 sm:p-4 ${colorClasses} transition-colors`}>
+      <div className="flex items-center gap-2 sm:gap-3">
+        <div className="text-2xl sm:text-3xl" aria-hidden="true">{icon}</div>
+        <div className="min-w-0">
+          <div className="text-xs sm:text-sm font-medium opacity-75 truncate">{label}</div>
+          <div className="text-xl sm:text-2xl font-bold">{value}</div>
         </div>
       </div>
     </div>
@@ -142,52 +142,55 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6 lg:py-8">
         {/* Header */}
-        <header className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+        <header className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
                 📊 AI 团队仪表盘
               </h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">
                 实时监控团队状态和任务进度
               </p>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                <span>自动刷新: {refreshInterval / 1000}秒</span>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+              <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                <span className="hidden sm:inline">自动刷新: {refreshInterval / 1000}秒</span>
                 {isFetching && (
                   <span className="inline-block w-2 h-2 bg-blue-500 rounded-full animate-pulse" title="正在刷新..."></span>
                 )}
               </div>
-              <select
-                value={refreshInterval}
-                onChange={handleIntervalChange}
-                className="text-sm border border-gray-300 dark:border-gray-600 rounded px-2 py-1
-                  bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              >
-                <option value={0}>关闭自动刷新</option>
-                <option value={30000}>30秒</option>
-                <option value={60000}>60秒</option>
-                <option value={120000}>120秒</option>
-                <option value={300000}>5分钟</option>
-              </select>
-              <button
-                onClick={handleRefresh}
-                disabled={isFetching}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="刷新数据"
-              >
-                <span className={isFetching ? 'animate-spin' : ''}>🔄</span>
-                <span>刷新</span>
-              </button>
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <select
+                  value={refreshInterval}
+                  onChange={handleIntervalChange}
+                  className="flex-1 sm:flex-none text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2
+                    bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  aria-label="选择刷新间隔"
+                >
+                  <option value={0}>关闭自动刷新</option>
+                  <option value={30000}>30秒</option>
+                  <option value={60000}>60秒</option>
+                  <option value={120000}>120秒</option>
+                  <option value={300000}>5分钟</option>
+                </select>
+                <button
+                  onClick={handleRefresh}
+                  disabled={isFetching}
+                  className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+                  aria-label="刷新数据"
+                >
+                  <span className={isFetching ? 'animate-spin' : ''}>🔄</span>
+                  <span className="hidden sm:inline">刷新</span>
+                </button>
+              </div>
             </div>
           </div>
         </header>
 
         {/* Stats Cards */}
-        <section className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8" aria-label="统计概览">
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8" aria-label="统计概览">
           <StatsCard
             icon="📋"
             label="总任务数"
@@ -215,8 +218,8 @@ export default function Dashboard() {
         </section>
 
         {/* Progress Overview */}
-        <section className="mb-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-colors">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+        <section className="mb-6 sm:mb-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 transition-colors">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4">
             任务完成进度
           </h2>
           <ProgressBar
@@ -229,15 +232,15 @@ export default function Dashboard() {
         </section>
 
         {/* Main Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           {/* Team Members */}
           <section className="lg:col-span-2" aria-labelledby="team-members-title">
-            <h2 id="team-members-title" className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <h2 id="team-members-title" className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <span>👥</span>
               <span>团队成员</span>
             </h2>
             <ErrorBoundary name="TeamMembers">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 {data.members.map((member) => (
                   <MemberCard key={member.id} member={member} />
                 ))}
@@ -247,7 +250,7 @@ export default function Dashboard() {
 
           {/* Activity Log */}
           <section aria-labelledby="activity-title">
-            <h2 id="activity-title" className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <h2 id="activity-title" className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <span>📜</span>
               <span>活动日志</span>
             </h2>
@@ -258,8 +261,8 @@ export default function Dashboard() {
         </div>
 
         {/* Task Board */}
-        <section className="mt-8" aria-labelledby="tasks-title">
-          <h2 id="tasks-title" className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+        <section className="mt-6 sm:mt-8" aria-labelledby="tasks-title">
+          <h2 id="tasks-title" className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
             <span>📋</span>
             <span>任务看板</span>
           </h2>
@@ -269,8 +272,8 @@ export default function Dashboard() {
         </section>
 
         {/* Contribution Chart */}
-        <section className="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-colors" aria-labelledby="contribution-title">
-          <h2 id="contribution-title" className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+        <section className="mt-6 sm:mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 transition-colors" aria-labelledby="contribution-title">
+          <h2 id="contribution-title" className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
             <span>📊</span>
             <span>贡献统计</span>
           </h2>

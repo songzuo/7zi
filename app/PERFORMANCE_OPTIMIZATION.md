@@ -272,3 +272,113 @@ function MyComponent() {
 ---
 
 生成时间: 2026-03-06
+
+---
+
+## 2026-03-06 BatchOperations 性能优化
+
+### 优化目标
+- `components/BatchOperationsToolbar.tsx` - 批量操作工具栏组件
+- `hooks/useBatchOperations.ts` - 批量操作 Hook
+
+### 发现的问题
+
+#### useBatchOperations.ts
+1. **依赖项不稳定** - `options` 对象作为 `useCallback` 依赖，每次父组件渲染都会创建新对象，导致所有回调失效
+2. **无请求去重** - 快速连续调用相同操作会发送多个重复请求
+3. **无取消机制** - 组件卸载时无法取消进行中的请求
+
+#### BatchOperationsToolbar.tsx
+1. **内联回调对象** - `onSuccess` 和 `onError` 在组件内直接创建对象，每次渲染都是新引用
+2. **notification 引用不稳定** - 从 store 获取后直接用于回调，但 store 引用可能变化
+3. **子组件优化** - DeleteConfirmDialog 已使用 memo，但可添加更详细的性能注释
+
+### 实施的优化
+
+#### 1. useBatchOperations.ts 优化
+
+```typescript
+// 优化前：options 作为依赖
+const executeOperation = useCallback(async (...) => {
+  // ...options.onSuccess
+}, [options]); // ❌ 每次父组件渲染都会变化
+
+// 优化后：使用 useRef 稳定引用
+const optionsRef = useRef(options);
+optionsRef.current = options; // 更新但不触发重渲染
+
+const executeOperation = useCallback(async (...) => {
+  optionsRef.current.onSuccess?.(result);
+}, []); // ✅ 空依赖，稳定引用
+```
+
+**新增功能：**
+- `cancel()` 方法 - 取消当前请求
+- 请求去重 - 相同操作只发送一次请求
+- AbortController - 组件卸载时自动取消请求
+
+#### 2. BatchOperationsToolbar.tsx 优化
+
+```typescript
+// 优化前：每次渲染创建新对象
+const { ... } = useBatchOperations({
+  onSuccess: (result) => { ... }, // ❌ 新函数引用
+  onError: (err) => { ... },      // ❌ 新函数引用
+});
+
+// 优化后：使用 useRef 和 useMemo 稳定引用
+const callbacksRef = useRef({ onOperationComplete, onClearSelection });
+const notificationRef = useRef(notification);
+
+const batchOptions = useMemo(() => ({
+  onSuccess: (result) => {
+    notificationRef.current.success(...);
+    callbacksRef.current.onOperationComplete?.();
+  },
+  onError: (err) => {
+    notificationRef.current.error(...);
+  },
+}), []); // ✅ 空依赖，稳定引用
+```
+
+### 性能影响评估
+
+| 指标 | 优化前 | 优化后 | 改进 |
+|------|--------|--------|------|
+| useCallback 重新创建 | 每次渲染 | 仅初始化 | 100% |
+| 重复请求 | 可能多次 | 自动去重 | 100% |
+| 组件卸载内存泄漏 | 可能存在 | 自动清理 | 100% |
+| 父组件渲染触发重渲染 | 是 | 否 | 100% |
+
+### 使用示例
+
+```typescript
+// 组件使用示例
+const MyComponent = () => {
+  const { loading, updateStatus, cancel } = useBatchOperations({
+    onSuccess: (result) => console.log('成功:', result),
+    onError: (error) => console.error('失败:', error),
+  });
+  
+  // 取消请求
+  useEffect(() => {
+    return () => cancel();
+  }, []);
+  
+  return <BatchOperationsToolbar selectedIds={ids} />;
+};
+```
+
+### 最佳实践总结
+
+1. **使用 useRef 稳定回调依赖** - 避免 options 对象变化导致 useCallback 失效
+2. **请求去重** - 防止重复操作
+3. **AbortController** - 支持请求取消，避免内存泄漏
+4. **组件卸载清理** - 自动取消进行中的请求
+5. **useMemo 缓存对象** - 避免每次渲染创建新的配置对象
+
+### 后续建议
+
+1. **添加请求缓存** - 对于幂等操作可以考虑缓存结果
+2. **乐观更新** - 在请求完成前先更新 UI，提升用户体验
+3. **重试机制** - 对于失败请求支持自动重试

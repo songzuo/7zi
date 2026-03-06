@@ -40,13 +40,13 @@ export const ActivityLog: React.FC<ActivityLogProps> = memo(function ActivityLog
   const typeLabels = TYPE_CONFIG.labels;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors">
       {/* 头部 */}
       <ActivityLogHeader count={activities.length} />
 
       {/* 活动列表 */}
       <div 
-        className="divide-y max-h-[600px] overflow-y-auto"
+        className="divide-y divide-gray-200 dark:divide-gray-700 max-h-[400px] sm:max-h-[600px] overflow-y-auto"
         role="feed"
         aria-label="活动日志"
         aria-busy={false}
@@ -69,7 +69,7 @@ export const ActivityLog: React.FC<ActivityLogProps> = memo(function ActivityLog
 
       {/* 底部 */}
       {activities.length > 0 && (
-        <footer className="px-6 py-3 border-t bg-gray-50 text-xs text-gray-600">
+        <footer className="px-4 sm:px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 text-xs text-gray-600 dark:text-gray-400 transition-colors">
           🕐 自动刷新 · 30 秒间隔
         </footer>
       )}
@@ -83,11 +83,11 @@ export const ActivityLog: React.FC<ActivityLogProps> = memo(function ActivityLog
 
 const ActivityLogHeader = memo(function ActivityLogHeader({ count }: { count: number }) {
   return (
-    <header className="px-6 py-4 border-b bg-gray-50">
-      <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+    <header className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 transition-colors">
+      <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
         <span aria-hidden="true">⚡</span> 实时活动日志
       </h2>
-      <p className="text-sm text-gray-600 mt-1" id="activity-count">
+      <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1" id="activity-count">
         最近 {count} 条活动
       </p>
     </header>
@@ -96,10 +96,10 @@ const ActivityLogHeader = memo(function ActivityLogHeader({ count }: { count: nu
 
 const EmptyState = memo(function EmptyState() {
   return (
-    <div className="px-6 py-12 text-center text-gray-500" role="status">
-      <p className="text-lg mb-2" aria-hidden="true">📭</p>
+    <div className="px-4 sm:px-6 py-10 sm:py-12 text-center text-gray-500 dark:text-gray-400" role="status">
+      <p className="text-base sm:text-lg mb-2" aria-hidden="true">📭</p>
       <p>暂无活动记录</p>
-      <p className="text-sm mt-1">GitHub 活动将显示在这里</p>
+      <p className="text-xs sm:text-sm mt-1">GitHub 活动将显示在这里</p>
     </div>
   );
 });
@@ -138,16 +138,16 @@ const ActivityItemCard = memo(function ActivityItemCard({
 
   return (
     <article 
-      className="px-6 py-4 hover:bg-gray-50 transition-colors focus-within:bg-gray-50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-500"
+      className="px-4 sm:px-6 py-3 sm:py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors focus-within:bg-gray-50 dark:focus-within:bg-gray-700/50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-500 active:bg-gray-100 dark:active:bg-gray-700"
       aria-posinset={index + 1}
       aria-setsize={-1}
       tabIndex={0}
       onKeyDown={handleKeyDown}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-2 sm:gap-3">
         {/* 图标 */}
         <div 
-          className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-lg"
+          className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-base sm:text-lg"
           aria-hidden="true"
         >
           {icon}
@@ -155,7 +155,7 @@ const ActivityItemCard = memo(function ActivityItemCard({
 
         {/* 内容 */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1">
             <span 
               className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${colorClass}`}
               aria-label={`类型：${label}`}
@@ -163,7 +163,7 @@ const ActivityItemCard = memo(function ActivityItemCard({
               {label}
             </span>
             <time 
-              className="text-xs text-gray-500" 
+              className="text-xs text-gray-500 dark:text-gray-400" 
               dateTime={activity.timestamp}
               title={new Date(activity.timestamp).toLocaleString()}
             >
@@ -171,11 +171,11 @@ const ActivityItemCard = memo(function ActivityItemCard({
             </time>
           </div>
 
-          <p className="text-sm text-gray-900 truncate mb-1">
+          <p className="text-sm text-gray-900 dark:text-gray-100 truncate mb-1">
             {activity.title}
           </p>
 
-          <div className="flex items-center gap-2 text-xs text-gray-600">
+          <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
             {activity.avatar && (
               <img
                 src={activity.avatar}
@@ -189,12 +189,12 @@ const ActivityItemCard = memo(function ActivityItemCard({
         </div>
 
         {/* 链接 */}
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 self-center">
           <a
             href={activity.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-blue-600 hover:text-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
+            className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 rounded p-1"
             aria-label={`查看 ${activity.title} 的详细内容`}
           >
             <span aria-hidden="true">🔗</span>

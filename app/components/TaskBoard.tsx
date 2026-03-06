@@ -41,9 +41,9 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ issues }) => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors">
       {/* 看板头部 */}
-      <header className="px-6 py-4 border-b bg-gray-50 dark:bg-gray-700/50 transition-colors">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+      <header className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 transition-colors">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4">
+          <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
             <span aria-hidden="true">📋</span> GitHub 任务
           </h2>
           <div className="flex items-center gap-2">
@@ -53,7 +53,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ issues }) => {
               id={filterId}
               value={filter}
               onChange={handleFilterChange}
-              className="text-sm border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 dark:text-gray-200 px-3 py-2"
+              className="flex-1 sm:flex-none text-sm border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 dark:text-gray-200 px-3 py-2"
               aria-describedby="filter-description"
             >
               <option value="open">进行中</option>
@@ -88,15 +88,15 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ issues }) => {
 
       {/* 任务列表 */}
       <div 
-        className="divide-y divide-gray-200 dark:divide-gray-700 max-h-[600px] overflow-y-auto"
+        className="divide-y divide-gray-200 dark:divide-gray-700 max-h-[400px] sm:max-h-[600px] overflow-y-auto"
         role="list"
         aria-label="GitHub 任务列表"
       >
         {filteredIssues.length === 0 ? (
-          <div className="px-6 py-12 text-center text-gray-500 dark:text-gray-400" role="status">
-            <p className="text-lg mb-2" aria-hidden="true">📭</p>
+          <div className="px-4 sm:px-6 py-10 sm:py-12 text-center text-gray-500 dark:text-gray-400" role="status">
+            <p className="text-base sm:text-lg mb-2" aria-hidden="true">📭</p>
             <p>暂无任务</p>
-            <p className="text-sm mt-1">
+            <p className="text-xs sm:text-sm mt-1">
               {filter === 'open' ? '所有任务都已完成！' : '还没有 GitHub Issues'}
             </p>
           </div>
@@ -109,7 +109,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ issues }) => {
 
       {/* 底部统计 */}
       {filteredIssues.length > 0 && (
-        <footer className="px-6 py-3 border-t bg-gray-50 dark:bg-gray-700/50 text-xs text-gray-600 dark:text-gray-400 transition-colors">
+        <footer className="px-4 sm:px-6 py-2 sm:py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 text-xs text-gray-600 dark:text-gray-400 transition-colors">
           显示 {filteredIssues.length} / {issues.length} 个任务
         </footer>
       )}
@@ -156,11 +156,11 @@ export const TaskCard = memo(function TaskCard({ issue }: TaskCardProps) {
 
   return (
     <article 
-      className="px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group focus-within:bg-gray-50 dark:focus-within:bg-gray-700/50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-500"
+      className="px-4 sm:px-6 py-3 sm:py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group focus-within:bg-gray-50 dark:focus-within:bg-gray-700/50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-500 active:bg-gray-100 dark:active:bg-gray-700"
       role="listitem"
       aria-labelledby={`issue-${issue.number}-title`}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-2 sm:gap-3">
         {/* 状态图标 */}
         <TaskCardStatusIcon
           state={issue.state}
@@ -230,7 +230,7 @@ const TaskCardContent = memo(function TaskCardContent({ issue }: TaskCardContent
 
   return (
     <div className="flex-1 min-w-0">
-      <div className="flex items-center gap-2 mb-2">
+      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-2">
         <a
           href={issue.html_url}
           target="_blank"

@@ -1,35 +1,39 @@
 /**
- * WebSocket 连接入口 API
+ * 通知服务 REST API
  * 
- * 处理 WebSocket 升级请求
+ * 提供通知服务状态查询和系统公告发送功能
  */
 
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextRequest, NextResponse } from 'next/server';
 import { notificationServer } from '@/lib/realtime/server';
 
-// Next.js API 路由不支持 WebSocket 升级
-// 这个文件提供 REST API 接口来获取 WebSocket 状态
-
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  if (req.method === 'GET') {
+export async function GET(request: NextRequest) {
+  try {
     // 返回 WebSocket 服务状态
-    return res.status(200).json({
+    return NextResponse.json({
       status: 'available',
       endpoint: process.env.WEBSOCKET_URL || '/api/ws',
       onlineUsers: notificationServer.getOnlineUsers(),
       connectionCount: notificationServer.getConnectionCount(),
     });
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Failed to get notification status' },
+      { status: 500 }
+    );
   }
+}
 
-  if (req.method === 'POST') {
-    // 发送系统公告（需要管理员权限）
-    const { title, content, level = 'info', actionUrl, actionText } = req.body;
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { title, content, level = 'info', actionUrl, actionText } = body;
 
     if (!title || !content) {
-      return res.status(400).json({ error: 'Missing title or content' });
+      return NextResponse.json(
+        { error: 'Missing title or content' },
+        { status: 400 }
+      );
     }
 
     notificationServer.sendSystemAnnouncement({
@@ -40,8 +44,11 @@ export default async function handler(
       actionText,
     });
 
-    return res.status(200).json({ success: true });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Failed to send announcement' },
+      { status: 500 }
+    );
   }
-
-  return res.status(405).json({ error: 'Method not allowed' });
 }

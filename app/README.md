@@ -15,16 +15,40 @@
 
 ```
 app/
-├── dashboard/
-│   └── page.tsx          # 主看板页面
+├── app/
+│   ├── charts/
+│   │   └── layout.tsx     # 数据可视化页面 Layout
+│   ├── profile/
+│   │   └── layout.tsx     # 个人资料页面 Layout
+│   ├── tasks/
+│   │   └── layout.tsx     # 任务列表页面 Layout
+│   ├── settings/
+│   │   └── layout.tsx     # 设置页面 Layout
+│   └── dashboard/
+│       └── page.tsx       # 主看板页面
 ├── components/
-│   ├── MemberCard.tsx    # 成员卡片组件
-│   ├── TaskBoard.tsx     # 任务看板组件
-│   ├── ActivityLog.tsx   # 活动日志组件
+│   ├── MemberCard.tsx     # 成员卡片组件
+│   ├── TaskBoard.tsx      # 任务看板组件
+│   ├── ActivityLog.tsx    # 活动日志组件
 │   └── LoadingSpinner.tsx # 加载动画组件
 ├── hooks/
-│   └── useDashboardData.ts # GitHub API 数据 Hook
-└── .env.example          # 环境变量示例
+│   ├── useDashboardData.ts  # GitHub API 数据 Hook
+│   ├── useBatchOperations.ts # 批量操作 Hook
+│   ├── useExport.ts        # 导出功能 Hook
+│   ├── useNotifications.ts # 通知 Hook
+│   ├── useRealtimeDashboard.ts # 实时看板 Hook
+│   ├── useTheme.ts         # 主题 Hook
+│   ├── useUserSettings.ts  # 用户设置 Hook
+│   ├── useWebSocket.ts     # WebSocket Hook
+│   └── useWebVitals.ts     # 性能指标 Hook
+├── lib/
+│   └── api/
+│       ├── cache.ts        # API 缓存中间件
+│       ├── rate-limit.ts   # 请求限流
+│       ├── response.ts     # 响应辅助函数
+│       ├── validation.ts   # 数据验证
+│       └── index.ts        # 统一导出
+└── .env.example            # 环境变量示例
 ```
 
 ## 🚀 快速开始
@@ -109,6 +133,102 @@ http://localhost:3000/dashboard
 - 成员状态统计
 - 任务进度统计
 - 实时更新时间
+
+### ✅ 批量操作功能
+支持一次性对多个任务执行操作，提升管理效率：
+
+```typescript
+import { useBatchOperations } from '@/hooks/useBatchOperations';
+
+function TaskManager() {
+  const { 
+    updateStatus, 
+    updatePriority, 
+    assign, 
+    deleteTasks,
+    addTags,
+    removeTags,
+    setDueDate,
+    loading,
+    error,
+    lastResult 
+  } = useBatchOperations({
+    onSuccess: (result) => console.log(`成功处理 ${result.affected} 个任务`),
+    onError: (error) => console.error('操作失败:', error),
+  });
+
+  // 批量更新状态
+  const handleBatchUpdate = async (taskIds: string[]) => {
+    await updateStatus(taskIds, 'completed');
+  };
+
+  // 批量分配任务
+  const handleBatchAssign = async (taskIds: string[], assignee: string) => {
+    await assign(taskIds, assignee);
+  };
+
+  // 批量添加标签
+  const handleBatchAddTags = async (taskIds: string[], tagIds: string[]) => {
+    await addTags(taskIds, tagIds);
+  };
+
+  return (
+    // ... 组件 JSX
+  );
+}
+```
+
+**支持的批量操作：**
+- `updateStatus` - 批量更新任务状态
+- `updatePriority` - 批量更新任务优先级
+- `assign` - 批量分配/取消分配任务
+- `deleteTasks` - 批量删除任务
+- `addTags` - 批量添加标签
+- `removeTags` - 批量移除标签
+- `setDueDate` - 批量设置截止日期
+
+### ✅ 页面布局优化
+各页面独立 layout 文件，支持 SEO 友好的元数据：
+
+| 页面 | 路径 | 功能 |
+|------|------|------|
+| 数据可视化 | `/charts` | 团队数据图表、效率分析 |
+| 个人资料 | `/profile` | 用户信息管理、账户设置 |
+| 任务列表 | `/tasks` | 任务管理、GitHub 集成 |
+| 设置 | `/settings` | 主题切换、偏好配置 |
+
+每个 layout 包含完整的 SEO 元数据：title、description、keywords、Open Graph、Twitter Card。
+
+### ✅ API 缓存功能
+内置智能缓存中间件，优化 API 响应性能：
+
+```typescript
+import { createCacheMiddleware, cachePresets } from '@/lib/api/cache';
+
+// 使用预设缓存配置
+const withCache = createCacheMiddleware(cachePresets.medium); // 5分钟缓存
+
+// 应用到 API 路由
+export const GET = withCache(async (request) => {
+  const data = await fetchData();
+  return NextResponse.json(data);
+});
+```
+
+**预设缓存配置：**
+| 预设 | TTL | 适用场景 |
+|------|-----|----------|
+| `short` | 30秒 | 实时数据、动态内容 |
+| `medium` | 5分钟 | 列表数据、统计数据 |
+| `long` | 1小时 | 配置数据、静态内容 |
+| `static` | 1天 | 完全静态数据 |
+
+**缓存特性：**
+- ✅ 内存缓存 + HTTP 缓存头
+- ✅ ETag 支持（304 Not Modified）
+- ✅ Stale-While-Revalidate 模式
+- ✅ 缓存键变体（Vary headers）
+- ✅ 自动清理过期缓存
 
 ## 🔌 技术栈
 

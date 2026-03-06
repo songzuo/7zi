@@ -5,6 +5,8 @@ const nextConfig = {
   reactStrictMode: true,
   // 性能优化：压缩输出
   compress: true,
+  // 生产优化
+  productionBrowserSourceMaps: false, // 减少构建大小
   // 图片优化配置
   images: {
     unoptimized: true, // 静态导出时需要
@@ -23,11 +25,93 @@ const nextConfig = {
   // 静态资源优化
   trailingSlash: false,
   // 使用 standalone 输出模式支持 API 路由
-  // 如需静态导出，改为 output: 'export'
   output: 'standalone',
   // 实验性功能
   experimental: {
-    optimizePackageImports: ['lucide-react'],
+    optimizePackageImports: ['lucide-react', '@tanstack/react-query'],
+    // 启用优化 CSS
+    optimizeCss: true,
+  },
+  // Headers 配置 - 性能和安全
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          // 缓存控制
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+          // 安全头
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin',
+          },
+        ],
+      },
+      {
+        // 静态资源长期缓存
+        source: '/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        // 图片资源缓存
+        source: '/:all*(svg|jpg|png|ico|webp|avif|gif)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        // 字体缓存
+        source: '/:all*(woff|woff2|eot|ttf|otf)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
+        ],
+      },
+    ];
+  },
+  // 重定向配置
+  async redirects() {
+    return [
+      // 旧路径重定向
+      {
+        source: '/home',
+        destination: '/',
+        permanent: true,
+      },
+    ];
   },
 };
 

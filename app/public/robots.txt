@@ -1,9 +1,14 @@
+# Robots.txt for AI Team Dashboard - 7zi.com
+# https://7zi.com/robots.txt
+
+# 允许所有搜索引擎爬虫
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /api-docs
+Disallow: /performance
 
-Sitemap: https://7zi.com/sitemap.xml
-
-# 爬虫规则
+# 允许 AI 相关爬虫（ChatGPT, Claude, Google AI 等）
 User-agent: GPTBot
 Allow: /
 
@@ -12,3 +17,40 @@ Allow: /
 
 User-agent: Google-Extended
 Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: Anthropic-AI
+Allow: /
+
+# 主要搜索引擎特定配置
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Slurp
+Allow: /
+Crawl-delay: 1
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+Crawl-delay: 2
+
+User-agent: YandexBot
+Allow: /
+Crawl-delay: 2
+
+# 站点地图位置
+Sitemap: https://7zi.com/sitemap.xml
+
+# 联系信息
+# Contact: https://7zi.com/contact
+# Host: 7zi.com
