@@ -54,6 +54,9 @@ export default function Home() {
               >
                 7zi 环球通 (旧项目)
               </a>
+              <Link href="/dashboard" className="hidden md:block text-zinc-600 dark:text-zinc-400 hover:text-cyan-500 transition-colors">
+                Dashboard
+              </Link>
               <ThemeToggle />
               <Link
                 href="/contact"
