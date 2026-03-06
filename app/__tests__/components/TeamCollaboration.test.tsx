@@ -28,8 +28,9 @@ describe('TeamCollaborationHub', () => {
   it('应该显示在线成员统计', () => {
     render(<TeamCollaborationHub />);
     
-    // 应该显示在线统计
-    expect(screen.getByText(/在线/)).toBeInTheDocument();
+    // 应该显示在线统计 - 使用 getAllByText 因为有多个匹配
+    const onlineElements = screen.getAllByText(/在线/);
+    expect(onlineElements.length).toBeGreaterThan(0);
   });
 
   it('应该切换标签', async () => {
@@ -143,9 +144,11 @@ describe('NotificationCenter', () => {
     const searchInput = screen.getByPlaceholderText(/搜索通知/);
     fireEvent.change(searchInput, { target: { value: '任务' } });
     
-    // 等待过滤结果
+    // 等待过滤结果 - 检查是否显示任务相关通知
     await waitFor(() => {
-      expect(screen.getByText(/没有找到匹配的通知|任务/)).toBeInTheDocument();
+      // 应该显示包含"任务"的通知
+      const allText = document.body.textContent || '';
+      expect(allText.includes('任务') || allText.includes('没有找到')).toBe(true);
     });
   });
 

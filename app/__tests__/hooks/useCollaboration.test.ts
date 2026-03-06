@@ -299,15 +299,25 @@ describe('useTeamCollaboration', () => {
     expect(result.current.totalUnread).toBe(2);
   });
 
-  it('应该正确过滤成员', () => {
+  it('应该正确过滤成员', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: {
+          members: [
+            { id: '1', name: 'Executor', role: '执行', status: 'online' },
+            { id: '2', name: '架构师', role: '设计', status: 'online' },
+          ],
+          stats: { total: 2, online: 2, busy: 0, away: 0, offline: 0 },
+        },
+      }),
+    });
+
     const { result } = renderHook(() => useTeamCollaboration({ autoFetch: false }));
 
-    act(() => {
-      // 直接设置状态
-      (result.current as any).members = [
-        { id: '1', name: 'Executor', role: '执行', status: 'online' },
-        { id: '2', name: '架构师', role: '设计', status: 'online' },
-      ];
+    await act(async () => {
+      await result.current.fetchMembers();
     });
 
     act(() => {
@@ -317,15 +327,26 @@ describe('useTeamCollaboration', () => {
     expect(result.current.filteredMembers).toHaveLength(1);
   });
 
-  it('应该正确计算在线成员', () => {
+  it('应该正确计算在线成员', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: {
+          members: [
+            { id: '1', name: 'Executor', role: '执行', status: 'online' },
+            { id: '2', name: '架构师', role: '设计', status: 'busy' },
+            { id: '3', name: '测试员', role: '测试', status: 'offline' },
+          ],
+          stats: { total: 3, online: 1, busy: 1, away: 0, offline: 1 },
+        },
+      }),
+    });
+
     const { result } = renderHook(() => useTeamCollaboration({ autoFetch: false }));
 
-    act(() => {
-      (result.current as any).members = [
-        { id: '1', name: 'Executor', role: '执行', status: 'online' },
-        { id: '2', name: '架构师', role: '设计', status: 'busy' },
-        { id: '3', name: '测试员', role: '测试', status: 'offline' },
-      ];
+    await act(async () => {
+      await result.current.fetchMembers();
     });
 
     expect(result.current.onlineMembers).toHaveLength(2);

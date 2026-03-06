@@ -82,7 +82,7 @@ const generateMockNotifications = (): EnhancedNotification[] => [
   {
     id: '3',
     type: 'warning',
-    category: 'system',
+    category: 'alert',
     priority: 'high',
     title: '系统维护通知',
     message: '系统将于今晚 22:00-23:00 进行例行维护，届时部分功能可能不可用',
@@ -90,7 +90,6 @@ const generateMockNotifications = (): EnhancedNotification[] => [
     read: true,
     dismissed: false,
     icon: '⚠️',
-    category: 'alert',
   },
   {
     id: '4',
