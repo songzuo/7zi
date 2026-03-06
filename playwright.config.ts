@@ -23,10 +23,17 @@ export default defineConfig({
   // CI 上限制并行 workers
   workers: process.env.CI ? 1 : undefined,
   
-  // Reporter 配置
+  // Reporter 配置 - 增强报告生成
   reporter: [
-    ['html', { outputFolder: 'playwright-report' }],
-    ['list']
+    ['html', { 
+      outputFolder: 'playwright-report',
+      open: 'never',
+      host: '0.0.0.0',
+      port: 9323
+    }],
+    ['list'],
+    ['json', { outputFile: 'test-results/test-results.json' }],
+    ['junit', { outputFile: 'test-results/junit-results.xml' }],
   ],
   
   // 全局测试配置
@@ -37,8 +44,11 @@ export default defineConfig({
     // 收集失败测试的 trace
     trace: 'on-first-retry',
     
-    // 截图
-    screenshot: 'only-on-failure',
+    // 截图 - 失败时截图
+    screenshot: {
+      mode: 'only-on-failure',
+      fullPage: true,
+    },
     
     // 视频录制
     video: 'retain-on-failure',
@@ -46,13 +56,30 @@ export default defineConfig({
     // 测试超时
     actionTimeout: 10000,
     navigationTimeout: 30000,
+    
+    // 浏览器上下文选项
+    viewport: { width: 1920, height: 1080 },
+    deviceScaleFactor: 1,
+  },
+
+  // 视觉回归测试配置（根级别）
+  expect: {
+    // 截图比较允许的像素差异
+    toHaveScreenshot: {
+      maxDiffPixels: 100,
+      threshold: 0.2,
+    },
   },
 
   // 配置项目（多浏览器测试）
   projects: [
+    // 主要桌面浏览器
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { 
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1920, height: 1080 },
+      },
     },
     {
       name: 'firefox',
@@ -71,6 +98,21 @@ export default defineConfig({
       name: 'Mobile Safari',
       use: { ...devices['iPhone 12'] },
     },
+    // 平板测试
+    {
+      name: 'iPad',
+      use: { ...devices['iPad Pro'] },
+    },
+    // 视觉回归测试专用（仅 Chromium）
+    {
+      name: 'visual-regression',
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1920, height: 1080 },
+        deviceScaleFactor: 1,
+      },
+      testMatch: '**/visual-regression.spec.ts',
+    },
   ],
 
   // 本地开发服务器
@@ -79,5 +121,15 @@ export default defineConfig({
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
+    stdout: 'pipe',
+    stderr: 'pipe',
   },
+
+  // 输出目录配置
+  outputDir: 'test-results/',
+  
+  // 快照目录（视觉回归测试）
+  snapshotDir: './e2e/snapshots',
+  
+  // 更新视觉回归基线时使用 --update-snapshots
 });

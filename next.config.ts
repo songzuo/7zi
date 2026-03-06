@@ -34,11 +34,81 @@ const nextConfig: NextConfig = {
   // 禁用 x-powered-by 头（安全）
   poweredByHeader: false,
   
+  // 性能优化：实验性功能
+  experimental: {
+    // 优化包导入 - 减少打包体积
+    optimizePackageImports: [
+      'next-intl',
+      '@sentry/nextjs',
+      'zustand',
+      'web-vitals',
+    ],
+  },
+  
+  // Webpack 配置优化
+  webpack: (config, { isServer }) => {
+    // 生产环境优化
+    if (!isServer) {
+      // 客户端包拆分
+      config.optimization = config.optimization || {};
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          // React 核心库单独打包
+          react: {
+            test: /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/,
+            name: 'react-core',
+            priority: 40,
+          },
+          // Next.js 核心单独打包
+          next: {
+            test: /[\\/]node_modules[\\/](next)[\\/]/,
+            name: 'next-core',
+            priority: 30,
+          },
+          // UI 组件库
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            priority: 20,
+            reuseExistingChunk: true,
+          },
+          // 公共模块
+          common: {
+            minChunks: 2,
+            priority: 10,
+            reuseExistingChunk: true,
+          },
+        },
+        maxInitialRequests: 25,
+        minSize: 20000,
+      };
+    }
+    
+    return config;
+  },
+  
   // 安全头配置
   headers: async () => [
     {
       source: '/:path*',
       headers: [
+        // Content Security Policy (CSP) - 防止 XSS 和数据注入
+        {
+          key: 'Content-Security-Policy',
+          value: [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://cdn.jsdelivr.net",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+            "font-src 'self' https://fonts.gstatic.com data:",
+            "img-src 'self' data: blob: https: http:",
+            "connect-src 'self' https://api.github.com https://o1.ingest.sentry.io https://va.vercel-scripts.com https://vitals.vercel-insights.com",
+            "frame-ancestors 'self'",
+            "base-uri 'self'",
+            "form-action 'self'",
+            "object-src 'none'",
+          ].join('; '),
+        },
         {
           key: 'X-DNS-Prefetch-Control',
           value: 'on',
