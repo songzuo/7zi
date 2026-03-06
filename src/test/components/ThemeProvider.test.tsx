@@ -18,30 +18,49 @@ const TestComponent = () => {
   )
 }
 
-const TestWrapper = ({ children, defaultTheme, storageKey }: { 
+const TestWrapper = ({ children, defaultTheme }: { 
   children?: ReactNode
   defaultTheme?: 'light' | 'dark' | 'system'
-  storageKey?: string
 }) => (
-  <ThemeProvider defaultTheme={defaultTheme} storageKey={storageKey}>
+  <ThemeProvider defaultTheme={defaultTheme}>
     {children}
   </ThemeProvider>
 )
 
 describe('ThemeProvider', () => {
-  const localStorageMock = (() => {
-    let store: Record<string, string> = {}
-    return {
-      getItem: vi.fn((key: string) => store[key] || null),
-      setItem: vi.fn((key: string, value: string) => { store[key] = value }),
-      removeItem: vi.fn((key: string) => { delete store[key] }),
-      clear: vi.fn(() => { store = {} }),
-    }
-  })()
+  // The actual storage key used by SettingsProvider
+  const STORAGE_KEY = '7zi-user-settings'
+  
+  let store: Record<string, string> = {}
+  
+  const localStorageMock = {
+    getItem: vi.fn((key: string) => store[key] || null),
+    setItem: vi.fn((key: string, value: string) => { store[key] = value }),
+    removeItem: vi.fn((key: string) => { delete store[key] }),
+    clear: vi.fn(() => { store = {} }),
+  }
+
+  // Mock matchMedia for system theme detection
+  const createMatchMedia = (prefersDark: boolean) => {
+    return vi.fn((query: string) => ({
+      matches: query === '(prefers-color-scheme: dark)' ? prefersDark : false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }))
+  }
 
   beforeEach(() => {
-    Object.defineProperty(window, 'localStorage', { value: localStorageMock })
-    localStorageMock.clear()
+    store = {}
+    Object.defineProperty(window, 'localStorage', { value: localStorageMock, writable: true })
+    Object.defineProperty(window, 'matchMedia', { 
+      value: createMatchMedia(false), 
+      writable: true 
+    })
     document.documentElement.classList.remove('dark')
   })
 
@@ -176,7 +195,7 @@ describe('ThemeProvider', () => {
 
   it('saves theme to localStorage', async () => {
     render(
-      <TestWrapper defaultTheme="light" storageKey="test-theme">
+      <TestWrapper defaultTheme="light">
         <TestComponent />
       </TestWrapper>
     )
@@ -190,15 +209,26 @@ describe('ThemeProvider', () => {
     })
     
     await waitFor(() => {
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('test-theme', 'dark')
+      // The SettingsProvider saves settings as JSON with the key '7zi-user-settings'
+      expect(localStorageMock.setItem).toHaveBeenCalled()
+      const lastCall = localStorageMock.setItem.mock.calls[localStorageMock.setItem.mock.calls.length - 1]
+      expect(lastCall[0]).toBe(STORAGE_KEY)
+      const savedSettings = JSON.parse(lastCall[1])
+      expect(savedSettings.theme).toBe('dark')
     })
   })
 
   it('loads theme from localStorage on mount', async () => {
-    localStorageMock.getItem.mockReturnValue('dark')
+    // Pre-populate localStorage with dark theme settings
+    store[STORAGE_KEY] = JSON.stringify({
+      theme: 'dark',
+      language: 'zh',
+      notifications: { enabled: true, sound: true, email: false, push: true }
+    })
+    localStorageMock.getItem.mockImplementation((key: string) => store[key] || null)
     
     render(
-      <TestWrapper defaultTheme="light" storageKey="test-theme">
+      <TestWrapper defaultTheme="light">
         <TestComponent />
       </TestWrapper>
     )
