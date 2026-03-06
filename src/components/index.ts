@@ -15,3 +15,13 @@ export { ProjectDashboard } from './ProjectDashboard';
 // UI Components
 export { Hero3D } from './Hero3D';
 export { LazyImage, ImageGallery, Skeleton, CardSkeleton } from './LazyImage';
+
+// Contact & Social
+export { ContactForm } from './ContactForm';
+export { SocialLinks } from './SocialLinks';
+
+// Analytics
+export { Analytics } from './Analytics';
+
+// Footer
+export { Footer } from './Footer';

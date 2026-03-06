@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ContactForm } from "@/components/ContactForm";
+import { SocialLinks } from "@/components/SocialLinks";
 
 const baseUrl = "https://7zi.studio";
 
@@ -30,28 +32,36 @@ const socialLinks = [
     icon: "💬",
     description: "关注我们获取最新资讯",
     link: "#",
-    color: "from-green-500 to-emerald-600",
   },
   {
     name: "GitHub",
     icon: "🐙",
     description: "查看我们的开源项目",
     link: "https://github.com/7zi-studio",
-    color: "from-zinc-700 to-zinc-900",
   },
   {
     name: "Twitter",
     icon: "🐦",
     description: "关注我们的最新动态",
     link: "https://twitter.com/7zistudio",
-    color: "from-sky-400 to-sky-600",
   },
   {
     name: "LinkedIn",
     icon: "💼",
     description: "专业网络连接",
     link: "https://linkedin.com/company/7zistudio",
-    color: "from-blue-600 to-blue-800",
+  },
+  {
+    name: "Discord",
+    icon: "🎮",
+    description: "加入我们的社区",
+    link: "#",
+  },
+  {
+    name: "YouTube",
+    icon: "📺",
+    description: "观看教程和演示",
+    link: "#",
   },
 ];
 
@@ -127,69 +137,7 @@ export default function ContactPage() {
               <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-6">
                 发送消息
               </h2>
-              <form className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                      姓名
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="您的姓名"
-                      className="w-full px-6 py-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:border-cyan-500 transition-colors"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                      邮箱
-                    </label>
-                    <input
-                      type="email"
-                      placeholder="your@email.com"
-                      className="w-full px-6 py-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:border-cyan-500 transition-colors"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                    公司（可选）
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="您的公司"
-                    className="w-full px-6 py-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:border-cyan-500 transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                    主题
-                  </label>
-                  <select className="w-full px-6 py-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:border-cyan-500 transition-colors">
-                    <option value="">选择咨询主题</option>
-                    <option value="project">项目咨询</option>
-                    <option value="cooperation">商务合作</option>
-                    <option value="support">技术支持</option>
-                    <option value="careers">加入我们</option>
-                    <option value="other">其他</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                    消息内容
-                  </label>
-                  <textarea
-                    rows={6}
-                    placeholder="请描述您的需求..."
-                    className="w-full px-6 py-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:border-cyan-500 transition-colors resize-none"
-                  ></textarea>
-                </div>
-                <button
-                  type="submit"
-                  className="w-full py-4 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-2xl font-semibold text-lg hover:shadow-lg hover:scale-[1.02] transition-all duration-300"
-                >
-                  发送消息
-                </button>
-              </form>
+              <ContactForm />
             </div>
 
             {/* Contact Info */}
@@ -227,23 +175,7 @@ export default function ContactPage() {
                 <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-6">
                   关注我们
                 </h2>
-                <div className="grid grid-cols-2 gap-4">
-                  {socialLinks.map((social) => (
-                    <a
-                      key={social.name}
-                      href={social.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`group flex items-center gap-4 p-4 bg-gradient-to-br ${social.color} rounded-2xl hover:scale-105 transition-all duration-300`}
-                    >
-                      <span className="text-2xl">{social.icon}</span>
-                      <div>
-                        <h3 className="font-bold text-white">{social.name}</h3>
-                        <p className="text-xs text-white/70">{social.description}</p>
-                      </div>
-                    </a>
-                  ))}
-                </div>
+                <SocialLinks variant="grid" size="md" />
               </div>
 
               {/* Response Time */}
