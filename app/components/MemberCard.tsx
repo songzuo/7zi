@@ -157,7 +157,7 @@ const MemberCardDefault = memo(function MemberCardDefault({
           <img
             src={member.avatar}
             alt=""
-            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full"
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-full"
             onError={onImageError}
           />
           <div
@@ -181,7 +181,7 @@ const MemberCardDefault = memo(function MemberCardDefault({
           <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1.5 sm:mb-2" aria-label={`角色：${member.role}`}>{member.role}</p>
           <p className="text-xs text-gray-500 dark:text-gray-400 mb-1.5 sm:mb-2">提供商：{member.provider}</p>
           {member.currentTask && (
-            <div className="text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 px-2 py-1 rounded mb-1.5 sm:mb-2" aria-label={`当前任务：${member.currentTask}`}>
+            <div className="text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 px-2 py-1 rounded mb-1.5 sm:mb-2 truncate" aria-label={`当前任务：${member.currentTask}`}>
               📌 {member.currentTask}
             </div>
           )}

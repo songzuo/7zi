@@ -1,0 +1,131 @@
+{
+  "navigation": {
+    "home": "首页",
+    "dashboard": "实时看板",
+    "subagents": "子代理",
+    "tasks": "任务",
+    "profile": "个人资料",
+    "settings": "设置",
+    "notifications": "通知",
+    "theme": "主题",
+    "menu": "菜单",
+    "closeMenu": "关闭菜单",
+    "openMenu": "打开菜单",
+    "current": "当前页面"
+  },
+  "common": {
+    "loading": "加载中...",
+    "error": "出错了",
+    "retry": "重试",
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑",
+    "add": "添加",
+    "search": "搜索",
+    "filter": "筛选",
+    "all": "全部",
+    "none": "无",
+    "yes": "是",
+    "no": "否",
+    "confirm": "确认",
+    "back": "返回",
+    "next": "下一步",
+    "previous": "上一步",
+    "submit": "提交",
+    "reset": "重置",
+    "skipToContent": "跳到主要内容"
+  },
+  "dashboard": {
+    "title": "AI 团队实时看板",
+    "subtitle": "实时监控团队状态",
+    "members": "团队成员",
+    "tasks": "任务列表",
+    "activity": "活动日志",
+    "stats": {
+      "total": "总数",
+      "active": "活跃",
+      "completed": "已完成",
+      "pending": "待处理"
+    }
+  },
+  "member": {
+    "status": {
+      "online": "在线",
+      "busy": "忙碌",
+      "offline": "离线",
+      "idle": "空闲"
+    },
+    "role": {
+      "director": "主管",
+      "consultant": "咨询师",
+      "architect": "架构师",
+      "executor": "执行者",
+      "admin": "系统管理员",
+      "tester": "测试员",
+      "designer": "设计师",
+      "promoter": "推广专员",
+      "sales": "销售客服",
+      "finance": "财务",
+      "media": "媒体"
+    },
+    "tasks": "任务",
+    "progress": "进度",
+    "lastActive": "最后活跃"
+  },
+  "task": {
+    "status": {
+      "todo": "待办",
+      "inProgress": "进行中",
+      "review": "审核中",
+      "completed": "已完成",
+      "cancelled": "已取消"
+    },
+    "priority": {
+      "low": "低",
+      "medium": "中",
+      "high": "高",
+      "urgent": "紧急"
+    },
+    "assignee": "负责人",
+    "dueDate": "截止日期",
+    "created": "创建时间",
+    "updated": "更新时间"
+  },
+  "profile": {
+    "title": "个人资料",
+    "edit": "编辑资料",
+    "name": "姓名",
+    "email": "邮箱",
+    "role": "角色",
+    "bio": "简介",
+    "avatar": "头像"
+  },
+  "settings": {
+    "title": "设置",
+    "general": "通用",
+    "appearance": "外观",
+    "notifications": "通知",
+    "language": "语言",
+    "theme": {
+      "light": "浅色",
+      "dark": "深色",
+      "system": "跟随系统"
+    }
+  },
+  "theme": {
+    "toggle": "切换主题",
+    "light": "浅色模式",
+    "dark": "深色模式",
+    "system": "系统设置"
+  },
+  "footer": {
+    "copyright": "AI 团队实时看板 - 由宋琢环球旅行团队管理",
+    "version": "版本"
+  },
+  "meta": {
+    "title": "AI 团队实时看板 - 智能团队协作管理平台 | 宋琢环球旅行",
+    "description": "实时监控 11 个专业 AI 代理工作状态、GitHub 任务进度、活动日志。提升团队效率 300%。",
+    "keywords": "AI团队看板,任务管理,智能体,AI代理,团队协作,宋琢环球旅行"
+  }
+}

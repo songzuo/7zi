@@ -1,0 +1,131 @@
+{
+  "navigation": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "subagents": "Subagents",
+    "tasks": "Tasks",
+    "profile": "Profile",
+    "settings": "Settings",
+    "notifications": "Notifications",
+    "theme": "Theme",
+    "menu": "Menu",
+    "closeMenu": "Close menu",
+    "openMenu": "Open menu",
+    "current": "Current page"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "retry": "Retry",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "filter": "Filter",
+    "all": "All",
+    "none": "None",
+    "yes": "Yes",
+    "no": "No",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "reset": "Reset",
+    "skipToContent": "Skip to main content"
+  },
+  "dashboard": {
+    "title": "AI Team Dashboard",
+    "subtitle": "Real-time team status monitoring",
+    "members": "Team Members",
+    "tasks": "Task List",
+    "activity": "Activity Log",
+    "stats": {
+      "total": "Total",
+      "active": "Active",
+      "completed": "Completed",
+      "pending": "Pending"
+    }
+  },
+  "member": {
+    "status": {
+      "online": "Online",
+      "busy": "Busy",
+      "offline": "Offline",
+      "idle": "Idle"
+    },
+    "role": {
+      "director": "Director",
+      "consultant": "Consultant",
+      "architect": "Architect",
+      "executor": "Executor",
+      "admin": "Admin",
+      "tester": "Tester",
+      "designer": "Designer",
+      "promoter": "Promoter",
+      "sales": "Sales",
+      "finance": "Finance",
+      "media": "Media"
+    },
+    "tasks": "Tasks",
+    "progress": "Progress",
+    "lastActive": "Last Active"
+  },
+  "task": {
+    "status": {
+      "todo": "To Do",
+      "inProgress": "In Progress",
+      "review": "In Review",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "priority": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "assignee": "Assignee",
+    "dueDate": "Due Date",
+    "created": "Created",
+    "updated": "Updated"
+  },
+  "profile": {
+    "title": "Profile",
+    "edit": "Edit Profile",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "bio": "Bio",
+    "avatar": "Avatar"
+  },
+  "settings": {
+    "title": "Settings",
+    "general": "General",
+    "appearance": "Appearance",
+    "notifications": "Notifications",
+    "language": "Language",
+    "theme": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    }
+  },
+  "theme": {
+    "toggle": "Toggle theme",
+    "light": "Light mode",
+    "dark": "Dark mode",
+    "system": "System setting"
+  },
+  "footer": {
+    "copyright": "AI Team Dashboard - Managed by Songzhuo Global Travel Team",
+    "version": "Version"
+  },
+  "meta": {
+    "title": "AI Team Dashboard - Intelligent Team Collaboration Platform",
+    "description": "Real-time monitoring of 11 professional AI agents, GitHub task progress, and activity logs. Boost team efficiency by 300%.",
+    "keywords": "AI team dashboard, task management, agents, AI agents, team collaboration"
+  }
+}

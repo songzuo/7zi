@@ -51,10 +51,10 @@ const StatsCard = memo(function StatsCard({ icon, label, value, color }: StatsCa
   return (
     <div className={`rounded-lg border-2 p-3 sm:p-4 ${colorClasses} transition-colors`}>
       <div className="flex items-center gap-2 sm:gap-3">
-        <div className="text-2xl sm:text-3xl" aria-hidden="true">{icon}</div>
-        <div className="min-w-0">
+        <div className="text-2xl sm:text-3xl flex-shrink-0" aria-hidden="true">{icon}</div>
+        <div className="min-w-0 flex-1">
           <div className="text-xs sm:text-sm font-medium opacity-75 truncate">{label}</div>
-          <div className="text-xl sm:text-2xl font-bold">{value}</div>
+          <div className="text-lg sm:text-2xl font-bold">{value}</div>
         </div>
       </div>
     </div>
@@ -142,12 +142,12 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6 lg:py-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8">
         {/* Header */}
         <header className="mb-6 sm:mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex flex-col gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
                 📊 AI 团队仪表盘
               </h1>
               <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">
@@ -155,8 +155,8 @@ export default function Dashboard() {
               </p>
             </div>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
-              <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                <span className="hidden sm:inline">自动刷新: {refreshInterval / 1000}秒</span>
+              <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                <span>自动刷新: {refreshInterval / 1000}秒</span>
                 {isFetching && (
                   <span className="inline-block w-2 h-2 bg-blue-500 rounded-full animate-pulse" title="正在刷新..."></span>
                 )}
@@ -165,7 +165,7 @@ export default function Dashboard() {
                 <select
                   value={refreshInterval}
                   onChange={handleIntervalChange}
-                  className="flex-1 sm:flex-none text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2
+                  className="flex-1 sm:flex-none text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-2 sm:px-3 py-2
                     bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   aria-label="选择刷新间隔"
                 >
@@ -178,11 +178,11 @@ export default function Dashboard() {
                 <button
                   onClick={handleRefresh}
                   disabled={isFetching}
-                  className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+                  className="px-3 sm:px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1.5 sm:gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
                   aria-label="刷新数据"
                 >
-                  <span className={isFetching ? 'animate-spin' : ''}>🔄</span>
-                  <span className="hidden sm:inline">刷新</span>
+                  <span className={`text-sm ${isFetching ? 'animate-spin' : ''}`}>🔄</span>
+                  <span className="hidden xs:inline">刷新</span>
                 </button>
               </div>
             </div>

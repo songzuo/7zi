@@ -41,7 +41,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ issues }) => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors">
       {/* 看板头部 */}
-      <header className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 transition-colors">
+      <header className="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 transition-colors">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4">
           <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
             <span aria-hidden="true">📋</span> GitHub 任务
@@ -53,7 +53,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ issues }) => {
               id={filterId}
               value={filter}
               onChange={handleFilterChange}
-              className="flex-1 sm:flex-none text-sm border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 dark:text-gray-200 px-3 py-2"
+              className="flex-1 sm:flex-none text-sm border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 dark:text-gray-200 px-2 sm:px-3 py-2"
               aria-describedby="filter-description"
             >
               <option value="open">进行中</option>
@@ -156,7 +156,7 @@ export const TaskCard = memo(function TaskCard({ issue }: TaskCardProps) {
 
   return (
     <article 
-      className="px-4 sm:px-6 py-3 sm:py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group focus-within:bg-gray-50 dark:focus-within:bg-gray-700/50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-500 active:bg-gray-100 dark:active:bg-gray-700"
+      className="px-3 sm:px-6 py-3 sm:py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group focus-within:bg-gray-50 dark:focus-within:bg-gray-700/50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-500 active:bg-gray-100 dark:active:bg-gray-700"
       role="listitem"
       aria-labelledby={`issue-${issue.number}-title`}
     >

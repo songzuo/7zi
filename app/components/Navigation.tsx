@@ -190,19 +190,19 @@ export const Navigation: React.FC = () => {
       role="navigation"
       aria-label="主导航"
     >
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between h-14 sm:h-16">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4">
+        <div className="flex items-center justify-between h-16 sm:h-16">
           {/* Logo */}
           <Link
             href="/"
-            className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded-lg"
+            className="flex items-center gap-1.5 sm:gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded-lg"
             aria-label="AI 团队首页"
             onClick={closeMobileMenu}
           >
-            <span className="text-xl sm:text-2xl" aria-hidden="true">
+            <span className="text-2xl sm:text-2xl" aria-hidden="true">
               🤖
             </span>
-            <span className="font-bold text-gray-900 dark:text-white text-sm sm:text-base">AI 团队</span>
+            <span className="font-bold text-gray-900 dark:text-white text-base sm:text-base">AI 团队</span>
           </Link>
 
           {/* 桌面端导航链接 - md 及以上显示 */}
@@ -235,7 +235,7 @@ export const Navigation: React.FC = () => {
           </div>
 
           {/* 右侧操作区 */}
-          <div className="flex items-center gap-1 sm:gap-2" role="group" aria-label="用户操作">
+          <div className="flex items-center gap-2 sm:gap-3" role="group" aria-label="用户操作">
             {/* 主题切换按钮 */}
             <ThemeToggle size="md" />
             

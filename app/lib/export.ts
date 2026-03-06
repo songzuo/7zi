@@ -824,7 +824,7 @@ export function exportTasksToJSONWithOptions(
 export function exportTasksToPDFWithOptions(
   tasks: Task[],
   stats?: TaskStats,
-  options: EnhancedExportOptions = {}
+  options: EnhancedExportOptions = { format: 'pdf' }
 ): Blob {
   const filteredTasks = filterTasksForExport(tasks, options);
 
