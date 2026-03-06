@@ -7,6 +7,8 @@
 import { Server as HttpServer } from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import type { WebSocketMessage, ClientSocketEvent } from './types';
+import { verifyTokenAndGetUserId, extractToken } from './jwt-verify';
+import { readStatusStore } from './read-status';
 
 /** 用户会话信息 */
 interface UserSession {
@@ -85,16 +87,18 @@ export class NotificationServer {
           return next();
         }
 
-        // TODO: 实际的 token 验证逻辑
-        // 这里简化处理，实际应验证 JWT
-        const userId = this.verifyToken(token);
+        // 使用 JWT 验证模块验证 token
+        const cleanToken = extractToken(token);
+        const userId = cleanToken ? await verifyTokenAndGetUserId(cleanToken) : null;
         
         if (userId) {
           socket.data.userId = userId;
           socket.data.isAuthenticated = true;
+          console.log(`[NotificationServer] User authenticated: ${userId}`);
         } else {
           socket.data.userId = null;
           socket.data.isAuthenticated = false;
+          console.log(`[NotificationServer] Anonymous connection: ${socket.id}`);
         }
 
         next();
@@ -106,13 +110,19 @@ export class NotificationServer {
   }
 
   /**
-   * 验证 Token（简化版）
+   * 验证 Token - 已迁移到 jwt-verify.ts
+   * @deprecated 使用 verifyTokenAndGetUserId 替代
    */
   private verifyToken(token: string): string | null {
-    // TODO: 实际的 JWT 验证
-    // 这里返回模拟的用户ID
+    // 保留同步版本用于向后兼容
+    // 新代码应使用 verifyTokenAndGetUserId
+    console.warn('[NotificationServer] verifyToken is deprecated, use verifyTokenAndGetUserId instead');
+    
     if (token.startsWith('user-')) {
       return token.replace('user-', '');
+    }
+    if (token.startsWith('Bearer ')) {
+      return token.slice(7);
     }
     return 'anonymous-user';
   }

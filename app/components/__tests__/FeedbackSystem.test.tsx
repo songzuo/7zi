@@ -231,8 +231,11 @@ describe('FeedbackCard', () => {
     it('显示分类和状态标签', () => {
       render(<FeedbackCard feedback={mockFeedback} />);
 
-      // 分类和状态标签 - 使用正则表达式匹配部分文本
-      expect(screen.getByText(/功能建议/)).toBeInTheDocument();
+      // 分类标签包含图标和文本 - 使用 getAllByText 因为可能有多个匹配
+      const categoryElements = screen.getAllByText(/功能建议/, { exact: false });
+      expect(categoryElements.length).toBeGreaterThan(0);
+      
+      // 状态标签
       expect(screen.getByText('待处理')).toBeInTheDocument();
     });
 
@@ -493,14 +496,22 @@ describe('FeedbackSystem', () => {
       const expandButtons = screen.getAllByText('展开详情');
       fireEvent.click(expandButtons[0]);
       
-      // 点击状态变更按钮 - 使用 getByRole 更可靠
-      const resolvedButtons = screen.getAllByRole('button', { name: /已解决/ });
-      fireEvent.click(resolvedButtons[0]);
+      // 等待展开内容显示
+      await waitFor(() => {
+        expect(screen.getByText('更改状态')).toBeInTheDocument();
+      });
+      
+      // 点击状态变更按钮
+      const allButtons = screen.getAllByRole('button');
+      const resolvedBtn = allButtons.find(btn => btn.textContent === '已解决');
+      if (resolvedBtn) {
+        fireEvent.click(resolvedBtn);
+      }
       
       // 验证状态变更后的 UI 变化
       await waitFor(() => {
-        // 状态已更新
-        expect(screen.getByText(/已解决/)).toBeInTheDocument();
+        // 按钮应该有选中状态
+        expect(resolvedBtn).toHaveClass('ring-2');
       });
     });
 
