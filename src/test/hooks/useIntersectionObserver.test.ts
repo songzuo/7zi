@@ -1,36 +1,40 @@
 /**
  * @fileoverview useIntersectionObserver hook tests
  * 
- * Note: These tests verify the hook's API and initial state.
- * The IntersectionObserver is only created when ref.current is set,
- * so we only test the initial state and API here.
+ * Tests for intersection observer hooks with mocked IntersectionObserver API.
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import {
   useIntersectionObserver,
   useAnimateOnView,
   useCountUp,
 } from '../../hooks/useIntersectionObserver';
 
-// Mock IntersectionObserver
-vi.stubGlobal('IntersectionObserver', vi.fn().mockImplementation(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-})));
-
-// Mock requestAnimationFrame and cancelAnimationFrame
-vi.stubGlobal('requestAnimationFrame', vi.fn((cb: FrameRequestCallback) => {
-  return setTimeout(() => cb(Date.now()), 16);
-}));
-vi.stubGlobal('cancelAnimationFrame', vi.fn((id: number) => {
-  clearTimeout(id);
-}));
-
 describe('useIntersectionObserver', () => {
+  let observerCallback: ((entries: IntersectionObserverEntry[]) => void) | null = null;
+  const mockObserve = vi.fn();
+  const mockUnobserve = vi.fn();
+  const mockDisconnect = vi.fn();
+
   beforeEach(() => {
     vi.clearAllMocks();
+    observerCallback = null;
+
+    const MockIntersectionObserver = vi.fn().mockImplementation((callback: (entries: IntersectionObserverEntry[]) => void) => {
+      observerCallback = callback;
+      return {
+        observe: mockObserve,
+        unobserve: mockUnobserve,
+        disconnect: mockDisconnect,
+      };
+    });
+
+    vi.stubGlobal('IntersectionObserver', MockIntersectionObserver);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it('returns ref, isIntersecting, and entry', () => {
@@ -50,7 +54,6 @@ describe('useIntersectionObserver', () => {
   });
 
   it('accepts options without error', () => {
-    // Just verify hooks can be created with various options
     const { result: r1 } = renderHook(() => useIntersectionObserver({ threshold: 0.5 }));
     expect(r1.current.isIntersecting).toBe(false);
 
@@ -63,11 +66,176 @@ describe('useIntersectionObserver', () => {
     const { result: r4 } = renderHook(() => useIntersectionObserver({ freezeOnceVisible: true }));
     expect(r4.current.isIntersecting).toBe(false);
   });
+
+  it('updates isIntersecting when element intersects', async () => {
+    const { result, rerender } = renderHook(() => useIntersectionObserver());
+
+    const mockElement = document.createElement('div');
+    result.current.ref.current = mockElement;
+    rerender();
+
+    await waitFor(() => expect(mockObserve).toHaveBeenCalled());
+
+    act(() => {
+      if (observerCallback) {
+        observerCallback([{
+          isIntersecting: true,
+          target: mockElement,
+          boundingClientRect: {} as DOMRectReadOnly,
+          intersectionRatio: 1,
+          intersectionRect: {} as DOMRectReadOnly,
+          rootBounds: null,
+          time: Date.now(),
+        }]);
+      }
+    });
+
+    expect(result.current.isIntersecting).toBe(true);
+    expect(result.current.entry).toBeDefined();
+    expect(result.current.entry?.isIntersecting).toBe(true);
+  });
+
+  it('updates isIntersecting when element leaves viewport', async () => {
+    const { result, rerender } = renderHook(() => useIntersectionObserver());
+
+    const mockElement = document.createElement('div');
+    result.current.ref.current = mockElement;
+    rerender();
+
+    await waitFor(() => expect(mockObserve).toHaveBeenCalled());
+
+    // Enter viewport
+    act(() => {
+      if (observerCallback) {
+        observerCallback([{
+          isIntersecting: true,
+          target: mockElement,
+          boundingClientRect: {} as DOMRectReadOnly,
+          intersectionRatio: 1,
+          intersectionRect: {} as DOMRectReadOnly,
+          rootBounds: null,
+          time: Date.now(),
+        }]);
+      }
+    });
+
+    expect(result.current.isIntersecting).toBe(true);
+
+    // Leave viewport
+    act(() => {
+      if (observerCallback) {
+        observerCallback([{
+          isIntersecting: false,
+          target: mockElement,
+          boundingClientRect: {} as DOMRectReadOnly,
+          intersectionRatio: 0,
+          intersectionRect: {} as DOMRectReadOnly,
+          rootBounds: null,
+          time: Date.now(),
+        }]);
+      }
+    });
+
+    expect(result.current.isIntersecting).toBe(false);
+  });
+
+  it('unobserves element when triggerOnce is true and element intersects', async () => {
+    const { result, rerender } = renderHook(() =>
+      useIntersectionObserver({ triggerOnce: true })
+    );
+
+    const mockElement = document.createElement('div');
+    result.current.ref.current = mockElement;
+    rerender();
+
+    await waitFor(() => expect(mockObserve).toHaveBeenCalled());
+
+    act(() => {
+      if (observerCallback) {
+        observerCallback([{
+          isIntersecting: true,
+          target: mockElement,
+          boundingClientRect: {} as DOMRectReadOnly,
+          intersectionRatio: 1,
+          intersectionRect: {} as DOMRectReadOnly,
+          rootBounds: null,
+          time: Date.now(),
+        }]);
+      }
+    });
+
+    expect(mockUnobserve).toHaveBeenCalled();
+  });
+
+  it('unobserves element when freezeOnceVisible is true and element intersects', async () => {
+    const { result, rerender } = renderHook(() =>
+      useIntersectionObserver({ freezeOnceVisible: true })
+    );
+
+    const mockElement = document.createElement('div');
+    result.current.ref.current = mockElement;
+    rerender();
+
+    await waitFor(() => expect(mockObserve).toHaveBeenCalled());
+
+    act(() => {
+      if (observerCallback) {
+        observerCallback([{
+          isIntersecting: true,
+          target: mockElement,
+          boundingClientRect: {} as DOMRectReadOnly,
+          intersectionRatio: 1,
+          intersectionRect: {} as DOMRectReadOnly,
+          rootBounds: null,
+          time: Date.now(),
+        }]);
+      }
+    });
+
+    expect(mockUnobserve).toHaveBeenCalled();
+  });
+
+  it('cleans up observer on unmount', async () => {
+    const { result, unmount, rerender } = renderHook(() => useIntersectionObserver());
+
+    const mockElement = document.createElement('div');
+    result.current.ref.current = mockElement;
+    rerender();
+
+    await waitFor(() => expect(mockObserve).toHaveBeenCalled());
+
+    unmount();
+
+    expect(mockUnobserve).toHaveBeenCalled();
+  });
 });
 
 describe('useAnimateOnView', () => {
+  let observerCallback: ((entries: IntersectionObserverEntry[]) => void) | null = null;
+  const mockObserve = vi.fn();
+  const mockUnobserve = vi.fn();
+
   beforeEach(() => {
     vi.clearAllMocks();
+    observerCallback = null;
+
+    vi.useFakeTimers();
+
+    const MockIntersectionObserver = vi.fn().mockImplementation((callback: (entries: IntersectionObserverEntry[]) => void) => {
+      observerCallback = callback;
+      return {
+        observe: mockObserve,
+        unobserve: mockUnobserve,
+        disconnect: vi.fn(),
+      };
+    });
+
+    vi.stubGlobal('IntersectionObserver', MockIntersectionObserver);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
   });
 
   it('returns ref, isVisible, and className', () => {
@@ -89,7 +257,6 @@ describe('useAnimateOnView', () => {
       useAnimateOnView('custom-animation')
     );
 
-    // Initially invisible with opacity-0
     expect(result.current.className).toBe('opacity-0');
     expect(result.current.isVisible).toBe(false);
   });
@@ -97,14 +264,102 @@ describe('useAnimateOnView', () => {
   it('uses default animation class when no argument provided', () => {
     const { result } = renderHook(() => useAnimateOnView());
 
-    // Initially invisible
     expect(result.current.className).toBe('opacity-0');
+  });
+
+  it('updates isVisible when element intersects', async () => {
+    const { result, rerender } = renderHook(() => useAnimateOnView());
+
+    const mockElement = document.createElement('div');
+    result.current.ref.current = mockElement;
+    rerender();
+
+    await waitFor(() => expect(mockObserve).toHaveBeenCalled());
+
+    act(() => {
+      if (observerCallback) {
+        observerCallback([{
+          isIntersecting: true,
+          target: mockElement,
+          boundingClientRect: {} as DOMRectReadOnly,
+          intersectionRatio: 1,
+          intersectionRect: {} as DOMRectReadOnly,
+          rootBounds: null,
+          time: Date.now(),
+        }]);
+      }
+    });
+
+    act(() => {
+      vi.runAllTimers();
+    });
+
+    await waitFor(() => {
+      expect(result.current.isVisible).toBe(true);
+    });
+
+    expect(result.current.className).toBe('animate-in fade-in slide-up-8');
+  });
+
+  it('applies custom animation class when visible', async () => {
+    const { result, rerender } = renderHook(() =>
+      useAnimateOnView('my-custom-animation')
+    );
+
+    const mockElement = document.createElement('div');
+    result.current.ref.current = mockElement;
+    rerender();
+
+    await waitFor(() => expect(mockObserve).toHaveBeenCalled());
+
+    act(() => {
+      if (observerCallback) {
+        observerCallback([{
+          isIntersecting: true,
+          target: mockElement,
+          boundingClientRect: {} as DOMRectReadOnly,
+          intersectionRatio: 1,
+          intersectionRect: {} as DOMRectReadOnly,
+          rootBounds: null,
+          time: Date.now(),
+        }]);
+      }
+    });
+
+    act(() => {
+      vi.runAllTimers();
+    });
+
+    await waitFor(() => {
+      expect(result.current.isVisible).toBe(true);
+    });
+
+    expect(result.current.className).toBe('my-custom-animation');
   });
 });
 
 describe('useCountUp', () => {
+  let observerCallback: ((entries: IntersectionObserverEntry[]) => void) | null = null;
+  const mockObserve = vi.fn();
+
   beforeEach(() => {
     vi.clearAllMocks();
+    observerCallback = null;
+
+    const MockIntersectionObserver = vi.fn().mockImplementation((callback: (entries: IntersectionObserverEntry[]) => void) => {
+      observerCallback = callback;
+      return {
+        observe: mockObserve,
+        unobserve: vi.fn(),
+        disconnect: vi.fn(),
+      };
+    });
+
+    vi.stubGlobal('IntersectionObserver', MockIntersectionObserver);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it('returns ref, count, and isAnimating', () => {
@@ -138,5 +393,33 @@ describe('useCountUp', () => {
     const { result } = renderHook(() => useCountUp(100));
 
     expect(result.current.isAnimating).toBe(false);
+  });
+
+  it('initializes hook without errors', async () => {
+    const { result, rerender } = renderHook(() => useCountUp(100));
+
+    const mockElement = document.createElement('div');
+    result.current.ref.current = mockElement;
+    rerender();
+
+    await waitFor(() => expect(mockObserve).toHaveBeenCalled());
+
+    // Trigger intersection
+    act(() => {
+      if (observerCallback) {
+        observerCallback([{
+          isIntersecting: true,
+          target: mockElement,
+          boundingClientRect: {} as DOMRectReadOnly,
+          intersectionRatio: 1,
+          intersectionRect: {} as DOMRectReadOnly,
+          rootBounds: null,
+          time: Date.now(),
+        }]);
+      }
+    });
+
+    // Hook should handle the intersection without errors
+    expect(result.current.ref).toBeDefined();
   });
 });

@@ -156,7 +156,7 @@ export function observePerformance() {
       }
     });
     longTaskObserver.observe({ type: 'longtask', buffered: true });
-  } catch (e) {
+  } catch {
     // Long Task API not supported
   }
 
@@ -164,13 +164,13 @@ export function observePerformance() {
   try {
     const layoutShiftObserver = new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
-        if ('value' in entry && (entry as any).value > 0) {
-          console.log('[Performance] Layout shift:', (entry as any).value);
+        if ('value' in entry && (entry as PerformanceEntry & { value: number }).value > 0) {
+          console.log('[Performance] Layout shift:', (entry as PerformanceEntry & { value: number }).value);
         }
       }
     });
     layoutShiftObserver.observe({ type: 'layout-shift', buffered: true });
-  } catch (e) {
+  } catch {
     // Layout Shift API not supported
   }
 }

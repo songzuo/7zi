@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { SettingsPanel, SettingsPanelCompact } from '@/components/SettingsPanel';
 import { SettingsProvider } from '@/contexts/SettingsContext';
 
@@ -23,8 +23,8 @@ vi.mock('@/components/ThemeProvider', () => ({
   }),
 }));
 
-const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <SettingsProvider>{children}</SettingsProvider>
+const TestWrapper = ({ children, defaultSettings }: { children: React.ReactNode; defaultSettings?: Parameters<typeof SettingsProvider>[0]['defaultSettings'] }) => (
+  <SettingsProvider defaultSettings={defaultSettings}>{children}</SettingsProvider>
 );
 
 describe('SettingsPanel', () => {

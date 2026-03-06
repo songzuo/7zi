@@ -46,8 +46,8 @@ export const Navigation: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const prevPathnameRef = React.useRef(pathname);
 
-  // 路由变化时关闭菜单
-  useEffect(() => {
+  // 路由变化时关闭菜单 - 使用 useLayoutEffect 避免级联渲染
+  React.useLayoutEffect(() => {
     if (prevPathnameRef.current !== pathname) {
       prevPathnameRef.current = pathname;
       setIsMobileMenuOpen(false);

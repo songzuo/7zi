@@ -28,6 +28,18 @@ export { ProjectDashboard } from './ProjectDashboard';
 export { Hero3D } from './Hero3D';
 export { LazyImage, ImageGalleryOptimized, SkeletonOptimized, CardSkeletonOptimized } from './LazyImage';
 
+// Skeleton Loading Components (Designer Patch v4)
+export { 
+  SkeletonText, 
+  SkeletonAvatar, 
+  SkeletonCard, 
+  SkeletonList, 
+  SkeletonTable,
+  SkeletonStatCard,
+  SkeletonNav,
+  SkeletonPage 
+} from './Skeleton';
+
 // Error Handling
 export { ErrorBoundary } from './ErrorBoundary';
 export { ErrorDisplay } from './ErrorDisplay';

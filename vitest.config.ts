@@ -27,6 +27,13 @@ export default defineConfig({
         '**/*.config.*',
         '**/types/**',
       ],
+      // 覆盖率阈值
+      thresholds: {
+        lines: 50,
+        functions: 50,
+        branches: 40,
+        statements: 50,
+      },
     },
   },
   resolve: {

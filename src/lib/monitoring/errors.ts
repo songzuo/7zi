@@ -1,26 +1,9 @@
 /**
  * Error Tracking Utilities
- * Enhanced error handling (Sentry stub - module not installed)
+ * Enhanced error handling with Sentry integration
  */
 
-// Stub Sentry module when not installed
-const Sentry = {
-  withScope: (fn: (scope: any) => void) => {
-    fn({
-      setTag: () => {},
-      setLevel: () => {},
-      setUser: () => {},
-      setExtra: () => {},
-      setFingerprint: () => {},
-    });
-  },
-  captureException: (error: Error) => {
-    console.error('[Error Tracking]', error);
-  },
-  captureMessage: (message: string, level?: string) => {
-    console[level === 'error' ? 'error' : 'log']('[Error Tracking]', message);
-  },
-};
+import * as Sentry from '@sentry/nextjs';
 
 /**
  * Error categories for better organization
@@ -31,11 +14,11 @@ export enum ErrorCategory {
   API = 'api',
   NETWORK = 'network',
   VALIDATION = 'validation',
-  
+
   // User errors
   USER_INPUT = 'user_input',
   PERMISSION = 'permission',
-  
+
   // System errors
   INFRASTRUCTURE = 'infrastructure',
   EXTERNAL_SERVICE = 'external_service',
@@ -72,7 +55,7 @@ export class AppError extends Error {
     cause?: Error;
   }) {
     super(options.message);
-    
+
     this.name = 'AppError';
     this.category = options.category ?? ErrorCategory.APPLICATION;
     this.severity = options.severity ?? ErrorSeverity.ERROR;
@@ -107,7 +90,7 @@ export function captureError(
   // Determine error details
   const isError = error instanceof Error;
   const isAppError = error instanceof AppError;
-  
+
   // Build Sentry context
   Sentry.withScope((scope) => {
     // Set tags
@@ -120,7 +103,7 @@ export function captureError(
     // Set category and severity
     const category = options?.category ?? (isAppError ? error.category : ErrorCategory.APPLICATION);
     const severity = options?.severity ?? (isAppError ? error.severity : ErrorSeverity.ERROR);
-    
+
     scope.setTag('category', category);
     scope.setLevel(severity);
 
@@ -160,7 +143,7 @@ export function captureError(
 /**
  * Wrap async function with error tracking
  */
-export function withErrorTracking<T extends (...args: any[]) => Promise<any>>(
+export function withErrorTracking<T extends (...args: unknown[]) => Promise<unknown>>(
   fn: T,
   options?: {
     category?: ErrorCategory;
@@ -233,7 +216,7 @@ export function handleApiError(error: unknown, endpoint: string) {
       endpoint,
     },
   });
-  
+
   return {
     message: 'Unknown error occurred',
     status: 0,
@@ -248,5 +231,9 @@ export function addBreadcrumb(
   category: string,
   data?: Record<string, unknown>
 ) {
-  console.log(`[${category}] ${message}`, data ?? '');
+  Sentry.addBreadcrumb({
+    message,
+    category,
+    data,
+  });
 }

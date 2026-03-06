@@ -6,9 +6,12 @@ import { GitHubActivity } from '@/components/GitHubActivity'
 vi.mock('@/hooks', () => ({
   useGitHubData: vi.fn(() => ({
     commits: [],
+    issues: [],
+    activities: [],
     stats: null,
     isLoading: false,
     error: null,
+    lastUpdated: null,
     refresh: vi.fn(),
   })),
   getMockCommits: () => [
@@ -40,19 +43,26 @@ vi.mock('@/hooks', () => ({
 
 const { useGitHubData, getMockCommits, getMockStats } = await import('@/hooks')
 
+// Helper to create complete mock return value
+const createMockReturn = (overrides: Record<string, unknown> = {}) => ({
+  commits: [] as Array<{ sha: string; commit: { message: string; author: { name: string; date: string } }; html_url: string; author: { avatar_url: string; login: string } | null }>,
+  issues: [] as Array<{ number: number; title: string; state: 'open' | 'closed'; labels: Array<{ name: string; color: string }>; created_at: string; updated_at: string; html_url: string }>,
+  activities: [] as Array<{ id: string; type: string; title: string; author: string; timestamp: string; url: string }>,
+  stats: null as { stars: number; forks: number; openIssues: number } | null,
+  isLoading: false,
+  error: null as string | null,
+  lastUpdated: null as Date | null,
+  refresh: vi.fn(),
+  ...overrides,
+})
+
 describe('GitHubActivity', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   it('renders component header', async () => {
-    vi.mocked(useGitHubData).mockReturnValue({
-      commits: [],
-      stats: null,
-      isLoading: false,
-      error: null,
-      refresh: vi.fn(),
-    } as ReturnType<typeof useGitHubData>)
+    vi.mocked(useGitHubData).mockReturnValue(createMockReturn())
     
     render(<GitHubActivity />)
     
@@ -61,13 +71,7 @@ describe('GitHubActivity', () => {
   })
 
   it('shows loading state when isLoading is true', () => {
-    vi.mocked(useGitHubData).mockReturnValue({
-      commits: [],
-      stats: null,
-      isLoading: true,
-      error: null,
-      refresh: vi.fn(),
-    } as ReturnType<typeof useGitHubData>)
+    vi.mocked(useGitHubData).mockReturnValue(createMockReturn({ isLoading: true }))
     
     render(<GitHubActivity />)
     
@@ -77,13 +81,10 @@ describe('GitHubActivity', () => {
   })
 
   it('displays GitHub stats cards', async () => {
-    vi.mocked(useGitHubData).mockReturnValue({
+    vi.mocked(useGitHubData).mockReturnValue(createMockReturn({
       commits: getMockCommits(),
       stats: getMockStats(),
-      isLoading: false,
-      error: null,
-      refresh: vi.fn(),
-    } as ReturnType<typeof useGitHubData>)
+    }))
     
     render(<GitHubActivity />)
     
@@ -96,13 +97,10 @@ describe('GitHubActivity', () => {
   })
 
   it('displays fetched stats values', async () => {
-    vi.mocked(useGitHubData).mockReturnValue({
+    vi.mocked(useGitHubData).mockReturnValue(createMockReturn({
       commits: getMockCommits(),
       stats: getMockStats(),
-      isLoading: false,
-      error: null,
-      refresh: vi.fn(),
-    } as ReturnType<typeof useGitHubData>)
+    }))
     
     render(<GitHubActivity />)
     
@@ -114,13 +112,10 @@ describe('GitHubActivity', () => {
   })
 
   it('displays commits after loading', async () => {
-    vi.mocked(useGitHubData).mockReturnValue({
+    vi.mocked(useGitHubData).mockReturnValue(createMockReturn({
       commits: getMockCommits(),
       stats: getMockStats(),
-      isLoading: false,
-      error: null,
-      refresh: vi.fn(),
-    } as ReturnType<typeof useGitHubData>)
+    }))
     
     render(<GitHubActivity />)
     
@@ -135,13 +130,10 @@ describe('GitHubActivity', () => {
   })
 
   it('displays commit sha prefix', async () => {
-    vi.mocked(useGitHubData).mockReturnValue({
+    vi.mocked(useGitHubData).mockReturnValue(createMockReturn({
       commits: getMockCommits(),
       stats: getMockStats(),
-      isLoading: false,
-      error: null,
-      refresh: vi.fn(),
-    } as ReturnType<typeof useGitHubData>)
+    }))
     
     render(<GitHubActivity />)
     
@@ -151,13 +143,10 @@ describe('GitHubActivity', () => {
   })
 
   it('displays commit author', async () => {
-    vi.mocked(useGitHubData).mockReturnValue({
+    vi.mocked(useGitHubData).mockReturnValue(createMockReturn({
       commits: getMockCommits(),
       stats: getMockStats(),
-      isLoading: false,
-      error: null,
-      refresh: vi.fn(),
-    } as ReturnType<typeof useGitHubData>)
+    }))
     
     render(<GitHubActivity />)
     
@@ -168,13 +157,7 @@ describe('GitHubActivity', () => {
   })
 
   it('uses mock data when commits are empty', async () => {
-    vi.mocked(useGitHubData).mockReturnValue({
-      commits: [], // Empty commits - will use mock data
-      stats: null,
-      isLoading: false,
-      error: null,
-      refresh: vi.fn(),
-    } as ReturnType<typeof useGitHubData>)
+    vi.mocked(useGitHubData).mockReturnValue(createMockReturn())
     
     render(<GitHubActivity />)
     
@@ -185,13 +168,10 @@ describe('GitHubActivity', () => {
   })
 
   it('displays today activity statistics', async () => {
-    vi.mocked(useGitHubData).mockReturnValue({
+    vi.mocked(useGitHubData).mockReturnValue(createMockReturn({
       commits: getMockCommits(),
       stats: getMockStats(),
-      isLoading: false,
-      error: null,
-      refresh: vi.fn(),
-    } as ReturnType<typeof useGitHubData>)
+    }))
     
     render(<GitHubActivity />)
     
@@ -205,13 +185,10 @@ describe('GitHubActivity', () => {
   })
 
   it('renders commit links correctly', async () => {
-    vi.mocked(useGitHubData).mockReturnValue({
+    vi.mocked(useGitHubData).mockReturnValue(createMockReturn({
       commits: getMockCommits(),
       stats: getMockStats(),
-      isLoading: false,
-      error: null,
-      refresh: vi.fn(),
-    } as ReturnType<typeof useGitHubData>)
+    }))
     
     render(<GitHubActivity />)
     
