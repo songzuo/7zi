@@ -104,22 +104,22 @@ const mockFeedbacks: FeedbackItem[] = [
 ];
 
 // 完整反馈系统
-export const Default: Story = {
+export const Default: StoryObj<typeof meta> = {
   render: () => <FeedbackSystem initialFeedbacks={mockFeedbacks} isAdmin />,
 };
 
 // 管理员视图
-export const AdminView: Story = {
+export const AdminView: StoryObj<typeof meta> = {
   render: () => <FeedbackSystem initialFeedbacks={mockFeedbacks} isAdmin />,
 };
 
 // 用户视图
-export const UserView: Story = {
+export const UserView: StoryObj<typeof meta> = {
   render: () => <FeedbackSystem initialFeedbacks={mockFeedbacks} isAdmin={false} />,
 };
 
 // 表单组件
-export const FeedbackFormStory: Story = {
+export const FeedbackFormStory: StoryObj<typeof meta> = {
   name: 'FeedbackForm',
   render: () => (
     <FeedbackForm
@@ -132,7 +132,7 @@ export const FeedbackFormStory: Story = {
 };
 
 // 表单带取消按钮
-export const FeedbackFormWithCancel: Story = {
+export const FeedbackFormWithCancel: StoryObj<typeof meta> = {
   name: 'FeedbackForm With Cancel',
   render: () => (
     <FeedbackForm
@@ -146,7 +146,7 @@ export const FeedbackFormWithCancel: Story = {
 };
 
 // 卡片组件
-export const FeedbackCardStory: Story = {
+export const FeedbackCardStory: StoryObj<typeof meta> = {
   name: 'FeedbackCard',
   render: () => (
     <div className="max-w-2xl">
@@ -161,7 +161,7 @@ export const FeedbackCardStory: Story = {
 };
 
 // 不同状态的卡片
-export const FeedbackCardStatuses: Story = {
+export const FeedbackCardStatuses: StoryObj<typeof meta> = {
   name: 'FeedbackCard - All Statuses',
   render: () => (
     <div className="space-y-4 max-w-2xl">
@@ -178,7 +178,7 @@ export const FeedbackCardStatuses: Story = {
 };
 
 // 不同分类的卡片
-export const FeedbackCardCategories: Story = {
+export const FeedbackCardCategories: StoryObj<typeof meta> = {
   name: 'FeedbackCard - All Categories',
   render: () => (
     <div className="space-y-4 max-w-2xl">
@@ -190,7 +190,7 @@ export const FeedbackCardCategories: Story = {
 };
 
 // 列表组件
-export const FeedbackListStory: Story = {
+export const FeedbackListStory: StoryObj<typeof meta> = {
   name: 'FeedbackList',
   render: () => (
     <FeedbackList
@@ -203,13 +203,13 @@ export const FeedbackListStory: Story = {
 };
 
 // 空列表
-export const EmptyFeedbackList: Story = {
+export const EmptyFeedbackList: StoryObj<typeof meta> = {
   name: 'FeedbackList - Empty',
   render: () => <FeedbackList feedbacks={[]} />,
 };
 
 // 过滤列表 - Bug 类型
-export const FeedbackListFiltered: Story = {
+export const FeedbackListFiltered: StoryObj<typeof meta> = {
   name: 'FeedbackList - Filtered (Bug)',
   render: () => (
     <FeedbackList
@@ -220,7 +220,7 @@ export const FeedbackListFiltered: Story = {
 };
 
 // 过滤列表 - 高评分
-export const FeedbackListHighRating: Story = {
+export const FeedbackListHighRating: StoryObj<typeof meta> = {
   name: 'FeedbackList - Filtered (High Rating)',
   render: () => (
     <FeedbackList
@@ -231,19 +231,19 @@ export const FeedbackListHighRating: Story = {
 };
 
 // 统计组件
-export const FeedbackStatsStory: Story = {
+export const FeedbackStatsStory: StoryObj<typeof meta> = {
   name: 'FeedbackStats',
   render: () => <FeedbackStats feedbacks={mockFeedbacks} />,
 };
 
 // 空统计
-export const EmptyFeedbackStats: Story = {
+export const EmptyFeedbackStats: StoryObj<typeof meta> = {
   name: 'FeedbackStats - Empty',
   render: () => <FeedbackStats feedbacks={[]} />,
 };
 
 // 大量数据统计
-export const LargeFeedbackStats: Story = {
+export const LargeFeedbackStats: StoryObj<typeof meta> = {
   name: 'FeedbackStats - Large Dataset',
   render: () => {
     const largeDataset: FeedbackItem[] = Array.from({ length: 100 }, (_, i) => ({
@@ -263,7 +263,7 @@ export const LargeFeedbackStats: Story = {
 };
 
 // 深色模式
-export const DarkMode: Story = {
+export const DarkMode: StoryObj<typeof meta> = {
   name: 'Dark Mode',
   render: () => (
     <div className="bg-gray-900 p-6 rounded-lg">

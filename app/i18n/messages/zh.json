@@ -11,7 +11,13 @@
     "menu": "菜单",
     "closeMenu": "关闭菜单",
     "openMenu": "打开菜单",
-    "current": "当前页面"
+    "current": "当前页面",
+    "aiTeamHome": "AI 团队首页",
+    "mainNav": "主导航",
+    "pageNav": "页面导航",
+    "mobileNav": "移动端导航菜单",
+    "userActions": "用户操作",
+    "view": "查看"
   },
   "common": {
     "loading": "加载中...",
@@ -34,24 +40,43 @@
     "previous": "上一步",
     "submit": "提交",
     "reset": "重置",
-    "skipToContent": "跳到主要内容"
+    "skipToContent": "跳到主要内容",
+    "viewInNewWindow": "在新窗口中查看",
+    "viewDetails": "查看详细内容",
+    "more": "更多"
   },
   "dashboard": {
-    "title": "AI 团队实时看板",
-    "subtitle": "实时监控团队状态",
+    "title": "AI 团队仪表盘",
+    "subtitle": "实时监控团队状态和任务进度",
     "members": "团队成员",
     "tasks": "任务列表",
     "activity": "活动日志",
+    "taskBoard": "任务看板",
+    "contributionStats": "贡献统计",
+    "taskProgress": "任务完成进度",
+    "statsOverview": "统计概览",
+    "loadingFailed": "加载失败",
+    "autoRefresh": "自动刷新",
+    "seconds": "秒",
+    "closeAutoRefresh": "关闭自动刷新",
+    "refresh": "刷新",
+    "refreshing": "正在刷新...",
+    "refreshInterval": "选择刷新间隔",
     "stats": {
       "total": "总数",
+      "totalTasks": "总任务数",
       "active": "活跃",
+      "activeMembers": "活跃成员",
       "completed": "已完成",
-      "pending": "待处理"
+      "completedTasks": "已完成任务",
+      "pending": "待处理",
+      "avgResponse": "平均响应"
     }
   },
   "member": {
     "status": {
       "online": "在线",
+      "working": "工作中",
       "busy": "忙碌",
       "offline": "离线",
       "idle": "空闲"
@@ -70,15 +95,22 @@
       "media": "媒体"
     },
     "tasks": "任务",
+    "completedTasks": "完成任务",
     "progress": "进度",
-    "lastActive": "最后活跃"
+    "lastActive": "最后活跃",
+    "provider": "提供商",
+    "currentTask": "当前任务",
+    "statusLabel": "状态"
   },
   "task": {
+    "title": "GitHub 任务",
     "status": {
       "todo": "待办",
       "inProgress": "进行中",
+      "open": "进行中",
       "review": "审核中",
       "completed": "已完成",
+      "closed": "已完成",
       "cancelled": "已取消"
     },
     "priority": {
@@ -90,7 +122,39 @@
     "assignee": "负责人",
     "dueDate": "截止日期",
     "created": "创建时间",
-    "updated": "更新时间"
+    "updated": "更新时间",
+    "updatedAt": "更新于",
+    "filterStatus": "筛选任务状态",
+    "currentFilter": "当前筛选",
+    "noTasks": "暂无任务",
+    "allCompleted": "所有任务都已完成！",
+    "noGitHubIssues": "还没有 GitHub Issues",
+    "showing": "显示",
+    "tasks": "个任务",
+    "labels": "标签",
+    "more": "还有",
+    "view": "查看",
+    "taskList": "GitHub 任务列表",
+    "taskProgress": "任务进度"
+  },
+  "activity": {
+    "title": "实时活动日志",
+    "recentCount": "最近 {count} 条活动",
+    "noActivity": "暂无活动记录",
+    "githubActivity": "GitHub 活动将显示在这里",
+    "autoRefreshInterval": "自动刷新 · 30 秒间隔",
+    "type": {
+      "commit": "提交",
+      "issue": "任务",
+      "comment": "评论"
+    },
+    "author": "作者",
+    "timeAgo": {
+      "justNow": "刚刚",
+      "minutesAgo": "分钟前",
+      "hoursAgo": "小时前",
+      "daysAgo": "天前"
+    }
   },
   "profile": {
     "title": "个人资料",
@@ -118,6 +182,11 @@
     "light": "浅色模式",
     "dark": "深色模式",
     "system": "系统设置"
+  },
+  "language": {
+    "switch": "切换语言",
+    "current": "当前",
+    "select": "选择语言"
   },
   "footer": {
     "copyright": "AI 团队实时看板 - 由宋琢环球旅行团队管理",

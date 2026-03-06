@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
-import { GET, POST } from '../app/api/feedback/route';
-import { PATCH, DELETE } from '../app/api/feedback/[id]/route';
+import { GET, POST } from '@/api/feedback/route';
+import { PATCH, DELETE } from '@/api/feedback/[id]/route';
 
 // 模拟 NextRequest
 function createRequest(url: string, options?: { method?: string; body?: unknown }): NextRequest {

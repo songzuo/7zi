@@ -3,44 +3,46 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useTheme } from './ThemeProvider';
 import { ThemeToggle } from './ThemeToggle';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 interface NavItem {
   href: string;
-  label: string;
+  labelKey: string;
   icon: string;
 }
 
 const NAV_ITEMS: NavItem[] = [
   {
     href: '/',
-    label: '首页',
+    labelKey: 'home',
     icon: '🏠',
   },
   {
     href: '/dashboard',
-    label: '实时看板',
+    labelKey: 'dashboard',
     icon: '📊',
   },
   {
     href: '/subagents',
-    label: '子代理',
+    labelKey: 'subagents',
     icon: '🤖',
   },
   {
     href: '/tasks',
-    label: '任务',
+    labelKey: 'tasks',
     icon: '📋',
   },
   {
     href: '/profile',
-    label: '个人资料',
+    labelKey: 'profile',
     icon: '👤',
   },
   {
     href: '/settings',
-    label: '设置',
+    labelKey: 'settings',
     icon: '⚙️',
   },
 ];
@@ -69,6 +71,9 @@ const HamburgerIcon = ({ isOpen }: { isOpen: boolean }) => (
 export const Navigation: React.FC = () => {
   const pathname = usePathname();
   const { resolvedTheme } = useTheme();
+  const t = useTranslations('navigation');
+  const tCommon = useTranslations('common');
+  
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const drawerRef = useRef<HTMLDivElement>(null);
   const firstFocusableRef = useRef<HTMLAnchorElement>(null);
@@ -188,7 +193,7 @@ export const Navigation: React.FC = () => {
     <nav
       className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 transition-colors"
       role="navigation"
-      aria-label="主导航"
+      aria-label={t('mainNav')}
     >
       <div className="max-w-7xl mx-auto px-3 sm:px-4">
         <div className="flex items-center justify-between h-16 sm:h-16">
@@ -196,7 +201,7 @@ export const Navigation: React.FC = () => {
           <Link
             href="/"
             className="flex items-center gap-1.5 sm:gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded-lg"
-            aria-label="AI 团队首页"
+            aria-label={t('aiTeamHome')}
             onClick={closeMobileMenu}
           >
             <span className="text-2xl sm:text-2xl" aria-hidden="true">
@@ -206,7 +211,7 @@ export const Navigation: React.FC = () => {
           </Link>
 
           {/* 桌面端导航链接 - md 及以上显示 */}
-          <div className="hidden md:flex items-center gap-1" role="menubar" aria-label="页面导航">
+          <div className="hidden md:flex items-center gap-1" role="menubar" aria-label={t('pageNav')}>
             {NAV_ITEMS.map((item, index) => (
               <Link
                 key={item.href}
@@ -215,7 +220,7 @@ export const Navigation: React.FC = () => {
                 role="menuitem"
                 tabIndex={0}
                 aria-current={basePath === item.href ? 'page' : undefined}
-                aria-label={`${item.label}${basePath === item.href ? '（当前页面）' : ''}`}
+                aria-label={`${t(item.labelKey)}${basePath === item.href ? `（${t('current')}）` : ''}`}
                 className={`
                   px-3 lg:px-4 py-2 rounded-lg text-sm font-medium transition-colors
                   flex items-center gap-2
@@ -229,20 +234,23 @@ export const Navigation: React.FC = () => {
                 onKeyDown={(e) => handleDesktopKeyDown(e, index)}
               >
                 <span aria-hidden="true">{item.icon}</span>
-                <span className="hidden lg:inline">{item.label}</span>
+                <span className="hidden lg:inline">{t(item.labelKey)}</span>
               </Link>
             ))}
           </div>
 
           {/* 右侧操作区 */}
-          <div className="flex items-center gap-2 sm:gap-3" role="group" aria-label="用户操作">
+          <div className="flex items-center gap-2 sm:gap-3" role="group" aria-label={t('userActions')}>
+            {/* 语言切换 */}
+            <LanguageSwitcher size="sm" />
+            
             {/* 主题切换按钮 */}
             <ThemeToggle size="md" />
             
             {/* 桌面端通知按钮 - sm 及以上显示 */}
             <button
               className="hidden sm:flex p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-              aria-label="通知"
+              aria-label={t('notifications')}
               type="button"
             >
               <span aria-hidden="true">🔔</span>
@@ -256,7 +264,7 @@ export const Navigation: React.FC = () => {
                   ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
               }`}
-              aria-label="设置"
+              aria-label={t('settings')}
               aria-current={basePath === '/settings' ? 'page' : undefined}
             >
               <span aria-hidden="true">⚙️</span>
@@ -265,7 +273,7 @@ export const Navigation: React.FC = () => {
             {/* 移动端汉堡菜单按钮 - md 以下显示 */}
             <button
               className="md:hidden p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-              aria-label={isMobileMenuOpen ? '关闭菜单' : '打开菜单'}
+              aria-label={isMobileMenuOpen ? t('closeMenu') : t('openMenu')}
               aria-expanded={isMobileMenuOpen}
               aria-controls="mobile-drawer"
               onClick={toggleMobileMenu}
@@ -296,15 +304,15 @@ export const Navigation: React.FC = () => {
         }`}
         role="dialog"
         aria-modal="true"
-        aria-label="移动端导航菜单"
+        aria-label={t('mobileNav')}
         onKeyDown={handleKeyDown}
       >
         {/* 抽屉头部 */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <span className="font-bold text-gray-900 dark:text-white text-lg">菜单</span>
+          <span className="font-bold text-gray-900 dark:text-white text-lg">{t('menu')}</span>
           <button
             className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-            aria-label="关闭菜单"
+            aria-label={t('closeMenu')}
             onClick={closeMobileMenu}
             type="button"
           >
@@ -314,7 +322,7 @@ export const Navigation: React.FC = () => {
 
         {/* 抽屉内容 */}
         <div className="flex flex-col h-[calc(100%-60px)] overflow-y-auto">
-          <nav className="p-4 space-y-1" role="menu" aria-label="页面导航">
+          <nav className="p-4 space-y-1" role="menu" aria-label={t('pageNav')}>
             {NAV_ITEMS.map((item, index) => (
               <Link
                 key={item.href}
@@ -335,7 +343,7 @@ export const Navigation: React.FC = () => {
                 `}
               >
                 <span className="text-xl" aria-hidden="true">{item.icon}</span>
-                <span>{item.label}</span>
+                <span>{t(item.labelKey)}</span>
               </Link>
             ))}
           </nav>
@@ -344,19 +352,28 @@ export const Navigation: React.FC = () => {
           <div className="mt-auto p-4 border-t border-gray-200 dark:border-gray-700 space-y-1">
             <button
               className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              aria-label="通知"
+              aria-label={t('notifications')}
               type="button"
             >
               <span className="text-xl" aria-hidden="true">🔔</span>
-              <span>通知</span>
+              <span>{t('notifications')}</span>
             </button>
             
             {/* 主题切换 - 移动端显示 */}
             <div className="flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium text-gray-700 dark:text-gray-300">
               <span className="text-xl" aria-hidden="true">🎨</span>
-              <span>主题</span>
+              <span>{t('theme')}</span>
               <div className="ml-auto">
                 <ThemeToggle size="sm" />
+              </div>
+            </div>
+            
+            {/* 语言切换 - 移动端显示 */}
+            <div className="flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium text-gray-700 dark:text-gray-300">
+              <span className="text-xl" aria-hidden="true">🌐</span>
+              <span>{t('settings.language', { defaultValue: 'Language' })}</span>
+              <div className="ml-auto">
+                <LanguageSwitcher size="sm" />
               </div>
             </div>
           </div>

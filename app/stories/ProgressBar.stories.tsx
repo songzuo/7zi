@@ -71,7 +71,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof ProgressBar>;
 
-export const Default: Story = {
+export const Default: StoryObj<typeof meta> = {
   args: {
     value: 60,
     label: '任务进度',
@@ -79,7 +79,7 @@ export const Default: Story = {
   },
 };
 
-export const Colors: Story = {
+export const Colors: StoryObj<typeof meta> = {
   render: () => (
     <div className="space-y-4 max-w-md">
       <ProgressBar value={75} color="blue" label="Blue" showPercentage />
@@ -92,7 +92,7 @@ export const Colors: Story = {
   ),
 };
 
-export const Sizes: Story = {
+export const Sizes: StoryObj<typeof meta> = {
   render: () => (
     <div className="space-y-4 max-w-md">
       <ProgressBar value={70} size="sm" label="Small" showPercentage />
@@ -102,7 +102,7 @@ export const Sizes: Story = {
   ),
 };
 
-export const Striped: Story = {
+export const Striped: StoryObj<typeof meta> = {
   render: () => (
     <div className="space-y-4 max-w-md">
       <ProgressBar value={65} color="blue" striped label="Striped Blue" showPercentage />
@@ -111,7 +111,7 @@ export const Striped: Story = {
   ),
 };
 
-export const TaskProgress: Story = {
+export const TaskProgress: StoryObj<typeof meta> = {
   render: () => (
     <div className="space-y-6 max-w-md">
       <div>

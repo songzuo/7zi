@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useId, useMemo, useCallback, memo } from 'react';
+import { useTranslations } from 'next-intl';
 import { GitHubIssue } from '../dashboard/page';
 import ProgressBar from './ProgressBar';
 
@@ -9,6 +10,8 @@ interface TaskBoardProps {
 }
 
 export const TaskBoard: React.FC<TaskBoardProps> = ({ issues }) => {
+  const t = useTranslations('task');
+  
   const [filter, setFilter] = useState<'all' | 'open' | 'closed'>('open');
   const filterRef = useRef<HTMLSelectElement>(null);
   const filterId = useId();
@@ -44,10 +47,10 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ issues }) => {
       <header className="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 transition-colors">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4">
           <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <span aria-hidden="true">📋</span> GitHub 任务
+            <span aria-hidden="true">📋</span> {t('title')}
           </h2>
           <div className="flex items-center gap-2">
-            <label htmlFor={filterId} className="sr-only">筛选任务状态</label>
+            <label htmlFor={filterId} className="sr-only">{t('filterStatus')}</label>
             <select
               ref={filterRef}
               id={filterId}
@@ -56,18 +59,18 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ issues }) => {
               className="flex-1 sm:flex-none text-sm border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 dark:text-gray-200 px-2 sm:px-3 py-2"
               aria-describedby="filter-description"
             >
-              <option value="open">进行中</option>
-              <option value="closed">已完成</option>
-              <option value="all">全部</option>
+              <option value="open">{t('status.open')}</option>
+              <option value="closed">{t('status.closed')}</option>
+              <option value="all">{t('all', { defaultValue: '全部' })}</option>
             </select>
             <span id="filter-description" className="sr-only">
-              当前筛选：{filter === 'all' ? '全部' : filter === 'open' ? '进行中' : '已完成'}
+              {t('currentFilter')}：{filter === 'all' ? t('all', { defaultValue: '全部' }) : filter === 'open' ? t('status.open') : t('status.closed')}
             </span>
           </div>
         </div>
 
         {/* 进度条 */}
-        <div className="space-y-2" role="group" aria-label="任务进度">
+        <div className="space-y-2" role="group" aria-label={t('taskProgress')}>
           <ProgressBar 
             value={progress} 
             size="sm" 
@@ -76,11 +79,11 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ issues }) => {
             animated
           />
           <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
-            <span aria-label={`${stats.open} 个进行中的任务`}>
-              <span aria-hidden="true">🟢</span> {stats.open} 进行中
+            <span aria-label={`${stats.open} ${t('status.open')}`}>
+              <span aria-hidden="true">🟢</span> {stats.open} {t('status.open')}
             </span>
-            <span aria-label={`${stats.closed} 个已完成的任务`}>
-              <span aria-hidden="true">✅</span> {stats.closed} 已完成
+            <span aria-label={`${stats.closed} ${t('status.closed')}`}>
+              <span aria-hidden="true">✅</span> {stats.closed} {t('status.closed')}
             </span>
           </div>
         </div>
@@ -90,19 +93,19 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ issues }) => {
       <div 
         className="divide-y divide-gray-200 dark:divide-gray-700 max-h-[400px] sm:max-h-[600px] overflow-y-auto"
         role="list"
-        aria-label="GitHub 任务列表"
+        aria-label={t('taskList')}
       >
         {filteredIssues.length === 0 ? (
           <div className="px-4 sm:px-6 py-10 sm:py-12 text-center text-gray-500 dark:text-gray-400" role="status">
             <p className="text-base sm:text-lg mb-2" aria-hidden="true">📭</p>
-            <p>暂无任务</p>
+            <p>{t('noTasks')}</p>
             <p className="text-xs sm:text-sm mt-1">
-              {filter === 'open' ? '所有任务都已完成！' : '还没有 GitHub Issues'}
+              {filter === 'open' ? t('allCompleted') : t('noGitHubIssues')}
             </p>
           </div>
         ) : (
           filteredIssues.map(issue => (
-            <TaskCard key={issue.number} issue={issue} />
+            <TaskCard key={issue.number} issue={issue} t={t} />
           ))
         )}
       </div>
@@ -110,7 +113,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ issues }) => {
       {/* 底部统计 */}
       {filteredIssues.length > 0 && (
         <footer className="px-4 sm:px-6 py-2 sm:py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 text-xs text-gray-600 dark:text-gray-400 transition-colors">
-          显示 {filteredIssues.length} / {issues.length} 个任务
+          {t('showing')} {filteredIssues.length} / {issues.length} {t('tasks')}
         </footer>
       )}
     </div>
@@ -123,31 +126,28 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ issues }) => {
 
 interface TaskCardProps {
   issue: GitHubIssue;
+  t: ReturnType<typeof useTranslations<'task'>>;
 }
 
-// 状态配置 - 移到组件外部
-const TASK_CARD_CONFIG = {
-  colors: {
+/**
+ * 任务卡片组件 - 性能优化版本 + i18n
+ */
+export const TaskCard = memo(function TaskCard({ issue, t }: TaskCardProps) {
+  // 状态配置
+  const stateColors = {
     open: 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800',
     closed: 'text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600'
-  },
-  labels: {
-    open: '进行中',
-    closed: '已完成'
-  },
-  icons: {
+  } as const;
+  
+  const stateLabels = {
+    open: t('status.open'),
+    closed: t('status.closed')
+  } as const;
+  
+  const stateIcons = {
     open: '🟢',
     closed: '✅'
-  }
-} as const;
-
-/**
- * 任务卡片组件 - 性能优化版本
- */
-export const TaskCard = memo(function TaskCard({ issue }: TaskCardProps) {
-  const stateColors = TASK_CARD_CONFIG.colors;
-  const stateLabels = TASK_CARD_CONFIG.labels;
-  const stateIcons = TASK_CARD_CONFIG.icons;
+  } as const;
 
   // 使用 useCallback 缓存事件处理
   const handleImageError = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
@@ -170,10 +170,10 @@ export const TaskCard = memo(function TaskCard({ issue }: TaskCardProps) {
         />
 
         {/* 内容区 */}
-        <TaskCardContent issue={issue} />
+        <TaskCardContent issue={issue} t={t} />
 
         {/* 外部链接 */}
-        <TaskCardLink url={issue.html_url} number={issue.number} />
+        <TaskCardLink url={issue.html_url} number={issue.number} t={t} />
       </div>
     </article>
   );
@@ -194,9 +194,9 @@ export const TaskCard = memo(function TaskCard({ issue }: TaskCardProps) {
 
 interface TaskCardStatusIconProps {
   state: 'open' | 'closed';
-  colors: typeof TASK_CARD_CONFIG.colors;
-  labels: typeof TASK_CARD_CONFIG.labels;
-  icons: typeof TASK_CARD_CONFIG.icons;
+  colors: Record<string, string>;
+  labels: Record<string, string>;
+  icons: Record<string, string>;
 }
 
 const TaskCardStatusIcon = memo(function TaskCardStatusIcon({
@@ -209,7 +209,7 @@ const TaskCardStatusIcon = memo(function TaskCardStatusIcon({
     <div className="mt-1 flex-shrink-0">
       <span
         className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${colors[state]}`}
-        aria-label={`状态：${labels[state]}`}
+        aria-label={`${labels[state]}`}
       >
         <span aria-hidden="true">{icons[state]}</span>
         {labels[state]}
@@ -220,9 +220,10 @@ const TaskCardStatusIcon = memo(function TaskCardStatusIcon({
 
 interface TaskCardContentProps {
   issue: GitHubIssue;
+  t: ReturnType<typeof useTranslations<'task'>>;
 }
 
-const TaskCardContent = memo(function TaskCardContent({ issue }: TaskCardContentProps) {
+const TaskCardContent = memo(function TaskCardContent({ issue, t }: TaskCardContentProps) {
   // 使用 useCallback 缓存图片错误处理
   const handleImageError = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
     (e.target as HTMLImageElement).src = 'https://api.dicebear.com/7.x/bottts/svg?seed=unknown';
@@ -250,25 +251,26 @@ const TaskCardContent = memo(function TaskCardContent({ issue }: TaskCardContent
 
       {/* 标签 */}
       {issue.labels.length > 0 && (
-        <TaskCardLabels labels={issue.labels} />
+        <TaskCardLabels labels={issue.labels} t={t} />
       )}
 
       {/* 元信息 */}
-      <TaskCardMeta issue={issue} onImageError={handleImageError} />
+      <TaskCardMeta issue={issue} onImageError={handleImageError} t={t} />
     </div>
   );
 });
 
 interface TaskCardLabelsProps {
   labels: Array<{ name: string; color: string }>;
+  t: ReturnType<typeof useTranslations<'task'>>;
 }
 
-const TaskCardLabels = memo(function TaskCardLabels({ labels }: TaskCardLabelsProps) {
+const TaskCardLabels = memo(function TaskCardLabels({ labels, t }: TaskCardLabelsProps) {
   const displayLabels = labels.slice(0, 5);
   const remainingCount = labels.length - 5;
 
   return (
-    <div className="flex items-center gap-1 mb-2 flex-wrap" role="group" aria-label="标签">
+    <div className="flex items-center gap-1 mb-2 flex-wrap" role="group" aria-label={t('labels')}>
       {displayLabels.map((label, idx) => (
         <span
           key={idx}
@@ -277,13 +279,13 @@ const TaskCardLabels = memo(function TaskCardLabels({ labels }: TaskCardLabelsPr
             backgroundColor: `#${label.color}20`,
             color: `#${label.color}`
           }}
-          aria-label={`标签：${label.name}`}
+          aria-label={`${t('labels')}：${label.name}`}
         >
           {label.name}
         </span>
       ))}
       {remainingCount > 0 && (
-        <span className="text-xs text-gray-500 dark:text-gray-400" aria-label={`还有 ${remainingCount} 个标签`}>
+        <span className="text-xs text-gray-500 dark:text-gray-400" aria-label={`${t('more')} ${remainingCount} ${t('labels')}`}>
           +{remainingCount}
         </span>
       )}
@@ -294,13 +296,14 @@ const TaskCardLabels = memo(function TaskCardLabels({ labels }: TaskCardLabelsPr
 interface TaskCardMetaProps {
   issue: GitHubIssue;
   onImageError: (e: React.SyntheticEvent<HTMLImageElement>) => void;
+  t: ReturnType<typeof useTranslations<'task'>>;
 }
 
-const TaskCardMeta = memo(function TaskCardMeta({ issue, onImageError }: TaskCardMetaProps) {
+const TaskCardMeta = memo(function TaskCardMeta({ issue, onImageError, t }: TaskCardMetaProps) {
   return (
-    <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400" role="group" aria-label="任务信息">
+    <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400" role="group" aria-label={t('title')}>
       {issue.assignee && (
-        <div className="flex items-center gap-1" aria-label={`指派给：${issue.assignee.login}`}>
+        <div className="flex items-center gap-1" aria-label={`${t('assignee')}：${issue.assignee.login}`}>
           <img
             src={issue.assignee.avatar_url}
             alt=""
@@ -315,7 +318,7 @@ const TaskCardMeta = memo(function TaskCardMeta({ issue, onImageError }: TaskCar
         dateTime={issue.updated_at}
         title={new Date(issue.updated_at).toLocaleString()}
       >
-        更新于 {formatTimeAgo(issue.updated_at)}
+        {t('updatedAt')} {formatTimeAgo(issue.updated_at)}
       </time>
     </div>
   );
@@ -324,9 +327,10 @@ const TaskCardMeta = memo(function TaskCardMeta({ issue, onImageError }: TaskCar
 interface TaskCardLinkProps {
   url: string;
   number: number;
+  t: ReturnType<typeof useTranslations<'task'>>;
 }
 
-const TaskCardLink = memo(function TaskCardLink({ url, number }: TaskCardLinkProps) {
+const TaskCardLink = memo(function TaskCardLink({ url, number, t }: TaskCardLinkProps) {
   return (
     <div className="flex-shrink-0">
       <a
@@ -334,9 +338,9 @@ const TaskCardLink = memo(function TaskCardLink({ url, number }: TaskCardLinkPro
         target="_blank"
         rel="noopener noreferrer"
         className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 rounded"
-        aria-label={`在新窗口中查看任务 #${number}`}
+        aria-label={`${t('view')} #${number}`}
       >
-        查看 →
+        {t('view')} →
       </a>
     </div>
   );

@@ -1,4 +1,7 @@
 const { withSentryConfig } = require('@sentry/nextjs');
+const createNextIntlPlugin = require('next-intl/plugin');
+
+const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -124,7 +127,7 @@ const sentryWebpackPluginOptions = {
   release: process.env.SENTRY_RELEASE || process.env.npm_package_version,
 };
 
-// 使用 withSentryConfig 包装配置
-const moduleExports = withSentryConfig(nextConfig, sentryWebpackPluginOptions);
+// 使用 withNextIntl 和 withSentryConfig 包装配置
+const moduleExports = withSentryConfig(withNextIntl(nextConfig), sentryWebpackPluginOptions);
 
 module.exports = moduleExports;

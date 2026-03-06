@@ -11,7 +11,13 @@
     "menu": "Menu",
     "closeMenu": "Close menu",
     "openMenu": "Open menu",
-    "current": "Current page"
+    "current": "Current page",
+    "aiTeamHome": "AI Team Home",
+    "mainNav": "Main navigation",
+    "pageNav": "Page navigation",
+    "mobileNav": "Mobile navigation menu",
+    "userActions": "User actions",
+    "view": "View"
   },
   "common": {
     "loading": "Loading...",
@@ -34,24 +40,43 @@
     "previous": "Previous",
     "submit": "Submit",
     "reset": "Reset",
-    "skipToContent": "Skip to main content"
+    "skipToContent": "Skip to main content",
+    "viewInNewWindow": "View in new window",
+    "viewDetails": "View details",
+    "more": "More"
   },
   "dashboard": {
     "title": "AI Team Dashboard",
-    "subtitle": "Real-time team status monitoring",
+    "subtitle": "Real-time monitoring of team status and task progress",
     "members": "Team Members",
     "tasks": "Task List",
     "activity": "Activity Log",
+    "taskBoard": "Task Board",
+    "contributionStats": "Contribution Statistics",
+    "taskProgress": "Task Completion Progress",
+    "statsOverview": "Statistics Overview",
+    "loadingFailed": "Loading Failed",
+    "autoRefresh": "Auto Refresh",
+    "seconds": "sec",
+    "closeAutoRefresh": "Disable auto refresh",
+    "refresh": "Refresh",
+    "refreshing": "Refreshing...",
+    "refreshInterval": "Select refresh interval",
     "stats": {
       "total": "Total",
+      "totalTasks": "Total Tasks",
       "active": "Active",
+      "activeMembers": "Active Members",
       "completed": "Completed",
-      "pending": "Pending"
+      "completedTasks": "Completed Tasks",
+      "pending": "Pending",
+      "avgResponse": "Avg Response"
     }
   },
   "member": {
     "status": {
       "online": "Online",
+      "working": "Working",
       "busy": "Busy",
       "offline": "Offline",
       "idle": "Idle"
@@ -70,15 +95,22 @@
       "media": "Media"
     },
     "tasks": "Tasks",
+    "completedTasks": "Tasks completed",
     "progress": "Progress",
-    "lastActive": "Last Active"
+    "lastActive": "Last Active",
+    "provider": "Provider",
+    "currentTask": "Current Task",
+    "statusLabel": "Status"
   },
   "task": {
+    "title": "GitHub Tasks",
     "status": {
       "todo": "To Do",
       "inProgress": "In Progress",
+      "open": "In Progress",
       "review": "In Review",
       "completed": "Completed",
+      "closed": "Completed",
       "cancelled": "Cancelled"
     },
     "priority": {
@@ -90,7 +122,39 @@
     "assignee": "Assignee",
     "dueDate": "Due Date",
     "created": "Created",
-    "updated": "Updated"
+    "updated": "Updated",
+    "updatedAt": "Updated",
+    "filterStatus": "Filter task status",
+    "currentFilter": "Current filter",
+    "noTasks": "No tasks",
+    "allCompleted": "All tasks completed!",
+    "noGitHubIssues": "No GitHub Issues yet",
+    "showing": "Showing",
+    "tasks": "tasks",
+    "labels": "Labels",
+    "more": "more",
+    "view": "View",
+    "taskList": "GitHub task list",
+    "taskProgress": "Task progress"
+  },
+  "activity": {
+    "title": "Real-time Activity Log",
+    "recentCount": "Recent {count} activities",
+    "noActivity": "No activity records",
+    "githubActivity": "GitHub activity will appear here",
+    "autoRefreshInterval": "Auto refresh · 30 sec interval",
+    "type": {
+      "commit": "Commit",
+      "issue": "Task",
+      "comment": "Comment"
+    },
+    "author": "Author",
+    "timeAgo": {
+      "justNow": "Just now",
+      "minutesAgo": "minutes ago",
+      "hoursAgo": "hours ago",
+      "daysAgo": "days ago"
+    }
   },
   "profile": {
     "title": "Profile",
@@ -118,6 +182,11 @@
     "light": "Light mode",
     "dark": "Dark mode",
     "system": "System setting"
+  },
+  "language": {
+    "switch": "Switch language",
+    "current": "Current",
+    "select": "Select language"
   },
   "footer": {
     "copyright": "AI Team Dashboard - Managed by Songzhuo Global Travel Team",

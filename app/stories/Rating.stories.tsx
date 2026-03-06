@@ -66,7 +66,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // 基础评分
-export const Default: Story = {
+export const Default: StoryObj<typeof meta> = {
   args: {
     value: 3,
     size: 'md',
@@ -75,7 +75,7 @@ export const Default: Story = {
 };
 
 // 只读模式
-export const ReadOnly: Story = {
+export const ReadOnly: StoryObj<typeof meta> = {
   args: {
     value: 4,
     readonly: true,
@@ -84,7 +84,8 @@ export const ReadOnly: Story = {
 };
 
 // 不同尺寸
-export const Sizes: Story = {
+export const Sizes: StoryObj<typeof Rating> = {
+  args: { value: 3, size: 'md' },
   render: () => (
     <div className="flex flex-col gap-6">
       <div className="flex items-center gap-4">
@@ -104,7 +105,7 @@ export const Sizes: Story = {
 };
 
 // 可交互评分
-export const Interactive: Story = {
+export const Interactive: StoryObj<typeof meta> = {
   render: () => {
     const [rating, setRating] = React.useState(0);
     return (
@@ -119,7 +120,7 @@ export const Interactive: Story = {
 };
 
 // 半星评分
-export const HalfStar: Story = {
+export const HalfStar: StoryObj<typeof meta> = {
   render: () => (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-4">
@@ -147,7 +148,7 @@ export const HalfStar: Story = {
 };
 
 // 禁用状态
-export const Disabled: Story = {
+export const Disabled: StoryObj<typeof meta> = {
   args: {
     value: 3,
     disabled: true,
@@ -155,7 +156,7 @@ export const Disabled: Story = {
 };
 
 // 带标签
-export const WithLabel: Story = {
+export const WithLabel: StoryObj<typeof meta> = {
   args: {
     value: 4,
     label: '服务评分',
@@ -164,7 +165,7 @@ export const WithLabel: Story = {
 };
 
 // 所有评分值
-export const AllRatings: Story = {
+export const AllRatings: StoryObj<typeof meta> = {
   render: () => (
     <div className="flex flex-col gap-3">
       {[0, 1, 2, 3, 4, 5].map((value) => (
@@ -178,7 +179,7 @@ export const AllRatings: Story = {
 };
 
 // 深色模式示例
-export const DarkMode: Story = {
+export const DarkMode: StoryObj<typeof meta> = {
   render: () => (
     <div className="bg-gray-900 p-6 rounded-lg">
       <Rating value={4} readonly />

@@ -1,58 +1,57 @@
 'use client';
 
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { ActivityItem } from '../dashboard/page';
 
 interface ActivityLogProps {
   activities: ActivityItem[];
 }
 
-// 类型配置 - 移到组件外部避免重复创建
-const TYPE_CONFIG = {
-  icons: {
-    commit: '💻',
-    issue: '📋',
-    comment: '💬'
-  },
-  colors: {
-    commit: 'bg-blue-50 text-blue-700 border-blue-200',
-    issue: 'bg-green-50 text-green-700 border-green-200',
-    comment: 'bg-purple-50 text-purple-700 border-purple-200'
-  },
-  labels: {
-    commit: '提交',
-    issue: '任务',
-    comment: '评论'
-  }
-} as const;
-
 /**
- * 活动日志组件 - 性能优化版本
+ * 活动日志组件 - 性能优化版本 + i18n
  * 
  * 优化措施:
  * 1. 使用 React.memo 防止不必要的重渲染
- * 2. 配置移到组件外部
- * 3. 使用 useMemo 缓存配置
+ * 2. 使用 useCallback 缓存事件处理
+ * 3. 使用 next-intl 进行国际化
  */
 export const ActivityLog: React.FC<ActivityLogProps> = memo(function ActivityLog({ activities }) {
-  const typeIcons = TYPE_CONFIG.icons;
-  const typeColors = TYPE_CONFIG.colors;
-  const typeLabels = TYPE_CONFIG.labels;
+  const t = useTranslations('activity');
+  
+  // 类型配置
+  const typeIcons = {
+    commit: '💻',
+    issue: '📋',
+    comment: '💬'
+  } as const;
+  
+  const typeColors = {
+    commit: 'bg-blue-50 text-blue-700 border-blue-200',
+    issue: 'bg-green-50 text-green-700 border-green-200',
+    comment: 'bg-purple-50 text-purple-700 border-purple-200'
+  } as const;
+  
+  const typeLabels = {
+    commit: t('type.commit'),
+    issue: t('type.issue'),
+    comment: t('type.comment')
+  } as const;
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors">
       {/* 头部 */}
-      <ActivityLogHeader count={activities.length} />
+      <ActivityLogHeader count={activities.length} t={t} />
 
       {/* 活动列表 */}
       <div 
         className="divide-y divide-gray-200 dark:divide-gray-700 max-h-[400px] sm:max-h-[600px] overflow-y-auto"
         role="feed"
-        aria-label="活动日志"
+        aria-label={t('title')}
         aria-busy={false}
       >
         {activities.length === 0 ? (
-          <EmptyState />
+          <EmptyState t={t} />
         ) : (
           activities.map((activity, index) => (
             <ActivityItemCard
@@ -62,6 +61,7 @@ export const ActivityLog: React.FC<ActivityLogProps> = memo(function ActivityLog
               colorClass={typeColors[activity.type]}
               label={typeLabels[activity.type]}
               index={index}
+              t={t}
             />
           ))
         )}
@@ -70,7 +70,7 @@ export const ActivityLog: React.FC<ActivityLogProps> = memo(function ActivityLog
       {/* 底部 */}
       {activities.length > 0 && (
         <footer className="px-4 sm:px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 text-xs text-gray-600 dark:text-gray-400 transition-colors">
-          🕐 自动刷新 · 30 秒间隔
+          🕐 {t('autoRefreshInterval')}
         </footer>
       )}
     </div>
@@ -81,25 +81,34 @@ export const ActivityLog: React.FC<ActivityLogProps> = memo(function ActivityLog
 // 子组件
 // ============================================================================
 
-const ActivityLogHeader = memo(function ActivityLogHeader({ count }: { count: number }) {
+interface ActivityLogHeaderProps {
+  count: number;
+  t: ReturnType<typeof useTranslations<'activity'>>;
+}
+
+const ActivityLogHeader = memo(function ActivityLogHeader({ count, t }: ActivityLogHeaderProps) {
   return (
     <header className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 transition-colors">
       <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-        <span aria-hidden="true">⚡</span> 实时活动日志
+        <span aria-hidden="true">⚡</span> {t('title')}
       </h2>
       <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1" id="activity-count">
-        最近 {count} 条活动
+        {t('recentCount', { count })}
       </p>
     </header>
   );
 });
 
-const EmptyState = memo(function EmptyState() {
+interface EmptyStateProps {
+  t: ReturnType<typeof useTranslations<'activity'>>;
+}
+
+const EmptyState = memo(function EmptyState({ t }: EmptyStateProps) {
   return (
     <div className="px-4 sm:px-6 py-10 sm:py-12 text-center text-gray-500 dark:text-gray-400" role="status">
       <p className="text-base sm:text-lg mb-2" aria-hidden="true">📭</p>
-      <p>暂无活动记录</p>
-      <p className="text-xs sm:text-sm mt-1">GitHub 活动将显示在这里</p>
+      <p>{t('noActivity')}</p>
+      <p className="text-xs sm:text-sm mt-1">{t('githubActivity')}</p>
     </div>
   );
 });
@@ -114,6 +123,7 @@ interface ActivityItemCardProps {
   colorClass: string;
   label: string;
   index: number;
+  t: ReturnType<typeof useTranslations<'activity'>>;
 }
 
 const ActivityItemCard = memo(function ActivityItemCard({ 
@@ -121,7 +131,8 @@ const ActivityItemCard = memo(function ActivityItemCard({
   icon, 
   colorClass, 
   label, 
-  index 
+  index,
+  t
 }: ActivityItemCardProps) {
   // 使用 useCallback 缓存键盘事件处理
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -158,7 +169,7 @@ const ActivityItemCard = memo(function ActivityItemCard({
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1">
             <span 
               className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${colorClass}`}
-              aria-label={`类型：${label}`}
+              aria-label={label}
             >
               {label}
             </span>
@@ -184,7 +195,7 @@ const ActivityItemCard = memo(function ActivityItemCard({
                 onError={handleImageError}
               />
             )}
-            <span aria-label={`作者：${activity.author}`}>{activity.author}</span>
+            <span aria-label={`${t('author')}：${activity.author}`}>{activity.author}</span>
           </div>
         </div>
 
@@ -195,7 +206,7 @@ const ActivityItemCard = memo(function ActivityItemCard({
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 rounded p-1"
-            aria-label={`查看 ${activity.title} 的详细内容`}
+            aria-label={t('viewDetails')}
           >
             <span aria-hidden="true">🔗</span>
           </a>

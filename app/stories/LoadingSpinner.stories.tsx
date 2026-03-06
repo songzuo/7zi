@@ -28,25 +28,25 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Small: Story = {
+export const Small: StoryObj<typeof meta> = {
   args: {
     size: 'sm',
   },
 };
 
-export const Medium: Story = {
+export const Medium: StoryObj<typeof meta> = {
   args: {
     size: 'md',
   },
 };
 
-export const Large: Story = {
+export const Large: StoryObj<typeof meta> = {
   args: {
     size: 'lg',
   },
 };
 
-export const AllSizes: Story = {
+export const AllSizes: StoryObj<typeof meta> = {
   render: () => (
     <div className="flex items-center gap-8">
       <div className="text-center">

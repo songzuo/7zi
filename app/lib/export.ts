@@ -352,7 +352,7 @@ export function exportToPDF(
 /**
  * 导出任务报告 PDF
  */
-export function exportTasksPDF(tasks: Task[], stats: TaskStats): void {
+export function exportTasksPDF(tasks: Task[], stats: TaskStats): Blob {
   const doc = new jsPDF();
   let yPos = 20;
   
@@ -444,7 +444,8 @@ export function exportTasksPDF(tasks: Task[], stats: TaskStats): void {
     yPos += 3;
   });
   
-  doc.save(`task-report-${formatDateForFilename(new Date())}.pdf`);
+  // 返回 Blob 而不是直接保存
+  return doc.output('blob');
 }
 
 /**
@@ -877,7 +878,7 @@ export interface BatchExportResult {
 export function batchExportTasks(
   tasks: Task[],
   formats: ExportFormat[],
-  options: EnhancedExportOptions = {}
+  options: EnhancedExportOptions = { format: 'pdf' }
 ): BatchExportResult {
   const result: BatchExportResult = {};
 

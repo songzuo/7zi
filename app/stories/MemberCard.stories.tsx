@@ -72,38 +72,38 @@ const offlineMember = {
   completedTasks: 25,
 };
 
-export const Working: Story = {
+export const Working: StoryObj<typeof meta> = {
   args: {
     member: defaultMember,
   },
 };
 
-export const Busy: Story = {
+export const Busy: StoryObj<typeof meta> = {
   args: {
     member: busyMember,
   },
 };
 
-export const Idle: Story = {
+export const Idle: StoryObj<typeof meta> = {
   args: {
     member: idleMember,
   },
 };
 
-export const Offline: Story = {
+export const Offline: StoryObj<typeof meta> = {
   args: {
     member: offlineMember,
   },
 };
 
-export const Compact: Story = {
+export const Compact: StoryObj<typeof meta> = {
   args: {
     member: defaultMember,
     compact: true,
   },
 };
 
-export const AllStatuses: Story = {
+export const AllStatuses: StoryObj<typeof meta> = {
   render: () => (
     <div className="grid grid-cols-2 gap-4 max-w-4xl">
       <MemberCard member={defaultMember} />

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useCallback, memo } from 'react';
+import { useTranslations } from 'next-intl';
 import { MemberCard } from './MemberCard';
 import { TaskBoard } from './TaskBoard';
 import { ActivityLog } from './ActivityLog';
@@ -66,6 +67,9 @@ const StatsCard = memo(function StatsCard({ icon, label, value, color }: StatsCa
 // ============================================================================
 
 export default function Dashboard() {
+  const t = useTranslations('dashboard');
+  const tCommon = useTranslations('common');
+  
   const [refreshInterval, setRefreshInterval] = useState(60000); // 默认 60 秒
 
   // 使用 React Query 获取仪表盘数据
@@ -117,15 +121,15 @@ export default function Dashboard() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="text-center">
           <div className="text-6xl mb-4">⚠️</div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">加载失败</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t('loadingFailed')}</h2>
           <p className="text-gray-600 dark:text-gray-400 mb-4">
-            {error instanceof Error ? error.message : 'An error occurred'}
+            {error instanceof Error ? error.message : tCommon('error')}
           </p>
           <button
             onClick={handleRetry}
             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            重试
+            {tCommon('retry')}
           </button>
         </div>
       </div>
@@ -148,17 +152,17 @@ export default function Dashboard() {
           <div className="flex flex-col gap-4">
             <div>
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
-                📊 AI 团队仪表盘
+                📊 {t('title')}
               </h1>
               <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">
-                实时监控团队状态和任务进度
+                {t('subtitle')}
               </p>
             </div>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
               <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                <span>自动刷新: {refreshInterval / 1000}秒</span>
+                <span>{t('autoRefresh')}: {refreshInterval / 1000}{t('seconds')}</span>
                 {isFetching && (
-                  <span className="inline-block w-2 h-2 bg-blue-500 rounded-full animate-pulse" title="正在刷新..."></span>
+                  <span className="inline-block w-2 h-2 bg-blue-500 rounded-full animate-pulse" title={t('refreshing')}></span>
                 )}
               </div>
               <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -167,22 +171,22 @@ export default function Dashboard() {
                   onChange={handleIntervalChange}
                   className="flex-1 sm:flex-none text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-2 sm:px-3 py-2
                     bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  aria-label="选择刷新间隔"
+                  aria-label={t('refreshInterval')}
                 >
-                  <option value={0}>关闭自动刷新</option>
-                  <option value={30000}>30秒</option>
-                  <option value={60000}>60秒</option>
-                  <option value={120000}>120秒</option>
-                  <option value={300000}>5分钟</option>
+                  <option value={0}>{t('closeAutoRefresh')}</option>
+                  <option value={30000}>30{t('seconds')}</option>
+                  <option value={60000}>60{t('seconds')}</option>
+                  <option value={120000}>120{t('seconds')}</option>
+                  <option value={300000}>5{t('seconds')}</option>
                 </select>
                 <button
                   onClick={handleRefresh}
                   disabled={isFetching}
                   className="px-3 sm:px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1.5 sm:gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
-                  aria-label="刷新数据"
+                  aria-label={t('refresh')}
                 >
                   <span className={`text-sm ${isFetching ? 'animate-spin' : ''}`}>🔄</span>
-                  <span className="hidden xs:inline">刷新</span>
+                  <span className="hidden xs:inline">{t('refresh')}</span>
                 </button>
               </div>
             </div>
@@ -190,28 +194,28 @@ export default function Dashboard() {
         </header>
 
         {/* Stats Cards */}
-        <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8" aria-label="统计概览">
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8" aria-label={t('statsOverview')}>
           <StatsCard
             icon="📋"
-            label="总任务数"
+            label={t('stats.totalTasks')}
             value={data.stats.totalTasks}
             color="blue"
           />
           <StatsCard
             icon="✅"
-            label="已完成"
+            label={t('stats.completed')}
             value={data.stats.completedTasks}
             color="green"
           />
           <StatsCard
             icon="👥"
-            label="活跃成员"
+            label={t('stats.activeMembers')}
             value={data.stats.activeMembers}
             color="purple"
           />
           <StatsCard
             icon="⚡"
-            label="平均响应"
+            label={t('stats.avgResponse')}
             value={data.stats.avgResponseTime}
             color="orange"
           />
@@ -220,7 +224,7 @@ export default function Dashboard() {
         {/* Progress Overview */}
         <section className="mb-6 sm:mb-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 transition-colors">
           <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4">
-            任务完成进度
+            {t('taskProgress')}
           </h2>
           <ProgressBar
             value={completionRate}
@@ -237,7 +241,7 @@ export default function Dashboard() {
           <section className="lg:col-span-2" aria-labelledby="team-members-title">
             <h2 id="team-members-title" className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <span>👥</span>
-              <span>团队成员</span>
+              <span>{t('members')}</span>
             </h2>
             <ErrorBoundary name="TeamMembers">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
@@ -252,7 +256,7 @@ export default function Dashboard() {
           <section aria-labelledby="activity-title">
             <h2 id="activity-title" className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <span>📜</span>
-              <span>活动日志</span>
+              <span>{t('activity')}</span>
             </h2>
             <ErrorBoundary name="ActivityLog">
               <ActivityLog activities={data.activities} />
@@ -264,7 +268,7 @@ export default function Dashboard() {
         <section className="mt-6 sm:mt-8" aria-labelledby="tasks-title">
           <h2 id="tasks-title" className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
             <span>📋</span>
-            <span>任务看板</span>
+            <span>{t('taskBoard')}</span>
           </h2>
           <ErrorBoundary name="TaskBoard">
             <TaskBoard issues={data.issues} />
@@ -275,7 +279,7 @@ export default function Dashboard() {
         <section className="mt-6 sm:mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 transition-colors" aria-labelledby="contribution-title">
           <h2 id="contribution-title" className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
             <span>📊</span>
-            <span>贡献统计</span>
+            <span>{t('contributionStats')}</span>
           </h2>
           <ErrorBoundary name="ContributionChart">
             <ContributionChart members={teamMembers} />
