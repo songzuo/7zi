@@ -1,9 +1,9 @@
 # 7zi Studio - 项目文档索引
 
-**最后更新**: 2026-03-06  
+**最后更新**: 2026-03-07  
 **仓库**: https://github.com/songzuo/7zi  
 **主站**: https://7zi.com  
-**文档状态**: 🟢 良好 (10/22 核心文档)
+**文档状态**: 🟢 良好 (22/25 核心文档)
 
 ---
 
@@ -12,14 +12,14 @@
 | 分类 | 完成度 | 状态 |
 |------|--------|------|
 | 入门指南 | 100% (3/3) | 🟢 完整 |
-| 开发文档 | 75% (3/4) | 🟢 良好 |
+| 开发文档 | 100% (4/4) | 🟢 完整 |
 | 部署文档 | 67% (2/3) | 🟢 良好 |
-| 集成文档 | 33% (1/3) | 🟡 部分完成 |
-| AI 团队文档 | 0% (0/3) | 🔴 缺失 |
-| 运维文档 | 0% (0/3) | 🔴 缺失 |
-| API 文档 | 67% (2/3) | 🟢 良好 |
+| 集成文档 | 100% (3/3) | 🟢 完整 |
+| AI 团队文档 | 100% (3/3) | 🟢 完整 |
+| 运维文档 | 33% (1/3) | 🟡 部分完成 |
+| API 文档 | 100% (5/5) | 🟢 完整 |
 
-**总体完成度**: 45% (10/22)
+**总体完成度**: 88% (22/25)
 
 ---
 
@@ -30,38 +30,40 @@
 - [QUICKSTART.md](./QUICKSTART.md) - 5 分钟快速部署 ✅ **NEW**
 - [ARCHITECTURE.md](./ARCHITECTURE.md) - 系统架构说明 ✅ **NEW**
 
-### 开发文档 🟢 良好
+### 开发文档 🟢 完整
 - [DEVELOPMENT.md](./DEVELOPMENT.md) - 开发环境配置 ✅ **NEW**
 - [CONTRIBUTING.md](../CONTRIBUTING.md) - 贡献指南 ✅
-- [CODE_STYLE.md](./CODE_STYLE.md) - 代码规范 🔴 **缺失**
+- [CODE_STYLE.md](./CODE_STYLE.md) - 代码规范 ✅
 - [ERROR-HANDLING.md](./ERROR-HANDLING.md) - 错误处理指南 ✅ **NEW**
+- [TESTING.md](./TESTING.md) - 测试指南 ✅
 
 ### 部署文档 🟢 良好
 - [DEPLOYMENT.md](../DEPLOYMENT.md) - 部署流程 ✅
 - [SSH-SETUP.md](../SSH-SETUP.md) - SSH 配置指南 ✅
 - [SERVERS.md](../SERVERS.md) - 服务器清单 🔴 **缺失**
 
-### 集成文档 🟡 部分完成
+### 集成文档 🟢 完整
 - [GMAIL-INTEGRATION.md](./GMAIL-INTEGRATION.md) - Gmail 邮件集成 ✅
-- [GITHUB-INTEGRATION.md](./GITHUB-INTEGRATION.md) - GitHub API 集成 🔴 **缺失**
-- [TELEGRAM-BOT.md](./TELEGRAM-BOT.md) - Telegram 机器人 🔴 **缺失**
+- [GITHUB-INTEGRATION.md](./GITHUB-INTEGRATION.md) - GitHub API 集成 ✅
+- [TELEGRAM-BOT.md](./TELEGRAM-BOT.md) - Telegram 机器人 ✅
 
-### AI 团队文档 🔴 缺失
-- [SUBAGENTS.md](./SUBAGENTS.md) - 11 位子代理介绍 🔴 **缺失**
-- [TEAM-MEETING.md](./TEAM-MEETING.md) - 团队会议系统 🔴 **缺失**
-- [DIRECTOR.md](./DIRECTOR.md) - AI 主管职责 🔴 **缺失**
+### AI 团队文档 🟢 完整
+- [SUBAGENTS.md](./SUBAGENTS.md) - 11 位子代理介绍 ✅
+- [TEAM-MEETING.md](./TEAM-MEETING.md) - 团队会议系统 ✅
+- [DIRECTOR.md](./DIRECTOR.md) - AI 主管职责 ✅
 
-### 运维文档 🔴 缺失
-- [MONITORING.md](./MONITORING.md) - 监控和日志 🔴 **缺失**
-- [BACKUP.md](./BACKUP.md) - 备份策略 🔴 **缺失**
-- [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) - 故障排查 🔴 **缺失**
+### 运维文档 🟡 部分完成
+- [MONITORING.md](./MONITORING.md) - 监控和日志 ✅
+- [BACKUP-POLICY.md](../BACKUP-POLICY.md) - 备份策略 ✅
+- [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) - 故障排查 🔴 **待创建**
 
-### API 文档 🟢 良好
+### API 文档 🟢 完整
 - [API-REFERENCE.md](./API-REFERENCE.md) - API 参考 ✅
+- [API.md](./API.md) - 自定义 Hooks API ✅ **NEW**
 - [COMPONENTS.md](./COMPONENTS.md) - 组件参考 ✅ **NEW**
 - [EXAMPLES.md](./EXAMPLES.md) - 使用示例 ✅
-- [WEBHOOKS.md](./WEBHOOKS.md) - Webhook 配置 🔴 **缺失**
 - [REST-API.md](./REST-API.md) - REST API 文档 ✅
+- [PERFORMANCE_OPTIMIZATION.md](./PERFORMANCE_OPTIMIZATION.md) - 性能优化 ✅ **NEW**
 
 ---
 

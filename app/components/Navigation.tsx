@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useTheme } from './ThemeProvider';
 import { ThemeToggle } from './ThemeToggle';
-import { LanguageSwitcher } from './LanguageSwitcher';
+import LanguageSwitcher from './LanguageSwitcher';
 
 // ============================================================================
 // 类型定义

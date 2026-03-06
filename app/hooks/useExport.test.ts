@@ -29,13 +29,13 @@ describe('useExport', () => {
 
     // Mock fetch
     mockFetch = vi.fn();
-    global.fetch = mockFetch;
+    global.fetch = mockFetch as typeof fetch;
 
     // Mock URL 方法
     mockCreateObjectURL = vi.fn(() => 'blob:mock-url');
     mockRevokeObjectURL = vi.fn();
-    URL.createObjectURL = mockCreateObjectURL;
-    URL.revokeObjectURL = mockRevokeObjectURL;
+    URL.createObjectURL = mockCreateObjectURL as typeof URL.createObjectURL;
+    URL.revokeObjectURL = mockRevokeObjectURL as typeof URL.revokeObjectURL;
 
     // Mock link.click
     mockClick = vi.fn();
@@ -241,7 +241,7 @@ describe('useExport', () => {
         startDate: '2024-01-01',
         endDate: '2024-12-31',
         priority: 'high',
-        status: 'pending',
+        status: 'todo',
         assignee: 'user-123',
         tags: ['urgent', 'important'],
         includeCompleted: true,

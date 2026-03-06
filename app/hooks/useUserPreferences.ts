@@ -124,13 +124,13 @@ const STORAGE_KEY = 'user-preferences-v2';
 /**
  * 深度合并对象
  */
-function deepMerge<T extends Record<string, unknown>>(target: T, source: Partial<T>): T {
-  const result = { ...target };
+function deepMerge<T extends object>(target: T, source: Partial<T>): T {
+  const result = { ...target } as T;
   
   for (const key in source) {
     if (Object.prototype.hasOwnProperty.call(source, key)) {
       const sourceValue = source[key];
-      const targetValue = target[key];
+      const targetValue = (target as Record<string, unknown>)[key];
       
       if (
         sourceValue &&
@@ -140,12 +140,12 @@ function deepMerge<T extends Record<string, unknown>>(target: T, source: Partial
         typeof targetValue === 'object' &&
         !Array.isArray(targetValue)
       ) {
-        result[key] = deepMerge(
-          targetValue as Record<string, unknown>,
-          sourceValue as Record<string, unknown>
-        ) as T[Extract<keyof T, string>];
+        (result as Record<string, unknown>)[key] = deepMerge(
+          targetValue as object,
+          sourceValue as object
+        );
       } else {
-        result[key] = sourceValue as T[Extract<keyof T, string>];
+        (result as Record<string, unknown>)[key] = sourceValue;
       }
     }
   }
@@ -164,7 +164,7 @@ function loadPreferences(): UserPreferences {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
-      const parsed = JSON.parse(stored);
+      const parsed = JSON.parse(stored) as Partial<UserPreferences>;
       return deepMerge(DEFAULT_PREFERENCES, parsed);
     }
   } catch (error) {

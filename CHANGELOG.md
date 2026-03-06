@@ -7,6 +7,25 @@
 
 ---
 
+## [1.0.4] - 2026-03-07
+
+### 📄 文档更新
+
+- **完善项目文档系统**
+  - 更新 `docs/API.md` - 完整的自定义 Hooks API 文档
+  - 更新 `docs/COMPONENTS.md` - 新增 NotificationToast、useNotifications 文档
+  - 更新 `docs/INDEX.md` - 文档状态追踪改进
+  - 更新 `README.md` - 项目结构和功能说明完善
+  - 创建 `docs/PERFORMANCE_OPTIMIZATION.md` - 性能优化指南
+
+### 🔧 文档链接修复
+
+- 修复 `docs/TESTING.md` - 更新测试框架版本和示例
+- 更新贡献指南 - 添加测试命名规范
+- 完善快速开始指南 - 验证部署步骤
+
+---
+
 ## [1.0.3] - 2026-03-06
 
 ### ✨ 新增功能

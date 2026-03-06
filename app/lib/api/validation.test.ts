@@ -3,11 +3,11 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { validateBody, validateQuery, commonSchemas } from './validation';
+import { validateBody, validateQuery, commonSchemas, ValidationSchema } from './validation';
 
 describe('validateBody', () => {
   it('should validate required fields', () => {
-    const schema = {
+    const schema: ValidationSchema = {
       name: { type: 'string', required: true },
     };
 
@@ -18,7 +18,7 @@ describe('validateBody', () => {
   });
 
   it('should validate string length', () => {
-    const schema = {
+    const schema: ValidationSchema = {
       name: { type: 'string', minLength: 3, maxLength: 10 },
     };
 
@@ -33,7 +33,7 @@ describe('validateBody', () => {
   });
 
   it('should validate number range', () => {
-    const schema = {
+    const schema: ValidationSchema = {
       age: { type: 'number', min: 0, max: 120 },
     };
 
@@ -48,7 +48,7 @@ describe('validateBody', () => {
   });
 
   it('should validate email format', () => {
-    const schema = {
+    const schema: ValidationSchema = {
       email: { type: 'email' },
     };
 
@@ -60,8 +60,8 @@ describe('validateBody', () => {
   });
 
   it('should validate enum values', () => {
-    const schema = {
-      status: { type: 'string', enum: ['active', 'inactive'] as string[] },
+    const schema: ValidationSchema = {
+      status: { type: 'string', enum: ['active', 'inactive'] },
     };
 
     let result = validateBody({ status: 'unknown' }, schema);
@@ -72,7 +72,7 @@ describe('validateBody', () => {
   });
 
   it('should apply default values', () => {
-    const schema = {
+    const schema: ValidationSchema = {
       role: { type: 'string', default: 'user' },
     };
 
@@ -83,10 +83,10 @@ describe('validateBody', () => {
   });
 
   it('should transform values', () => {
-    const schema = {
+    const schema: ValidationSchema = {
       count: {
         type: 'number',
-        transform: (v) => Number(v),
+        transform: (v: unknown) => Number(v),
       },
     };
 
@@ -99,10 +99,10 @@ describe('validateBody', () => {
   });
 
   it('should validate with custom validator', () => {
-    const schema = {
+    const schema: ValidationSchema = {
       password: {
         type: 'string',
-        custom: (v) => {
+        custom: (v: unknown) => {
           const str = String(v);
           if (str.length < 8) return 'Password must be at least 8 characters';
           if (!/[A-Z]/.test(str)) return 'Password must contain uppercase letter';
@@ -119,7 +119,7 @@ describe('validateBody', () => {
   });
 
   it('should validate multiple types', () => {
-    const schema = {
+    const schema: ValidationSchema = {
       id: { type: ['string', 'number'] },
     };
 
@@ -140,7 +140,7 @@ describe('validateQuery', () => {
   }
 
   it('should parse string to number', () => {
-    const schema = {
+    const schema: ValidationSchema = {
       page: { type: 'number' },
     };
 
@@ -151,7 +151,7 @@ describe('validateQuery', () => {
   });
 
   it('should parse string to boolean', () => {
-    const schema = {
+    const schema: ValidationSchema = {
       active: { type: 'boolean' },
     };
 
@@ -163,7 +163,7 @@ describe('validateQuery', () => {
   });
 
   it('should parse comma-separated array', () => {
-    const schema = {
+    const schema: ValidationSchema = {
       tags: { type: 'array' },
     };
 
@@ -179,7 +179,7 @@ describe('validateQuery', () => {
 
 describe('commonSchemas', () => {
   it('should validate pagination with defaults', () => {
-    const result = validateBody({}, commonSchemas.pagination);
+    const result = validateBody({}, commonSchemas.pagination as ValidationSchema);
 
     expect(result.success).toBe(true);
     expect(result.data?.page).toBe(1);
@@ -193,7 +193,7 @@ describe('commonSchemas', () => {
       role: 'member',
     };
 
-    const result = validateBody(validUser, commonSchemas.userCreate);
+    const result = validateBody(validUser, commonSchemas.userCreate as ValidationSchema);
     expect(result.success).toBe(true);
   });
 
@@ -203,7 +203,7 @@ describe('commonSchemas', () => {
       email: 'not-an-email',
     };
 
-    const result = validateBody(invalidUser, commonSchemas.userCreate);
+    const result = validateBody(invalidUser, commonSchemas.userCreate as ValidationSchema);
     expect(result.success).toBe(false);
     expect(result.errors?.email).toBeDefined();
   });
@@ -215,7 +215,7 @@ describe('commonSchemas', () => {
       tags: ['urgent', 'bug'],
     };
 
-    const result = validateBody(validTask, commonSchemas.taskCreate);
+    const result = validateBody(validTask, commonSchemas.taskCreate as ValidationSchema);
     expect(result.success).toBe(true);
   });
 });

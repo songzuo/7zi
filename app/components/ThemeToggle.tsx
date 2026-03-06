@@ -1,17 +1,11 @@
 'use client';
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, memo, useMemo } from 'react';
 import { useTheme, Theme } from './ThemeProvider';
 
-/**
- * 高级主题切换组件
- * 
- * 功能：
- * - 三种主题模式切换（浅色/深色/跟随系统）
- * - 涟漪动画效果
- * - 下拉菜单选择
- * - 键盘导航支持
- */
+// ============================================================================
+// 类型定义
+// ============================================================================
 
 interface ThemeOption {
   value: Theme;
@@ -19,12 +13,6 @@ interface ThemeOption {
   icon: string;
   description: string;
 }
-
-const THEME_OPTIONS: ThemeOption[] = [
-  { value: 'light', label: '浅色', icon: '☀️', description: '浅色主题' },
-  { value: 'dark', label: '深色', icon: '🌙', description: '深色主题' },
-  { value: 'system', label: '系统', icon: '💻', description: '跟随系统' },
-];
 
 interface ThemeToggleProps {
   /** 是否显示下拉菜单（默认只显示图标按钮） */
@@ -35,22 +23,106 @@ interface ThemeToggleProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-export function ThemeToggle({
+// ============================================================================
+// 常量配置 - 移到模块级别避免每次渲染重新创建
+// ============================================================================
+
+const THEME_OPTIONS: ThemeOption[] = [
+  { value: 'light', label: '浅色', icon: '☀️', description: '浅色主题' },
+  { value: 'dark', label: '深色', icon: '🌙', description: '深色主题' },
+  { value: 'system', label: '系统', icon: '💻', description: '跟随系统' },
+];
+
+const SIZE_CLASSES = {
+  sm: 'p-1.5 text-base',
+  md: 'p-2 text-lg',
+  lg: 'p-3 text-xl',
+} as const;
+
+// ============================================================================
+// 主题选项按钮组件
+// ============================================================================
+
+interface ThemeOptionButtonProps {
+  option: ThemeOption;
+  isSelected: boolean;
+  onSelect: (theme: Theme) => void;
+}
+
+const ThemeOptionButton = memo(function ThemeOptionButton({
+  option,
+  isSelected,
+  onSelect,
+}: ThemeOptionButtonProps) {
+  const handleClick = useCallback(() => {
+    onSelect(option.value);
+  }, [option.value, onSelect]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onSelect(option.value);
+    }
+  }, [option.value, onSelect]);
+
+  return (
+    <button
+      data-value={option.value}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      className={`
+        w-full px-4 py-3 flex items-center gap-3 text-left transition-colors
+        focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700
+        ${isSelected
+          ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+        }
+      `}
+      role="menuitem"
+      tabIndex={0}
+      aria-selected={isSelected}
+    >
+      <span className="text-xl" aria-hidden="true">{option.icon}</span>
+      <div className="flex-1">
+        <div className="font-medium">{option.label}</div>
+        <div className="text-xs text-gray-500 dark:text-gray-400">{option.description}</div>
+      </div>
+      {isSelected && (
+        <span className="text-blue-600 dark:text-blue-400" aria-hidden="true">✓</span>
+      )}
+    </button>
+  );
+});
+
+// ============================================================================
+// 主题切换组件 - 性能优化版本
+// ============================================================================
+
+/**
+ * 高级主题切换组件
+ * 
+ * 功能：
+ * - 三种主题模式切换（浅色/深色/跟随系统）
+ * - 涟漪动画效果
+ * - 下拉菜单选择
+ * - 键盘导航支持
+ * 
+ * 性能优化措施:
+ * 1. 使用 React.memo 防止不必要的重渲染
+ * 2. 使用 useCallback 缓存事件处理
+ * 3. 使用 useMemo 缓存计算结果
+ * 4. 子组件提取并使用 memo
+ */
+function ThemeToggleComponent({
   showDropdown = false,
   enableRipple = true,
   size = 'md',
 }: ThemeToggleProps) {
-  const { theme, resolvedTheme, isTransitioning, setTheme, toggleTheme } = useTheme();
+  const { theme, resolvedTheme, setTheme, toggleTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
-
-  const sizeClasses = {
-    sm: 'p-1.5 text-base',
-    md: 'p-2 text-lg',
-    lg: 'p-3 text-xl',
-  };
 
   // 涟漪动画效果
   const createRipple = useCallback((event: React.MouseEvent) => {
@@ -98,6 +170,11 @@ export function ThemeToggle({
     setIsOpen(false);
     buttonRef.current?.focus();
   }, [setTheme]);
+
+  // 切换下拉菜单
+  const toggleDropdown = useCallback(() => {
+    setIsOpen(prev => !prev);
+  }, []);
 
   // 键盘导航
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -160,6 +237,14 @@ export function ThemeToggle({
     }
   }, []);
 
+  // 缓存当前主题选项
+  const currentThemeOption = useMemo(
+    () => THEME_OPTIONS.find(o => o.value === theme),
+    [theme]
+  );
+
+  const sizeClass = SIZE_CLASSES[size];
+
   // 简单按钮模式
   if (!showDropdown) {
     return (
@@ -168,7 +253,7 @@ export function ThemeToggle({
         onClick={handleToggle}
         onKeyDown={handleKeyDown}
         className={`
-          ${sizeClasses[size]}
+          ${sizeClass}
           text-gray-500 dark:text-gray-400 
           hover:text-gray-700 dark:hover:text-gray-200 
           hover:bg-gray-100 dark:hover:bg-gray-800 
@@ -200,10 +285,10 @@ export function ThemeToggle({
     <div className="relative" ref={dropdownRef} onClick={handleClickOutside}>
       <button
         ref={buttonRef}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={toggleDropdown}
         onKeyDown={handleKeyDown}
         className={`
-          ${sizeClasses[size]}
+          ${sizeClass}
           flex items-center gap-2
           text-gray-700 dark:text-gray-300 
           bg-white dark:bg-gray-800
@@ -218,10 +303,10 @@ export function ThemeToggle({
         type="button"
       >
         <span className="transition-transform duration-300" aria-hidden="true">
-          {THEME_OPTIONS.find(o => o.value === theme)?.icon || '🎨'}
+          {currentThemeOption?.icon || '🎨'}
         </span>
         <span className="text-sm font-medium hidden sm:inline">
-          {THEME_OPTIONS.find(o => o.value === theme)?.label || '主题'}
+          {currentThemeOption?.label || '主题'}
         </span>
         <span className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} aria-hidden="true">
           ▼
@@ -237,32 +322,12 @@ export function ThemeToggle({
           aria-label="主题选项"
         >
           {THEME_OPTIONS.map((option) => (
-            <button
+            <ThemeOptionButton
               key={option.value}
-              data-value={option.value}
-              onClick={() => handleSelect(option.value)}
-              onKeyDown={handleKeyDown}
-              className={`
-                w-full px-4 py-3 flex items-center gap-3 text-left transition-colors
-                focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700
-                ${theme === option.value
-                  ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
-                }
-              `}
-              role="menuitem"
-              tabIndex={0}
-              aria-selected={theme === option.value}
-            >
-              <span className="text-xl" aria-hidden="true">{option.icon}</span>
-              <div className="flex-1">
-                <div className="font-medium">{option.label}</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">{option.description}</div>
-              </div>
-              {theme === option.value && (
-                <span className="text-blue-600 dark:text-blue-400" aria-hidden="true">✓</span>
-              )}
-            </button>
+              option={option}
+              isSelected={theme === option.value}
+              onSelect={handleSelect}
+            />
           ))}
         </div>
       )}
@@ -285,5 +350,8 @@ export function ThemeToggle({
     </div>
   );
 }
+
+// 使用 memo 包装导出
+export const ThemeToggle = memo(ThemeToggleComponent);
 
 export default ThemeToggle;

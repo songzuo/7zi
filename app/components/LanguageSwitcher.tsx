@@ -1,37 +1,140 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback, memo, useMemo } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { locales, localeNames, localeFlags, type Locale } from '../i18n/config';
+
+// ============================================================================
+// 类型定义
+// ============================================================================
 
 interface LanguageSwitcherProps {
   size?: 'sm' | 'md' | 'lg';
   className?: string;
 }
 
-export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ 
+// ============================================================================
+// 常量配置 - 移到模块级别避免每次渲染重新创建
+// ============================================================================
+
+const LANGUAGE_STORAGE_KEY = 'preferred-language';
+
+// ============================================================================
+// 常量配置 - 移到模块级别避免每次渲染重新创建
+// ============================================================================
+
+const SIZE_CLASSES = {
+  sm: 'px-2 py-1 text-xs',
+  md: 'px-3 py-1.5 text-sm',
+  lg: 'px-4 py-2 text-base',
+} as const;
+
+const ICON_SIZES = {
+  sm: 'text-sm',
+  md: 'text-base',
+  lg: 'text-lg',
+} as const;
+
+// ============================================================================
+// 语言选项按钮组件
+// ============================================================================
+
+interface LanguageOptionProps {
+  locale: Locale;
+  isCurrent: boolean;
+  onSelect: (locale: Locale) => void;
+}
+
+const LanguageOption = memo(function LanguageOption({
+  locale,
+  isCurrent,
+  onSelect,
+}: LanguageOptionProps) {
+  const handleClick = useCallback(() => {
+    onSelect(locale);
+  }, [locale, onSelect]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onSelect(locale);
+    }
+  }, [locale, onSelect]);
+
+  return (
+    <button
+      key={locale}
+      type="button"
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      className={`
+        w-full flex items-center gap-2 px-3 py-2 text-sm
+        transition-colors duration-200
+        ${
+          isCurrent
+            ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+        }
+      `}
+      role="option"
+      aria-selected={isCurrent}
+    >
+      <span>{localeFlags[locale]}</span>
+      <span>{localeNames[locale]}</span>
+      {isCurrent && (
+        <svg className="w-4 h-4 ml-auto" fill="currentColor" viewBox="0 0 20 20">
+          <path
+            fillRule="evenodd"
+            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+            clipRule="evenodd"
+          />
+        </svg>
+      )}
+    </button>
+  );
+});
+
+// ============================================================================
+// 主组件 - 性能优化版本
+// ============================================================================
+
+/**
+ * 语言切换组件
+ * 
+ * 性能优化措施:
+ * 1. 使用 React.memo 防止不必要的重渲染
+ * 2. 使用 useCallback 缓存事件处理
+ * 3. 使用 useMemo 缓存计算结果
+ * 4. 子组件提取并使用 memo
+ */
+const LanguageSwitcher: React.FC<LanguageSwitcherProps> = memo(function LanguageSwitcher({ 
   size = 'md',
   className = ''
-}) => {
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // 从路径中检测当前语言
-  const getCurrentLocale = (): Locale => {
+  // 从路径中检测当前语言 - 使用 useMemo 缓存
+  const currentLocale = useMemo((): Locale => {
     const pathLocale = pathname?.split('/')[1];
     if (pathLocale === 'en') return 'en';
     return 'zh';
-  };
-
-  const currentLocale = getCurrentLocale();
+  }, [pathname]);
 
   // 切换语言
-  const changeLocale = (newLocale: Locale) => {
+  const changeLocale = useCallback((newLocale: Locale) => {
     if (newLocale === currentLocale) {
       setIsOpen(false);
       return;
+    }
+
+    // 持久化语言偏好到 localStorage
+    try {
+      localStorage.setItem(LANGUAGE_STORAGE_KEY, newLocale);
+    } catch {
+      // localStorage 不可用时静默失败
     }
 
     // 构建新路径
@@ -47,7 +150,12 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
 
     setIsOpen(false);
     router.push(newPath);
-  };
+  }, [currentLocale, pathname, router]);
+
+  // 切换下拉菜单
+  const toggleDropdown = useCallback(() => {
+    setIsOpen(prev => !prev);
+  }, []);
 
   // 点击外部关闭
   useEffect(() => {
@@ -70,23 +178,14 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
     return () => document.removeEventListener('keydown', handleEscape);
   }, []);
 
-  const sizeClasses = {
-    sm: 'px-2 py-1 text-xs',
-    md: 'px-3 py-1.5 text-sm',
-    lg: 'px-4 py-2 text-base',
-  };
-
-  const iconSizes = {
-    sm: 'text-sm',
-    md: 'text-base',
-    lg: 'text-lg',
-  };
+  const sizeClass = SIZE_CLASSES[size];
+  const iconSize = ICON_SIZES[size];
 
   return (
     <div ref={dropdownRef} className={`relative inline-block ${className}`}>
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={toggleDropdown}
         className={`
           flex items-center gap-1.5 rounded-lg
           bg-gray-100 dark:bg-gray-800
@@ -94,13 +193,13 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
           text-gray-700 dark:text-gray-300
           transition-colors duration-200
           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900
-          ${sizeClasses[size]}
+          ${sizeClass}
         `}
         aria-label={`切换语言，当前：${localeNames[currentLocale]}`}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
       >
-        <span className={iconSizes[size]}>{localeFlags[currentLocale]}</span>
+        <span className={iconSize}>{localeFlags[currentLocale]}</span>
         <span className="hidden sm:inline">{localeNames[currentLocale]}</span>
         <svg
           className={`w-3 h-3 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
@@ -127,39 +226,17 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
           aria-label="选择语言"
         >
           {locales.map((locale) => (
-            <button
+            <LanguageOption
               key={locale}
-              type="button"
-              onClick={() => changeLocale(locale)}
-              className={`
-                w-full flex items-center gap-2 px-3 py-2 text-sm
-                transition-colors duration-200
-                ${
-                  locale === currentLocale
-                    ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }
-              `}
-              role="option"
-              aria-selected={locale === currentLocale}
-            >
-              <span>{localeFlags[locale]}</span>
-              <span>{localeNames[locale]}</span>
-              {locale === currentLocale && (
-                <svg className="w-4 h-4 ml-auto" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              )}
-            </button>
+              locale={locale}
+              isCurrent={locale === currentLocale}
+              onSelect={changeLocale}
+            />
           ))}
         </div>
       )}
     </div>
   );
-};
+});
 
 export default LanguageSwitcher;

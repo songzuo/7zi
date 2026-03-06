@@ -332,7 +332,7 @@ describe('Dashboard', () => {
       
       render(<Dashboard />);
       
-      const retryButton = screen.getByRole('button', { name: /重试/i });
+      const retryButton = screen.getByRole('button', { name: /retry|重试/i });
       fireEvent.click(retryButton);
       
       expect(mockRefetch).toHaveBeenCalledTimes(1);
