@@ -116,7 +116,6 @@ export function generatePageMetadata(
   const description = locale === 'zh' ? config.description : config.descriptionEn;
   const keywords = locale === 'zh' ? config.keywords : config.keywordsEn;
   const url = `${baseUrl}/${locale}${config.path}`;
-  const alternateUrl = `${baseUrl}/${locale === 'zh' ? 'en' : 'zh'}${config.path}`;
 
   return {
     title,

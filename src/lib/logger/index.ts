@@ -230,7 +230,6 @@ class Logger {
   // ============================================
 
   private logToConsole(entry: LogEntry): void {
-    const prefix = `[${entry.timestamp}] [${entry.level.toUpperCase()}] [${entry.category}]`;
     const styledPrefix = this.getStylePrefix(entry.level);
 
     const logData = entry.data ? { ...entry.data } : {};

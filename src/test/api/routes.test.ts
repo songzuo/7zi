@@ -4,7 +4,6 @@
  */
 
 import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest'
-import { NextRequest } from 'next/server'
 
 // Mock environment variables
 const originalEnv = process.env

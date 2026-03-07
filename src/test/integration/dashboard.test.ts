@@ -106,7 +106,6 @@ describe('Dashboard Data Flow Integration Tests', () => {
     it('should cache successful responses', async () => {
       const cache = new Map<string, { data: unknown; timestamp: number }>()
       const cacheKey = 'dashboard-data'
-      const cacheTTL = 60000 // 1 minute
 
       mockFetch.mockResolvedValueOnce({
         ok: true,

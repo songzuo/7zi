@@ -673,8 +673,8 @@ export function enumFormatter<T extends string | number>(
  */
 export function linkFormatter(
   displayText?: string
-): (value: unknown, row: Record<string, unknown>) => string {
-  return (value: unknown, _row: Record<string, unknown>) => {
+): (value: unknown) => string {
+  return (value: unknown) => {
     if (!value) return '';
     const url = String(value);
     return displayText || url;

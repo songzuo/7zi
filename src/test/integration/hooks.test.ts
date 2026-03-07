@@ -4,7 +4,6 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { renderHook, act, waitFor } from '@testing-library/react'
 
 // Mock fetch
 const mockFetch = vi.fn()
@@ -290,13 +289,6 @@ describe('useLocalStorage Hook Integration Tests', () => {
     it('should sync state across tabs', () => {
       // Simulate storage event
       const newValue = { synced: true }
-      
-      const handleStorageChange = (event: StorageEvent) => {
-        if (event.key === 'test-key' && event.newValue) {
-          return JSON.parse(event.newValue)
-        }
-        return null
-      }
 
       // In real implementation, would listen to 'storage' event
       expect(newValue.synced).toBe(true)
@@ -351,7 +343,6 @@ describe('useDebounce Hook Integration Tests', () => {
     })
 
     it('should reset debounce timer on new value', () => {
-      const debounceDelay = 300
       let callCount = 0
 
       const debouncedFn = vi.fn(() => callCount++)

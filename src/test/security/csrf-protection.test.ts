@@ -112,10 +112,7 @@ function isValidReferer(referer: string | null, allowedOrigins: string[]): boole
 }
 
 describe('CSRF Protection Tests', () => {
-  let mockCookies: Record<string, string>
-
   beforeEach(() => {
-    mockCookies = {}
     vi.clearAllMocks()
   })
 

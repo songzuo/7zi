@@ -77,10 +77,21 @@
 ### 开发方向
 
 1. **智能体世界接口** - 主要方向
+   - **MCP (Model Context Protocol)** - Anthropic主导，AI ↔ 工具连接
+   - **A2A (Agent2Agent Protocol)** - Google主导，Agent ↔ Agent协作
+   - 研究报告: `memory/agent-world-interface-research.md`
 2. **钱包和支付功能** - 为智能体服务
 3. **实时Dashboard** - 项目主要功能
 4. **多模态AI支持** - 图像/音频
 5. **跨平台消息同步** - 智能体通信
+
+### 实施路线
+
+| 阶段 | 内容 | 优先级 |
+|------|------|--------|
+| **短期** | 实现 MCP Server | P0 |
+| **中期** | 实现 A2A 支持 | P1 |
+| **长期** | 智能体市场 | P2 |
 
 ---
 

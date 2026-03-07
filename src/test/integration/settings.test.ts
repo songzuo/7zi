@@ -329,13 +329,6 @@ describe('Settings Synchronization', () => {
   it('should sync settings across tabs', () => {
     // Simulate storage event
     const newSettings = { theme: 'dark' }
-    
-    const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === 'settings') {
-        return JSON.parse(event.newValue || '{}')
-      }
-      return null
-    }
 
     // In real implementation, would listen to 'storage' event
     expect(newSettings.theme).toBe('dark')

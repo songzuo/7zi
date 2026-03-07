@@ -1,7 +1,7 @@
 /**
  * @fileoverview Analytics component tests
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { render } from '@testing-library/react';
 import { Analytics } from '../../components/Analytics';
 

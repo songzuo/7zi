@@ -302,13 +302,6 @@ describe('Contact Form Integration Tests', () => {
         message: '',
       }
 
-      const filledFormData = {
-        name: 'Test User',
-        email: 'test@example.com',
-        subject: 'Test',
-        message: 'Test message',
-      }
-
       // After reset
       const resetFormData = { ...initialFormData }
 

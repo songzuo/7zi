@@ -122,7 +122,7 @@ export async function getCurrentVitals() {
     return null;
   }
 
-  const { onLCP, onFID, onCLS, onTTFB, onFCP, onINP } = await import('web-vitals');
+  const { onLCP, onFID, onCLS, onTTFB } = await import('web-vitals');
 
   return new Promise((resolve) => {
     const vitals: Record<string, number> = {};

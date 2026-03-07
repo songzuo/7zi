@@ -23,6 +23,7 @@
     "test:all": "npm run test:run && npm run test:e2e"
   },
   "dependencies": {
+    "@a2a-js/sdk": "^0.3.10",
     "@emailjs/browser": "^4.4.1",
     "@sentry/nextjs": "^10.42.0",
     "next": "16.1.6",
@@ -30,6 +31,7 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "resend": "^6.9.3",
+    "uuid": "^13.0.0",
     "web-vitals": "^4.2.4",
     "xlsx": "^0.18.5",
     "zustand": "^5.0.11"

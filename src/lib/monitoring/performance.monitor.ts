@@ -202,7 +202,7 @@ class PerformanceCollector {
       });
 
       observer.observe({ type: 'longtask', buffered: true });
-    } catch (e) {
+    } catch {
       // Long Task API 不支持
     }
   }
@@ -242,7 +242,7 @@ class PerformanceCollector {
       });
 
       observer.observe({ type: 'resource', buffered: true });
-    } catch (e) {
+    } catch (_e) {
       // Resource Timing API 不支持
     }
   }
@@ -308,9 +308,6 @@ class PerformanceCollector {
    * 路由切换监控
    */
   private observeNavigation() {
-    // 监听 Next.js 路由事件
-    const navigationStart = 0;
-
     // 使用 Performance API 监听路由切换
     if ('PerformanceObserver' in window) {
       try {
@@ -318,7 +315,6 @@ class PerformanceCollector {
           list.getEntries().forEach((entry) => {
             if (entry.entryType === 'navigation') {
               const navEntry = entry as PerformanceNavigationTiming;
-              const config = CUSTOM_METRICS_CONFIG.navigation.routeChangeTime;
 
               const metric: CustomMetric = {
                 name: 'pageLoad',
@@ -338,7 +334,7 @@ class PerformanceCollector {
         });
 
         observer.observe({ type: 'navigation', buffered: true });
-      } catch (e) {
+      } catch (_e) {
         // Navigation Timing API 不支持
       }
     }

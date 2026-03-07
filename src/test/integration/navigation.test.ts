@@ -93,15 +93,6 @@ describe('Navigation Integration Tests', () => {
     })
 
     it('should handle hash links for same-page navigation', () => {
-      const scrollToHash = (hash: string) => {
-        const element = document.querySelector(hash)
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' })
-          return true
-        }
-        return false
-      }
-
       // Test hash extraction
       const hash = '#section-1'
       expect(hash.startsWith('#')).toBe(true)
@@ -155,7 +146,6 @@ describe('Navigation Integration Tests', () => {
 
   describe('Internationalization Routes', () => {
     it('should handle locale-based routing', () => {
-      const supportedLocales = ['en', 'zh', 'ja', 'ko']
       const defaultLocale = 'en'
 
       const buildLocalePath = (locale: string, path: string) => {
