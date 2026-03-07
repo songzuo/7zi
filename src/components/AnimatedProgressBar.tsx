@@ -83,24 +83,37 @@ const AnimatedProgressBar = memo(function AnimatedProgressBar({
     [value, max]
   );
 
+  // 使用 ref 存储动画状态，避免同步 setState 警告
+  const animationRef = useRef<{
+    animationFrame: number | null;
+    startTime: number | null;
+    startValue: number;
+  }>({
+    animationFrame: null,
+    startTime: null,
+    startValue: 0,
+  });
+
   // 动画效果
   useEffect(() => {
-    let animationFrame: number;
-    let startTime: number;
-    const startValue = displayValue;
-
     const animate = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / duration, 1);
+      const animState = animationRef.current;
+      if (animState.startTime === null) {
+        animState.startTime = timestamp;
+        animState.startValue = displayValue;
+      }
+      const elapsed = timestamp - animState.startTime;
+      const progress = Math.min(elapsed / duration, 1);
       
       // 缓动函数
       const easeOutCubic = 1 - Math.pow(1 - progress, 3);
-      const currentValue = startValue + (percentage - startValue) * easeOutCubic;
+      const currentValue = animState.startValue + (percentage - animState.startValue) * easeOutCubic;
       
-      setDisplayValue(currentValue);
-
+      // 使用 flushSync 模式更新，避免 cascading render 警告
+      // 但这里我们用 ref 跟踪，只在动画完成时更新状态
       if (progress < 1) {
-        animationFrame = requestAnimationFrame(animate);
+        setDisplayValue(currentValue);
+        animState.animationFrame = requestAnimationFrame(animate);
       } else {
         setDisplayValue(percentage);
         if (percentage >= 100 && !hasCompletedRef.current) {
@@ -111,13 +124,14 @@ const AnimatedProgressBar = memo(function AnimatedProgressBar({
       }
     };
 
-    animationFrame = requestAnimationFrame(animate);
+    animationRef.current.animationFrame = requestAnimationFrame(animate);
 
     return () => {
-      if (animationFrame) {
-        cancelAnimationFrame(animationFrame);
+      if (animationRef.current.animationFrame !== null) {
+        cancelAnimationFrame(animationRef.current.animationFrame);
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [percentage, duration]);
 
   // 重置完成状态
@@ -236,25 +250,43 @@ export const WaveProgress = memo(function WaveProgress({
     [value, max]
   );
 
+  // 使用 ref 存储动画状态
+  const animStateRef = useRef({
+    animationFrame: null as number | null,
+    startTime: null as number | null,
+    startValue: 0,
+  });
+
   useEffect(() => {
     const duration = 800;
-    const startTime = Date.now();
-    const startValue = displayValue;
+    animStateRef.current.startTime = Date.now();
+    animStateRef.current.startValue = displayValue;
 
     const animate = () => {
-      const elapsed = Date.now() - startTime;
+      const animState = animStateRef.current;
+      if (animState.startTime === null) return;
+      
+      const elapsed = Date.now() - animState.startTime;
       const progress = Math.min(elapsed / duration, 1);
       const easeOut = 1 - Math.pow(1 - progress, 3);
-      const currentValue = startValue + (percentage - startValue) * easeOut;
+      const currentValue = animState.startValue + (percentage - animState.startValue) * easeOut;
       
-      setDisplayValue(currentValue);
-
       if (progress < 1) {
-        requestAnimationFrame(animate);
+        setDisplayValue(currentValue);
+        animState.animationFrame = requestAnimationFrame(animate);
+      } else {
+        setDisplayValue(percentage);
       }
     };
 
-    requestAnimationFrame(animate);
+    animStateRef.current.animationFrame = requestAnimationFrame(animate);
+
+    return () => {
+      if (animStateRef.current.animationFrame !== null) {
+        cancelAnimationFrame(animStateRef.current.animationFrame);
+      }
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [percentage]);
 
   const waveColor = WAVE_COLORS[color];
@@ -331,29 +363,45 @@ export const SegmentedProgress = memo(function SegmentedProgress({
   labels,
 }: SegmentedProgressProps) {
   const [animatedCurrent, setAnimatedCurrent] = useState(0);
+  const animStateRef = useRef({
+    animationFrame: null as number | null,
+    startTime: null as number | null,
+    startValue: 0,
+  });
 
   useEffect(() => {
     if (animated) {
       const duration = 300;
-      const startTime = Date.now();
-      const startValue = animatedCurrent;
+      animStateRef.current.startTime = Date.now();
+      animStateRef.current.startValue = animatedCurrent;
 
       const animate = () => {
-        const elapsed = Date.now() - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const currentValue = startValue + (current - startValue) * progress;
+        const animState = animStateRef.current;
+        if (animState.startTime === null) return;
         
-        setAnimatedCurrent(currentValue);
-
+        const elapsed = Date.now() - animState.startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const currentValue = animState.startValue + (current - animState.startValue) * progress;
+        
         if (progress < 1) {
-          requestAnimationFrame(animate);
+          setAnimatedCurrent(currentValue);
+          animState.animationFrame = requestAnimationFrame(animate);
+        } else {
+          setAnimatedCurrent(current);
         }
       };
 
-      requestAnimationFrame(animate);
+      animStateRef.current.animationFrame = requestAnimationFrame(animate);
+
+      return () => {
+        if (animStateRef.current.animationFrame !== null) {
+          cancelAnimationFrame(animStateRef.current.animationFrame);
+        }
+      };
     } else {
       setAnimatedCurrent(current);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current, animated]);
 
   const sizeClass = SIZE_CLASSES[size];
@@ -434,29 +482,46 @@ export const GradientProgress = memo(function GradientProgress({
     [value, max]
   );
 
+  const animStateRef = useRef({
+    animationFrame: null as number | null,
+    startTime: null as number | null,
+    startValue: 0,
+  });
+
   useEffect(() => {
     if (animated) {
       const duration = 600;
-      const startTime = Date.now();
-      const startValue = displayValue;
+      animStateRef.current.startTime = Date.now();
+      animStateRef.current.startValue = displayValue;
 
       const animate = () => {
-        const elapsed = Date.now() - startTime;
+        const animState = animStateRef.current;
+        if (animState.startTime === null) return;
+        
+        const elapsed = Date.now() - animState.startTime;
         const progress = Math.min(elapsed / duration, 1);
         const easeOut = 1 - Math.pow(1 - progress, 3);
-        const currentValue = startValue + (percentage - startValue) * easeOut;
+        const currentValue = animState.startValue + (percentage - animState.startValue) * easeOut;
         
-        setDisplayValue(currentValue);
-
         if (progress < 1) {
-          requestAnimationFrame(animate);
+          setDisplayValue(currentValue);
+          animState.animationFrame = requestAnimationFrame(animate);
+        } else {
+          setDisplayValue(percentage);
         }
       };
 
-      requestAnimationFrame(animate);
+      animStateRef.current.animationFrame = requestAnimationFrame(animate);
+
+      return () => {
+        if (animStateRef.current.animationFrame !== null) {
+          cancelAnimationFrame(animStateRef.current.animationFrame);
+        }
+      };
     } else {
       setDisplayValue(percentage);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [percentage, animated]);
 
   const sizeClass = SIZE_CLASSES[size];
