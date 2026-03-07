@@ -60,7 +60,7 @@ interface UseEnhancedNotificationsReturn {
   // 快捷方法
   push: (notification: Omit<EnhancedNotification, 'id' | 'timestamp' | 'read' | 'dismissed'>) => void;
   success: (title: string, message: string, options?: Partial<EnhancedNotification>) => void;
-  error: (title: string, message: string, options?: Partial<EnhancedNotification>) => void;
+  notifyError: (title: string, message: string, options?: Partial<EnhancedNotification>) => void;
   warning: (title: string, message: string, options?: Partial<EnhancedNotification>) => void;
   info: (title: string, message: string, options?: Partial<EnhancedNotification>) => void;
 }
@@ -80,14 +80,14 @@ export function useEnhancedNotifications(
 
   const [notifications, setNotifications] = useState<EnhancedNotification[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [errorState, setErrorState] = useState<Error | null>(null);
   const [filter, setFilter] = useState<'all' | NotificationCategory | 'unread'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
   // 获取通知
   const fetchNotifications = useCallback(async () => {
     setIsLoading(true);
-    setError(null);
+    setErrorState(null);
     
     try {
       const params = new URLSearchParams({
@@ -106,7 +106,7 @@ export function useEnhancedNotifications(
         setNotifications(result.data.notifications);
       }
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('未知错误'));
+      setErrorState(err instanceof Error ? err : new Error('未知错误'));
     } finally {
       setIsLoading(false);
     }
@@ -253,7 +253,7 @@ export function useEnhancedNotifications(
     push({ type: 'success', category: 'task', priority: 'normal', title, message, ...options });
   }, [push]);
 
-  const error = useCallback((title: string, message: string, options?: Partial<EnhancedNotification>) => {
+  const notifyError = useCallback((title: string, message: string, options?: Partial<EnhancedNotification>) => {
     push({ type: 'error', category: 'alert', priority: 'high', title, message, ...options });
   }, [push]);
 
@@ -270,7 +270,7 @@ export function useEnhancedNotifications(
     unreadCount,
     urgentCount,
     isLoading,
-    error,
+    error: errorState,
     
     fetchNotifications,
     markAsRead,
@@ -287,7 +287,7 @@ export function useEnhancedNotifications(
     
     push,
     success,
-    error,
+    notifyError,
     warning,
     info,
   };
