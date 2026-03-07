@@ -17,3 +17,22 @@ export {
   reportNetworkError,
 } from '@/lib/error-reporter';
 export type { ErrorReportPayload, ErrorCategory } from '@/lib/error-reporter';
+
+// 表单编辑器和富文本编辑器
+export { RichTextEditor } from './RichTextEditor';
+export type { RichTextEditorProps } from './RichTextEditor';
+
+export { 
+  FormBuilder, 
+  FormPreview,
+  createDefaultFormConfig,
+} from './FormBuilder';
+export type { 
+  FormBuilderProps, 
+  FormConfig, 
+  FormField, 
+  FieldType, 
+  FieldOption,
+  FormData,
+  FormErrors,
+} from './FormBuilder';
