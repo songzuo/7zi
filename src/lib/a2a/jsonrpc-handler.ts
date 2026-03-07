@@ -60,23 +60,23 @@ export class A2ARequestHandler {
 
       switch (request.method) {
         case 'message/send':
-          result = await this.handleSendMessage(request.params as SendMessageRequest);
+          result = await this.handleSendMessage(request.params as unknown as SendMessageRequest);
           break;
 
         case 'message/stream':
-          result = await this.handleSendMessageStream(request.params as SendMessageRequest);
+          result = await this.handleSendMessageStream(request.params as unknown as SendMessageRequest);
           break;
 
         case 'tasks/get':
-          result = await this.handleGetTask(request.params as GetTaskRequest);
+          result = await this.handleGetTask(request.params as unknown as GetTaskRequest);
           break;
 
         case 'tasks/list':
-          result = await this.handleListTasks(request.params as ListTasksRequest);
+          result = await this.handleListTasks(request.params as unknown as ListTasksRequest);
           break;
 
         case 'tasks/cancel':
-          result = await this.handleCancelTask(request.params as CancelTaskRequest);
+          result = await this.handleCancelTask(request.params as unknown as CancelTaskRequest);
           break;
 
         case 'agent/getCard':
@@ -210,7 +210,6 @@ export class A2ARequestHandler {
       pageSize: params.pageSize,
       pageToken: params.pageToken,
       includeArtifacts: params.includeArtifacts,
-      historyLength: params.historyLength,
     });
   }
 

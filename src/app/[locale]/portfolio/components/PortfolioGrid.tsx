@@ -1,12 +1,12 @@
 'use client';
 
-import { Project } from '../data';
+import type { Project } from '../data';
 import ProjectCard from './ProjectCard';
 
 interface PortfolioGridProps {
   projects: Project[];
   locale: string;
-  labels: {
+  labels?: {
     viewDetails: string;
   };
   emptyMessage?: {

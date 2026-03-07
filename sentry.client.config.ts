@@ -82,7 +82,7 @@ Sentry.init({
   ],
 
   // Before send hook - filter sensitive data
-  beforeSend(event, hint) {
+  beforeSend(event, _hint) {
     // Don't send events in development unless explicitly enabled
     if (process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_SENTRY_DEBUG !== 'true') {
       return null;
@@ -98,7 +98,7 @@ Sentry.init({
   },
 
   // Before breadcrumb hook
-  beforeBreadcrumb(breadcrumb, hint) {
+  beforeBreadcrumb(breadcrumb, _hint) {
     // Filter out sensitive data from breadcrumbs
     if (breadcrumb.category === 'http') {
       // Don't log request/response bodies

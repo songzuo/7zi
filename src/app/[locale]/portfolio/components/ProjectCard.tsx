@@ -7,7 +7,7 @@ import { Project, ProjectCategory } from '../data';
 interface ProjectCardProps {
   project: Project;
   locale: string;
-  labels: {
+  labels?: {
     viewDetails: string;
   };
 }
@@ -47,7 +47,7 @@ export default function ProjectCard({ project, locale, labels }: ProjectCardProp
         {/* View Details Overlay */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <span className="px-5 py-2.5 bg-white text-zinc-900 rounded-full text-sm font-medium transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-            {labels.viewDetails}
+            {labels?.viewDetails || 'View Details'}
           </span>
         </div>
       </div>

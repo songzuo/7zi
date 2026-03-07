@@ -17,7 +17,7 @@ export interface TaskStore {
     pageSize?: number;
     pageToken?: string;
     includeArtifacts?: boolean;
-  }): { tasks: Task[]; nextPageToken: string; totalSize: number };
+  }): { tasks: Task[]; nextPageToken: string; pageSize: number; totalSize: number };
   deleteTask(taskId: string): boolean;
   getTasksByContext(contextId: string): Task[];
 }
@@ -110,7 +110,7 @@ export class InMemoryTaskStore implements TaskStore {
     pageSize?: number;
     pageToken?: string;
     includeArtifacts?: boolean;
-  }): { tasks: Task[]; nextPageToken: string; totalSize: number } {
+  }): { tasks: Task[]; nextPageToken: string; pageSize: number; totalSize: number } {
     let tasks = Array.from(this.tasks.values());
 
     // Filter by context

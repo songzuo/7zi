@@ -10,6 +10,21 @@
 | **bot5.szspd.cn** | 182.43.36.134 | root | `ge20993344$ZZ` | 测试机器 |
 | **本机 (bot6)** | - | root | - | OpenClaw 运行 |
 
+### Windows 测试机器
+
+| 服务器 | IP | 用户 | 密码 | 连接方式 | 用途 |
+|--------|-----|------|------|----------|------|
+| **Windows 测试机** | 36.133.22.15 | Administrator | `ge20993344$ZZ` | RDP (端口 3389) | 网站测试、界面验证 |
+
+**连接命令**:
+```bash
+# 使用 rdesktop 连接
+rdesktop -u Administrator -p 'ge20993344$ZZ' 36.133.22.15
+
+# 或使用 xfreerdp
+xfreerdp /u:Administrator /p:'ge20993344$ZZ' /v:36.133.22.15
+```
+
 ### SSH 认证方法
 
 **密码含 `$` 必须用单引号！**

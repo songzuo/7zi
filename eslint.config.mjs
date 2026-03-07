@@ -16,6 +16,8 @@ const eslintConfig = defineConfig([
     "app/.next/**",
     "node_modules/**",
     "dist/**",
+    // Backup directories
+    "_app_backup/**",
   ]),
 ]);
 

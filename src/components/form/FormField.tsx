@@ -160,12 +160,12 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     const showError = (externalTouched ?? isTouched) && (externalError ?? error);
 
     const handleChangeWrapper = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      handleChange(e as React.ChangeEvent<HTMLInputElement>);
+      handleChange(e as unknown as React.ChangeEvent<HTMLInputElement>);
       onChange?.(e);
     };
 
     const handleBlurWrapper = (e: React.FocusEvent<HTMLTextAreaElement>) => {
-      handleBlur(e as React.FocusEvent<HTMLInputElement>);
+      handleBlur(e as unknown as React.FocusEvent<HTMLInputElement>);
       onBlur?.(e);
     };
 

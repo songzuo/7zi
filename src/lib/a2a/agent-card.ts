@@ -2,7 +2,10 @@
  * A2A Agent Card - 7zi Agent capability declaration
  */
 
-import { AgentCard } from './types';
+import type { AgentCard } from './types';
+
+// Re-export AgentCard type for consumers
+export type { AgentCard };
 
 /**
  * 7zi Agent Card - Public declaration of agent capabilities

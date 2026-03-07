@@ -1,6 +1,7 @@
 'use client';
 
 import { memo, useState, useCallback, ChangeEvent } from 'react';
+import Image from 'next/image';
 
 export interface AvatarUploadProps {
   avatar: string;
@@ -32,10 +33,13 @@ const AvatarUpload = memo(function AvatarUpload({
       onMouseLeave={() => setIsHovered(false)}
     >
       {avatar ? (
-        <img
+        <Image
           src={avatar}
           alt="用户头像"
           className="w-full h-full object-cover"
+          fill
+          sizes="96px"
+          unoptimized
         />
       ) : (
         <div className="w-full h-full bg-gradient-to-br from-cyan-400 to-purple-500 flex items-center justify-center">

@@ -306,15 +306,8 @@ describe('utils - 边界条件测试', () => {
 
     it('处理大量参数组合', () => {
       let callCount = 0;
-<<<<<<< HEAD
-      const memoizedFn = memoize((a: number, b: number, c: number) => {
-        callCount++;
-        return a + b + c;
-      });
-=======
       const fn = (a: number, b: number, c: number) => { callCount++; return a + b + c; };
       const memoizedFn = memoize(fn);
->>>>>>> bfa837c (test: enhance test coverage and update architecture docs)
 
       // 相同参数组合调用 100 次应该只执行一次
       for (let i = 0; i < 100; i++) {

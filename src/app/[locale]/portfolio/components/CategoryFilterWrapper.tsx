@@ -1,8 +1,6 @@
 'use client';
 
-import { useSearchParams, usePathname, useRouter } from 'next/navigation';
-import { useCallback } from 'react';
-import { CategoryFilter } from './CategoryFilter';
+import CategoryFilter from './CategoryFilter';
 
 interface CategoryFilterWrapperProps {
   locale: string;
@@ -10,20 +8,18 @@ interface CategoryFilterWrapperProps {
 }
 
 export function CategoryFilterWrapper({ locale, activeCategory }: CategoryFilterWrapperProps) {
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const router = useRouter();
+  const labels = {
+    all: locale === 'zh' ? '全部' : 'All',
+    website: locale === 'zh' ? '网站' : 'Website',
+    app: locale === 'zh' ? '应用' : 'App',
+    ai: locale === 'zh' ? 'AI' : 'AI',
+    design: locale === 'zh' ? '设计' : 'Design',
+  };
 
-  const handleCategoryChange = useCallback((category: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (category === 'all') {
-      params.delete('category');
-    } else {
-      params.set('category', category);
-    }
-    const newUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
-    router.push(newUrl);
-  }, [searchParams, pathname, router]);
-
-  return <CategoryFilter activeCategory={activeCategory} onCategoryChange={handleCategoryChange} locale={locale} />;
+  return (
+    <CategoryFilter 
+      activeCategory={activeCategory as 'all' | 'website' | 'app' | 'ai' | 'design'} 
+      labels={labels} 
+    />
+  );
 }

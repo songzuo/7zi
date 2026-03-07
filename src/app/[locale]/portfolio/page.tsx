@@ -5,9 +5,9 @@ import { ClientProviders, ThemeToggle } from '@/components/ClientProviders';
 import MobileMenu from '@/components/MobileMenu';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { StructuredData } from '@/components/SEO';
-import { PortfolioGrid } from './components/PortfolioGrid';
+import PortfolioGrid from './components/PortfolioGrid';
 import { CategoryFilterWrapper } from './components/CategoryFilterWrapper';
-import { projects } from '@/data/projects';
+import { projects } from './data';
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 

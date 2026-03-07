@@ -1,0 +1,21 @@
+# Backup directories
+_app_backup
+
+# Dependencies
+node_modules
+
+# Build outputs
+.next
+out
+dist
+build
+
+# Config files
+*.config.js
+*.config.ts
+
+# Generated files
+*.d.ts
+
+# Test coverage
+coverage

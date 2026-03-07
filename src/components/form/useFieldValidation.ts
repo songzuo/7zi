@@ -7,6 +7,8 @@ export type ValidationFunction = (value: string) => string | undefined | null;
 
 export type ValidateOn = 'blur' | 'change' | 'submit';
 
+export type InputElementType = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+
 export interface UseFieldValidationOptions {
   /** 验证函数 */
   validate?: ValidationFunction;
@@ -36,11 +38,11 @@ export interface UseFieldValidationReturn {
   /** 设置错误 */
   setError: (error: string | undefined) => void;
   /** 处理变化事件 */
-  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleChange: (e: React.ChangeEvent<InputElementType>) => void;
   /** 处理失焦事件 */
-  handleBlur: (e: React.FocusEvent<HTMLInputElement>) => void;
+  handleBlur: (e: React.FocusEvent<InputElementType>) => void;
   /** 手动验证 */
-  validate: () => boolean;
+  validate: () => Promise<boolean>;
   /** 重置字段 */
   reset: () => void;
 }
@@ -108,7 +110,7 @@ export function useFieldValidation(
    * 处理变化事件
    */
   const handleChange = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
+    async (e: React.ChangeEvent<InputElementType>) => {
       const newValue = e.target.value;
       setValueState(newValue);
 
@@ -124,7 +126,7 @@ export function useFieldValidation(
    * 处理失焦事件
    */
   const handleBlur = useCallback(
-    async (e: React.FocusEvent<HTMLInputElement>) => {
+    async (e: React.FocusEvent<InputElementType>) => {
       setIsTouched(true);
 
       if (shouldValidateOnBlur || !isTouched) {

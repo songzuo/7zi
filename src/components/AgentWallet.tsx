@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { useWalletStore, useWallets, useWalletBalance, useTransactionHistory } from '../stores/walletStore';
-import type { AgentWallet, Transaction, TransferRequest, TransactionType, TransactionStatus } from '../types/wallet';
-import { TRANSACTION_TYPE_CONFIG, TRANSACTION_STATUS_CONFIG, DEFAULT_WALLET_CONFIG } from '../types/wallet';
+import React, { useState } from 'react';
+import { useWalletStore, useWallets } from '../stores/walletStore';
+import type { AgentWallet, Transaction } from '../types/wallet';
+import { TRANSACTION_TYPE_CONFIG, TRANSACTION_STATUS_CONFIG } from '../types/wallet';
 
 // ============================================================================
 // 钱包余额显示组件
