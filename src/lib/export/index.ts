@@ -1,6 +1,14 @@
 /**
  * @fileoverview 数据导出工具
  * @description 支持多种格式的数据导出（CSV、JSON、Excel）
+ * @version 2.0.0 - 增强版本
+ * @changelog
+ * - 添加自定义字段支持
+ * - Excel 样式增强（列宽、自动筛选、冻结表头）
+ * - 添加更多预定义格式化器
+ * - 支持导出模板
+ * - 支持数据验证
+ * - 支持多工作表导出
  */
 
 import * as XLSX from 'xlsx';
@@ -15,6 +23,36 @@ import * as XLSX from 'xlsx';
 export type ExportFormat = 'csv' | 'json' | 'xlsx' | 'excel';
 
 /**
+ * Excel 列样式
+ */
+export interface ExcelColumnStyle {
+  /** 列宽（字符数） */
+  width?: number;
+  /** 自动宽度 */
+  autoWidth?: boolean;
+  /** 数字格式 */
+  numFmt?: string;
+  /** 水平对齐 */
+  alignment?: 'left' | 'center' | 'right';
+}
+
+/**
+ * Excel 配置
+ */
+export interface ExcelOptions {
+  /** 冻结表头行数 */
+  freezeRows?: number;
+  /** 自动筛选 */
+  autoFilter?: boolean;
+  /** 列样式 */
+  columnStyles?: Record<string, ExcelColumnStyle>;
+  /** 工作表名称 */
+  sheetName?: string;
+  /** 是否包含表头样式 */
+  headerStyle?: boolean;
+}
+
+/**
  * 字段配置
  */
 export interface ExportField<T = Record<string, unknown>> {
@@ -26,10 +64,24 @@ export interface ExportField<T = Record<string, unknown>> {
   formatter?: (value: T[keyof T], row: T) => string | number | boolean | null;
   /** 是否默认选中 */
   defaultSelected?: boolean;
+  /** 字段描述（用于帮助提示） */
+  description?: string;
+  /** 字段分组 */
+  group?: string;
+  /** 字段顺序 */
+  order?: number;
+  /** 是否必填 */
+  required?: boolean;
+  /** 验证函数 */
+  validator?: (value: T[keyof T]) => boolean | string;
+  /** Excel 列宽 */
+  width?: number;
+  /** Excel 数字格式 */
+  numFmt?: string;
 }
 
 /**
- * 导出配置
+ * 导出配置（增强版）
  */
 export interface ExportConfig<T = Record<string, unknown>> {
   /** 文件名（不含扩展名） */
@@ -48,16 +100,67 @@ export interface ExportConfig<T = Record<string, unknown>> {
   timestampFormat?: 'iso' | 'locale' | 'unix';
   /** 自定义数据处理 */
   transform?: (data: T[]) => T[];
+  /** Excel 高级选项 */
+  excelOptions?: ExcelOptions;
+  /** 数据验证回调 */
+  onValidate?: (row: T, index: number) => boolean | string;
+  /** 导出前回调 */
+  onBeforeExport?: (data: T[]) => T[];
+  /** 导出后回调 */
+  onAfterExport?: (result: ExportResult) => void;
 }
 
 /**
- * 导出结果
+ * 导出结果（增强版）
  */
 export interface ExportResult {
   success: boolean;
   blob?: Blob;
   filename?: string;
   error?: string;
+  /** 导出的行数 */
+  rowCount?: number;
+  /** 导出的列数 */
+  columnCount?: number;
+  /** 警告信息 */
+  warnings?: string[];
+  /** 验证错误 */
+  validationErrors?: Array<{ row: number; field: string; message: string }>;
+}
+
+/**
+ * 导出模板
+ */
+export interface ExportTemplate<T = Record<string, unknown>> {
+  /** 模板ID */
+  id: string;
+  /** 模板名称 */
+  name: string;
+  /** 模板描述 */
+  description?: string;
+  /** 字段配置 */
+  fields: ExportField<T>[];
+  /** 默认配置 */
+  defaultConfig?: Partial<ExportConfig<T>>;
+  /** 创建时间 */
+  createdAt?: string;
+  /** 更新时间 */
+  updatedAt?: string;
+}
+
+/**
+ * 多工作表配置
+ */
+export interface MultiSheetConfig<T = Record<string, unknown>> {
+  /** 文件名 */
+  filename: string;
+  /** 工作表配置列表 */
+  sheets: Array<{
+    name: string;
+    data: T[];
+    fields: ExportField<T>[];
+    config?: Partial<ExportConfig<T>>;
+  }>;
 }
 
 // ============================================================================
