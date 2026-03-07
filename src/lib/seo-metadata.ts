@@ -7,8 +7,24 @@ import type { Metadata } from 'next';
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.studio';
 
+// 有效的 locale 类型
+type ValidLocale = 'zh' | 'en';
+
+// 验证并规范化 locale
+function normalizeLocale(locale: string | undefined | null): ValidLocale {
+  if (locale === 'en') return 'en';
+  return 'zh'; // 默认中文
+}
+
 // 多语言 SEO 配置
-export const seoConfig = {
+export const seoConfig: Record<ValidLocale, {
+  siteName: string;
+  title: string;
+  description: string;
+  keywords: string[];
+  ogImage: string;
+  locale: string;
+}> = {
   zh: {
     siteName: '7zi Studio',
     title: '7zi Studio - AI 驱动的创新数字工作室',
@@ -100,11 +116,14 @@ export const pageSeoConfigs: Record<string, PageSeoConfig> = {
 // 生成多语言 Metadata
 export function generatePageMetadata(
   pageKey: string,
-  locale: 'zh' | 'en' = 'zh'
+  locale?: string | null
 ): Metadata {
+  // 防御性代码：规范化 locale，确保始终是有效值
+  const normalizedLocale: ValidLocale = normalizeLocale(locale);
+  const seo = seoConfig[normalizedLocale];
   const config = pageSeoConfigs[pageKey];
-  const seo = seoConfig[locale];
   
+  // 如果页面配置不存在，返回默认 SEO
   if (!config) {
     return {
       title: seo.title,
@@ -112,11 +131,11 @@ export function generatePageMetadata(
     };
   }
 
-  const title = locale === 'zh' ? config.title : config.titleEn;
-  const description = locale === 'zh' ? config.description : config.descriptionEn;
-  const keywords = locale === 'zh' ? config.keywords : config.keywordsEn;
-  const url = `${baseUrl}/${locale}${config.path}`;
-  const alternateUrl = `${baseUrl}/${locale === 'zh' ? 'en' : 'zh'}${config.path}`;
+  const title = normalizedLocale === 'zh' ? config.title : config.titleEn;
+  const description = normalizedLocale === 'zh' ? config.description : config.descriptionEn;
+  const keywords = normalizedLocale === 'zh' ? config.keywords : config.keywordsEn;
+  const url = `${baseUrl}/${normalizedLocale}${config.path}`;
+  const alternateUrl = `${baseUrl}/${normalizedLocale === 'zh' ? 'en' : 'zh'}${config.path}`;
 
   return {
     title,
@@ -179,8 +198,9 @@ export function generateHreflangLinks(path: string = ''): Array<{ hreflang: stri
 }
 
 // WebSite Schema 生成器
-export function generateWebSiteSchema(locale: 'zh' | 'en' = 'zh') {
-  const seo = seoConfig[locale];
+export function generateWebSiteSchema(locale?: string | null) {
+  const normalizedLocale: ValidLocale = normalizeLocale(locale);
+  const seo = seoConfig[normalizedLocale];
   
   return {
     '@context': 'https://schema.org',
@@ -188,7 +208,7 @@ export function generateWebSiteSchema(locale: 'zh' | 'en' = 'zh') {
     name: seo.siteName,
     url: baseUrl,
     description: seo.description,
-    inLanguage: locale === 'zh' ? 'zh-CN' : 'en-US',
+    inLanguage: normalizedLocale === 'zh' ? 'zh-CN' : 'en-US',
     publisher: {
       '@type': 'Organization',
       name: seo.siteName,
@@ -202,7 +222,7 @@ export function generateWebSiteSchema(locale: 'zh' | 'en' = 'zh') {
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: `${baseUrl}/${locale}/blog?search={search_term_string}`,
+        urlTemplate: `${baseUrl}/${normalizedLocale}/blog?search={search_term_string}`,
       },
       'query-input': 'required name=search_term_string',
     },
@@ -210,21 +230,23 @@ export function generateWebSiteSchema(locale: 'zh' | 'en' = 'zh') {
 }
 
 // Organization Schema 生成器
-export function generateOrganizationSchema(locale: 'zh' | 'en' = 'zh') {
+export function generateOrganizationSchema(locale?: string | null) {
+  const normalizedLocale: ValidLocale = normalizeLocale(locale);
+  
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: '7zi Studio',
     url: baseUrl,
     logo: `${baseUrl}/logo.png`,
-    description: locale === 'zh' 
+    description: normalizedLocale === 'zh' 
       ? '由 11 位 AI 代理组成的创新数字工作室，提供网站开发、品牌设计、营销推广等全方位数字化服务'
       : 'An innovative digital studio powered by 11 AI agents, providing comprehensive digital services',
     foundingDate: '2024',
     founders: [
       {
         '@type': 'Person',
-        name: locale === 'zh' ? '宋琢环球旅行' : 'Song Zhuo Global Travel',
+        name: normalizedLocale === 'zh' ? '宋琢环球旅行' : 'Song Zhuo Global Travel',
       },
     ],
     contactPoint: {
@@ -244,16 +266,18 @@ export function generateOrganizationSchema(locale: 'zh' | 'en' = 'zh') {
 // Breadcrumb Schema 生成器
 export function generateBreadcrumbSchema(
   items: Array<{ name: string; nameEn: string; path: string }>,
-  locale: 'zh' | 'en' = 'zh'
+  locale?: string | null
 ) {
+  const normalizedLocale: ValidLocale = normalizeLocale(locale);
+  
   return {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: items.map((item, index) => ({
       '@type': 'ListItem',
       position: index + 1,
-      name: locale === 'zh' ? item.name : item.nameEn,
-      item: `${baseUrl}/${locale}${item.path}`,
+      name: normalizedLocale === 'zh' ? item.name : item.nameEn,
+      item: `${baseUrl}/${normalizedLocale}${item.path}`,
     })),
   };
 }
@@ -261,17 +285,19 @@ export function generateBreadcrumbSchema(
 // FAQ Schema 生成器
 export function generateFAQSchema(
   faqs: Array<{ question: string; questionEn?: string; answer: string; answerEn?: string }>,
-  locale: 'zh' | 'en' = 'zh'
+  locale?: string | null
 ) {
+  const normalizedLocale: ValidLocale = normalizeLocale(locale);
+  
   return {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
     mainEntity: faqs.map((faq) => ({
       '@type': 'Question',
-      name: locale === 'zh' ? faq.question : (faq.questionEn || faq.question),
+      name: normalizedLocale === 'zh' ? faq.question : (faq.questionEn || faq.question),
       acceptedAnswer: {
         '@type': 'Answer',
-        text: locale === 'zh' ? faq.answer : (faq.answerEn || faq.answer),
+        text: normalizedLocale === 'zh' ? faq.answer : (faq.answerEn || faq.answer),
       },
     })),
   };
@@ -286,14 +312,16 @@ export function generateServiceSchema(
     descriptionEn: string;
     path: string;
   },
-  locale: 'zh' | 'en' = 'zh'
+  locale?: string | null
 ) {
+  const normalizedLocale: ValidLocale = normalizeLocale(locale);
+  
   return {
     '@context': 'https://schema.org',
     '@type': 'Service',
-    name: locale === 'zh' ? service.name : service.nameEn,
-    description: locale === 'zh' ? service.description : service.descriptionEn,
-    url: `${baseUrl}/${locale}${service.path}`,
+    name: normalizedLocale === 'zh' ? service.name : service.nameEn,
+    description: normalizedLocale === 'zh' ? service.description : service.descriptionEn,
+    url: `${baseUrl}/${normalizedLocale}${service.path}`,
     provider: {
       '@type': 'Organization',
       name: '7zi Studio',
@@ -301,23 +329,25 @@ export function generateServiceSchema(
     },
     areaServed: {
       '@type': 'Country',
-      name: locale === 'zh' ? 'China' : 'Worldwide',
+      name: normalizedLocale === 'zh' ? 'China' : 'Worldwide',
     },
   };
 }
 
 // LocalBusiness Schema（如果有实体地址）
-export function generateLocalBusinessSchema(locale: 'zh' | 'en' = 'zh') {
+export function generateLocalBusinessSchema(locale?: string | null) {
+  const normalizedLocale: ValidLocale = normalizeLocale(locale);
+  
   return {
     '@context': 'https://schema.org',
     '@type': 'ProfessionalService',
     name: '7zi Studio',
-    description: locale === 'zh'
+    description: normalizedLocale === 'zh'
       ? 'AI 驱动的创新数字工作室'
       : 'AI-Powered Digital Innovation Studio',
     url: baseUrl,
     email: 'business@7zi.studio',
-    priceRange: '$$',
+    priceRange: '1725557',
     openingHours: 'Mo-Su 00:00-24:00', // 24/7 服务
   };
 }
@@ -325,14 +355,16 @@ export function generateLocalBusinessSchema(locale: 'zh' | 'en' = 'zh') {
 // 组合 Schema 生成器（用于页面）
 export function generatePageSchemas(
   schemas: Array<{ type: string; data: unknown }>,
-  locale: 'zh' | 'en' = 'zh'
+  locale?: string | null
 ) {
+  const normalizedLocale: ValidLocale = normalizeLocale(locale);
+  
   return schemas.map(({ type, data }) => {
     switch (type) {
       case 'website':
-        return generateWebSiteSchema(locale);
+        return generateWebSiteSchema(normalizedLocale);
       case 'organization':
-        return generateOrganizationSchema(locale);
+        return generateOrganizationSchema(normalizedLocale);
       default:
         return data;
     }
