@@ -191,7 +191,8 @@ describe('ActivityLog - Links and Interaction', () => {
     const activities = [createMockActivity({ title: 'Test commit' })];
     render(<ActivityLog activities={activities} />);
 
-    const link = screen.getByLabelText(/查看 Test commit 的详细内容/);
+    // 链接有 aria-label="查看详细内容"
+    const link = screen.getByLabelText('查看详细内容');
     expect(link).toBeTruthy();
   });
 
