@@ -3,7 +3,7 @@
 **最后更新**: 2026-03-07  
 **仓库**: https://github.com/songzuo/7zi  
 **主站**: https://7zi.com  
-**文档状态**: 🟢 良好 (23/25 核心文档)
+**文档状态**: 🟢 良好 (24/26 核心文档)
 
 ---
 
@@ -17,9 +17,9 @@
 | 集成文档 | 100% (3/3) | 🟢 完整 |
 | AI 团队文档 | 100% (3/3) | 🟢 完整 |
 | 运维文档 | 67% (2/3) | 🟢 良好 |
-| API 文档 | 100% (6/6) | 🟢 完整 |
+| API 文档 | 100% (7/7) | 🟢 完整 |
 
-**总体完成度**: 92% (23/25)
+**总体完成度**: 92% (24/26)
 
 ---
 
@@ -77,6 +77,7 @@
 | [COMPONENTS.md](./COMPONENTS.md) | 组件参考 | ✅ |
 | [EXAMPLES.md](./EXAMPLES.md) | 使用示例 | ✅ |
 | [REST-API.md](./REST-API.md) | REST API 文档 | ✅ |
+| [PERMISSIONS.md](./PERMISSIONS.md) | 权限系统文档 | ✅ |
 | [PERFORMANCE_OPTIMIZATION.md](./PERFORMANCE_OPTIMIZATION.md) | 性能优化 | ✅ |
 
 ---
@@ -84,6 +85,7 @@
 ## 🆕 最近更新
 
 ### 2026-03-07
+- ✅ 创建 `PERMISSIONS.md` - 完整权限系统文档
 - ✅ 更新 `CHANGELOG.md` - 添加 v1.0.4 文档更新记录
 - ✅ 更新 `INDEX.md` - 文档状态统计修正，简化结构
 - ✅ 验证文档链接 - 修复无效链接

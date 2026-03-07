@@ -78,8 +78,9 @@ export default [
         useReducer: "readonly",
         useContext: "readonly",
         useLayoutEffect: "readonly",
+        JSX: "readonly",
         
-        // DOM types used in tests
+        // DOM and Browser API types
         HTMLImageElement: "readonly",
         HTMLCanvasElement: "readonly",
         MediaQueryListEvent: "readonly",
@@ -90,6 +91,7 @@ export default [
         IntersectionObserver: "readonly",
         ResizeObserver: "readonly",
         PerformanceObserver: "readonly",
+        PerformanceObserverEntryList: "readonly",
         WebSocket: "readonly",
         Worker: "readonly",
         File: "readonly",
@@ -107,11 +109,27 @@ export default [
         HTMLScriptElement: "readonly",
         SVGGElement: "readonly",
         Node: "readonly",
+        EventTarget: "readonly",
+        KeyboardEvent: "readonly",
+        TextEncoder: "readonly",
+        TextDecoder: "readonly",
         performance: "readonly",
         PerformanceEntry: "readonly",
         FrameRequestCallback: "readonly",
         HeadersInit: "readonly",
         NodeJS: "readonly",
+        
+        // WebSocket events
+        MessageEvent: "readonly",
+        CloseEvent: "readonly",
+        
+        // Notification API
+        Notification: "readonly",
+        NotificationPermission: "readonly",
+        NotificationOptions: "readonly",
+        
+        // Export types (used in components)
+        ExportFormat: "readonly",
       },
     },
     plugins: {
@@ -135,6 +153,11 @@ export default [
       "no-console": "warn",
       "no-debugger": "warn",
       "no-unused-vars": "off", // Use TypeScript's version
+      "no-undef": "off", // TypeScript handles this
+      "no-redeclare": "off", // TypeScript handles this
+      
+      // TypeScript specific
+      "@typescript-eslint/ban-ts-comment": "warn",
     },
   },
 

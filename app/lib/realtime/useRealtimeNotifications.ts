@@ -330,7 +330,7 @@ export function useRealtimeNotifications(
     return () => {
       disconnect();
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   return {
     notifications,
