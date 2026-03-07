@@ -327,7 +327,7 @@ SkeletonPage.displayName = 'SkeletonPage';
 // 统一导出
 // ============================================================================
 
-export default {
+const SkeletonComponents = {
   Text: SkeletonText,
   Avatar: SkeletonAvatar,
   Card: SkeletonCard,
@@ -337,3 +337,5 @@ export default {
   Nav: SkeletonNav,
   Page: SkeletonPage,
 };
+
+export default SkeletonComponents;

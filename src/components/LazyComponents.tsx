@@ -14,7 +14,7 @@
 
 import dynamic from 'next/dynamic';
 import { LoadingSpinner } from './LoadingSpinner';
-import { useCallback, useEffect, useState, useRef, ComponentType } from 'react';
+import { useEffect, useState, useRef, ComponentType } from 'react';
 
 // Loading 占位组件
 const LoadingPlaceholder = () => (

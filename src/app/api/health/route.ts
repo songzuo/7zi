@@ -46,7 +46,7 @@ export async function GET() {
     const statusCode = healthStatus.status === 'healthy' ? 200 : 503;
     
     return NextResponse.json(healthStatus, { status: statusCode });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json(
       {
         status: 'unhealthy',

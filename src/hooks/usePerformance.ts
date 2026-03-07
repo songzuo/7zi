@@ -5,7 +5,7 @@
  * @description 提供性能监控和优化相关的 React Hooks
  */
 
-import { useState, useEffect, useCallback, useRef, useSyncExternalStore } from 'react';
+import { useState, useEffect, useRef, useSyncExternalStore } from 'react';
 
 /**
  * 视口检测 Hook
@@ -108,7 +108,7 @@ export function useThrottle<T>(value: T, limit: number = 100): T {
  */
 export function useDevicePerformance() {
   // 使用惰性初始化避免在 effect 中同步调用 setState
-  const [performance, setPerformance] = useState(() => {
+  const [performance] = useState(() => {
     if (typeof window === 'undefined') {
       return {
         isLowEnd: false,
@@ -252,7 +252,7 @@ export function useScrollPosition(throttleMs: number = 100) {
   return scroll;
 }
 
-export default {
+const performanceHooks = {
   useInView,
   usePreload,
   useDebounce,
@@ -263,3 +263,5 @@ export default {
   useWindowSize,
   useScrollPosition,
 };
+
+export default performanceHooks;

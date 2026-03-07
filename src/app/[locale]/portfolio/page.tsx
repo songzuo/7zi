@@ -5,11 +5,10 @@ import { ClientProviders, ThemeToggle } from '@/components/ClientProviders';
 import MobileMenu from '@/components/MobileMenu';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { StructuredData } from '@/components/SEO';
-import { PortfolioGrid } from './components/PortfolioGrid';
-import { CategoryFilter } from './components/CategoryFilter';
-import { projects } from '@/data/projects';
 import type { Metadata } from 'next';
-import { Suspense } from 'react';
+import { projects, ProjectCategory } from './data';
+import PortfolioGrid from './components/PortfolioGrid';
+import CategoryFilter from './components/CategoryFilter';
 
 type Params = Promise<{ locale: string }>;
 
@@ -19,13 +18,13 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const { locale } = await params;
   
   const titles = {
-    zh: '项目案例 - 作品展示',
-    en: 'Portfolio - Our Work',
+    zh: '作品案例 - 7zi Studio 项目展示',
+    en: 'Portfolio - 7zi Studio Projects',
   };
   
   const descriptions = {
-    zh: '7zi Studio 项目案例展示，包括网站开发、移动应用、AI 解决方案和品牌设计作品',
-    en: '7zi Studio portfolio showcasing our web development, mobile apps, AI solutions, and brand design work',
+    zh: '7zi Studio 作品案例展示 - 网站开发、移动应用、AI 解决方案、品牌设计，每一个项目都是我们对品质的追求。',
+    en: '7zi Studio portfolio showcase - From web development to AI solutions, every project represents our commitment to quality.',
   };
 
   return {
@@ -37,20 +36,11 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
       url: `${baseUrl}/${locale}/portfolio`,
       type: 'website',
       locale: locale === 'zh' ? 'zh_CN' : 'en_US',
-      images: [
-        {
-          url: `${baseUrl}/og-image.png`,
-          width: 1200,
-          height: 630,
-          alt: titles[locale as 'zh' | 'en'] || titles.zh,
-        },
-      ],
     },
     twitter: {
       card: 'summary_large_image',
       title: titles[locale as 'zh' | 'en'] || titles.zh,
       description: descriptions[locale as 'zh' | 'en'] || descriptions.zh,
-      images: [`${baseUrl}/og-image.png`],
     },
     alternates: {
       canonical: `${baseUrl}/${locale}/portfolio`,
@@ -62,20 +52,18 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   };
 }
 
-// Pre-generated particles
-const HERO_PARTICLES = Array.from({ length: 12 }, (_, i) => ({
-  left: `${(i * 8.33) % 100}%`,
-  top: `${(i * 7 + 15) % 70}%`,
-  animationDelay: `${(i * 0.2) % 2}s`,
-  animationDuration: `${2 + (i % 3) * 0.5}s`,
-}));
-
-export default async function PortfolioPage({ params, searchParams }: { params: Params; searchParams: Promise<{ category?: string }> }) {
+export default async function PortfolioPage({ 
+  params,
+  searchParams 
+}: { 
+  params: Params;
+  searchParams: Promise<{ category?: string }>;
+}) {
   const { locale } = await params;
   const { category } = await searchParams;
   
   if (!locales.includes(locale as Locale)) {
-    // Handle invalid locale
+    // notFound()
   }
   
   setRequestLocale(locale);
@@ -84,39 +72,21 @@ export default async function PortfolioPage({ params, searchParams }: { params: 
   const tPortfolio = await getTranslations({ locale, namespace: 'portfolio' });
 
   // Filter projects by category
-  const activeCategory = category || 'all';
+  const activeCategory: ProjectCategory | 'all' = (category as ProjectCategory) || 'all';
   const filteredProjects = activeCategory === 'all' 
     ? projects 
     : projects.filter(p => p.category === activeCategory);
 
   return (
     <ClientProviders>
-      <div className="min-h-screen bg-zinc-50 dark:bg-black transition-colors duration-300">
-        {/* SEO Structured Data */}
-        <StructuredData
-          locale={locale as 'zh' | 'en'}
-          schemas={['website', 'organization']}
-          customSchemas={[
-            {
-              '@context': 'https://schema.org',
-              '@type': 'CollectionPage',
-              name: locale === 'zh' ? '7zi Studio 项目案例' : '7zi Studio Portfolio',
-              description: locale === 'zh'
-                ? '7zi Studio 项目案例展示'
-                : '7zi Studio portfolio showcase',
-              url: `${baseUrl}/${locale}/portfolio`,
-            },
-          ]}
-        />
-
+      <div className="min-h-screen bg-zinc-50 dark:bg-black">
         {/* Navigation */}
         <nav className="fixed top-0 left-0 right-0 z-40 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg border-b border-zinc-200 dark:border-zinc-800" aria-label="Main navigation">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-            <Link href="/" className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white touch-feedback" aria-label="7zi Studio Home">
+            <Link href="/" className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">
               7zi<span className="text-cyan-500">Studio</span>
             </Link>
             <div className="flex items-center gap-2 sm:gap-4">
-              {/* Desktop Navigation */}
               <div className="hidden lg:flex items-center gap-6">
                 <Link href="/about" className="text-zinc-600 dark:text-zinc-400 hover:text-cyan-500 transition-colors">
                   {tNav('about')}
@@ -124,31 +94,21 @@ export default async function PortfolioPage({ params, searchParams }: { params: 
                 <Link href="/team" className="text-zinc-600 dark:text-zinc-400 hover:text-cyan-500 transition-colors">
                   {tNav('team')}
                 </Link>
+                <Link href="/portfolio" className="text-cyan-500 font-medium">
+                  {tNav('portfolio')}
+                </Link>
                 <Link href="/blog" className="text-zinc-600 dark:text-zinc-400 hover:text-cyan-500 transition-colors">
                   {tNav('blog')}
                 </Link>
-                <Link href="/portfolio" className="text-cyan-500 font-medium">
-                  {locale === 'zh' ? '作品' : 'Portfolio'}
-                </Link>
-                <a
-                  href="https://visa.7zi.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-zinc-600 dark:text-zinc-400 hover:text-cyan-500 transition-colors"
-                >
-                  {tNav('global')}
-                </a>
                 <ThemeToggle />
                 <LanguageSwitcher />
                 <Link
                   href="/contact"
-                  className="px-5 py-2 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-full font-medium hover:shadow-lg hover:shadow-cyan-500/25 transition-all touch-feedback"
+                  className="px-5 py-2 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-full font-medium hover:shadow-lg hover:shadow-cyan-500/25 transition-all"
                 >
                   {tNav('contact')}
                 </Link>
               </div>
-              
-              {/* Mobile Navigation */}
               <div className="flex lg:hidden items-center gap-2">
                 <LanguageSwitcher />
                 <ThemeToggle />
@@ -158,143 +118,133 @@ export default async function PortfolioPage({ params, searchParams }: { params: 
           </div>
         </nav>
 
-        {/* Hero Section */}
-        <section className="relative pt-32 pb-16 sm:pt-40 sm:pb-20 px-6 overflow-hidden">
-          {/* Background Effects */}
-          <div className="absolute inset-0 bg-gradient-to-br from-zinc-50 via-white to-zinc-100 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950" />
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl" aria-hidden="true" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" aria-hidden="true" />
-          
-          {/* Animated Particles */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-            {HERO_PARTICLES.map((particle, i) => (
-              <div
-                key={i}
-                className="absolute w-1 h-1 bg-cyan-500/30 rounded-full animate-pulse"
-                style={particle}
-              />
-            ))}
-          </div>
+        {/* SEO Structured Data */}
+        <StructuredData
+          locale={locale as 'zh' | 'en'}
+          schemas={['website', 'organization']}
+        />
 
-          <div className="relative z-10 max-w-4xl mx-auto text-center">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-100 dark:bg-cyan-900/30 rounded-full text-cyan-600 dark:text-cyan-400 text-sm font-medium mb-6">
-              <span className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse" aria-hidden="true" />
-              {locale === 'zh' ? '精选案例' : 'Featured Work'}
+        {/* Hero */}
+        <section className="pt-32 pb-16 px-6 bg-gradient-to-br from-cyan-900 via-purple-900 to-zinc-900">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-cyan-400 text-sm font-medium mb-6 border border-white/20">
+              <span className="animate-pulse">✨</span>
+              {tPortfolio('hero.badge')}
             </div>
-            
-            {/* Heading */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-zinc-900 dark:text-white mb-6">
-              {locale === 'zh' ? (
-                <>
-                  我们的作品
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-purple-500">展示</span>
-                </>
-              ) : (
-                <>
-                  Our{' '}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-purple-500">Portfolio</span>
-                </>
-              )}
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+              {tPortfolio('hero.title')}
             </h1>
-            
-            <p className="text-lg sm:text-xl text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
-              {locale === 'zh'
-                ? '从网站开发到 AI 解决方案，每一个项目都是我们对品质的追求'
-                : 'From web development to AI solutions, every project reflects our commitment to quality'}
+            <p className="text-xl text-zinc-300 max-w-2xl mx-auto">
+              {tPortfolio('hero.description')}
             </p>
-
-            {/* Stats */}
-            <div className="flex justify-center gap-8 sm:gap-12 mt-10">
-              <div className="text-center">
-                <div className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-500">
-                  {projects.length}+
-                </div>
-                <div className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
-                  {locale === 'zh' ? '完成项目' : 'Projects'}
-                </div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500">
-                  100%
-                </div>
-                <div className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
-                  {locale === 'zh' ? '客户满意' : 'Satisfaction'}
-                </div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500">
-                  24/7
-                </div>
-                <div className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
-                  {locale === 'zh' ? '在线支持' : 'Support'}
-                </div>
-              </div>
-            </div>
           </div>
         </section>
 
         {/* Category Filter */}
-        <section className="px-6 pb-8">
-          <div className="max-w-7xl mx-auto">
-            <Suspense fallback={<div className="h-12" />}>
-              <CategoryFilterWrapper locale={locale} activeCategory={activeCategory} />
-            </Suspense>
+        <section className="py-12 px-6 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
+          <div className="max-w-6xl mx-auto">
+            <CategoryFilter 
+              activeCategory={activeCategory}
+              onCategoryChange={(_cat) => {
+                // Client-side navigation will be handled by the component
+              }}
+              labels={{
+                all: tPortfolio('categories.all'),
+                website: tPortfolio('categories.website'),
+                app: tPortfolio('categories.app'),
+                ai: tPortfolio('categories.ai'),
+                design: tPortfolio('categories.design'),
+              }}
+            />
           </div>
         </section>
 
         {/* Portfolio Grid */}
-        <section className="px-6 pb-20">
-          <div className="max-w-7xl mx-auto">
-            <PortfolioGrid projects={filteredProjects} locale={locale} />
+        <section className="py-20 px-6">
+          <div className="max-w-6xl mx-auto">
+            <PortfolioGrid
+              projects={filteredProjects}
+              locale={locale}
+              labels={{
+                viewDetails: tPortfolio('card.viewDetails'),
+              }}
+              emptyMessage={{
+                title: tPortfolio('empty.title'),
+                description: tPortfolio('empty.description'),
+              }}
+            />
           </div>
         </section>
 
-        {/* CTA Section */}
-        <section className="py-16 sm:py-20 px-6 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 animate-gradient bg-[length:200%_200%] relative overflow-hidden">
-          <div className="max-w-3xl mx-auto text-center relative z-10">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-6">
-              {locale === 'zh' ? '准备好开始您的项目了吗？' : 'Ready to Start Your Project?'}
+        {/* CTA */}
+        <section className="py-20 px-6 bg-gradient-to-r from-cyan-500 to-purple-600">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+              {tPortfolio('cta.title')}
             </h2>
-            <p className="text-lg sm:text-xl text-white/80 mb-8">
-              {locale === 'zh'
-                ? '让我们一起将您的想法变为现实'
-                : "Let's bring your ideas to life together"}
+            <p className="text-xl text-white/80 mb-8">
+              {tPortfolio('cta.description')}
             </p>
             <Link
               href="/contact"
-              className="group inline-flex items-center justify-center gap-2 bg-white text-cyan-600 px-6 sm:px-8 py-4 rounded-full font-semibold text-lg hover:bg-cyan-50 transition-all hover:shadow-xl hover:-translate-y-1"
+              className="group inline-flex items-center gap-3 bg-white text-cyan-600 px-10 py-5 rounded-full font-semibold text-lg hover:bg-cyan-50 transition-all duration-300 hover:shadow-2xl hover:scale-105"
             >
-              {locale === 'zh' ? '立即咨询' : 'Contact Us Now'}
-              <span className="group-hover:translate-x-1 transition-transform" aria-hidden="true">→</span>
+              {tPortfolio('cta.button')}
+              <span className="group-hover:translate-x-2 transition-transform duration-300" aria-hidden="true">→</span>
             </Link>
           </div>
         </section>
+
+        {/* Footer */}
+        <footer className="py-12 px-6 bg-zinc-900 text-zinc-400" role="contentinfo">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+              <div className="text-2xl font-bold text-white">
+                7zi<span className="text-cyan-500">Studio</span>
+              </div>
+              <nav aria-label="Footer navigation">
+                <ul className="flex gap-8">
+                  <li><Link href="/" className="hover:text-white transition-colors">{tNav('home')}</Link></li>
+                  <li><Link href="/about" className="hover:text-white transition-colors">{tNav('about')}</Link></li>
+                  <li><Link href="/team" className="hover:text-white transition-colors">{tNav('team')}</Link></li>
+                  <li><Link href="/blog" className="hover:text-white transition-colors">{tNav('blog')}</Link></li>
+                </ul>
+              </nav>
+              <div className="text-sm">
+                © 2024 7zi Studio. All rights reserved.
+              </div>
+            </div>
+          </div>
+        </footer>
+
+        {/* Structured Data for Portfolio Page */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "CollectionPage",
+              name: locale === 'zh' ? "7zi Studio 作品案例" : "7zi Studio Portfolio",
+              description: locale === 'zh' ? "网站开发、移动应用、AI 解决方案、品牌设计项目展示" : "Web development, mobile apps, AI solutions, and brand design projects",
+              url: `${baseUrl}/${locale}/portfolio`,
+              mainEntity: {
+                "@type": "ItemList",
+                numberOfItems: projects.length,
+                itemListElement: projects.map((project, index) => ({
+                  "@type": "ListItem",
+                  position: index + 1,
+                  item: {
+                    "@type": "CreativeWork",
+                    name: locale === 'zh' ? project.titleZh : project.title,
+                    description: locale === 'zh' ? project.descriptionZh : project.description,
+                    image: project.thumbnail,
+                  },
+                })),
+              },
+            }),
+          }}
+        />
       </div>
     </ClientProviders>
   );
-}
-
-// Client component wrapper for category filter with URL sync
-'use client';
-import { useSearchParams, usePathname, useRouter } from 'next/navigation';
-import { useCallback } from 'react';
-
-function CategoryFilterWrapper({ locale, activeCategory }: { locale: string; activeCategory: string }) {
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const router = useRouter();
-
-  const handleCategoryChange = useCallback((category: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (category === 'all') {
-      params.delete('category');
-    } else {
-      params.set('category', category);
-    }
-    const newUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
-    router.push(newUrl);
-  }, [searchParams, pathname, router]);
-
-  return <CategoryFilter activeCategory={activeCategory} onCategoryChange={handleCategoryChange} locale={locale} />;
 }

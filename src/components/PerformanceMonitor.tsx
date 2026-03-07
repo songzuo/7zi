@@ -82,7 +82,7 @@ export function PerformanceMonitor() {
           setMetrics((prev) => ({ ...prev, lcp: lastEntry.startTime }));
         });
         lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true });
-      } catch (e) {
+      } catch (_e) {
         // Browser doesn't support this API
       }
 
@@ -94,7 +94,7 @@ export function PerformanceMonitor() {
           setMetrics((prev) => ({ ...prev, fid: firstEntry.processingStart - firstEntry.startTime }));
         });
         fidObserver.observe({ type: 'first-input', buffered: true });
-      } catch (e) {
+      } catch (_e) {
         // Browser doesn't support this API
       }
 
@@ -111,7 +111,7 @@ export function PerformanceMonitor() {
           setMetrics((prev) => ({ ...prev, cls: clsValue }));
         });
         clsObserver.observe({ type: 'layout-shift', buffered: true });
-      } catch (e) {
+      } catch (_e) {
         // Browser doesn't support this API
       }
 
@@ -201,7 +201,7 @@ export function ResourceTimingMonitor() {
 
     try {
       observer.observe({ type: 'resource', buffered: true });
-    } catch (e) {
+    } catch (_e) {
       // API not supported
     }
 

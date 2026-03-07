@@ -382,13 +382,15 @@ export const LazyLoadImage: React.FC<LazyLoadImageProps> = memo(({
   }, []);
 
   // 默认响应式 sizes
-  const responsiveSizes = sizes || useMemo(() => `
+  const responsiveSizes = useMemo(() => {
+    return sizes || `
     (max-width: 480px) 100vw,
     (max-width: 768px) 50vw,
     (max-width: 1024px) 33vw,
     (max-width: 1280px) 25vw,
     20vw
-  `, []);
+  `;
+  }, [sizes]);
 
   // 渲染占位符
   const renderPlaceholder = useCallback(() => {

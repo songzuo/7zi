@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
 interface UseIntersectionObserverOptions {
   threshold?: number | number[];
@@ -10,7 +10,7 @@ interface UseIntersectionObserverOptions {
 }
 
 interface UseIntersectionObserverReturn {
-  ref: React.RefObject<HTMLElement | null>;
+  ref: (node: HTMLElement | null) => void;
   isIntersecting: boolean;
   entry?: IntersectionObserverEntry;
 }
@@ -25,13 +25,18 @@ export function useIntersectionObserver(
     freezeOnceVisible = false,
   } = options;
 
-  const ref = useRef<HTMLElement>(null);
+  const [element, setElement] = useState<HTMLElement | null>(null);
   const [isIntersecting, setIsIntersecting] = useState(false);
   const [entry, setEntry] = useState<IntersectionObserverEntry>();
+  const frozenRef = useRef(false);
+
+  // Callback ref to track element
+  const ref = useCallback((node: HTMLElement | null) => {
+    setElement(node);
+  }, []);
 
   useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
+    if (!element || frozenRef.current) return;
 
     const observer = new IntersectionObserver(
       ([observedEntry]) => {
@@ -39,6 +44,7 @@ export function useIntersectionObserver(
         setIsIntersecting(observedEntry.isIntersecting);
 
         if (observedEntry.isIntersecting && (triggerOnce || freezeOnceVisible)) {
+          frozenRef.current = true;
           observer.unobserve(element);
         }
       },
@@ -51,11 +57,9 @@ export function useIntersectionObserver(
     observer.observe(element);
 
     return () => {
-      if (element) {
-        observer.unobserve(element);
-      }
+      observer.unobserve(element);
     };
-  }, [threshold, rootMargin, triggerOnce, freezeOnceVisible]);
+  }, [element, threshold, rootMargin, triggerOnce, freezeOnceVisible]);
 
   return { ref, isIntersecting, entry };
 }
@@ -65,7 +69,7 @@ export function useAnimateOnView(
   animationClass: string = 'animate-in fade-in slide-up-8',
   options: UseIntersectionObserverOptions = { threshold: 0.1, triggerOnce: true }
 ): {
-  ref: React.RefObject<HTMLElement | null>;
+  ref: (node: HTMLElement | null) => void;
   isVisible: boolean;
   className: string;
 } {
@@ -73,7 +77,6 @@ export function useAnimateOnView(
   const [hasAnimated, setHasAnimated] = useState(false);
 
   // Update hasAnimated when isIntersecting becomes true
-  // Using flushSync pattern via setTimeout to batch the update
   useEffect(() => {
     if (isIntersecting && !hasAnimated) {
       // Use requestAnimationFrame to defer the state update
@@ -97,7 +100,7 @@ export function useCountUp(
   duration: number = 2000,
   options: UseIntersectionObserverOptions = { threshold: 0.5 }
 ): {
-  ref: React.RefObject<HTMLElement | null>;
+  ref: (node: HTMLElement | null) => void;
   count: number;
   isAnimating: boolean;
 } {

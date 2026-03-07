@@ -13,22 +13,26 @@ import {
 
 describe('useIntersectionObserver', () => {
   let observerCallback: ((entries: IntersectionObserverEntry[]) => void) | null = null;
-  const mockObserve = vi.fn();
-  const mockUnobserve = vi.fn();
-  const mockDisconnect = vi.fn();
+  let mockObserve: ReturnType<typeof vi.fn>;
+  let mockUnobserve: ReturnType<typeof vi.fn>;
+  let mockDisconnect: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    mockObserve = vi.fn();
+    mockUnobserve = vi.fn();
+    mockDisconnect = vi.fn();
     observerCallback = null;
 
-    const MockIntersectionObserver = vi.fn().mockImplementation((callback: (entries: IntersectionObserverEntry[]) => void) => {
-      observerCallback = callback;
-      return {
-        observe: mockObserve,
-        unobserve: mockUnobserve,
-        disconnect: mockDisconnect,
-      };
-    });
+    // Use a proper class mock
+    const MockIntersectionObserver = vi.fn().mockImplementation(
+      function(this: IntersectionObserver, callback: (entries: IntersectionObserverEntry[]) => void) {
+        observerCallback = callback;
+        this.observe = mockObserve;
+        this.unobserve = mockUnobserve;
+        this.disconnect = mockDisconnect;
+        return this;
+      }
+    );
 
     vi.stubGlobal('IntersectionObserver', MockIntersectionObserver);
   });
@@ -41,7 +45,7 @@ describe('useIntersectionObserver', () => {
     const { result } = renderHook(() => useIntersectionObserver());
 
     expect(result.current.ref).toBeDefined();
-    expect(result.current.ref.current).toBeNull();
+    expect(typeof result.current.ref).toBe('function');
     expect(result.current.isIntersecting).toBe(false);
     expect(result.current.entry).toBeUndefined();
   });
@@ -68,13 +72,20 @@ describe('useIntersectionObserver', () => {
   });
 
   it('updates isIntersecting when element intersects', async () => {
-    const { result, rerender } = renderHook(() => useIntersectionObserver());
+    const { result } = renderHook(() => useIntersectionObserver());
 
     const mockElement = document.createElement('div');
-    result.current.ref.current = mockElement;
-    rerender();
+    
+    // Call the callback ref with the element
+    act(() => {
+      result.current.ref(mockElement);
+    });
 
-    await waitFor(() => expect(mockObserve).toHaveBeenCalled());
+    // Wait for the effect to run and observe to be called
+    await waitFor(
+      () => expect(mockObserve).toHaveBeenCalled(),
+      { timeout: 1000 }
+    );
 
     act(() => {
       if (observerCallback) {
@@ -96,13 +107,18 @@ describe('useIntersectionObserver', () => {
   });
 
   it('updates isIntersecting when element leaves viewport', async () => {
-    const { result, rerender } = renderHook(() => useIntersectionObserver());
+    const { result } = renderHook(() => useIntersectionObserver());
 
     const mockElement = document.createElement('div');
-    result.current.ref.current = mockElement;
-    rerender();
+    
+    act(() => {
+      result.current.ref(mockElement);
+    });
 
-    await waitFor(() => expect(mockObserve).toHaveBeenCalled());
+    await waitFor(
+      () => expect(mockObserve).toHaveBeenCalled(),
+      { timeout: 1000 }
+    );
 
     // Enter viewport
     act(() => {
@@ -140,15 +156,20 @@ describe('useIntersectionObserver', () => {
   });
 
   it('unobserves element when triggerOnce is true and element intersects', async () => {
-    const { result, rerender } = renderHook(() =>
+    const { result } = renderHook(() =>
       useIntersectionObserver({ triggerOnce: true })
     );
 
     const mockElement = document.createElement('div');
-    result.current.ref.current = mockElement;
-    rerender();
+    
+    act(() => {
+      result.current.ref(mockElement);
+    });
 
-    await waitFor(() => expect(mockObserve).toHaveBeenCalled());
+    await waitFor(
+      () => expect(mockObserve).toHaveBeenCalled(),
+      { timeout: 1000 }
+    );
 
     act(() => {
       if (observerCallback) {
@@ -168,15 +189,20 @@ describe('useIntersectionObserver', () => {
   });
 
   it('unobserves element when freezeOnceVisible is true and element intersects', async () => {
-    const { result, rerender } = renderHook(() =>
+    const { result } = renderHook(() =>
       useIntersectionObserver({ freezeOnceVisible: true })
     );
 
     const mockElement = document.createElement('div');
-    result.current.ref.current = mockElement;
-    rerender();
+    
+    act(() => {
+      result.current.ref(mockElement);
+    });
 
-    await waitFor(() => expect(mockObserve).toHaveBeenCalled());
+    await waitFor(
+      () => expect(mockObserve).toHaveBeenCalled(),
+      { timeout: 1000 }
+    );
 
     act(() => {
       if (observerCallback) {
@@ -196,13 +222,18 @@ describe('useIntersectionObserver', () => {
   });
 
   it('cleans up observer on unmount', async () => {
-    const { result, unmount, rerender } = renderHook(() => useIntersectionObserver());
+    const { result, unmount } = renderHook(() => useIntersectionObserver());
 
     const mockElement = document.createElement('div');
-    result.current.ref.current = mockElement;
-    rerender();
+    
+    act(() => {
+      result.current.ref(mockElement);
+    });
 
-    await waitFor(() => expect(mockObserve).toHaveBeenCalled());
+    await waitFor(
+      () => expect(mockObserve).toHaveBeenCalled(),
+      { timeout: 1000 }
+    );
 
     unmount();
 
@@ -212,36 +243,53 @@ describe('useIntersectionObserver', () => {
 
 describe('useAnimateOnView', () => {
   let observerCallback: ((entries: IntersectionObserverEntry[]) => void) | null = null;
-  const mockObserve = vi.fn();
-  const mockUnobserve = vi.fn();
+  let mockObserve: ReturnType<typeof vi.fn>;
+  let mockUnobserve: ReturnType<typeof vi.fn>;
+  let rafCallbacks: Array<() => void> = [];
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    mockObserve = vi.fn();
+    mockUnobserve = vi.fn();
     observerCallback = null;
+    rafCallbacks = [];
 
-    vi.useFakeTimers();
-
-    const MockIntersectionObserver = vi.fn().mockImplementation((callback: (entries: IntersectionObserverEntry[]) => void) => {
-      observerCallback = callback;
-      return {
-        observe: mockObserve,
-        unobserve: mockUnobserve,
-        disconnect: vi.fn(),
-      };
+    // Mock requestAnimationFrame to capture callbacks
+    vi.stubGlobal('requestAnimationFrame', (callback: () => void) => {
+      rafCallbacks.push(callback);
+      return rafCallbacks.length;
     });
+    vi.stubGlobal('cancelAnimationFrame', vi.fn());
+
+    const MockIntersectionObserver = vi.fn().mockImplementation(
+      function(this: IntersectionObserver, callback: (entries: IntersectionObserverEntry[]) => void) {
+        observerCallback = callback;
+        this.observe = mockObserve;
+        this.unobserve = mockUnobserve;
+        this.disconnect = vi.fn();
+        return this;
+      }
+    );
 
     vi.stubGlobal('IntersectionObserver', MockIntersectionObserver);
   });
 
   afterEach(() => {
-    vi.useRealTimers();
     vi.unstubAllGlobals();
   });
+
+  // Helper to flush RAF callbacks
+  const flushRaf = () => {
+    while (rafCallbacks.length > 0) {
+      const cb = rafCallbacks.shift();
+      if (cb) cb();
+    }
+  };
 
   it('returns ref, isVisible, and className', () => {
     const { result } = renderHook(() => useAnimateOnView());
 
     expect(result.current.ref).toBeDefined();
+    expect(typeof result.current.ref).toBe('function');
     expect(result.current.isVisible).toBe(false);
     expect(result.current.className).toBe('opacity-0');
   });
@@ -268,13 +316,18 @@ describe('useAnimateOnView', () => {
   });
 
   it('updates isVisible when element intersects', async () => {
-    const { result, rerender } = renderHook(() => useAnimateOnView());
+    const { result } = renderHook(() => useAnimateOnView());
 
     const mockElement = document.createElement('div');
-    result.current.ref.current = mockElement;
-    rerender();
+    
+    act(() => {
+      result.current.ref(mockElement);
+    });
 
-    await waitFor(() => expect(mockObserve).toHaveBeenCalled());
+    await waitFor(
+      () => expect(mockObserve).toHaveBeenCalled(),
+      { timeout: 1000 }
+    );
 
     act(() => {
       if (observerCallback) {
@@ -290,8 +343,9 @@ describe('useAnimateOnView', () => {
       }
     });
 
+    // Flush requestAnimationFrame callbacks
     act(() => {
-      vi.runAllTimers();
+      flushRaf();
     });
 
     await waitFor(() => {
@@ -302,15 +356,20 @@ describe('useAnimateOnView', () => {
   });
 
   it('applies custom animation class when visible', async () => {
-    const { result, rerender } = renderHook(() =>
+    const { result } = renderHook(() =>
       useAnimateOnView('my-custom-animation')
     );
 
     const mockElement = document.createElement('div');
-    result.current.ref.current = mockElement;
-    rerender();
+    
+    act(() => {
+      result.current.ref(mockElement);
+    });
 
-    await waitFor(() => expect(mockObserve).toHaveBeenCalled());
+    await waitFor(
+      () => expect(mockObserve).toHaveBeenCalled(),
+      { timeout: 1000 }
+    );
 
     act(() => {
       if (observerCallback) {
@@ -326,8 +385,9 @@ describe('useAnimateOnView', () => {
       }
     });
 
+    // Flush requestAnimationFrame callbacks
     act(() => {
-      vi.runAllTimers();
+      flushRaf();
     });
 
     await waitFor(() => {
@@ -340,20 +400,21 @@ describe('useAnimateOnView', () => {
 
 describe('useCountUp', () => {
   let observerCallback: ((entries: IntersectionObserverEntry[]) => void) | null = null;
-  const mockObserve = vi.fn();
+  let mockObserve: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    mockObserve = vi.fn();
     observerCallback = null;
 
-    const MockIntersectionObserver = vi.fn().mockImplementation((callback: (entries: IntersectionObserverEntry[]) => void) => {
-      observerCallback = callback;
-      return {
-        observe: mockObserve,
-        unobserve: vi.fn(),
-        disconnect: vi.fn(),
-      };
-    });
+    const MockIntersectionObserver = vi.fn().mockImplementation(
+      function(this: IntersectionObserver, callback: (entries: IntersectionObserverEntry[]) => void) {
+        observerCallback = callback;
+        this.observe = mockObserve;
+        this.unobserve = vi.fn();
+        this.disconnect = vi.fn();
+        return this;
+      }
+    );
 
     vi.stubGlobal('IntersectionObserver', MockIntersectionObserver);
   });
@@ -366,6 +427,7 @@ describe('useCountUp', () => {
     const { result } = renderHook(() => useCountUp(100));
 
     expect(result.current.ref).toBeDefined();
+    expect(typeof result.current.ref).toBe('function');
     expect(result.current.count).toBe(0);
     expect(result.current.isAnimating).toBe(false);
   });
@@ -396,13 +458,18 @@ describe('useCountUp', () => {
   });
 
   it('initializes hook without errors', async () => {
-    const { result, rerender } = renderHook(() => useCountUp(100));
+    const { result } = renderHook(() => useCountUp(100));
 
     const mockElement = document.createElement('div');
-    result.current.ref.current = mockElement;
-    rerender();
+    
+    act(() => {
+      result.current.ref(mockElement);
+    });
 
-    await waitFor(() => expect(mockObserve).toHaveBeenCalled());
+    await waitFor(
+      () => expect(mockObserve).toHaveBeenCalled(),
+      { timeout: 1000 }
+    );
 
     // Trigger intersection
     act(() => {

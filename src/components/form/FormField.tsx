@@ -259,10 +259,12 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
 
 Checkbox.displayName = 'Checkbox';
 
-export default {
+const FormComponents = {
   FormField,
   Input,
   Textarea,
   Select,
   Checkbox,
 };
+
+export default FormComponents;

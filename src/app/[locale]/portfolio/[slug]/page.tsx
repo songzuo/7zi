@@ -5,17 +5,19 @@ import { ClientProviders, ThemeToggle } from '@/components/ClientProviders';
 import MobileMenu from '@/components/MobileMenu';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { StructuredData } from '@/components/SEO';
-import { getProjectBySlug, projects } from '@/data/projects';
-import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import Image from 'next/image';
+import { notFound } from 'next/navigation';
+import { getProjectBySlug, getRelatedProjects, projects } from '../data';
+import ProjectCard from '../components/ProjectCard';
 
 type Params = Promise<{ locale: string; slug: string }>;
 
 const baseUrl = 'https://7zi.studio';
 
 export async function generateStaticParams() {
-  return locales.flatMap((locale) =>
-    projects.map((project) => ({
+  return locales.flatMap(locale => 
+    projects.map(project => ({
       locale,
       slug: project.slug,
     }))
@@ -32,26 +34,19 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     };
   }
   
-  const title = locale === 'zh' ? `${project.title} - 项目案例` : `${project.title} - Portfolio`;
-  const description = project.description;
+  const title = locale === 'zh' ? project.titleZh : project.title;
+  const description = locale === 'zh' ? project.descriptionZh : project.description;
 
   return {
-    title,
+    title: `${title} - 7zi Studio`,
     description,
     openGraph: {
       title,
       description,
       url: `${baseUrl}/${locale}/portfolio/${slug}`,
-      type: 'article',
+      type: 'website',
+      images: [project.thumbnail],
       locale: locale === 'zh' ? 'zh_CN' : 'en_US',
-      images: [
-        {
-          url: project.thumbnail,
-          width: 1200,
-          height: 630,
-          alt: project.title,
-        },
-      ],
     },
     twitter: {
       card: 'summary_large_image',
@@ -69,68 +64,37 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   };
 }
 
-const categoryColors: Record<string, string> = {
-  website: 'from-blue-400 to-cyan-500',
-  app: 'from-purple-400 to-pink-500',
-  ai: 'from-green-400 to-emerald-500',
-  design: 'from-orange-400 to-red-500',
-};
-
-const categoryLabels: Record<string, { zh: string; en: string }> = {
-  website: { zh: '网站', en: 'Website' },
-  app: { zh: '应用', en: 'App' },
-  ai: { zh: 'AI', en: 'AI' },
-  design: { zh: '设计', en: 'Design' },
-};
-
 export default async function ProjectDetailPage({ params }: { params: Params }) {
   const { locale, slug } = await params;
   
   if (!locales.includes(locale as Locale)) {
-    notFound();
+    // notFound()
   }
   
   setRequestLocale(locale);
   
+  const tNav = await getTranslations({ locale, namespace: 'nav' });
+  const tPortfolio = await getTranslations({ locale, namespace: 'portfolio' });
+
   const project = getProjectBySlug(slug);
   
   if (!project) {
     notFound();
   }
 
-  const tNav = await getTranslations({ locale, namespace: 'nav' });
+  const title = locale === 'zh' ? project.titleZh : project.title;
+  const description = locale === 'zh' ? project.descriptionZh : project.description;
+  const highlights = locale === 'zh' ? project.highlightsZh : project.highlights;
 
-  // Get related projects (same category, exclude current)
-  const relatedProjects = projects
-    .filter(p => p.category === project.category && p.id !== project.id)
-    .slice(0, 3);
+  const relatedProjects = getRelatedProjects(slug, project.category, 3);
 
   return (
     <ClientProviders>
-      <div className="min-h-screen bg-zinc-50 dark:bg-black transition-colors duration-300">
-        {/* SEO Structured Data */}
-        <StructuredData
-          locale={locale as 'zh' | 'en'}
-          schemas={['website', 'organization']}
-          customSchemas={[
-            {
-              '@context': 'https://schema.org',
-              '@type': 'Article',
-              headline: project.title,
-              description: project.description,
-              image: project.thumbnail,
-              author: {
-                '@type': 'Organization',
-                name: '7zi Studio',
-              },
-            },
-          ]}
-        />
-
+      <div className="min-h-screen bg-zinc-50 dark:bg-black">
         {/* Navigation */}
-        <nav className="fixed top-0 left-0 right-0 z-40 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg border-b border-zinc-200 dark:border-zinc-800">
+        <nav className="fixed top-0 left-0 right-0 z-40 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg border-b border-zinc-200 dark:border-zinc-800" aria-label="Main navigation">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-            <Link href="/" className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white touch-feedback">
+            <Link href="/" className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">
               7zi<span className="text-cyan-500">Studio</span>
             </Link>
             <div className="flex items-center gap-2 sm:gap-4">
@@ -141,22 +105,21 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
                 <Link href="/team" className="text-zinc-600 dark:text-zinc-400 hover:text-cyan-500 transition-colors">
                   {tNav('team')}
                 </Link>
+                <Link href="/portfolio" className="text-cyan-500 font-medium">
+                  {tNav('portfolio')}
+                </Link>
                 <Link href="/blog" className="text-zinc-600 dark:text-zinc-400 hover:text-cyan-500 transition-colors">
                   {tNav('blog')}
-                </Link>
-                <Link href="/portfolio" className="text-cyan-500 font-medium">
-                  {locale === 'zh' ? '作品' : 'Portfolio'}
                 </Link>
                 <ThemeToggle />
                 <LanguageSwitcher />
                 <Link
                   href="/contact"
-                  className="px-5 py-2 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-full font-medium hover:shadow-lg hover:shadow-cyan-500/25 transition-all touch-feedback"
+                  className="px-5 py-2 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-full font-medium hover:shadow-lg hover:shadow-cyan-500/25 transition-all"
                 >
                   {tNav('contact')}
                 </Link>
               </div>
-              
               <div className="flex lg:hidden items-center gap-2">
                 <LanguageSwitcher />
                 <ThemeToggle />
@@ -166,54 +129,118 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
           </div>
         </nav>
 
-        {/* Hero Image */}
-        <section className="relative pt-24 sm:pt-28">
-          <div className="aspect-video sm:aspect-[21/9] w-full overflow-hidden bg-zinc-200 dark:bg-zinc-800">
-            <img
-              src={project.thumbnail}
-              alt={project.title}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-zinc-50 dark:from-black via-transparent to-transparent" />
-          </div>
-          
-          {/* Back Button */}
-          <div className="absolute top-28 sm:top-32 left-4 sm:left-8">
+        {/* SEO Structured Data */}
+        <StructuredData
+          locale={locale as 'zh' | 'en'}
+          schemas={['website', 'organization']}
+        />
+
+        {/* Hero */}
+        <section className="pt-32 pb-16 px-6 bg-gradient-to-br from-cyan-900 via-purple-900 to-zinc-900">
+          <div className="max-w-4xl mx-auto">
+            {/* Back Button */}
             <Link
               href="/portfolio"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm rounded-full text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-white dark:hover:bg-zinc-900 transition-colors shadow-lg"
+              className="inline-flex items-center gap-2 text-zinc-300 hover:text-white mb-8 transition-colors"
             >
               <span aria-hidden="true">←</span>
-              {locale === 'zh' ? '返回作品集' : 'Back to Portfolio'}
+              {tPortfolio('detail.backToList')}
             </Link>
+
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              {title}
+            </h1>
+            <p className="text-xl text-zinc-300 mb-8">
+              {description}
+            </p>
+
+            {/* Project Info */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {project.client && (
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                  <div className="text-sm text-zinc-400 mb-1">{tPortfolio('detail.client')}</div>
+                  <div className="font-medium text-white">{project.client}</div>
+                </div>
+              )}
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <div className="text-sm text-zinc-400 mb-1">{tPortfolio('detail.duration')}</div>
+                <div className="font-medium text-white">{project.duration}</div>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <div className="text-sm text-zinc-400 mb-1">{tPortfolio('detail.year')}</div>
+                <div className="font-medium text-white">{project.year}</div>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <div className="text-sm text-zinc-400 mb-1">{tPortfolio('detail.category')}</div>
+                <div className="font-medium text-white uppercase">{project.category}</div>
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* Content */}
-        <section className="relative -mt-20 sm:-mt-32 z-10 pb-20">
-          <div className="max-w-5xl mx-auto px-6">
-            <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-xl p-6 sm:p-10">
-              {/* Header */}
-              <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
-                <div>
-                  <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium text-white bg-gradient-to-r ${categoryColors[project.category]} mb-4`}>
-                    {locale === 'zh' ? categoryLabels[project.category].zh : categoryLabels[project.category].en}
-                  </div>
-                  <h1 className="text-3xl sm:text-4xl font-bold text-zinc-900 dark:text-white">
-                    {project.title}
-                  </h1>
+        {/* Main Image */}
+        <section className="py-12 px-6 bg-white dark:bg-zinc-900">
+          <div className="max-w-5xl mx-auto">
+            <div className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl">
+              <Image
+                src={project.thumbnail}
+                alt={title}
+                fill
+                className="object-cover"
+                priority
+                sizes="(max-width: 1200px) 100vw, 1200px"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Highlights & Tech Stack */}
+        <section className="py-16 px-6">
+          <div className="max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-12">
+              {/* Highlights */}
+              <div>
+                <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-6">
+                  {tPortfolio('detail.highlights')}
+                </h2>
+                <ul className="space-y-4">
+                  {highlights.map((highlight, index) => (
+                    <li key={index} className="flex items-start gap-3">
+                      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 flex items-center justify-center text-white text-sm" aria-hidden="true">
+                        ✓
+                      </span>
+                      <span className="text-zinc-600 dark:text-zinc-400">{highlight}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Tech Stack */}
+              <div>
+                <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-6">
+                  {tPortfolio('detail.techStack')}
+                </h2>
+                <div className="flex flex-wrap gap-3">
+                  {project.techStack.map((tech) => (
+                    <span
+                      key={tech}
+                      className="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 rounded-lg font-medium"
+                    >
+                      {tech}
+                    </span>
+                  ))}
                 </div>
-                
+
                 {/* Links */}
-                <div className="flex gap-3">
+                <div className="mt-8 flex flex-wrap gap-4">
                   {project.links.live && (
                     <a
                       href={project.links.live}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-full text-sm font-medium hover:shadow-lg transition-all"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-full font-medium hover:shadow-lg hover:shadow-cyan-500/25 transition-all"
                     >
-                      {locale === 'zh' ? '访问网站' : 'Visit Site'}
+                      {tPortfolio('detail.visitSite')}
                       <span aria-hidden="true">↗</span>
                     </a>
                   )}
@@ -222,7 +249,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
                       href={project.links.github}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-4 py-2 border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-full text-sm font-medium hover:border-zinc-400 dark:hover:border-zinc-600 transition-colors"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-zinc-800 dark:bg-zinc-700 text-white rounded-full font-medium hover:bg-zinc-700 dark:hover:bg-zinc-600 transition-all"
                     >
                       GitHub
                       <span aria-hidden="true">↗</span>
@@ -230,172 +257,123 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
                   )}
                 </div>
               </div>
-
-              {/* Description */}
-              <p className="text-lg text-zinc-600 dark:text-zinc-400 mb-8">
-                {project.description}
-              </p>
-
-              {/* Meta Info */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 mb-10">
-                {project.client && (
-                  <div className="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-xl">
-                    <div className="text-sm text-zinc-500 dark:text-zinc-500 mb-1">
-                      {locale === 'zh' ? '客户' : 'Client'}
-                    </div>
-                    <div className="font-medium text-zinc-900 dark:text-white">
-                      {project.client}
-                    </div>
-                  </div>
-                )}
-                <div className="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-xl">
-                  <div className="text-sm text-zinc-500 dark:text-zinc-500 mb-1">
-                    {locale === 'zh' ? '周期' : 'Duration'}
-                  </div>
-                  <div className="font-medium text-zinc-900 dark:text-white">
-                    {project.duration}
-                  </div>
-                </div>
-                <div className="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-xl">
-                  <div className="text-sm text-zinc-500 dark:text-zinc-500 mb-1">
-                    {locale === 'zh' ? '类别' : 'Category'}
-                  </div>
-                  <div className="font-medium text-zinc-900 dark:text-white">
-                    {locale === 'zh' ? categoryLabels[project.category].zh : categoryLabels[project.category].en}
-                  </div>
-                </div>
-                <div className="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-xl">
-                  <div className="text-sm text-zinc-500 dark:text-zinc-500 mb-1">
-                    {locale === 'zh' ? '年份' : 'Year'}
-                  </div>
-                  <div className="font-medium text-zinc-900 dark:text-white">
-                    2024
-                  </div>
-                </div>
-              </div>
-
-              {/* Highlights */}
-              <div className="mb-10">
-                <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-4">
-                  {locale === 'zh' ? '项目亮点' : 'Highlights'}
-                </h2>
-                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {project.highlights.map((highlight, index) => (
-                    <li key={index} className="flex items-start gap-3 p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
-                      <span className="w-6 h-6 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 flex items-center justify-center text-white text-sm flex-shrink-0">
-                        ✓
-                      </span>
-                      <span className="text-zinc-700 dark:text-zinc-300">{highlight}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Tech Stack */}
-              <div className="mb-10">
-                <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-4">
-                  {locale === 'zh' ? '技术栈' : 'Tech Stack'}
-                </h2>
-                <div className="flex flex-wrap gap-2">
-                  {project.techStack.map((tech) => (
-                    <span
-                      key={tech}
-                      className="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 rounded-lg text-sm font-medium"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Gallery */}
-              {project.images.length > 1 && (
-                <div className="mb-10">
-                  <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-4">
-                    {locale === 'zh' ? '项目截图' : 'Screenshots'}
-                  </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {project.images.map((image, index) => (
-                      <div key={index} className="aspect-video rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800">
-                        <img
-                          src={image}
-                          alt={`${project.title} screenshot ${index + 1}`}
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Testimonial */}
-              {project.testimonial && (
-                <div className="mb-10">
-                  <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-4">
-                    {locale === 'zh' ? '客户评价' : 'Client Testimonial'}
-                  </h2>
-                  <div className="relative p-6 sm:p-8 bg-gradient-to-r from-cyan-50 to-purple-50 dark:from-cyan-900/20 dark:to-purple-900/20 rounded-2xl">
-                    <div className="absolute top-4 left-4 text-6xl text-cyan-500/20 font-serif">"</div>
-                    <blockquote className="relative z-10">
-                      <p className="text-lg text-zinc-700 dark:text-zinc-300 mb-4 italic">
-                        {project.testimonial.content}
-                      </p>
-                      <footer className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 flex items-center justify-center text-white font-bold">
-                          {project.testimonial.author[0]}
-                        </div>
-                        <div>
-                          <div className="font-medium text-zinc-900 dark:text-white">
-                            {project.testimonial.author}
-                          </div>
-                          {project.testimonial.role && (
-                            <div className="text-sm text-zinc-500 dark:text-zinc-500">
-                              {project.testimonial.role}
-                            </div>
-                          )}
-                        </div>
-                      </footer>
-                    </blockquote>
-                  </div>
-                </div>
-              )}
             </div>
-
-            {/* Related Projects */}
-            {relatedProjects.length > 0 && (
-              <div className="mt-12">
-                <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-6">
-                  {locale === 'zh' ? '相关项目' : 'Related Projects'}
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {relatedProjects.map((relatedProject) => (
-                    <Link
-                      key={relatedProject.id}
-                      href={`/portfolio/${relatedProject.slug}`}
-                      className="group bg-white dark:bg-zinc-900 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all"
-                    >
-                      <div className="aspect-video overflow-hidden">
-                        <img
-                          src={relatedProject.thumbnail}
-                          alt={relatedProject.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                      <div className="p-4">
-                        <h3 className="font-bold text-zinc-900 dark:text-white group-hover:text-cyan-500 transition-colors">
-                          {relatedProject.title}
-                        </h3>
-                        <p className="text-sm text-zinc-500 dark:text-zinc-500 mt-1 line-clamp-1">
-                          {relatedProject.description}
-                        </p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </section>
+
+        {/* Screenshots */}
+        {project.images.length > 0 && (
+          <section className="py-16 px-6 bg-white dark:bg-zinc-900">
+            <div className="max-w-5xl mx-auto">
+              <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-8">
+                {tPortfolio('detail.screenshots')}
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {project.images.map((image, index) => (
+                  <div key={index} className="relative aspect-video rounded-xl overflow-hidden shadow-lg">
+                    <Image
+                      src={image}
+                      alt={`${title} screenshot ${index + 1}`}
+                      fill
+                      className="object-cover hover:scale-105 transition-transform duration-500"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Related Projects */}
+        {relatedProjects.length > 0 && (
+          <section className="py-20 px-6">
+            <div className="max-w-6xl mx-auto">
+              <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-8">
+                {tPortfolio('detail.relatedProjects')}
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {relatedProjects.map((relatedProject) => (
+                  <ProjectCard
+                    key={relatedProject.id}
+                    project={relatedProject}
+                    locale={locale}
+                    labels={{
+                      viewDetails: tPortfolio('card.viewDetails'),
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* CTA */}
+        <section className="py-20 px-6 bg-gradient-to-r from-cyan-500 to-purple-600">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+              {tPortfolio('cta.title')}
+            </h2>
+            <p className="text-xl text-white/80 mb-8">
+              {tPortfolio('cta.description')}
+            </p>
+            <Link
+              href="/contact"
+              className="group inline-flex items-center gap-3 bg-white text-cyan-600 px-10 py-5 rounded-full font-semibold text-lg hover:bg-cyan-50 transition-all duration-300 hover:shadow-2xl hover:scale-105"
+            >
+              {tPortfolio('cta.button')}
+              <span className="group-hover:translate-x-2 transition-transform duration-300" aria-hidden="true">→</span>
+            </Link>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="py-12 px-6 bg-zinc-900 text-zinc-400" role="contentinfo">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+              <div className="text-2xl font-bold text-white">
+                7zi<span className="text-cyan-500">Studio</span>
+              </div>
+              <nav aria-label="Footer navigation">
+                <ul className="flex gap-8">
+                  <li><Link href="/" className="hover:text-white transition-colors">{tNav('home')}</Link></li>
+                  <li><Link href="/about" className="hover:text-white transition-colors">{tNav('about')}</Link></li>
+                  <li><Link href="/team" className="hover:text-white transition-colors">{tNav('team')}</Link></li>
+                  <li><Link href="/blog" className="hover:text-white transition-colors">{tNav('blog')}</Link></li>
+                </ul>
+              </nav>
+              <div className="text-sm">
+                © 2024 7zi Studio. All rights reserved.
+              </div>
+            </div>
+          </div>
+        </footer>
+
+        {/* Structured Data for Project */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "CreativeWork",
+              name: title,
+              description: description,
+              image: [project.thumbnail, ...project.images],
+              dateCreated: project.year,
+              author: {
+                "@type": "Organization",
+                name: "7zi Studio",
+                url: baseUrl,
+              },
+              ...(project.client && {
+                client: {
+                  "@type": "Organization",
+                  name: project.client,
+                },
+              }),
+            }),
+          }}
+        />
       </div>
     </ClientProviders>
   );

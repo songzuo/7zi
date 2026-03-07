@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server';
 import { detailedHealthCheck, healthResponse } from '@/lib/monitoring';
 
 /**

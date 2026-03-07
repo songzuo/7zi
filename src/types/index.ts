@@ -1,6 +1,5 @@
 /**
- * @fileoverview 类型定义索引
- * @description 统一导出所有共享类型
+ * @fileoverview 类型导出
  */
-
 export * from './common';
+export * from './wallet';
