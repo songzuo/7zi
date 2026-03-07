@@ -604,15 +604,23 @@ describe('useRoles', () => {
   });
 
   it('应该初始化为默认状态', async () => {
+    // Mock fetch to return empty roles
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: { roles: [] },
+      }),
+    });
+
     const { result } = renderHook(() => useRoles());
 
-    // Wait for any initial state updates
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0));
+    // Wait for the fetch to complete
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
     });
 
     expect(result.current.roles).toEqual([]);
-    expect(result.current.isLoading).toBe(false);
     expect(result.current.error).toBeNull();
   });
 

@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { DragEvent, memo, useMemo, useRef } from 'react';
+import React, { DragEvent, memo, useMemo } from 'react';
 import type { KanbanTask } from '../lib/types/kanban';
 import { PRIORITY_CONFIG } from '../lib/types/kanban';
 

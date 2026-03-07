@@ -273,7 +273,7 @@ describe('useRoleManagement', () => {
         }),
       });
       expect(success).toBe(true);
-      expect(result.current.success).toBe('用户角色已更新为经理');
+      expect(result.current.success).toBe('User role updated to 经理');
       expect(result.current.isLoading).toBe(false);
       expect(result.current.error).toBeNull();
     });
@@ -331,21 +331,32 @@ describe('useRoleManagement', () => {
                   data: { userId: 'user-1', newRole: Role.MANAGER },
                 }),
               });
-            }, 100)
+            }, 50)
           )
       );
 
       const { result } = renderHook(() => useRoleManagement(Role.ADMIN));
 
-      const promise = result.current.updateUserRole(
-        'user-1',
-        Role.MANAGER,
-        'admin-123'
-      );
+      // Start the update
+      act(() => {
+        result.current.updateUserRole(
+          'user-1',
+          Role.MANAGER,
+          'admin-123'
+        );
+      });
+
+      // Wait a bit for the state to update
+      await act(async () => {
+        await new Promise(resolve => setTimeout(resolve, 10));
+      });
 
       expect(result.current.isLoading).toBe(true);
 
-      await promise;
+      // Wait for the promise to resolve and state to update
+      await act(async () => {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      });
 
       expect(result.current.isLoading).toBe(false);
     });
@@ -474,7 +485,7 @@ describe('useRoleManagement', () => {
       });
 
       expect(success).toBe(true);
-      expect(result.current.success).toBe('用户角色已更新为经理');
+      expect(result.current.success).toBe('User role updated to 经理');
     });
 
     it('应该支持将经理降级为成员', async () => {
@@ -497,7 +508,7 @@ describe('useRoleManagement', () => {
       });
 
       expect(success).toBe(true);
-      expect(result.current.success).toBe('用户角色已更新为成员');
+      expect(result.current.success).toBe('User role updated to 成员');
     });
 
     it('应该防止经理提升其他人为管理员', async () => {

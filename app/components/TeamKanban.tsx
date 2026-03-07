@@ -5,11 +5,10 @@
 
 'use client';
 
-import React, { useState, useCallback, useMemo, memo, DragEvent } from 'react';
+import React, { useState, useCallback, useMemo, DragEvent } from 'react';
 import { useKanbanStore, useTasksByColumn } from '../hooks/useKanbanStore';
 import type { KanbanTask, KanbanStatus } from '../lib/types/kanban';
-import { DEFAULT_KANBAN_CONFIG, PRIORITY_CONFIG } from '../lib/types/kanban';
-import { KanbanTaskCard } from './KanbanTaskCard';
+import { DEFAULT_KANBAN_CONFIG } from '../lib/types/kanban';
 import { KanbanColumn } from './KanbanColumn';
 import { TaskModal } from './TaskModal';
 
@@ -170,6 +169,8 @@ export const TeamKanban: React.FC<TeamKanbanProps> = ({ className = '' }) => {
               onDrop={handleDrop}
               onEditTask={handleEditTask}
               onCreateTask={handleCreateTask}
+              onDeleteTask={handleDeleteTask}
+              onDuplicateTask={handleDuplicateTask}
             />
           ))}
         </div>
