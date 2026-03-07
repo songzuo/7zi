@@ -2,13 +2,15 @@
  * 用户相关类型定义
  */
 
+import { Role, Permission } from '../permissions/types';
+
 export interface User {
   id: string;
   name: string;
   email: string;
   avatar?: string;
   bio?: string;
-  role: string;
+  role: Role;
   provider: string;
   createdAt: Date;
   updatedAt: Date;
@@ -31,6 +33,10 @@ export interface UserSettings {
   theme: 'light' | 'dark' | 'system';
   language: string;
   notifications: NotificationSettings;
+}
+
+export interface UserWithPermissions extends User {
+  permissions: Permission[];
 }
 
 export interface NotificationSettings {

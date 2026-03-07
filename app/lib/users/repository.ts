@@ -5,6 +5,8 @@
 
 import { getDatabaseAsync } from '../db';
 import { User, UserProfile, UserSettings } from './types';
+import { Role } from '../permissions/types';
+import { getRolePermissions } from '../permissions/role-config';
 
 /**
  * 创建默认用户设置
@@ -87,7 +89,7 @@ export async function createUser(data: {
   email: string;
   avatar?: string;
   bio?: string;
-  role?: string;
+  role?: Role;
   provider?: string;
 }): Promise<User> {
   const db = await getDatabaseAsync();
@@ -95,6 +97,7 @@ export async function createUser(data: {
   
   const id = generateId();
   const now = new Date().toISOString();
+  const userRole = data.role || Role.MEMBER;
   
   const stmt = db.prepare(`
     INSERT INTO users (id, name, email, avatar, bio, role, provider, created_at, updated_at)
@@ -107,7 +110,7 @@ export async function createUser(data: {
     data.email,
     data.avatar || null,
     data.bio || null,
-    data.role || 'member',
+    userRole,
     data.provider || 'system',
     now,
     now
@@ -119,7 +122,7 @@ export async function createUser(data: {
     email: data.email,
     avatar: data.avatar,
     bio: data.bio,
-    role: data.role || 'member',
+    role: userRole,
     provider: data.provider || 'system',
     createdAt: new Date(now),
     updatedAt: new Date(now),
@@ -174,7 +177,7 @@ export async function getAllUsers(): Promise<User[]> {
  */
 export async function updateUser(
   id: string,
-  data: Partial<Pick<User, 'name' | 'avatar' | 'bio' | 'role'>>
+  data: Partial<Pick<User, 'name' | 'avatar' | 'bio'> & { role: Role }>
 ): Promise<User | null> {
   const db = await getDatabaseAsync();
   await initializeUserTables();
@@ -345,11 +348,42 @@ function mapRowToUser(row: Record<string, unknown>): User {
     email: row.email as string,
     avatar: row.avatar as string | undefined,
     bio: row.bio as string | undefined,
-    role: row.role as string,
+    role: row.role as Role,
     provider: row.provider as string,
     createdAt: new Date(row.created_at as string),
     updatedAt: new Date(row.updated_at as string),
   };
+}
+
+/**
+ * 获取用户及权限
+ */
+export async function getUserWithPermissions(id: string): Promise<{ user: User; permissions: ReturnType<typeof getRolePermissions> } | null> {
+  const user = await getUserById(id);
+  if (!user) return null;
+  
+  const permissions = getRolePermissions(user.role);
+  return { user, permissions };
+}
+
+/**
+ * 更新用户角色
+ */
+export async function updateUserRole(userId: string, newRole: Role): Promise<User | null> {
+  return updateUser(userId, { role: newRole });
+}
+
+/**
+ * 根据角色获取用户列表
+ */
+export async function getUsersByRole(role: Role): Promise<User[]> {
+  const db = await getDatabaseAsync();
+  await initializeUserTables();
+  
+  const stmt = db.prepare('SELECT * FROM users WHERE role = ? ORDER BY created_at DESC');
+  const rows = stmt.all(role) as Record<string, unknown>[];
+  
+  return rows.map(mapRowToUser);
 }
 
 /**
