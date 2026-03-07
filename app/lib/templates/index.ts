@@ -7,6 +7,7 @@
 export * from './types';
 export * from './email';
 export * from './notification';
+export * from './advanced-notification';
 
 // Re-export factories for convenience
 export { EmailTemplateFactory } from './email';
@@ -15,6 +16,16 @@ export { NotificationTemplateFactory } from './notification';
 // Import for TemplateManager
 import { EmailTemplateFactory, EmailTemplateType, EmailTemplateConfig } from './email';
 import { NotificationTemplateFactory, NotificationType, NotificationTemplateConfig } from './notification';
+import {
+  AnnouncementNotificationTemplate,
+  AchievementNotificationTemplate,
+  SecurityAlertNotificationTemplate,
+  SystemUpdateNotificationTemplate,
+  ProgressUpdateNotificationTemplate,
+  DeadlineNotificationTemplate,
+  CollaborationNotificationTemplate,
+  PaymentNotificationTemplate,
+} from './advanced-notification';
 
 /**
  * Template Manager - Unified template management

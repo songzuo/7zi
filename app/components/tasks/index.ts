@@ -7,3 +7,4 @@ export * from './TaskFilterPanel';
 export * from './TaskStats';
 export * from './AdvancedSearchBar';
 export * from './AdvancedFilterPanel';
+export * from './SortableTaskList';
