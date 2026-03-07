@@ -1,0 +1,52 @@
+{
+  "tasks": [
+    {
+      "id": "system-monitoring-1772823601",
+      "description": "系统资源监控和健康检查",
+      "type": "monitoring",
+      "priority": 3,
+      "status": "completed",
+      "created_at": "2026-03-06T20:00:01.792310",
+      "started_at": "2026-03-06T20:00:01.797986",
+      "completed_at": "2026-03-06T20:00:08.197916",
+      "progress": 100,
+      "steps": [
+        {
+          "name": "系统资源收集",
+          "status": "completed",
+          "updated_at": "2026-03-06T20:00:02.799410"
+        },
+        {
+          "name": "进程监控",
+          "status": "completed",
+          "updated_at": "2026-03-06T20:00:03.821128"
+        },
+        {
+          "name": "磁盘空间分析",
+          "status": "completed",
+          "updated_at": "2026-03-06T20:00:05.147572"
+        },
+        {
+          "name": "内存使用分析",
+          "status": "completed",
+          "updated_at": "2026-03-06T20:00:06.155672"
+        },
+        {
+          "name": "网络连接检查",
+          "status": "completed",
+          "updated_at": "2026-03-06T20:00:07.194617"
+        },
+        {
+          "name": "生成报告",
+          "status": "completed",
+          "updated_at": "2026-03-06T20:00:08.196941"
+        }
+      ],
+      "resume_info": "",
+      "source": "bot6",
+      "context": {}
+    }
+  ],
+  "checkpoint": null,
+  "last_update": "2026-03-06T20:00:08.197922"
+}

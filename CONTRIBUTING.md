@@ -1,398 +1,297 @@
 # 贡献指南
 
-感谢你对 7zi Frontend 项目的兴趣！本文档将帮助你了解如何为项目做出贡献。
+> 感谢你对 7zi Studio 项目的兴趣！我们欢迎任何形式的贡献。
 
-## 目录
+## 📋 目录
 
 - [行为准则](#行为准则)
 - [如何贡献](#如何贡献)
-- [开发环境设置](#开发环境设置)
-- [代码规范](#代码规范)
+- [开发环境](#开发环境)
 - [提交规范](#提交规范)
 - [Pull Request 流程](#pull-request-流程)
 - [项目结构](#项目结构)
+- [常见问题](#常见问题)
 
-## 行为准则
+## 🎯 行为准则
 
-- 尊重所有贡献者
-- 保持建设性的讨论
-- 接受建设性批评
-- 关注对社区最有利的事情
+我们致力于为社区营造一个友好、包容的环境。请遵循以下原则：
 
-## 如何贡献
+1. **尊重他人** - 保持友好和专业的态度
+2. **包容差异** - 欢迎不同背景和技能水平的贡献者
+3. **建设性反馈** - 提出建议时保持积极和具体
+4. **专注于项目** - 讨论应围绕项目本身展开
+
+## 🚀 如何贡献
 
 ### 报告 Bug
 
-如果你发现了 Bug，请通过 GitHub Issues 提交，包含以下信息：
-
-1. **标题**：简洁描述问题
-2. **描述**：详细说明发生了什么
-3. **复现步骤**：
-   ```markdown
-   1. 打开页面 '...'
-   2. 点击按钮 '...'
-   3. 滚动到 '...'
-   4. 看到错误
-   ```
-4. **预期行为**：应该发生什么
-5. **实际行为**：实际发生了什么
-6. **截图**：如果适用
-7. **环境**：
-   - OS: [e.g. macOS, Windows, Linux]
-   - Browser: [e.g. Chrome, Firefox, Safari]
-   - Version: [e.g. 22]
+1. 搜索现有 [Issues](https://github.com/songzuo/7zi/issues) 确保没有重复
+2. 创建新 Issue，使用 bug 模板
+3. 包含以下信息：
+   - 清晰的标题和描述
+   - 复现步骤
+   - 预期行为 vs 实际行为
+   - 环境信息 (OS, Node 版本等)
+   - 相关截图或日志
 
 ### 提出新功能
 
-1. 先在 Issues 中讨论你的想法
-2. 等待维护者反馈
-3. 获得批准后再开始开发
+1. 创建 [Feature Request](https://github.com/songzuo/7zi/issues/new?template=feature_request.md)
+2. 描述功能的用途和价值
+3. 提供可能的实现方案
+4. 考虑与其他功能的兼容性
 
-## 开发环境设置
+### 贡献代码
+
+1. Fork 项目仓库
+2. 创建功能分支 (`git checkout -b feature/amazing-feature`)
+3. 编写代码并添加测试
+4. 提交更改 (`git commit -m 'Add amazing feature'`)
+5. 推送分支 (`git push origin feature/amazing-feature`)
+6. 创建 Pull Request
+
+## 💻 开发环境
 
 ### 前置要求
 
-- Node.js >= 18.x
-- npm >= 9.x
+- Node.js 22+
+- pnpm 8+ (推荐) 或 npm 10+
 - Git
 
-### 本地设置
+### 本地开发
 
 ```bash
-# 1. Fork 仓库到你的 GitHub 账号
+# 1. Fork 并克隆仓库
+git clone https://github.com/YOUR_USERNAME/7zi.git
+cd 7zi
 
-# 2. 克隆你的 Fork
-git clone https://github.com/<your-username>/7zi-frontend.git
-cd 7zi-frontend
+# 2. 安装依赖
+pnpm install
 
-# 3. 添加上游仓库
-git remote add upstream https://github.com/7zi/7zi-frontend.git
-
-# 4. 安装依赖
-npm install
-
-# 5. 复制环境变量
+# 3. 配置环境变量
 cp .env.example .env.local
+# 编辑 .env.local
 
-# 6. 启动开发服务器
-npm run dev
+# 4. 启动开发服务器
+pnpm dev
 ```
 
-### 验证设置
+### 运行测试
 
 ```bash
-# 运行类型检查
-npm run type-check
+# 运行所有测试 (监视模式)
+pnpm test
+
+# 单次运行测试
+pnpm test:run
+
+# 生成覆盖率报告
+pnpm test:coverage
 
 # 运行 lint
-npm run lint
+pnpm lint
 
-# 运行测试
-npm run test:run
-
-# 构建项目
-npm run build
+# 修复 lint 问题
+pnpm lint:fix
 ```
 
-## 代码规范
+### 测试文件命名规范
 
-### TypeScript
+| 文件类型 | 命名规则 | 示例 |
+|---------|---------|------|
+| 单元测试 | `*.test.ts` | `utils.test.ts` |
+| 组件测试 | `*.test.tsx` | `Button.test.tsx` |
+| 集成测试 | `*.integration.test.ts` | `api.integration.test.ts` |
+| E2E 测试 | `*.e2e.test.ts` | `login.e2e.test.ts` |
 
-- 使用 TypeScript 编写所有新代码
-- 避免使用 `any`，优先使用具体类型
-- 为组件 props 定义接口
+**测试文件位置**: 与源文件同目录或 `__tests__/` 目录
 
-```typescript
-// ✅ 推荐
-interface ButtonProps {
-  label: string;
-  onClick: () => void;
-  variant?: 'primary' | 'secondary';
-}
-
-export function Button({ label, onClick, variant = 'primary' }: ButtonProps) {
-  // ...
-}
-
-// ❌ 避免
-export function Button(props: any) {
-  // ...
-}
+```
+components/
+├── Button.tsx
+├── Button.test.tsx      # 同目录测试
+└── __tests__/
+    └── Button.styles.test.tsx  # 或集中测试
 ```
 
-### React 组件
+### 编写组件测试
 
-- 使用函数组件和 Hooks
-- 组件命名使用 PascalCase
-- 文件名使用 PascalCase.tsx
-
-```typescript
-// ✅ 推荐
-export function UserProfile({ user }: UserProfileProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  
-  return (
-    <div className="user-profile">
-      {/* ... */}
-    </div>
-  );
-}
-
-// ❌ 避免
-export class UserProfile extends React.Component {
-  // ...
-}
-```
-
-### 文件组织
-
-```typescript
-// 组件文件结构
-// 1. 导入
-import { useState } from 'react';
-import { Button } from './Button';
-
-// 2. 类型定义
-interface Props {
-  // ...
-}
-
-// 3. 常量
-const DEFAULT_VALUE = 'default';
-
-// 4. 组件
-export function MyComponent({ }: Props) {
-  // Hooks
-  const [state, setState] = useState();
-  
-  // 事件处理
-  const handleClick = () => {};
-  
-  // 渲染
-  return (
-    <div>
-      {/* ... */}
-    </div>
-  );
-}
-```
-
-### 样式
-
-- 使用 Tailwind CSS
-- 遵循移动优先原则
-- 使用语义化的类名
+使用 **React Testing Library** 编写组件测试：
 
 ```tsx
-// ✅ 推荐
-<div className="flex flex-col md:flex-row gap-4 p-4 bg-white dark:bg-gray-800">
-  {/* ... */}
-</div>
+// Button.test.tsx
+import { render, screen, fireEvent } from '@testing-library/react'
+import { describe, it, expect, vi } from 'vitest'
+import { Button } from './Button'
 
-// ❌ 避免（内联样式）
-<div style={{ display: 'flex', padding: '16px' }}>
-  {/* ... */}
-</div>
+describe('Button', () => {
+  it('renders with correct text', () => {
+    render(<Button>Click me</Button>)
+    expect(screen.getByRole('button')).toHaveTextContent('Click me')
+  })
+
+  it('handles click events', () => {
+    const handleClick = vi.fn()
+    render(<Button onClick={handleClick}>Click</Button>)
+    
+    fireEvent.click(screen.getByRole('button'))
+    expect(handleClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('shows loading state', () => {
+    render(<Button loading>Submit</Button>)
+    expect(screen.getByRole('button')).toBeDisabled()
+  })
+})
 ```
 
-### 命名约定
+**测试原则**:
+1. **测试用户行为**，而非实现细节
+2. **使用语义化查询**: `getByRole`, `getByText`, `getByLabelText`
+3. **Mock 外部依赖**: API 调用、路由、第三方库
+4. **保持测试独立**: 每个测试应可单独运行
 
-| 类型 | 约定 | 示例 |
-|------|------|------|
-| 组件 | PascalCase | `UserProfile.tsx` |
-| Hook | camelCase + use 前缀 | `useFetch.ts` |
-| 工具函数 | camelCase | `formatDate.ts` |
-| 常量 | UPPER_SNAKE_CASE | `API_BASE_URL` |
-| 类型/接口 | PascalCase | `UserProfileProps` |
+详细测试指南请参考 [测试文档](./docs/TESTING.md)
 
-### ESLint 和 Prettier
+## 📝 提交规范
 
-项目已配置 ESLint 和 Prettier，请在提交前运行：
+### 提交信息格式
+
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+**类型 (type)**:
+- `feat`: 新功能
+- `fix`: Bug 修复
+- `docs`: 文档更新
+- `style`: 代码格式 (不影响功能)
+- `refactor`: 重构 (既不是新功能也不是修复)
+- `perf`: 性能优化
+- `test`: 测试相关
+- `chore`: 构建/工具相关
+
+**示例**:
 
 ```bash
-# 检查代码
-npm run lint
+# 功能
+git commit -m "feat(dashboard): add member status filter"
 
-# 自动修复
-npm run lint:fix
+# 修复
+git commit -m "fix(api): resolve rate limit issue"
 
-# 格式化代码
-npm run format
+# 文档
+git commit -m "docs(readme): update installation steps"
 ```
 
-## 提交规范
+### 提交前检查
 
-我们使用 [Conventional Commits](https://www.conventionalcommits.org/) 规范：
+- [ ] 代码通过 lint 检查
+- [ ] 所有测试通过
+- [ ] 代码已格式化
+- [ ] 提交信息符合规范
 
-### 格式
-
-```
-<type>(<scope>): <description>
-
-[optional body]
-
-[optional footer(s)]
-```
-
-### 类型
-
-| 类型 | 描述 | 示例 |
-|------|------|------|
-| `feat` | 新功能 | `feat: add AI chat component` |
-| `fix` | Bug 修复 | `fix: resolve theme toggle issue` |
-| `docs` | 文档更新 | `docs: update README` |
-| `style` | 代码格式（不影响逻辑） | `style: format code` |
-| `refactor` | 代码重构 | `refactor: extract utility functions` |
-| `perf` | 性能优化 | `perf: optimize image loading` |
-| `test` | 测试相关 | `test: add unit tests for utils` |
-| `chore` | 构建/工具相关 | `chore: update dependencies` |
-| `ci` | CI 配置 | `ci: add GitHub Actions workflow` |
-
-### 示例
-
-```bash
-# 新功能
-git commit -m "feat(dashboard): add project progress chart"
-
-# Bug 修复
-git commit -m "fix(theme): resolve flash on initial load"
-
-# 破坏性变更
-git commit -m "feat(api)!: change response format
-
-BREAKING CHANGE: API response now returns { data, meta } instead of direct data"
-```
-
-## Pull Request 流程
+## 🔄 Pull Request 流程
 
 ### 创建 PR
 
-1. **创建分支**
+1. 确保本地分支是最新的
+2. 创建 PR 到 `main` 分支
+3. 填写 PR 模板
+4. 链接相关 Issue
 
-```bash
-# 从 main 创建功能分支
-git checkout main
-git pull upstream main
-git checkout -b feat/your-feature-name
+### PR 模板
+
+```markdown
+## 描述
+<!-- 简要描述这个 PR 做了什么 -->
+
+## 修复的问题
+<!-- 链接相关 Issue: Closes #123 -->
+
+## 变更内容
+<!-- 列出主要变更 -->
+
+## 测试
+<!-- 描述如何测试这些变更 -->
+
+## 截图 (如有)
+<!-- 添加相关截图 -->
 ```
 
-2. **开发和测试**
+### 审查流程
 
-```bash
-# 编写代码
-# 运行测试
-npm run test:run
-npm run lint
-npm run type-check
-```
+1. 自动化检查 (CI) 运行
+2. 至少一名维护者审查
+3. 解决所有评论
+4. 合并到 main 分支
 
-3. **提交更改**
-
-```bash
-git add .
-git commit -m "feat: your feature description"
-```
-
-4. **推送分支**
-
-```bash
-git push origin feat/your-feature-name
-```
-
-5. **创建 Pull Request**
-
-- 在 GitHub 上创建 PR
-- 填写 PR 模板
-- 关联相关 Issue
-
-### PR 标题格式
+## 📂 项目结构
 
 ```
-<type>(<scope>): <description>
-```
-
-### PR 检查清单
-
-- [ ] 代码通过 `npm run lint`
-- [ ] 类型检查通过 `npm run type-check`
-- [ ] 测试通过 `npm run test:run`
-- [ ] 构建成功 `npm run build`
-- [ ] 遵循代码规范
-- [ ] 添加了必要的测试
-- [ ] 更新了相关文档
-
-### 代码审查
-
-- 保持耐心和尊重
-- 专注于代码，不是个人
-- 解释为什么需要更改
-- 接受建议和改进
-
-## 项目结构
-
-```
-7zi-frontend/
-├── src/
-│   ├── app/              # Next.js App Router 页面
-│   │   ├── [locale]/     # 国际化路由
-│   │   ├── api/          # API 路由
-│   │   └── ...           # 页面目录
-│   ├── components/       # React 组件
-│   │   ├── AIChat/       # AI 聊天相关组件
-│   │   ├── chat/         # 聊天组件
-│   │   └── ...           # 其他组件
+7zi/
+├── app/                    # Next.js 主应用
+│   ├── dashboard/         # 看板页面
+│   ├── components/        # React 组件
 │   ├── hooks/            # 自定义 Hooks
-│   ├── lib/              # 工具库
-│   ├── types/            # TypeScript 类型
-│   ├── i18n/             # 国际化配置
-│   ├── contexts/         # React Context
-│   └── test/             # 测试文件
-├── public/               # 静态资源
-├── .github/              # GitHub 配置
-│   └── workflows/        # CI/CD 工作流
-└── docs/                 # 文档
+│   ├── lib/              # 工具函数
+│   └── server/           # 服务端代码
+├── docs/                  # 项目文档
+├── skills/                # OpenClaw 技能
+├── deploy-scripts/        # 部署脚本
+├── openclaw-kb/          # OpenClaw 知识库
+└── ...
 ```
 
-### 添加新组件
+### 主要目录说明
 
-1. 在 `src/components/` 创建组件文件
-2. 在 `src/components/index.ts` 导出
-3. 在 `src/test/components/` 添加测试
+| 目录 | 说明 |
+|------|------|
+| `app/` | Next.js 应用核心代码 |
+| `app/components/` | UI 组件 |
+| `app/hooks/` | React Hooks |
+| `docs/` | 项目文档 |
+| `skills/` | OpenClaw 技能定义 |
 
-```typescript
-// src/components/MyComponent.tsx
-interface MyComponentProps {
-  title: string;
-}
+## ❓ 常见问题
 
-export function MyComponent({ title }: MyComponentProps) {
-  return <div>{title}</div>;
-}
+### 如何开始？
 
-// src/components/index.ts
-export { MyComponent } from './MyComponent';
-```
+1. 查看 [README.md](../README.md) 了解项目
+2. 查看 [开发文档](docs/DEVELOPMENT.md) 配置环境
+3. 寻找标有 `good first issue` 的 Issue 开始
 
-### 添加新页面
+### 我可以贡献哪些内容？
 
-1. 在 `src/app/` 创建页面目录
-2. 添加 `page.tsx` 文件
-3. 添加 `error.tsx` 错误边界
-4. 添加 `loading.tsx` 加载状态（可选）
+- 🐛 Bug 修复
+- ✨ 新功能
+- 📝 文档改进
+- 🎨 UI/UX 改进
+- ⚡ 性能优化
+- 🧪 添加测试
 
-```
-src/app/new-page/
-├── page.tsx       # 页面组件
-├── error.tsx      # 错误处理
-└── loading.tsx    # 加载状态
-```
+### 如何获得帮助？
 
-## 获取帮助
+- 📬 邮件: support@7zi.com
+- 💬 GitHub Discussions
+- 🐛 提交 Issue
 
-- 在 GitHub Issues 中提问
-- 查看现有文档
-- 联系维护者
+### 贡献者许可协议
+
+通过贡献代码，你同意将你的作品按 [MIT License](../LICENSE) 许可。
+
+## 🏆 贡献者
+
+感谢所有为项目做出贡献的人！
+
+<!-- 贡献者列表将通过 GitHub API 自动生成 -->
 
 ---
 
-再次感谢你的贡献！🎉
+**提示**: 如果你有任何问题，欢迎在 [GitHub Discussions](https://github.com/songzuo/7zi/discussions) 中提问。
+
+*感谢你的贡献！🎉*

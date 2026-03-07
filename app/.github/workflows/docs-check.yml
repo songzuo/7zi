@@ -1,0 +1,60 @@
+name: PR Documentation Check
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'lib/**'
+      - 'components/**'
+      - 'hooks/**'
+      - 'types/**'
+      - 'stories/**'
+      - 'package.json'
+
+jobs:
+  check-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: app/package-lock.json
+          
+      - name: Install dependencies
+        working-directory: ./app
+        run: npm ci
+        
+      - name: Type check
+        working-directory: ./app
+        run: npm run type-check
+        
+      - name: Generate API documentation
+        working-directory: ./app
+        run: npm run docs:api
+        
+      - name: Build Storybook
+        working-directory: ./app
+        run: npm run build-storybook -- -o docs/storybook
+        
+      - name: Check documentation coverage
+        working-directory: ./app
+        run: |
+          echo "📊 Documentation Check Results:"
+          echo ""
+          echo "✅ API Documentation generated successfully"
+          echo "✅ Storybook built successfully"
+          echo ""
+          echo "📁 Generated files:"
+          find docs -type f -name "*.html" | head -20
+          
+      - name: Upload docs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation-preview
+          path: app/docs
+          retention-days: 7

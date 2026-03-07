@@ -1,0 +1,316 @@
+{
+  "navigation": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "subagents": "Subagents",
+    "tasks": "Tasks",
+    "profile": "Profile",
+    "settings": "Settings",
+    "notifications": "Notifications",
+    "theme": "Theme",
+    "menu": "Menu",
+    "closeMenu": "Close menu",
+    "openMenu": "Open menu",
+    "current": "Current page",
+    "aiTeamHome": "AI Team Home",
+    "mainNav": "Main navigation",
+    "pageNav": "Page navigation",
+    "mobileNav": "Mobile navigation menu",
+    "userActions": "User actions",
+    "view": "View"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "retry": "Retry",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "filter": "Filter",
+    "all": "All",
+    "none": "None",
+    "yes": "Yes",
+    "no": "No",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "reset": "Reset",
+    "skipToContent": "Skip to main content",
+    "viewInNewWindow": "View in new window",
+    "viewDetails": "View details",
+    "more": "More"
+  },
+  "dashboard": {
+    "title": "AI Team Dashboard",
+    "subtitle": "Real-time monitoring of team status and task progress",
+    "members": "Team Members",
+    "tasks": "Task List",
+    "activity": "Activity Log",
+    "taskBoard": "Task Board",
+    "contributionStats": "Contribution Statistics",
+    "taskProgress": "Task Completion Progress",
+    "statsOverview": "Statistics Overview",
+    "loadingFailed": "Loading Failed",
+    "autoRefresh": "Auto Refresh",
+    "seconds": "sec",
+    "closeAutoRefresh": "Disable auto refresh",
+    "refresh": "Refresh",
+    "refreshing": "Refreshing...",
+    "refreshInterval": "Select refresh interval",
+    "stats": {
+      "total": "Total",
+      "totalTasks": "Total Tasks",
+      "active": "Active",
+      "activeMembers": "Active Members",
+      "completed": "Completed",
+      "completedTasks": "Completed Tasks",
+      "pending": "Pending",
+      "avgResponse": "Avg Response"
+    }
+  },
+  "member": {
+    "status": {
+      "online": "Online",
+      "working": "Working",
+      "busy": "Busy",
+      "offline": "Offline",
+      "idle": "Idle"
+    },
+    "role": {
+      "director": "Director",
+      "consultant": "Consultant",
+      "architect": "Architect",
+      "executor": "Executor",
+      "admin": "Admin",
+      "tester": "Tester",
+      "designer": "Designer",
+      "promoter": "Promoter",
+      "sales": "Sales",
+      "finance": "Finance",
+      "media": "Media"
+    },
+    "tasks": "Tasks",
+    "completedTasks": "Tasks completed",
+    "progress": "Progress",
+    "lastActive": "Last Active",
+    "provider": "Provider",
+    "currentTask": "Current Task",
+    "statusLabel": "Status"
+  },
+  "task": {
+    "title": "GitHub Tasks",
+    "status": {
+      "todo": "To Do",
+      "inProgress": "In Progress",
+      "open": "In Progress",
+      "review": "In Review",
+      "completed": "Completed",
+      "closed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "priority": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "assignee": "Assignee",
+    "dueDate": "Due Date",
+    "created": "Created",
+    "updated": "Updated",
+    "updatedAt": "Updated",
+    "filterStatus": "Filter task status",
+    "currentFilter": "Current filter",
+    "noTasks": "No tasks",
+    "allCompleted": "All tasks completed!",
+    "noGitHubIssues": "No GitHub Issues yet",
+    "showing": "Showing",
+    "tasks": "tasks",
+    "labels": "Labels",
+    "more": "more",
+    "view": "View",
+    "taskList": "GitHub task list",
+    "taskProgress": "Task progress"
+  },
+  "activity": {
+    "title": "Real-time Activity Log",
+    "recentCount": "Recent {count} activities",
+    "noActivity": "No activity records",
+    "githubActivity": "GitHub activity will appear here",
+    "autoRefreshInterval": "Auto refresh · 30 sec interval",
+    "type": {
+      "commit": "Commit",
+      "issue": "Task",
+      "comment": "Comment"
+    },
+    "author": "Author",
+    "timeAgo": {
+      "justNow": "Just now",
+      "minutesAgo": "minutes ago",
+      "hoursAgo": "hours ago",
+      "daysAgo": "days ago"
+    }
+  },
+  "profile": {
+    "title": "Profile",
+    "edit": "Edit Profile",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "bio": "Bio",
+    "avatar": "Avatar"
+  },
+  "settings": {
+    "title": "User Settings",
+    "subtitle": "Customize your app experience and preferences",
+    "sections": {
+      "general": "General",
+      "display": "Display",
+      "notifications": "Notifications",
+      "locale": "Language & Region",
+      "privacy": "Privacy",
+      "theme": "Theme Customization",
+      "advanced": "Advanced"
+    },
+    "appearance": {
+      "title": "Appearance Theme",
+      "light": "Light Mode",
+      "lightDesc": "Always use light theme",
+      "dark": "Dark Mode",
+      "darkDesc": "Always use dark theme",
+      "system": "System",
+      "systemDesc": "Follow system theme settings",
+      "currentTheme": "Current applied theme"
+    },
+    "quickSettings": {
+      "animations": "Animations",
+      "animationsDesc": "Enable page transitions and interaction animations",
+      "compactMode": "Compact Mode",
+      "compactModeDesc": "Reduce element spacing to show more content",
+      "sidebarExpanded": "Expand Sidebar",
+      "sidebarExpandedDesc": "Expand sidebar by default"
+    },
+    "display": {
+      "fontSize": "Font Size",
+      "fontSizeDesc": "Adjust interface text size",
+      "showAvatars": "Show Avatars",
+      "showAvatarsDesc": "Display user avatars in lists",
+      "showStatusIndicators": "Status Indicators",
+      "showStatusIndicatorsDesc": "Show online status and activity indicators",
+      "fontSizeOptions": {
+        "small": "Small",
+        "medium": "Medium",
+        "large": "Large"
+      }
+    },
+    "notifications": {
+      "enabled": "Enable Notifications",
+      "enabledDesc": "Receive desktop notifications",
+      "taskUpdates": "Task Updates",
+      "taskUpdatesDesc": "Notify when task status changes",
+      "mentions": "Mentions",
+      "mentionsDesc": "Notify when someone mentions you",
+      "system": "System Notifications",
+      "systemDesc": "Important system messages",
+      "sounds": "Notification Sounds",
+      "soundsDesc": "Play sound with notifications"
+    },
+    "locale": {
+      "language": "Interface Language",
+      "languageDesc": "Select interface display language",
+      "timezone": "Timezone",
+      "timezoneDesc": "Set your timezone",
+      "dateFormat": "Date Format",
+      "dateFormatDesc": "Date display format",
+      "timeFormat": "Time Format",
+      "timeFormatDesc": "Time display format",
+      "weekStartsOn": "Week Starts On",
+      "weekStartsOnDesc": "First day of the calendar week",
+      "languages": {
+        "zhCN": "Simplified Chinese",
+        "zhTW": "Traditional Chinese",
+        "en": "English",
+        "ja": "Japanese"
+      },
+      "timezones": {
+        "asiaShanghai": "China Standard Time (UTC+8)",
+        "asiaTokyo": "Japan Standard Time (UTC+9)",
+        "americaNewYork": "US Eastern Time",
+        "americaLosAngeles": "US Pacific Time",
+        "europeLondon": "London Time",
+        "europeBerlin": "Berlin Time"
+      },
+      "timeFormats": {
+        "24h": "24-hour",
+        "12h": "12-hour"
+      },
+      "weekStarts": {
+        "sunday": "Sunday",
+        "monday": "Monday",
+        "saturday": "Saturday"
+      }
+    },
+    "privacy": {
+      "showOnlineStatus": "Show Online Status",
+      "showOnlineStatusDesc": "Allow others to see your online status",
+      "allowAnalytics": "Allow Analytics",
+      "allowAnalyticsDesc": "Help us improve the product experience",
+      "publicProfile": "Public Profile",
+      "publicProfileDesc": "Allow others to view your public information",
+      "dataManagement": "Data Management",
+      "localStorage": "Local Storage",
+      "localStorageEnabled": "Enabled",
+      "localStorageDesc": "Your settings are stored securely in your browser and are not uploaded to the server.",
+      "clearAllSettings": "Clear All Settings"
+    },
+    "advanced": {
+      "pageSize": "Items Per Page",
+      "pageSizeDesc": "Number of items displayed per page in lists",
+      "experimentalFeatures": "Experimental Features",
+      "experimentalFeaturesDesc": "Enable new features in development",
+      "debugMode": "Debug Mode",
+      "debugModeDesc": "Show detailed debug information",
+      "importExport": "Import/Export Settings",
+      "exportSettings": "Export Settings",
+      "importSettings": "Import Settings",
+      "importExportDesc": "Export your settings as a JSON file for backup or import on other devices.",
+      "about": "About",
+      "version": "Version",
+      "framework": "Framework",
+      "team": "Team",
+      "visitWebsite": "Visit Website"
+    },
+    "import": {
+      "title": "Import Settings",
+      "placeholder": "Paste exported JSON settings...",
+      "success": "Settings imported successfully!",
+      "failed": "Import failed",
+      "import": "Import"
+    }
+  },
+  "theme": {
+    "toggle": "Toggle theme",
+    "light": "Light mode",
+    "dark": "Dark mode",
+    "system": "System setting"
+  },
+  "language": {
+    "switch": "Switch language",
+    "current": "Current",
+    "select": "Select language"
+  },
+  "footer": {
+    "copyright": "AI Team Dashboard - Managed by Songzhuo Global Travel Team",
+    "version": "Version"
+  },
+  "meta": {
+    "title": "AI Team Dashboard - Intelligent Team Collaboration Platform",
+    "description": "Real-time monitoring of 11 professional AI agents, GitHub task progress, and activity logs. Boost team efficiency by 300%.",
+    "keywords": "AI team dashboard, task management, agents, AI agents, team collaboration"
+  }
+}

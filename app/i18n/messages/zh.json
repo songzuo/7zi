@@ -1,0 +1,316 @@
+{
+  "navigation": {
+    "home": "首页",
+    "dashboard": "实时看板",
+    "subagents": "子代理",
+    "tasks": "任务",
+    "profile": "个人资料",
+    "settings": "设置",
+    "notifications": "通知",
+    "theme": "主题",
+    "menu": "菜单",
+    "closeMenu": "关闭菜单",
+    "openMenu": "打开菜单",
+    "current": "当前页面",
+    "aiTeamHome": "AI 团队首页",
+    "mainNav": "主导航",
+    "pageNav": "页面导航",
+    "mobileNav": "移动端导航菜单",
+    "userActions": "用户操作",
+    "view": "查看"
+  },
+  "common": {
+    "loading": "加载中...",
+    "error": "出错了",
+    "retry": "重试",
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑",
+    "add": "添加",
+    "search": "搜索",
+    "filter": "筛选",
+    "all": "全部",
+    "none": "无",
+    "yes": "是",
+    "no": "否",
+    "confirm": "确认",
+    "back": "返回",
+    "next": "下一步",
+    "previous": "上一步",
+    "submit": "提交",
+    "reset": "重置",
+    "skipToContent": "跳到主要内容",
+    "viewInNewWindow": "在新窗口中查看",
+    "viewDetails": "查看详细内容",
+    "more": "更多"
+  },
+  "dashboard": {
+    "title": "AI 团队仪表盘",
+    "subtitle": "实时监控团队状态和任务进度",
+    "members": "团队成员",
+    "tasks": "任务列表",
+    "activity": "活动日志",
+    "taskBoard": "任务看板",
+    "contributionStats": "贡献统计",
+    "taskProgress": "任务完成进度",
+    "statsOverview": "统计概览",
+    "loadingFailed": "加载失败",
+    "autoRefresh": "自动刷新",
+    "seconds": "秒",
+    "closeAutoRefresh": "关闭自动刷新",
+    "refresh": "刷新",
+    "refreshing": "正在刷新...",
+    "refreshInterval": "选择刷新间隔",
+    "stats": {
+      "total": "总数",
+      "totalTasks": "总任务数",
+      "active": "活跃",
+      "activeMembers": "活跃成员",
+      "completed": "已完成",
+      "completedTasks": "已完成任务",
+      "pending": "待处理",
+      "avgResponse": "平均响应"
+    }
+  },
+  "member": {
+    "status": {
+      "online": "在线",
+      "working": "工作中",
+      "busy": "忙碌",
+      "offline": "离线",
+      "idle": "空闲"
+    },
+    "role": {
+      "director": "主管",
+      "consultant": "咨询师",
+      "architect": "架构师",
+      "executor": "执行者",
+      "admin": "系统管理员",
+      "tester": "测试员",
+      "designer": "设计师",
+      "promoter": "推广专员",
+      "sales": "销售客服",
+      "finance": "财务",
+      "media": "媒体"
+    },
+    "tasks": "任务",
+    "completedTasks": "完成任务",
+    "progress": "进度",
+    "lastActive": "最后活跃",
+    "provider": "提供商",
+    "currentTask": "当前任务",
+    "statusLabel": "状态"
+  },
+  "task": {
+    "title": "GitHub 任务",
+    "status": {
+      "todo": "待办",
+      "inProgress": "进行中",
+      "open": "进行中",
+      "review": "审核中",
+      "completed": "已完成",
+      "closed": "已完成",
+      "cancelled": "已取消"
+    },
+    "priority": {
+      "low": "低",
+      "medium": "中",
+      "high": "高",
+      "urgent": "紧急"
+    },
+    "assignee": "负责人",
+    "dueDate": "截止日期",
+    "created": "创建时间",
+    "updated": "更新时间",
+    "updatedAt": "更新于",
+    "filterStatus": "筛选任务状态",
+    "currentFilter": "当前筛选",
+    "noTasks": "暂无任务",
+    "allCompleted": "所有任务都已完成！",
+    "noGitHubIssues": "还没有 GitHub Issues",
+    "showing": "显示",
+    "tasks": "个任务",
+    "labels": "标签",
+    "more": "还有",
+    "view": "查看",
+    "taskList": "GitHub 任务列表",
+    "taskProgress": "任务进度"
+  },
+  "activity": {
+    "title": "实时活动日志",
+    "recentCount": "最近 {count} 条活动",
+    "noActivity": "暂无活动记录",
+    "githubActivity": "GitHub 活动将显示在这里",
+    "autoRefreshInterval": "自动刷新 · 30 秒间隔",
+    "type": {
+      "commit": "提交",
+      "issue": "任务",
+      "comment": "评论"
+    },
+    "author": "作者",
+    "timeAgo": {
+      "justNow": "刚刚",
+      "minutesAgo": "分钟前",
+      "hoursAgo": "小时前",
+      "daysAgo": "天前"
+    }
+  },
+  "profile": {
+    "title": "个人资料",
+    "edit": "编辑资料",
+    "name": "姓名",
+    "email": "邮箱",
+    "role": "角色",
+    "bio": "简介",
+    "avatar": "头像"
+  },
+  "settings": {
+    "title": "用户设置",
+    "subtitle": "自定义您的应用体验和偏好设置",
+    "sections": {
+      "general": "通用",
+      "display": "显示",
+      "notifications": "通知",
+      "locale": "语言和地区",
+      "privacy": "隐私",
+      "theme": "主题定制",
+      "advanced": "高级"
+    },
+    "appearance": {
+      "title": "外观主题",
+      "light": "浅色模式",
+      "lightDesc": "始终使用浅色主题",
+      "dark": "深色模式",
+      "darkDesc": "始终使用深色主题",
+      "system": "跟随系统",
+      "systemDesc": "自动跟随系统主题设置",
+      "currentTheme": "当前应用主题"
+    },
+    "quickSettings": {
+      "animations": "动画效果",
+      "animationsDesc": "启用页面过渡和交互动画",
+      "compactMode": "紧凑模式",
+      "compactModeDesc": "减少元素间距，显示更多内容",
+      "sidebarExpanded": "展开侧边栏",
+      "sidebarExpandedDesc": "默认展开侧边栏"
+    },
+    "display": {
+      "fontSize": "字体大小",
+      "fontSizeDesc": "调整界面文字大小",
+      "showAvatars": "显示头像",
+      "showAvatarsDesc": "在列表中显示用户头像",
+      "showStatusIndicators": "状态指示器",
+      "showStatusIndicatorsDesc": "显示在线状态和活动指示器",
+      "fontSizeOptions": {
+        "small": "小",
+        "medium": "中",
+        "large": "大"
+      }
+    },
+    "notifications": {
+      "enabled": "启用通知",
+      "enabledDesc": "接收桌面通知",
+      "taskUpdates": "任务更新",
+      "taskUpdatesDesc": "任务状态变更时通知",
+      "mentions": "提及通知",
+      "mentionsDesc": "有人@你时通知",
+      "system": "系统通知",
+      "systemDesc": "重要系统消息通知",
+      "sounds": "提示音",
+      "soundsDesc": "通知时播放声音"
+    },
+    "locale": {
+      "language": "界面语言",
+      "languageDesc": "选择界面显示语言",
+      "timezone": "时区",
+      "timezoneDesc": "设置您的时区",
+      "dateFormat": "日期格式",
+      "dateFormatDesc": "日期显示格式",
+      "timeFormat": "时间格式",
+      "timeFormatDesc": "时间显示格式",
+      "weekStartsOn": "每周起始日",
+      "weekStartsOnDesc": "日历周的起始日",
+      "languages": {
+        "zhCN": "简体中文",
+        "zhTW": "繁體中文",
+        "en": "English",
+        "ja": "日本語"
+      },
+      "timezones": {
+        "asiaShanghai": "中国标准时间 (UTC+8)",
+        "asiaTokyo": "日本标准时间 (UTC+9)",
+        "americaNewYork": "美国东部时间",
+        "americaLosAngeles": "美国太平洋时间",
+        "europeLondon": "伦敦时间",
+        "europeBerlin": "柏林时间"
+      },
+      "timeFormats": {
+        "24h": "24 小时制",
+        "12h": "12 小时制"
+      },
+      "weekStarts": {
+        "sunday": "周日",
+        "monday": "周一",
+        "saturday": "周六"
+      }
+    },
+    "privacy": {
+      "showOnlineStatus": "显示在线状态",
+      "showOnlineStatusDesc": "允许他人看到您的在线状态",
+      "allowAnalytics": "允许数据分析",
+      "allowAnalyticsDesc": "帮助我们改进产品体验",
+      "publicProfile": "公开个人资料",
+      "publicProfileDesc": "允许他人查看您的公开信息",
+      "dataManagement": "数据管理",
+      "localStorage": "本地存储",
+      "localStorageEnabled": "已启用",
+      "localStorageDesc": "您的设置安全存储在本地浏览器中，不会上传到服务器。",
+      "clearAllSettings": "清除所有设置"
+    },
+    "advanced": {
+      "pageSize": "每页显示数量",
+      "pageSizeDesc": "列表每页显示的项目数量",
+      "experimentalFeatures": "实验性功能",
+      "experimentalFeaturesDesc": "启用正在开发中的新功能",
+      "debugMode": "调试模式",
+      "debugModeDesc": "显示详细的调试信息",
+      "importExport": "导入/导出设置",
+      "exportSettings": "导出设置",
+      "importSettings": "导入设置",
+      "importExportDesc": "导出您的设置为 JSON 文件，方便备份或在其他设备导入。",
+      "about": "关于",
+      "version": "版本",
+      "framework": "框架",
+      "team": "团队",
+      "visitWebsite": "访问官网"
+    },
+    "import": {
+      "title": "导入设置",
+      "placeholder": "粘贴导出的 JSON 设置...",
+      "success": "设置导入成功！",
+      "failed": "导入失败",
+      "import": "导入"
+    }
+  },
+  "theme": {
+    "toggle": "切换主题",
+    "light": "浅色模式",
+    "dark": "深色模式",
+    "system": "系统设置"
+  },
+  "language": {
+    "switch": "切换语言",
+    "current": "当前",
+    "select": "选择语言"
+  },
+  "footer": {
+    "copyright": "AI 团队实时看板 - 由宋琢环球旅行团队管理",
+    "version": "版本"
+  },
+  "meta": {
+    "title": "AI 团队实时看板 - 智能团队协作管理平台 | 宋琢环球旅行",
+    "description": "实时监控 11 个专业 AI 代理工作状态、GitHub 任务进度、活动日志。提升团队效率 300%。",
+    "keywords": "AI团队看板,任务管理,智能体,AI代理,团队协作,宋琢环球旅行"
+  }
+}

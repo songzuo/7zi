@@ -1,0 +1,557 @@
+{
+  "server_name": "bot6",
+  "monitoring_interval": 30,
+  "version": "2.0-optimized",
+  
+  "metrics": {
+    "cpu": {
+      "command": "cat /proc/loadavg | awk '{print $1}'",
+      "unit": "load",
+      "warning_threshold": 4.0,
+      "critical_threshold": 8.0,
+      "description": "1分钟平均负载",
+      "consecutive_checks": 3
+    },
+    "cpu_5min": {
+      "command": "cat /proc/loadavg | awk '{print $2}'",
+      "unit": "load",
+      "description": "5分钟平均负载"
+    },
+    "cpu_15min": {
+      "command": "cat /proc/loadavg | awk '{print $3}'",
+      "unit": "load",
+      "description": "15分钟平均负载"
+    },
+    "cpu_cores": {
+      "command": "nproc",
+      "unit": "cores",
+      "description": "CPU核心数"
+    },
+    "cpu_usage_pct": {
+      "command": "top -bn1 | grep 'Cpu(s)' | awk '{print $2}' | cut -d'%' -f1",
+      "unit": "%",
+      "warning_threshold": 70,
+      "critical_threshold": 90,
+      "description": "CPU使用率(用户空间)",
+      "consecutive_checks": 2
+    },
+    "cpu_iowait": {
+      "command": "top -bn1 | grep 'Cpu(s)' | awk '{print $6}' | cut -d'%' -f1",
+      "unit": "%",
+      "warning_threshold": 20,
+      "critical_threshold": 50,
+      "description": "CPU等待I/O时间"
+    },
+    "cpu_steal": {
+      "command": "top -bn1 | grep 'Cpu(s)' | awk '{print $8}' | cut -d'%' -f1",
+      "unit": "%",
+      "warning_threshold": 10,
+      "critical_threshold": 25,
+      "description": "CPU被虚拟化偷取时间"
+    },
+    "memory": {
+      "command": "free | grep Mem | awk '{printf \"%.0f\", $3/$2 * 100}'",
+      "unit": "%",
+      "warning_threshold": 75,
+      "critical_threshold": 90,
+      "description": "内存使用率",
+      "consecutive_checks": 3
+    },
+    "memory_used_mb": {
+      "command": "free -m | grep Mem | awk '{print $3}'",
+      "unit": "MB",
+      "description": "已用内存"
+    },
+    "memory_available_mb": {
+      "command": "free -m | grep Mem | awk '{print $7}'",
+      "unit": "MB",
+      "description": "可用内存"
+    },
+    "memory_cached_mb": {
+      "command": "free -m | grep Mem | awk '{print $6}'",
+      "unit": "MB",
+      "description": "缓存内存"
+    },
+    "memory_buffers_mb": {
+      "command": "free -m | grep Mem | awk '{print $5}'",
+      "unit": "MB",
+      "description": "缓冲区内存"
+    },
+    "swap_usage_pct": {
+      "command": "free | grep Swap | awk '{if($2>0) printf \"%.0f\", $3/$2 * 100; else print 0}'",
+      "unit": "%",
+      "warning_threshold": 20,
+      "critical_threshold": 50,
+      "description": "Swap使用率"
+    },
+    "swap_used_mb": {
+      "command": "free -m | grep Swap | awk '{print $3}'",
+      "unit": "MB",
+      "description": "已用Swap"
+    },
+    "disk_root_usage_pct": {
+      "command": "df / | tail -1 | awk '{print $5}' | sed 's/%//'",
+      "unit": "%",
+      "warning_threshold": 75,
+      "critical_threshold": 90,
+      "description": "根分区使用率",
+      "consecutive_checks": 2
+    },
+    "disk_root_available_gb": {
+      "command": "df -BG / | tail -1 | awk '{print $4}' | sed 's/G//'",
+      "unit": "GB",
+      "warning_threshold": 10,
+      "critical_threshold": 5,
+      "description": "根分区可用空间"
+    },
+    "disk_home_usage_pct": {
+      "command": "df /home 2>/dev/null | tail -1 | awk '{print $5}' | sed 's/%//'",
+      "unit": "%",
+      "warning_threshold": 80,
+      "critical_threshold": 95,
+      "description": "home分区使用率"
+    },
+    "disk_io_r": {
+      "command": "iostat -x 1 1 2>/dev/null | grep sda | awk '{print $4}'",
+      "unit": "r/s",
+      "description": "磁盘读取IOPS"
+    },
+    "disk_io_w": {
+      "command": "iostat -x 1 1 2>/dev/null | grep sda | awk '{print $8}'",
+      "unit": "w/s",
+      "description": "磁盘写入IOPS"
+    },
+    "disk_io_util": {
+      "command": "iostat -x 1 1 2>/dev/null | grep sda | awk '{print $14}'",
+      "unit": "%",
+      "warning_threshold": 70,
+      "critical_threshold": 90,
+      "description": "磁盘利用率"
+    },
+    "disk_latency_ms": {
+      "command": "iostat -x 1 1 2>/dev/null | grep sda | awk '{print $10}'",
+      "unit": "ms",
+      "warning_threshold": 10,
+      "critical_threshold": 50,
+      "description": "磁盘延迟"
+    },
+    "network_eth0_rx_mb": {
+      "command": "cat /sys/class/net/eth0/statistics/rx_bytes 2>/dev/null || echo 0",
+      "unit": "MB",
+      "description": "网卡接收流量"
+    },
+    "network_eth0_tx_mb": {
+      "command": "cat /sys/class/net/eth0/statistics/tx_bytes 2>/dev/null || echo 0",
+      "unit": "MB",
+      "description": "网卡发送流量"
+    },
+    "network_eth0_rx_packets": {
+      "command": "cat /sys/class/net/eth0/statistics/rx_packets 2>/dev/null || echo 0",
+      "unit": "packets",
+      "description": "网卡接收包数"
+    },
+    "network_eth0_tx_packets": {
+      "command": "cat /sys/class/net/eth0/statistics/tx_packets 2>/dev/null || echo 0",
+      "unit": "packets",
+      "description": "网卡发送包数"
+    },
+    "network_eth0_errors": {
+      "command": "cat /sys/class/net/eth0/statistics/rx_errors 2>/dev/null || echo 0",
+      "unit": "errors",
+      "warning_threshold": 10,
+      "critical_threshold": 100,
+      "description": "网卡错误数"
+    },
+    "network_connections": {
+      "command": "ss -s | grep TCP | awk '{print $2}'",
+      "unit": "count",
+      "warning_threshold": 200,
+      "critical_threshold": 500,
+      "description": "TCP连接数"
+    },
+    "network_established": {
+      "command": "ss -tan | grep ESTAB | wc -l",
+      "unit": "count",
+      "description": "已建立连接数"
+    },
+    "network_timewait": {
+      "command": "ss -tan | grep TIME-WAIT | wc -l",
+      "unit": "count",
+      "warning_threshold": 100,
+      "critical_threshold": 200,
+      "description": "TIME-WAIT连接数"
+    },
+    "network_closewait": {
+      "command": "ss -tan | grep CLOSE-WAIT | wc -l",
+      "unit": "count",
+      "warning_threshold": 10,
+      "critical_threshold": 50,
+      "description": "CLOSE-WAIT连接数"
+    },
+    "network_listening": {
+      "command": "ss -ltn | wc -l",
+      "unit": "count",
+      "description": "监听端口数"
+    },
+    "process_count": {
+      "command": "ps aux | wc -l",
+      "unit": "count",
+      "warning_threshold": 300,
+      "critical_threshold": 500,
+      "description": "进程总数"
+    },
+    "zombie_count": {
+      "command": "ps aux | grep ' Z ' | grep -v grep | wc -l",
+      "unit": "count",
+      "warning_threshold": 2,
+      "critical_threshold": 10,
+      "description": "僵尸进程数"
+    },
+    "open_files": {
+      "command": "lsof 2>/dev/null | wc -l",
+      "unit": "count",
+      "warning_threshold": 8000,
+      "critical_threshold": 10000,
+      "description": "打开文件数"
+    },
+    "uptime_days": {
+      "command": "uptime | awk '{print $3}'",
+      "unit": "days",
+      "description": "系统运行天数"
+    },
+    "openclaw_status": {
+      "command": "pgrep -f 'openclaw.*gateway' >/dev/null && echo 'running' || echo 'stopped'",
+      "unit": "status",
+      "critical_threshold": 0,
+      "description": "OpenClaw网关状态"
+    },
+    "openclaw_memory_mb": {
+      "command": "ps aux | grep 'openclaw.*gateway' | grep -v grep | awk '{sum+=$6} END {print sum/1024}'",
+      "unit": "MB",
+      "warning_threshold": 500,
+      "critical_threshold": 1000,
+      "description": "OpenClaw内存使用"
+    },
+    "openclaw_cpu_pct": {
+      "command": "ps aux | grep 'openclaw.*gateway' | grep -v grep | awk '{sum+=$3} END {print sum}'",
+      "unit": "%",
+      "warning_threshold": 50,
+      "critical_threshold": 80,
+      "description": "OpenClaw CPU使用率"
+    },
+    "openclaw_threads": {
+      "command": "ps -o nlwp= -L -p $(pgrep -f 'openclaw.*gateway' | head -1) 2>/dev/null || echo 0",
+      "unit": "threads",
+      "description": "OpenClaw线程数"
+    },
+    "openclaw_fd": {
+      "command": "ls -1 /proc/$(pgrep -f 'openclaw.*gateway' | head -1)/fd 2>/dev/null | wc -l || echo 0",
+      "unit": "count",
+      "warning_threshold": 500,
+      "critical_threshold": 1000,
+      "description": "OpenClaw文件描述符"
+    },
+    "docker_containers_running": {
+      "command": "docker ps -q 2>/dev/null | wc -l",
+      "unit": "count",
+      "description": "运行中的Docker容器"
+    },
+    "docker_containers_total": {
+      "command": "docker ps -aq 2>/dev/null | wc -l",
+      "unit": "count",
+      "description": "总Docker容器数"
+    },
+    "docker_memory_usage": {
+      "command": "docker stats --no-stream --format '{{.MemUsage}}' 2>/dev/null | head -1 | awk '{print $1}' | sed 's/MiB//'",
+      "unit": "MB",
+      "warning_threshold": 1000,
+      "critical_threshold": 2000,
+      "description": "Docker内存使用"
+    },
+    "docker_cpu_usage": {
+      "command": "docker stats --no-stream --format '{{.CPUPerc}}' 2>/dev/null | head -1 | sed 's/%//'",
+      "unit": "%",
+      "warning_threshold": 50,
+      "critical_threshold": 80,
+      "description": "Docker CPU使用"
+    },
+    "port_22": {
+      "command": "nc -z 127.0.0.1 22 2>/dev/null && echo 1 || echo 0",
+      "unit": "status",
+      "description": "SSH端口状态"
+    },
+    "port_80": {
+      "command": "nc -z 127.0.0.1 80 2>/dev/null && echo 1 || echo 0",
+      "unit": "status",
+      "description": "HTTP端口状态"
+    },
+    "port_443": {
+      "command": "nc -z 127.0.0.1 443 2>/dev/null && echo 1 || echo 0",
+      "unit": "status",
+      "description": "HTTPS端口状态"
+    },
+    "dns_latency_ms": {
+      "command": "timeout 2 nslookup google.com 2>/dev/null | grep time= | awk -F'time=' '{print $2}' | awk '{print $1}' || echo 0",
+      "unit": "ms",
+      "warning_threshold": 100,
+      "critical_threshold": 500,
+      "description": "DNS解析延迟"
+    },
+    "http_latency_ms": {
+      "command": "curl -o /dev/null -s -w '%{time_total}' http://127.0.0.1 2>/dev/null | awk '{print int($1*1000)}' || echo 0",
+      "unit": "ms",
+      "warning_threshold": 1000,
+      "critical_threshold": 5000,
+      "description": "本地HTTP响应延迟"
+    },
+    "kernel_messages": {
+      "command": "dmesg | tail -50 | grep -i 'error\\|fail\\|critical' | wc -l",
+      "unit": "count",
+      "warning_threshold": 5,
+      "critical_threshold": 20,
+      "description": "内核错误消息数"
+    },
+    "system_temp_c": {
+      "command": "cat /sys/class/thermal/thermal_zone0/temp 2>/dev/null | awk '{print $1/1000}' || echo 0",
+      "unit": "°C",
+      "warning_threshold": 70,
+      "critical_threshold": 85,
+      "description": "系统温度"
+    }
+  },
+  
+  "alerts": {
+    "cpu_high": {
+      "condition": "cpu > warning_threshold",
+      "severity": "warning",
+      "message": "⚠️ CPU负载较高: {value}",
+      "cooldown_minutes": 5,
+      "consecutive_required": 3
+    },
+    "cpu_critical": {
+      "condition": "cpu > critical_threshold",
+      "severity": "critical",
+      "message": "🚨 CPU负载过高: {value}",
+      "cooldown_minutes": 2,
+      "consecutive_required": 2
+    },
+    "cpu_iowait_high": {
+      "condition": "cpu_iowait > warning_threshold",
+      "severity": "warning",
+      "message": "⚠️ CPU等待I/O过高: {value}%",
+      "cooldown_minutes": 5
+    },
+    "memory_high": {
+      "condition": "memory > warning_threshold",
+      "severity": "warning",
+      "message": "⚠️ 内存使用率较高: {value}%",
+      "cooldown_minutes": 5,
+      "consecutive_required": 3
+    },
+    "memory_critical": {
+      "condition": "memory > critical_threshold",
+      "severity": "critical",
+      "message": "🚨 内存使用率过高: {value}%",
+      "cooldown_minutes": 2,
+      "consecutive_required": 2
+    },
+    "swap_activated": {
+      "condition": "swap_usage_pct > 0",
+      "severity": "info",
+      "message": "💾 系统开始使用Swap: {value}%",
+      "cooldown_minutes": 30
+    },
+    "disk_full": {
+      "condition": "disk_root_usage_pct > warning_threshold",
+      "severity": "warning",
+      "message": "⚠️ 磁盘空间不足: {value}%",
+      "cooldown_minutes": 10,
+      "consecutive_required": 2
+    },
+    "disk_critical": {
+      "condition": "disk_root_usage_pct > critical_threshold",
+      "severity": "critical",
+      "message": "🚨 磁盘空间严重不足: {value}%",
+      "cooldown_minutes": 2
+    },
+    "disk_io_high": {
+      "condition": "disk_io_util > warning_threshold",
+      "severity": "warning",
+      "message": "⚠️ 磁盘I/O负载高: {value}%",
+      "cooldown_minutes": 5
+    },
+    "network_errors": {
+      "condition": "network_eth0_errors > warning_threshold",
+      "severity": "warning",
+      "message": "⚠️ 网卡错误: {value}",
+      "cooldown_minutes": 10
+    },
+    "timewait_high": {
+      "condition": "network_timewait > warning_threshold",
+      "severity": "warning",
+      "message": "⚠️ TIME-WAIT连接过多: {value}",
+      "cooldown_minutes": 5
+    },
+    "closewait_high": {
+      "condition": "network_closewait > warning_threshold",
+      "severity": "warning",
+      "message": "⚠️ CLOSE-WAIT连接过多: {value}",
+      "cooldown_minutes": 5
+    },
+    "openclaw_down": {
+      "condition": "openclaw_status == stopped",
+      "severity": "critical",
+      "message": "🚨 OpenClaw网关已停止!",
+      "cooldown_minutes": 1
+    },
+    "openclaw_high_memory": {
+      "condition": "openclaw_memory_mb > warning_threshold",
+      "severity": "warning",
+      "message": "⚠️ OpenClaw内存使用较高: {value}MB",
+      "cooldown_minutes": 10
+    },
+    "openclaw_high_cpu": {
+      "condition": "openclaw_cpu_pct > warning_threshold",
+      "severity": "warning",
+      "message": "⚠️ OpenClaw CPU使用较高: {value}%",
+      "cooldown_minutes": 5
+    },
+    "openclaw_fd_high": {
+      "condition": "openclaw_fd > warning_threshold",
+      "severity": "warning",
+      "message": "⚠️ OpenClaw文件描述符过多: {value}",
+      "cooldown_minutes": 10
+    },
+    "docker_down": {
+      "condition": "docker_containers_running == 0 && docker_containers_total > 0",
+      "severity": "warning",
+      "message": "⚠️ Docker容器全部停止",
+      "cooldown_minutes": 5
+    },
+    "port_down": {
+      "condition": "port_22 == 0 || port_80 == 0",
+      "severity": "critical",
+      "message": "🚨 关键端口不可用",
+      "cooldown_minutes": 2
+    },
+    "zombie_processes": {
+      "condition": "zombie_count > warning_threshold",
+      "severity": "warning",
+      "message": "⚠️ 僵尸进程过多: {value}",
+      "cooldown_minutes": 10
+    },
+    "system_overheating": {
+      "condition": "system_temp_c > warning_threshold",
+      "severity": "warning",
+      "message": "🌡️ 系统温度过高: {value}°C",
+      "cooldown_minutes": 5
+    },
+    "kernel_errors": {
+      "condition": "kernel_messages > warning_threshold",
+      "severity": "warning",
+      "message": "⚠️ 内核错误消息过多: {value}",
+      "cooldown_minutes": 15
+    },
+    "load_trend_warning": {
+      "condition": "cpu > cpu_5min && cpu_5min > cpu_15min",
+      "severity": "warning",
+      "message": "📈 CPU负载呈上升趋势",
+      "cooldown_minutes": 15
+    }
+  },
+  
+  "performance": {
+    "auto_cleanup": {
+      "enabled": true,
+      "actions": [
+        {
+          "trigger": "network_timewait > 100",
+          "command": "sysctl -w net.ipv4.tcp_tw_reuse=1 && sysctl -w net.ipv4.tcp_tw_recycle=1",
+          "description": "启用TCP快速重用和回收",
+          "cooldown_minutes": 10
+        },
+        {
+          "trigger": "disk_root_available_gb < 10",
+          "command": "journalctl --vacuum-time=7d && apt-get clean",
+          "description": "清理7天前的日志和APT缓存",
+          "cooldown_minutes": 60
+        },
+        {
+          "trigger": "disk_root_available_gb < 5",
+          "command": "journalctl --vacuum-time=3d && docker system prune -af",
+          "description": "清理3天前日志和Docker缓存",
+          "cooldown_minutes": 30
+        },
+        {
+          "trigger": "memory > 80",
+          "command": "sync && echo 3 > /proc/sys/vm/drop_caches",
+          "description": "清理页缓存释放内存",
+          "cooldown_minutes": 15
+        },
+        {
+          "trigger": "open_files > 8000",
+          "command": "lsof -c openclaw | awk '{print $2}' | uniq | xargs -r ls -1 /proc/*/fd 2>/dev/null | wc -l",
+          "description": "检查OpenClaw文件描述符",
+          "cooldown_minutes": 10
+        }
+      ]
+    },
+    "optimizations": {
+      "swappiness": {
+        "recommended": 10,
+        "current": "cat /proc/sys/vm/swappiness",
+        "apply": "sysctl -w vm.swappiness=10"
+      },
+      "io_scheduler": {
+        "recommended": "mq-deadline",
+        "check": "cat /sys/block/sda/queue/scheduler"
+      },
+      "tcp_keepalive": {
+        "recommended": "enabled",
+        "apply": "sysctl -w net.ipv4.tcp_keepalive_time=600 && sysctl -w net.ipv4.tcp_keepalive_intvl=60 && sysctl -w net.ipv4.tcp_keepalive_probes=5"
+      },
+      "file_max": {
+        "recommended": 65536,
+        "current": "sysctl fs.file-max",
+        "apply": "sysctl -w fs.file-max=65536 && ulimit -n 65536"
+      },
+      "network_rmem": {
+        "recommended": "16777216",
+        "apply": "sysctl -w net.core.rmem_max=16777216"
+      },
+      "network_wmem": {
+        "recommended": "16777216",
+        "apply": "sysctl -w net.core.wmem_max=16777216"
+      }
+    },
+    "monitoring": {
+      "collection_timeout": 10,
+      "parallel_collection": true,
+      "history_retention_days": 30,
+      "metrics_summary_interval": 300
+    }
+  },
+  
+  "notification": {
+    "channels": ["telegram", "log"],
+    "telegram": {
+      "enabled": true,
+      "notify_on_warning": false,
+      "notify_on_critical": true,
+      "notify_on_recovery": true
+    },
+    "log": {
+      "enabled": true,
+      "path": "/root/.openclaw/workspace/logs/monitor.log",
+      "rotate_size_mb": 10,
+      "rotate_count": 5
+    }
+  },
+  
+  "summary": {
+    "enabled": true,
+    "schedule": "0 9 * * *",
+    "include_trends": true,
+    "channels": ["telegram", "log"]
+  }
+}

@@ -1,0 +1,136 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="./"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>AI Team Dashboard API Documentation - v1.0.0</title><meta name="description" content="Documentation for AI Team Dashboard API Documentation"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script defer src="assets/main.js"></script><script async src="assets/icons.js" id="tsd-icons-script"></script><script async src="assets/search.js" id="tsd-search-script"></script><script async src="assets/navigation.js" id="tsd-nav-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><a href="index.html" class="title">AI Team Dashboard API Documentation - v1.0.0</a><div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/><ul role="listbox" id="tsd-search-results"></ul><div id="tsd-search-status" aria-live="polite" aria-atomic="true"><div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-menu"></use></svg></a></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><h1>AI Team Dashboard API Documentation - v1.0.0</h1></div><div class="tsd-panel tsd-typography"><h1 id="ai-团队实时看板" class="tsd-anchor-link">AI 团队实时看板<a href="#ai-团队实时看板" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1>
+<p><a href="./docs/api/"><img src="https://img.shields.io/badge/TypeDoc-API%20Docs-blue" alt="TypeDoc"></a>
+<a href="./docs/storybook/"><img src="https://img.shields.io/badge/Storybook-Components-ff4785" alt="Storybook"></a>
+<a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License"></a></p>
+<h2 id="📚-文档资源" class="tsd-anchor-link">📚 文档资源<a href="#📚-文档资源" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ul>
+<li><strong><a href="./docs/api/">📖 API 文档</a></strong> - TypeScript API 参考文档</li>
+<li><strong><a href="./docs/storybook/">🎨 组件库</a></strong> - Storybook 组件展示</li>
+<li><strong><a href="media/DOCUMENTATION.md">📝 完整文档</a></strong> - 详细使用指南</li>
+<li><strong><a href="media/CONTRIBUTING.md">🤝 贡献指南</a></strong> - 如何参与开发</li>
+</ul>
+<h2 id="📁-目录结构" class="tsd-anchor-link">📁 目录结构<a href="#📁-目录结构" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<pre><code><span class="hl-0">app</span><span class="hl-1">/</span><br/><span class="hl-1">├── </span><span class="hl-0">dashboard</span><span class="hl-1">/</span><br/><span class="hl-1">│   └── </span><span class="hl-0">page</span><span class="hl-1">.</span><span class="hl-0">tsx</span><span class="hl-1">          # </span><span class="hl-0">主看板页面</span><br/><span class="hl-1">├── </span><span class="hl-0">components</span><span class="hl-1">/</span><br/><span class="hl-1">│   ├── </span><span class="hl-0">MemberCard</span><span class="hl-1">.</span><span class="hl-0">tsx</span><span class="hl-1">    # </span><span class="hl-0">成员卡片组件</span><br/><span class="hl-1">│   ├── </span><span class="hl-0">TaskBoard</span><span class="hl-1">.</span><span class="hl-0">tsx</span><span class="hl-1">     # </span><span class="hl-0">任务看板组件</span><br/><span class="hl-1">│   ├── </span><span class="hl-0">ActivityLog</span><span class="hl-1">.</span><span class="hl-0">tsx</span><span class="hl-1">   # </span><span class="hl-0">活动日志组件</span><br/><span class="hl-1">│   └── </span><span class="hl-0">LoadingSpinner</span><span class="hl-1">.</span><span class="hl-0">tsx</span><span class="hl-1"> # </span><span class="hl-0">加载动画组件</span><br/><span class="hl-1">├── </span><span class="hl-0">hooks</span><span class="hl-1">/</span><br/><span class="hl-1">│   └── </span><span class="hl-0">useDashboardData</span><span class="hl-1">.</span><span class="hl-0">ts</span><span class="hl-1"> # </span><span class="hl-0">GitHub</span><span class="hl-1"> </span><span class="hl-2">API</span><span class="hl-1"> </span><span class="hl-0">数据</span><span class="hl-1"> </span><span class="hl-0">Hook</span><br/><span class="hl-1">└── .</span><span class="hl-0">env</span><span class="hl-1">.</span><span class="hl-0">example</span><span class="hl-1">          # </span><span class="hl-0">环境变量示例</span>
+</code><button>Copy</button></pre>
+
+<h2 id="🚀-快速开始" class="tsd-anchor-link">🚀 快速开始<a href="#🚀-快速开始" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<h3 id="0-生成文档（可选）" class="tsd-anchor-link">0. 生成文档（可选）<a href="#0-生成文档（可选）" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<pre><code class="bash"><span class="hl-3"># 生成所有文档（API 文档 + Storybook）</span><br/><span class="hl-4">npm</span><span class="hl-1"> </span><span class="hl-5">run</span><span class="hl-1"> </span><span class="hl-5">docs:build</span><br/><br/><span class="hl-3"># 或分别生成</span><br/><span class="hl-4">npm</span><span class="hl-1"> </span><span class="hl-5">run</span><span class="hl-1"> </span><span class="hl-5">docs:api</span><span class="hl-1">        </span><span class="hl-3"># 生成 TypeDoc API 文档</span><br/><span class="hl-4">npm</span><span class="hl-1"> </span><span class="hl-5">run</span><span class="hl-1"> </span><span class="hl-5">storybook</span><span class="hl-1">       </span><span class="hl-3"># 启动 Storybook 开发服务器</span><br/><br/><span class="hl-3"># 本地预览文档</span><br/><span class="hl-4">open</span><span class="hl-1"> </span><span class="hl-5">docs/index.html</span>
+</code><button type="button">Copy</button></pre>
+
+<h3 id="1-配置环境变量" class="tsd-anchor-link">1. 配置环境变量<a href="#1-配置环境变量" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<pre><code class="bash"><span class="hl-4">cp</span><span class="hl-1"> </span><span class="hl-5">app/.env.example</span><span class="hl-1"> </span><span class="hl-5">app/.env.local</span>
+</code><button type="button">Copy</button></pre>
+
+<p>编辑 <code>.env.local</code>，填入你的 GitHub 仓库信息：</p>
+<pre><code class="bash"><span class="hl-0">NEXT_PUBLIC_GITHUB_OWNER</span><span class="hl-1">=</span><span class="hl-5">你的</span><span class="hl-1"> </span><span class="hl-4">GitHub</span><span class="hl-1"> </span><span class="hl-5">用户名</span><br/><span class="hl-0">NEXT_PUBLIC_GITHUB_REPO</span><span class="hl-1">=</span><span class="hl-5">你的仓库名</span><br/><span class="hl-0">NEXT_PUBLIC_GITHUB_TOKEN</span><span class="hl-1">=</span><span class="hl-5">你的</span><span class="hl-1"> </span><span class="hl-4">GitHub</span><span class="hl-1"> </span><span class="hl-5">Token</span><span class="hl-1"> (可选)</span>
+</code><button type="button">Copy</button></pre>
+
+<h3 id="2-获取-github-token-可选但推荐" class="tsd-anchor-link">2. 获取 GitHub Token (可选但推荐)<a href="#2-获取-github-token-可选但推荐" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ol>
+<li>访问 <a href="https://github.com/settings/tokens">https://github.com/settings/tokens</a></li>
+<li>点击 &quot;Generate new token (classic)&quot;</li>
+<li>选择权限：<code>repo</code>, <code>read:user</code></li>
+<li>生成并复制 Token</li>
+<li>填入 <code>.env.local</code></li>
+</ol>
+<h3 id="3-运行项目" class="tsd-anchor-link">3. 运行项目<a href="#3-运行项目" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<pre><code class="bash"><span class="hl-3"># 安装依赖</span><br/><span class="hl-4">npm</span><span class="hl-1"> </span><span class="hl-5">install</span><br/><br/><span class="hl-3"># 启动开发服务器</span><br/><span class="hl-4">npm</span><span class="hl-1"> </span><span class="hl-5">run</span><span class="hl-1"> </span><span class="hl-5">dev</span><br/><br/><span class="hl-3"># 访问看板</span><br/><span class="hl-4">http://localhost:3000/dashboard</span>
+</code><button type="button">Copy</button></pre>
+
+<h2 id="📋-功能特性" class="tsd-anchor-link">📋 功能特性<a href="#📋-功能特性" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<h3 id="✅-11-位-ai-成员状态展示" class="tsd-anchor-link">✅ 11 位 AI 成员状态展示<a href="#✅-11-位-ai-成员状态展示" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li>🌟 智能体世界专家</li>
+<li>📚 咨询师</li>
+<li>🏗️ 架构师</li>
+<li>⚡ Executor</li>
+<li>🛡️ 系统管理员</li>
+<li>🧪 测试员</li>
+<li>🎨 设计师</li>
+<li>📣 推广专员</li>
+<li>💼 销售客服</li>
+<li>💰 财务</li>
+<li>📺 媒体</li>
+</ul>
+<h3 id="✅-github-issues-集成" class="tsd-anchor-link">✅ GitHub Issues 集成<a href="#✅-github-issues-集成" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li>实时显示团队任务</li>
+<li>任务状态筛选 (进行中/已完成/全部)</li>
+<li>任务进度条展示</li>
+<li>标签分类</li>
+</ul>
+<h3 id="✅-实时活动日志" class="tsd-anchor-link">✅ 实时活动日志<a href="#✅-实时活动日志" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li>GitHub Commits 提交记录</li>
+<li>Issues 创建/更新活动</li>
+<li>时间排序，最新优先</li>
+<li>自动刷新 (30 秒)</li>
+</ul>
+<h3 id="✅-统计面板" class="tsd-anchor-link">✅ 统计面板<a href="#✅-统计面板" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li>成员状态统计</li>
+<li>任务进度统计</li>
+<li>实时更新时间</li>
+</ul>
+<h2 id="🔌-技术栈" class="tsd-anchor-link">🔌 技术栈<a href="#🔌-技术栈" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ul>
+<li><strong>框架</strong>: Next.js 14 (App Router)</li>
+<li><strong>语言</strong>: TypeScript</li>
+<li><strong>样式</strong>: Tailwind CSS</li>
+<li><strong>数据</strong>: GitHub REST API v3</li>
+<li><strong>状态</strong>: React Hooks</li>
+</ul>
+<h2 id="📊-api-使用" class="tsd-anchor-link">📊 API 使用<a href="#📊-api-使用" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<h3 id="github-api-端点" class="tsd-anchor-link">GitHub API 端点<a href="#github-api-端点" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li><code>GET /repos/{owner}/{repo}/issues</code> - 获取 Issues</li>
+<li><code>GET /repos/{owner}/{repo}/commits</code> - 获取 Commits</li>
+</ul>
+<h3 id="速率限制" class="tsd-anchor-link">速率限制<a href="#速率限制" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li>未认证：60 次/小时</li>
+<li>已认证 (Token)：5000 次/小时</li>
+</ul>
+<h2 id="🎨-自定义" class="tsd-anchor-link">🎨 自定义<a href="#🎨-自定义" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<h3 id="修改成员配置" class="tsd-anchor-link">修改成员配置<a href="#修改成员配置" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>编辑 <code>app/dashboard/page.tsx</code> 中的 <code>AI_MEMBERS</code> 数组：</p>
+<pre><code class="typescript"><span class="hl-6">const</span><span class="hl-1"> </span><span class="hl-2">AI_MEMBERS</span><span class="hl-1">: </span><span class="hl-7">AIMember</span><span class="hl-1">[] = [</span><br/><span class="hl-1">  {</span><br/><span class="hl-1">    </span><span class="hl-0">id:</span><span class="hl-1"> </span><span class="hl-5">&#39;custom-id&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">name:</span><span class="hl-1"> </span><span class="hl-5">&#39;自定义名称&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">role:</span><span class="hl-1"> </span><span class="hl-5">&#39;角色描述&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">emoji:</span><span class="hl-1"> </span><span class="hl-5">&#39;🎯&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">avatar:</span><span class="hl-1"> </span><span class="hl-5">&#39;头像 URL&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">status:</span><span class="hl-1"> </span><span class="hl-5">&#39;working&#39;</span><span class="hl-1">, </span><span class="hl-3">// &#39;idle&#39; | &#39;working&#39; | &#39;busy&#39; | &#39;offline&#39;</span><br/><span class="hl-1">    </span><span class="hl-0">provider:</span><span class="hl-1"> </span><span class="hl-5">&#39;提供商&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">currentTask:</span><span class="hl-1"> </span><span class="hl-5">&#39;#123 任务描述&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-0">completedTasks:</span><span class="hl-1"> </span><span class="hl-8">100</span><br/><span class="hl-1">  }</span><br/><span class="hl-1">];</span>
+</code><button type="button">Copy</button></pre>
+
+<h3 id="修改刷新间隔" class="tsd-anchor-link">修改刷新间隔<a href="#修改刷新间隔" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>在 <code>app/dashboard/page.tsx</code> 中修改：</p>
+<pre><code class="typescript"><span class="hl-6">const</span><span class="hl-1"> </span><span class="hl-2">REFRESH_INTERVAL</span><span class="hl-1"> = </span><span class="hl-8">30000</span><span class="hl-1">; </span><span class="hl-3">// 毫秒</span>
+</code><button type="button">Copy</button></pre>
+
+<h3 id="修改样式" class="tsd-anchor-link">修改样式<a href="#修改样式" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>所有组件使用 Tailwind CSS，可直接修改 class 名称自定义样式。</p>
+<h2 id="🐛-故障排除" class="tsd-anchor-link">🐛 故障排除<a href="#🐛-故障排除" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<h3 id="无法加载数据" class="tsd-anchor-link">无法加载数据<a href="#无法加载数据" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ol>
+<li>检查 GitHub 仓库名称是否正确</li>
+<li>检查网络连接</li>
+<li>查看浏览器控制台错误信息</li>
+</ol>
+<h3 id="api-速率限制" class="tsd-anchor-link">API 速率限制<a href="#api-速率限制" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>如果遇到 403 错误：</p>
+<ol>
+<li>配置 <code>NEXT_PUBLIC_GITHUB_TOKEN</code></li>
+<li>等待速率限制重置</li>
+</ol>
+<h3 id="图片加载失败" class="tsd-anchor-link">图片加载失败<a href="#图片加载失败" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>头像使用 DiceBear API 作为后备，如果加载失败会自动切换到默认头像。</p>
+<h2 id="📝-待办事项" class="tsd-anchor-link">📝 待办事项<a href="#📝-待办事项" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ul>
+<li>[ ] 添加 WebSocket 实时更新</li>
+<li>[ ] 添加成员任务分配功能</li>
+<li>[ ] 添加贡献统计图表</li>
+<li>[ ] 添加深色模式</li>
+<li>[ ] 添加移动端优化</li>
+<li>[ ] 添加导出功能</li>
+</ul>
+<hr>
+<p><strong>版本</strong>: 1.0.0<br>
+<strong>创建时间</strong>: 2026-03-06<br>
+<strong>维护者</strong>: AI 团队</p>
+</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#ai-团队实时看板"><span>AI 团队实时看板</span></a><ul><li><a href="#📚-文档资源"><span>📚 文档资源</span></a></li><li><a href="#📁-目录结构"><span>📁 目录结构</span></a></li><li><a href="#🚀-快速开始"><span>🚀 快速开始</span></a></li><li><ul><li><a href="#0-生成文档（可选）"><span>0. 生成文档（可选）</span></a></li><li><a href="#1-配置环境变量"><span>1. 配置环境变量</span></a></li><li><a href="#2-获取-github-token-可选但推荐"><span>2. 获取 <wbr/>Git<wbr/>Hub <wbr/>Token (可选但推荐)</span></a></li><li><a href="#3-运行项目"><span>3. 运行项目</span></a></li></ul></li><li><a href="#📋-功能特性"><span>📋 功能特性</span></a></li><li><ul><li><a href="#✅-11-位-ai-成员状态展示"><span>✅ 11 位 <wbr/>AI 成员状态展示</span></a></li><li><a href="#✅-github-issues-集成"><span>✅ <wbr/>Git<wbr/>Hub <wbr/>Issues 集成</span></a></li><li><a href="#✅-实时活动日志"><span>✅ 实时活动日志</span></a></li><li><a href="#✅-统计面板"><span>✅ 统计面板</span></a></li></ul></li><li><a href="#🔌-技术栈"><span>🔌 技术栈</span></a></li><li><a href="#📊-api-使用"><span>📊 <wbr/>API 使用</span></a></li><li><ul><li><a href="#github-api-端点"><span>Git<wbr/>Hub <wbr/>API 端点</span></a></li><li><a href="#速率限制"><span>速率限制</span></a></li></ul></li><li><a href="#🎨-自定义"><span>🎨 自定义</span></a></li><li><ul><li><a href="#修改成员配置"><span>修改成员配置</span></a></li><li><a href="#修改刷新间隔"><span>修改刷新间隔</span></a></li><li><a href="#修改样式"><span>修改样式</span></a></li></ul></li><li><a href="#🐛-故障排除"><span>🐛 故障排除</span></a></li><li><ul><li><a href="#无法加载数据"><span>无法加载数据</span></a></li><li><a href="#api-速率限制"><span>API 速率限制</span></a></li><li><a href="#图片加载失败"><span>图片加载失败</span></a></li></ul></li><li><a href="#📝-待办事项"><span>📝 待办事项</span></a></li></ul></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="modules.html">AI Team Dashboard API Documentation - v1.0.0</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div></body></html>

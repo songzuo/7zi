@@ -1,0 +1,32 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "./lib/tasks",
+    "./lib/export.ts",
+    "./lib/report-generator.ts"
+  ],
+  "entryPointStrategy": "expand",
+  "out": "docs/api",
+  "exclude": [
+    "**/node_modules/**",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/__tests__/**",
+    "**/db/**"
+  ],
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeInternal": true,
+  "readme": "./README.md",
+  "name": "AI Team Dashboard API Documentation",
+  "includeVersion": true,
+  "plugin": [],
+  "theme": "default",
+  "searchInComments": true,
+  "disableSources": false,
+  "categorizeByGroup": true,
+  "sort": ["kind", "instance-first", "alphabetical"],
+  "hideGenerator": false,
+  "treatWarningsAsErrors": false,
+  "tsconfig": "./tsconfig.doc.json"
+}

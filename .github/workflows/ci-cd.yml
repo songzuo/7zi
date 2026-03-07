@@ -1,0 +1,414 @@
+# ==========================================
+# GitHub Actions CI/CD 配置
+# 支持：代码检查 → 测试 → 构建 → 部署
+# 部署目标：Vercel + 服务器 (7zi.com, bot5)
+# ==========================================
+
+name: CI/CD Pipeline
+
+on:
+  # push 到 main 分支时触发完整流程
+  push:
+    branches: [main]
+  # PR 时触发测试
+  pull_request:
+    branches: [main]
+  # 手动触发部署
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: '部署环境'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+
+env:
+  NODE_VERSION: '20'
+  APP_DIR: app
+
+# ==========================================
+# Jobs
+# ==========================================
+
+jobs:
+  # ----------------------------------------
+  # 1. 代码质量检查
+  # ----------------------------------------
+  lint:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: ${{ env.APP_DIR }}/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./${{ env.APP_DIR }}
+        run: npm ci
+
+      - name: TypeScript type check
+        working-directory: ./${{ env.APP_DIR }}
+        run: npm run type-check
+
+      - name: ESLint
+        working-directory: ./${{ env.APP_DIR }}
+        run: npm run lint
+
+      - name: Prettier format check
+        working-directory: ./${{ env.APP_DIR }}
+        run: npm run format:check
+
+  # ----------------------------------------
+  # 2. 测试
+  # ----------------------------------------
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: ${{ env.APP_DIR }}/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./${{ env.APP_DIR }}
+        run: npm ci
+
+      - name: Run tests
+        working-directory: ./${{ env.APP_DIR }}
+        run: npm run test:run -- --coverage
+
+      - name: Upload test reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-reports
+          path: ${{ env.APP_DIR }}/coverage
+          retention-days: 30
+
+  # ----------------------------------------
+  # 3. 构建
+  # ----------------------------------------
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: ${{ env.APP_DIR }}/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./${{ env.APP_DIR }}
+        run: npm ci
+
+      - name: Build application
+        working-directory: ./${{ env.APP_DIR }}
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: ${{ env.APP_DIR }}/.next
+          retention-days: 7
+
+      - name: Upload static files
+        uses: actions/upload-artifact@v4
+        with:
+          name: static-files
+          path: |
+            ${{ env.APP_DIR }}/out
+            ${{ env.APP_DIR }}/.next/static
+            ${{ env.APP_DIR }}/public
+          retention-days: 7
+
+  # ----------------------------------------
+  # 4. 构建 Docker 镜像 (可选)
+  # ----------------------------------------
+  docker-build:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: ${{ env.APP_DIR }}/.next
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./${{ env.APP_DIR }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/ai-team-dashboard:latest
+            ${{ secrets.DOCKER_USERNAME }}/ai-team-dashboard:${{ github.sha }}
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/ai-team-dashboard:latest
+          cache-to: type=inline
+
+  # ----------------------------------------
+  # 5. 部署到 Vercel (仅 main 分支)
+  # ----------------------------------------
+  deploy-vercel:
+    name: Deploy to Vercel
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: ${{ env.APP_DIR }}/package-lock.json
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel-cli@latest
+
+      - name: Pull Vercel Environment
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Project
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy to Vercel Production
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+  # ----------------------------------------
+  # 6. 部署到服务器 (7zi.com)
+  # ----------------------------------------
+  deploy-server-7zi:
+    name: Deploy to 7zi.com
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: static-files
+          path: deploy-temp
+
+      - name: Setup SSH key
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add server to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H 165.99.43.61 >> ~/.ssh/known_hosts
+
+      - name: Create remote directory
+        run: |
+          ssh -o StrictHostKeyChecking=no root@165.99.43.61 \
+            "mkdir -p /var/www/7zi-frontend /var/backups/7zi-frontend"
+
+      - name: Backup existing deployment
+        run: |
+          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+          ssh -o StrictHostKeyChecking=no root@165.99.43.61 \
+            "if [ -d /var/www/7zi-frontend ] && [ \$(ls -A /var/www/7zi-frontend 2>/dev/null) ]; then \
+              cp -r /var/www/7zi-frontend /var/backups/7zi-frontend/backup_\${TIMESTAMP}; \
+              echo 'Backup created: backup_${TIMESTAMP}'; \
+            fi"
+
+      - name: Deploy files via rsync
+        run: |
+          rsync -avz --delete \
+            -e "ssh -o StrictHostKeyChecking=no" \
+            deploy-temp/out/ \
+            root@165.99.43.61:/var/www/7zi-frontend/
+
+      - name: Set permissions
+        run: |
+          ssh -o StrictHostKeyChecking=no root@165.99.43.61 \
+            "chown -R www-data:www-data /var/www/7zi-frontend && \
+             chmod -R 755 /var/www/7zi-frontend"
+
+      - name: Restart Nginx
+        run: |
+          ssh -o StrictHostKeyChecking=no root@165.99.43.61 \
+            "nginx -t && systemctl reload nginx"
+
+      - name: Verify deployment
+        run: |
+          sleep 2
+          curl -s -o /dev/null -w "%{http_code}" http://7zi.com || echo "Deployment completed"
+
+  # ----------------------------------------
+  # 7. 部署到测试服务器 (bot5.szspd.cn)
+  # ----------------------------------------
+  deploy-server-bot5:
+    name: Deploy to bot5 (Staging)
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    environment: staging
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: static-files
+          path: deploy-temp
+
+      - name: Setup SSH key
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add server to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H 182.43.36.134 >> ~/.ssh/known_hosts
+
+      - name: Create remote directory
+        run: |
+          ssh -o StrictHostKeyChecking=no root@182.43.36.134 \
+            "mkdir -p /var/www/7zi-frontend /var/backups/7zi-frontend"
+
+      - name: Backup existing deployment
+        run: |
+          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+          ssh -o StrictHostKeyChecking=no root@182.43.36.134 \
+            "if [ -d /var/www/7zi-frontend ] && [ \$(ls -A /var/www/7zi-frontend 2>/dev/null) ]; then \
+              cp -r /var/www/7zi-frontend /var/backups/7zi-frontend/backup_\${TIMESTAMP}; \
+              echo 'Backup created: backup_${TIMESTAMP}'; \
+            fi"
+
+      - name: Deploy files via rsync
+        run: |
+          rsync -avz --delete \
+            -e "ssh -o StrictHostKeyChecking=no" \
+            deploy-temp/out/ \
+            root@182.43.36.134:/var/www/7zi-frontend/
+
+      - name: Set permissions
+        run: |
+          ssh -o StrictHostKeyChecking=no root@182.43.36.134 \
+            "chown -R www-data:www-data /var/www/7zi-frontend && \
+             chmod -R 755 /var/www/7zi-frontend"
+
+      - name: Restart Nginx
+        run: |
+          ssh -o StrictHostKeyChecking=no root@182.43.36.134 \
+            "nginx -t && systemctl reload nginx"
+
+      - name: Verify deployment
+        run: |
+          sleep 2
+          curl -s -o /dev/null -w "%{http_code}" http://bot5.szspd.cn || echo "Deployment completed"
+
+  # ----------------------------------------
+  # 8. 部署通知
+  # ----------------------------------------
+  notify:
+    name: Notify
+    runs-on: ubuntu-latest
+    needs: [deploy-server-7zi, deploy-server-bot5]
+    if: always()
+    
+    steps:
+      - name: Create deployment summary
+        run: |
+          echo "## 🚀 部署结果" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # 检查各 job 状态
+          echo "### 📊 Job 状态" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | 状态 |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|------|" >> $GITHUB_STEP_SUMMARY
+          echo "| 测试 | ${{ needs.test.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 构建 | ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 7zi.com | ${{ needs.deploy-server-7zi.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| bot5 (Staging) | ${{ needs.deploy-server-bot5.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "### 🌐 访问地址" >> $GITHUB_STEP_SUMMARY
+          echo "- **生产环境**: https://7zi.com" >> $GITHUB_STEP_SUMMARY
+          echo "- **测试环境**: http://bot5.szspd.cn" >> $GITHUB_STEP_SUMMARY
+
+      - name: Send Discord notification
+        if: always() && env.DISCORD_WEBHOOK != ''
+        run: |
+          curl -X POST ${{ secrets.DISCORD_WEBHOOK }} \
+            -H "Content-Type: application/json" \
+            -d '{
+              "embeds": [{
+                "title": "🚀 部署完成",
+                "color": 3066993,
+                "fields": [
+                  {"name": "7zi.com", "value": "${{ needs.deploy-server-7zi.result }}", "inline": true},
+                  {"name": "bot5 (Staging)", "value": "${{ needs.deploy-server-bot5.result }}", "inline": true},
+                  {"name": "Commit", "value": "${{ github.sha }}", "inline": false}
+                ]
+              }]
+            }'

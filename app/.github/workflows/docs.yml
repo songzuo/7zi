@@ -1,0 +1,122 @@
+name: Documentation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'lib/**'
+      - 'components/**'
+      - 'hooks/**'
+      - 'types/**'
+      - 'package.json'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: false
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: app/package-lock.json
+          
+      - name: Install dependencies
+        working-directory: ./app
+        run: npm ci
+        
+      - name: Generate API documentation
+        working-directory: ./app
+        run: npm run docs:api
+        
+      - name: Build Storybook
+        working-directory: ./app
+        run: npm run build-storybook -- -o docs/storybook
+        
+      - name: Create docs index
+        working-directory: ./app
+        run: |
+          cat > docs/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="zh-CN">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>AI Team Dashboard - 文档</title>
+            <style>
+              body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                max-width: 800px;
+                margin: 50px auto;
+                padding: 20px;
+                line-height: 1.6;
+              }
+              h1 { color: #2563eb; }
+              .links { list-style: none; padding: 0; }
+              .links li { margin: 15px 0; }
+              .links a {
+                display: block;
+                padding: 15px 20px;
+                background: #f3f4f6;
+                border-radius: 8px;
+                text-decoration: none;
+                color: #1f2937;
+                font-weight: 500;
+                transition: background 0.2s;
+              }
+              .links a:hover { background: #e5e7eb; }
+              .description { color: #6b7280; font-size: 14px; margin-top: 5px; }
+            </style>
+          </head>
+          <body>
+            <h1>📚 AI Team Dashboard 文档</h1>
+            <p>欢迎查阅 AI 团队看板项目的文档资源。</p>
+            <ul class="links">
+              <li>
+                <a href="./api/">
+                  📖 API 文档 (TypeDoc)
+                  <div class="description">TypeScript API 参考文档，包含类型、接口和函数的详细说明</div>
+                </a>
+              </li>
+              <li>
+                <a href="./storybook/">
+                  🎨 组件库 (Storybook)
+                  <div class="description">交互式组件展示和文档，可在线预览和测试组件</div>
+                </a>
+              </li>
+            </ul>
+          </body>
+          </html>
+          EOF
+          
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: app/docs
+          
+  deploy-docs:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build-docs
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
