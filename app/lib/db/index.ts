@@ -9,3 +9,18 @@ export {
   getReadReceiptStore,
   resetReadReceiptStore,
 } from './read-receipts';
+
+export {
+  importFromCSV,
+  importFromJSON,
+  importData,
+  generateCSVTemplate,
+  generateJSONTemplate,
+  validateImportFile,
+  type ImportResult,
+  type ImportError,
+  type ImportOptions,
+  type JSONImportData,
+  type TaskImportItem,
+  type TagImportItem,
+} from './import';

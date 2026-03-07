@@ -355,11 +355,10 @@ const FilterSection = memo(function FilterSection({ title, icon, children }: Fil
 interface FilterChipProps {
   isActive: boolean;
   onClick: () => void;
-  color?: string;
   children: React.ReactNode;
 }
 
-const FilterChip = memo(function FilterChip({ isActive, onClick, color, children }: FilterChipProps) {
+const FilterChip = memo(function FilterChip({ isActive, onClick, children }: FilterChipProps) {
   return (
     <button
       type="button"

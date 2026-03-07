@@ -5,7 +5,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Permission, Role, PermissionCheckResult } from '../lib/permissions/types';
-import { getRolePermissions, roleHasPermission } from '../lib/permissions';
 
 /**
  * 用户权限状态

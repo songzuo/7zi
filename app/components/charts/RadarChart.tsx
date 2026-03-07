@@ -1,7 +1,7 @@
 'use client';
 
 import { memo, useMemo, useState, useCallback } from 'react';
-import { ChartContainer, ChartLegend, CHART_COLORS, CHART_PALETTE } from './Chart';
+import { ChartContainer, ChartLegend, CHART_PALETTE } from './Chart';
 
 // ===== 性能优化: 常量配置移到组件外部 =====
 const DEFAULT_SIZE = 400;

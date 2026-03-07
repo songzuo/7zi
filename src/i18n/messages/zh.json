@@ -412,6 +412,47 @@
       "homeButton": "返回首页"
     }
   },
+  "portfolio": {
+    "title": "作品案例",
+    "description": "7zi Studio 作品案例展示 - 网站开发、移动应用、AI 解决方案、品牌设计",
+    "hero": {
+      "badge": "精选案例",
+      "title": "我们的作品展示",
+      "description": "从网站开发到 AI 解决方案，每一个项目都是我们对品质的追求"
+    },
+    "categories": {
+      "all": "全部",
+      "website": "网站",
+      "app": "应用",
+      "ai": "AI",
+      "design": "设计"
+    },
+    "card": {
+      "viewDetails": "查看详情"
+    },
+    "detail": {
+      "backToList": "返回作品集",
+      "visitSite": "访问网站",
+      "client": "客户",
+      "duration": "周期",
+      "category": "类别",
+      "year": "年份",
+      "highlights": "项目亮点",
+      "techStack": "技术栈",
+      "screenshots": "项目截图",
+      "testimonial": "客户评价",
+      "relatedProjects": "相关项目"
+    },
+    "cta": {
+      "title": "准备好开始您的项目了吗？",
+      "description": "让我们一起将您的想法变为现实",
+      "button": "立即咨询"
+    },
+    "empty": {
+      "title": "暂无相关项目",
+      "description": "请尝试其他分类"
+    }
+  },
   "blog": {
     "title": "博客",
     "description": "7zi Studio 博客 - 分享 AI 技术、数字化转型、行业洞察",

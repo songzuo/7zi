@@ -1,7 +1,7 @@
 'use client';
 
 import { memo, useMemo, useState, useCallback } from 'react';
-import { ChartDataPoint, ChartContainer, ChartLegend } from './Chart';
+import { ChartDataPoint, ChartContainer } from './Chart';
 
 // ===== 性能优化: 常量配置移到组件外部 =====
 const DEFAULT_SIZE = 200;

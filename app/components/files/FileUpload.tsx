@@ -113,7 +113,7 @@ export function FileUpload({
           )
         );
       }
-    } catch (error) {
+    } catch {
       setFiles((prev) =>
         prev.map((f, i) =>
           i === index ? { ...f, status: 'error', error: 'Upload failed' } : f
@@ -124,7 +124,6 @@ export function FileUpload({
 
   const uploadAll = async () => {
     setIsUploading(true);
-    const pendingFiles = files.filter((f) => f.status === 'pending');
 
     for (let i = 0; i < files.length; i++) {
       if (files[i].status === 'pending') {

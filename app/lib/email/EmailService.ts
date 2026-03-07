@@ -11,7 +11,7 @@ import {
   EmailResult,
   EmailAddress,
 } from './EmailSender';
-import { renderTemplate, TemplateData, getTemplate } from './templates';
+import { renderTemplate, TemplateData } from './templates';
 
 export type { EmailConfig, EmailOptions, EmailResult, EmailAddress };
 

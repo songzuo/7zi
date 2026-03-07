@@ -17,7 +17,7 @@ const generateId = () => `task-${Date.now()}-${Math.random().toString(36).slice(
  */
 export const useKanbanStore = create<KanbanState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       tasks: {},
       columnOrder: ['backlog', 'todo', 'in_progress', 'review', 'done'],
       draggingTaskId: null,

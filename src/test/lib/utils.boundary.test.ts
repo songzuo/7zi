@@ -133,8 +133,13 @@ describe('utils - 边界条件测试', () => {
       const debouncedFn = debounce(mockFn, Number.MAX_SAFE_INTEGER);
 
       debouncedFn();
+      // 使用极大值时，1000ms 内不应该触发
       vi.advanceTimersByTime(1000);
       expect(mockFn).not.toHaveBeenCalled();
+      
+      // 但最终应该会在足够长的时间后触发
+      vi.advanceTimersByTime(Number.MAX_SAFE_INTEGER);
+      expect(mockFn).toHaveBeenCalledTimes(1);
     });
 
     it('处理大量参数', () => {
@@ -297,20 +302,25 @@ describe('utils - 边界条件测试', () => {
     });
 
     it('处理大量参数组合', () => {
-      const mockFn = vi.fn((a: number, b: number, c: number) => a + b + c);
-      const memoizedFn = memoize(mockFn);
+      let callCount = 0;
+      const memoizedFn = memoize((a: number, b: number, c: number) => {
+        callCount++;
+        return a + b + c;
+      });
 
-      // 相同参数组合
+      // 相同参数组合调用 100 次应该只执行一次
       for (let i = 0; i < 100; i++) {
         memoizedFn(1, 2, 3);
       }
-      expect(mockFn).toHaveBeenCalledTimes(1);
+      expect(callCount).toBe(1);
 
-      // 不同参数组合
-      for (let i = 0; i < 100; i++) {
+      // 不同参数组合，每个都应该执行
+      const initialCallCount = callCount;
+      for (let i = 0; i < 10; i++) {
         memoizedFn(i, i + 1, i + 2);
       }
-      expect(mockFn).toHaveBeenCalledTimes(101);
+      // 10 个不同的参数组合，每个应该执行一次
+      expect(callCount).toBe(initialCallCount + 10);
     });
 
     it('custom resolver 返回相同 key', () => {

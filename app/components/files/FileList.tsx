@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Download, Trash2, Search, Filter, FileText, Image, FileSpreadsheet, FileArchive, RefreshCw } from 'lucide-react';
+import { Download, Trash2, Search, FileText, Image, FileSpreadsheet, FileArchive, RefreshCw } from 'lucide-react';
 
 interface FileRecord {
   id: string;

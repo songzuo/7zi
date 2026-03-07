@@ -413,6 +413,47 @@
       "homeButton": "Back to Home"
     }
   },
+  "portfolio": {
+    "title": "Portfolio",
+    "description": "7zi Studio Portfolio - Web development, mobile apps, AI solutions, and brand design showcase",
+    "hero": {
+      "badge": "Featured Work",
+      "title": "Our Portfolio",
+      "description": "From web development to AI solutions, every project reflects our commitment to quality"
+    },
+    "categories": {
+      "all": "All",
+      "website": "Website",
+      "app": "App",
+      "ai": "AI",
+      "design": "Design"
+    },
+    "card": {
+      "viewDetails": "View Details"
+    },
+    "detail": {
+      "backToList": "Back to Portfolio",
+      "visitSite": "Visit Site",
+      "client": "Client",
+      "duration": "Duration",
+      "category": "Category",
+      "year": "Year",
+      "highlights": "Highlights",
+      "techStack": "Tech Stack",
+      "screenshots": "Screenshots",
+      "testimonial": "Client Testimonial",
+      "relatedProjects": "Related Projects"
+    },
+    "cta": {
+      "title": "Ready to Start Your Project?",
+      "description": "Let's bring your ideas to life together",
+      "button": "Contact Us Now"
+    },
+    "empty": {
+      "title": "No projects found",
+      "description": "Try another category"
+    }
+  },
   "blog": {
     "title": "Blog",
     "description": "7zi Studio Blog - Sharing AI technology, digital transformation, and industry insights",

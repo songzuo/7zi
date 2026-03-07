@@ -5,7 +5,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { KeyboardShortcut, ShortcutGroup } from './types';
+import type { KeyboardShortcut } from './types';
 
 /** 快捷键配置（不含 handler，可序列化） */
 export interface ShortcutConfig {

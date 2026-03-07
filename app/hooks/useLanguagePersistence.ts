@@ -2,7 +2,7 @@
 
 import { useEffect, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { locales, defaultLocale, type Locale } from '../i18n/config';
+import { locales, type Locale } from '../i18n/config';
 
 const LANGUAGE_STORAGE_KEY = 'preferred-language';
 

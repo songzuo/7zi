@@ -1,6 +1,6 @@
 'use client';
 
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { Task } from '@/lib/tasks/types';
 import { TaskCard } from './TaskCard.optimized';
 

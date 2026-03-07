@@ -61,7 +61,7 @@ export function useWebVitals(options: WebVitalsHookOptions = {}) {
             userAgent: navigator.userAgent,
           });
           window.navigator.sendBeacon('/api/metrics', payload);
-        } catch (e) {
+        } catch {
           // 忽略发送失败
         }
       }
@@ -93,7 +93,7 @@ export function useWebVitals(options: WebVitalsHookOptions = {}) {
 
     try {
       clsObserver.observe({ type: 'layout-shift', buffered: true });
-    } catch (e) {
+    } catch {
       // 浏览器不支持
     }
 
@@ -110,7 +110,7 @@ export function useWebVitals(options: WebVitalsHookOptions = {}) {
 
     try {
       lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true });
-    } catch (e) {
+    } catch {
       // 浏览器不支持
     }
 
@@ -129,7 +129,7 @@ export function useWebVitals(options: WebVitalsHookOptions = {}) {
 
     try {
       fcpObserver.observe({ type: 'paint', buffered: true });
-    } catch (e) {
+    } catch {
       // 浏览器不支持
     }
 
@@ -147,7 +147,7 @@ export function useWebVitals(options: WebVitalsHookOptions = {}) {
 
     try {
       fidObserver.observe({ type: 'first-input', buffered: true });
-    } catch (e) {
+    } catch {
       // 浏览器不支持
     }
 

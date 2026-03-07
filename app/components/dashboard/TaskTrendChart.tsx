@@ -101,7 +101,7 @@ const TaskTrendChart = memo(function TaskTrendChart({ data }: TaskTrendChartProp
 
           {/* 柱状图 */}
           <div className="flex items-end gap-1 h-48 relative z-10">
-            {data.map((item, index) => {
+            {data.map((item) => {
               const completedHeight = (item.completed / maxValue) * 100;
               const createdHeight = (item.created / maxValue) * 100;
 

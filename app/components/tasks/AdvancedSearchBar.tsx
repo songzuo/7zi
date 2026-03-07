@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback, useMemo, useRef, useEffect, memo } from 'react';
-import { TaskFilter, TaskPriority, TaskStatus, TaskTag } from '@/lib/tasks/types';
+import { TaskFilter, TaskTag } from '@/lib/tasks/types';
 
 /**
  * 高级搜索栏组件
@@ -45,8 +45,6 @@ const MAX_HISTORY_ITEMS = 5;
 export const AdvancedSearchBar = memo(function AdvancedSearchBar({
   filter,
   onFilterChange,
-  availableTags = [],
-  assignees = [],
   placeholder = '搜索任务标题、描述...',
   className = '',
   autoFocus = false,
@@ -158,19 +156,21 @@ export const AdvancedSearchBar = memo(function AdvancedSearchBar({
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     
     switch (type) {
-      case 'today':
+      case 'today': {
         onFilterChange({ 
           dueDateFrom: today.toISOString(),
           dueDateTo: new Date(today.getTime() + 86400000).toISOString(),
         });
         break;
-      case 'week':
+      }
+      case 'week': {
         const weekEnd = new Date(today.getTime() + 7 * 86400000);
         onFilterChange({ 
           dueDateFrom: today.toISOString(),
           dueDateTo: weekEnd.toISOString(),
         });
         break;
+      }
       case 'overdue':
         onFilterChange({ 
           dueDateTo: today.toISOString(),

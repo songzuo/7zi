@@ -16,7 +16,7 @@ import {
 } from '@/lib/tasks/api';
 import { fetchTags, createTagApi, deleteTagApi } from '@/lib/tasks/api';
 import { taskKeys, tagKeys, getTaskFilterKey } from './keys';
-import type { Task, TaskTag, TaskFilter, TaskStatus } from '@/lib/tasks/types';
+import type { Task, TaskTag, TaskFilter } from '@/lib/tasks/types';
 
 /**
  * 任务列表查询 Hook

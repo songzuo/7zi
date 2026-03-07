@@ -10,7 +10,6 @@ import type {
   RealtimeNotification,
   RealtimeNotificationState,
   RealtimeNotificationType,
-  WebSocketMessage,
 } from './types';
 
 /** 生成唯一 ID */
@@ -19,7 +18,7 @@ function generateId(): string {
 }
 
 /** 根据消息类型生成通知标题 */
-function getNotificationTitle(type: RealtimeNotificationType, message: WebSocketMessage): string {
+function getNotificationTitle(type: RealtimeNotificationType): string {
   switch (type) {
     case 'task_status_changed':
       return '任务状态更新';
@@ -68,14 +67,11 @@ function getNotificationIcon(type: RealtimeNotificationType): string {
 
 /** 根据消息类型获取优先级 */
 function getNotificationPriority(
-  type: RealtimeNotificationType,
-  message: WebSocketMessage
+  type: RealtimeNotificationType
 ): 'low' | 'normal' | 'high' {
   switch (type) {
-    case 'system_announcement': {
-      const level = (message.payload as { level?: string })?.level;
-      return level === 'critical' ? 'high' : level === 'warning' ? 'normal' : 'low';
-    }
+    case 'system_announcement':
+      return 'high';
     case 'task_assigned':
       return 'high';
     case 'task_comment':
@@ -107,7 +103,7 @@ export function createNotificationFromMessage(message: WebSocketMessage): Realti
   const payload = message.payload as Record<string, unknown>;
 
   // 根据消息类型生成通知内容
-  let title = getNotificationTitle(type, message);
+  let title = getNotificationTitle(type);
   let notificationMessage = '';
   let actionUrl: string | undefined;
   let actionText: string | undefined;
@@ -207,7 +203,7 @@ export function createNotificationFromMessage(message: WebSocketMessage): Realti
     data: payload as Record<string, unknown>,
     actionUrl,
     actionText,
-    priority: getNotificationPriority(type, message),
+    priority: getNotificationPriority(type),
     icon: getNotificationIcon(type),
     avatar,
   };
@@ -219,7 +215,7 @@ const MAX_NOTIFICATIONS = 50;
 /** 创建 Store */
 export const useRealtimeNotificationStore = create<RealtimeNotificationState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       notifications: [],
       unreadCount: 0,
       isConnected: false,

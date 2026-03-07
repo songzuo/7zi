@@ -5,7 +5,7 @@
  */
 
 import { getDatabaseAsync } from './index';
-import { Task, TaskTag, TaskFilter, TaskPriority, TaskStatus, DEFAULT_TAGS } from '../tasks/types';
+import { Task, TaskTag, TaskFilter, TaskPriority, TaskStatus } from '../tasks/types';
 
 interface TaskRow {
   id: string;

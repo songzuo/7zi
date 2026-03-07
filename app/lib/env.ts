@@ -8,8 +8,6 @@
  */
 const requiredEnvVars = ['JWT_SECRET', 'ADMIN_PASSWORD'] as const;
 
-type RequiredEnvVar = (typeof requiredEnvVars)[number];
-
 /**
  * 环境变量验证错误
  */

@@ -6,7 +6,7 @@
  */
 
 import { useState, useCallback, useMemo } from 'react';
-import { Task, TaskFilter, TaskPriority, TaskStatus, TaskTag, DEFAULT_TAGS } from './types';
+import { Task, TaskFilter, TaskStatus, TaskTag, DEFAULT_TAGS } from './types';
 import { filterTasks, sortTasks, getTaskStats } from './utils';
 import {
   useTasksQuery,

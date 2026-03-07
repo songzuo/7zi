@@ -92,8 +92,7 @@ function AreaChartComponent({
   const areaPathD = useMemo(() => {
     if (points.length === 0) return '';
     const { padding, chartHeight } = chartConfig;
-    const yBase = padding.top + chartHeight;
-    return `${smoothPathD} L ${points[points.length - 1].x} ${yBase} L ${points[0].x} ${yBase} Z`;
+    return `${smoothPathD} L ${points[points.length - 1].x} ${padding.top + chartHeight} L ${points[0].x} ${padding.top + chartHeight} Z`;
   }, [smoothPathD, points, chartConfig]);
 
   // 性能优化: useMemo 缓存渐变 ID
