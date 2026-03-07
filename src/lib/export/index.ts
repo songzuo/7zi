@@ -168,46 +168,130 @@ export interface MultiSheetConfig<T = Record<string, unknown>> {
 // ============================================================================
 
 /**
- * 数据导出器
+ * 数据导出器（增强版）
  */
 export class DataExporter<T extends Record<string, unknown>> {
   private config: ExportConfig<T>;
+  private warnings: string[] = [];
+  private validationErrors: Array<{ row: number; field: string; message: string }> = [];
 
   constructor(config: ExportConfig<T>) {
     this.config = {
       includeHeader: true,
       timestampFormat: 'locale',
       sheetName: 'Sheet1',
+      excelOptions: {
+        freezeRows: 1,
+        autoFilter: true,
+        headerStyle: true,
+      },
       ...config,
     };
   }
 
   /**
-   * 执行导出
+   * 执行导出（增强版）
    */
   export(data: T[]): ExportResult {
     try {
+      // 重置警告和验证错误
+      this.warnings = [];
+      this.validationErrors = [];
+
+      // 导出前回调
+      let processedData = data;
+      if (this.config.onBeforeExport) {
+        processedData = this.config.onBeforeExport(data);
+      }
+
       // 数据预处理
-      const processedData = this.config.transform ? this.config.transform(data) : data;
+      if (this.config.transform) {
+        processedData = this.config.transform(processedData);
+      }
+
+      // 数据验证（包括行级和字段级）
+      this.validateData(processedData);
 
       // 根据格式选择导出方法
+      let result: ExportResult;
       switch (this.config.format) {
         case 'csv':
-          return this.exportCSV(processedData);
+          result = this.exportCSV(processedData);
+          break;
         case 'json':
-          return this.exportJSON(processedData);
+          result = this.exportJSON(processedData);
+          break;
         case 'xlsx':
         case 'excel':
-          return this.exportExcel(processedData);
+          result = this.exportExcel(processedData);
+          break;
         default:
           return { success: false, error: `不支持的导出格式: ${this.config.format}` };
       }
+
+      // 添加额外信息
+      result.rowCount = processedData.length;
+      result.columnCount = this.getSelectedFields().length;
+      result.warnings = this.warnings.length > 0 ? this.warnings : undefined;
+      result.validationErrors = this.validationErrors.length > 0 ? this.validationErrors : undefined;
+
+      // 导出后回调
+      if (this.config.onAfterExport) {
+        this.config.onAfterExport(result);
+      }
+
+      return result;
     } catch (error) {
       return {
         success: false,
         error: error instanceof Error ? error.message : '导出失败',
       };
     }
+  }
+
+  /**
+   * 验证数据
+   */
+  private validateData(data: T[]): void {
+    // 行级验证
+    if (this.config.onValidate) {
+      data.forEach((row, index) => {
+        const result = this.config.onValidate!(row, index);
+        if (result !== true) {
+          this.validationErrors.push({
+            row: index + 1,
+            field: 'row',
+            message: typeof result === 'string' ? result : '验证失败',
+          });
+        }
+      });
+    }
+
+    // 字段级别验证（始终执行）
+    const fields = this.getSelectedFields();
+    data.forEach((row, rowIndex) => {
+      fields.forEach((field) => {
+        if (field.validator) {
+          const value = row[field.key];
+          const result = field.validator(value);
+          if (result !== true) {
+            this.validationErrors.push({
+              row: rowIndex + 1,
+              field: String(field.key),
+              message: typeof result === 'string' ? result : `${field.label} 验证失败`,
+            });
+          }
+        }
+        // 必填检查
+        if (field.required && (row[field.key] === undefined || row[field.key] === null || row[field.key] === '')) {
+          this.validationErrors.push({
+            row: rowIndex + 1,
+            field: String(field.key),
+            message: `${field.label} 为必填字段`,
+          });
+        }
+      });
+    });
   }
 
   /**
@@ -304,11 +388,12 @@ export class DataExporter<T extends Record<string, unknown>> {
   }
 
   /**
-   * 导出为 Excel
+   * 导出为 Excel（增强版）
    */
   private exportExcel(data: T[]): ExportResult {
     const transformedData = this.transformData(data);
     const fields = this.getSelectedFields();
+    const excelOptions = this.config.excelOptions || {};
 
     // 创建工作簿
     const workbook = XLSX.utils.book_new();
@@ -321,9 +406,13 @@ export class DataExporter<T extends Record<string, unknown>> {
     }
 
     transformedData.forEach((row) => {
-      const values = fields.map((f) => {
+      const values: (string | number | boolean | null)[] = fields.map((f) => {
         const value = row[f.label];
-        return value ?? '';
+        if (value === null || value === undefined) return '';
+        if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+          return value;
+        }
+        return String(value);
       });
       sheetData.push(values);
     });
@@ -331,12 +420,42 @@ export class DataExporter<T extends Record<string, unknown>> {
     // 创建工作表
     const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
 
-    // 设置列宽
-    const colWidths = fields.map((f) => ({ wch: Math.max(f.label.length * 2, 15) }));
+    // 设置列宽（支持自动宽度和自定义宽度）
+    const colWidths = fields.map((f, index) => {
+      // 优先使用字段自定义宽度
+      if (f.width) {
+        return { wch: f.width };
+      }
+      // 检查列样式
+      const colLetter = String.fromCharCode(65 + index);
+      if (excelOptions.columnStyles?.[colLetter]?.width) {
+        return { wch: excelOptions.columnStyles[colLetter].width! };
+      }
+      // 自动计算宽度
+      if (excelOptions.columnStyles?.[colLetter]?.autoWidth !== false) {
+        const maxWidth = Math.max(
+          f.label.length * 2,
+          ...sheetData.slice(1).map((row) => String(row[index] ?? '').length)
+        );
+        return { wch: Math.min(Math.max(maxWidth, 10), 50) };
+      }
+      return { wch: 15 };
+    });
     worksheet['!cols'] = colWidths;
 
+    // 设置冻结行
+    if (excelOptions.freezeRows && this.config.includeHeader) {
+      worksheet['!freeze'] = { xSplit: 0, ySplit: excelOptions.freezeRows };
+    }
+
+    // 设置自动筛选
+    if (excelOptions.autoFilter && sheetData.length > 1) {
+      const endCol = String.fromCharCode(65 + fields.length - 1);
+      worksheet['!autofilter'] = { ref: `A1:${endCol}${sheetData.length}` };
+    }
+
     // 添加工作表到工作簿
-    XLSX.utils.book_append_sheet(workbook, worksheet, this.config.sheetName);
+    XLSX.utils.book_append_sheet(workbook, worksheet, excelOptions.sheetName || this.config.sheetName);
 
     // 生成文件
     const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
@@ -478,4 +597,310 @@ export function truncateFormatter(maxLength: number): (value: unknown) => string
     if (str.length <= maxLength) return str;
     return str.substring(0, maxLength) + '...';
   };
+}
+
+// ============================================================================
+// 新增格式化器
+// ============================================================================
+
+/**
+ * 数字格式化器
+ */
+export function numberFormatter(
+  options: { decimals?: number; thousandsSeparator?: boolean } = {}
+): (value: unknown) => string | number {
+  return (value: unknown) => {
+    if (value === null || value === undefined || value === '') return '';
+    const num = Number(value);
+    if (isNaN(num)) return String(value);
+
+    if (options.decimals !== undefined) {
+      return Number(num.toFixed(options.decimals));
+    }
+    return num;
+  };
+}
+
+/**
+ * 货币格式化器
+ */
+export function currencyFormatter(
+  currency: string = 'CNY',
+  locale: string = 'zh-CN'
+): (value: unknown) => string {
+  return (value: unknown) => {
+    if (value === null || value === undefined || value === '') return '';
+    const num = Number(value);
+    if (isNaN(num)) return String(value);
+
+    try {
+      return new Intl.NumberFormat(locale, {
+        style: 'currency',
+        currency,
+      }).format(num);
+    } catch {
+      return `${currency} ${num.toFixed(2)}`;
+    }
+  };
+}
+
+/**
+ * 百分比格式化器
+ */
+export function percentFormatter(decimals: number = 2): (value: unknown) => string {
+  return (value: unknown) => {
+    if (value === null || value === undefined || value === '') return '';
+    const num = Number(value);
+    if (isNaN(num)) return String(value);
+    return `${(num * 100).toFixed(decimals)}%`;
+  };
+}
+
+/**
+ * 枚举值格式化器
+ */
+export function enumFormatter<T extends string | number>(
+  mapping: Record<T, string>
+): (value: unknown) => string {
+  return (value: unknown) => {
+    if (value === null || value === undefined) return '';
+    return mapping[value as T] ?? String(value);
+  };
+}
+
+/**
+ * 链接格式化器
+ */
+export function linkFormatter(
+  displayText?: string
+): (value: unknown, row: Record<string, unknown>) => string {
+  return (value: unknown, _row: Record<string, unknown>) => {
+    if (!value) return '';
+    const url = String(value);
+    return displayText || url;
+  };
+}
+
+/**
+ * JSON 格式化器
+ */
+export function jsonFormatter(indent: number = 2): (value: unknown) => string {
+  return (value: unknown) => {
+    if (value === null || value === undefined) return '';
+    if (typeof value === 'object') {
+      try {
+        return JSON.stringify(value, null, indent);
+      } catch {
+        return '[Object]';
+      }
+    }
+    return String(value);
+  };
+}
+
+/**
+ * 条件格式化器
+ */
+export function conditionalFormatter<T>(
+  condition: (value: unknown, row: T) => boolean,
+  trueFormatter: (value: unknown, row: T) => string,
+  falseFormatter: (value: unknown, row: T) => string
+): (value: unknown, row: T) => string {
+  return (value: unknown, row: T) => {
+    if (condition(value, row)) {
+      return trueFormatter(value, row);
+    }
+    return falseFormatter(value, row);
+  };
+}
+
+// ============================================================================
+// 导出模板管理
+// ============================================================================
+
+/** 模板存储（使用 any 存储不同类型的模板） */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const templateStore = new Map<string, ExportTemplate<any>>();
+
+/**
+ * 注册导出模板
+ */
+export function registerTemplate<T extends Record<string, unknown>>(
+  template: ExportTemplate<T>
+): void {
+  templateStore.set(template.id, {
+    ...template,
+    createdAt: template.createdAt || new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  });
+}
+
+/**
+ * 获取导出模板
+ */
+export function getTemplate(id: string): ExportTemplate | undefined {
+  return templateStore.get(id);
+}
+
+/**
+ * 获取所有模板
+ */
+export function getAllTemplates(): ExportTemplate[] {
+  return Array.from(templateStore.values());
+}
+
+/**
+ * 删除模板
+ */
+export function deleteTemplate(id: string): boolean {
+  return templateStore.delete(id);
+}
+
+/**
+ * 使用模板导出
+ */
+export function exportWithTemplate<T extends Record<string, unknown>>(
+  data: T[],
+  templateId: string,
+  overrides?: Partial<ExportConfig<T>>
+): ExportResult {
+  const template = templateStore.get(templateId);
+  if (!template) {
+    return { success: false, error: `模板 ${templateId} 不存在` };
+  }
+
+  const fields = (template.fields || []) as ExportField<T>[];
+  const defaultConfig = (template.defaultConfig || {}) as Partial<ExportConfig<T>>;
+
+  const config: ExportConfig<T> = {
+    filename: template.name,
+    format: 'xlsx',
+    fields,
+    ...defaultConfig,
+    ...overrides,
+  };
+
+  return exportData(data, config);
+}
+
+// ============================================================================
+// 多工作表导出
+// ============================================================================
+
+/**
+ * 导出多工作表 Excel
+ */
+export function exportMultiSheet<T extends Record<string, unknown>>(
+  config: MultiSheetConfig<T>
+): ExportResult {
+  try {
+    const workbook = XLSX.utils.book_new();
+
+    config.sheets.forEach((sheet) => {
+      const sheetData: (string | number | boolean | null)[][] = [];
+
+      // 表头
+      sheetData.push(sheet.fields.map((f) => f.label));
+
+      // 数据行
+      sheet.data.forEach((row) => {
+        const values: (string | number | boolean | null)[] = sheet.fields.map((field) => {
+          const value = row[field.key];
+          if (field.formatter) {
+            return field.formatter(value, row) as string | number | boolean | null;
+          }
+          if (value === null || value === undefined) return null;
+          if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+            return value;
+          }
+          return String(value);
+        });
+        sheetData.push(values);
+      });
+
+      const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+
+      // 列宽
+      worksheet['!cols'] = sheet.fields.map((f) => ({
+        wch: f.width || Math.max(f.label.length * 2, 15),
+      }));
+
+      XLSX.utils.book_append_sheet(workbook, worksheet, sheet.name);
+    });
+
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelBuffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+
+    return { success: true, blob, filename: `${config.filename}.xlsx` };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : '多工作表导出失败',
+    };
+  }
+}
+
+// ============================================================================
+// 增强的字段创建函数
+// ============================================================================
+
+/**
+ * 创建增强字段配置
+ */
+export function createEnhancedFields<T extends Record<string, unknown>>(
+  configs: Array<{
+    key: keyof T;
+    label?: string;
+    formatter?: ExportField<T>['formatter'];
+    width?: number;
+    description?: string;
+    group?: string;
+    required?: boolean;
+  }>
+): ExportField<T>[] {
+  return configs.map((config, index) => ({
+    key: config.key,
+    label: config.label || String(config.key),
+    formatter: config.formatter,
+    width: config.width,
+    description: config.description,
+    group: config.group,
+    required: config.required,
+    order: index,
+    defaultSelected: true,
+  }));
+}
+
+/**
+ * 按分组获取字段
+ */
+export function getFieldsByGroup<T extends Record<string, unknown>>(
+  fields: ExportField<T>[]
+): Record<string, ExportField<T>[]> {
+  const groups: Record<string, ExportField<T>[]> = {};
+
+  fields.forEach((field) => {
+    const group = field.group || 'default';
+    if (!groups[group]) {
+      groups[group] = [];
+    }
+    groups[group].push(field);
+  });
+
+  return groups;
+}
+
+/**
+ * 排序字段
+ */
+export function sortFields<T extends Record<string, unknown>>(
+  fields: ExportField<T>[]
+): ExportField<T>[] {
+  return [...fields].sort((a, b) => {
+    const orderA = a.order ?? Infinity;
+    const orderB = b.order ?? Infinity;
+    return orderA - orderB;
+  });
 }
