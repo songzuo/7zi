@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { DragEvent, memo, useMemo } from 'react';
+import React, { DragEvent, memo, useMemo, useRef } from 'react';
 import type { KanbanTask } from '../lib/types/kanban';
 import { PRIORITY_CONFIG } from '../lib/types/kanban';
 
@@ -17,6 +17,8 @@ export interface KanbanTaskCardProps {
   onDragStart: (e: DragEvent<HTMLDivElement>, task: KanbanTask) => void;
   onDragEnd: () => void;
   onClick: () => void;
+  onDelete?: (task: KanbanTask) => void;
+  onDuplicate?: (task: KanbanTask) => void;
 }
 
 /**
@@ -27,8 +29,50 @@ export const KanbanTaskCard = memo(function KanbanTaskCard({
   onDragStart,
   onDragEnd,
   onClick,
+  onDelete,
+  onDuplicate,
 }: KanbanTaskCardProps) {
+  const [showMenu, setShowMenu] = React.useState(false);
+  const menuRef = React.useRef<HTMLDivElement>(null);
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
   const priorityConfig = PRIORITY_CONFIG[task.priority];
+
+  // 关闭菜单
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        !buttonRef.current?.contains(event.target as Node)
+      ) {
+        setShowMenu(false);
+      }
+    };
+
+    if (showMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showMenu]);
+
+  // 处理删除
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (confirm(`确定要删除任务 "${task.title}" 吗？`)) {
+      onDelete?.(task);
+      setShowMenu(false);
+    }
+  };
+
+  // 处理复制
+  const handleDuplicate = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDuplicate?.(task);
+    setShowMenu(false);
+  };
 
   // 格式化截止日期
   const dueDateDisplay = useMemo(() => {
@@ -64,29 +108,64 @@ export const KanbanTaskCard = memo(function KanbanTaskCard({
     >
       {/* 头部：优先级和菜单 */}
       <div className="flex items-center justify-between mb-2">
-        <span 
+        <span
           className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full"
-          style={{ 
-            backgroundColor: `${priorityConfig.color}20`, 
-            color: priorityConfig.color 
+          style={{
+            backgroundColor: `${priorityConfig.color}20`,
+            color: priorityConfig.color
           }}
         >
           <span>{priorityConfig.icon}</span>
           {priorityConfig.label}
         </span>
-        
+
         {/* 更多操作按钮 */}
-        <button 
-          className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded transition-all"
-          onClick={(e) => {
-            e.stopPropagation();
-            // TODO: 显示菜单
-          }}
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-          </svg>
-        </button>
+        <div className="relative">
+          <button
+            ref={buttonRef}
+            className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded transition-all"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowMenu(!showMenu);
+            }}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+            </svg>
+          </button>
+
+          {/* 下拉菜单 */}
+          {showMenu && (
+            <div
+              ref={menuRef}
+              className="absolute right-0 top-8 w-40 bg-white dark:bg-gray-700 rounded-lg shadow-lg border border-gray-200 dark:border-gray-600 py-1 z-10"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {onDuplicate && (
+                <button
+                  onClick={handleDuplicate}
+                  className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  复制任务
+                </button>
+              )}
+              {onDelete && (
+                <button
+                  onClick={handleDelete}
+                  className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  删除任务
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* 标题 */}

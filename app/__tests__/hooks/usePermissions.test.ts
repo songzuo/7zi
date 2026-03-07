@@ -155,12 +155,22 @@ describe('usePermissions', () => {
 
   // 权限检查测试
   describe('checkPermission', () => {
-    it('应该正确检查已授权的权限', () => {
-      const { result } = renderHook(() => usePermissions());
+    it('应该正确检查已授权的权限', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          success: true,
+          data: {
+            role: Role.MEMBER,
+            permissions: [Permission.TASK_CREATE],
+          },
+        }),
+      });
 
-      act(() => {
-        // 手动设置权限进行测试
-        (result.current as any).permissions = [Permission.TASK_CREATE];
+      const { result } = renderHook(() => usePermissions('user-123'));
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
       });
 
       const checkResult = result.current.checkPermission(Permission.TASK_CREATE);
@@ -170,11 +180,22 @@ describe('usePermissions', () => {
       expect(checkResult.reason).toBeUndefined();
     });
 
-    it('应该正确拒绝未授权的权限', () => {
-      const { result } = renderHook(() => usePermissions());
+    it('应该正确拒绝未授权的权限', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          success: true,
+          data: {
+            role: Role.MEMBER,
+            permissions: [Permission.TASK_CREATE],
+          },
+        }),
+      });
 
-      act(() => {
-        (result.current as any).permissions = [Permission.TASK_CREATE];
+      const { result } = renderHook(() => usePermissions('user-123'));
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
       });
 
       const checkResult = result.current.checkPermission(Permission.TASK_DELETE);
@@ -186,15 +207,22 @@ describe('usePermissions', () => {
   });
 
   describe('hasAllPermissions', () => {
-    it('应该在拥有所有权限时返回 true', () => {
-      const { result } = renderHook(() => usePermissions());
+    it('应该在拥有所有权限时返回 true', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          success: true,
+          data: {
+            role: Role.MEMBER,
+            permissions: [Permission.TASK_CREATE, Permission.TASK_READ, Permission.TASK_UPDATE],
+          },
+        }),
+      });
 
-      act(() => {
-        (result.current as any).permissions = [
-          Permission.TASK_CREATE,
-          Permission.TASK_READ,
-          Permission.TASK_UPDATE,
-        ];
+      const { result } = renderHook(() => usePermissions('user-123'));
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
       });
 
       const hasAll = result.current.hasAllPermissions([
@@ -205,14 +233,22 @@ describe('usePermissions', () => {
       expect(hasAll).toBe(true);
     });
 
-    it('应该在缺少任一权限时返回 false', () => {
-      const { result } = renderHook(() => usePermissions());
+    it('应该在缺少任一权限时返回 false', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          success: true,
+          data: {
+            role: Role.MEMBER,
+            permissions: [Permission.TASK_CREATE, Permission.TASK_READ],
+          },
+        }),
+      });
 
-      act(() => {
-        (result.current as any).permissions = [
-          Permission.TASK_CREATE,
-          Permission.TASK_READ,
-        ];
+      const { result } = renderHook(() => usePermissions('user-123'));
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
       });
 
       const hasAll = result.current.hasAllPermissions([
@@ -226,10 +262,6 @@ describe('usePermissions', () => {
     it('应该处理空数组', () => {
       const { result } = renderHook(() => usePermissions());
 
-      act(() => {
-        (result.current as any).permissions = [];
-      });
-
       const hasAll = result.current.hasAllPermissions([]);
 
       expect(hasAll).toBe(true);
@@ -237,14 +269,22 @@ describe('usePermissions', () => {
   });
 
   describe('hasAnyPermission', () => {
-    it('应该在拥有任意权限时返回 true', () => {
-      const { result } = renderHook(() => usePermissions());
+    it('应该在拥有任意权限时返回 true', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          success: true,
+          data: {
+            role: Role.MEMBER,
+            permissions: [Permission.TASK_CREATE, Permission.TASK_READ],
+          },
+        }),
+      });
 
-      act(() => {
-        (result.current as any).permissions = [
-          Permission.TASK_CREATE,
-          Permission.TASK_READ,
-        ];
+      const { result } = renderHook(() => usePermissions('user-123'));
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
       });
 
       const hasAny = result.current.hasAnyPermission([
@@ -255,11 +295,22 @@ describe('usePermissions', () => {
       expect(hasAny).toBe(true);
     });
 
-    it('应该在没有任何权限时返回 false', () => {
-      const { result } = renderHook(() => usePermissions());
+    it('应该在没有任何权限时返回 false', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          success: true,
+          data: {
+            role: Role.MEMBER,
+            permissions: [Permission.TASK_READ],
+          },
+        }),
+      });
 
-      act(() => {
-        (result.current as any).permissions = [Permission.TASK_READ];
+      const { result } = renderHook(() => usePermissions('user-123'));
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
       });
 
       const hasAny = result.current.hasAnyPermission([
@@ -280,11 +331,22 @@ describe('usePermissions', () => {
   });
 
   describe('hasRole', () => {
-    it('应该在角色匹配时返回 true', () => {
-      const { result } = renderHook(() => usePermissions());
+    it('应该在角色匹配时返回 true', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          success: true,
+          data: {
+            role: Role.ADMIN,
+            permissions: [],
+          },
+        }),
+      });
 
-      act(() => {
-        (result.current as any).role = Role.ADMIN;
+      const { result } = renderHook(() => usePermissions('user-123'));
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
       });
 
       expect(result.current.hasRole(Role.ADMIN)).toBe(true);
@@ -294,20 +356,27 @@ describe('usePermissions', () => {
     it('应该在角色为 null 时返回 false', () => {
       const { result } = renderHook(() => usePermissions());
 
-      act(() => {
-        (result.current as any).role = null;
-      });
-
       expect(result.current.hasRole(Role.ADMIN)).toBe(false);
     });
   });
 
   describe('hasRoleLevel', () => {
-    it('应该正确检查角色层级 - ADMIN', () => {
-      const { result } = renderHook(() => usePermissions());
+    it('应该正确检查角色层级 - ADMIN', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          success: true,
+          data: {
+            role: Role.ADMIN,
+            permissions: [],
+          },
+        }),
+      });
 
-      act(() => {
-        (result.current as any).role = Role.ADMIN;
+      const { result } = renderHook(() => usePermissions('user-123'));
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
       });
 
       expect(result.current.hasRoleLevel(Role.ADMIN)).toBe(true);
@@ -316,11 +385,22 @@ describe('usePermissions', () => {
       expect(result.current.hasRoleLevel(Role.VIEWER)).toBe(true);
     });
 
-    it('应该正确检查角色层级 - MANAGER', () => {
-      const { result } = renderHook(() => usePermissions());
+    it('应该正确检查角色层级 - MANAGER', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          success: true,
+          data: {
+            role: Role.MANAGER,
+            permissions: [],
+          },
+        }),
+      });
 
-      act(() => {
-        (result.current as any).role = Role.MANAGER;
+      const { result } = renderHook(() => usePermissions('user-123'));
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
       });
 
       expect(result.current.hasRoleLevel(Role.ADMIN)).toBe(false);
@@ -329,11 +409,22 @@ describe('usePermissions', () => {
       expect(result.current.hasRoleLevel(Role.VIEWER)).toBe(true);
     });
 
-    it('应该正确检查角色层级 - MEMBER', () => {
-      const { result } = renderHook(() => usePermissions());
+    it('应该正确检查角色层级 - MEMBER', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          success: true,
+          data: {
+            role: Role.MEMBER,
+            permissions: [],
+          },
+        }),
+      });
 
-      act(() => {
-        (result.current as any).role = Role.MEMBER;
+      const { result } = renderHook(() => usePermissions('user-123'));
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
       });
 
       expect(result.current.hasRoleLevel(Role.ADMIN)).toBe(false);
@@ -342,11 +433,22 @@ describe('usePermissions', () => {
       expect(result.current.hasRoleLevel(Role.VIEWER)).toBe(true);
     });
 
-    it('应该正确检查角色层级 - VIEWER', () => {
-      const { result } = renderHook(() => usePermissions());
+    it('应该正确检查角色层级 - VIEWER', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          success: true,
+          data: {
+            role: Role.VIEWER,
+            permissions: [],
+          },
+        }),
+      });
 
-      act(() => {
-        (result.current as any).role = Role.VIEWER;
+      const { result } = renderHook(() => usePermissions('user-123'));
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
       });
 
       expect(result.current.hasRoleLevel(Role.ADMIN)).toBe(false);
@@ -357,10 +459,6 @@ describe('usePermissions', () => {
 
     it('应该在角色为 null 时返回 false', () => {
       const { result } = renderHook(() => usePermissions());
-
-      act(() => {
-        (result.current as any).role = null;
-      });
 
       expect(result.current.hasRoleLevel(Role.ADMIN)).toBe(false);
     });
@@ -505,8 +603,13 @@ describe('useRoles', () => {
     vi.restoreAllMocks();
   });
 
-  it('应该初始化为默认状态', () => {
+  it('应该初始化为默认状态', async () => {
     const { result } = renderHook(() => useRoles());
+
+    // Wait for any initial state updates
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0));
+    });
 
     expect(result.current.roles).toEqual([]);
     expect(result.current.isLoading).toBe(false);

@@ -30,7 +30,7 @@ export const TeamKanban: React.FC<TeamKanbanProps> = ({ className = '' }) => {
 
   // Store
   const tasksByColumn = useTasksByColumn();
-  const { draggingTaskId, setDragging, moveTask } = useKanbanStore();
+  const { draggingTaskId, setDragging, moveTask, deleteTask, addTask } = useKanbanStore();
 
   // 处理新建任务
   const handleCreateTask = useCallback(() => {
@@ -43,6 +43,28 @@ export const TeamKanban: React.FC<TeamKanbanProps> = ({ className = '' }) => {
     setEditingTask(task);
     setIsModalOpen(true);
   }, []);
+
+  // 处理删除任务
+  const handleDeleteTask = useCallback((task: KanbanTask) => {
+    if (confirm(`确定要删除任务 "${task.title}" 吗？`)) {
+      deleteTask(task.id);
+    }
+  }, [deleteTask]);
+
+  // 处理复制任务
+  const handleDuplicateTask = useCallback((task: KanbanTask) => {
+    const newTask = {
+      ...task,
+      title: `${task.title} (副本)`,
+      id: undefined, // 让 store 生成新 ID
+      createdAt: undefined,
+      updatedAt: undefined,
+    };
+    delete newTask.id;
+    delete newTask.createdAt;
+    delete newTask.updatedAt;
+    addTask(newTask);
+  }, [addTask]);
 
   // 关闭模态框
   const handleCloseModal = useCallback(() => {

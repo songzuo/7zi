@@ -27,6 +27,8 @@ export interface KanbanColumnProps {
   onDrop: (e: DragEvent<HTMLDivElement>, columnId: KanbanStatus) => void;
   onEditTask: (task: KanbanTask) => void;
   onCreateTask: () => void;
+  onDeleteTask?: (task: KanbanTask) => void;
+  onDuplicateTask?: (task: KanbanTask) => void;
 }
 
 /**
@@ -47,6 +49,8 @@ export const KanbanColumn = memo(function KanbanColumn({
   onDrop,
   onEditTask,
   onCreateTask,
+  onDeleteTask,
+  onDuplicateTask,
 }: KanbanColumnProps) {
   const isOverLimit = limit !== undefined && tasks.length > limit;
 
@@ -106,6 +110,8 @@ export const KanbanColumn = memo(function KanbanColumn({
               onDragStart={onDragStart}
               onDragEnd={onDragEnd}
               onClick={() => onEditTask(task)}
+              onDelete={onDeleteTask}
+              onDuplicate={onDuplicateTask}
             />
           ))
         )}
