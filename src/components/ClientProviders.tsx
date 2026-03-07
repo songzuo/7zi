@@ -1,8 +1,8 @@
 'use client';
 
+import { ThemeProvider, useTheme } from 'next-themes';
 import { SettingsProvider } from '@/contexts/SettingsContext';
 import { ThemeToggle } from './ThemeToggle';
-import { AIChat } from './AIChat';
 
 interface ClientProvidersProps {
   children: React.ReactNode;
@@ -10,10 +10,13 @@ interface ClientProvidersProps {
 
 export function ClientProviders({ children }: ClientProvidersProps) {
   return (
-    <SettingsProvider>
-      {children}
-    </SettingsProvider>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <SettingsProvider>
+        {children}
+      </SettingsProvider>
+    </ThemeProvider>
   );
 }
 
-export { ThemeToggle, AIChat };
+// 重新导出 ThemeToggle 和 useTheme
+export { ThemeToggle, useTheme };
