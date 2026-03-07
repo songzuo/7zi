@@ -533,7 +533,7 @@ describe('CSRF Protection Tests', () => {
 
 describe('CSRF Middleware Integration', () => {
   it('should block requests without CSRF token', () => {
-    const request = {
+    const request: { method: string; headers: Record<string, string>; cookies: Record<string, string> } = {
       method: 'POST',
       headers: {},
       cookies: {},
@@ -548,15 +548,15 @@ describe('CSRF Middleware Integration', () => {
 
   it('should allow requests with valid CSRF token', () => {
     const token = generateCsrfToken()
-    const request = {
+    const request: { method: string; headers: Record<string, string>; cookies: Record<string, string> } = {
       method: 'POST',
       headers: { 'x-csrf-token': token },
       cookies: { 'csrf-token': token },
     }
     
     const tokensMatch = validateCsrfToken(
-      request.headers['x-csrf-token'] as string,
-      request.cookies['csrf-token'] as string
+      request.headers['x-csrf-token'],
+      request.cookies['csrf-token']
     )
     
     expect(tokensMatch).toBe(true)

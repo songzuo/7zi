@@ -31,6 +31,9 @@ function sanitizeInput(input: string): string {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#x27;')
     .replace(/\//g, '&#x2F;')
+    // Prevent template injection patterns
+    .replace(/\$\{/g, '&#x24;&#x7B;')
+    .replace(/\{\{/g, '&#x7B;&#x7B;')
 }
 
 /**

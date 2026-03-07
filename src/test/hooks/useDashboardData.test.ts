@@ -2,11 +2,12 @@
  * @fileoverview useDashboardData hook tests
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { useDashboardData } from '../../hooks/useDashboardData';
 
 // Mock fetch globally
-global.fetch = vi.fn();
+const mockFetch = vi.fn();
+global.fetch = mockFetch;
 
 describe('useDashboardData', () => {
   beforeEach(() => {
@@ -14,89 +15,87 @@ describe('useDashboardData', () => {
   });
 
   it('initializes with loading state', () => {
-    const { result } = renderHook(() => useDashboardData());
+    const { result } = renderHook(() => useDashboardData('owner', 'repo'));
 
-    expect(result.current.loading).toBe(true);
-    expect(result.current.data).toBeNull();
+    expect(result.current.isLoading).toBe(true);
     expect(result.current.error).toBeNull();
   });
 
   it('fetches data successfully', async () => {
-    const mockData = {
-      projects: [
-        { id: 1, name: 'Project 1', status: 'active' },
-        { id: 2, name: 'Project 2', status: 'completed' }
-      ],
-      stats: {
-        total: 10,
-        active: 5,
-        completed: 3,
-        pending: 2
-      }
-    };
+    const mockIssues = [
+      { number: 1, title: 'Issue 1', state: 'open', labels: [], created_at: new Date().toISOString(), updated_at: new Date().toISOString(), html_url: 'https://github.com/test/test/issues/1' },
+    ];
+    const mockCommits = [
+      { sha: 'abc123', commit: { message: 'Test', author: { name: 'Test', date: new Date().toISOString() } }, html_url: 'https://github.com/test/test/commit/abc123' },
+    ];
 
-    (global.fetch as vi.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockData
-    });
+    mockFetch
+      .mockResolvedValueOnce({ ok: true, json: async () => mockIssues })
+      .mockResolvedValueOnce({ ok: true, json: async () => mockCommits });
 
-    const { result } = renderHook(() => useDashboardData());
+    const { result } = renderHook(() => useDashboardData('owner', 'repo'));
 
-    // Wait for async operations
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    }, { timeout: 3000 });
 
-    expect(result.current.loading).toBe(false);
-    expect(result.current.data).toEqual(mockData);
+    expect(result.current.issues).toHaveLength(1);
+    expect(result.current.commits).toHaveLength(1);
     expect(result.current.error).toBeNull();
   });
 
   it('handles fetch errors', async () => {
-    (global.fetch as vi.Mock).mockRejectedValueOnce(new Error('Network error'));
+    mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
-    const { result } = renderHook(() => useDashboardData());
+    const { result } = renderHook(() => useDashboardData('owner', 'repo'));
 
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    }, { timeout: 3000 });
 
-    expect(result.current.loading).toBe(false);
-    expect(result.current.data).toBeNull();
-    expect(result.current.error).toBeInstanceOf(Error);
-  });
-
-  it('handles HTTP errors', async () => {
-    (global.fetch as vi.Mock).mockResolvedValueOnce({
-      ok: false,
-      status: 500,
-      statusText: 'Internal Server Error'
-    });
-
-    const { result } = renderHook(() => useDashboardData());
-
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    expect(result.current.loading).toBe(false);
-    expect(result.current.data).toBeNull();
     expect(result.current.error).not.toBeNull();
   });
 
-  it('refetches data when called', async () => {
-    const mockData = { projects: [], stats: { total: 0, active: 0, completed: 0, pending: 0 } };
-
-    (global.fetch as vi.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockData
+  it('handles HTTP errors', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      json: async () => ({ error: 'Internal Server Error' }),
     });
 
-    const { result } = renderHook(() => useDashboardData());
+    const { result } = renderHook(() => useDashboardData('owner', 'repo'));
 
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    }, { timeout: 3000 });
 
-    expect(global.fetch).toHaveBeenCalledTimes(1);
+    expect(result.current.error).not.toBeNull();
+  });
 
-    // Call refetch
-    result.current.refetch();
+  it('refreshes data when refreshData is called', async () => {
+    const mockIssues: unknown[] = [];
+    const mockCommits: unknown[] = [];
 
-    await new Promise(resolve => setTimeout(resolve, 100));
+    mockFetch
+      .mockResolvedValueOnce({ ok: true, json: async () => mockIssues })
+      .mockResolvedValueOnce({ ok: true, json: async () => mockCommits });
 
-    expect(global.fetch).toHaveBeenCalledTimes(2);
+    const { result } = renderHook(() => useDashboardData('owner', 'repo'));
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    }, { timeout: 3000 });
+
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+
+    // Reset mock for refresh calls
+    mockFetch
+      .mockResolvedValueOnce({ ok: true, json: async () => mockIssues })
+      .mockResolvedValueOnce({ ok: true, json: async () => mockCommits });
+
+    // Call refreshData
+    await result.current.refreshData();
+
+    expect(mockFetch).toHaveBeenCalledTimes(4);
   });
 });

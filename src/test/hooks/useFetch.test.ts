@@ -2,20 +2,27 @@
  * @fileoverview useFetch hook tests
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, waitFor, act } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { useFetch, useGitHub } from '../../hooks/useFetch';
 
 // Mock fetch globally
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
 
+// Mock window.addEventListener for focus events
+const originalAddEventListener = window.addEventListener;
+const originalRemoveEventListener = window.removeEventListener;
+
 describe('useFetch', () => {
   beforeEach(() => {
+    vi.useFakeTimers();
     mockFetch.mockReset();
   });
 
   afterEach(() => {
-    vi.clearAllTimers();
+    vi.useRealTimers();
+    window.addEventListener = originalAddEventListener;
+    window.removeEventListener = originalRemoveEventListener;
   });
 
   it('returns initial loading state', () => {
@@ -37,10 +44,12 @@ describe('useFetch', () => {
 
     const { result } = renderHook(() => useFetch<{ message: string }>('/api/test'));
 
-    await waitFor(() => {
-      expect(result.current.loading).toBe(false);
+    // Advance timers to let the fetch complete
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(100);
     });
 
+    expect(result.current.loading).toBe(false);
     expect(result.current.data).toEqual(mockData);
     expect(result.current.error).toBe(null);
   });
@@ -53,8 +62,8 @@ describe('useFetch', () => {
 
     const { result } = renderHook(() => useFetch('/api/test'));
 
-    await waitFor(() => {
-      expect(result.current.loading).toBe(false);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(100);
     });
 
     expect(result.current.error).toBe('HTTP error! status: 404');
@@ -66,8 +75,8 @@ describe('useFetch', () => {
 
     const { result } = renderHook(() => useFetch('/api/test'));
 
-    await waitFor(() => {
-      expect(result.current.loading).toBe(false);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(100);
     });
 
     expect(result.current.error).toBe('Network error');
@@ -79,8 +88,8 @@ describe('useFetch', () => {
 
     const { result } = renderHook(() => useFetch('/api/test'));
 
-    await waitFor(() => {
-      expect(result.current.loading).toBe(false);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(100);
     });
 
     expect(result.current.error).toBe('An error occurred');
@@ -94,12 +103,14 @@ describe('useFetch', () => {
 
     renderHook(() => useFetch('/api/test'));
 
-    await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledWith('/api/test', {
-        headers: {
-          Accept: 'application/json',
-        },
-      });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(100);
+    });
+
+    expect(mockFetch).toHaveBeenCalledWith('/api/test', {
+      headers: {
+        Accept: 'application/json',
+      },
     });
   });
 
@@ -130,24 +141,99 @@ describe('useFetch', () => {
 
     const { result } = renderHook(() => useFetch<{ count: number }>('/api/test'));
 
-    await waitFor(() => {
-      expect(result.current.data).toEqual(mockData1);
+    // Initial fetch
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(100);
     });
+
+    expect(result.current.data).toEqual(mockData1);
 
     // Call refetch
     await act(async () => {
       await result.current.refetch();
+      await vi.advanceTimersByTimeAsync(100);
     });
 
-    await waitFor(() => {
-      expect(result.current.data).toEqual(mockData2);
+    expect(result.current.data).toEqual(mockData2);
+  });
+
+  it('sets up revalidate on focus', async () => {
+    const listeners: Array<{ type: string; handler: () => void }> = [];
+    window.addEventListener = vi.fn((type, handler) => {
+      listeners.push({ type, handler: handler as () => void });
     });
+    window.removeEventListener = vi.fn();
+
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ data: 'test' }),
+    });
+
+    renderHook(() => useFetch('/api/test', { revalidateOnFocus: true }));
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(100);
+    });
+
+    // Should have registered focus listener
+    expect(listeners.some(l => l.type === 'focus')).toBe(true);
+  });
+
+  it('sets up revalidate interval', async () => {
+    const intervalMs = 5000;
+
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ count: 1 }),
+    });
+
+    renderHook(() => useFetch('/api/test', { revalidateInterval: intervalMs }));
+
+    // Initial fetch
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(100);
+    });
+
+    const initialCallCount = mockFetch.mock.calls.length;
+
+    // Advance past interval - should trigger refetch
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(intervalMs);
+    });
+
+    expect(mockFetch.mock.calls.length).toBeGreaterThan(initialCallCount);
+  });
+
+  it('disables revalidate on focus when option is false', async () => {
+    const listeners: string[] = [];
+    window.addEventListener = vi.fn((type) => {
+      listeners.push(type);
+    });
+
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({}),
+    });
+
+    renderHook(() => useFetch('/api/test', { revalidateOnFocus: false }));
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(100);
+    });
+
+    // Should NOT have registered focus listener
+    expect(listeners).not.toContain('focus');
   });
 });
 
 describe('useGitHub', () => {
   beforeEach(() => {
+    vi.useFakeTimers();
     mockFetch.mockReset();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('constructs GitHub API URL', async () => {
@@ -156,14 +242,16 @@ describe('useGitHub', () => {
       json: () => Promise.resolve({}),
     });
 
-    renderHook(() => useGitHub('repos/test/repo'));
+    renderHook(() => useGitHub('repos/test/repo', { revalidateInterval: 0 }));
 
-    await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledWith(
-        'https://api.github.com/repos/test/repo',
-        expect.any(Object)
-      );
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(100);
     });
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'https://api.github.com/repos/test/repo',
+      expect.any(Object)
+    );
   });
 
   it('returns rateLimit info', () => {
@@ -195,12 +283,13 @@ describe('useGitHub', () => {
       json: () => Promise.resolve({ id: 1 }),
     });
 
-    const { result } = renderHook(() => useGitHub('repos/test/repo'));
+    const { result } = renderHook(() => useGitHub('repos/test/repo', { revalidateInterval: 0 }));
 
-    await waitFor(() => {
-      expect(result.current.loading).toBe(false);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(100);
     });
 
+    expect(result.current.loading).toBe(false);
     expect(typeof result.current.refetch).toBe('function');
   });
 
@@ -210,13 +299,15 @@ describe('useGitHub', () => {
       json: () => Promise.resolve({}),
     });
 
-    const { result } = renderHook(() => useGitHub('repos/test/repo'));
+    const { result } = renderHook(() => useGitHub('repos/test/repo', { revalidateInterval: 0 }));
 
     expect(result.current.loading).toBe(true);
 
-    await waitFor(() => {
-      expect(result.current.loading).toBe(false);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(100);
     });
+
+    expect(result.current.loading).toBe(false);
   });
 
   it('handles errors from GitHub API', async () => {
@@ -225,10 +316,45 @@ describe('useGitHub', () => {
       status: 403,
     });
 
-    const { result } = renderHook(() => useGitHub('repos/test/repo'));
+    const { result } = renderHook(() => useGitHub('repos/test/repo', { revalidateInterval: 0 }));
 
-    await waitFor(() => {
-      expect(result.current.error).toBeTruthy();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(100);
     });
+
+    expect(result.current.error).toBeTruthy();
+  });
+
+  it('uses custom revalidate interval', async () => {
+    const customInterval = 10000; // 10 seconds
+
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({}),
+    });
+
+    renderHook(() => useGitHub('repos/test/repo', { revalidateInterval: customInterval }));
+
+    // Initial fetch
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(100);
+    });
+
+    const initialCalls = mockFetch.mock.calls.length;
+
+    // Advance time but not enough to trigger interval
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(customInterval - 1000);
+    });
+
+    // Should not have refetched yet (allow some margin for timing)
+    expect(mockFetch.mock.calls.length).toBe(initialCalls);
+
+    // Advance past the interval - should refetch
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1000);
+    });
+
+    expect(mockFetch.mock.calls.length).toBeGreaterThan(initialCalls);
   });
 });

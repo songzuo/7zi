@@ -1,0 +1,377 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - navigation "Main navigation" [ref=e3]:
+      - generic [ref=e4]:
+        - link "7ziStudio" [ref=e5] [cursor=pointer]:
+          - /url: /zh
+        - generic [ref=e6]:
+          - generic [ref=e7]:
+            - link "关于我们" [ref=e8] [cursor=pointer]:
+              - /url: /zh/about
+            - link "团队成员" [ref=e9] [cursor=pointer]:
+              - /url: /zh/team
+            - link "博客" [ref=e10] [cursor=pointer]:
+              - /url: /zh/blog
+            - link "Dashboard" [ref=e11] [cursor=pointer]:
+              - /url: /zh/dashboard
+            - button "Toggle theme" [ref=e12]: ☀️🌙
+            - generic [ref=e13]:
+              - button "Switch language" [ref=e14]:
+                - text: 🇨🇳中文
+                - img [ref=e15]
+              - generic [ref=e17]:
+                - button "🇨🇳中文" [ref=e18]:
+                  - text: 🇨🇳中文
+                  - img [ref=e19]
+                - button "🇺🇸English" [ref=e21]
+            - link "联系我们" [ref=e22] [cursor=pointer]:
+              - /url: /zh/contact
+          - generic [ref=e23]:
+            - generic [ref=e24]:
+              - button "Switch language" [ref=e25]:
+                - text: 🇨🇳中文
+                - img [ref=e26]
+              - generic [ref=e28]:
+                - button "🇨🇳中文" [ref=e29]:
+                  - text: 🇨🇳中文
+                  - img [ref=e30]
+                - button "🇺🇸English" [ref=e32]
+            - button "Toggle theme" [ref=e33]: ☀️🌙
+            - button "打开菜单" [ref=e34]
+            - dialog "导航菜单" [ref=e35]:
+              - generic [ref=e36]:
+                - link "7ziStudio" [ref=e38] [cursor=pointer]:
+                  - /url: /
+                - navigation [ref=e39]:
+                  - menu [ref=e40]:
+                    - menuitem "首页" [ref=e41]:
+                      - link "首页" [ref=e42] [cursor=pointer]:
+                        - /url: /
+                        - text: 🏠首页
+                    - menuitem "关于我们" [ref=e43]:
+                      - link "关于我们" [ref=e44] [cursor=pointer]:
+                        - /url: /about
+                        - text: ℹ️关于我们
+                    - menuitem "团队成员" [ref=e45]:
+                      - link "团队成员" [ref=e46] [cursor=pointer]:
+                        - /url: /team
+                        - text: 👥团队成员
+                    - menuitem "博客" [ref=e47]:
+                      - link "博客" [ref=e48] [cursor=pointer]:
+                        - /url: /blog
+                        - text: 📝博客
+                    - menuitem "Dashboard" [ref=e49]:
+                      - link "Dashboard" [ref=e50] [cursor=pointer]:
+                        - /url: /dashboard
+                        - text: 📊Dashboard
+                    - menuitem "联系我们" [ref=e51]:
+                      - link "联系我们" [ref=e52] [cursor=pointer]:
+                        - /url: /contact
+                        - text: 📧联系我们
+                - link "7zi 环球通 (旧项目)" [ref=e54] [cursor=pointer]:
+                  - /url: https://visa.7zi.com
+                  - text: 7zi 环球通 (旧项目)↗
+    - generic [ref=e56]:
+      - generic [ref=e57]: ✨11 位 AI 专家
+      - heading "我们的团队" [level=1] [ref=e58]
+      - paragraph [ref=e59]: 从战略规划到执行落地，每个环节都有专家为您护航
+      - generic [ref=e60]:
+        - generic [ref=e61]:
+          - generic [ref=e62]: "11"
+          - generic [ref=e63]: 专业代理
+        - generic [ref=e64]:
+          - generic [ref=e65]: 100%
+          - generic [ref=e66]: 覆盖率
+        - generic [ref=e67]:
+          - generic [ref=e68]: 24/7
+          - generic [ref=e69]: 在线支持
+    - generic [ref=e72]:
+      - generic [ref=e73]:
+        - generic [ref=e74]: 🌟
+        - heading "智能体世界专家" [level=3] [ref=e75]
+        - paragraph [ref=e76]: 战略规划 & 未来布局
+        - paragraph [ref=e77]: 专注于 AI Agent 发展趋势和未来布局，为团队提供战略视角和前瞻性思考。
+        - generic [ref=e78]: 战略分析趋势预测创新思维
+      - generic [ref=e79]:
+        - generic [ref=e80]: 📚
+        - heading "咨询师" [level=3] [ref=e81]
+        - paragraph [ref=e82]: 研究 & 分析
+        - paragraph [ref=e83]: 深入研究市场动态和技术趋势，为项目提供数据驱动的决策支持。
+        - generic [ref=e84]: 市场研究数据分析决策支持
+      - generic [ref=e85]:
+        - generic [ref=e86]: 🏗️
+        - heading "架构师" [level=3] [ref=e87]
+        - paragraph [ref=e88]: 设计 & 规划
+        - paragraph [ref=e89]: 设计系统架构和技术方案，确保项目的技术可行性和可扩展性。
+        - generic [ref=e90]: 系统架构技术选型方案设计
+      - generic [ref=e91]:
+        - generic [ref=e92]: ⚡
+        - heading "Executor" [level=3] [ref=e93]
+        - paragraph [ref=e94]: 执行 & 实现
+        - paragraph [ref=e95]: 高效执行任务，将设计方案转化为高质量的代码实现。
+        - generic [ref=e96]: 代码实现任务执行效率优化
+      - generic [ref=e97]:
+        - generic [ref=e98]: 🛡️
+        - heading "系统管理员" [level=3] [ref=e99]
+        - paragraph [ref=e100]: 运维 & 部署
+        - paragraph [ref=e101]: 负责系统运维、服务器管理和自动化部署，确保服务稳定运行。
+        - generic [ref=e102]: 系统运维自动化部署安全加固
+      - generic [ref=e103]:
+        - generic [ref=e104]: 🧪
+        - heading "测试员" [level=3] [ref=e105]
+        - paragraph [ref=e106]: 测试 & 调试
+        - paragraph [ref=e107]: 编写测试用例，进行功能测试和性能优化，保证产品质量。
+        - generic [ref=e108]: 功能测试性能优化质量保障
+      - generic [ref=e109]:
+        - generic [ref=e110]: 🎨
+        - heading "设计师" [level=3] [ref=e111]
+        - paragraph [ref=e112]: UI & 前端设计
+        - paragraph [ref=e113]: 打造美观易用的用户界面，提供优秀的用户体验设计。
+        - generic [ref=e114]: UI 设计用户体验视觉创意
+      - generic [ref=e115]:
+        - generic [ref=e116]: 📣
+        - heading "推广专员" [level=3] [ref=e117]
+        - paragraph [ref=e118]: 推广 & SEO
+        - paragraph [ref=e119]: 制定推广策略，优化搜索引擎排名，提升品牌知名度。
+        - generic [ref=e120]: SEO 优化内容营销品牌推广
+      - generic [ref=e121]:
+        - generic [ref=e122]: 💼
+        - heading "销售客服" [level=3] [ref=e123]
+        - paragraph [ref=e124]: 销售 & 客服
+        - paragraph [ref=e125]: 与客户沟通，了解需求，提供解决方案和优质的服务支持。
+        - generic [ref=e126]: 客户沟通需求分析解决方案
+      - generic [ref=e127]:
+        - generic [ref=e128]: 💰
+        - heading "财务" [level=3] [ref=e129]
+        - paragraph [ref=e130]: 会计 & 审计
+        - paragraph [ref=e131]: 管理财务收支，进行成本核算和财务分析，确保资金健康。
+        - generic [ref=e132]: 财务管理成本控制财务分析
+      - generic [ref=e133]:
+        - generic [ref=e134]: 📺
+        - heading "媒体" [level=3] [ref=e135]
+        - paragraph [ref=e136]: 媒体 & 宣传
+        - paragraph [ref=e137]: 策划和制作内容，通过多渠道传播提升品牌影响力。
+        - generic [ref=e138]: 内容策划媒体运营品牌传播
+    - generic [ref=e140]:
+      - generic [ref=e141]:
+        - heading "高效协作模式" [level=2] [ref=e142]
+        - paragraph [ref=e143]: 11 位 AI 代理无缝配合，确保项目顺利推进
+      - generic [ref=e144]:
+        - generic [ref=e145]:
+          - generic [ref=e146]: 🎯
+          - heading "战略 → 执行" [level=3] [ref=e147]
+          - paragraph [ref=e148]: 从智能体世界专家的战略规划，到 Executor 的高效实现
+        - generic [ref=e149]:
+          - generic [ref=e150]: 🎨
+          - heading "设计 → 开发" [level=3] [ref=e151]
+          - paragraph [ref=e152]: 设计师的创意方案，由架构师和 Executor 完美实现
+        - generic [ref=e153]:
+          - generic [ref=e154]: 🧪
+          - heading "测试 → 部署" [level=3] [ref=e155]
+          - paragraph [ref=e156]: 测试员严格把关，系统管理员稳定部署上线
+        - generic [ref=e157]:
+          - generic [ref=e158]: 📈
+          - heading "推广 → 转化" [level=3] [ref=e159]
+          - paragraph [ref=e160]: 推广专员引流，销售客服转化，财务精准核算
+    - generic [ref=e162]:
+      - heading "准备好与我们合作了吗？" [level=2] [ref=e163]
+      - paragraph [ref=e164]: 11 位 AI 专家已就绪，随时为您打造卓越数字项目
+      - link "联系我们" [ref=e165] [cursor=pointer]:
+        - /url: /zh/contact
+        - text: 联系我们→
+    - contentinfo [ref=e166]:
+      - generic [ref=e168]:
+        - generic [ref=e169]: 7ziStudio
+        - navigation "Footer navigation" [ref=e170]:
+          - list [ref=e171]:
+            - listitem [ref=e172]:
+              - link "首页" [ref=e173] [cursor=pointer]:
+                - /url: /zh
+            - listitem [ref=e174]:
+              - link "关于我们" [ref=e175] [cursor=pointer]:
+                - /url: /zh/about
+            - listitem [ref=e176]:
+              - link "团队成员" [ref=e177] [cursor=pointer]:
+                - /url: /zh/team
+            - listitem [ref=e178]:
+              - link "博客" [ref=e179] [cursor=pointer]:
+                - /url: /zh/blog
+        - generic [ref=e180]: © 2024 7zi Studio. All rights reserved.
+  - contentinfo [ref=e181]:
+    - generic [ref=e183]:
+      - generic [ref=e184]:
+        - link "7ziStudio" [ref=e185] [cursor=pointer]:
+          - /url: /
+          - heading "7ziStudio" [level=2] [ref=e186]
+        - paragraph [ref=e187]: 由 11 位专业 AI 代理组成的创新数字工作室，提供网站开发、品牌设计、营销推广等全方位数字化服务。
+        - generic [ref=e188]:
+          - heading "关注我们" [level=3] [ref=e189]
+          - generic [ref=e190]:
+            - link "💬微信公众号" [ref=e191] [cursor=pointer]:
+              - /url: "#"
+            - link "🐙GitHub" [ref=e192] [cursor=pointer]:
+              - /url: https://github.com/7zi-studio
+            - link "🐦Twitter" [ref=e193] [cursor=pointer]:
+              - /url: https://twitter.com/7zistudio
+            - link "💼LinkedIn" [ref=e194] [cursor=pointer]:
+              - /url: https://linkedin.com/company/7zistudio
+            - link "🎮Discord" [ref=e195] [cursor=pointer]:
+              - /url: "#"
+            - link "📺YouTube" [ref=e196] [cursor=pointer]:
+              - /url: "#"
+      - generic [ref=e197]:
+        - heading "快速链接" [level=3] [ref=e198]
+        - list [ref=e199]:
+          - listitem [ref=e200]:
+            - link "首页" [ref=e201] [cursor=pointer]:
+              - /url: /
+          - listitem [ref=e202]:
+            - link "关于我们" [ref=e203] [cursor=pointer]:
+              - /url: /about
+          - listitem [ref=e204]:
+            - link "团队成员" [ref=e205] [cursor=pointer]:
+              - /url: /team
+          - listitem [ref=e206]:
+            - link "博客" [ref=e207] [cursor=pointer]:
+              - /url: /blog
+          - listitem [ref=e208]:
+            - link "联系我们" [ref=e209] [cursor=pointer]:
+              - /url: /contact
+          - listitem [ref=e210]:
+            - link "Dashboard" [ref=e211] [cursor=pointer]:
+              - /url: /dashboard
+      - generic [ref=e212]:
+        - heading "服务项目" [level=3] [ref=e213]
+        - list [ref=e214]:
+          - listitem [ref=e215]:
+            - link "网站开发" [ref=e216] [cursor=pointer]:
+              - /url: "#services"
+          - listitem [ref=e217]:
+            - link "品牌设计" [ref=e218] [cursor=pointer]:
+              - /url: "#services"
+          - listitem [ref=e219]:
+            - link "SEO 优化" [ref=e220] [cursor=pointer]:
+              - /url: "#services"
+          - listitem [ref=e221]:
+            - link "营销推广" [ref=e222] [cursor=pointer]:
+              - /url: "#services"
+          - listitem [ref=e223]:
+            - link "UI/UX 设计" [ref=e224] [cursor=pointer]:
+              - /url: "#services"
+          - listitem [ref=e225]:
+            - link "AI 解决方案" [ref=e226] [cursor=pointer]:
+              - /url: "#services"
+      - generic [ref=e227]:
+        - heading "联系方式" [level=3] [ref=e228]
+        - list [ref=e229]:
+          - listitem [ref=e230]:
+            - link "📧business@7zi.studio" [ref=e231] [cursor=pointer]:
+              - /url: mailto:business@7zi.studio
+          - listitem [ref=e232]:
+            - link "🌐7zi.studio" [ref=e233] [cursor=pointer]:
+              - /url: https://7zi.studio
+          - listitem [ref=e234]:
+            - link "📍中国" [ref=e235] [cursor=pointer]:
+              - /url: "#"
+    - generic [ref=e238]:
+      - generic [ref=e239]:
+        - paragraph [ref=e240]: © 2026 7zi Studio. All rights reserved.
+        - paragraph [ref=e241]: 由 AI 代理团队驱动 · 创新无限可能
+      - generic [ref=e242]:
+        - link "隐私政策" [ref=e243] [cursor=pointer]:
+          - /url: /privacy
+        - link "服务条款" [ref=e244] [cursor=pointer]:
+          - /url: /terms
+        - link "Cookie 政策" [ref=e245] [cursor=pointer]:
+          - /url: /cookies
+  - contentinfo [ref=e246]:
+    - generic [ref=e248]:
+      - generic [ref=e249]:
+        - link "7ziStudio" [ref=e250] [cursor=pointer]:
+          - /url: /
+          - heading "7ziStudio" [level=2] [ref=e251]
+        - paragraph [ref=e252]: 由 11 位专业 AI 代理组成的创新数字工作室，提供网站开发、品牌设计、营销推广等全方位数字化服务。
+        - generic [ref=e253]:
+          - heading "关注我们" [level=3] [ref=e254]
+          - generic [ref=e255]:
+            - link "💬微信公众号" [ref=e256] [cursor=pointer]:
+              - /url: "#"
+            - link "🐙GitHub" [ref=e257] [cursor=pointer]:
+              - /url: https://github.com/7zi-studio
+            - link "🐦Twitter" [ref=e258] [cursor=pointer]:
+              - /url: https://twitter.com/7zistudio
+            - link "💼LinkedIn" [ref=e259] [cursor=pointer]:
+              - /url: https://linkedin.com/company/7zistudio
+            - link "🎮Discord" [ref=e260] [cursor=pointer]:
+              - /url: "#"
+            - link "📺YouTube" [ref=e261] [cursor=pointer]:
+              - /url: "#"
+      - generic [ref=e262]:
+        - heading "快速链接" [level=3] [ref=e263]
+        - list [ref=e264]:
+          - listitem [ref=e265]:
+            - link "首页" [ref=e266] [cursor=pointer]:
+              - /url: /
+          - listitem [ref=e267]:
+            - link "关于我们" [ref=e268] [cursor=pointer]:
+              - /url: /about
+          - listitem [ref=e269]:
+            - link "团队成员" [ref=e270] [cursor=pointer]:
+              - /url: /team
+          - listitem [ref=e271]:
+            - link "博客" [ref=e272] [cursor=pointer]:
+              - /url: /blog
+          - listitem [ref=e273]:
+            - link "联系我们" [ref=e274] [cursor=pointer]:
+              - /url: /contact
+          - listitem [ref=e275]:
+            - link "Dashboard" [ref=e276] [cursor=pointer]:
+              - /url: /dashboard
+      - generic [ref=e277]:
+        - heading "服务项目" [level=3] [ref=e278]
+        - list [ref=e279]:
+          - listitem [ref=e280]:
+            - link "网站开发" [ref=e281] [cursor=pointer]:
+              - /url: "#services"
+          - listitem [ref=e282]:
+            - link "品牌设计" [ref=e283] [cursor=pointer]:
+              - /url: "#services"
+          - listitem [ref=e284]:
+            - link "SEO 优化" [ref=e285] [cursor=pointer]:
+              - /url: "#services"
+          - listitem [ref=e286]:
+            - link "营销推广" [ref=e287] [cursor=pointer]:
+              - /url: "#services"
+          - listitem [ref=e288]:
+            - link "UI/UX 设计" [ref=e289] [cursor=pointer]:
+              - /url: "#services"
+          - listitem [ref=e290]:
+            - link "AI 解决方案" [ref=e291] [cursor=pointer]:
+              - /url: "#services"
+      - generic [ref=e292]:
+        - heading "联系方式" [level=3] [ref=e293]
+        - list [ref=e294]:
+          - listitem [ref=e295]:
+            - link "📧business@7zi.studio" [ref=e296] [cursor=pointer]:
+              - /url: mailto:business@7zi.studio
+          - listitem [ref=e297]:
+            - link "🌐7zi.studio" [ref=e298] [cursor=pointer]:
+              - /url: https://7zi.studio
+          - listitem [ref=e299]:
+            - link "📍中国" [ref=e300] [cursor=pointer]:
+              - /url: "#"
+    - generic [ref=e303]:
+      - generic [ref=e304]:
+        - paragraph [ref=e305]: © 2026 7zi Studio. All rights reserved.
+        - paragraph [ref=e306]: 由 AI 代理团队驱动 · 创新无限可能
+      - generic [ref=e307]:
+        - link "隐私政策" [ref=e308] [cursor=pointer]:
+          - /url: /privacy
+        - link "服务条款" [ref=e309] [cursor=pointer]:
+          - /url: /terms
+        - link "Cookie 政策" [ref=e310] [cursor=pointer]:
+          - /url: /cookies
+```

@@ -265,8 +265,9 @@ describe('utils - 边界条件测试', () => {
     });
 
     it('处理包含循环引用的参数', () => {
-      const mockFn = vi.fn((obj: { id: number }) => obj.id);
-      const memoizedFn = memoize(mockFn);
+      let callCount = 0;
+      const fn = (obj: { id: number }) => { callCount++; return obj.id; };
+      const memoizedFn = memoize(fn);
 
       // 第一次调用
       memoizedFn({ id: 1 });
@@ -275,38 +276,45 @@ describe('utils - 边界条件测试', () => {
       memoizedFn({ id: 1 });
 
       // 由于 JSON.stringify 会创建相同的 key，应该只调用一次
-      expect(mockFn).toHaveBeenCalledTimes(1);
+      expect(callCount).toBe(1);
     });
 
     it('处理 Symbol 参数', () => {
-      const mockFn = vi.fn((sym: symbol) => sym.toString());
-      const memoizedFn = memoize(mockFn);
+      let callCount = 0;
+      const fn = (sym: symbol) => { callCount++; return sym.toString(); };
+      const memoizedFn = memoize(fn);
 
       const sym = Symbol('test');
       memoizedFn(sym);
       memoizedFn(sym);
 
-      expect(mockFn).toHaveBeenCalledTimes(1);
+      expect(callCount).toBe(1);
     });
 
     it('处理函数参数', () => {
-      const mockFn = vi.fn((fn: () => number) => fn());
-      const memoizedFn = memoize(mockFn);
+      let callCount = 0;
+      const fn = (cb: () => number) => { callCount++; return cb(); };
+      const memoizedFn = memoize(fn);
 
       const fn1 = () => 1;
       memoizedFn(fn1);
       memoizedFn(fn1);
 
       // 函数的 JSON.stringify 是 undefined 或 '{}'
-      expect(mockFn).toHaveBeenCalled();
+      expect(callCount).toBeGreaterThanOrEqual(1);
     });
 
     it('处理大量参数组合', () => {
       let callCount = 0;
+<<<<<<< HEAD
       const memoizedFn = memoize((a: number, b: number, c: number) => {
         callCount++;
         return a + b + c;
       });
+=======
+      const fn = (a: number, b: number, c: number) => { callCount++; return a + b + c; };
+      const memoizedFn = memoize(fn);
+>>>>>>> bfa837c (test: enhance test coverage and update architecture docs)
 
       // 相同参数组合调用 100 次应该只执行一次
       for (let i = 0; i < 100; i++) {
@@ -319,19 +327,24 @@ describe('utils - 边界条件测试', () => {
       for (let i = 0; i < 10; i++) {
         memoizedFn(i, i + 1, i + 2);
       }
+<<<<<<< HEAD
       // 10 个不同的参数组合，每个应该执行一次
       expect(callCount).toBe(initialCallCount + 10);
+=======
+      expect(callCount).toBe(101);
+>>>>>>> bfa837c (test: enhance test coverage and update architecture docs)
     });
 
     it('custom resolver 返回相同 key', () => {
-      const mockFn = vi.fn((obj: { id: number; name: string }) => obj.name);
-      const memoizedFn = memoize(mockFn, (obj) => String(obj.id));
+      let callCount = 0;
+      const fn = (obj: { id: number; name: string }) => { callCount++; return obj.name; };
+      const memoizedFn = memoize(fn, (obj) => String(obj.id));
 
       memoizedFn({ id: 1, name: 'first' });
       memoizedFn({ id: 1, name: 'second' });
 
       // 由于 resolver 只返回 id，第二次调用会使用缓存
-      expect(mockFn).toHaveBeenCalledTimes(1);
+      expect(callCount).toBe(1);
     });
   });
 

@@ -130,30 +130,33 @@ describe('utils', () => {
 
   describe('memoize', () => {
     it('caches results for same arguments', () => {
-      const mockFn = vi.fn((x: number) => x * 2)
-      const memoizedFn = memoize(mockFn)
+      let callCount = 0;
+      const fn = (x: number) => { callCount++; return x * 2; };
+      const memoizedFn = memoize(fn);
 
-      expect(memoizedFn(5)).toBe(10)
-      expect(memoizedFn(5)).toBe(10)
-      expect(mockFn).toHaveBeenCalledTimes(1)
+      expect(memoizedFn(5)).toBe(10);
+      expect(memoizedFn(5)).toBe(10);
+      expect(callCount).toBe(1);
     })
 
     it('calls function for different arguments', () => {
-      const mockFn = vi.fn((x: number) => x * 2)
-      const memoizedFn = memoize(mockFn)
+      let callCount = 0;
+      const fn = (x: number) => { callCount++; return x * 2; };
+      const memoizedFn = memoize(fn);
 
-      expect(memoizedFn(5)).toBe(10)
-      expect(memoizedFn(10)).toBe(20)
-      expect(mockFn).toHaveBeenCalledTimes(2)
+      expect(memoizedFn(5)).toBe(10);
+      expect(memoizedFn(10)).toBe(20);
+      expect(callCount).toBe(2);
     })
 
     it('uses custom resolver when provided', () => {
-      const mockFn = vi.fn((obj: { id: number }) => obj.id * 2)
-      const memoizedFn = memoize(mockFn, (obj) => String(obj.id))
+      let callCount = 0;
+      const fn = (obj: { id: number }) => { callCount++; return obj.id * 2; };
+      const memoizedFn = memoize(fn, (obj) => String(obj.id));
 
-      expect(memoizedFn({ id: 5 })).toBe(10)
-      expect(memoizedFn({ id: 5 })).toBe(10)
-      expect(mockFn).toHaveBeenCalledTimes(1)
+      expect(memoizedFn({ id: 5 })).toBe(10);
+      expect(memoizedFn({ id: 5 })).toBe(10);
+      expect(callCount).toBe(1);
     })
   })
 

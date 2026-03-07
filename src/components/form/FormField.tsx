@@ -69,7 +69,7 @@ export function FormField({
  * 输入框组件（带实时验证）
  */
 export interface InputProps
-  extends InputHTMLAttributes<HTMLInputElement>,
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'defaultValue'>,
     UseFieldValidationOptions {
   error?: string;
   touched?: boolean;
@@ -134,7 +134,7 @@ Input.displayName = 'Input';
  * 文本域组件（带实时验证）
  */
 export interface TextareaProps
-  extends TextareaHTMLAttributes<HTMLTextAreaElement>,
+  extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'defaultValue'>,
     UseFieldValidationOptions {
   error?: string;
   touched?: boolean;

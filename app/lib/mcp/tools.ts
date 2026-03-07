@@ -145,9 +145,10 @@ export function initializeDefaultTools(): void {
     inputSchema: z.object({
       path: z.string().describe('Path to the file to read'),
     }),
-    handler: async (params) => {
+    handler: async (params: unknown) => {
+      const { path } = params as { path: string };
       const fs = await import('fs/promises');
-      const content = await fs.readFile(params.path, 'utf-8');
+      const content = await fs.readFile(path, 'utf-8');
       return { content: [{ type: 'text', text: content }] };
     },
   });
@@ -164,10 +165,11 @@ export function initializeDefaultTools(): void {
       path: z.string().describe('Path to the file to write'),
       content: z.string().describe('Content to write to the file'),
     }),
-    handler: async (params) => {
+    handler: async (params: unknown) => {
+      const { path, content } = params as { path: string; content: string };
       const fs = await import('fs/promises');
-      await fs.writeFile(params.path, params.content, 'utf-8');
-      return { content: [{ type: 'text', text: `File written: ${params.path}` }] };
+      await fs.writeFile(path, content, 'utf-8');
+      return { content: [{ type: 'text', text: `File written: ${path}` }] };
     },
   });
 
@@ -182,10 +184,11 @@ export function initializeDefaultTools(): void {
     inputSchema: z.object({
       path: z.string().describe('Path to the file to delete'),
     }),
-    handler: async (params) => {
+    handler: async (params: unknown) => {
+      const { path } = params as { path: string };
       const fs = await import('fs/promises');
-      await fs.unlink(params.path);
-      return { content: [{ type: 'text', text: `File deleted: ${params.path}` }] };
+      await fs.unlink(path);
+      return { content: [{ type: 'text', text: `File deleted: ${path}` }] };
     },
   });
 
@@ -202,10 +205,11 @@ export function initializeDefaultTools(): void {
       command: z.string().describe('Command to execute'),
       cwd: z.string().optional().describe('Working directory'),
     }),
-    handler: async (params) => {
+    handler: async (params: unknown) => {
+      const { command, cwd } = params as { command: string; cwd?: string };
       const { exec } = await import('child_process');
       const output = await new Promise<string>((resolve, reject) => {
-        exec(params.command, { cwd: params.cwd }, (error, stdout, stderr) => {
+        exec(command, { cwd }, (error, stdout, stderr) => {
           if (error) reject(error);
           else resolve(stdout || stderr);
         });
@@ -223,10 +227,11 @@ export function initializeDefaultTools(): void {
     tags: ['network', 'http', 'request'],
     inputSchema: z.object({
       url: z.string().describe('URL to fetch'),
-      headers: z.record(z.string()).optional().describe('Request headers'),
+      headers: z.record(z.string(), z.string()).optional().describe('Request headers'),
     }),
-    handler: async (params) => {
-      const response = await fetch(params.url, { headers: params.headers });
+    handler: async (params: unknown) => {
+      const { url, headers } = params as { url: string; headers?: Record<string, string> };
+      const response = await fetch(url, { headers: headers as HeadersInit });
       const text = await response.text();
       return { content: [{ type: 'text', text }] };
     },

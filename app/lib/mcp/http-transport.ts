@@ -7,8 +7,6 @@
  * @module mcp/http-transport
  */
 
-import type { Readable } from 'stream';
-
 /**
  * SSE Event structure
  */
@@ -118,8 +116,10 @@ export class MCPSessionManager {
     const now = Date.now();
     let cleaned = 0;
     
-    for (const [id, session] of this.sessions.entries()) {
-      if (now - session.lastActivity.getTime() > maxAgeMs) {
+    const sessionIds = Array.from(this.sessions.keys());
+    for (const id of sessionIds) {
+      const session = this.sessions.get(id);
+      if (session && now - session.lastActivity.getTime() > maxAgeMs) {
         this.sessions.delete(id);
         cleaned++;
       }

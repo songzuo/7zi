@@ -282,8 +282,8 @@ describe('Navigation Integration Tests', () => {
 
       // Simulate clicking outside
       handleOutsideClick(
-        { contains: () => false } as Element,
-        { contains: () => true } as Element
+        { contains: () => false } as unknown as Element,
+        { contains: () => true } as unknown as Element
       )
 
       expect(isMobileMenuOpen).toBe(false)

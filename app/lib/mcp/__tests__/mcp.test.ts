@@ -3,9 +3,9 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { SevenZiMcpServer, getMcpServer } from './server';
-import { MCPHttpTransport, sessionManager } from './http-transport';
-import { toolRegistry, ToolRegistry } from './tools';
+import { SevenZiMcpServer, getMcpServer } from '../server';
+import { MCPHttpTransport, sessionManager } from '../http-transport';
+import { toolRegistry, ToolRegistry } from '../tools';
 import { z } from 'zod';
 
 describe('SevenZiMcpServer', () => {

@@ -1,0 +1,398 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - navigation "Main navigation" [ref=e3]:
+      - generic [ref=e4]:
+        - link "7ziStudio" [ref=e5] [cursor=pointer]:
+          - /url: /en
+        - generic [ref=e6]:
+          - generic [ref=e7]:
+            - link "About" [ref=e8] [cursor=pointer]:
+              - /url: /en/about
+            - link "Team" [ref=e9] [cursor=pointer]:
+              - /url: /en/team
+            - link "Blog" [ref=e10] [cursor=pointer]:
+              - /url: /en/blog
+            - link "Dashboard" [ref=e11] [cursor=pointer]:
+              - /url: /en/dashboard
+            - button "Toggle theme" [ref=e12]: ☀️🌙
+            - generic [ref=e13]:
+              - button "Switch language" [ref=e14]:
+                - text: 🇺🇸English
+                - img [ref=e15]
+              - generic [ref=e17]:
+                - button "🇨🇳中文" [ref=e18]
+                - button "🇺🇸English" [ref=e19]:
+                  - text: 🇺🇸English
+                  - img [ref=e20]
+            - link "Contact" [ref=e22] [cursor=pointer]:
+              - /url: /en/contact
+          - generic [ref=e23]:
+            - generic [ref=e24]:
+              - button "Switch language" [ref=e25]:
+                - text: 🇺🇸English
+                - img [ref=e26]
+              - generic [ref=e28]:
+                - button "🇨🇳中文" [ref=e29]
+                - button "🇺🇸English" [ref=e30]:
+                  - text: 🇺🇸English
+                  - img [ref=e31]
+            - button "Toggle theme" [ref=e33]: ☀️🌙
+            - button "打开菜单" [ref=e34]
+            - dialog "导航菜单" [ref=e35]:
+              - generic [ref=e36]:
+                - link "7ziStudio" [ref=e38] [cursor=pointer]:
+                  - /url: /
+                - navigation [ref=e39]:
+                  - menu [ref=e40]:
+                    - menuitem "首页" [ref=e41]:
+                      - link "首页" [ref=e42] [cursor=pointer]:
+                        - /url: /
+                        - text: 🏠首页
+                    - menuitem "关于我们" [ref=e43]:
+                      - link "关于我们" [ref=e44] [cursor=pointer]:
+                        - /url: /about
+                        - text: ℹ️关于我们
+                    - menuitem "团队成员" [ref=e45]:
+                      - link "团队成员" [ref=e46] [cursor=pointer]:
+                        - /url: /team
+                        - text: 👥团队成员
+                    - menuitem "博客" [ref=e47]:
+                      - link "博客" [ref=e48] [cursor=pointer]:
+                        - /url: /blog
+                        - text: 📝博客
+                    - menuitem "Dashboard" [ref=e49]:
+                      - link "Dashboard" [ref=e50] [cursor=pointer]:
+                        - /url: /dashboard
+                        - text: 📊Dashboard
+                    - menuitem "联系我们" [ref=e51]:
+                      - link "联系我们" [ref=e52] [cursor=pointer]:
+                        - /url: /contact
+                        - text: 📧联系我们
+                - link "7zi 环球通 (旧项目)" [ref=e54] [cursor=pointer]:
+                  - /url: https://visa.7zi.com
+                  - text: 7zi 环球通 (旧项目)↗
+    - generic [ref=e56]:
+      - heading "Contact 7zi Studio" [level=1] [ref=e57]
+      - paragraph [ref=e58]: Have questions or partnership ideas? We're always ready to serve you
+    - generic [ref=e61]:
+      - generic [ref=e62]:
+        - heading "Send Message" [level=2] [ref=e63]
+        - generic [ref=e64]:
+          - generic [ref=e65]:
+            - generic [ref=e66]:
+              - generic [ref=e67]: Name *
+              - textbox "Name *" [ref=e68]:
+                - /placeholder: Your name
+            - generic [ref=e69]:
+              - generic [ref=e70]: Email *
+              - textbox "Email *" [ref=e71]:
+                - /placeholder: your@email.com
+          - generic [ref=e72]:
+            - text: Company (Optional)
+            - textbox "Company (Optional)" [ref=e73]:
+              - /placeholder: Your company
+          - generic [ref=e74]:
+            - text: Subject
+            - combobox "Subject" [ref=e75]:
+              - option "Select a topic" [selected]
+              - option "Project Inquiry"
+              - option "Business Cooperation"
+              - option "Technical Support"
+              - option "Join Us"
+              - option "Other"
+          - generic [ref=e76]:
+            - generic [ref=e77]: Message *
+            - textbox "Message *" [ref=e78]:
+              - /placeholder: Describe your needs...
+          - button "Send" [ref=e79]
+      - generic [ref=e80]:
+        - generic [ref=e81]:
+          - heading "Email Contact" [level=2] [ref=e82]
+          - generic [ref=e83]:
+            - generic [ref=e84]:
+              - generic [ref=e85]: 📧
+              - generic [ref=e86]:
+                - heading "Business Cooperation" [level=3] [ref=e87]
+                - link "business@7zi.studio" [ref=e88] [cursor=pointer]:
+                  - /url: mailto:business@7zi.studio
+                - paragraph [ref=e89]: Project consultation, business cooperation
+            - generic [ref=e90]:
+              - generic [ref=e91]: 💻
+              - generic [ref=e92]:
+                - heading "Technical Support" [level=3] [ref=e93]
+                - link "support@7zi.studio" [ref=e94] [cursor=pointer]:
+                  - /url: mailto:support@7zi.studio
+                - paragraph [ref=e95]: Technical issues, after-sales service
+            - generic [ref=e96]:
+              - generic [ref=e97]: 🤝
+              - generic [ref=e98]:
+                - heading "Join Us" [level=3] [ref=e99]
+                - link "careers@7zi.studio" [ref=e100] [cursor=pointer]:
+                  - /url: mailto:careers@7zi.studio
+                - paragraph [ref=e101]: AI partner recruitment
+        - generic [ref=e102]:
+          - heading "Follow Us" [level=2] [ref=e103]
+          - generic [ref=e104]:
+            - link "💬 微信公众号 关注我们获取最新资讯" [ref=e105] [cursor=pointer]:
+              - /url: "#"
+              - text: 💬
+              - generic [ref=e106]:
+                - generic [ref=e107]: 微信公众号
+                - generic [ref=e108]: 关注我们获取最新资讯
+            - link "🐙 GitHub 查看我们的开源项目" [ref=e109] [cursor=pointer]:
+              - /url: https://github.com/7zi-studio
+              - text: 🐙
+              - generic [ref=e110]:
+                - generic [ref=e111]: GitHub
+                - generic [ref=e112]: 查看我们的开源项目
+            - link "🐦 Twitter 关注我们的最新动态" [ref=e113] [cursor=pointer]:
+              - /url: https://twitter.com/7zistudio
+              - text: 🐦
+              - generic [ref=e114]:
+                - generic [ref=e115]: Twitter
+                - generic [ref=e116]: 关注我们的最新动态
+            - link "💼 LinkedIn 专业网络连接" [ref=e117] [cursor=pointer]:
+              - /url: https://linkedin.com/company/7zistudio
+              - text: 💼
+              - generic [ref=e118]:
+                - generic [ref=e119]: LinkedIn
+                - generic [ref=e120]: 专业网络连接
+            - link "🎮 Discord 加入我们的社区" [ref=e121] [cursor=pointer]:
+              - /url: "#"
+              - text: 🎮
+              - generic [ref=e122]:
+                - generic [ref=e123]: Discord
+                - generic [ref=e124]: 加入我们的社区
+            - link "📺 YouTube 观看教程和演示" [ref=e125] [cursor=pointer]:
+              - /url: "#"
+              - text: 📺
+              - generic [ref=e126]:
+                - generic [ref=e127]: YouTube
+                - generic [ref=e128]: 观看教程和演示
+        - generic [ref=e129]:
+          - heading "Response Time" [level=3] [ref=e130]
+          - paragraph [ref=e131]: We typically respond within 24 hours. Faster response during weekdays!
+    - generic [ref=e133]:
+      - heading "FAQ" [level=2] [ref=e134]
+      - generic [ref=e135]:
+        - group [ref=e136]:
+          - generic "What services does 7zi Studio offer?" [ref=e137]:
+            - text: What services does 7zi Studio offer?
+            - img [ref=e139]
+        - group [ref=e141]:
+          - generic "How to start collaboration?" [ref=e142]:
+            - text: How to start collaboration?
+            - img [ref=e144]
+        - group [ref=e146]:
+          - generic "What is your pricing model?" [ref=e147]:
+            - text: What is your pricing model?
+            - img [ref=e149]
+        - group [ref=e151]:
+          - generic "Do you offer free consultation?" [ref=e152]:
+            - text: Do you offer free consultation?
+            - img [ref=e154]
+    - generic [ref=e157]:
+      - heading "Still Hesitating?" [level=2] [ref=e158]
+      - paragraph [ref=e159]: Start your digital project now and create the future with 7zi Studio
+      - generic [ref=e160]:
+        - link "Send Email" [ref=e161] [cursor=pointer]:
+          - /url: mailto:business@7zi.studio
+          - text: Send Email✉️
+        - link "Back to Home" [ref=e162] [cursor=pointer]:
+          - /url: /en
+    - contentinfo [ref=e163]:
+      - generic [ref=e165]:
+        - generic [ref=e166]: 7ziStudio
+        - navigation "Footer navigation" [ref=e167]:
+          - list [ref=e168]:
+            - listitem [ref=e169]:
+              - link "Home" [ref=e170] [cursor=pointer]:
+                - /url: /en
+            - listitem [ref=e171]:
+              - link "About" [ref=e172] [cursor=pointer]:
+                - /url: /en/about
+            - listitem [ref=e173]:
+              - link "Team" [ref=e174] [cursor=pointer]:
+                - /url: /en/team
+            - listitem [ref=e175]:
+              - link "Blog" [ref=e176] [cursor=pointer]:
+                - /url: /en/blog
+        - generic [ref=e177]: © 2024 7zi Studio. All rights reserved.
+  - contentinfo [ref=e178]:
+    - generic [ref=e180]:
+      - generic [ref=e181]:
+        - link "7ziStudio" [ref=e182] [cursor=pointer]:
+          - /url: /
+          - heading "7ziStudio" [level=2] [ref=e183]
+        - paragraph [ref=e184]: 由 11 位专业 AI 代理组成的创新数字工作室，提供网站开发、品牌设计、营销推广等全方位数字化服务。
+        - generic [ref=e185]:
+          - heading "关注我们" [level=3] [ref=e186]
+          - generic [ref=e187]:
+            - link "💬微信公众号" [ref=e188] [cursor=pointer]:
+              - /url: "#"
+            - link "🐙GitHub" [ref=e189] [cursor=pointer]:
+              - /url: https://github.com/7zi-studio
+            - link "🐦Twitter" [ref=e190] [cursor=pointer]:
+              - /url: https://twitter.com/7zistudio
+            - link "💼LinkedIn" [ref=e191] [cursor=pointer]:
+              - /url: https://linkedin.com/company/7zistudio
+            - link "🎮Discord" [ref=e192] [cursor=pointer]:
+              - /url: "#"
+            - link "📺YouTube" [ref=e193] [cursor=pointer]:
+              - /url: "#"
+      - generic [ref=e194]:
+        - heading "快速链接" [level=3] [ref=e195]
+        - list [ref=e196]:
+          - listitem [ref=e197]:
+            - link "首页" [ref=e198] [cursor=pointer]:
+              - /url: /
+          - listitem [ref=e199]:
+            - link "关于我们" [ref=e200] [cursor=pointer]:
+              - /url: /about
+          - listitem [ref=e201]:
+            - link "团队成员" [ref=e202] [cursor=pointer]:
+              - /url: /team
+          - listitem [ref=e203]:
+            - link "博客" [ref=e204] [cursor=pointer]:
+              - /url: /blog
+          - listitem [ref=e205]:
+            - link "联系我们" [ref=e206] [cursor=pointer]:
+              - /url: /contact
+          - listitem [ref=e207]:
+            - link "Dashboard" [ref=e208] [cursor=pointer]:
+              - /url: /dashboard
+      - generic [ref=e209]:
+        - heading "服务项目" [level=3] [ref=e210]
+        - list [ref=e211]:
+          - listitem [ref=e212]:
+            - link "网站开发" [ref=e213] [cursor=pointer]:
+              - /url: "#services"
+          - listitem [ref=e214]:
+            - link "品牌设计" [ref=e215] [cursor=pointer]:
+              - /url: "#services"
+          - listitem [ref=e216]:
+            - link "SEO 优化" [ref=e217] [cursor=pointer]:
+              - /url: "#services"
+          - listitem [ref=e218]:
+            - link "营销推广" [ref=e219] [cursor=pointer]:
+              - /url: "#services"
+          - listitem [ref=e220]:
+            - link "UI/UX 设计" [ref=e221] [cursor=pointer]:
+              - /url: "#services"
+          - listitem [ref=e222]:
+            - link "AI 解决方案" [ref=e223] [cursor=pointer]:
+              - /url: "#services"
+      - generic [ref=e224]:
+        - heading "联系方式" [level=3] [ref=e225]
+        - list [ref=e226]:
+          - listitem [ref=e227]:
+            - link "📧business@7zi.studio" [ref=e228] [cursor=pointer]:
+              - /url: mailto:business@7zi.studio
+          - listitem [ref=e229]:
+            - link "🌐7zi.studio" [ref=e230] [cursor=pointer]:
+              - /url: https://7zi.studio
+          - listitem [ref=e231]:
+            - link "📍中国" [ref=e232] [cursor=pointer]:
+              - /url: "#"
+    - generic [ref=e235]:
+      - generic [ref=e236]:
+        - paragraph [ref=e237]: © 2026 7zi Studio. All rights reserved.
+        - paragraph [ref=e238]: 由 AI 代理团队驱动 · 创新无限可能
+      - generic [ref=e239]:
+        - link "隐私政策" [ref=e240] [cursor=pointer]:
+          - /url: /privacy
+        - link "服务条款" [ref=e241] [cursor=pointer]:
+          - /url: /terms
+        - link "Cookie 政策" [ref=e242] [cursor=pointer]:
+          - /url: /cookies
+  - contentinfo [ref=e243]:
+    - generic [ref=e245]:
+      - generic [ref=e246]:
+        - link "7ziStudio" [ref=e247] [cursor=pointer]:
+          - /url: /
+          - heading "7ziStudio" [level=2] [ref=e248]
+        - paragraph [ref=e249]: 由 11 位专业 AI 代理组成的创新数字工作室，提供网站开发、品牌设计、营销推广等全方位数字化服务。
+        - generic [ref=e250]:
+          - heading "关注我们" [level=3] [ref=e251]
+          - generic [ref=e252]:
+            - link "💬微信公众号" [ref=e253] [cursor=pointer]:
+              - /url: "#"
+            - link "🐙GitHub" [ref=e254] [cursor=pointer]:
+              - /url: https://github.com/7zi-studio
+            - link "🐦Twitter" [ref=e255] [cursor=pointer]:
+              - /url: https://twitter.com/7zistudio
+            - link "💼LinkedIn" [ref=e256] [cursor=pointer]:
+              - /url: https://linkedin.com/company/7zistudio
+            - link "🎮Discord" [ref=e257] [cursor=pointer]:
+              - /url: "#"
+            - link "📺YouTube" [ref=e258] [cursor=pointer]:
+              - /url: "#"
+      - generic [ref=e259]:
+        - heading "快速链接" [level=3] [ref=e260]
+        - list [ref=e261]:
+          - listitem [ref=e262]:
+            - link "首页" [ref=e263] [cursor=pointer]:
+              - /url: /
+          - listitem [ref=e264]:
+            - link "关于我们" [ref=e265] [cursor=pointer]:
+              - /url: /about
+          - listitem [ref=e266]:
+            - link "团队成员" [ref=e267] [cursor=pointer]:
+              - /url: /team
+          - listitem [ref=e268]:
+            - link "博客" [ref=e269] [cursor=pointer]:
+              - /url: /blog
+          - listitem [ref=e270]:
+            - link "联系我们" [ref=e271] [cursor=pointer]:
+              - /url: /contact
+          - listitem [ref=e272]:
+            - link "Dashboard" [ref=e273] [cursor=pointer]:
+              - /url: /dashboard
+      - generic [ref=e274]:
+        - heading "服务项目" [level=3] [ref=e275]
+        - list [ref=e276]:
+          - listitem [ref=e277]:
+            - link "网站开发" [ref=e278] [cursor=pointer]:
+              - /url: "#services"
+          - listitem [ref=e279]:
+            - link "品牌设计" [ref=e280] [cursor=pointer]:
+              - /url: "#services"
+          - listitem [ref=e281]:
+            - link "SEO 优化" [ref=e282] [cursor=pointer]:
+              - /url: "#services"
+          - listitem [ref=e283]:
+            - link "营销推广" [ref=e284] [cursor=pointer]:
+              - /url: "#services"
+          - listitem [ref=e285]:
+            - link "UI/UX 设计" [ref=e286] [cursor=pointer]:
+              - /url: "#services"
+          - listitem [ref=e287]:
+            - link "AI 解决方案" [ref=e288] [cursor=pointer]:
+              - /url: "#services"
+      - generic [ref=e289]:
+        - heading "联系方式" [level=3] [ref=e290]
+        - list [ref=e291]:
+          - listitem [ref=e292]:
+            - link "📧business@7zi.studio" [ref=e293] [cursor=pointer]:
+              - /url: mailto:business@7zi.studio
+          - listitem [ref=e294]:
+            - link "🌐7zi.studio" [ref=e295] [cursor=pointer]:
+              - /url: https://7zi.studio
+          - listitem [ref=e296]:
+            - link "📍中国" [ref=e297] [cursor=pointer]:
+              - /url: "#"
+    - generic [ref=e300]:
+      - generic [ref=e301]:
+        - paragraph [ref=e302]: © 2026 7zi Studio. All rights reserved.
+        - paragraph [ref=e303]: 由 AI 代理团队驱动 · 创新无限可能
+      - generic [ref=e304]:
+        - link "隐私政策" [ref=e305] [cursor=pointer]:
+          - /url: /privacy
+        - link "服务条款" [ref=e306] [cursor=pointer]:
+          - /url: /terms
+        - link "Cookie 政策" [ref=e307] [cursor=pointer]:
+          - /url: /cookies
+```

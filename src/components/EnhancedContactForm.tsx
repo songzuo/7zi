@@ -10,7 +10,7 @@ import { useFormValidation } from "@/lib/validation";
 import { validators } from "@/lib/validation/validators";
 import { FormField, Input, Textarea, Select } from "@/components/form";
 
-interface FormData {
+interface FormData extends Record<string, unknown> {
   name: string;
   email: string;
   company: string;

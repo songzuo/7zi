@@ -139,8 +139,8 @@ describe('useGitHubData', () => {
       const issuesCall = calls.find(call => call[0].includes('issues'));
       const commitsCall = calls.find(call => call[0].includes('commits'));
 
-      expect(issuesCall[0]).toContain('per_page=50');
-      expect(commitsCall[0]).toContain('per_page=30');
+      expect(issuesCall?.[0]).toContain('per_page=50');
+      expect(commitsCall?.[0]).toContain('per_page=30');
     });
 
     it('应该支持自定义分页参数', async () => {
@@ -166,8 +166,8 @@ describe('useGitHubData', () => {
       const issuesCall = calls.find(call => call[0].includes('issues'));
       const commitsCall = calls.find(call => call[0].includes('commits'));
 
-      expect(issuesCall[0]).toContain('per_page=10');
-      expect(commitsCall[0]).toContain('per_page=5');
+      expect(issuesCall?.[0]).toContain('per_page=10');
+      expect(commitsCall?.[0]).toContain('per_page=5');
     });
   });
 
@@ -233,7 +233,7 @@ describe('useGitHubData', () => {
   describe('自动刷新', () => {
     it('应该按指定间隔自动刷新数据', async () => {
       vi.useFakeTimers();
-      
+
       const mockIssues1 = [createMockIssue({ number: 1 })];
       const mockIssues2 = [createMockIssue({ number: 2 })];
 
@@ -285,18 +285,32 @@ describe('useGitHubData', () => {
         await vi.advanceTimersByTimeAsync(60000);
       });
 
-      await waitFor(() => {
-        expect(result.current.issues[0].number).toBe(2);
+      // 等待第二次请求完成
+      await act(async () => {
+        await vi.runAllTimersAsync();
       });
+
+      expect(result.current.issues[0].number).toBe(2);
 
       vi.useRealTimers();
     });
 
     it('当 refreshInterval 为 0 时不应该自动刷新', async () => {
-      mockFetch.mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve([]),
-      });
+      vi.useFakeTimers();
+
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve([]),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve([]),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(createMockRepoStats()),
+        });
 
       renderHook(() =>
         useGitHubData({
@@ -306,23 +320,31 @@ describe('useGitHubData', () => {
         })
       );
 
-      await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalledTimes(3);
-      }, { timeout: 5000 });
+      // 等待初始加载
+      await act(async () => {
+        await vi.runAllTimersAsync();
+      });
+
+      // 初始调用 3 次
+      expect(mockFetch).toHaveBeenCalledTimes(3);
 
       mockFetch.mockClear();
 
-      // 等待一段时间
+      // 快进时间，确保不再调用
       await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await vi.advanceTimersByTimeAsync(60000);
       });
 
       expect(mockFetch).not.toHaveBeenCalled();
+
+      vi.useRealTimers();
     });
   });
 
   describe('手动刷新', () => {
     it('应该能够手动刷新数据', async () => {
+      vi.useFakeTimers();
+
       const mockIssues1 = [createMockIssue({ number: 1 })];
       const mockIssues2 = [createMockIssue({ number: 2 })];
 
@@ -357,20 +379,30 @@ describe('useGitHubData', () => {
         useGitHubData({ owner: 'owner', repo: 'repo' })
       );
 
-      await waitFor(() => {
-        expect(result.current.issues[0]?.number).toBe(1);
-      }, { timeout: 5000 });
-
+      // 等待初始加载
       await act(async () => {
-        await result.current.refresh();
+        await vi.runAllTimersAsync();
       });
 
-      expect(result.current.issues[0]?.number).toBe(2);
+      expect(result.current.issues).toHaveLength(1);
+      expect(result.current.issues[0].number).toBe(1);
+
+      // 手动刷新
+      await act(async () => {
+        await result.current.refresh();
+        await vi.runAllTimersAsync();
+      });
+
+      expect(result.current.issues[0].number).toBe(2);
+
+      vi.useRealTimers();
     });
   });
 
   describe('活动合并', () => {
     it('应该正确合并活动', async () => {
+      vi.useFakeTimers();
+
       const now = Date.now();
       const mockIssues = [
         createMockIssue({
@@ -408,12 +440,18 @@ describe('useGitHubData', () => {
         useGitHubData({ owner: 'owner', repo: 'repo' })
       );
 
-      await waitFor(() => {
-        expect(result.current.activities.length).toBe(2);
-      }, { timeout: 5000 });
+      await act(async () => {
+        await vi.runAllTimersAsync();
+      });
+
+      expect(result.current.activities.length).toBe(2);
+
+      vi.useRealTimers();
     });
 
     it('应该限制活动数量为 20 条', async () => {
+      vi.useFakeTimers();
+
       const mockIssues = Array.from({ length: 15 }, (_, i) =>
         createMockIssue({ number: i + 1 })
       );
@@ -439,16 +477,21 @@ describe('useGitHubData', () => {
         useGitHubData({ owner: 'owner', repo: 'repo' })
       );
 
-      await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
-      }, { timeout: 5000 });
+      await act(async () => {
+        await vi.runAllTimersAsync();
+      });
 
+      expect(result.current.isLoading).toBe(false);
       expect(result.current.activities.length).toBeLessThanOrEqual(20);
+
+      vi.useRealTimers();
     });
   });
 
   describe('PR 过滤', () => {
     it('应该过滤掉 Pull Requests', async () => {
+      vi.useFakeTimers();
+
       const mockIssues = [
         createMockIssue({ number: 1, title: 'Real Issue' }),
         createMockIssue({ number: 2, title: 'PR', pull_request: {} }),
@@ -472,22 +515,34 @@ describe('useGitHubData', () => {
         useGitHubData({ owner: 'owner', repo: 'repo' })
       );
 
-      await waitFor(() => {
-        expect(result.current.issues).toHaveLength(1);
-      }, { timeout: 5000 });
+      await act(async () => {
+        await vi.runAllTimersAsync();
+      });
 
+      expect(result.current.issues).toHaveLength(1);
       expect(result.current.issues[0].title).toBe('Real Issue');
+
+      vi.useRealTimers();
     });
   });
 
   describe('清理', () => {
     it('组件卸载时应该清理 interval', async () => {
       vi.useFakeTimers();
-      
-      mockFetch.mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve([]),
-      });
+
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve([]),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve([]),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(createMockRepoStats()),
+        });
 
       const { unmount } = renderHook(() =>
         useGitHubData({
@@ -513,7 +568,7 @@ describe('useGitHubData', () => {
       });
 
       expect(mockFetch).not.toHaveBeenCalled();
-      
+
       vi.useRealTimers();
     });
   });

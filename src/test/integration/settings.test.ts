@@ -236,8 +236,8 @@ describe('Settings Integration Tests', () => {
 
       // Simulate clicking outside
       handleClickOutside(
-        { contains: () => false } as Element,
-        { contains: () => true } as Element
+        { contains: () => false } as unknown as Element,
+        { contains: () => true } as unknown as Element
       )
       
       expect(isSettingsOpen).toBe(false)
@@ -280,7 +280,7 @@ describe('Settings Integration Tests', () => {
     })
 
     it('should handle denied notification permission', () => {
-      const permissionDenied = 'denied'
+      const permissionDenied: string = 'denied'
       const canSendNotifications = permissionDenied === 'granted'
       
       expect(canSendNotifications).toBe(false)

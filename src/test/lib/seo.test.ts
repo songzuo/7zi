@@ -100,41 +100,5 @@ describe('SEO Utilities', () => {
     });
   });
 
-  describe('generateMetaTags', () => {
-    it('generates meta tags object', async () => {
-      const seoModule = await import('../../lib/seo');
-      
-      // Check if generateMetaTags exists, if not skip this test
-      if (!seoModule.generateMetaTags) {
-        console.log('generateMetaTags not exported, skipping test');
-        return;
-      }
-
-      const meta = seoModule.generateMetaTags({
-        title: 'Test Page',
-        description: 'Test description',
-        path: '/test',
-      });
-
-      expect(meta.title).toBeDefined();
-      expect(meta.description).toBeDefined();
-      expect(meta.openGraph).toBeDefined();
-    });
-
-    it('handles missing description', async () => {
-      const seoModule = await import('../../lib/seo');
-      
-      if (!seoModule.generateMetaTags) {
-        return;
-      }
-
-      const meta = seoModule.generateMetaTags({
-        title: 'Test Page',
-        path: '/test',
-      });
-
-      expect(meta.title).toBeDefined();
-      expect(meta.description).toBeDefined();
-    });
-  });
+  // Note: generateMetaTags function doesn't exist in seo.ts, tests removed
 });

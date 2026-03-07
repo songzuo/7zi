@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import { GitHubActivity } from '@/components/GitHubActivity'
+import type { ActivityType } from '@/types'
 
 // Mock the useGitHubData hook
 vi.mock('@/hooks', () => ({
@@ -47,7 +48,7 @@ const { useGitHubData, getMockCommits, getMockStats } = await import('@/hooks')
 const createMockReturn = (overrides: Record<string, unknown> = {}) => ({
   commits: [] as Array<{ sha: string; commit: { message: string; author: { name: string; date: string } }; html_url: string; author: { avatar_url: string; login: string } | null }>,
   issues: [] as Array<{ number: number; title: string; state: 'open' | 'closed'; labels: Array<{ name: string; color: string }>; created_at: string; updated_at: string; html_url: string }>,
-  activities: [] as Array<{ id: string; type: string; title: string; author: string; timestamp: string; url: string }>,
+  activities: [] as Array<{ id: string; type: ActivityType; title: string; author: string; timestamp: string; url: string }>,
   stats: null as { stars: number; forks: number; openIssues: number } | null,
   isLoading: false,
   error: null as string | null,
@@ -111,93 +112,91 @@ describe('GitHubActivity', () => {
     })
   })
 
-  it('displays commits after loading', async () => {
+  it('displays error message when present', () => {
     vi.mocked(useGitHubData).mockReturnValue(createMockReturn({
-      commits: getMockCommits(),
-      stats: getMockStats(),
+      error: 'Failed to fetch data',
     }))
     
     render(<GitHubActivity />)
     
-    await waitFor(() => {
-      expect(screen.getByText('最近提交')).toBeInTheDocument()
-    })
-    
-    await waitFor(() => {
-      expect(screen.getByText('feat: 添加 AI 聊天组件和团队状态展示')).toBeInTheDocument()
-      expect(screen.getByText('feat: 实现暗色/亮色模式切换')).toBeInTheDocument()
-    })
+    expect(screen.getByText(/Failed to fetch data/)).toBeInTheDocument()
   })
 
-  it('displays commit sha prefix', async () => {
-    vi.mocked(useGitHubData).mockReturnValue(createMockReturn({
-      commits: getMockCommits(),
-      stats: getMockStats(),
-    }))
-    
-    render(<GitHubActivity />)
-    
-    await waitFor(() => {
-      expect(screen.getByText('abc123')).toBeInTheDocument()
-    })
-  })
-
-  it('displays commit author', async () => {
-    vi.mocked(useGitHubData).mockReturnValue(createMockReturn({
-      commits: getMockCommits(),
-      stats: getMockStats(),
-    }))
-    
-    render(<GitHubActivity />)
-    
-    await waitFor(() => {
-      expect(screen.getByText(/by Executor/)).toBeInTheDocument()
-      expect(screen.getByText(/by 设计师/)).toBeInTheDocument()
-    })
-  })
-
-  it('uses mock data when commits are empty', async () => {
+  it('displays empty state when no data', () => {
     vi.mocked(useGitHubData).mockReturnValue(createMockReturn())
     
     render(<GitHubActivity />)
     
-    await waitFor(() => {
-      // Mock data contains these messages
-      expect(screen.getByText(/AI 聊天组件/)).toBeInTheDocument()
-    })
+    expect(screen.getByText(/暂无活动/)).toBeInTheDocument()
   })
 
-  it('displays today activity statistics', async () => {
+  it('displays activities when present', async () => {
+    const mockActivities: Array<{ id: string; type: ActivityType; title: string; author: string; timestamp: string; url: string }> = [
+      {
+        id: '1',
+        type: 'commit',
+        title: 'feat: 新功能',
+        author: 'Executor',
+        timestamp: new Date().toISOString(),
+        url: 'https://github.com/test/test/commit/abc123',
+      },
+      {
+        id: '2',
+        type: 'issue',
+        title: 'bug: 修复问题',
+        author: '测试员',
+        timestamp: new Date(Date.now() - 3600000).toISOString(),
+        url: 'https://github.com/test/test/issues/1',
+      },
+    ]
+
     vi.mocked(useGitHubData).mockReturnValue(createMockReturn({
-      commits: getMockCommits(),
-      stats: getMockStats(),
+      activities: mockActivities,
     }))
     
     render(<GitHubActivity />)
     
     await waitFor(() => {
-      expect(screen.getByText(/今日活动统计/)).toBeInTheDocument()
-      expect(screen.getByText('代码提交')).toBeInTheDocument()
-      expect(screen.getByText('问题解决')).toBeInTheDocument()
-      expect(screen.getByText('功能上线')).toBeInTheDocument()
-      expect(screen.getByText('团队效率')).toBeInTheDocument()
+      expect(screen.getByText('feat: 新功能')).toBeInTheDocument()
+      expect(screen.getByText('bug: 修复问题')).toBeInTheDocument()
     })
   })
 
-  it('renders commit links correctly', async () => {
+  it('calls refresh when refresh button is clicked', async () => {
+    const mockRefresh = vi.fn()
     vi.mocked(useGitHubData).mockReturnValue(createMockReturn({
-      commits: getMockCommits(),
-      stats: getMockStats(),
+      refresh: mockRefresh,
+      lastUpdated: new Date(),
+    }))
+    
+    render(<GitHubActivity />)
+    
+    const refreshButton = screen.getByRole('button', { name: /刷新/i })
+    refreshButton.click()
+    
+    expect(mockRefresh).toHaveBeenCalled()
+  })
+
+  it('displays last updated time', async () => {
+    const lastUpdated = new Date(Date.now() - 60000)
+    vi.mocked(useGitHubData).mockReturnValue(createMockReturn({
+      lastUpdated,
+      activities: [
+        {
+          id: '1',
+          type: 'commit',
+          title: 'test',
+          author: 'test',
+          timestamp: new Date().toISOString(),
+          url: 'https://test.com',
+        },
+      ],
     }))
     
     render(<GitHubActivity />)
     
     await waitFor(() => {
-      const links = screen.getAllByRole('link')
-      const commitLinks = links.filter(link => 
-        link.getAttribute('href')?.includes('github.com')
-      )
-      expect(commitLinks.length).toBeGreaterThan(0)
+      expect(screen.getByText(/分钟前/)).toBeInTheDocument()
     })
   })
 })

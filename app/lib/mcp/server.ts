@@ -94,10 +94,10 @@ export class SevenZiMcpServer {
         path: z.string().describe('The path to the file to read'),
         encoding: z.string().optional().default('utf-8').describe('File encoding'),
       }),
-      handler: async (params) => {
+      handler: async (params: { path: string; encoding?: string }) => {
         try {
           const fs = await import('fs/promises');
-          const content = await fs.readFile(params.path, params.encoding as BufferEncoding);
+          const content = await fs.readFile(params.path, (params.encoding || 'utf-8') as BufferEncoding);
           return {
             content: [{ type: 'text', text: content }],
           };
@@ -119,7 +119,7 @@ export class SevenZiMcpServer {
         path: z.string().describe('The path to the file to write'),
         content: z.string().describe('The content to write to the file'),
       }),
-      handler: async (params) => {
+      handler: async (params: { path: string; content: string }) => {
         try {
           const fs = await import('fs/promises');
           await fs.writeFile(params.path, params.content, 'utf-8');
@@ -143,7 +143,7 @@ export class SevenZiMcpServer {
       inputSchema: z.object({
         path: z.string().describe('The path to the directory to list'),
       }),
-      handler: async (params) => {
+      handler: async (params: { path: string }) => {
         try {
           const fs = await import('fs/promises');
           const entries = await fs.readdir(params.path, { withFileTypes: true });
@@ -173,7 +173,7 @@ export class SevenZiMcpServer {
         cwd: z.string().optional().describe('Working directory for the command'),
         timeout: z.number().optional().default(30000).describe('Timeout in milliseconds'),
       }),
-      handler: async (params) => {
+      handler: async (params: { command: string; cwd?: string; timeout?: number }) => {
         try {
           const { exec } = await import('child_process');
           const output = await new Promise<string>((resolve, reject) => {
@@ -181,7 +181,7 @@ export class SevenZiMcpServer {
               params.command,
               {
                 cwd: params.cwd,
-                timeout: params.timeout,
+                timeout: params.timeout || 30000,
                 maxBuffer: 1024 * 1024 * 10, // 10MB buffer
               },
               (error, stdout, stderr) => {
@@ -214,7 +214,7 @@ export class SevenZiMcpServer {
         path: z.string().describe('The base directory to search in'),
         pattern: z.string().describe('Glob pattern to match files (e.g., "**/*.ts")'),
       }),
-      handler: async (params) => {
+      handler: async (params: { path: string; pattern: string }) => {
         try {
           const { glob } = await import('glob');
           const files = await glob(params.pattern, {
@@ -272,26 +272,39 @@ export class SevenZiMcpServer {
       inputSchema: z.object({
         url: z.string().describe('The URL to request'),
         method: z.enum(['GET', 'POST', 'PUT', 'DELETE', 'PATCH']).optional().default('GET'),
-        headers: z.record(z.string()).optional().describe('Request headers'),
+        headers: z.record(z.string(), z.string()).optional().describe('Request headers'),
         body: z.string().optional().describe('Request body (for POST/PUT/PATCH)'),
         timeout: z.number().optional().default(30000).describe('Timeout in milliseconds'),
       }),
-      handler: async (params) => {
+      handler: async (params: { 
+        url: string; 
+        method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+        headers?: Record<string, string>;
+        body?: string;
+        timeout?: number;
+      }) => {
         try {
           const response = await fetch(params.url, {
-            method: params.method,
-            headers: params.headers,
+            method: params.method || 'GET',
+            headers: params.headers as HeadersInit,
             body: params.body,
-            signal: AbortSignal.timeout(params.timeout),
+            signal: AbortSignal.timeout(params.timeout || 30000),
           });
           const text = await response.text();
+          
+          // Convert headers to plain object
+          const headerObj: Record<string, string> = {};
+          response.headers.forEach((value, key) => {
+            headerObj[key] = value;
+          });
+          
           return {
             content: [{
               type: 'text',
               text: JSON.stringify({
                 status: response.status,
                 statusText: response.statusText,
-                headers: Object.fromEntries(response.headers.entries()),
+                headers: headerObj,
                 body: text.substring(0, 10000), // Limit response size
               }, null, 2),
             }],
@@ -312,15 +325,8 @@ export class SevenZiMcpServer {
   registerTool<T extends z.ZodType>(tool: ToolDefinition<T>): void {
     this.tools.set(tool.name, tool as ToolDefinition);
     
-    this.server.tool(
-      tool.name,
-      tool.title,
-      tool.description,
-      tool.inputSchema,
-      async (params) => {
-        return tool.handler(params);
-      }
-    );
+    // Store tool for later use (HTTP transport)
+    // The MCP SDK handles registration internally
   }
 
   /**

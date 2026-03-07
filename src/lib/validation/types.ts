@@ -7,7 +7,7 @@ export type ValidationRule<T = string> = {
 };
 
 export type FieldValidators = {
-  required?: boolean;
+  required?: boolean | string;
   minLength?: number;
   maxLength?: number;
   pattern?: RegExp;
