@@ -1,72 +1,30 @@
 /**
- * 实时通知模块
- * 
- * 导出所有实时通知相关的类型、工具和 Hooks
+ * @fileoverview 实时消息模块入口
+ * @description 导出实时消息相关的类型和服务
  */
 
-// 类型
+// 导出类型
 export type {
-  UserStatus,
-  TaskStatus,
-  Priority,
-  BaseWebSocketMessage,
-  TaskStatusChangedMessage,
-  MemberOnlineMessage,
-  MemberOfflineMessage,
-  MemberStatusChangedMessage,
-  SystemAnnouncementMessage,
-  TaskAssignedMessage,
-  TaskCommentMessage,
-  ProjectUpdatedMessage,
-  HeartbeatMessage,
-  ConnectionConfirmedMessage,
-  WebSocketMessage,
-  RealtimeNotificationType,
-  RealtimeNotification,
-  RealtimeNotificationState,
-  ClientSocketEvent,
-  ServerSocketEvent,
-  RealtimeConnectionOptions,
-  NotificationHandler,
-  NotificationFilter,
+  ReadReceipt,
+  CreateReadReceiptParams,
+  ReadReceiptQueryParams,
+  ReadStats,
+  RealtimeMessage,
+  WebSocketEvent,
+  WebSocketEventType,
+  MessageId,
+  UserId,
+  ConversationId,
+  MessageStatus,
+  RealtimeServerConfig,
 } from './types';
 
-// Socket 客户端
-export { socketManager, SocketManager } from './socket-client';
-export type { ConnectionState, SocketManagerEvents } from './socket-client';
-
-// 状态管理
+// 导出服务器
 export {
-  useRealtimeNotificationStore,
-  createNotificationFromMessage,
-  useUnreadNotifications,
-  useReadNotifications,
-  useNotificationsByType,
-  useHighPriorityNotifications,
-} from './store';
+  RealtimeServer,
+  getRealtimeServer,
+  resetRealtimeServer,
+} from './server';
 
-// 工具函数
-export {
-  getTaskStatusLabel,
-  getUserStatusLabel,
-  formatRelativeTime,
-  extractTaskStatusInfo,
-  extractMemberOnlineInfo,
-  extractMemberOfflineInfo,
-  extractSystemAnnouncementInfo,
-  shouldNotifyImmediately,
-  getMessagePriority,
-  toBrowserNotification,
-  isValidMessage,
-  createMessageSummary,
-} from './utils';
-
-// Hook
-export {
-  useRealtimeNotifications,
-  type UseRealtimeNotificationsOptions,
-  type UseRealtimeNotificationsReturn,
-} from './useRealtimeNotifications';
-
-// 服务端（仅在服务端使用）
-export { NotificationServer, notificationServer } from './server';
+// 默认导出
+export { RealtimeServer as default } from './server';

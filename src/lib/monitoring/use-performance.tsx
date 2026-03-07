@@ -131,22 +131,32 @@ export function useRenderPerformance(componentName: string): {
   isSlowRender: boolean;
 } {
   const [renderTime, setRenderTime] = useState<number | null>(null);
-  const startTime = useRef<number>(performance.now());
+  // 使用 ref 存储开始时间，避免在渲染期间调用 performance.now()
+  const startTimeRef = useRef<number | null>(null);
+  const componentNameRef = useRef(componentName);
+
+  // 在 effect 中初始化和更新开始时间
+  useEffect(() => {
+    startTimeRef.current = performance.now();
+    componentNameRef.current = componentName;
+  });
 
   useEffect(() => {
+    if (startTimeRef.current === null) return;
+
     const endTime = performance.now();
-    const duration = endTime - startTime.current;
+    const duration = endTime - startTimeRef.current;
     setRenderTime(duration);
 
-    recordCustomMetric(`render.${componentName}`, duration, 'rendering', {
-      component: componentName,
+    recordCustomMetric(`render.${componentNameRef.current}`, duration, 'rendering', {
+      component: componentNameRef.current,
     });
 
     const config = CUSTOM_METRICS_CONFIG.rendering.componentRenderTime;
     if (duration > config.warning) {
-      console.warn(`[Performance] Slow render: ${componentName} took ${duration.toFixed(1)}ms`);
+      console.warn(`[Performance] Slow render: ${componentNameRef.current} took ${duration.toFixed(1)}ms`);
     }
-  }, [componentName]);
+  }, [renderTime]);
 
   useEffect(() => {
     startTime.current = performance.now();

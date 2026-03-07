@@ -5,7 +5,7 @@
  * @description 提供性能监控和优化相关的 React Hooks
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useSyncExternalStore } from 'react';
 
 /**
  * 视口检测 Hook
@@ -107,15 +107,16 @@ export function useThrottle<T>(value: T, limit: number = 100): T {
  * @returns 设备性能等级和相关信息
  */
 export function useDevicePerformance() {
-  const [performance, setPerformance] = useState({
-    isLowEnd: false,
-    deviceMemory: 4,
-    hardwareConcurrency: 4,
-    connectionType: 'unknown',
-  });
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
+  // 使用惰性初始化避免在 effect 中同步调用 setState
+  const [performance, setPerformance] = useState(() => {
+    if (typeof window === 'undefined') {
+      return {
+        isLowEnd: false,
+        deviceMemory: 4,
+        hardwareConcurrency: 4,
+        connectionType: 'unknown',
+      };
+    }
 
     const nav = navigator as Navigator & {
       deviceMemory?: number;
@@ -128,13 +129,13 @@ export function useDevicePerformance() {
     const connectionType = nav.connection?.effectiveType || 'unknown';
     const isLowEnd = deviceMemory < 4 || hardwareConcurrency < 4;
 
-    setPerformance({
+    return {
       isLowEnd,
       deviceMemory,
       hardwareConcurrency,
       connectionType,
-    });
-  }, []);
+    };
+  });
 
   return performance;
 }
@@ -184,14 +185,13 @@ export function useUserPreferences() {
  * @returns 是否已挂载
  */
 export function useMounted() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    return () => setMounted(false);
-  }, []);
-
-  return mounted;
+  // 使用 useSyncExternalStore 实现，避免在 effect 中同步调用 setState
+  // 这是 React 推荐的检测挂载状态的模式
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 }
 
 /**

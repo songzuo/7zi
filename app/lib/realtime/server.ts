@@ -205,9 +205,25 @@ export class NotificationServer {
     });
 
     // 标记已读
-    socket.on('mark_read', (data: { notificationIds: string[] }) => {
-      // TODO: 实现已读标记持久化
-      console.log(`[NotificationServer] User ${session.userId} marked as read:`, data.notificationIds);
+    socket.on('mark_read', async (data: { notificationIds: string[] }) => {
+      try {
+        // 使用持久化存储标记已读
+        await readStatusStore.markMultipleAsRead(data.notificationIds, session.userId);
+        console.log(`[NotificationServer] User ${session.userId} marked as read:`, data.notificationIds);
+        
+        // 发送确认
+        this.sendToSocket(socket.id, {
+          type: 'read_status_updated',
+          id: `read-${Date.now()}`,
+          timestamp: new Date().toISOString(),
+          payload: {
+            notificationIds: data.notificationIds,
+            userId: session.userId,
+          },
+        });
+      } catch (error) {
+        console.error('[NotificationServer] Failed to mark as read:', error);
+      }
     });
 
     // 断开连接

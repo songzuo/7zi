@@ -100,3 +100,12 @@ export {
   StatCard,
   TimeAgo,
 } from './shared';
+
+// Animated Progress Bar Components
+export { default as AnimatedProgressBar } from './AnimatedProgressBar';
+export {
+  WaveProgress,
+  SegmentedProgress,
+  GradientProgress,
+  StepProgress,
+} from './AnimatedProgressBar';
