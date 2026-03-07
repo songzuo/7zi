@@ -1,11 +1,23 @@
 /**
  * 导出工具 - 支持 PDF、CSV、JSON、Excel 格式导出数据
+ * 
+ * @module lib/export
+ * @description 基础导出功能，支持多种格式
+ * 
+ * 增强功能请使用: lib/export-enhanced
+ * - Excel 高级导出 (样式、多工作表、条件格式)
+ * - 自定义字段支持
+ * - 导出模板系统
+ * - 列构建器
  */
 
 import { jsPDF } from 'jspdf';
 import * as XLSX from 'xlsx';
 import type { AIMember, GitHubIssue, GitHubCommit, ActivityItem } from '../app/dashboard/page';
 import type { Task, TaskStats } from './tasks/types';
+
+// 重导出增强模块的类型和功能
+export * from './export-enhanced';
 
 // ============================================================================
 // 类型定义
