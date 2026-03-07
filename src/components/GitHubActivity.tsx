@@ -10,8 +10,8 @@ import { StatCard, Card, EmptyState } from '@/components/shared';
  */
 export function GitHubActivity() {
   const { commits, stats, isLoading } = useGitHubData({
-    owner: '7zi-studio',
-    repo: '7zi-frontend',
+    owner: 'songzuo',
+    repo: '7zi',
     refreshInterval: 5 * 60 * 1000,
   });
 

@@ -2,46 +2,34 @@
 
 import { useEffect } from 'react';
 
+/**
+ * Service Worker 注册组件
+ * @description 暂时禁用以解决缓存导致的空白页问题
+ */
 export function ServiceWorkerRegistration() {
   useEffect(() => {
-    if (!('serviceWorker' in navigator)) {
-      console.log('[SW] Service Worker not supported');
-      return;
+    // 暂时禁用 Service Worker
+    // 等待缓存问题解决后再启用
+    console.log('[SW] Service Worker temporarily disabled for debugging');
+    
+    // 清除所有 Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        registrations.forEach((registration) => {
+          registration.unregister();
+          console.log('[SW] Service Worker unregistered');
+        });
+      });
     }
-
-    const registerServiceWorker = async () => {
-      try {
-        const registration = await navigator.serviceWorker.register('/sw.js', {
-          scope: '/',
+    
+    // 清除所有缓存
+    if ('caches' in window) {
+      caches.keys().then((cacheNames) => {
+        cacheNames.forEach((cacheName) => {
+          caches.delete(cacheName);
+          console.log('[SW] Cache cleared:', cacheName);
         });
-
-        console.log('[SW] Service Worker registered successfully:', registration.scope);
-
-        // Check for updates
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing;
-          if (newWorker) {
-            console.log('[SW] New service worker installing...');
-            
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                console.log('[SW] New content available, please refresh');
-                // Dispatch custom event for update available
-                window.dispatchEvent(new CustomEvent('sw-update-available'));
-              }
-            });
-          }
-        });
-      } catch (error) {
-        console.error('[SW] Service Worker registration failed:', error);
-      }
-    };
-
-    // Wait for page to load before registering
-    if (window.document.readyState === 'complete') {
-      registerServiceWorker();
-    } else {
-      window.addEventListener('load', registerServiceWorker);
+      });
     }
   }, []);
 
