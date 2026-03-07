@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
+import React, { useState, useCallback, useEffect, useMemo, memo } from 'react';
 import { User, UserProfile } from '@/lib/users/types';
+import AvatarUpload from './AvatarUpload';
 
 // ============================================================================
 // 类型定义
@@ -36,70 +37,6 @@ const MessageBanner = memo(function MessageBanner({ type, message }: MessageBann
     : 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400';
 
   return <div className={`${baseClasses} ${typeClasses}`}>{message}</div>;
-});
-
-// ============================================================================
-// 头像上传组件 - 提取并使用 memo
-// ============================================================================
-
-interface AvatarUploadProps {
-  userId: string;
-  avatarUrl?: string;
-  uploading: boolean;
-  onUpload: (file: File) => void;
-}
-
-const AvatarUpload = memo(function AvatarUpload({
-  userId,
-  avatarUrl,
-  uploading,
-  onUpload,
-}: AvatarUploadProps) {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleClick = useCallback(() => {
-    fileInputRef.current?.click();
-  }, []);
-
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      onUpload(file);
-      // 清空文件输入
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
-  }, [onUpload]);
-
-  return (
-    <div className="relative group">
-      <img
-        src={avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userId}`}
-        alt="头像"
-        className="w-24 h-24 rounded-full object-cover border-4 border-gray-200 dark:border-gray-700"
-      />
-      <button
-        type="button"
-        onClick={handleClick}
-        disabled={uploading}
-        className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-      >
-        {uploading ? (
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
-        ) : (
-          <span className="text-white text-sm">更换</span>
-        )}
-      </button>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/jpeg,image/png,image/gif,image/webp"
-        onChange={handleChange}
-        className="hidden"
-      />
-    </div>
-  );
 });
 
 // ============================================================================
@@ -368,20 +305,27 @@ export const ProfilePage: React.FC<ProfilePageProps> = memo(function ProfilePage
       {success && <MessageBanner type="success" message={success} />}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* 头像上传 */}
+        {/* 头像上传 - 使用新的 AvatarUpload 组件 */}
         <div className="flex items-center gap-6">
           <AvatarUpload
             userId={userId}
             avatarUrl={user.avatar}
             uploading={uploading}
             onUpload={handleAvatarUpload}
+            enableCrop={true}
+            cropAspectRatio={1}
+            size="lg"
+            hint="支持 JPG, PNG, GIF, WebP，最大 5MB"
           />
           <div>
             <h3 className="text-lg font-medium text-gray-900 dark:text-white">
               头像
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              支持 JPG, PNG, GIF, WebP 格式，最大 5MB
+              点击更换头像，支持拖拽上传
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              上传后可裁剪为正方形
             </p>
           </div>
         </div>
