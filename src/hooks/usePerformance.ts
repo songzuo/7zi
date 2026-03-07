@@ -80,13 +80,19 @@ export function useDebounce<T>(value: T, delay: number = 300): T {
  */
 export function useThrottle<T>(value: T, limit: number = 100): T {
   const [throttledValue, setThrottledValue] = useState(value);
-  const lastRan = useRef(Date.now());
+  const lastRan = useRef<number | null>(null);
 
   useEffect(() => {
+    // 初始化 lastRan
+    if (lastRan.current === null) {
+      lastRan.current = Date.now();
+    }
+
     const handler = setTimeout(() => {
-      if (Date.now() - lastRan.current >= limit) {
+      const now = Date.now();
+      if (now - lastRan.current! >= limit) {
         setThrottledValue(value);
-        lastRan.current = Date.now();
+        lastRan.current = now;
       }
     }, limit - (Date.now() - lastRan.current));
 

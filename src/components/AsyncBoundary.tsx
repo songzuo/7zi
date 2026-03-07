@@ -1,20 +1,20 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { ErrorBoundaryWrapper } from './ErrorBoundaryWrapper';
 import type { ReactNode } from 'react';
 
 interface AsyncBoundaryProps {
   children: ReactNode;
   fallback?: ReactNode;
-  loading?: ReactNode;
-  onError?: (error: Error) => void;
   /** 最大重试次数 */
   maxRetries?: number;
   /** 自动重试延迟（毫秒） */
   retryDelay?: number;
   /** 是否在错误时自动重试 */
   autoRetry?: boolean;
+  /** 错误回调 */
+  onError?: (error: Error) => void;
 }
 
 interface AsyncBoundaryState {
@@ -36,11 +36,10 @@ interface AsyncBoundaryState {
 export function AsyncBoundary({
   children,
   fallback,
-  loading,
-  onError,
   maxRetries = 3,
   retryDelay = 1000,
   autoRetry = false,
+  onError,
 }: AsyncBoundaryProps) {
   const [state, setState] = useState<AsyncBoundaryState>({
     hasError: false,
@@ -68,23 +67,6 @@ export function AsyncBoundary({
       };
     });
   }, [autoRetry, maxRetries, retryDelay, onError]);
-
-  const handleReset = useCallback(() => {
-    if (state.retryCount < maxRetries) {
-      setState((prev) => ({
-        ...prev,
-        hasError: false,
-        error: null,
-      }));
-    }
-  }, [state.retryCount, maxRetries]);
-
-  // 监听错误变化
-  useEffect(() => {
-    if (state.hasError && state.error) {
-      handleError(state.error);
-    }
-  }, [state.hasError, state.error, handleError]);
 
   return (
     <ErrorBoundaryWrapper
