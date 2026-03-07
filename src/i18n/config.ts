@@ -29,5 +29,7 @@ export const pathnames: Pathnames<typeof locales> = {
   }
 };
 
-// 静态导出模式下使用 'always' 前缀策略
-export const localePrefix: LocalePrefix<typeof locales> = 'always';
+// 隐式重定向：默认语言不显示前缀，非默认语言显示前缀
+// 访问 / 显示中文（URL 不变），访问 /en 显示英文
+// 使用 'as-needed' 模式，泛型参数指定为 'as-needed'
+export const localePrefix: LocalePrefix<typeof locales, 'as-needed'> = 'as-needed';

@@ -32,13 +32,16 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     description: seo.description,
     alternates: {
       canonical: baseUrl + '/' + locale,
-      languages: { 'zh-CN': baseUrl + '/zh', 'en-US': baseUrl + '/en' },
+      languages: { 'zh-CN': baseUrl, 'en-US': baseUrl + '/en' },
     },
   };
 }
 
+// as-needed 模式下，只为非默认语言生成静态参数
+// 默认语言（zh）的路径是 /，不需要生成
 export function generateStaticParams() {
-  return routing.locales.map((locale) => ({ locale }));
+  // 只生成 /en 的静态参数，/ 会由 middleware 动态处理
+  return [{ locale: 'en' }];
 }
 
 export default async function LocaleLayout({
