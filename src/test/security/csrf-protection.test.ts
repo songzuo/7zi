@@ -200,7 +200,7 @@ describe('CSRF Protection Tests', () => {
       
       expect(validateCsrfToken('not-a-valid-token', validToken)).toBe(false)
       expect(validateCsrfToken('<script>alert(1)</script>', validToken)).toBe(false)
-      expect(validateCsrfToken(' '); validToken)).toBe(false)
+      expect(validateCsrfToken(' ', validToken)).toBe(false)
     })
 
     it('should use constant-time comparison', () => {
