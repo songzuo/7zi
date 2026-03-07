@@ -110,7 +110,6 @@ export function getBaseLayout(content: string, options: {
  */
 export function renderButton(text: string, url: string, style: 'primary' | 'secondary' = 'primary'): string {
   const bgColor = style === 'primary' ? '#667eea' : '#6b7280';
-  const hoverColor = style === 'primary' ? '#5a67d8' : '#4b5563';
 
   return `
   <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 24px 0;">

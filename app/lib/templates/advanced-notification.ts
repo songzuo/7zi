@@ -8,7 +8,6 @@ import {
   NotificationTemplate,
   NotificationContext,
   NotificationResult,
-  NotificationTemplateConfig,
   NotificationAction,
 } from './notification';
 

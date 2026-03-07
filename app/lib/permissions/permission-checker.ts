@@ -3,8 +3,8 @@
  * Permission Checker Service
  */
 
-import { Permission, Role, PermissionCheckResult, UserPermissionInfo } from './types';
-import { getRolePermissions, roleHasPermission } from './role-config';
+import { Permission, Role, UserPermissionInfo } from './types';
+import { roleHasPermission } from './role-config';
 
 /**
  * 权限检查器类

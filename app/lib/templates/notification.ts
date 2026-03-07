@@ -415,7 +415,7 @@ export class NotificationTemplateFactory {
     this.templates.set(type, factory);
   }
 
-  static create(type: NotificationType, config?: Partial<NotificationTemplateConfig>): NotificationTemplate {
+  static create(type: NotificationType, _config?: Partial<NotificationTemplateConfig>): NotificationTemplate {
     const factory = this.templates.get(type);
     if (factory) {
       return factory();

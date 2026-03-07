@@ -36,3 +36,10 @@ export type {
   FormData,
   FormErrors,
 } from './FormBuilder';
+
+// 用户活动日志组件
+export { UserActivityLog } from './UserActivityLog';
+export type { UserActivityLogProps } from './UserActivityLog';
+
+export { ActivityTimelineView } from './ActivityTimelineView';
+export type { ActivityTimelineViewProps } from './ActivityTimelineView';

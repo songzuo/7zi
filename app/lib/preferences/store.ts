@@ -188,20 +188,8 @@ export const usePreferencesStore = create<PreferencesStoreState>()(
       },
 
       exportPreferences: () => {
-        const state = get();
         const exportData: UserPreferences = {
-          language: state.language,
-          dateFormat: state.dateFormat,
-          timeFormat: state.timeFormat,
-          timezone: state.timezone,
-          notifications: state.notifications,
-          privacy: state.privacy,
-          appearance: state.appearance,
-          editor: state.editor,
-          dashboard: state.dashboard,
-          updatedAt: state.updatedAt,
-        };
-        return JSON.stringify(exportData, null, 2);
+          language: DEFAULT_PREFERENCES.language,
       },
 
       importPreferences: (json) => {

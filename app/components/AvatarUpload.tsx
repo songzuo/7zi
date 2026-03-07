@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useCallback, memo } from 'react';
+import Image from 'next/image';
 import { ImageCropper, CropArea } from './ImageCropper';
 
 // ============================================================================
@@ -202,12 +203,15 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = memo(function AvatarUpl
         onDragOver={handleDragOver}
         onDrop={handleDrop}
       >
-        <img
+        <Image
           src={displayAvatar}
           alt="头像"
+          width={size === 'sm' ? 64 : size === 'md' ? 96 : size === 'lg' ? 128 : 160}
+          height={size === 'sm' ? 64 : size === 'md' ? 96 : size === 'lg' ? 128 : 160}
           className={`${avatarSize} rounded-full object-cover border-4 border-gray-200 dark:border-gray-700 transition-all duration-200 ${
             disabled ? 'opacity-50' : 'group-hover:border-blue-400'
           }`}
+          unoptimized={!displayAvatar.startsWith('http')}
         />
         
         {/* 悬停遮罩 */}

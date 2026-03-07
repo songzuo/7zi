@@ -23,18 +23,18 @@ export async function ensureDefaultUser() {
     if (!user) {
       user = await createUser(DEFAULT_USER);
       if (process.env.NODE_ENV === 'development') {
-        console.log('Created default user:', user.id);
+        // Created default user
       }
     } else {
       if (process.env.NODE_ENV === 'development') {
-        console.log('Default user already exists:', user.id);
+        // Default user already exists
       }
     }
     
     return user;
-  } catch (error) {
-    console.error('Failed to ensure default user:', error);
-    throw error;
+  } catch {
+    // Failed to ensure default user
+    throw new Error('Failed to ensure default user');
   }
 }
 

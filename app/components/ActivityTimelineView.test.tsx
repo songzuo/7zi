@@ -5,7 +5,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ActivityTimelineView } from '../ActivityTimelineView';
-import type { UserActivity } from '../../lib/user-activity/types';
+import type { UserActivity } from '@/lib/user-activity/types';
 
 // 模拟活动数据
 const mockActivities: UserActivity[] = [

@@ -2,7 +2,6 @@
  * 用户活动日志 - 数据仓库
  */
 
-import { randomUUID } from 'crypto';
 import type {
   UserActivity,
   UserActivityStats,

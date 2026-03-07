@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { Permission, Role, PermissionCheckResult } from './types';
+import { Permission, Role } from './types';
 import { permissionChecker } from './permission-checker';
 import { getRolePermissions, compareRoles, canManageRole } from './role-config';
 

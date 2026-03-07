@@ -130,8 +130,7 @@ export function CommandPalette({
   const listRef = useRef<HTMLDivElement>(null);
   
   const store = useShortcutStore();
-  const { formatDisplay } = useShortcutContext();
-  
+
   // 合并命令
   const allCommands = useMemo<CommandItem[]>(() => {
     // 从快捷键存储生成命令

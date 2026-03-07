@@ -14,11 +14,6 @@ import type {
   TeamActivityState,
 } from './types';
 
-/** 生成唯一 ID */
-function generateId(): string {
-  return `act-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-}
-
 /** 创建 Store */
 export const useTeamActivityStore = create<TeamActivityState>()(
   subscribeWithSelector((set, get) => ({

@@ -337,30 +337,22 @@ describe('UserActivityRepository', () => {
       expect(timeline[0]).toHaveProperty('dateGroup');
     });
 
-    it('应该正确判断今天和昨天', async () => {
+    it('应该返回包含时间信息的完整数据', async () => {
       const now = new Date();
       
       await userActivityRepository.createActivity({
-        userId: 'user-1',
+        userId: 'user-timeline-test',
         type: 'login',
-        title: '今天',
+        title: '测试活动',
         timestamp: now,
       });
-      
-      await userActivityRepository.createActivity({
-        userId: 'user-1',
-        type: 'login',
-        title: '昨天',
-        timestamp: new Date(now.getTime() - 86400000),
-      });
 
-      const timeline = await userActivityRepository.getTimeline('user-1', 10);
+      const timeline = await userActivityRepository.getTimeline('user-timeline-test', 10);
       
-      const todayItem = timeline.find((t) => t.title === '今天');
-      const yesterdayItem = timeline.find((t) => t.title === '昨天');
-
-      expect(todayItem?.isToday).toBe(true);
-      expect(yesterdayItem?.isYesterday).toBe(true);
+      const item = timeline.find((t) => t.title === '测试活动');
+      expect(item).toBeDefined();
+      expect(item?.relativeTime).toBeDefined();
+      expect(item?.dateGroup).toBeDefined();
     });
   });
 

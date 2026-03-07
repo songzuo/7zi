@@ -11,7 +11,7 @@ import {
 
 // ========== 类型定义 ==========
 
-interface UserActivityLogProps {
+export interface UserActivityLogProps {
   activities: UserActivity[];
   userId?: string;
   showFilters?: boolean;

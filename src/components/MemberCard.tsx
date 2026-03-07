@@ -18,13 +18,28 @@ export interface AIMember {
 interface MemberCardProps {
   member: AIMember;
   compact?: boolean;
+  /** 选择模式 */
+  isSelectionMode?: boolean;
+  /** 是否选中 */
+  isSelected?: boolean;
+  /** 选择回调 */
+  onSelect?: (memberId: string, event?: React.MouseEvent) => void;
+  /** 点击回调（非选择模式） */
+  onClick?: (member: AIMember) => void;
 }
 
 /**
  * MemberCard 组件 - 使用 React.memo 优化
- * 避免不必要的重渲染
+ * 支持选择模式和批量操作
  */
-const MemberCardBase: React.FC<MemberCardProps> = ({ member, compact = false }) => {
+const MemberCardBase: React.FC<MemberCardProps> = ({
+  member,
+  compact = false,
+  isSelectionMode = false,
+  isSelected = false,
+  onSelect,
+  onClick,
+}) => {
   const statusColors = {
     working: 'bg-green-500',
     busy: 'bg-yellow-500',
@@ -33,10 +48,10 @@ const MemberCardBase: React.FC<MemberCardProps> = ({ member, compact = false }) 
   };
 
   const statusBgColors = {
-    working: 'bg-green-100 text-green-700',
-    busy: 'bg-yellow-100 text-yellow-700',
-    idle: 'bg-gray-100 text-gray-600',
-    offline: 'bg-gray-100 text-gray-400'
+    working: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
+    busy: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300',
+    idle: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300',
+    offline: 'bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-400'
   };
 
   const statusLabels = {
@@ -46,26 +61,81 @@ const MemberCardBase: React.FC<MemberCardProps> = ({ member, compact = false }) 
     offline: '离线'
   };
 
+  // 处理点击事件
+  const handleClick = (e: React.MouseEvent) => {
+    if (isSelectionMode && onSelect) {
+      onSelect(member.id, e);
+    } else if (onClick) {
+      onClick(member);
+    }
+  };
+
+  // 选择模式的复选框
+  const renderCheckbox = () => {
+    if (!isSelectionMode) return null;
+
+    return (
+      <div
+        className={`flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
+          isSelected
+            ? 'bg-blue-600 border-blue-600'
+            : 'border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-700'
+        }`}
+      >
+        {isSelected && (
+          <svg
+            className="w-3 h-3 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={3}
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+        )}
+      </div>
+    );
+  };
+
+  // 选中状态的边框样式
+  const selectedRingClass = isSelected
+    ? 'ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-zinc-800'
+    : '';
+
   if (compact) {
     return (
-      <div className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-all duration-200 hover:translate-x-1 cursor-pointer group">
+      <div
+        onClick={handleClick}
+        className={`px-4 py-3 transition-all duration-200 cursor-pointer group ${
+          isSelectionMode ? 'hover:bg-blue-50 dark:hover:bg-blue-900/20' : 'hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:translate-x-1'
+        } ${isSelected ? 'bg-blue-50 dark:bg-blue-900/20' : ''} ${selectedRingClass}`}
+      >
         <div className="flex items-center gap-3">
+          {renderCheckbox()}
           <div className="relative flex-shrink-0">
             <Image
               src={member.avatar}
               alt={member.name}
               width={40}
               height={40}
-              className="rounded-full ring-2 ring-transparent group-hover:ring-cyan-500/30 transition-all duration-200"
+              className={`rounded-full ring-2 transition-all duration-200 ${
+                isSelected
+                  ? 'ring-blue-500'
+                  : 'ring-transparent group-hover:ring-cyan-500/30'
+              }`}
               unoptimized
             />
             <div
-              className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white dark:border-zinc-800 animate-pulse ${statusColors[member.status]}`}
+              className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white dark:border-zinc-800 ${statusColors[member.status]}`}
             />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-900">
+              <span className="text-sm font-medium text-gray-900 dark:text-white">
                 {member.emoji} {member.name}
               </span>
               <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${statusBgColors[member.status]}`}>
@@ -73,19 +143,19 @@ const MemberCardBase: React.FC<MemberCardProps> = ({ member, compact = false }) 
               </span>
             </div>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-xs text-gray-500">{member.role}</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">{member.role}</span>
               <span className="text-xs text-gray-400">·</span>
-              <span className="text-xs text-gray-500">{member.provider}</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">{member.provider}</span>
             </div>
             {member.currentTask && (
-              <p className="text-xs text-blue-600 mt-1 truncate">
+              <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 truncate">
                 📌 {member.currentTask}
               </p>
             )}
           </div>
           <div className="text-right flex-shrink-0">
-            <p className="text-xs font-medium text-gray-700">{member.completedTasks}</p>
-            <p className="text-xs text-gray-500">完成任务</p>
+            <p className="text-xs font-medium text-gray-700 dark:text-gray-300">{member.completedTasks}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">完成任务</p>
           </div>
         </div>
       </div>
@@ -93,40 +163,52 @@ const MemberCardBase: React.FC<MemberCardProps> = ({ member, compact = false }) 
   }
 
   return (
-    <div className="p-4 border rounded-xl hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group bg-white dark:bg-zinc-800 dark:border-zinc-700">
+    <div
+      onClick={handleClick}
+      className={`p-4 border rounded-xl transition-all duration-300 group bg-white dark:bg-zinc-800 dark:border-zinc-700 ${
+        isSelectionMode
+          ? `cursor-pointer ${isSelected ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'hover:border-blue-300'}`
+          : 'hover:shadow-lg hover:-translate-y-1'
+      } ${selectedRingClass}`}
+    >
       <div className="flex items-start gap-3">
+        {renderCheckbox()}
         <div className="relative flex-shrink-0">
           <Image
             src={member.avatar}
             alt={member.name}
             width={48}
             height={48}
-            className="rounded-full ring-2 ring-transparent group-hover:ring-cyan-500/50 transition-all duration-300"
+            className={`rounded-full ring-2 transition-all duration-300 ${
+              isSelected
+                ? 'ring-blue-500'
+                : 'ring-transparent group-hover:ring-cyan-500/50'
+            }`}
             unoptimized
           />
           <div
-            className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white dark:border-zinc-800 animate-pulse ${statusColors[member.status]}`}
+            className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white dark:border-zinc-800 ${statusColors[member.status]}`}
           />
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
-            <h4 className="text-base font-semibold text-gray-900">
+            <h4 className="text-base font-semibold text-gray-900 dark:text-white">
               {member.emoji} {member.name}
             </h4>
             <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${statusBgColors[member.status]}`}>
               {statusLabels[member.status]}
             </span>
           </div>
-          <p className="text-sm text-gray-500 mb-2">{member.role}</p>
-          <p className="text-xs text-gray-400 mb-2">提供商：{member.provider}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">{member.role}</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mb-2">提供商：{member.provider}</p>
           {member.currentTask && (
-            <div className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded mb-2">
+            <div className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded mb-2">
               📌 {member.currentTask}
             </div>
           )}
           <div className="flex items-center gap-4 text-sm">
-            <span className="text-gray-600">
-              <strong className="text-gray-900">{member.completedTasks}</strong> 完成任务
+            <span className="text-gray-600 dark:text-gray-300">
+              <strong className="text-gray-900 dark:text-white">{member.completedTasks}</strong> 完成任务
             </span>
           </div>
         </div>
@@ -143,6 +225,8 @@ export const MemberCard = memo(MemberCardBase, (prevProps, nextProps) => {
     prevProps.member.status === nextProps.member.status &&
     prevProps.member.currentTask === nextProps.member.currentTask &&
     prevProps.member.completedTasks === nextProps.member.completedTasks &&
-    prevProps.compact === nextProps.compact
+    prevProps.compact === nextProps.compact &&
+    prevProps.isSelectionMode === nextProps.isSelectionMode &&
+    prevProps.isSelected === nextProps.isSelected
   );
 });
