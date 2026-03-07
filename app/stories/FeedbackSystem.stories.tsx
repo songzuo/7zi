@@ -124,6 +124,7 @@ export const FeedbackFormStory: StoryObj<typeof meta> = {
   render: () => (
     <FeedbackForm
       onSubmit={(data) => {
+        // eslint-disable-next-line no-console
         console.log('提交的数据:', data);
         alert('反馈已提交！\n' + JSON.stringify(data, null, 2));
       }}

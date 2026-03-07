@@ -63,7 +63,7 @@ const meta = {
 } satisfies Meta<typeof Rating>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+// type Story = StoryObj<typeof meta>; // Unused - using StoryObj directly
 
 // 基础评分
 export const Default: StoryObj<typeof meta> = {

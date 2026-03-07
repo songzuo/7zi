@@ -81,6 +81,14 @@ export interface Task {
  * @property {string[]} [tags] - 按标签 ID 筛选
  * @property {string} [assignee] - 按负责人筛选
  * @property {string} [search] - 搜索关键词
+ * @property {string} [dueDateFrom] - 截止日期起始（ISO string）
+ * @property {string} [dueDateTo] - 截止日期结束（ISO string）
+ * @property {string} [createdFrom] - 创建日期起始（ISO string）
+ * @property {string} [createdTo] - 创建日期结束（ISO string）
+ * @property {string} [completedFrom] - 完成日期起始（ISO string）
+ * @property {string} [completedTo] - 完成日期结束（ISO string）
+ * @property {string} [sortBy] - 排序字段
+ * @property {'asc' | 'desc'} [sortOrder] - 排序方向
  */
 export interface TaskFilter {
   priority?: TaskPriority;
@@ -88,6 +96,16 @@ export interface TaskFilter {
   tags?: string[]; // Tag IDs
   assignee?: string;
   search?: string;
+  // 高级筛选 - 日期范围
+  dueDateFrom?: string;
+  dueDateTo?: string;
+  createdFrom?: string;
+  createdTo?: string;
+  completedFrom?: string;
+  completedTo?: string;
+  // 排序
+  sortBy?: 'createdAt' | 'updatedAt' | 'dueDate' | 'priority';
+  sortOrder?: 'asc' | 'desc';
 }
 
 /**

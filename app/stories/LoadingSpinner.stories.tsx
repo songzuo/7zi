@@ -26,7 +26,7 @@ const meta = {
 } satisfies Meta<typeof LoadingSpinner>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+// type Story = StoryObj<typeof meta>; // Unused - using StoryObj directly
 
 export const Small: StoryObj<typeof meta> = {
   args: {

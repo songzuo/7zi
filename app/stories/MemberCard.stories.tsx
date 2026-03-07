@@ -25,7 +25,7 @@ const meta = {
 } satisfies Meta<typeof MemberCard>;
 
 export default meta;
-type Story = StoryObj<typeof MemberCard>;
+// type Story = StoryObj<typeof MemberCard>; // Unused - using StoryObj directly
 
 const defaultMember = {
   id: 'expert-1',

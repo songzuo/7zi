@@ -5,3 +5,5 @@ export * from './TaskCard';
 export * from './TaskForm';
 export * from './TaskFilterPanel';
 export * from './TaskStats';
+export * from './AdvancedSearchBar';
+export * from './AdvancedFilterPanel';

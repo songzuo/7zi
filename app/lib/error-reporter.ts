@@ -68,6 +68,7 @@ export async function reportError(
   } catch (sentryError) {
     // Silently fail if Sentry throws an error
     if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
       console.warn('Failed to send error to Sentry:', sentryError);
     }
   }
@@ -105,6 +106,7 @@ export function setupGlobalErrorHandler(): void {
   window.addEventListener('unhandledrejection', (event) => {
     const error = event.reason;
     
+    // eslint-disable-next-line no-console
     console.error('[Unhandled Rejection]', error);
     
     reportError(
@@ -119,6 +121,7 @@ export function setupGlobalErrorHandler(): void {
 
   // 捕获全局错误
   window.addEventListener('error', (event) => {
+    // eslint-disable-next-line no-console
     console.error('[Global Error]', event.error || event.message);
     
     reportError(

@@ -69,7 +69,7 @@ const meta = {
 } satisfies Meta<typeof ProgressBar>;
 
 export default meta;
-type Story = StoryObj<typeof ProgressBar>;
+// type Story = StoryObj<typeof ProgressBar>; // Unused - using StoryObj directly
 
 export const Default: StoryObj<typeof meta> = {
   args: {

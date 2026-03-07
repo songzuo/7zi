@@ -95,7 +95,7 @@ export async function getTaskById(id: string): Promise<Task | null> {
 }
 
 /**
- * 根据条件筛选任务
+ * 根据条件筛选任务（支持高级筛选）
  */
 export async function filterTasks(filter: TaskFilter): Promise<Task[]> {
   const db = await getDatabaseAsync();
@@ -123,8 +123,42 @@ export async function filterTasks(filter: TaskFilter): Promise<Task[]> {
     const searchPattern = `%${filter.search}%`;
     params.push(searchPattern, searchPattern);
   }
+
+  // 高级筛选 - 日期范围
+  if (filter.dueDateFrom) {
+    sql += ' AND due_date >= ?';
+    params.push(filter.dueDateFrom);
+  }
   
-  sql += ' ORDER BY created_at DESC';
+  if (filter.dueDateTo) {
+    sql += ' AND due_date <= ?';
+    params.push(filter.dueDateTo);
+  }
+  
+  if (filter.createdFrom) {
+    sql += ' AND created_at >= ?';
+    params.push(filter.createdFrom);
+  }
+  
+  if (filter.createdTo) {
+    sql += ' AND created_at <= ?';
+    params.push(filter.createdTo);
+  }
+  
+  if (filter.completedFrom) {
+    sql += ' AND completed_at >= ?';
+    params.push(filter.completedFrom);
+  }
+  
+  if (filter.completedTo) {
+    sql += ' AND completed_at <= ?';
+    params.push(filter.completedTo);
+  }
+
+  // 排序
+  const sortBy = filter.sortBy || 'created_at';
+  const sortOrder = filter.sortOrder || 'desc';
+  sql += ` ORDER BY ${sortBy} ${sortOrder.toUpperCase()}`;
   
   const rows = db.prepare(sql).all(...params) as TaskRow[];
   
