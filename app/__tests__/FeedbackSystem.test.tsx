@@ -360,9 +360,10 @@ describe('FeedbackSystem', () => {
     fireEvent.click(screen.getByRole('button', { name: '+ 新建反馈' }));
     expect(screen.getByRole('heading', { name: '提交反馈' })).toBeInTheDocument();
 
-    // 隐藏表单 - 使用 button 而不是 text
-    const cancelButton = screen.getByRole('button', { name: '取消' });
-    fireEvent.click(cancelButton);
+    // 隐藏表单 - 使用 getAllByRole 并选择表单内的取消按钮
+    const cancelButtons = screen.getAllByRole('button', { name: '取消' });
+    // 表单内的取消按钮应该是在表单后面，选择最后一个
+    fireEvent.click(cancelButtons[cancelButtons.length - 1]);
     expect(screen.queryByRole('heading', { name: '提交反馈' })).not.toBeInTheDocument();
   });
 
