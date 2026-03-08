@@ -39,10 +39,14 @@ class AlertHandler(BaseHTTPRequestHandler):
             print(f"[{timestamp}] Received alert via {self.path}")
             if 'alerts' in alert_data:
                 for alert in alert_data['alerts']:
-                    status = alert.get('status', {}).get('state', 'unknown')
-                    alertname = alert.get('labels', {}).get('alertname', 'unknown')
-                    severity = alert.get('labels', {}).get('severity', 'unknown')
-                    print(f"  - {status.upper()}: {alertname} ({severity})")
+                    # 确保 alert 是字典类型
+                    if isinstance(alert, dict):
+                        status = alert.get('status', {}).get('state', 'unknown') if isinstance(alert.get('status'), dict) else 'unknown'
+                        alertname = alert.get('labels', {}).get('alertname', 'unknown') if isinstance(alert.get('labels'), dict) else 'unknown'
+                        severity = alert.get('labels', {}).get('severity', 'unknown') if isinstance(alert.get('labels'), dict) else 'unknown'
+                        print(f"  - {status.upper()}: {alertname} ({severity})")
+                    else:
+                        print(f"  - Warning: alert is not a dict: {type(alert)}")
             
             # 返回成功响应
             self.send_response(200)

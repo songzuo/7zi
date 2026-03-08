@@ -8,14 +8,28 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { SearchModal, SearchButton, useSearchKeyboard } from '@/components/SearchModal';
 
 interface TeamNavigationProps {
-  tNav: (key: string) => string;
   locale?: string;
 }
 
-export function TeamNavigation({ tNav, locale = 'en' }: TeamNavigationProps) {
+export function TeamNavigation({ locale = 'en' }: TeamNavigationProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useSearchKeyboard(() => setIsSearchOpen(true), isSearchOpen);
+
+  // Navigation labels - should be passed from server or use a client-side i18n solution
+  const navLabels: Record<string, string> = locale === 'zh' ? {
+    about: '关于我们',
+    team: '团队成员',
+    blog: '博客',
+    dashboard: 'Dashboard',
+    contact: '联系我们',
+  } : {
+    about: 'About',
+    team: 'Team',
+    blog: 'Blog',
+    dashboard: 'Dashboard',
+    contact: 'Contact',
+  };
 
   return (
     <>
@@ -25,13 +39,13 @@ export function TeamNavigation({ tNav, locale = 'en' }: TeamNavigationProps) {
           <div className="flex items-center gap-2 sm:gap-4">
             <div className="hidden lg:flex items-center gap-6">
               <SearchButton onClick={() => setIsSearchOpen(true)} locale={locale} />
-              <Link href="/about" className="text-zinc-600 dark:text-zinc-400 hover:text-cyan-500 transition-colors">{tNav('about')}</Link>
-              <Link href="/team" className="text-cyan-500 font-medium">{tNav('team')}</Link>
-              <Link href="/blog" className="text-zinc-600 dark:text-zinc-400 hover:text-cyan-500 transition-colors">{tNav('blog')}</Link>
-              <Link href="/dashboard" className="text-zinc-600 dark:text-zinc-400 hover:text-cyan-500 transition-colors">{tNav('dashboard')}</Link>
+              <Link href="/about" className="text-zinc-600 dark:text-zinc-400 hover:text-cyan-500 transition-colors">{navLabels.about}</Link>
+              <Link href="/team" className="text-cyan-500 font-medium">{navLabels.team}</Link>
+              <Link href="/blog" className="text-zinc-600 dark:text-zinc-400 hover:text-cyan-500 transition-colors">{navLabels.blog}</Link>
+              <Link href="/dashboard" className="text-zinc-600 dark:text-zinc-400 hover:text-cyan-500 transition-colors">{navLabels.dashboard}</Link>
               <ThemeToggle />
               <LanguageSwitcher />
-              <Link href="/contact" className="px-5 py-2 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-full font-medium hover:shadow-lg hover:shadow-cyan-500/25 transition-all">{tNav('contact')}</Link>
+              <Link href="/contact" className="px-5 py-2 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-full font-medium hover:shadow-lg hover:shadow-cyan-500/25 transition-all">{navLabels.contact}</Link>
             </div>
             <div className="flex lg:hidden items-center gap-2">
               <SearchButton onClick={() => setIsSearchOpen(true)} locale={locale} />

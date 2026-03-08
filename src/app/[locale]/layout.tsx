@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { locales } from '@/i18n/config';
 import type { Locale } from '@/i18n/config';
 import type { Metadata } from 'next';
+import { SettingsProvider } from '@/contexts/SettingsContext';
 
 type Params = Promise<{ locale: string }>;
 
@@ -31,5 +32,11 @@ export default async function LocaleLayout({
   }
   setRequestLocale(locale);
   const messages = await getMessages();
-  return <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>;
+  return (
+    <NextIntlClientProvider messages={messages}>
+      <SettingsProvider>
+        {children}
+      </SettingsProvider>
+    </NextIntlClientProvider>
+  );
 }

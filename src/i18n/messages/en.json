@@ -496,5 +496,21 @@
       "retry": "Retry",
       "backHome": "Back to Home"
     }
+  },
+  "Portfolio": {
+    "meta": {
+      "title": "Portfolio - 7zi Studio",
+      "description": "View our portfolio of projects and case studies"
+    },
+    "title": "Our Portfolio",
+    "description": "Explore our diverse range of projects showcasing expertise in web development, AI solutions, and digital innovation."
+  },
+  "Tasks": {
+    "meta": {
+      "title": "Tasks - 7zi Studio",
+      "description": "Manage and track AI team tasks"
+    },
+    "title": "Task Management",
+    "description": "AI-powered task management and assignment system"
   }
 }

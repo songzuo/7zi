@@ -496,5 +496,21 @@
       "retry": "重试",
       "backHome": "返回首页"
     }
+  },
+  "Portfolio": {
+    "meta": {
+      "title": "作品集 - 7zi Studio",
+      "description": "查看我们的项目作品集和案例研究"
+    },
+    "title": "我们的作品集",
+    "description": "探索我们在 Web 开发、AI 解决方案和数字创新领域的多样化项目。"
+  },
+  "Tasks": {
+    "meta": {
+      "title": "任务管理 - 7zi Studio",
+      "description": "管理和跟踪 AI 团队任务"
+    },
+    "title": "任务管理",
+    "description": "AI 驱动的任务管理和分配系统"
   }
 }
