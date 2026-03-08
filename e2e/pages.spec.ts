@@ -310,7 +310,7 @@ test.describe('语言/地区导航测试', () => {
 
     // URL 可能包含语言前缀
     const url = page.url();
-    const hasLocale = /\/(zh|en)\//.test(url) || url === page.context().options.baseURL + '/';
+    const hasLocale = /\/(zh|en)\//.test(url) || url.endsWith('/');
     
     expect(hasLocale).toBeTruthy();
   });

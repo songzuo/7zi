@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation</title>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.10.0/swagger-ui.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>📘 API Documentation</h1>
+            <p class="subtitle">Interactive API Reference with Swagger/OpenAPI</p>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <h3>Quick Links</h3>
+                <ul class="quick-links">
+                    <li><a href="#section/Authentication">Authentication</a></li>
+                    <li><a href="#section/Users">Users</a></li>
+                    <li><a href="#section/Documents">Documents</a></li>
+                    <li><a href="#section/Health">Health Checks</a></li>
+                </ul>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>Resources</h3>
+                <ul class="resources">
+                    <li><a href="/spec/openapi.yaml" target="_blank">📄 OpenAPI Spec (YAML)</a></li>
+                    <li><a href="/spec/openapi.json" target="_blank">📄 OpenAPI Spec (JSON)</a></li>
+                    <li><a href="https://swagger.io/specification/" target="_blank">📚 OpenAPI Spec Guide</a></li>
+                </ul>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>Status</h3>
+                <div class="status-indicator">
+                    <span class="status-dot online"></span>
+                    <span>All systems operational</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div id="swagger-ui"></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="container">
+            <p>&copy; 2024 API Documentation System. Powered by Swagger UI.</p>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/swagger-ui-dist@5.10.0/swagger-ui-bundle.js"></script>
+    <script src="https://unpkg.com/swagger-ui-dist@5.10.0/swagger-ui-standalone-preset.js"></script>
+    <script>
+        window.onload = function() {
+            const ui = SwaggerUIBundle({
+                url: "/spec/openapi.yaml",
+                dom_id: '#swagger-ui',
+                deepLinking: true,
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIStandalonePreset
+                ],
+                layout: "StandaloneLayout",
+                docExpansion: "list",
+                filter: true,
+                tryItOutEnabled: true,
+                persistAuthorization: true,
+                withCredentials: true,
+                syntaxHighlight: {
+                    activate: true,
+                    theme: 'monokai'
+                },
+                plugins: [
+                    SwaggerUIBundle.plugins.DownloadUrl
+                ]
+            });
+
+            window.ui = ui;
+        };
+    </script>
+</body>
+</html>

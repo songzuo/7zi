@@ -1,0 +1,268 @@
+# ============================================
+# Prometheus Alert Rules
+# 7zi-frontend Production Alerts
+# ============================================
+
+groups:
+  # ============================================
+  # P0 - Critical (Immediate Response)
+  # ============================================
+  - name: critical_alerts
+    interval: 30s
+    rules:
+      # Service completely down
+      - alert: ServiceDown
+        expr: up{job="7zi-frontend"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          priority: P0
+        annotations:
+          summary: "7zi-frontend service is down"
+          description: "The main application service has been unreachable for more than 2 minutes"
+          runbook_url: "https://github.com/7zi-studio/7zi-frontend/blob/main/docs/OPERATIONS_MANUAL.md"
+          dashboard_url: "https://grafana.7zi.studio/d/7zi-frontend"
+
+      # All instances down
+      - alert: AllInstancesDown
+        expr: count(up{job="7zi-frontend"} == 0) == count(up{job="7zi-frontend"})
+        for: 1m
+        labels:
+          severity: critical
+          priority: P0
+        annotations:
+          summary: "All 7zi-frontend instances are down"
+          description: "No healthy instances available"
+
+      # High error rate (>10%)
+      - alert: HighErrorRate
+        expr: |
+          sum(rate(http_requests_total{job="7zi-frontend",status=~"5.."}[5m])) 
+          / sum(rate(http_requests_total{job="7zi-frontend"}[5m])) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+          priority: P0
+        annotations:
+          summary: "High error rate detected ({{ $value | humanizePercentage }})"
+          description: "Error rate has exceeded 10% for the last 5 minutes"
+
+      # SSL certificate expired
+      - alert: SSLCertificateExpired
+        expr: probe_ssl_earliest_cert_expiry - time() < 0
+        for: 1m
+        labels:
+          severity: critical
+          priority: P0
+        annotations:
+          summary: "SSL certificate has expired"
+          description: "The SSL certificate for {{ $labels.instance }} has expired"
+
+  # ============================================
+  # P1 - High Priority (Response < 15 min)
+  # ============================================
+  - name: high_priority_alerts
+    interval: 30s
+    rules:
+      # High error rate (>5%)
+      - alert: ElevatedErrorRate
+        expr: |
+          sum(rate(http_requests_total{job="7zi-frontend",status=~"5.."}[5m])) 
+          / sum(rate(http_requests_total{job="7zi-frontend"}[5m])) > 0.05
+        for: 10m
+        labels:
+          severity: high
+          priority: P1
+        annotations:
+          summary: "Elevated error rate ({{ $value | humanizePercentage }})"
+          description: "Error rate has exceeded 5% for the last 10 minutes"
+
+      # High response time (P95 > 2s)
+      - alert: HighResponseTime
+        expr: |
+          histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job="7zi-frontend"}[5m])) by (le)) > 2
+        for: 10m
+        labels:
+          severity: high
+          priority: P1
+        annotations:
+          summary: "High response time (P95: {{ $value | humanizeDuration }})"
+          description: "95th percentile response time has exceeded 2 seconds"
+
+      # SSL certificate expiring soon (7 days)
+      - alert: SSLCertificateExpiringSoon
+        expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 7
+        for: 1h
+        labels:
+          severity: high
+          priority: P1
+        annotations:
+          summary: "SSL certificate expiring in {{ $value | humanizeDuration }}"
+          description: "The SSL certificate for {{ $labels.instance }} will expire within 7 days"
+
+      # High memory usage (>85%)
+      - alert: HighMemoryUsage
+        expr: |
+          (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) 
+          / node_memory_MemTotal_bytes > 0.85
+        for: 10m
+        labels:
+          severity: high
+          priority: P1
+        annotations:
+          summary: "High memory usage ({{ $value | humanizePercentage }})"
+          description: "Memory usage has exceeded 85% on {{ $labels.instance }}"
+
+      # High CPU usage (>90%)
+      - alert: HighCPUUsage
+        expr: |
+          100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 90
+        for: 10m
+        labels:
+          severity: high
+          priority: P1
+        annotations:
+          summary: "High CPU usage ({{ $value | humanizePercentage }})"
+          description: "CPU usage has exceeded 90% on {{ $labels.instance }}"
+
+      # Disk space low (<15%)
+      - alert: DiskSpaceLow
+        expr: |
+          (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 15
+        for: 30m
+        labels:
+          severity: high
+          priority: P1
+        annotations:
+          summary: "Low disk space ({{ $value | humanizePercentage }} available)"
+          description: "Disk space on root partition is below 15%"
+
+  # ============================================
+  # P2 - Warning (Response < 1 hour)
+  # ============================================
+  - name: warning_alerts
+    interval: 1m
+    rules:
+      # Elevated response time (P95 > 1s)
+      - alert: ElevatedResponseTime
+        expr: |
+          histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job="7zi-frontend"}[5m])) by (le)) > 1
+        for: 15m
+        labels:
+          severity: warning
+          priority: P2
+        annotations:
+          summary: "Elevated response time (P95: {{ $value | humanizeDuration }})"
+          description: "95th percentile response time has exceeded 1 second"
+
+      # Memory usage elevated (>75%)
+      - alert: MemoryUsageElevated
+        expr: |
+          (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) 
+          / node_memory_MemTotal_bytes > 0.75
+        for: 30m
+        labels:
+          severity: warning
+          priority: P2
+        annotations:
+          summary: "Elevated memory usage ({{ $value | humanizePercentage }})"
+          description: "Memory usage has exceeded 75%"
+
+      # Disk space warning (<25%)
+      - alert: DiskSpaceWarning
+        expr: |
+          (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 25
+        for: 1h
+        labels:
+          severity: warning
+          priority: P2
+        annotations:
+          summary: "Disk space warning ({{ $value | humanizePercentage }} available)"
+          description: "Disk space on root partition is below 25%"
+
+      # SSL certificate expiring (30 days)
+      - alert: SSLCertificateExpiring
+        expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 30
+        for: 6h
+        labels:
+          severity: warning
+          priority: P2
+        annotations:
+          summary: "SSL certificate expiring in {{ $value | humanizeDuration }}"
+          description: "The SSL certificate will expire within 30 days"
+
+      # Container restart count high
+      - alert: ContainerRestartHigh
+        expr: |
+          increase(container_last_seen{name="7zi-frontend"}[1h]) > 3
+        for: 1h
+        labels:
+          severity: warning
+          priority: P2
+        annotations:
+          summary: "Container restarting frequently"
+          description: "The 7zi-frontend container has restarted more than 3 times in the last hour"
+
+  # ============================================
+  # P3 - Informational
+  # ============================================
+  - name: informational_alerts
+    interval: 5m
+    rules:
+      # SSL certificate reminder (60 days)
+      - alert: SSLCertificateReminder
+        expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 60
+        for: 24h
+        labels:
+          severity: info
+          priority: P3
+        annotations:
+          summary: "SSL certificate expiring in {{ $value | humanizeDuration }}"
+          description: "The SSL certificate will expire within 60 days - plan renewal"
+
+      # High traffic (5x baseline)
+      - alert: TrafficSpike
+        expr: |
+          sum(rate(http_requests_total{job="7zi-frontend"}[5m])) 
+          > 5 * sum(rate(http_requests_total{job="7zi-frontend"} offset 1w))
+        for: 30m
+        labels:
+          severity: info
+          priority: P3
+        annotations:
+          summary: "Traffic spike detected"
+          description: "Current traffic is 5x higher than last week's baseline"
+
+  # ============================================
+  # Recording Rules for Performance
+  # ============================================
+  - name: recording_rules
+    interval: 30s
+    rules:
+      # Request rate per minute
+      - record: job:http_requests:rate5m
+        expr: sum(rate(http_requests_total[5m])) by (job)
+
+      # Error rate per minute
+      - record: job:http_errors:rate5m
+        expr: sum(rate(http_requests_total{status=~"5.."}[5m])) by (job)
+
+      # Response time P50
+      - record: job:http_request_duration_seconds:p50
+        expr: histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, job))
+
+      # Response time P95
+      - record: job:http_request_duration_seconds:p95
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, job))
+
+      # Response time P99
+      - record: job:http_request_duration_seconds:p99
+        expr: histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, job))
+
+      # Memory usage percentage
+      - record: instance:node_memory_utilization:ratio
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes
+
+      # CPU usage percentage
+      - record: instance:node_cpu_utilization:rate5m
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)

@@ -1,0 +1,23 @@
+{
+  "name": "api-docs-system",
+  "version": "1.0.0",
+  "description": "Interactive API Documentation System with Swagger/OpenAPI",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "api",
+    "documentation",
+    "swagger",
+    "openapi"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "yamljs": "^0.3.0"
+  }
+}

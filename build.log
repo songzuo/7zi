@@ -1,0 +1,61 @@
+
+> 7zi-frontend@0.1.0 build
+> next build
+
+▲ Next.js 16.1.6 (Turbopack)
+- Experiments (use with caution):
+  · optimizePackageImports
+  ⨯ serverComponentsHmrCache
+  · swcPlugins
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+✓ Compiled successfully in 21.4s
+  Skipping validation of types
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/27) ...
+  Generating static pages using 3 workers (6/27) 
+  Generating static pages using 3 workers (13/27) 
+  Generating static pages using 3 workers (20/27) 
+✓ Generating static pages using 3 workers (27/27) in 926.8ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /_not-found
+├ ƒ /[locale]
+├ ƒ /[locale]/about
+├ ƒ /[locale]/blog
+├ ƒ /[locale]/contact
+├ ƒ /[locale]/dashboard
+├ ƒ /[locale]/team
+├ ƒ /api/health
+├ ƒ /api/health/detailed
+├ ƒ /api/health/live
+├ ƒ /api/health/ready
+├ ƒ /api/knowledge/edges
+├ ƒ /api/knowledge/inference
+├ ƒ /api/knowledge/lattice
+├ ƒ /api/knowledge/nodes
+├ ƒ /api/knowledge/nodes/[id]
+├ ƒ /api/knowledge/query
+├ ƒ /api/logs
+├ ƒ /api/status
+├ ƒ /api/tasks
+├ ○ /knowledge-lattice
+├ ƒ /portfolio
+├ ● /portfolio/[slug]
+│ ├ /portfolio/ai-powered-analytics-dashboard
+│ ├ /portfolio/mobile-ecommerce-platform
+│ ├ /portfolio/blockchain-supply-chain
+│ └ [+5 more paths]
+├ ○ /tasks
+├ ƒ /tasks/[id]
+└ ○ /tasks/new
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+

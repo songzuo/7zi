@@ -1,7 +1,7 @@
 /**
  * @fileoverview EmailJS 配置和工具函数测试
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
   EMAILJS_CONFIG,
   isEmailJSConfigured,

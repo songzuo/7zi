@@ -135,7 +135,6 @@ export function generatePageMetadata(
   const description = normalizedLocale === 'zh' ? config.description : config.descriptionEn;
   const keywords = normalizedLocale === 'zh' ? config.keywords : config.keywordsEn;
   const url = `${baseUrl}/${normalizedLocale}${config.path}`;
-  const alternateUrl = `${baseUrl}/${normalizedLocale === 'zh' ? 'en' : 'zh'}${config.path}`;
 
   return {
     title,

@@ -159,3 +159,32 @@ export interface LoadingProps {
 export interface ErrorProps {
   error?: string | null;
 }
+
+// ============================================================================
+// Portfolio Project Types
+// ============================================================================
+
+export type ProjectCategory = 'website' | 'app' | 'ai' | 'design';
+
+export interface Project {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  category: ProjectCategory;
+  thumbnail: string;
+  images: string[];
+  techStack: string[];
+  client?: string;
+  duration: string;
+  highlights: string[];
+  testimonial?: {
+    author: string;
+    content: string;
+    avatar?: string;
+  };
+  links: {
+    live?: string;
+    github?: string;
+  };
+}

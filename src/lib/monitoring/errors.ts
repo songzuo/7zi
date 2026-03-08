@@ -1,26 +1,7 @@
 /**
  * Error Tracking Utilities
- * Enhanced error handling (Sentry stub - module not installed)
+ * Enhanced error handling with custom implementation
  */
-
-// Stub Sentry module when not installed
-const Sentry = {
-  withScope: (fn: (scope: any) => void) => {
-    fn({
-      setTag: () => {},
-      setLevel: () => {},
-      setUser: () => {},
-      setExtra: () => {},
-      setFingerprint: () => {},
-    });
-  },
-  captureException: (error: Error) => {
-    console.error('[Error Tracking]', error);
-  },
-  captureMessage: (message: string, level?: string) => {
-    console[level === 'error' ? 'error' : 'log']('[Error Tracking]', message);
-  },
-};
 
 /**
  * Error categories for better organization
@@ -103,71 +84,78 @@ export function captureError(
       username?: string;
     };
   }
-) {
+): Record<string, unknown> {
   // Determine error details
   const isError = error instanceof Error;
   const isAppError = error instanceof AppError;
   
-  // Build Sentry context
-  Sentry.withScope((scope) => {
-    // Set tags
-    if (options?.tags) {
-      Object.entries(options.tags).forEach(([key, value]) => {
-        scope.setTag(key, value);
-      });
-    }
+  // Set category and severity
+  const category = options?.category ?? (isAppError ? error.category : ErrorCategory.APPLICATION);
+  const severity = options?.severity ?? (isAppError ? error.severity : ErrorSeverity.ERROR);
+  
+  // Build error context
+  const context: Record<string, unknown> = {
+    category,
+    severity,
+    timestamp: new Date().toISOString(),
+  };
 
-    // Set category and severity
-    const category = options?.category ?? (isAppError ? error.category : ErrorCategory.APPLICATION);
-    const severity = options?.severity ?? (isAppError ? error.severity : ErrorSeverity.ERROR);
-    
-    scope.setTag('category', category);
-    scope.setLevel(severity);
+  // Add tags
+  if (options?.tags) {
+    context.tags = options.tags;
+  }
 
-    // Set user
-    if (options?.user) {
-      scope.setUser(options.user);
-    }
+  // Add user info
+  if (options?.user) {
+    context.user = options.user;
+  }
 
-    // Set extra context
-    if (options?.extra) {
-      Object.entries(options.extra).forEach(([key, value]) => {
-        scope.setExtra(key, value);
-      });
-    }
+  // Add extra context
+  if (options?.extra) {
+    context.extra = options.extra;
+  }
 
-    // Add AppError metadata
-    if (isAppError) {
-      Object.entries(error.metadata).forEach(([key, value]) => {
-        scope.setExtra(key, value);
-      });
-    }
+  // Add AppError metadata
+  if (isAppError) {
+    context.metadata = error.metadata;
+    context.fingerprint = [error.category, error.message];
+  }
 
-    // Add fingerprint for grouping
-    if (isAppError) {
-      scope.setFingerprint([error.category, error.message]);
-    }
-
-    // Capture the error
-    if (isError) {
-      Sentry.captureException(error);
-    } else {
-      Sentry.captureMessage(String(error));
-    }
-  });
+  // Log the error based on severity
+  const logMessage = `[Error Tracking] ${isError ? error.message : String(error)}`;
+  
+  switch (severity) {
+    case ErrorSeverity.FATAL:
+    case ErrorSeverity.ERROR:
+      console.error(logMessage, context);
+      break;
+    case ErrorSeverity.WARNING:
+      console.warn(logMessage, context);
+      break;
+    case ErrorSeverity.INFO:
+      console.info(logMessage, context);
+      break;
+    case ErrorSeverity.DEBUG:
+      console.debug(logMessage, context);
+      break;
+    default:
+      console.log(logMessage, context);
+  }
+  
+  return context;
 }
 
 /**
  * Wrap async function with error tracking
  */
-export function withErrorTracking<T extends (...args: any[]) => Promise<any>>(
-  fn: T,
+export function withErrorTracking<TArgs extends unknown[], TReturn>(
+  fn: (...args: TArgs) => Promise<TReturn>,
   options?: {
     category?: ErrorCategory;
     tags?: Record<string, string>;
   }
-): T {
-  return (async (...args: Parameters<T>) => {
+): (...args: TArgs) => Promise<TReturn> {
+  return async (...args: TArgs): Promise<TReturn> => {
     try {
       return await fn(...args);
     } catch (error) {
@@ -189,7 +177,7 @@ export function withErrorTracking<T extends (...args: any[]) => Promise<any>>(
       });
       throw error;
     }
-  }) as T;
+  };
 }
 
 /**

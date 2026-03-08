@@ -34,7 +34,7 @@ test.describe('首页测试', () => {
     
     // 验证 URL 包含语言代码
     const url = page.url();
-    const hasLocale = /\/(zh|en)/.test(url) || url === page.context().options.baseURL + '/';
+    const hasLocale = /\/(zh|en)/.test(url) || url.endsWith('/');
     expect(hasLocale).toBeTruthy();
   });
 

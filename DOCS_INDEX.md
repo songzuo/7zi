@@ -1,6 +1,6 @@
 # 7zi-frontend 文档索引
 
-> 📚 文档导航中心 | 更新日期: 2026-03-06
+> 📚 文档导航中心 | 更新日期: 2026-03-08 18:10
 
 ---
 
@@ -13,6 +13,13 @@
 | [PROJECT_STATUS.md](./PROJECT_STATUS.md) | 当前项目状态 | 开发者、管理者 |
 | [NEXT_FEATURES.md](./NEXT_FEATURES.md) | 功能规划与路线图 | 产品、开发团队 |
 | [TECH_DEBT.md](./TECH_DEBT.md) | 技术债务与改进建议 | 开发者 |
+| [docs/USER_GUIDE.md](./docs/USER_GUIDE.md) | **📘 使用指南** | 所有用户 |
+| [docs/API_REFERENCE.md](./docs/API_REFERENCE.md) | **📗 API 参考文档** | 开发者 |
+| [docs/COMPONENTS.md](./docs/COMPONENTS.md) | **🧩 组件库文档** | 前端开发者 |
+| [docs/TESTING_GUIDE.md](./docs/TESTING_GUIDE.md) | **🧪 测试指南** | 开发者、测试员 |
+| [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) | **🚀 部署指南** | 系统管理员 |
+| [docs/QUICK_REFERENCE.md](./docs/QUICK_REFERENCE.md) | **⚡ 快速参考** | 所有人 |
+| [docs/DOCUMENTATION_GUIDE.md](./docs/DOCUMENTATION_GUIDE.md) | **📝 文档规范** | 开发者 |
 
 ---
 
@@ -44,6 +51,13 @@
 │   └── SEO-OPTIMIZATION-SUMMARY.md  # SEO 优化总结
 │
 └── 📁 docs/ (详细文档)
+    ├── 📘 使用指南
+    │   ├── USER_GUIDE.md            # 用户使用指南 ⭐ 新增
+    │   └── API_REFERENCE.md         # API 参考文档 ⭐ 新增
+    │
+    ├── 📦 模块文档
+    │   └── TASKS_MODULE.md          # Tasks 模块文档
+    │
     ├── 🏗️ 架构与设计
     │   ├── ARCHITECTURE_REVIEW.md   # 架构审查报告
     │   ├── DESIGN_OPTIMIZATION.md   # UI/UX 优化记录
@@ -52,6 +66,7 @@
     ├── 🚀 性能与优化
     │   ├── OPTIMIZATION_REPORT.md   # Next.js 优化报告
     │   ├── PERFORMANCE-OPTIMIZATION-REPORT.md  # 性能优化报告
+    │   ├── PERFORMANCE_OPTIMIZATION_REPORT.md  # 性能优化报告(新)
     │   └── PERFORMANCE_AUDIT.md     # 性能审计
     │
     ├── 📱 响应式与移动端
@@ -67,11 +82,31 @@
     ├── 📊 监控与运维
     │   ├── MONITORING_DESIGN.md      # 监控系统设计
     │   ├── MONITORING_SUMMARY.md     # 监控系统摘要
+    │   ├── MONITORING_IMPLEMENTATION_REPORT.md  # 监控实现报告
     │   ├── OPERATIONS_MANUAL.md      # 运维手册
-    │   └── DEPLOYMENT.md             # 部署指南
+    │   ├── DEPLOYMENT.md             # 部署指南
+    │   └── PROMETHEUS_METRICS_GUIDE.md  # Prometheus 指标指南
     │
-    └── 📈 市场分析
-        └── COMPETITION_ANALYSIS.md   # 竞品分析报告
+    ├── 🧪 测试与质量
+    │   ├── TESTING_GUIDE.md          # 测试指南 ⭐ 新增
+    │   └── test-reports/             # 测试报告目录
+    │
+    ├── 🧩 组件库
+    │   └── COMPONENTS.md             # 组件文档 ⭐ 新增
+    │
+    ├── 📈 市场分析
+    │   └── COMPETITION_ANALYSIS.md   # 竞品分析报告
+    │
+    ├── 🧠 智能体世界
+    │   ├── AGENT_COLLABORATION_FRAMEWORK.md  # AI 协作框架
+    │   ├── agent-world-innovation-roadmap.md # 创新路线图
+    │   ├── KNOWLEDGE_LATTICE.md              # 知识晶格
+    │   ├── KNOWLEDGE_LATTICE_SUMMARY.md      # 知识晶格摘要
+    │   └── KNOWLEDGE_LATTICE_QUICKSTART.md   # 知识晶格快速开始
+    │
+    └── 📋 任务报告
+        ├── task-8-innovation-planning-report.md   # 任务8报告
+        └── KNOWLEDGE_LATTICE_COMPLETION_REPORT.md # 知识晶格完成报告
 ```
 
 ---
@@ -200,8 +235,36 @@
 |------|------|------|
 | MONITORING_DESIGN.md | 监控系统设计 | ~703 行 |
 | MONITORING_SUMMARY.md | 监控系统摘要 | ~217 行 |
+| MONITORING_IMPLEMENTATION_REPORT.md | 监控实现报告 | ~350 行 |
 | OPERATIONS_MANUAL.md | 运维手册 | ~272 行 |
-| DEPLOYMENT.md | 部署指南 | ~280 行 |
+| DEPLOYMENT.md | 部署指南 (完整版) | ~450 行 |
+| PROMETHEUS_METRICS_GUIDE.md | Prometheus 指标指南 | ~150 行 |
+
+#### 测试与质量
+
+| 文档 | 描述 | 行数 |
+|------|------|------|
+| TESTING_GUIDE.md | 完整测试指南 (Vitest + Playwright) | ~450 行 |
+| test-reports/*.md | 各类测试报告 | - |
+
+#### 组件库
+
+| 文档 | 描述 | 行数 |
+|------|------|------|
+| COMPONENTS.md | 可复用组件完整文档 | ~200 行 |
+| TASKS_MODULE.md | Tasks 模块详细文档 | ~350 行 |
+
+#### 快速参考
+
+| 文档 | 描述 | 行数 |
+|------|------|------|
+| QUICK_REFERENCE.md | 命令、API、配置速查表 | ~150 行 |
+
+#### 文档维护
+
+| 文档 | 描述 | 行数 |
+|------|------|------|
+| DOCUMENTATION_GUIDE.md | 文档编写规范与维护指南 | ~150 行 |
 
 #### 市场分析
 

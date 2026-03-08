@@ -50,7 +50,10 @@ export const Navigation: React.FC = () => {
   useEffect(() => {
     if (prevPathnameRef.current !== pathname) {
       prevPathnameRef.current = pathname;
-      setIsMobileMenuOpen(false);
+      // Use requestAnimationFrame to avoid synchronous setState in effect
+      requestAnimationFrame(() => {
+        setIsMobileMenuOpen(false);
+      });
     }
   }, [pathname]);
 

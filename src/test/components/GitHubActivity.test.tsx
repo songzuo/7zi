@@ -52,7 +52,7 @@ describe('GitHubActivity', () => {
       isLoading: false,
       error: null,
       refresh: vi.fn(),
-    } as ReturnType<typeof useGitHubData>)
+    } as unknown as ReturnType<typeof useGitHubData>)
     
     render(<GitHubActivity />)
     
@@ -67,7 +67,7 @@ describe('GitHubActivity', () => {
       isLoading: true,
       error: null,
       refresh: vi.fn(),
-    } as ReturnType<typeof useGitHubData>)
+    } as unknown as ReturnType<typeof useGitHubData>)
     
     render(<GitHubActivity />)
     
@@ -83,7 +83,7 @@ describe('GitHubActivity', () => {
       isLoading: false,
       error: null,
       refresh: vi.fn(),
-    } as ReturnType<typeof useGitHubData>)
+    } as unknown as ReturnType<typeof useGitHubData>)
     
     render(<GitHubActivity />)
     
@@ -102,7 +102,7 @@ describe('GitHubActivity', () => {
       isLoading: false,
       error: null,
       refresh: vi.fn(),
-    } as ReturnType<typeof useGitHubData>)
+    } as unknown as ReturnType<typeof useGitHubData>)
     
     render(<GitHubActivity />)
     
@@ -120,7 +120,7 @@ describe('GitHubActivity', () => {
       isLoading: false,
       error: null,
       refresh: vi.fn(),
-    } as ReturnType<typeof useGitHubData>)
+    } as unknown as ReturnType<typeof useGitHubData>)
     
     render(<GitHubActivity />)
     
@@ -141,7 +141,7 @@ describe('GitHubActivity', () => {
       isLoading: false,
       error: null,
       refresh: vi.fn(),
-    } as ReturnType<typeof useGitHubData>)
+    } as unknown as ReturnType<typeof useGitHubData>)
     
     render(<GitHubActivity />)
     
@@ -157,7 +157,7 @@ describe('GitHubActivity', () => {
       isLoading: false,
       error: null,
       refresh: vi.fn(),
-    } as ReturnType<typeof useGitHubData>)
+    } as unknown as ReturnType<typeof useGitHubData>)
     
     render(<GitHubActivity />)
     
@@ -174,7 +174,7 @@ describe('GitHubActivity', () => {
       isLoading: false,
       error: null,
       refresh: vi.fn(),
-    } as ReturnType<typeof useGitHubData>)
+    } as unknown as ReturnType<typeof useGitHubData>)
     
     render(<GitHubActivity />)
     
@@ -191,7 +191,7 @@ describe('GitHubActivity', () => {
       isLoading: false,
       error: null,
       refresh: vi.fn(),
-    } as ReturnType<typeof useGitHubData>)
+    } as unknown as ReturnType<typeof useGitHubData>)
     
     render(<GitHubActivity />)
     
@@ -211,7 +211,7 @@ describe('GitHubActivity', () => {
       isLoading: false,
       error: null,
       refresh: vi.fn(),
-    } as ReturnType<typeof useGitHubData>)
+    } as unknown as ReturnType<typeof useGitHubData>)
     
     render(<GitHubActivity />)
     

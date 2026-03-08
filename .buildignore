@@ -1,0 +1,33 @@
+# Build Cache
+.turbo-cache/
+.next/cache/
+node_modules/.cache/
+
+# Test Files
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+e2e/
+coverage/
+playwright-report/
+test-results/
+
+# Documentation
+**/*.md
+!README.md
+
+# Development Files
+.env.local
+.env.development.local
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management API</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { width: 100%; padding: 8px; box-sizing: border-box; }
+        button { background: #007bff; color: white; padding: 10px 15px; border: none; cursor: pointer; margin-right: 10px; }
+        button:hover { background: #0056b3; }
+        .users-list { margin-top: 20px; }
+        .user-item { padding: 10px; border: 1px solid #ddd; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>User Management API</h1>
+        
+        <div class="form-group">
+            <label for="userId">User ID (for update/delete):</label>
+            <input type="text" id="userId" placeholder="Enter user ID">
+        </div>
+        
+        <div class="form-group">
+            <label for="userName">Name:</label>
+            <input type="text" id="userName" placeholder="Enter name">
+        </div>
+        
+        <div class="form-group">
+            <label for="userEmail">Email:</label>
+            <input type="email" id="userEmail" placeholder="Enter email">
+        </div>
+        
+        <button onclick="createUser()">Create User</button>
+        <button onclick="updateUser()">Update User</button>
+        <button onclick="deleteUser()">Delete User</button>
+        <button onclick="getAllUsers()">Get All Users</button>
+        <button onclick="getUserById()">Get User by ID</button>
+        
+        <div id="result" style="margin-top: 20px; padding: 10px; background: #f8f9fa;"></div>
+        
+        <div class="users-list" id="usersList"></div>
+    </div>
+
+    <script>
+        async function makeRequest(method, url, data = null) {
+            const options = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            };
+            if (data) {
+                options.body = JSON.stringify(data);
+            }
+            
+            try {
+                const response = await fetch(url, options);
+                const result = await response.json();
+                document.getElementById('result').innerHTML = 
+                    `<strong>${method} ${url}:</strong><br>${JSON.stringify(result, null, 2)}`;
+                return result;
+            } catch (error) {
+                document.getElementById('result').innerHTML = 
+                    `<strong>Error:</strong> ${error.message}`;
+                console.error('Error:', error);
+            }
+        }
+
+        function createUser() {
+            const name = document.getElementById('userName').value;
+            const email = document.getElementById('userEmail').value;
+            if (!name || !email) {
+                alert('Please enter both name and email');
+                return;
+            }
+            makeRequest('POST', '/users', { name, email });
+        }
+
+        function updateUser() {
+            const id = document.getElementById('userId').value;
+            const name = document.getElementById('userName').value;
+            const email = document.getElementById('userEmail').value;
+            if (!id || (!name && !email)) {
+                alert('Please enter user ID and at least one field to update');
+                return;
+            }
+            const data = {};
+            if (name) data.name = name;
+            if (email) data.email = email;
+            makeRequest('PUT', `/api/users/${id}`, data);
+        }
+
+        function deleteUser() {
+            const id = document.getElementById('userId').value;
+            if (!id) {
+                alert('Please enter user ID');
+                return;
+            }
+            makeRequest('DELETE', `/api/users/${id}`);
+        }
+
+        async function getAllUsers() {
+            const users = await makeRequest('GET', '/api/users');
+            if (users && Array.isArray(users)) {
+                displayUsers(users);
+            }
+        }
+
+        function getUserById() {
+            const id = document.getElementById('userId').value;
+            if (!id) {
+                alert('Please enter user ID');
+                return;
+            }
+            makeRequest('GET', `/api/users/${id}`);
+        }
+
+        function displayUsers(users) {
+            const listDiv = document.getElementById('usersList');
+            listDiv.innerHTML = '<h3>All Users:</h3>';
+            users.forEach(user => {
+                const userDiv = document.createElement('div');
+                userDiv.className = 'user-item';
+                userDiv.innerHTML = `
+                    <strong>ID:</strong> ${user.id}<br>
+                    <strong>Name:</strong> ${user.name}<br>
+                    <strong>Email:</strong> ${user.email}
+                `;
+                listDiv.appendChild(userDiv);
+            });
+        }
+    </script>
+</body>
+</html>

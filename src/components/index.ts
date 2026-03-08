@@ -1,5 +1,5 @@
 // Client Providers
-export { ClientProviders, ThemeToggle, AIChat } from './ClientProviders';
+export { ClientProviders, ThemeToggle } from './ClientProviders';
 
 // Theme (backward compatible - now delegates to SettingsContext)
 export { ThemeProvider, useTheme } from './ThemeProvider';

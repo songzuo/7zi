@@ -56,14 +56,13 @@ class Cache<T> {
   }
 }
 
-// Global cache instance
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const globalCache = new Cache<any>();
+// Global cache instance - stores unknown values that are typed at retrieval
+const globalCache = new Cache<unknown>();
 
 export function createCache<T>(ttl: number = 5 * 60 * 1000) {
   return {
     set: (key: string, value: T) => globalCache.set(key, value, ttl),
-    get: (key: string) => globalCache.get(key) as T | null,
+    get: (key: string): T | null => globalCache.get(key) as T | null,
     delete: (key: string) => globalCache.delete(key),
     has: (key: string) => globalCache.has(key),
   };
@@ -114,20 +113,20 @@ export function throttle<T extends (...args: unknown[]) => unknown>(
 /**
  * Memoize function with cache key generator
  */
-export function memoize<T extends (...args: unknown[]) => unknown>(
-  func: T,
-  resolver?: (...args: Parameters<T>) => string
-): (...args: Parameters<T>) => ReturnType<T> {
-  const cache = new Map<string, ReturnType<T>>();
+export function memoize<TArgs extends unknown[], TReturn>(
+  func: (...args: TArgs) => TReturn,
+  resolver?: (...args: TArgs) => string
+): (...args: TArgs) => TReturn {
+  const cache = new Map<string, TReturn>();
 
-  return (...args: Parameters<T>): ReturnType<T> => {
+  return (...args: TArgs): TReturn => {
     const key = resolver ? resolver(...args) : JSON.stringify(args);
 
     if (cache.has(key)) {
       return cache.get(key)!;
     }
 
-    const result = func(...args) as ReturnType<T>;
+    const result = func(...args);
     cache.set(key, result);
     return result;
   };

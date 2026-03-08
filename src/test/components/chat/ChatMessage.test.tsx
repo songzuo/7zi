@@ -8,9 +8,9 @@ const mockTeamMembers: TeamMember[] = [
     id: 'member-1',
     name: '测试AI',
     emoji: '🤖',
-    avatar: '/avatar1.png',
     status: 'online',
-    provider: 'test',
+    role: 'assistant',
+    specialty: 'testing',
   },
 ]
 

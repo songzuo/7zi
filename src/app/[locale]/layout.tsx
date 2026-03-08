@@ -7,8 +7,6 @@ import type { Metadata } from 'next';
 
 type Params = Promise<{ locale: string }>;
 
-const baseUrl = 'https://7zi.studio';
-
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { locale } = await params;
   const titles: Record<string, string> = {

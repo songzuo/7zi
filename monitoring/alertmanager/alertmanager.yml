@@ -1,0 +1,163 @@
+# ============================================
+# Alertmanager Configuration
+# 7zi-frontend Alert Routing
+# ============================================
+
+global:
+  smtp_smarthost: 'smtp.sendgrid.net:587'
+  smtp_from: 'alerts@7zi.studio'
+  smtp_auth_username: 'apikey'
+  smtp_auth_password: '${SENDGRID_API_KEY}'
+  slack_api_url: '${SLACK_WEBHOOK_URL}'
+  resolve_timeout: 5m
+
+# Templates for notifications
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+# Routing tree
+route:
+  receiver: 'default-receiver'
+  group_by: ['alertname', 'severity', 'job']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  
+  routes:
+    # P0 - Critical alerts: immediate notification
+    - match:
+        severity: critical
+      receiver: 'slack-critical'
+      group_wait: 10s
+      repeat_interval: 5m
+      continue: true
+      
+    - match:
+        severity: critical
+      receiver: 'email-critical'
+      group_wait: 10s
+      repeat_interval: 5m
+      
+    # P1 - High priority alerts
+    - match:
+        severity: high
+      receiver: 'slack-high'
+      group_wait: 30s
+      repeat_interval: 30m
+      continue: true
+      
+    - match:
+        severity: high
+      receiver: 'email-high'
+      group_wait: 1m
+      repeat_interval: 1h
+      
+    # P2 - Warning alerts
+    - match:
+        severity: warning
+      receiver: 'slack-warning'
+      group_wait: 5m
+      repeat_interval: 2h
+      
+    # P3 - Informational alerts
+    - match:
+        severity: info
+      receiver: 'email-info'
+      group_wait: 15m
+      repeat_interval: 24h
+
+# Inhibition rules
+inhibit_rules:
+  # If service is down, inhibit all other alerts for that service
+  - source_match:
+      alertname: 'ServiceDown'
+    target_match_re:
+      alertname: '.+'
+    equal: ['job']
+    
+  # If all instances are down, inhibit single instance alerts
+  - source_match:
+      alertname: 'AllInstancesDown'
+    target_match:
+      alertname: 'ServiceDown'
+    equal: ['job']
+
+# Receivers
+receivers:
+  # Default receiver (catch-all)
+  - name: 'default-receiver'
+    webhook_configs:
+      - url: 'http://localhost:5001/webhook'
+        send_resolved: true
+
+  # Slack - Critical
+  - name: 'slack-critical'
+    slack_configs:
+      - channel: '#alerts-critical'
+        send_resolved: true
+        title: '{{ template "slack.title" . }}'
+        text: '{{ template "slack.text" . }}'
+        color: '#FF0000'
+        actions:
+          - type: 'button'
+            text: 'View Runbook'
+            url: '{{ (index .Alerts 0).Annotations.runbook_url }}'
+          - type: 'button'
+            text: 'View Dashboard'
+            url: '{{ (index .Alerts 0).Annotations.dashboard_url }}'
+
+  # Slack - High Priority
+  - name: 'slack-high'
+    slack_configs:
+      - channel: '#alerts-high'
+        send_resolved: true
+        title: '{{ template "slack.title" . }}'
+        text: '{{ template "slack.text" . }}'
+        color: '#FFA500'
+
+  # Slack - Warning
+  - name: 'slack-warning'
+    slack_configs:
+      - channel: '#alerts-warning'
+        send_resolved: true
+        title: '{{ template "slack.title" . }}'
+        text: '{{ template "slack.text" . }}'
+        color: '#FFFF00'
+
+  # Email - Critical
+  - name: 'email-critical'
+    email_configs:
+      - to: 'admin@7zi.studio,ops@7zi.studio'
+        send_resolved: true
+        html: '{{ template "email.html" . }}'
+        headers:
+          Subject: '[CRITICAL] {{ .GroupLabels.alertname }}'
+          X-Priority: '1'
+
+  # Email - High Priority
+  - name: 'email-high'
+    email_configs:
+      - to: 'admin@7zi.studio'
+        send_resolved: true
+        html: '{{ template "email.html" . }}'
+        headers:
+          Subject: '[HIGH] {{ .GroupLabels.alertname }}'
+          X-Priority: '2'
+
+  # Email - Info (daily digest)
+  - name: 'email-info'
+    email_configs:
+      - to: 'dev@7zi.studio'
+        send_resolved: true
+        html: '{{ template "email.html" . }}'
+        headers:
+          Subject: '[INFO] {{ .GroupLabels.alertname }}'
+
+# Time-based muting (maintenance windows)
+mute_time_intervals:
+  - name: 'maintenance-window'
+    time_intervals:
+      - weekdays: ['sunday']
+        start_time: '02:00'
+        end_time: '04:00'
+        location: 'UTC'

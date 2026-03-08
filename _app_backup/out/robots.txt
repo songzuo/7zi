@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://7zi.com/sitemap.xml
+
+# 爬虫规则
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /

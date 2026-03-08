@@ -229,7 +229,10 @@ test.describe('表单无障碍测试', () => {
     await page.keyboard.press('Tab');
     
     // 应该聚焦到邮箱字段
-    const focusedElement = await page.evaluate(() => document.activeElement?.name || document.activeElement?.id);
+    const focusedElement = await page.evaluate(() => {
+      const el = document.activeElement as HTMLElement | null;
+      return (el as { name?: string })?.name || el?.id || '';
+    });
     expect(['email', 'company', 'subject', 'message']).toContain(focusedElement);
   });
 });

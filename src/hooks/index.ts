@@ -6,3 +6,4 @@ export {
   useAnimateOnView,
   useCountUp,
 } from './useIntersectionObserver';
+export { useDashboard, type UseDashboardReturn } from './useDashboard';

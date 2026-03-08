@@ -362,14 +362,8 @@ export const useDashboardStore = create<DashboardState>()(
         try {
           // 并行获取 Issues 和 Commits
           const [issuesData, commitsData] = await Promise.all([
-            fetchIssues(owner, repo, token).catch((err) => {
-              console.warn('Issues fetch failed:', err);
-              return [];
-            }),
-            fetchCommits(owner, repo, token).catch((err) => {
-              console.warn('Commits fetch failed:', err);
-              return [];
-            }),
+            fetchIssues(owner, repo, token),
+            fetchCommits(owner, repo, token),
           ]);
 
           // 合并活动

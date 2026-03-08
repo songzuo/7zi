@@ -1,0 +1,19 @@
+{
+  "extends": "lighthouse:default",
+  "settings": {
+    "throttlingMethod": "devtools",
+    "throttling": {
+      "rttMs": 150,
+      "throughputKbps": 1638.4,
+      "cpuSlowdownMultiplier": 2
+    },
+    "screenEmulation": {
+      "mobile": false,
+      "width": 1350,
+      "height": 940,
+      "deviceScaleFactor": 1
+    },
+    "formFactor": "desktop",
+    "onlyCategories": ["performance"]
+  }
+}

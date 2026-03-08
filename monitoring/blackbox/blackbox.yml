@@ -1,0 +1,82 @@
+# ============================================
+# Blackbox Exporter Configuration
+# HTTP, HTTPS, TCP, ICMP, DNS probing
+# ============================================
+
+modules:
+  # HTTP 2xx probe
+  http_2xx:
+    prober: http
+    timeout: 10s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+      valid_status_codes: [200, 201, 202, 203, 204, 205, 206, 207, 208, 226, 300, 301, 302, 303, 304, 305, 307, 308]
+      method: GET
+      follow_redirects: true
+      preferred_ip_protocol: "ip4"
+      ip_protocol_fallback: false
+
+  # HTTPS 2xx probe with TLS verification
+  https_2xx:
+    prober: http
+    timeout: 10s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+      valid_status_codes: [200, 201, 202, 203, 204, 205, 206, 207, 208, 226, 300, 301, 302, 303, 304, 305, 307, 308]
+      method: GET
+      follow_redirects: true
+      tls_config:
+        insecure_skip_verify: false
+      preferred_ip_protocol: "ip4"
+
+  # SSL certificate check
+  ssl_cert:
+    prober: tcp
+    timeout: 10s
+    tcp:
+      tls: true
+      tls_config:
+        insecure_skip_verify: false
+
+  # TCP connection probe
+  tcp_connect:
+    prober: tcp
+    timeout: 10s
+
+  # ICMP ping
+  icmp:
+    prober: icmp
+    timeout: 10s
+    icmp:
+      preferred_ip_protocol: "ip4"
+
+  # DNS resolution check
+  dns_check:
+    prober: dns
+    timeout: 10s
+    dns:
+      preferred_ip_protocol: "ip4"
+      query_name: "7zi.studio"
+      query_type: "A"
+      valid_rcodes:
+        - NOERROR
+
+  # HTTP POST probe
+  http_post:
+    prober: http
+    timeout: 10s
+    http:
+      method: POST
+      headers:
+        Content-Type: application/json
+      valid_status_codes: [200, 201, 202, 204]
+
+  # API health check
+  api_health:
+    prober: http
+    timeout: 5s
+    http:
+      method: GET
+      valid_status_codes: [200]
+      fail_if_body_not_matches_regexp:
+        - '"status":\\s*"ok"'

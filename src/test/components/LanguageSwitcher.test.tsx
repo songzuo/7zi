@@ -2,8 +2,9 @@
  * @fileoverview LanguageSwitcher 组件测试
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { LanguageSwitcher, LanguageSwitcherCompact } from '../../components/LanguageSwitcher';
+import { useLocale } from 'next-intl';
 
 // Mock next-intl
 vi.mock('next-intl', () => ({
@@ -33,12 +34,11 @@ describe('LanguageSwitcher', () => {
     render(<LanguageSwitcher />);
 
     // Current locale is zh, so should show zh flag and name in the button
-    // getAllByText because dropdown also contains the same flag
-    const zhFlags = screen.getAllByText('🇨🇳');
-    const zhTexts = screen.getAllByText('中文');
+    const zhFlag = screen.getByText('🇨🇳');
+    const zhText = screen.getByText('中文');
     
-    expect(zhFlags.length).toBeGreaterThan(0);
-    expect(zhTexts.length).toBeGreaterThan(0);
+    expect(zhFlag).toBeInTheDocument();
+    expect(zhText).toBeInTheDocument();
   });
 
   it('renders dropdown arrow icon', () => {
@@ -61,31 +61,36 @@ describe('LanguageSwitcher', () => {
     expect(container.firstChild).toHaveClass('custom-class');
   });
 
-  it('has hover group for dropdown', () => {
-    const { container } = render(<LanguageSwitcher />);
-
-    const wrapper = container.firstChild;
-    expect(wrapper).toHaveClass('group');
-  });
-
-  it('shows both language options', () => {
+  it('shows both language options when dropdown is open', async () => {
     render(<LanguageSwitcher />);
 
-    // Both flags should be in the document (button + dropdown)
-    const zhFlags = screen.getAllByText('🇨🇳');
-    const usFlags = screen.getAllByText('🇺🇸');
-    
-    expect(zhFlags.length).toBeGreaterThan(0);
-    expect(usFlags.length).toBeGreaterThan(0);
-    expect(screen.getByText('English')).toBeInTheDocument();
+    // Click to open dropdown
+    const button = screen.getByRole('button', { name: 'Switch language' });
+    fireEvent.click(button);
+
+    // Wait for dropdown to appear
+    await waitFor(() => {
+      expect(screen.getByText('🇺🇸')).toBeInTheDocument();
+      expect(screen.getByText('English')).toBeInTheDocument();
+    }, { timeout: 5000 });
+
+    // Both flags should be in the document (current in button + other in dropdown)
+    expect(screen.getByText('🇨🇳')).toBeInTheDocument();
+    expect(screen.getByText('🇺🇸')).toBeInTheDocument();
   });
 
-  it('shows checkmark for current locale', () => {
-    const { container } = render(<LanguageSwitcher />);
+  it('shows checkmark for current locale in dropdown', async () => {
+    render(<LanguageSwitcher />);
 
-    // Find the checkmark SVG (there are two SVGs: arrow and checkmark)
-    const svgs = container.querySelectorAll('svg');
-    expect(svgs.length).toBeGreaterThanOrEqual(2);
+    // Open dropdown
+    const button = screen.getByRole('button', { name: 'Switch language' });
+    fireEvent.click(button);
+
+    // Wait for dropdown and check for checkmark SVG
+    await waitFor(() => {
+      const checkmark = screen.getByLabelText('Switch language').closest('div')?.querySelector('svg');
+      expect(checkmark).toBeInTheDocument();
+    }, { timeout: 5000 });
   });
 
   it('has correct button styling', () => {
@@ -95,6 +100,52 @@ describe('LanguageSwitcher', () => {
     expect(button).toHaveClass('flex');
     expect(button).toHaveClass('items-center');
     expect(button).toHaveClass('gap-2');
+  });
+
+  it('switches locale when option clicked', async () => {
+    render(<LanguageSwitcher />);
+
+    // Open dropdown
+    const button = screen.getByRole('button', { name: 'Switch language' });
+    fireEvent.click(button);
+
+    // Click English option
+    await waitFor(() => {
+      const englishOption = screen.getByText('English').closest('button');
+      if (englishOption) {
+        fireEvent.click(englishOption);
+      }
+    }, { timeout: 5000 });
+
+    // Verify router.replace was called
+    expect(mockReplace).toHaveBeenCalledWith('/test-path', { locale: 'en' });
+  });
+
+  it('closes dropdown on outside click', async () => {
+    render(
+      <div>
+        <LanguageSwitcher />
+        <div data-testid="outside">Outside</div>
+      </div>
+    );
+
+    // Open dropdown
+    const button = screen.getByRole('button', { name: 'Switch language' });
+    fireEvent.click(button);
+
+    // Wait for dropdown to open
+    await waitFor(() => {
+      expect(screen.getByText('English')).toBeInTheDocument();
+    }, { timeout: 5000 });
+
+    // Click outside
+    const outside = screen.getByTestId('outside');
+    fireEvent.mouseDown(outside);
+
+    // Dropdown should close
+    await waitFor(() => {
+      expect(screen.queryByText('English')).not.toBeInTheDocument();
+    }, { timeout: 5000 });
   });
 });
 
@@ -162,5 +213,17 @@ describe('LanguageSwitcherCompact', () => {
     expect(button).toHaveClass('w-10');
     expect(button).toHaveClass('h-10');
     expect(button).toHaveClass('justify-center');
+  });
+
+  it('toggles to Chinese when current locale is English', () => {
+    // Mock English locale
+    vi.mocked(useLocale).mockReturnValue('en');
+    
+    render(<LanguageSwitcherCompact />);
+    
+    const button = screen.getByRole('button');
+    expect(button).toHaveAttribute('aria-label', '切换到中文');
+    expect(button).toHaveAttribute('title', '切换到中文');
+    expect(screen.getByText('🇨🇳')).toBeInTheDocument();
   });
 });

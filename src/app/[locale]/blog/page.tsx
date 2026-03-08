@@ -1,4 +1,4 @@
-import { setRequestLocale, getTranslations } from "next-intl/server";
+import { setRequestLocale } from "next-intl/server";
 import { Locale, locales } from "@/i18n/config";
 import { Link } from "@/i18n/routing";
 import type { Metadata } from "next";

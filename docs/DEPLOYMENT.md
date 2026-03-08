@@ -274,8 +274,221 @@ ls -la /opt/backups/
 4. **定期备份**：备份会自动保留最近 5 个版本
 5. **更新依赖**：定期更新 npm 依赖
 
+## 🔍 高级故障排查
+
+### 内存泄漏排查
+
+```bash
+# 监控容器内存使用
+docker stats 7zi-frontend --no-stream
+
+# 查看 Node.js 堆内存
+docker exec 7zi-frontend node --inspect=0.0.0.0:9229
+
+# 分析内存快照
+# 访问 chrome://inspect 连接调试器
+```
+
+### 性能问题诊断
+
+```bash
+# 检查 CPU 使用
+docker stats 7zi-frontend --no-stream --format "table {{.CPUPerc}}\t{{.MemUsage}}"
+
+# 查看 Next.js 构建分析
+npm run build:analyze
+
+# 检查慢查询
+docker logs 7zi-frontend | grep "slow query"
+```
+
+### 网络连接问题
+
+```bash
+# 测试容器网络
+docker exec 7zi-frontend curl -I http://localhost:3000/
+
+# 检查 DNS 解析
+docker exec 7zi-frontend nslookup api.example.com
+
+# 查看网络统计
+docker exec 7zi-frontend netstat -tulpn
+```
+
+### 日志分析技巧
+
+```bash
+# 实时查看错误日志
+docker logs 7zi-frontend --tail 100 --follow | grep -i error
+
+# 按时间过滤
+docker logs 7zi-frontend --since 2026-03-08T10:00:00 --until 2026-03-08T12:00:00
+
+# 导出日志到文件
+docker logs 7zi-frontend > app-logs-$(date +%Y%m%d).log 2>&1
+
+# 使用 jq 分析 JSON 日志
+docker logs 7zi-frontend 2>&1 | jq 'select(.level == "error")'
+```
+
+---
+
+## 📈 性能优化建议
+
+### 1. Docker 层优化
+
+```dockerfile
+# 使用多阶段构建
+FROM node:22-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .
+RUN npm run build
+
+FROM node:22-alpine AS runner
+WORKDIR /app
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
+```
+
+### 2. Next.js 优化
+
+```ts
+// next.config.ts
+const nextConfig = {
+  // 启用静态导出
+  output: 'standalone',
+  
+  // 图片优化
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200],
+  },
+  
+  // 压缩
+  compress: true,
+  
+  // 缓存配置
+  experimental: {
+    optimizePackageImports: ['chart.js', 'three'],
+  },
+};
+```
+
+### 3. Nginx 缓存配置
+
+```nginx
+# nginx.conf
+location /_next/static {
+    expires 365d;
+    access_log off;
+    add_header Cache-Control "public, immutable";
+}
+
+location /images {
+    expires 30d;
+    add_header Cache-Control "public";
+}
+```
+
+### 4. 数据库连接池
+
+```ts
+// 使用连接池管理
+const pool = new Pool({
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
+});
+```
+
+---
+
+## 🚨 应急响应流程
+
+### 服务中断处理
+
+```
+1. 确认问题范围
+   └─→ 检查健康检查端点
+   └─→ 查看错误日志
+   └─→ 监控告警通知
+
+2. 快速恢复
+   └─→ 重启服务：./deploy-remote.sh restart
+   └─→ 回滚版本：./deploy-remote.sh rollback
+   └─→ 切换备用服务器
+
+3. 问题定位
+   └─→ 分析日志
+   └─→ 检查最近变更
+   └─→ 复现问题
+
+4. 修复验证
+   └─→ 开发环境测试
+   └─→ 预发布环境验证
+   └─→ 生产环境部署
+
+5. 事后总结
+   └─→ 编写事故报告
+   └─→ 更新监控规则
+   └─→ 优化应急预案
+```
+
+### 联系人列表
+
+| 角色 | 联系方式 | 职责 |
+|------|----------|------|
+| 系统管理员 | @sysadmin | 服务器运维、故障处理 |
+| 架构师 | @architect | 技术方案、架构调整 |
+| 开发者 | @executor | 代码修复、功能开发 |
+
+---
+
+## 📊 监控指标
+
+### 关键指标 (KPI)
+
+| 指标 | 目标值 | 告警阈值 |
+|------|--------|----------|
+| 响应时间 (P95) | < 500ms | > 1000ms |
+| 错误率 | < 0.1% | > 1% |
+| 可用性 | > 99.9% | < 99% |
+| CPU 使用率 | < 70% | > 90% |
+| 内存使用率 | < 80% | > 95% |
+
+### Prometheus 指标
+
+```promql
+# 请求速率
+rate(http_requests_total[5m])
+
+# 错误率
+rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m])
+
+# 响应时间
+histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))
+
+# 容器资源
+container_memory_usage_bytes{name="7zi-frontend"}
+container_cpu_usage_seconds_total{name="7zi-frontend"}
+```
+
+---
+
 ## 📝 更新日志
 
-- 2024-03-06: 创建部署方案
+### v1.1.0 (2026-03-08)
+- 添加高级故障排查章节
+- 添加性能优化建议
+- 添加应急响应流程
+- 添加监控指标说明
+
+### v1.0.0 (2024-03-06)
+- 创建部署方案
+- 包含完整的 CI/CD 流水线
+- 支持远程部署和自动部署
 - 包含完整的 CI/CD 流水线
 - 支持远程部署和自动部署

@@ -1,0 +1,380 @@
+{
+  "timestamp": "2026-03-08T16:47:53.903Z",
+  "buildSize": {
+    "static/chunks": {
+      "size": 2681044,
+      "formatted": "2.56 MB",
+      "description": "JavaScript 代码块"
+    },
+    "server": {
+      "size": 19041485,
+      "formatted": "18.16 MB",
+      "description": "服务端代码"
+    },
+    "standalone": {
+      "size": 74573911,
+      "formatted": "71.12 MB",
+      "description": "独立部署包"
+    },
+    "total": {
+      "size": 96296440,
+      "formatted": "91.84 MB"
+    }
+  },
+  "chunks": [
+    {
+      "file": "bfc06aac20d0c6d8.js",
+      "size": 1027013,
+      "formatted": "1002.94 KB",
+      "gzipSize": 282140,
+      "gzipFormatted": "275.53 KB",
+      "ratio": "27.5%"
+    },
+    {
+      "file": "69be39811437728d.js",
+      "size": 223454,
+      "formatted": "218.22 KB",
+      "gzipSize": 69851,
+      "gzipFormatted": "68.21 KB",
+      "ratio": "31.3%"
+    },
+    {
+      "file": "308176feefada818.js",
+      "size": 210774,
+      "formatted": "205.83 KB",
+      "gzipSize": 72117,
+      "gzipFormatted": "70.43 KB",
+      "ratio": "34.2%"
+    },
+    {
+      "file": "a8caf86c79dc84cd.js",
+      "size": 118571,
+      "formatted": "115.79 KB",
+      "gzipSize": 32093,
+      "gzipFormatted": "31.34 KB",
+      "ratio": "27.1%"
+    },
+    {
+      "file": "a6dad97d9634a72d.js",
+      "size": 112594,
+      "formatted": "109.96 KB",
+      "gzipSize": 39627,
+      "gzipFormatted": "38.7 KB",
+      "ratio": "35.2%"
+    },
+    {
+      "file": "6cc94076e7a4f06e.js",
+      "size": 44015,
+      "formatted": "42.98 KB",
+      "gzipSize": 14998,
+      "gzipFormatted": "14.65 KB",
+      "ratio": "34.1%"
+    },
+    {
+      "file": "be17de48ae51f604.js",
+      "size": 43081,
+      "formatted": "42.07 KB",
+      "gzipSize": 14854,
+      "gzipFormatted": "14.51 KB",
+      "ratio": "34.5%"
+    },
+    {
+      "file": "51ddee8f1e24f7fa.js",
+      "size": 41031,
+      "formatted": "40.07 KB",
+      "gzipSize": 12243,
+      "gzipFormatted": "11.96 KB",
+      "ratio": "29.8%"
+    },
+    {
+      "file": "2dc1e3ccac364550.js",
+      "size": 35959,
+      "formatted": "35.12 KB",
+      "gzipSize": 11834,
+      "gzipFormatted": "11.56 KB",
+      "ratio": "32.9%"
+    },
+    {
+      "file": "6065056de7651adc.js",
+      "size": 35603,
+      "formatted": "34.77 KB",
+      "gzipSize": 12257,
+      "gzipFormatted": "11.97 KB",
+      "ratio": "34.4%"
+    },
+    {
+      "file": "294e948084f04293.js",
+      "size": 34686,
+      "formatted": "33.87 KB",
+      "gzipSize": 11972,
+      "gzipFormatted": "11.69 KB",
+      "ratio": "34.5%"
+    },
+    {
+      "file": "9d535162ff3dd061.js",
+      "size": 34686,
+      "formatted": "33.87 KB",
+      "gzipSize": 11969,
+      "gzipFormatted": "11.69 KB",
+      "ratio": "34.5%"
+    },
+    {
+      "file": "fdd158e3a496ea16.js",
+      "size": 33061,
+      "formatted": "32.29 KB",
+      "gzipSize": 11032,
+      "gzipFormatted": "10.77 KB",
+      "ratio": "33.4%"
+    },
+    {
+      "file": "f091501564eb2ea3.js",
+      "size": 32831,
+      "formatted": "32.06 KB",
+      "gzipSize": 7211,
+      "gzipFormatted": "7.04 KB",
+      "ratio": "22.0%"
+    },
+    {
+      "file": "d2be314c3ece3fbe.js",
+      "size": 30681,
+      "formatted": "29.96 KB",
+      "gzipSize": 7437,
+      "gzipFormatted": "7.26 KB",
+      "ratio": "24.2%"
+    },
+    {
+      "file": "1c80b8ea5f54aabc.js",
+      "size": 29087,
+      "formatted": "28.41 KB",
+      "gzipSize": 9080,
+      "gzipFormatted": "8.87 KB",
+      "ratio": "31.2%"
+    },
+    {
+      "file": "919ff07220760ddb.js",
+      "size": 27097,
+      "formatted": "26.46 KB",
+      "gzipSize": 9353,
+      "gzipFormatted": "9.13 KB",
+      "ratio": "34.5%"
+    },
+    {
+      "file": "81854f56cbe6b93d.js",
+      "size": 25735,
+      "formatted": "25.13 KB",
+      "gzipSize": 8999,
+      "gzipFormatted": "8.79 KB",
+      "ratio": "35.0%"
+    },
+    {
+      "file": "e0e98ad486d476c6.js",
+      "size": 25087,
+      "formatted": "24.5 KB",
+      "gzipSize": 7782,
+      "gzipFormatted": "7.6 KB",
+      "ratio": "31.0%"
+    },
+    {
+      "file": "e76da442dd05f4bc.js",
+      "size": 23080,
+      "formatted": "22.54 KB",
+      "gzipSize": 8062,
+      "gzipFormatted": "7.87 KB",
+      "ratio": "34.9%"
+    },
+    {
+      "file": "bdcb9d899246505c.js",
+      "size": 22769,
+      "formatted": "22.24 KB",
+      "gzipSize": 5929,
+      "gzipFormatted": "5.79 KB",
+      "ratio": "26.0%"
+    },
+    {
+      "file": "9d8d63f12ad6b932.js",
+      "size": 22146,
+      "formatted": "21.63 KB",
+      "gzipSize": 7893,
+      "gzipFormatted": "7.71 KB",
+      "ratio": "35.6%"
+    },
+    {
+      "file": "3c297248f98abb02.js",
+      "size": 21108,
+      "formatted": "20.61 KB",
+      "gzipSize": 7252,
+      "gzipFormatted": "7.08 KB",
+      "ratio": "34.4%"
+    },
+    {
+      "file": "6d64cdbe28132dcc.js",
+      "size": 17505,
+      "formatted": "17.09 KB",
+      "gzipSize": 6764,
+      "gzipFormatted": "6.61 KB",
+      "ratio": "38.6%"
+    },
+    {
+      "file": "3f7025abe6d2815f.js",
+      "size": 16938,
+      "formatted": "16.54 KB",
+      "gzipSize": 3563,
+      "gzipFormatted": "3.48 KB",
+      "ratio": "21.0%"
+    },
+    {
+      "file": "d9cb304a567892e0.js",
+      "size": 15285,
+      "formatted": "14.93 KB",
+      "gzipSize": 5032,
+      "gzipFormatted": "4.91 KB",
+      "ratio": "32.9%"
+    },
+    {
+      "file": "db272036290362ac.js",
+      "size": 14173,
+      "formatted": "13.84 KB",
+      "gzipSize": 5227,
+      "gzipFormatted": "5.1 KB",
+      "ratio": "36.9%"
+    },
+    {
+      "file": "79238be86b041ecd.js",
+      "size": 12988,
+      "formatted": "12.68 KB",
+      "gzipSize": 5082,
+      "gzipFormatted": "4.96 KB",
+      "ratio": "39.1%"
+    },
+    {
+      "file": "turbopack-744d8626b7dd0d99.js",
+      "size": 10232,
+      "formatted": "9.99 KB",
+      "gzipSize": 4016,
+      "gzipFormatted": "3.92 KB",
+      "ratio": "39.2%"
+    },
+    {
+      "file": "111773b69cc7a7b1.js",
+      "size": 9447,
+      "formatted": "9.23 KB",
+      "gzipSize": 3069,
+      "gzipFormatted": "3 KB",
+      "ratio": "32.5%"
+    },
+    {
+      "file": "18f38dbeee9f54d3.js",
+      "size": 9101,
+      "formatted": "8.89 KB",
+      "gzipSize": 3565,
+      "gzipFormatted": "3.48 KB",
+      "ratio": "39.2%"
+    },
+    {
+      "file": "7b805dd3c002585f.js",
+      "size": 8371,
+      "formatted": "8.17 KB",
+      "gzipSize": 2801,
+      "gzipFormatted": "2.74 KB",
+      "ratio": "33.5%"
+    },
+    {
+      "file": "9ed46e550cd74afa.js",
+      "size": 7554,
+      "formatted": "7.38 KB",
+      "gzipSize": 2346,
+      "gzipFormatted": "2.29 KB",
+      "ratio": "31.1%"
+    },
+    {
+      "file": "4330611f9defdccc.js",
+      "size": 6886,
+      "formatted": "6.72 KB",
+      "gzipSize": 2381,
+      "gzipFormatted": "2.33 KB",
+      "ratio": "34.6%"
+    },
+    {
+      "file": "ddc8ffa0a9e1a6c6.js",
+      "size": 6811,
+      "formatted": "6.65 KB",
+      "gzipSize": 2396,
+      "gzipFormatted": "2.34 KB",
+      "ratio": "35.2%"
+    },
+    {
+      "file": "9da9c09167273db6.js",
+      "size": 6600,
+      "formatted": "6.45 KB",
+      "gzipSize": 2444,
+      "gzipFormatted": "2.39 KB",
+      "ratio": "37.0%"
+    },
+    {
+      "file": "43dcb15ff4582378.js",
+      "size": 6362,
+      "formatted": "6.21 KB",
+      "gzipSize": 2207,
+      "gzipFormatted": "2.16 KB",
+      "ratio": "34.7%"
+    },
+    {
+      "file": "3dd4de1b98632999.js",
+      "size": 5755,
+      "formatted": "5.62 KB",
+      "gzipSize": 1955,
+      "gzipFormatted": "1.91 KB",
+      "ratio": "34.0%"
+    },
+    {
+      "file": "023c4f7dffe41e69.js",
+      "size": 5638,
+      "formatted": "5.51 KB",
+      "gzipSize": 1920,
+      "gzipFormatted": "1.88 KB",
+      "ratio": "34.1%"
+    },
+    {
+      "file": "a2f27bb5157dc67d.js",
+      "size": 2729,
+      "formatted": "2.67 KB",
+      "gzipSize": 1309,
+      "gzipFormatted": "1.28 KB",
+      "ratio": "48.0%"
+    },
+    {
+      "file": "35f27340d6713a34.js",
+      "size": 485,
+      "formatted": "485 B",
+      "gzipSize": 336,
+      "gzipFormatted": "336 B",
+      "ratio": "69.3%"
+    },
+    {
+      "file": "106077215c424b2c.js",
+      "size": 293,
+      "formatted": "293 B",
+      "gzipSize": 240,
+      "gzipFormatted": "240 B",
+      "ratio": "81.9%"
+    },
+    {
+      "file": "ff1a16fafef87110.js",
+      "size": 282,
+      "formatted": "282 B",
+      "gzipSize": 224,
+      "gzipFormatted": "224 B",
+      "ratio": "79.4%"
+    }
+  ],
+  "recommendations": [
+    "发现 1 个大型代码块 (>500KB)，考虑代码分割或懒加载",
+    "13 个文件压缩率较低，检查是否包含未压缩的资源"
+  ],
+  "metrics": {
+    "totalChunks": 43,
+    "largeChunks": 1,
+    "avgChunkSize": "54.91 KB",
+    "avgCompressionRatio": "36.4%"
+  }
+}

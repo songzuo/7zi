@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { basicHealthCheck, detailedHealthCheck } from '@/lib/monitoring';
+import { basicHealthCheck } from '@/lib/monitoring';
 
 /**
  * GET /api/health

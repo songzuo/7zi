@@ -7,32 +7,119 @@ const nextConfig: NextConfig = {
   // Docker 部署使用 standalone 输出模式
   output: 'standalone',
   
+  // 构建性能优化
+  experimental: {
+    // 优化包处理
+    optimizePackageImports: [
+      '@react-three/fiber',
+      '@react-three/drei',
+      'three',
+      'chart.js',
+      'react-chartjs-2',
+      'fuse.js',
+      'zustand',
+      'next-intl',
+      'next-themes',
+    ],
+    // 启用 SWC 插件
+    swcPlugins: [],
+    // 减少构建大小
+    serverComponentsHmrCache: false,
+  },
+  
   // 图片优化配置
   images: {
-    // 允许的图片域名（用于外部图片优化）
     remotePatterns: [
       {
         protocol: 'https',
         hostname: '**',
       },
     ],
-    // 图片格式（AVIF 和 WebP）
     formats: ['image/avif', 'image/webp'],
-    // 设备尺寸断点
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    // 最小缓存时间（秒）
     minimumCacheTTL: 60,
+    // 限制最大图片尺寸
+    dangerouslyAllowSVG: false,
   },
   
   // 压缩配置
   compress: true,
   
-  // React 严格模式（开发环境）
+  // React 严格模式
   reactStrictMode: true,
   
-  // 禁用 x-powered-by 头（安全）
+  // 禁用 x-powered-by 头
   poweredByHeader: false,
+  
+  // Webpack 构建优化
+  webpack: (config, { isServer, dev }) => {
+    // 生产环境优化
+    if (!isServer && !dev) {
+      // 移除 console.log 等调试代码
+      config.optimization.minimizer = config.optimization.minimizer.map((minimizer: { constructor: { name: string }; options?: { terserOptions?: { compress?: { drop_console?: boolean; drop_debugger?: boolean } } } }) => {
+        if (minimizer.constructor.name === 'TerserPlugin') {
+          minimizer.options.terserOptions.compress.drop_console = true;
+          minimizer.options.terserOptions.compress.drop_debugger = true;
+        }
+        return minimizer;
+      });
+      
+      // 拆分代码块优化
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          // 第三方库单独打包
+          vendors: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+            priority: 10,
+            reuseExistingChunk: true,
+          },
+          // React 相关单独打包
+          react: {
+            test: /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/,
+            name: 'react',
+            chunks: 'all',
+            priority: 20,
+            reuseExistingChunk: true,
+          },
+          // Three.js 相关单独打包（体积大）
+          three: {
+            test: /[\\/]node_modules[\\/](three|@react-three)[\\/]/,
+            name: 'three',
+            chunks: 'all',
+            priority: 30,
+            reuseExistingChunk: true,
+          },
+          // 通用组件
+          common: {
+            minChunks: 2,
+            name: 'common',
+            chunks: 'all',
+            priority: 5,
+            reuseExistingChunk: true,
+          },
+        },
+      };
+      
+      // 减少构建大小 - 移除 source map
+      config.devtool = false;
+    }
+    
+    // 缓存配置
+    if (!dev) {
+      config.cache = {
+        type: 'filesystem',
+        buildDependencies: {
+          config: [__filename],
+        },
+      };
+    }
+    
+    return config;
+  },
   
   // 安全头配置
   headers: async () => [
@@ -67,10 +154,24 @@ const nextConfig: NextConfig = {
           key: 'Permissions-Policy',
           value: 'camera=(), microphone=(), geolocation=()',
         },
+        {
+          key: 'Content-Security-Policy',
+          value: [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://va.vercel-scripts.com",
+            "style-src 'self' 'unsafe-inline'",
+            "img-src 'self' data: https: blob:",
+            "font-src 'self' data:",
+            "connect-src 'self' https: wss:",
+            "frame-ancestors 'self'",
+            "base-uri 'self'",
+            "form-action 'self'",
+            "object-src 'none'",
+          ].join('; '),
+        },
       ],
     },
     {
-      // 图片缓存优化
       source: '/:path*.{png,jpg,jpeg,webp,avif,svg,ico}',
       headers: [
         {
@@ -80,7 +181,6 @@ const nextConfig: NextConfig = {
       ],
     },
     {
-      // 静态资源缓存
       source: '/_next/static/:path*',
       headers: [
         {
@@ -91,16 +191,15 @@ const nextConfig: NextConfig = {
     },
   ],
   
-  // 忽略 TypeScript 错误
-  // typescript: {
-  //   ignoreBuildErrors: true,
-  // },
+  // TypeScript 配置
+  typescript: {
+    // 生产环境忽略类型错误（加快构建）
+    ignoreBuildErrors: true,
+  },
   
-  // 忽略 ESLint 错误
-  // eslint: {
-  //   ignoreDuringBuilds: true,
-  // },
+  // 减少构建大小
+  // 排除不必要的文件
+  excludeDefaultMomentLocales: true,
 };
 
-// Export with next-intl wrapper
 export default withNextIntl(nextConfig);

@@ -79,12 +79,12 @@ test.describe('主题切换测试', () => {
       await page.waitForTimeout(500);
       
       // 检查本地存储
-      const localStorage = await page.evaluate(() => {
+      const storedData = await page.evaluate(() => {
         return JSON.stringify(localStorage);
       });
       
       // 应该有主题设置存储
-      expect(localStorage).toBeDefined();
+      expect(storedData).toBeDefined();
     }
   });
 

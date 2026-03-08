@@ -53,3 +53,8 @@ export interface NavItem {
   label: string;
   icon: string;
 }
+
+// Section component props
+export interface SectionProps {
+  isActive?: boolean;
+}
