@@ -3,7 +3,7 @@
  * 支持时间失效、标签失效、事件驱动失效
  */
 
-import type { CacheInvalidateOptions, TTL } from './types';
+import type { CacheInvalidateOptions } from './types';
 import { CacheManager, getCacheManager } from './cache-manager';
 
 export interface InvalidationRule {

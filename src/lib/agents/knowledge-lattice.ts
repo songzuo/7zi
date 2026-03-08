@@ -309,7 +309,7 @@ export class KnowledgeLattice extends EventEmitter {
   findNearestNeighbors(
     nodeId: string,
     count: number = 5,
-    edgeType?: RelationType
+    _edgeType?: RelationType
   ): { node: LatticeNode; distance: number }[] {
     const node = this.getNode(nodeId);
     if (!node) return [];

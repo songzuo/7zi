@@ -188,9 +188,9 @@ export function createApiSecurityMiddleware() {
 /**
  * 请求日志记录
  */
-export function logRequest(req: NextRequest, response: NextResponse): void {
+export function logRequest(req: NextRequest, _response: NextResponse): void {
   const forwardedFor = req.headers.get('x-forwarded-for');
-  const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : req.headers.get('x-real-ip') || 'unknown';
+  const _ip = forwardedFor ? forwardedFor.split(',')[0].trim() : req.headers.get('x-real-ip') || 'unknown';
 
   // Note: In production, integrate with proper logging system (e.g., winston, pino)
   // via lib/logger or monitoring service
