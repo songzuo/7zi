@@ -1,0 +1,41 @@
+{
+  "timestamp": "2026-03-08T17:42:11.001Z",
+  "pagePerformance": {
+    "timestamp": "2026-03-08T17:42:03.798Z",
+    "url": "http://localhost:3000",
+    "metrics": {
+      "ttfb": 65.19999992847443,
+      "domContentLoaded": 890,
+      "domInteractive": 890,
+      "fcp": 804,
+      "lcp": 0,
+      "loadTime": 891,
+      "totalLoadTime": 898
+    },
+    "resources": {
+      "total": 21,
+      "js": 17,
+      "css": 2,
+      "images": 0,
+      "totalTransferSize": 5700,
+      "totalEncodedSize": 0
+    }
+  },
+  "apiPerformance": {
+    "/api/tasks": {
+      "status": 200,
+      "responseTime": 346,
+      "size": 0
+    },
+    "/api/projects": {
+      "status": 404,
+      "responseTime": 16,
+      "size": 0
+    },
+    "/api/logs": {
+      "status": 200,
+      "responseTime": 21,
+      "size": 0
+    }
+  }
+}

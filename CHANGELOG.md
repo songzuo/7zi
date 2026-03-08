@@ -8,39 +8,93 @@
 
 ---
 
-## [未发布]
+## [0.2.0] - 2026-03-08
 
 ### Added
-- Portfolio 项目展示模块
+- **Portfolio 项目展示模块**
   - 项目卡片组件
   - 分类过滤功能
   - SEO 优化的详情页
-- Tasks AI 智能分配系统
+  - 6 个示例项目（AI 分析仪表板、移动电商平台、区块链供应链等）
+- **Tasks AI 智能分配系统**
   - AI 驱动的任务分配算法
   - 任务优先级管理
   - 工作负载均衡
-- 实时 Dashboard 任务追踪功能
+  - 任务详情页面
+- **Knowledge Lattice 知识图谱系统**
+  - `/api/knowledge/*` 完整 API 端点
+  - 知识节点和边管理
+  - 推理查询功能
+  - 可视化展示页面 `/knowledge-lattice`
+- **实时 Dashboard 任务追踪功能**
+  - 任务状态实时更新
+  - 团队工作量可视化
+  - 图表数据展示
+- **PWA 支持**
+  - Service Worker 注册
+  - 离线缓存策略
+  - 安装提示组件
+- **监控系统**
+  - Prometheus 指标收集
+  - 告警规则配置
+  - 错误追踪和日志记录
+- **测试覆盖扩展**
+  - 组件单元测试
+  - E2E 关键路径测试
+  - 用户流程测试
 
 ### Changed
 - **UserSettingsPage 重构**: 713 行 → 160 行 (精简 77.6%)
-- Dashboard 组件拆分与性能优化
-- AboutContent 代码结构优化
-- 依赖升级:
+  - 拆分为独立子组件（AccountSettings, GeneralSettings 等）
+  - 提取自定义 hooks
+  - 改进类型定义和验证逻辑
+- **Dashboard 组件拆分与性能优化**
+  - 使用 Zustand 状态管理
+  - 懒加载优化
+  - 数据缓存策略
+- **AboutContent 代码结构优化**
+- **首页重构**
+  - 添加 Hero 区域
+  - 优化服务展示
+  - 改进呼叫行动按钮
+- **依赖升级**:
   - ESLint v9 → v10
   - web-vitals v4 → v5
   - @types/node v24 → v25
+  - Playwright v1.58.2
+  - Vitest v4.0.18
+- **Docker 配置优化**
+  - 多阶段构建
+  - Nginx 配置优化
+  - 生产环境变量管理
 
 ### Fixed
 - 修复 ClientProviders 和 layout 问题
 - 修复 i18n locale layout 嵌套 HTML 问题
 - 实现 i18n 隐式重定向，解决 /zh 页面混乱问题
 - 修复所有测试失败
+- 修复 TypeScript 类型检查错误
+- 修复 ESLint 代码规范问题
+
+### Removed
+- 移除 Sentry 配置文件（未使用）
+- 清理测试产物和临时文件
 
 ### Documentation
 - 完善 API 参考文档 (docs/API_REFERENCE.md)
 - 更新 README.md 技术栈版本
 - 更新 FEATURES.md 新功能文档
 - 整理项目文档结构和命名规范
+- 新增文档:
+  - docs/USER_GUIDE.md - 用户使用指南
+  - docs/TESTING_GUIDE.md - 测试指南
+  - docs/COMPONENTS.md - 组件文档
+  - docs/DEPLOYMENT.md - 部署指南
+  - docs/DOCUMENTATION_GUIDE.md - 文档维护指南
+  - docs/KNOWLEDGE_LATTICE.md - 知识图谱文档
+  - docs/AGENT_COLLABORATION_FRAMEWORK.md - AI 团队协作框架
+  - MONITORING_QUICKSTART.md - 监控快速入门
+  - SECURITY_AUDIT_REPORT.md - 安全审计报告
 
 ---
 

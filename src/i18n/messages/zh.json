@@ -13,7 +13,8 @@
     "blog": "博客",
     "dashboard": "Dashboard",
     "contact": "联系我们",
-    "global": "7zi 环球通"
+    "global": "7zi 环球通",
+    "settings": "设置"
   },
   "home": {
     "title": "首页 - AI 驱动的创新数字工作室",
@@ -422,6 +423,63 @@
   "dashboard": {
     "title": "Dashboard",
     "description": "项目仪表盘 - 查看项目进度和数据"
+  },
+  "settings": {
+    "title": "设置",
+    "description": "管理您的个人设置和偏好",
+    "hero": {
+      "title": "设置",
+      "description": "自定义您的使用体验"
+    },
+    "sections": {
+      "appearance": {
+        "title": "外观",
+        "description": "自定义界面外观和主题"
+      },
+      "language": {
+        "title": "语言",
+        "description": "选择您偏好的语言"
+      },
+      "notifications": {
+        "title": "通知",
+        "description": "管理通知偏好设置"
+      }
+    },
+    "theme": {
+      "label": "主题",
+      "light": "浅色",
+      "dark": "深色",
+      "system": "跟随系统",
+      "preview": "主题预览"
+    },
+    "language": {
+      "label": "界面语言",
+      "zh": "中文",
+      "en": "English"
+    },
+    "notifications": {
+      "enabled": {
+        "label": "启用通知",
+        "description": "接收系统通知和更新"
+      },
+      "sound": {
+        "label": "提示音",
+        "description": "播放通知提示音"
+      },
+      "email": {
+        "label": "邮件通知",
+        "description": "通过邮件接收重要通知"
+      },
+      "push": {
+        "label": "推送通知",
+        "description": "接收浏览器推送通知"
+      }
+    },
+    "actions": {
+      "reset": "重置设置",
+      "save": "保存设置",
+      "saved": "设置已保存"
+    }
   },
   "footer": {
     "copyright": "© 2024 7zi Studio. All rights reserved."

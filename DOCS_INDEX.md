@@ -9,6 +9,7 @@
 | 文档 | 用途 | 适合读者 |
 |------|------|----------|
 | [README.md](./README.md) | 项目介绍与快速开始 | 所有人 |
+| [CHANGELOG.md](./CHANGELOG.md) | **📋 变更日志** | 所有人 |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | 技术架构说明 | 开发者、架构师 |
 | [PROJECT_STATUS.md](./PROJECT_STATUS.md) | 当前项目状态 | 开发者、管理者 |
 | [NEXT_FEATURES.md](./NEXT_FEATURES.md) | 功能规划与路线图 | 产品、开发团队 |
@@ -20,6 +21,7 @@
 | [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) | **🚀 部署指南** | 系统管理员 |
 | [docs/QUICK_REFERENCE.md](./docs/QUICK_REFERENCE.md) | **⚡ 快速参考** | 所有人 |
 | [docs/DOCUMENTATION_GUIDE.md](./docs/DOCUMENTATION_GUIDE.md) | **📝 文档规范** | 开发者 |
+| [docs/DOCUMENTATION_SYNC_SUMMARY.md](./docs/DOCUMENTATION_SYNC_SUMMARY.md) | **📊 文档同步摘要** | 所有人 |
 
 ---
 
@@ -29,6 +31,7 @@
 7zi-frontend/
 ├── 📄 核心文档
 │   ├── README.md                    # 项目介绍
+│   ├── CHANGELOG.md                 # 变更日志 ⭐ 新增
 │   ├── ARCHITECTURE.md              # 技术架构说明
 │   ├── PROJECT_STATUS.md            # 项目状态报告
 │   ├── NEXT_FEATURES.md             # 功能规划
@@ -51,6 +54,10 @@
 │   └── SEO-OPTIMIZATION-SUMMARY.md  # SEO 优化总结
 │
 └── 📁 docs/ (详细文档)
+    ├── 📊 文档同步
+    │   ├── DOCUMENTATION_SYNC_SUMMARY.md  # 文档同步摘要 ⭐ 新增
+    │   └── DOCUMENTATION_GUIDE.md         # 文档维护指南
+    │
     ├── 📘 使用指南
     │   ├── USER_GUIDE.md            # 用户使用指南 ⭐ 新增
     │   └── API_REFERENCE.md         # API 参考文档 ⭐ 新增

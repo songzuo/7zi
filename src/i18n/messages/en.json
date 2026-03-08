@@ -13,7 +13,8 @@
     "blog": "Blog",
     "dashboard": "Dashboard",
     "contact": "Contact",
-    "global": "7zi Global"
+    "global": "7zi Global",
+    "settings": "Settings"
   },
   "home": {
     "title": "Home - AI-Powered Digital Innovation Studio",
@@ -422,6 +423,63 @@
   "dashboard": {
     "title": "Dashboard",
     "description": "Project Dashboard - View project progress and data"
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Manage your personal settings and preferences",
+    "hero": {
+      "title": "Settings",
+      "description": "Customize your experience"
+    },
+    "sections": {
+      "appearance": {
+        "title": "Appearance",
+        "description": "Customize interface appearance and theme"
+      },
+      "language": {
+        "title": "Language",
+        "description": "Select your preferred language"
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Manage notification preferences"
+      }
+    },
+    "theme": {
+      "label": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System",
+      "preview": "Theme Preview"
+    },
+    "language": {
+      "label": "Interface Language",
+      "zh": "中文",
+      "en": "English"
+    },
+    "notifications": {
+      "enabled": {
+        "label": "Enable Notifications",
+        "description": "Receive system notifications and updates"
+      },
+      "sound": {
+        "label": "Sound",
+        "description": "Play notification sounds"
+      },
+      "email": {
+        "label": "Email Notifications",
+        "description": "Receive important notifications via email"
+      },
+      "push": {
+        "label": "Push Notifications",
+        "description": "Receive browser push notifications"
+      }
+    },
+    "actions": {
+      "reset": "Reset Settings",
+      "save": "Save Settings",
+      "saved": "Settings Saved"
+    }
   },
   "footer": {
     "copyright": "© 2024 7zi Studio. All rights reserved."

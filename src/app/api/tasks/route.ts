@@ -1,13 +1,20 @@
-import { NextRequest } from 'next/server';
+/**
+ * 任务管理 API
+ * 带认证和 CSRF 保护
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
 import { Task, TaskStatus, TaskType } from '@/lib/types/task-types';
 import { v4 as uuidv4 } from 'uuid';
+import { verifyToken, extractToken, isAdmin } from '@/lib/security/auth';
+import { createCsrfMiddleware } from '@/lib/security/csrf';
 
 // In-memory storage for tasks (in production, this would be a database)
 const tasks: Task[] = [
   {
     id: 'task-001',
     title: '分析市场趋势',
-    description: '研究当前AI代理市场的趋势和竞争对手',
+    description: '研究当前 AI 代理市场的趋势和竞争对手',
     type: 'research',
     priority: 'high',
     status: 'completed',
@@ -61,6 +68,10 @@ const tasks: Task[] = [
   }
 ];
 
+// ============================================
+// GET /api/tasks - 获取任务列表
+// ============================================
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const status = searchParams.get('status') as TaskStatus | null;
@@ -81,13 +92,45 @@ export async function GET(request: NextRequest) {
     filteredTasks = filteredTasks.filter(task => task.assignee === assignee);
   }
 
-  return Response.json(filteredTasks);
+  return NextResponse.json(filteredTasks);
 }
+
+// ============================================
+// POST /api/tasks - 创建任务
+// ============================================
 
 export async function POST(request: NextRequest) {
   try {
+    // CSRF 保护检查
+    const csrfMiddleware = createCsrfMiddleware();
+    const csrfResult = await csrfMiddleware(request);
+    if (csrfResult) {
+      return csrfResult;
+    }
+
+    // 认证检查 (可选 - 根据需求决定是否要求登录)
+    const token = extractToken(request);
+    let userId = 'anonymous';
+    let userRole = 'user';
+    
+    if (token) {
+      const payload = await verifyToken(token);
+      if (payload) {
+        userId = payload.sub;
+        userRole = payload.role;
+      }
+    }
+
     const body = await request.json();
     
+    // 输入验证
+    if (!body.title || typeof body.title !== 'string') {
+      return NextResponse.json(
+        { error: 'Task title is required and must be a string' },
+        { status: 400 }
+      );
+    }
+
     const newTask: Task = {
       id: `task-${uuidv4().split('-')[0]}`,
       title: body.title,
@@ -96,52 +139,95 @@ export async function POST(request: NextRequest) {
       priority: body.priority || 'medium',
       status: 'pending',
       assignee: body.assignee || undefined,
-      createdBy: 'user',
+      createdBy: userId,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       comments: [],
       history: [{
         timestamp: new Date().toISOString(),
         status: 'pending',
-        changedBy: 'user'
+        changedBy: userId
       }]
     };
 
     tasks.push(newTask);
 
-    // If an assignee is specified, update their status
-    if (newTask.assignee) {
-      // This would normally call the dashboard store
-    }
+    console.log('[Audit] Task created:', {
+      taskId: newTask.id,
+      createdBy: userId,
+      userRole,
+      timestamp: new Date().toISOString(),
+    });
 
-    return Response.json(newTask, { status: 201 });
+    return NextResponse.json(newTask, { status: 201 });
   } catch (error) {
     console.error('Error creating task:', error);
-    return Response.json({ error: 'Failed to create task' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'Failed to create task', message: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 400 }
+    );
   }
 }
 
+// ============================================
+// PUT /api/tasks - 更新任务
+// ============================================
+
 export async function PUT(request: NextRequest) {
   try {
+    // CSRF 保护检查
+    const csrfMiddleware = createCsrfMiddleware();
+    const csrfResult = await csrfMiddleware(request);
+    if (csrfResult) {
+      return csrfResult;
+    }
+
+    // 认证检查
+    const token = extractToken(request);
+    let userId = 'anonymous';
+    let userRole = 'user';
+    
+    if (token) {
+      const payload = await verifyToken(token);
+      if (!payload) {
+        return NextResponse.json(
+          { error: 'Invalid authentication token' },
+          { status: 401 }
+        );
+      }
+      userId = payload.sub;
+      userRole = payload.role;
+    }
+
     const body = await request.json();
     const { id, status, assignee, comment } = body;
 
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Task ID is required' },
+        { status: 400 }
+      );
+    }
+
     const taskIndex = tasks.findIndex(task => task.id === id);
     if (taskIndex === -1) {
-      return Response.json({ error: 'Task not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Task not found' },
+        { status: 404 }
+      );
     }
 
     const task = tasks[taskIndex];
     const oldStatus = task.status;
     const oldAssignee = task.assignee;
 
-    // Update task
+    // 更新任务
     if (status) {
       task.status = status;
       task.history.push({
         timestamp: new Date().toISOString(),
         status: status,
-        changedBy: 'user',
+        changedBy: userId,
         assignee: assignee
       });
     }
@@ -152,7 +238,7 @@ export async function PUT(request: NextRequest) {
         task.history.push({
           timestamp: new Date().toISOString(),
           status: task.status,
-          changedBy: 'user',
+          changedBy: userId,
           assignee: assignee
         });
       }
@@ -162,20 +248,108 @@ export async function PUT(request: NextRequest) {
       task.comments.push({
         id: `comment-${uuidv4().split('-')[0]}`,
         content: comment,
-        author: 'user',
+        author: userId,
         timestamp: new Date().toISOString()
       });
     }
 
     task.updatedAt = new Date().toISOString();
 
-    // Update dashboard member status if needed
-    // (assignment tracking would happen here in production)
-
     tasks[taskIndex] = task;
-    return Response.json(task);
+
+    console.log('[Audit] Task updated:', {
+      taskId: task.id,
+      updatedBy: userId,
+      userRole,
+      changes: { status, assignee, comment: !!comment },
+      timestamp: new Date().toISOString(),
+    });
+
+    return NextResponse.json(task);
   } catch (error) {
     console.error('Error updating task:', error);
-    return Response.json({ error: 'Failed to update task' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'Failed to update task', message: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 400 }
+    );
+  }
+}
+
+// ============================================
+// DELETE /api/tasks/:id - 删除任务 (需要管理员)
+// ============================================
+
+export async function DELETE(request: NextRequest) {
+  try {
+    // CSRF 保护检查
+    const csrfMiddleware = createCsrfMiddleware();
+    const csrfResult = await csrfMiddleware(request);
+    if (csrfResult) {
+      return csrfResult;
+    }
+
+    // 认证检查
+    const token = extractToken(request);
+    if (!token) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
+    const payload = await verifyToken(token);
+    if (!payload) {
+      return NextResponse.json(
+        { error: 'Invalid or expired token' },
+        { status: 401 }
+      );
+    }
+
+    // 管理员权限检查
+    if (!isAdmin(payload)) {
+      return NextResponse.json(
+        { error: 'Admin access required to delete tasks' },
+        { status: 403 }
+      );
+    }
+
+    const { searchParams } = new URL(request.url);
+    const taskId = searchParams.get('id');
+
+    if (!taskId) {
+      return NextResponse.json(
+        { error: 'Task ID is required' },
+        { status: 400 }
+      );
+    }
+
+    const taskIndex = tasks.findIndex(task => task.id === taskId);
+    if (taskIndex === -1) {
+      return NextResponse.json(
+        { error: 'Task not found' },
+        { status: 404 }
+      );
+    }
+
+    const deletedTask = tasks[taskIndex];
+    tasks.splice(taskIndex, 1);
+
+    console.log('[Audit] Task deleted by admin:', {
+      taskId: deletedTask.id,
+      deletedBy: payload.email,
+      timestamp: new Date().toISOString(),
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Task deleted successfully',
+      task: deletedTask,
+    });
+  } catch (error) {
+    console.error('Error deleting task:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete task', message: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 400 }
+    );
   }
 }

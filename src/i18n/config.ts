@@ -26,6 +26,18 @@ export const pathnames: Pathnames<typeof locales> = {
   '/dashboard': {
     zh: '/dashboard',
     en: '/dashboard'
+  },
+  '/portfolio': {
+    zh: '/portfolio',
+    en: '/portfolio'
+  },
+  '/tasks': {
+    zh: '/tasks',
+    en: '/tasks'
+  },
+  '/settings': {
+    zh: '/settings',
+    en: '/settings'
   }
 };
 
