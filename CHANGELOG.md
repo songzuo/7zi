@@ -48,19 +48,20 @@
   - 拆分为独立子组件（AccountSettings, GeneralSettings 等）
   - 提取自定义 hooks
   - 改进类型定义和验证逻辑
-- **Dashboard 组件拆分与性能优化**
+- **Dashboard 组件拆分与性能优化**: 466 行 → ~100 行 (精简 78%)
   - 使用 Zustand 状态管理
   - 懒加载优化
   - 数据缓存策略
-- **AboutContent 代码结构优化**
+- **AboutContent 代码结构优化**: 584 行 → ~150 行 (精简 74%)
 - **首页重构**
   - 添加 Hero 区域
   - 优化服务展示
   - 改进呼叫行动按钮
 - **依赖升级**:
-  - ESLint v9 → v10
-  - web-vitals v4 → v5
-  - @types/node v24 → v25
+  - ESLint v9 → v10.0.3
+  - web-vitals v4 → v5.1.0
+  - @types/node v20 → v25.3.5
+  - @sentry/nextjs → 移除 (替换为自定义错误系统)
   - Playwright v1.58.2
   - Vitest v4.0.18
 - **Docker 配置优化**
@@ -77,7 +78,7 @@
 - 修复 ESLint 代码规范问题
 
 ### Removed
-- 移除 Sentry 配置文件（未使用）
+- 移除 @sentry/nextjs 依赖（替换为自定义错误处理系统）
 - 清理测试产物和临时文件
 
 ### Documentation
@@ -95,6 +96,8 @@
   - docs/AGENT_COLLABORATION_FRAMEWORK.md - AI 团队协作框架
   - MONITORING_QUICKSTART.md - 监控快速入门
   - SECURITY_AUDIT_REPORT.md - 安全审计报告
+  - MEMORY.md - 长期记忆与项目概览
+  - TOOLS.md - API 配置与开发指南
 
 ---
 

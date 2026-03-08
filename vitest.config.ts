@@ -10,6 +10,9 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./src/test/setup.tsx'],
     include: ['src/**/*.{test,spec}.{js,ts,jsx,tsx}'],
+    // 限制并行 worker 数量，避免 CPU 过载
+    maxWorkers: 2,
+    minWorkers: 1,
     // 测试超时配置
     testTimeout: 10000,
     hookTimeout: 10000,
