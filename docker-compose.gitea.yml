@@ -1,0 +1,175 @@
+# ============================================
+# 7zi-frontend Docker Compose (Gitea Actions 专用)
+# 用于服务器 165.232.43.117 的自动化部署
+# ============================================
+
+version: "3.8"
+
+services:
+  # Next.js Frontend (standalone 模式)
+  7zi-frontend:
+    # 使用 Gitea 容器注册表的镜像
+    image: ${GITEA_REGISTRY:-165.232.43.117:3000}/7zi-frontend:latest
+    container_name: 7zi-frontend
+    restart: unless-stopped
+
+    ports:
+      - "${PORT:-3000}:3000"
+
+    env_file:
+      - .env.production
+
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+      - NEXT_TELEMETRY_DISABLED=1
+
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+    # 资源限制（生产环境）
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1G
+        reservations:
+          cpus: "0.5"
+          memory: 256M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+
+    # 日志配置
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+    # 安全配置
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+
+    networks:
+      - 7zi-network
+
+  # Nginx 反向代理
+  nginx:
+    image: nginx:alpine
+    container_name: 7zi-nginx
+    restart: unless-stopped
+
+    ports:
+      - "80:80"
+      - "443:443"
+
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./nginx/logs:/var/log/nginx
+      # SSL 证书（使用 Let's Encrypt）
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+
+    depends_on:
+      7zi-frontend:
+        condition: service_healthy
+
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+    # 资源限制
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.1"
+          memory: 64M
+
+    # 日志配置
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+    # 安全配置
+    security_opt:
+      - no-new-privileges:true
+
+    networks:
+      - 7zi-network
+
+  # Watchtower 自动更新（可选）
+  # 用于监控容器镜像更新并自动重启
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: watchtower
+    restart: unless-stopped
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    environment:
+      # 监控间隔（每小时）
+      - WATCHTOWER_POLL_INTERVAL=3600
+      # 清理旧镜像
+      - WATCHTOWER_CLEANUP=true
+      # 仅监控指定容器
+      - WATCHTOWER_MONITOR_ONLY=true
+
+    # 资源限制
+    deploy:
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 64M
+
+    networks:
+      - 7zi-network
+
+networks:
+  7zi-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+# ============================================
+# 使用说明
+# ============================================
+#
+# 1. 首次部署：
+#    docker-compose -f docker-compose.gitea.yml up -d
+#
+# 2. 更新部署：
+#    docker-compose -f docker-compose.gitea.yml pull
+#    docker-compose -f docker-compose.gitea.yml up -d --no-deps 7zi-frontend
+#
+# 3. 查看日志：
+#    docker-compose -f docker-compose.gitea.yml logs -f
+#
+# 4. 停止服务：
+#    docker-compose -f docker-compose.gitea.yml down
+#
+# 5. 查看状态：
+#    docker-compose -f docker-compose.gitea.yml ps
+#
+# ============================================

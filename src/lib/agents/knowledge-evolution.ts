@@ -4,7 +4,7 @@
  * 让知识像基因一样遗传、变异、进化
  */
 
-import { LatticeNode, KnowledgeLattice, KnowledgeType } from './knowledge-lattice';
+import { LatticeNode, KnowledgeLattice, KnowledgeType, KnowledgeSource } from './knowledge-lattice';
 
 // ============== 类型定义 ==============
 

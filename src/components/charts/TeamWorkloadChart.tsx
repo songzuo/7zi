@@ -183,7 +183,7 @@ export function TeamWorkloadChart({ members, tasks }: TeamWorkloadChartProps) {
 
   return (
     <div className="h-64">
-      <Bar data={chartData} options={options} />
+      <Bar data={chartData} options={options as unknown as any} />
     </div>
   );
 }

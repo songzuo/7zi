@@ -153,7 +153,7 @@ export function TaskProgressChart({ data, height = 300 }: TaskProgressChartProps
 
   return (
     <div className="w-full h-full">
-      <Line data={chartData} options={options} />
+      <Line data={chartData} options={options as unknown as any} />
     </div>
   );
 }
