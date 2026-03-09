@@ -1,0 +1,383 @@
+# Gitea Actions CD Pipeline - 持续部署工作流
+# 触发条件：push 到 main 分支，依赖 CI 工作流成功完成
+# 部署方式：rsync 同步构建产物到服务器
+
+name: CD - Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - staging
+          - production
+
+# 依赖 CI 工作流完成
+# 并发控制：同一环境只允许一个部署任务
+concurrency:
+  group: deploy-${{ github.event.inputs.environment || 'production' }}
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: '22'
+  NODE_ENV: production
+
+jobs:
+  # ============================================
+  # Job 1: 构建生产版本
+  # ============================================
+  build:
+    name: Build Production
+    runs-on: ubuntu-latest
+    # 注意：CI 检查由 ci.yml 单独执行，deploy.yml 独立运行
+    outputs:
+      build_timestamp: ${{ steps.build_info.outputs.timestamp }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        id: build
+        run: |
+          echo "::group::Building production version"
+          npm run build
+          echo "::endgroup::"
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+          NODE_ENV: production
+
+      - name: Record build info
+        id: build_info
+        run: |
+          TIMESTAMP=$(date -u +"%Y%m%d-%H%M%S")
+          echo "timestamp=${TIMESTAMP}" >> $GITHUB_OUTPUT
+          echo "📅 Build timestamp: ${TIMESTAMP}"
+
+      - name: Prepare deployment package
+        run: |
+          # 创建部署清单
+          cat > .next/BUILD_INFO.json << EOF
+          {
+            "version": "${{ github.sha }}",
+            "commit": "${{ github.sha }}",
+            "branch": "${{ github.ref_name }}",
+            "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
+            "actor": "${{ github.actor }}",
+            "run_id": "${{ github.run_id }}"
+          }
+          EOF
+          
+          echo "📋 Build info created:"
+          cat .next/BUILD_INFO.json
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: |
+            .next/
+            public/
+            package.json
+            next.config.ts
+          retention-days: 7
+
+  # ============================================
+  # Job 2: 部署到生产环境
+  # ============================================
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: ${{ !github.event.inputs.environment || github.event.inputs.environment == 'production' }}
+    environment:
+      name: production
+      url: ${{ vars.PRODUCTION_URL || 'https://7zi.com' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.PRODUCTION_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Deploy via rsync
+        id: deploy
+        env:
+          DEPLOY_PATH: ${{ vars.PRODUCTION_DEPLOY_PATH || '/opt/7zi-frontend' }}
+        run: |
+          set -e
+          
+          HOST="${{ secrets.PRODUCTION_HOST }}"
+          USER="${{ secrets.PRODUCTION_USER || 'deploy' }}"
+          PORT="${{ secrets.SSH_PORT || 22 }}"
+          DEPLOY_PATH="${DEPLOY_PATH}"
+          BACKUP_PATH="/opt/backups/7zi"
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          
+          echo "🚀 Starting deployment to production..."
+          echo "   Server: ${HOST}"
+          echo "   Path: ${DEPLOY_PATH}"
+          echo "   Timestamp: ${TIMESTAMP}"
+          
+          # ============================================
+          # 步骤 1: 在远程服务器创建备份
+          # ============================================
+          echo "💾 Step 1: Creating remote backup..."
+          ssh -p ${PORT} ${USER}@${HOST} "
+            set -e
+            mkdir -p ${BACKUP_PATH}
+            
+            if [ -d ${DEPLOY_PATH}/.next ]; then
+              BACKUP_DIR=\"${BACKUP_PATH}/backup-${TIMESTAMP}\"
+              mkdir -p \"\${BACKUP_DIR}\"
+              cp -r ${DEPLOY_PATH}/.next \"\${BACKUP_DIR}/\" 2>/dev/null || true
+              cp ${DEPLOY_PATH}/package.json \"\${BACKUP_DIR}/\" 2>/dev/null || true
+              echo \"✅ Backup created: \${BACKUP_DIR}\"
+              
+              # 保留最近 5 个备份
+              cd ${BACKUP_PATH}
+              ls -t | tail -n +6 | xargs -I {} rm -rf {} 2>/dev/null || true
+            else
+              echo '⚠️ No existing deployment found, skipping backup'
+            fi
+          "
+          
+          # ============================================
+          # 步骤 2: 同步构建产物
+          # ============================================
+          echo "📦 Step 2: Syncing build artifacts..."
+          
+          rsync -avz --delete \
+            -e "ssh -p ${PORT} -o StrictHostKeyChecking=no" \
+            --exclude '.git' \
+            --exclude 'node_modules' \
+            --exclude '.env.local' \
+            --exclude '.env.development.local' \
+            ./ ${USER}@${HOST}:${DEPLOY_PATH}/
+          
+          # ============================================
+          # 步骤 3: 安装生产依赖并重启服务
+          # ============================================
+          echo "🔄 Step 3: Installing dependencies and restarting service..."
+          
+          ssh -p ${PORT} ${USER}@${HOST} "
+            set -e
+            cd ${DEPLOY_PATH}
+            
+            # 安装生产依赖
+            npm ci --omit=dev
+            
+            # 重启 PM2 服务（如果使用 PM2）
+            if command -v pm2 &> /dev/null; then
+              pm2 reload ecosystem.config.js --env production || pm2 start ecosystem.config.js --env production
+              pm2 save
+            elif command -v systemctl &> /dev/null; then
+              # 如果使用 systemd
+              sudo systemctl reload 7zi-frontend || sudo systemctl restart 7zi-frontend
+            else
+              echo '⚠️ No process manager detected, manual restart may be required'
+            fi
+          "
+          
+          echo "✅ Deployment completed!"
+
+      - name: Verify deployment
+        id: verify
+        run: |
+          echo "🔍 Running post-deployment verification..."
+          
+          # 等待服务启动
+          sleep 10
+          
+          # 检查网站可访问性
+          SITE_URL="${{ vars.PRODUCTION_URL || 'https://7zi.com' }}"
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" ${SITE_URL}/ --max-time 30)
+          
+          if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "301" ] || [ "$HTTP_CODE" = "302" ]; then
+            echo "✅ Website accessible (HTTP $HTTP_CODE)"
+            echo "status=success" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️ Website returned HTTP $HTTP_CODE"
+            echo "status=warning" >> $GITHUB_OUTPUT
+          fi
+          
+          # 检查健康检查端点
+          HEALTH_CODE=$(curl -s -o /dev/null -w "%{http_code}" ${SITE_URL}/api/health --max-time 10 2>/dev/null || echo "000")
+          echo "📡 API Health: HTTP $HEALTH_CODE"
+
+      - name: Deployment summary
+        if: always()
+        run: |
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Environment** | Production |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Commit** | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Branch** | ${{ github.ref_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Deployed by** | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Status** | ${{ steps.verify.outputs.status || 'unknown' }} |" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================
+  # Job 3: 部署到预发布环境
+  # ============================================
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.event.inputs.environment == 'staging'
+    environment:
+      name: staging
+      url: ${{ vars.STAGING_URL || 'https://staging.7zi.com' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.STAGING_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Deploy to staging via rsync
+        env:
+          DEPLOY_PATH: ${{ vars.STAGING_DEPLOY_PATH || '/opt/7zi-staging' }}
+        run: |
+          set -e
+          
+          HOST="${{ secrets.STAGING_HOST }}"
+          USER="${{ secrets.STAGING_USER || 'deploy' }}"
+          PORT="${{ secrets.SSH_PORT || 22 }}"
+          DEPLOY_PATH="${DEPLOY_PATH}"
+          
+          echo "🚀 Deploying to staging..."
+          
+          rsync -avz --delete \
+            -e "ssh -p ${PORT} -o StrictHostKeyChecking=no" \
+            --exclude '.git' \
+            --exclude 'node_modules' \
+            ./ ${USER}@${HOST}:${DEPLOY_PATH}/
+          
+          ssh -p ${PORT} ${USER}@${HOST} "
+            cd ${DEPLOY_PATH}
+            npm ci --omit=dev
+            
+            if command -v pm2 &> /dev/null; then
+              pm2 reload ecosystem.config.js --env staging || pm2 start ecosystem.config.js --env staging
+            fi
+          "
+          
+          echo "✅ Staging deployment completed!"
+
+  # ============================================
+  # Job 4: 部署通知
+  # ============================================
+  notify:
+    name: Send Notification
+    runs-on: ubuntu-latest
+    needs: [build, deploy-production]
+    if: always()
+    steps:
+      - name: Determine status
+        id: status
+        run: |
+          if [ "${{ needs.deploy-production.result }}" = "success" ]; then
+            echo "status=✅ Success" >> $GITHUB_OUTPUT
+            echo "emoji=🚀" >> $GITHUB_OUTPUT
+          elif [ "${{ needs.deploy-production.result }}" = "failure" ]; then
+            echo "status=❌ Failed" >> $GITHUB_OUTPUT
+            echo "emoji=💥" >> $GITHUB_OUTPUT
+          else
+            echo "status=⚠️ Skipped" >> $GITHUB_OUTPUT
+            echo "emoji=⏭️" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send Telegram notification
+        if: secrets.TELEGRAM_BOT_TOKEN != '' && secrets.TELEGRAM_CHAT_ID != ''
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          format: markdown
+          message: |
+            ${{ steps.status.outputs.emoji }} *7zi Deployment*
+            
+            *Status:* ${{ steps.status.outputs.status }}
+            *Environment:* Production
+            *Commit:* `${{ github.sha }}`
+            *Branch:* ${{ github.ref_name }}
+            *Deployed by:* ${{ github.actor }}
+            
+            [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+      - name: Send Slack notification
+        if: secrets.SLACK_WEBHOOK_URL != ''
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "${{ steps.status.outputs.emoji }} 7zi Deployment ${{ steps.status.outputs.status }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*${{ steps.status.outputs.emoji }} 7zi Deployment*\n• Status: ${{ steps.status.outputs.status }}\n• Environment: Production\n• Commit: `${{ github.sha }}`\n• Deployed by: ${{ github.actor }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+
+      - name: Send Email notification
+        if: secrets.SMTP_HOST != '' && failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_HOST }}
+          server_port: ${{ secrets.SMTP_PORT || 587 }}
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: "⚠️ 7zi Deployment Failed - ${{ github.sha }}"
+          to: ${{ secrets.ALERT_EMAIL_RECIPIENTS }}
+          from: OpenClaw CI/CD <noreply@openclaw.dev>
+          body: |
+            Deployment to production failed!
+            
+            Commit: ${{ github.sha }}
+            Branch: ${{ github.ref_name }}
+            Actor: ${{ github.actor }}
+            
+            Please check the workflow run:
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
