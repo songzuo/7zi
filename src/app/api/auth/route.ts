@@ -15,6 +15,7 @@ import {
   generateSecureSecret,
 } from '@/lib/security/auth';
 import { generateCsrfToken, setCsrfTokenCookie } from '@/lib/security/csrf';
+import { authLogger } from '@/lib/logger';
 
 // ============================================
 // POST /api/auth/login - 用户登录
@@ -79,11 +80,10 @@ export async function POST(request: NextRequest) {
         response.headers.append(key, value);
       });
 
-      console.log('[Auth] User logged in:', {
+      authLogger.info('User logged in', {
         userId: user.id,
         email: user.email,
         role: user.role,
-        timestamp: new Date().toISOString(),
       });
 
       return response;
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
       { status: 401 }
     );
   } catch (error) {
-    console.error('Login error:', error);
+    authLogger.error('Login error', error);
     return NextResponse.json(
       { error: 'Login failed', message: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
@@ -114,10 +114,9 @@ export async function logout(request: NextRequest) {
     if (token) {
       const payload = await verifyToken(token);
       if (payload) {
-        console.log('[Auth] User logged out:', {
+        authLogger.info('User logged out', {
           userId: payload.sub,
           email: payload.email,
-          timestamp: new Date().toISOString(),
         });
       }
     }
@@ -135,7 +134,7 @@ export async function logout(request: NextRequest) {
 
     return response;
   } catch (error) {
-    console.error('Logout error:', error);
+    authLogger.error('Logout error', error);
     return NextResponse.json(
       { error: 'Logout failed' },
       { status: 500 }
@@ -196,7 +195,7 @@ export async function refresh(request: NextRequest) {
 
     return response;
   } catch (error) {
-    console.error('Token refresh error:', error);
+    authLogger.error('Token refresh error', error);
     return NextResponse.json(
       { error: 'Token refresh failed' },
       { status: 500 }

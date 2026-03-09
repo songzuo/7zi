@@ -3,6 +3,10 @@
  * Enhanced error handling with custom implementation
  */
 
+import { createLogger } from '@/lib/logger';
+
+const errorLogger = createLogger('ErrorTracking');
+
 /**
  * Error categories for better organization
  */
@@ -122,24 +126,24 @@ export function captureError(
   }
 
   // Log the error based on severity
-  const logMessage = `[Error Tracking] ${isError ? error.message : String(error)}`;
+  const logMessage = `${isError ? error.message : String(error)}`;
   
   switch (severity) {
     case ErrorSeverity.FATAL:
     case ErrorSeverity.ERROR:
-      console.error(logMessage, context);
+      errorLogger.error(logMessage, context);
       break;
     case ErrorSeverity.WARNING:
-      console.warn(logMessage, context);
+      errorLogger.warn(logMessage, context);
       break;
     case ErrorSeverity.INFO:
-      console.info(logMessage, context);
+      errorLogger.info(logMessage, context);
       break;
     case ErrorSeverity.DEBUG:
-      console.debug(logMessage, context);
+      errorLogger.debug(logMessage, context);
       break;
     default:
-      console.log(logMessage, context);
+      errorLogger.info(logMessage, context);
   }
   
   return context;
@@ -236,5 +240,5 @@ export function addBreadcrumb(
   category: string,
   data?: Record<string, unknown>
 ) {
-  console.log(`[${category}] ${message}`, data ?? '');
+  errorLogger.debug(`[${category}] ${message}`, data ?? '');
 }

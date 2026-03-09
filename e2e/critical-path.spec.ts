@@ -85,9 +85,6 @@ test.describe('关键路径 - 核心功能', () => {
     });
 
     test('Dashboard 应该显示任务列表或项目信息', async ({ page }) => {
-      // 查找任务列表或项目区域
-      const taskList = page.locator('[class*="task"], [class*="project"], ul, ol').first();
-      
       // 列表区域应该存在
       await expect(page.locator('body')).toContainText(/任务 | 项目|Task|Project|Dashboard/i);
     });
@@ -123,8 +120,6 @@ test.describe('关键路径 - 核心功能', () => {
       // 访问任务列表
       await page.goto('/tasks');
       await page.waitForLoadState('networkidle');
-      
-      const tasksUrl = page.url();
       
       // 导航到新建任务
       await page.goto('/tasks/new');
@@ -201,9 +196,6 @@ test.describe('关键路径 - 核心功能', () => {
     test('404 页面应该正确显示', async ({ page }) => {
       await page.goto('/nonexistent-page-12345');
       await page.waitForLoadState('networkidle');
-      
-      // 应该显示 404 或错误页面
-      const statusCode = page.url();
       
       // 页面应该仍然可访问（可能显示自定义 404）
       await expect(page.locator('body')).toBeVisible();

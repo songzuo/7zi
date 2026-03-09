@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
+import { authLogger, securityLogger } from '@/lib/logger';
 
 // ============================================
 // 配置
@@ -19,7 +20,7 @@ const REFRESH_COOKIE_NAME = 'refresh_token';
 
 // 确保 JWT_SECRET 足够安全
 if (JWT_SECRET.length < 32 || JWT_SECRET === 'change-me-to-a-secure-random-string-min-32-chars') {
-  console.warn('[Security] JWT_SECRET is weak or default. Please set a strong secret in .env file!');
+  securityLogger.warn('JWT_SECRET is weak or default. Please set a strong secret in .env file!');
 }
 
 // ============================================
@@ -106,7 +107,7 @@ export async function verifyToken(token: string): Promise<TokenPayload | null> {
       exp: payload.exp,
     };
   } catch (error) {
-    console.error('[Auth] Token verification failed:', error);
+    authLogger.error('Token verification failed', error);
     return null;
   }
 }

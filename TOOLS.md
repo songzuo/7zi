@@ -52,14 +52,16 @@ npm run build:analyze    # 构建分析
 #### 项目管理 API
 | 端点 | 方法 | 说明 |
 |------|------|------|
-| `/api/projects` | GET, POST | 项目列表/创建 |
-| `/api/projects/:id` | GET | 项目详情 |
+| `/api/tasks` | GET, POST | 任务列表/创建 |
+
+> 注: `/api/projects` 端点尚未实现，项目数据通过 `/api/tasks` 管理
 
 #### 日志系统 API
 | 端点 | 方法 | 说明 |
 |------|------|------|
 | `/api/logs` | GET, POST | 日志列表/创建 |
-| `/api/logs/export` | GET | 导出日志 |
+
+> 注: `/api/logs/export` 端点尚未实现
 
 #### 健康检查 API
 | 端点 | 方法 | 说明 |
@@ -145,6 +147,19 @@ ALERT_EMAIL_RECIPIENTS=admin@example.com
 | About | `/about` | ✅ 完成 |
 | Contact | `/contact` | ✅ 完成 |
 | Settings | `/settings` | ✅ 完成 |
+| Knowledge Lattice | `/knowledge-lattice` | ✅ 完成 |
+
+### API 端点实现状态
+
+| API 模块 | 实现状态 | 备注 |
+|----------|----------|------|
+| Tasks API | ✅ 完整 | `/api/tasks` |
+| Health API | ✅ 完整 | `/api/health/*` |
+| Knowledge API | ✅ 完整 | `/api/knowledge/*` |
+| Auth API | ✅ 基础 | `/api/auth` |
+| Status API | ✅ 完整 | `/api/status` |
+| Logs API | ⚠️ 部分 | 缺少 export 端点 |
+| Projects API | ❌ 未实现 | 通过 Tasks API 管理 |
 
 ### 重构状态
 

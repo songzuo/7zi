@@ -1,7 +1,7 @@
 # 7zi-frontend 技术债务评估报告
 
 **评估日期**: 2026-03-06  
-**最后更新**: 2026-03-08 19:30 PM (Europe/Berlin)  
+**最后更新**: 2026-03-09 19:05 PM (Europe/Berlin)  
 **评估人**: 文档专家子代理  
 **项目版本**: 0.2.0
 
@@ -73,11 +73,12 @@ npm update react react-dom
 ### 2.1 项目规模
 
 ```
-总代码行数: 25,319 行
-TypeScript 文件: 1,842 个
+总代码行数: 333,726 行
+TypeScript 文件: 1,864 个
 组件数量: 30+ 个
 测试文件: 213 个
-E2E 测试: 7 个
+E2E 测试: 12 个
+Lint 警告: 84 个 (80 warnings, 4 errors, 主要在测试文件)
 ```
 
 ### 2.2 大型组件 (>300 行)
@@ -175,8 +176,15 @@ catch 处理: 30 个
 
 **测试文件分布**:
 - `src/test/`: 213 个测试文件
-- `e2e/`: 7 个 E2E 测试文件
-- 总测试文件: 220 个
+- `e2e/`: 12 个 E2E 测试文件
+- 总测试文件: 225 个
+
+**Lint 警告统计 (2026-03-09)**:
+- 总问题: 84 个 (80 warnings, 4 errors)
+- 主要分布:
+  - `src/test/` - 未使用变量/导入 (~20 个)
+  - `e2e/` - E2E 测试相关 (~少量)
+- 大部分可在测试文件中通过清理解决
 
 **测试增长**:
 - 2026-03-08: 23 → 213 个测试文件 (+190)
@@ -200,6 +208,20 @@ catch 处理: 30 个
 - 拆分为多个子组件：ProfileSection, SecuritySection, ThemeSection, NotificationsSection, PrivacySection
 - 新增 hooks/useUserSettings.ts 自定义 hook
 - 新增 subcomponents/ 目录存放更细粒度组件
+
+### 3.4 性能监控脚本解析问题
+
+**文件**: `performance/monitor.js`
+
+**问题**: 该文件使用 CommonJS (`require`) 语法，在某些构建环境下可能出现解析错误。
+
+**现状**:
+- 文件顶部已有 `// eslint-disable @typescript-eslint/no-require-imports` 注释
+- 脚本可正常运行，但 ESLint 可能报告警告
+
+**建议**:
+- 如需迁移到 ESM，需要重构导入语法
+- 或在 ESLint 配置中排除该文件
 
 ### 3.4 新增模块 - Portfolio (项目案例展示)
 

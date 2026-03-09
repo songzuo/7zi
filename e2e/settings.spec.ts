@@ -140,12 +140,6 @@ test.describe('主题设置', () => {
   });
 
   test('主题切换应该更新页面外观', async ({ page }) => {
-    // 获取初始背景色
-    const body = page.locator('body');
-    const initialBg = await body.evaluate(el => 
-      window.getComputedStyle(el).backgroundColor
-    );
-    
     // 切换主题
     const darkButton = page.locator('button').filter({
       has: page.locator('text=/暗色|深色|Dark/i')
@@ -156,7 +150,7 @@ test.describe('主题设置', () => {
       await page.waitForTimeout(500);
       
       // 页面应该仍然可见
-      await expect(body).toBeVisible();
+      await expect(page.locator('body')).toBeVisible();
     }
   });
 
@@ -304,19 +298,10 @@ test.describe('通知设置', () => {
   });
 
   test('点击通知开关应该切换状态', async ({ page }) => {
-    // 查找启用通知开关
-    const enableToggle = page.locator('button').filter({
-      has: page.locator('text=/启用|Enable/i')
-    }).locator('..').locator('button[class*="rounded-full"]').first();
-    
     // 直接查找圆角开关按钮
     const toggle = page.locator('button[class*="rounded-full"][class*="w-12"]').first();
     
     if (await toggle.isVisible()) {
-      // 获取初始状态
-      const initialClass = await toggle.getAttribute('class') || '';
-      const wasEnabled = initialClass.includes('cyan-500');
-      
       // 点击切换
       await toggle.click();
       await page.waitForTimeout(300);
@@ -356,11 +341,6 @@ test.describe('通知设置', () => {
   });
 
   test('声音通知开关应该可以切换', async ({ page }) => {
-    // 查找声音开关
-    const soundToggle = page.locator('button').filter({
-      has: page.locator('text=/声音|Sound/i')
-    }).locator('..').locator('button[class*="rounded-full"]').first();
-    
     // 或者直接通过索引查找
     const toggles = page.locator('button[class*="rounded-full"][class*="w-12"]');
     

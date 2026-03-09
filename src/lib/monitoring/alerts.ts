@@ -3,6 +3,10 @@
  * Send alerts to various channels (Slack, Email, etc.)
  */
 
+import { createLogger } from '@/lib/logger';
+
+const alertLogger = createLogger('Alert');
+
 // Alert severity levels
 export type AlertSeverity = 'p0' | 'p1' | 'p2' | 'p3';
 
@@ -58,7 +62,7 @@ export async function sendSlackAlert(config: AlertConfig): Promise<boolean> {
   const webhookUrl = process.env.SLACK_WEBHOOK_URL;
   
   if (!webhookUrl) {
-    console.warn('Slack webhook URL not configured');
+    alertLogger.warn('Slack webhook URL not configured');
     return false;
   }
 
@@ -99,7 +103,7 @@ export async function sendSlackAlert(config: AlertConfig): Promise<boolean> {
 
     return response.ok;
   } catch (error) {
-    console.error('Failed to send Slack alert:', error);
+    alertLogger.error('Failed to send Slack alert', error);
     return false;
   }
 }
@@ -113,7 +117,7 @@ export async function sendEmailAlert(config: AlertConfig): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY;
   
   if (!apiKey) {
-    console.warn('Resend API key not configured');
+    alertLogger.warn('Resend API key not configured');
     return false;
   }
 
@@ -136,7 +140,7 @@ export async function sendEmailAlert(config: AlertConfig): Promise<boolean> {
 
     return response.ok;
   } catch (error) {
-    console.error('Failed to send email alert:', error);
+    alertLogger.error('Failed to send email alert', error);
     return false;
   }
 }

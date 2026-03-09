@@ -3,6 +3,10 @@
  * Collects and reports Core Web Vitals (Sentry stub - module not installed)
  */
 
+import { createLogger } from '@/lib/logger';
+
+const webVitalsLogger = createLogger('WebVitals');
+
 // Type for web vitals metric
 interface Metric {
   name: string;
@@ -40,7 +44,7 @@ function getRating(name: string, value: number): 'good' | 'needs-improvement' | 
 function reportMetric(metric: Metric) {
   // Log warnings for poor metrics
   if (metric.rating === 'poor') {
-    console.warn(`[Web Vitals] Poor ${metric.name}: ${metric.value}`, {
+    webVitalsLogger.warn(`Poor ${metric.name}: ${metric.value}`, {
       rating: metric.rating,
       threshold: thresholds[metric.name as keyof typeof thresholds]?.poor,
       route: typeof window !== 'undefined' ? window.location.pathname : 'unknown',

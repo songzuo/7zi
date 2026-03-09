@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { securityLogger } from '@/lib/logger';
 
 // 速率限制配置
 interface RateLimitConfig {
@@ -142,7 +143,7 @@ export function securityMiddleware(req: NextRequest): NextResponse | null {
   const searchParams = url.searchParams;
   for (const [key, value] of searchParams.entries()) {
     if (detectSqlInjection(value) || detectXss(value)) {
-      console.warn(`[Security] Suspicious parameter detected: ${key}=${value}`);
+      securityLogger.warn(`Suspicious parameter detected: ${key}=${value}`);
       return NextResponse.json(
         { error: 'Invalid request' },
         { status: 400 }

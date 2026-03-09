@@ -414,15 +414,13 @@ test.describe('SEO 元素测试', () => {
         expect(content?.length).toBeGreaterThan(0);
       }
 
-      // 检查 Open Graph 标签
+      // 检查 Open Graph 标签（可选）
       const ogTitle = page.locator('meta[property="og:title"]');
-      const hasOgTitle = await ogTitle.count() > 0;
-      // Open Graph 是可选的，但推荐有
+      void ogTitle; // OG tags are optional, just verify the page has them or not
 
-      // 检查 canonical URL
+      // 检查 canonical URL（可选）
       const canonical = page.locator('link[rel="canonical"]');
-      const hasCanonical = await canonical.count() > 0;
-      // canonical 是可选的
+      void canonical; // canonical is optional
     });
   }
 });

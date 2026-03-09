@@ -8,6 +8,7 @@ import { Task, TaskStatus, TaskType } from '@/lib/types/task-types';
 import { v4 as uuidv4 } from 'uuid';
 import { verifyToken, extractToken, isAdmin } from '@/lib/security/auth';
 import { createCsrfMiddleware } from '@/lib/security/csrf';
+import { apiLogger } from '@/lib/logger';
 
 // In-memory storage for tasks (in production, this would be a database)
 const tasks: Task[] = [
@@ -152,16 +153,15 @@ export async function POST(request: NextRequest) {
 
     tasks.push(newTask);
 
-    console.log('[Audit] Task created:', {
+    apiLogger.audit('Task created', {
       taskId: newTask.id,
       createdBy: userId,
       userRole,
-      timestamp: new Date().toISOString(),
     });
 
     return NextResponse.json(newTask, { status: 201 });
   } catch (error) {
-    console.error('Error creating task:', error);
+    apiLogger.error('Error creating task', error);
     return NextResponse.json(
       { error: 'Failed to create task', message: error instanceof Error ? error.message : 'Unknown error' },
       { status: 400 }
@@ -257,17 +257,16 @@ export async function PUT(request: NextRequest) {
 
     tasks[taskIndex] = task;
 
-    console.log('[Audit] Task updated:', {
+    apiLogger.audit('Task updated', {
       taskId: task.id,
       updatedBy: userId,
       userRole,
       changes: { status, assignee, comment: !!comment },
-      timestamp: new Date().toISOString(),
     });
 
     return NextResponse.json(task);
   } catch (error) {
-    console.error('Error updating task:', error);
+    apiLogger.error('Error updating task', error);
     return NextResponse.json(
       { error: 'Failed to update task', message: error instanceof Error ? error.message : 'Unknown error' },
       { status: 400 }
@@ -334,10 +333,9 @@ export async function DELETE(request: NextRequest) {
     const deletedTask = tasks[taskIndex];
     tasks.splice(taskIndex, 1);
 
-    console.log('[Audit] Task deleted by admin:', {
+    apiLogger.audit('Task deleted by admin', {
       taskId: deletedTask.id,
       deletedBy: payload.email,
-      timestamp: new Date().toISOString(),
     });
 
     return NextResponse.json({
@@ -346,7 +344,7 @@ export async function DELETE(request: NextRequest) {
       task: deletedTask,
     });
   } catch (error) {
-    console.error('Error deleting task:', error);
+    apiLogger.error('Error deleting task', error);
     return NextResponse.json(
       { error: 'Failed to delete task', message: error instanceof Error ? error.message : 'Unknown error' },
       { status: 400 }

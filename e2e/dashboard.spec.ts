@@ -256,9 +256,6 @@ test.describe('Dashboard 加载状态测试', () => {
     const startTime = Date.now();
     
     await page.goto('/dashboard');
-
-    // 在加载过程中检查加载指示器
-    const loadingIndicator = page.locator('text=/加载|Loading|.../', { hasText: /加载|Loading/ });
     
     // 等待页面加载完成
     await page.waitForLoadState('networkidle');

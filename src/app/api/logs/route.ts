@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDbTransport } from '@/lib/logger/database-transport';
 import { verifyToken, extractToken, isAdmin } from '@/lib/security/auth';
 import { createCsrfMiddleware } from '@/lib/security/csrf';
+import { apiLogger } from '@/lib/logger';
 import type { LogLevel, LogCategory, LogQuery } from '@/lib/logger/types';
 
 // ============================================
@@ -54,7 +55,7 @@ export async function GET(request: NextRequest) {
       data: result,
     });
   } catch (error) {
-    console.error('Failed to query logs:', error);
+    apiLogger.error('Failed to query logs', error);
     return NextResponse.json(
       {
         success: false,
@@ -138,12 +139,11 @@ export async function DELETE(request: NextRequest) {
     const deleted = dbTransport.cleanup(days);
 
     // 8. 记录审计日志
-    console.log('[Audit] Logs deleted by admin:', {
+    apiLogger.audit('Logs deleted by admin', {
       userId: payload.sub,
       userEmail: payload.email,
       days,
       deletedCount: deleted,
-      timestamp: new Date().toISOString(),
     });
 
     return NextResponse.json({
@@ -156,7 +156,7 @@ export async function DELETE(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Failed to cleanup logs:', error);
+    apiLogger.error('Failed to cleanup logs', error);
     return NextResponse.json(
       {
         success: false,

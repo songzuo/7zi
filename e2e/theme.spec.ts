@@ -36,19 +36,6 @@ test.describe('主题切换测试', () => {
       // 等待主题切换完成
       await page.waitForTimeout(500);
       
-      // 验证暗色模式已应用
-      const html = page.locator('html');
-      const isDark = await html.evaluate((el) => {
-        return el.classList.contains('dark') || 
-               el.getAttribute('data-theme') === 'dark' ||
-               getComputedStyle(el).colorScheme === 'dark';
-      });
-      
-      // 如果没有暗色类，检查背景颜色变化
-      const backgroundColor = await page.evaluate(() => {
-        return getComputedStyle(document.body).backgroundColor;
-      });
-      
       // 暗色模式应该有较深的背景色
       // 这里我们只验证按钮可以点击，不强制验证颜色
     }
@@ -70,7 +57,7 @@ test.describe('主题切换测试', () => {
     }
   });
 
-  test('主题选择应该被持久化', async ({ page, context }) => {
+  test('主题选择应该被持久化', async ({ page }) => {
     const themeButton = page.locator('button[aria-label*="theme"], button[aria-label*="主题"]').first();
     
     if (await themeButton.isVisible()) {
@@ -113,7 +100,6 @@ test.describe('主题切换测试', () => {
     if (await themeButton.isVisible()) {
       // 检查是否有 aria-label 或其他无障碍属性
       const ariaLabel = await themeButton.getAttribute('aria-label');
-      const ariaRole = await themeButton.getAttribute('role');
       
       // 应该有 aria-label
       expect(ariaLabel).toBeTruthy();
@@ -135,7 +121,7 @@ test.describe('主题初始化测试', () => {
     await expect(page.locator('body')).toBeVisible();
   });
 
-  test('主题应该跟随系统偏好', async ({ page, browser }) => {
+  test('主题应该跟随系统偏好', async ({ browser }) => {
     // 创建暗色模式的上下文
     const darkContext = await browser.newContext({
       colorScheme: 'dark'
@@ -151,7 +137,7 @@ test.describe('主题初始化测试', () => {
     await darkContext.close();
   });
 
-  test('亮色模式下页面应该正常显示', async ({ page, browser }) => {
+  test('亮色模式下页面应该正常显示', async ({ browser }) => {
     // 创建亮色模式的上下文
     const lightContext = await browser.newContext({
       colorScheme: 'light'

@@ -7,6 +7,13 @@ interface UseLocalStorageOptions<T> {
   deserialize?: (value: string) => T;
 }
 
+// Client-side logger for localStorage errors (dev only)
+const logWarning = (message: string, error?: unknown) => {
+  if (process.env.NODE_ENV === 'development') {
+    console.warn(message, error);
+  }
+};
+
 export function useLocalStorage<T>(
   key: string,
   initialValue: T,
@@ -26,7 +33,7 @@ export function useLocalStorage<T>(
       const item = window.localStorage.getItem(key);
       return item ? deserialize(item) : initialValue;
     } catch (error) {
-      console.warn(`Error reading localStorage key "${key}":`, error);
+      logWarning(`Error reading localStorage key "${key}":`, error);
       return initialValue;
     }
   });
@@ -41,7 +48,7 @@ export function useLocalStorage<T>(
           window.localStorage.setItem(key, serialize(valueToStore));
         }
       } catch (error) {
-        console.warn(`Error setting localStorage key "${key}":`, error);
+        logWarning(`Error setting localStorage key "${key}":`, error);
       }
     },
     [key, serialize, storedValue]

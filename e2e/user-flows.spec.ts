@@ -148,7 +148,6 @@ test.describe('用户流程 - 任务管理场景', () => {
     // 1. 从任务列表开始
     await page.goto('/tasks');
     await page.waitForLoadState('networkidle');
-    const tasksUrl = page.url();
     
     // 2. 导航到新建任务
     const newTaskLink = page.locator('a[href*="new"], a:has-text("新建"), a:has-text("New"), button:has-text("新建")').first();

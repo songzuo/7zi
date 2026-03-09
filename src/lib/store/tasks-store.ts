@@ -5,7 +5,11 @@ import { useDashboardStore } from '@/stores/dashboardStore';
 // Import task types
 import type { Task, TaskComment } from '@/lib/types/task-types';
 
-interface TasksState {
+/**
+ * Tasks store state interface
+ * Exported for type-safe testing and external usage
+ */
+export interface TasksState {
   tasks: Task[];
   addTask: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'comments' | 'history'>) => void;
   updateTask: (id: string, updates: Partial<Task>) => void;

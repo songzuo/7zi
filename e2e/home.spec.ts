@@ -18,9 +18,6 @@ test.describe('首页测试', () => {
   });
 
   test('页面应该包含主要内容区域', async ({ page }) => {
-    // 检查页面是否有主要内容
-    const mainContent = page.locator('main, [role="main"], .main-content').first();
-    
     // 页面应该有可见内容
     await expect(page.locator('body')).toContainText(/AI|工作室|Studio/);
   });
