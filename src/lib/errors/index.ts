@@ -457,7 +457,7 @@ export function toAppError(
 
     // 检查是否为 Response
     if (error instanceof Response || (error as { status?: number }).status) {
-      const response = error as { status: number; statusText: string };
+      const response = error as unknown as { status: number; statusText: string };
       return createApiError(
         response.statusText || 'API Error',
         response.status,

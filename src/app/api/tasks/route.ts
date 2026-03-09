@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
       priority: body.priority || 'medium',
       status: 'pending',
       assignee: body.assignee || undefined,
-      createdBy: userId,
+      createdBy: userId as 'user' | 'ai',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       comments: [],

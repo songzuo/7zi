@@ -26,8 +26,15 @@ export async function GET(request: NextRequest) {
     const nodes = lattice.getAllNodes();
     const edges = lattice.getAllEdges();
 
-    const result = {
-      success: true as const,
+    const result: {
+      success: true;
+      data: {
+        nodes: typeof nodes;
+        edges: typeof edges;
+        stats?: ReturnType<typeof lattice.getStats>;
+      };
+    } = {
+      success: true,
       data: {
         nodes,
         edges,

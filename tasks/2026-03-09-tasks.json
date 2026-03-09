@@ -1,0 +1,217 @@
+{
+  "date": "2026-03-09",
+  "version": "v0.2.1-prep",
+  "priority_summary": {
+    "P0": "CI/CD 替代方案实施 (Gitea Actions)",
+    "P1": "测试覆盖率提升至 80%",
+    "P2": "代码清理"
+  },
+  "tasks": [
+    {
+      "id": "task-20260309-001",
+      "title": "Gitea 服务器环境准备",
+      "description": "在 165.232.43.117 安装 Docker + Docker Compose，部署 Gitea 实例，配置 Actions Runner",
+      "priority": "P0",
+      "assignee": "sysadmin",
+      "estimated_hours": 2,
+      "status": "pending",
+      "acceptance_criteria": [
+        "Gitea 可访问 (http://165.232.43.117:3000)",
+        "Runner 状态 Active",
+        "容器注册表配置完成"
+      ]
+    },
+    {
+      "id": "task-20260309-002",
+      "title": "配置 Secrets 和 SSH",
+      "description": "生成 SSH 密钥对，在 Gitea 配置 Secrets，配置部署服务器信任 Gitea 注册表",
+      "priority": "P0",
+      "assignee": "sysadmin",
+      "estimated_hours": 0.5,
+      "status": "pending",
+      "acceptance_criteria": [
+        "Secrets 配置完成",
+        "SSH 免密连接正常",
+        "Docker 信任注册表"
+      ]
+    },
+    {
+      "id": "task-20260309-003",
+      "title": "迁移 CI/CD 工作流",
+      "description": "在 Gitea 创建 7zi 仓库，推送代码，手动触发首次 Actions 测试",
+      "priority": "P0",
+      "assignee": "executor",
+      "estimated_hours": 2,
+      "status": "pending",
+      "acceptance_criteria": [
+        "CI 流程全部通过",
+        "lint/typecheck/test/build 成功",
+        "Docker 镜像构建成功"
+      ]
+    },
+    {
+      "id": "task-20260309-004",
+      "title": "部署流程测试",
+      "description": "验证 Docker 镜像推送、SSH 部署、健康检查和回滚机制",
+      "priority": "P0",
+      "assignee": "sysadmin",
+      "estimated_hours": 2,
+      "status": "pending",
+      "acceptance_criteria": [
+        "完整 CI/CD 流程自动化运行成功",
+        "健康检查通过",
+        "回滚机制验证"
+      ]
+    },
+    {
+      "id": "task-20260309-005",
+      "title": "测试覆盖率分析",
+      "description": "运行覆盖率报告，识别低覆盖率模块，制定补充计划",
+      "priority": "P1",
+      "assignee": "tester",
+      "estimated_hours": 1,
+      "status": "pending",
+      "acceptance_criteria": [
+        "覆盖率报告生成",
+        "低覆盖率模块清单完成"
+      ]
+    },
+    {
+      "id": "task-20260309-006",
+      "title": "补充页面组件测试",
+      "description": "编写 Portfolio, Tasks, Settings, Team 页面测试",
+      "priority": "P1",
+      "assignee": "tester",
+      "estimated_hours": 3,
+      "status": "pending",
+      "acceptance_criteria": [
+        "页面组件测试覆盖率 > 80%",
+        "所有测试通过"
+      ]
+    },
+    {
+      "id": "task-20260309-007",
+      "title": "补充工具函数测试",
+      "description": "编写 task-utils, errors, tasks-store 测试",
+      "priority": "P1",
+      "assignee": "tester",
+      "estimated_hours": 2,
+      "status": "pending",
+      "acceptance_criteria": [
+        "工具函数测试覆盖率 > 90%",
+        "所有测试通过"
+      ]
+    },
+    {
+      "id": "task-20260309-008",
+      "title": "E2E 测试完善",
+      "description": "编写 Portfolio, Tasks, Dashboard 流程 E2E 测试",
+      "priority": "P1",
+      "assignee": "tester",
+      "estimated_hours": 3,
+      "status": "pending",
+      "acceptance_criteria": [
+        "关键用户流程 E2E 测试覆盖",
+        "所有 E2E 测试通过"
+      ]
+    },
+    {
+      "id": "task-20260309-009",
+      "title": "console 语句清理",
+      "description": "扫描并移除生产代码中的调试用 console 语句",
+      "priority": "P2",
+      "assignee": "executor",
+      "estimated_hours": 1,
+      "status": "pending",
+      "acceptance_criteria": [
+        "生产代码 console 语句 < 10 处",
+        "保留错误追踪需要的 console"
+      ]
+    },
+    {
+      "id": "task-20260309-010",
+      "title": "any 类型减少",
+      "description": "审查并替换 4 处 any 类型为具体类型定义",
+      "priority": "P2",
+      "assignee": "architect",
+      "estimated_hours": 2,
+      "status": "pending",
+      "acceptance_criteria": [
+        "any 类型使用 < 2 处",
+        "TypeScript 编译通过"
+      ]
+    }
+  ],
+  "ai_team_assignments": {
+    "sysadmin": {
+      "role": "系统管理员",
+      "provider": "Bailian",
+      "tasks": ["task-20260309-001", "task-20260309-002", "task-20260309-004"],
+      "total_hours": 4.5
+    },
+    "executor": {
+      "role": "Executor",
+      "provider": "Volcengine",
+      "tasks": ["task-20260309-003", "task-20260309-009"],
+      "total_hours": 3
+    },
+    "tester": {
+      "role": "测试员",
+      "provider": "MiniMax",
+      "tasks": ["task-20260309-005", "task-20260309-006", "task-20260309-007", "task-20260309-008"],
+      "total_hours": 9
+    },
+    "architect": {
+      "role": "架构师",
+      "provider": "Self-Claude",
+      "tasks": ["task-20260309-010"],
+      "total_hours": 2
+    },
+    "consultant": {
+      "role": "咨询师",
+      "provider": "MiniMax",
+      "tasks": [],
+      "support": "Gitea 最佳实践研究、文档整理"
+    },
+    "strategist": {
+      "role": "智能体世界专家",
+      "provider": "MiniMax",
+      "tasks": [],
+      "support": "CI/CD 战略规划、风险评估"
+    }
+  },
+  "schedule": {
+    "morning": {
+      "time": "08:00-12:00",
+      "focus": "P0: CI/CD 实施",
+      "tasks": ["task-20260309-001", "task-20260309-002", "task-20260309-003"]
+    },
+    "afternoon": {
+      "time": "13:00-17:00",
+      "focus": "P1: 测试覆盖率 + P2: 代码清理",
+      "tasks": ["task-20260309-005", "task-20260309-006", "task-20260309-007", "task-20260309-009", "task-20260309-010"]
+    },
+    "evening": {
+      "time": "17:00-18:00",
+      "focus": "集成测试与验证",
+      "tasks": ["task-20260309-004", "task-20260309-008"]
+    }
+  },
+  "success_criteria": {
+    "cicd": [
+      "Gitea Actions 完全替代 GitHub Actions",
+      "所有 CI 检查通过",
+      "部署流程自动化验证成功"
+    ],
+    "testing": [
+      "测试覆盖率 ≥ 80%",
+      "核心模块覆盖率 ≥ 90%",
+      "E2E 测试覆盖关键流程"
+    ],
+    "code_quality": [
+      "console 语句 < 10 处",
+      "any 类型 < 2 处",
+      "TypeScript/ESLint 通过"
+    ]
+  }
+}

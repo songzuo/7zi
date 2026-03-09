@@ -2,7 +2,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import TasksPage from '@/app/tasks/page'
+import TasksPage from '@/app/[locale]/tasks/page'
 
 // Mock stores
 vi.mock('@/lib/store/tasks-store', () => ({

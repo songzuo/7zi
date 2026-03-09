@@ -5,6 +5,12 @@
 
 import { useEffect, useState } from 'react';
 
+// Layout Shift 接口定义
+interface LayoutShift extends PerformanceEntry {
+  value: number;
+  hadRecentInput: boolean;
+}
+
 interface WebVitals {
   fcp: number | null;
   lcp: number | null;
@@ -52,8 +58,9 @@ export function useWebVitals() {
     let clsValue = 0;
     const clsObserver = new PerformanceObserver((entryList) => {
       for (const entry of entryList.getEntries()) {
-        if (!entry.hadRecentInput) {
-          clsValue += entry.value;
+        const layoutShiftEntry = entry as LayoutShift;
+        if (!layoutShiftEntry.hadRecentInput) {
+          clsValue += layoutShiftEntry.value;
           setVitals(prev => ({ ...prev, cls: clsValue }));
         }
       }

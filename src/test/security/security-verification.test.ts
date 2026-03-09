@@ -14,6 +14,7 @@ import {
   hasPermission,
   generateSecureSecret,
   validateJwtSecret,
+  type TokenPayload,
 } from '@/lib/security/auth';
 import {
   generateCsrfToken,
@@ -293,8 +294,8 @@ describe('Security Verification - Log Deletion Authorization', () => {
     it('requires admin role for log deletion', () => {
       // 从 route.ts 代码验证：
       // if (!isAdmin(payload)) { return 403 }
-      const adminPayload = { role: 'admin' as const };
-      const userPayload = { role: 'user' as const };
+      const adminPayload: TokenPayload = { sub: 'admin-1', email: 'admin@test.com', role: 'admin' };
+      const userPayload: TokenPayload = { sub: 'user-1', email: 'user@test.com', role: 'user' };
       
       expect(isAdmin(adminPayload)).toBe(true);
       expect(isAdmin(userPayload)).toBe(false);

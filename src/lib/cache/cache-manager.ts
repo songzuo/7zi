@@ -13,6 +13,7 @@ import type {
 import { MemoryCache } from './memory-cache';
 import { RedisCache } from './redis-cache';
 import { LayeredCache } from './layered-cache';
+import { cacheLogger } from '../logger';
 
 export interface CacheManagerOptions extends CacheOptions {
   provider?: CacheProvider;
@@ -91,7 +92,7 @@ export class CacheManager {
       
       const connected = await redisCache.connect();
       if (!connected && this.provider === 'redis') {
-        console.warn('Redis connection failed, falling back to memory cache');
+        cacheLogger.warn('Redis connection failed, falling back to memory cache');
         // 降级到内存缓存
         this.cache = new MemoryCache();
         this.provider = 'memory';
@@ -277,7 +278,7 @@ export function getCacheManager(options?: CacheManagerOptions): CacheManager {
 
 export function resetCacheManager(): void {
   if (defaultManager) {
-    defaultManager.shutdown().catch(console.error);
+    defaultManager.shutdown().catch((err) => cacheLogger.error('Shutdown error:', err));
     defaultManager = null;
   }
 }

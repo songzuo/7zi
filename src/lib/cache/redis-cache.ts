@@ -4,6 +4,7 @@
  */
 
 import type { CacheOptions, CacheStats, CacheInvalidateOptions, TTL } from './types';
+import { cacheLogger } from '../logger';
 
 // Redis 客户端接口 (避免直接依赖)
 interface RedisClient {
@@ -71,7 +72,9 @@ export class RedisCache {
       const redis = await this.loadRedisClient();
       
       if (!redis) {
-        console.warn('Redis client not available, using fallback');
+        if (process.env.NODE_ENV === 'development') {
+          cacheLogger.warn('Redis client not available, using fallback');
+        }
         return false;
       }
 
@@ -87,7 +90,7 @@ export class RedisCache {
       
       return true;
     } catch (error) {
-      console.error('Failed to connect to Redis:', error);
+      cacheLogger.error('Failed to connect to Redis:', error);
       this.isConnected = false;
       return false;
     }
@@ -99,9 +102,11 @@ export class RedisCache {
   private async loadRedisClient(): Promise<RedisClient | null> {
     try {
       // 尝试加载 ioredis
+      // @ts-expect-error - ioredis is an optional dependency
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const RedisModule = await import('ioredis');
-      const Redis = (RedisModule.default as unknown as typeof RedisModule) || RedisModule;
-      return new Redis(this.options.redisUrl, {
+      const Redis = RedisModule.default || RedisModule;
+      return new (Redis as new (url: string, options?: Record<string, unknown>) => RedisClient)(this.options.redisUrl, {
         maxRetriesPerRequest: 3,
         retryStrategy: (times: number) => {
           if (times > this.maxReconnectAttempts) {
@@ -109,7 +114,7 @@ export class RedisCache {
           }
           return Math.min(times * 100, 3000);
         },
-      }) as unknown as RedisClient;
+      });
     } catch {
       // 尝试加载 redis
       try {
@@ -118,7 +123,9 @@ export class RedisCache {
         await client.connect();
         return client as unknown as RedisClient;
       } catch {
-        console.warn('No Redis client available. Install ioredis or redis package.');
+        if (process.env.NODE_ENV === 'development') {
+          cacheLogger.warn('No Redis client available. Install ioredis or redis package.');
+        }
         return null;
       }
     }
@@ -139,7 +146,7 @@ export class RedisCache {
     });
 
     this.client.on('error', (error: unknown) => {
-      console.error('Redis cache error:', error instanceof Error ? error : new Error(String(error)));
+      cacheLogger.error('Redis cache error:', error instanceof Error ? error : new Error(String(error)));
     });
   }
 
@@ -209,7 +216,9 @@ export class RedisCache {
    */
   private ensureConnection(): boolean {
     if (!this.isConnected || !this.client) {
-      console.warn('Redis cache not connected');
+      if (process.env.NODE_ENV === 'development') {
+        cacheLogger.warn('Redis cache not connected');
+      }
       return false;
     }
     return true;
@@ -237,7 +246,7 @@ export class RedisCache {
       this.updateHitRate();
       return this.deserialize<T>(data);
     } catch (error) {
-      console.error('Redis get error:', error);
+      cacheLogger.error('Redis get error:', error);
       this.stats.misses++;
       this.updateHitRate();
       return null;
@@ -271,7 +280,7 @@ export class RedisCache {
 
       return true;
     } catch (error) {
-      console.error('Redis set error:', error);
+      cacheLogger.error('Redis set error:', error);
       return false;
     }
   }
@@ -287,7 +296,7 @@ export class RedisCache {
       const result = await this.client!.del(fullKey);
       return result > 0;
     } catch (error) {
-      console.error('Redis delete error:', error);
+      cacheLogger.error('Redis delete error:', error);
       return false;
     }
   }
@@ -303,7 +312,7 @@ export class RedisCache {
       const result = await this.client!.exists(fullKey);
       return result > 0;
     } catch (error) {
-      console.error('Redis has error:', error);
+      cacheLogger.error('Redis has error:', error);
       return false;
     }
   }
@@ -350,7 +359,7 @@ export class RedisCache {
 
       return result;
     } catch (error) {
-      console.error('Redis mget error:', error);
+      cacheLogger.error('Redis mget error:', error);
       for (const key of keys) {
         result.set(key, null);
       }
@@ -372,7 +381,7 @@ export class RedisCache {
       }
       return true;
     } catch (error) {
-      console.error('Redis mset error:', error);
+      cacheLogger.error('Redis mset error:', error);
       return false;
     }
   }
@@ -416,7 +425,7 @@ export class RedisCache {
 
       return count;
     } catch (error) {
-      console.error('Redis invalidate error:', error);
+      cacheLogger.error('Redis invalidate error:', error);
       return 0;
     }
   }
@@ -433,7 +442,7 @@ export class RedisCache {
       const result = await this.client!.expire(fullKey, ttlSeconds);
       return result === 1;
     } catch (error) {
-      console.error('Redis touch error:', error);
+      cacheLogger.error('Redis touch error:', error);
       return false;
     }
   }
@@ -448,7 +457,7 @@ export class RedisCache {
       const fullKey = this.getKey(key);
       return await this.client!.ttl(fullKey);
     } catch (error) {
-      console.error('Redis getTTL error:', error);
+      cacheLogger.error('Redis getTTL error:', error);
       return -1;
     }
   }
@@ -465,7 +474,7 @@ export class RedisCache {
         await this.client!.del(...keys);
       }
     } catch (error) {
-      console.error('Redis clear error:', error);
+      cacheLogger.error('Redis clear error:', error);
     }
   }
 

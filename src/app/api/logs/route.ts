@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDbTransport } from '@/lib/logger/database-transport';
 import { verifyToken, extractToken, isAdmin } from '@/lib/security/auth';
 import { createCsrfMiddleware } from '@/lib/security/csrf';
+import type { LogLevel, LogCategory, LogQuery } from '@/lib/logger/types';
 
 // ============================================
 // GET /api/logs - 查询日志
@@ -29,11 +30,11 @@ export async function GET(request: NextRequest) {
     }
 
     // 解析查询参数
-    const query = {
+    const query: LogQuery = {
       startTime: searchParams.get('startTime') || undefined,
       endTime: searchParams.get('endTime') || undefined,
-      levels: searchParams.get('levels')?.split(',').filter(Boolean) as string[] | undefined,
-      categories: searchParams.get('categories')?.split(',').filter(Boolean) as string[] | undefined,
+      levels: searchParams.get('levels')?.split(',').filter(Boolean) as LogLevel[] | undefined,
+      categories: searchParams.get('categories')?.split(',').filter(Boolean) as LogCategory[] | undefined,
       search: searchParams.get('search') || undefined,
       userId: searchParams.get('userId') || undefined,
       requestId: searchParams.get('requestId') || undefined,

@@ -5,6 +5,10 @@
  */
 
 import { KnowledgeLattice, LatticeNode, KnowledgeType, KnowledgeSource } from './knowledge-lattice';
+import { evomapLogger } from '../logger';
+
+// 条件日志 - 仅在开发环境输出
+const isDev = process.env.NODE_ENV === 'development';
 
 // ============== 类型定义 ==============
 
@@ -55,7 +59,7 @@ export interface EvomapHeartbeatResponse {
  */
 export interface EvomapPublishResponse {
   capsuleId: string;
-  status: 'published' | 'queued';
+  status: 'published' | 'queued' | 'error';
 }
 
 // ============== Evomap 网关类 ==============
@@ -114,7 +118,7 @@ export class EvomapGateway {
 
       return result;
     } catch (error) {
-      console.error('Evomap registration error:', error);
+      evomapLogger.error('Registration error:', error);
       throw error;
     }
   }
@@ -149,7 +153,7 @@ export class EvomapGateway {
 
       return await response.json();
     } catch (error) {
-      console.error('Evomap heartbeat error:', error);
+      evomapLogger.error('Heartbeat error:', error);
       throw error;
     }
   }
@@ -193,7 +197,7 @@ export class EvomapGateway {
 
       return await response.json();
     } catch (error) {
-      console.error('Evomap publish error:', error);
+      evomapLogger.error('Publish error:', error);
       throw error;
     }
   }
@@ -210,7 +214,7 @@ export class EvomapGateway {
         const result = await this.publishCapsule(node);
         results.push(result);
       } catch (error) {
-        console.error(`Failed to publish node ${node.id}:`, error);
+        evomapLogger.error(`Failed to publish node ${node.id}:`, error);
         results.push({
           capsuleId: node.id,
           status: 'error' as const,
@@ -254,7 +258,7 @@ export class EvomapGateway {
 
       return await response.json();
     } catch (error) {
-      console.error('Evomap fetch error:', error);
+      evomapLogger.error('Fetch capsules error:', error);
       throw error;
     }
   }
@@ -328,7 +332,7 @@ export class EvomapGateway {
 
       return await response.json();
     } catch (error) {
-      console.error('Evomap fetch tasks error:', error);
+      evomapLogger.error('Fetch tasks error:', error);
       throw error;
     }
   }
@@ -359,7 +363,7 @@ export class EvomapGateway {
 
       return await response.json();
     } catch (error) {
-      console.error('Evomap claim task error:', error);
+      evomapLogger.error('Claim task error:', error);
       throw error;
     }
   }
@@ -391,7 +395,7 @@ export class EvomapGateway {
 
       return await response.json();
     } catch (error) {
-      console.error('Evomap submit task error:', error);
+      evomapLogger.error('Submit task error:', error);
       throw error;
     }
   }
@@ -421,7 +425,7 @@ export class EvomapGateway {
 
       return await response.json();
     } catch (error) {
-      console.error('Evomap status error:', error);
+      evomapLogger.error('Get status error:', error);
       throw error;
     }
   }
@@ -437,7 +441,7 @@ export class EvomapGateway {
       try {
         await this.heartbeat();
       } catch (error) {
-        console.error('Heartbeat failed:', error);
+        evomapLogger.error('Heartbeat failed:', error);
       }
     }, 5 * 60 * 1000);
   }
@@ -465,7 +469,10 @@ export class EvomapGateway {
         this.isRegistered = true;
       }
     } catch (error) {
-      console.error('Failed to load node info:', error);
+      // Silently fail - node info is optional
+      if (isDev) {
+        evomapLogger.debug('Failed to load node info:', error);
+      }
     }
   }
 
@@ -480,7 +487,10 @@ export class EvomapGateway {
       };
       localStorage.setItem('evomap_node_info', JSON.stringify(info));
     } catch (error) {
-      console.error('Failed to save node info:', error);
+      // Silently fail - node info persistence is optional
+      if (isDev) {
+        evomapLogger.debug('Failed to save node info:', error);
+      }
     }
   }
 

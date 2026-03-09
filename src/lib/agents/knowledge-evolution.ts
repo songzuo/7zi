@@ -196,9 +196,8 @@ export class KnowledgeEvolution {
    */
   private calculateFitnessFactors(node: LatticeNode): FitnessFactors {
     // 获取使用统计
-    const usageCount = node.metadata?.usageCount || 0;
-    const lastUsed = node.metadata?.lastUsed || node.timestamp;
-    const feedbackScore = node.metadata?.feedbackScore || 0;
+    const usageCount: number = (node.metadata?.usageCount as number) ?? 0;
+    const feedbackScore: number = (node.metadata?.feedbackScore as number) ?? 0;
     
     // 计算年龄因素（越新越好，但有衰减）
     const ageMs = Date.now() - node.timestamp;
@@ -213,7 +212,7 @@ export class KnowledgeEvolution {
     const uniqueness = this.calculateUniqueness(node);
     
     // 计算推理成功率
-    const inferenceSuccess = node.metadata?.inferenceSuccessRate || 0.5;
+    const inferenceSuccess: number = (node.metadata?.inferenceSuccessRate as number) ?? 0.5;
     
     return {
       usageFrequency: Math.min(1, usageCount / 100),

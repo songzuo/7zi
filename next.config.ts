@@ -58,7 +58,7 @@ const nextConfig: NextConfig = {
     if (!isServer && !dev) {
       // 移除 console.log 等调试代码
       config.optimization.minimizer = config.optimization.minimizer.map((minimizer: { constructor: { name: string }; options?: { terserOptions?: { compress?: { drop_console?: boolean; drop_debugger?: boolean } } } }) => {
-        if (minimizer.constructor.name === 'TerserPlugin') {
+        if (minimizer.constructor.name === 'TerserPlugin' && minimizer.options?.terserOptions?.compress) {
           minimizer.options.terserOptions.compress.drop_console = true;
           minimizer.options.terserOptions.compress.drop_debugger = true;
         }
