@@ -1,0 +1,103 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  ci:
+    name: Continuous Integration
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linting
+        id: lint
+        run: |
+          echo "::group::Running ESLint"
+          npm run lint
+          echo "::endgroup::"
+        continue-on-error: false
+
+      - name: Run type checking
+        id: typecheck
+        run: |
+          echo "::group::Running TypeScript type check"
+          npm run type-check
+          echo "::endgroup::"
+        continue-on-error: false
+
+      - name: Run tests
+        id: test
+        run: |
+          echo "::group::Running unit tests"
+          npm run test:run
+          echo "::endgroup::"
+        continue-on-error: false
+
+      - name: Build project
+        id: build
+        run: |
+          echo "::group::Building project"
+          npm run build
+          echo "::endgroup::"
+        continue-on-error: false
+
+      - name: Report failures
+        if: failure()
+        run: |
+          echo "::error::CI pipeline failed!"
+          echo ""
+          echo "## ❌ CI Failure Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Failed Steps:" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.lint.outcome }}" == "failure" ]; then
+            echo "- **Linting** - Code style issues detected" >> $GITHUB_STEP_SUMMARY
+            echo "  \`npm run lint:fix\` may auto-fix some issues" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ "${{ steps.typecheck.outcome }}" == "failure" ]; then
+            echo "- **Type Checking** - TypeScript errors found" >> $GITHUB_STEP_SUMMARY
+            echo "  Check type definitions and imports" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ "${{ steps.test.outcome }}" == "failure" ]; then
+            echo "- **Tests** - Some tests failed" >> $GITHUB_STEP_SUMMARY
+            echo "  Run \`npm run test\` locally to debug" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ "${{ steps.build.outcome }}" == "failure" ]; then
+            echo "- **Build** - Production build failed" >> $GITHUB_STEP_SUMMARY
+            echo "  Check build errors above" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Local Debug Commands:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "npm run lint           # Check code style" >> $GITHUB_STEP_SUMMARY
+          echo "npm run type-check     # Check types" >> $GITHUB_STEP_SUMMARY
+          echo "npm run test:run       # Run tests" >> $GITHUB_STEP_SUMMARY
+          echo "npm run build          # Build project" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Report success
+        if: success()
+        run: |
+          echo "## ✅ CI Passed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All checks completed successfully:" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Linting" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Type checking" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Tests" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Build" >> $GITHUB_STEP_SUMMARY
