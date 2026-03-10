@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error fetching edges:', error);
+    apiLogger.error('Error fetching edges', { error });
     return NextResponse.json(
       { success: false, error: 'Failed to fetch edges' },
       { status: 500 }
@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
       data: lattice.getEdge(edgeId),
     }, { status: 201 });
   } catch (error) {
-    console.error('Error creating edge:', error);
+    apiLogger.error('Error creating edge', { error });
     return NextResponse.json(
       { success: false, error: 'Failed to create edge' },
       { status: 500 }

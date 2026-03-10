@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error querying lattice:', error);
+    apiLogger.error('Error querying lattice', { error });
     return NextResponse.json(
       { success: false, error: 'Failed to query lattice' },
       { status: 500 }

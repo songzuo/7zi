@@ -255,7 +255,7 @@ describe('TaskForm', () => {
     it('should call updateTask when taskId provided and no onSubmit', async () => {
       const { useTasksStore } = await import('@/lib/store/tasks-store')
       const mockUpdateTask = vi.fn()
-      vi.mocked(useTasksStore).mockImplementation((selector: any) => 
+      vi.mocked(useTasksStore).mockImplementation((selector: (state: { addTask: ReturnType<typeof vi.fn>; updateTask: typeof mockUpdateTask }) => unknown) => 
         selector({ addTask: vi.fn(), updateTask: mockUpdateTask })
       )
       

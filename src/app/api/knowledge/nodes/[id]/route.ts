@@ -51,7 +51,7 @@ export async function GET(
       neighbors,
     });
   } catch (error) {
-    console.error('Error fetching node:', error);
+    apiLogger.error('Error fetching node', { error });
     return NextResponse.json(
       { success: false, error: 'Failed to fetch node' },
       { status: 500 }
@@ -86,7 +86,7 @@ export async function PUT(
       data: updatedNode,
     });
   } catch (error) {
-    console.error('Error updating node:', error);
+    apiLogger.error('Error updating node', { error });
     return NextResponse.json(
       { success: false, error: 'Failed to update node' },
       { status: 500 }
@@ -120,7 +120,7 @@ export async function DELETE(
       message: 'Node deleted successfully',
     });
   } catch (error) {
-    console.error('Error deleting node:', error);
+    apiLogger.error('Error deleting node', { error });
     return NextResponse.json(
       { success: false, error: 'Failed to delete node' },
       { status: 500 }

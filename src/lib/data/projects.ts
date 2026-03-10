@@ -1,9 +1,30 @@
-import { Project, ProjectStatus } from '@/types/project-types';
-import { Task } from '@/lib/types/task-types';
+import type { Project, ProjectStatus } from '@/types/project-types';
+import type { Task } from '@/lib/types/task-types';
 import { v4 as uuidv4 } from 'uuid';
 
+// Define a simpler project data type for in-memory storage
+interface ProjectData {
+  id: string;
+  title: string;
+  description: string;
+  status: ProjectStatus;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  startDate?: string;
+  endDate?: string;
+  members: string[];
+  metadata: {
+    category: string;
+    client?: string;
+    budget?: number;
+    thumbnail?: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+  createdBy?: string;
+}
+
 // In-memory storage for projects (in production, this would be a database)
-export const projects: Project[] = [
+export const projects: ProjectData[] = [
   {
     id: 'proj-001',
     name: 'AI-Powered Analytics Dashboard',

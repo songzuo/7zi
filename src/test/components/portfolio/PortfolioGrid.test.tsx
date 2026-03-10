@@ -1,50 +1,22 @@
-import { describe, it, expect, vi, beforeAll } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { PortfolioGrid } from '@/components/portfolio/PortfolioGrid';
-import { Project } from '@/types/common';
+/**
+ * PortfolioGrid 组件测试
+ */
 
-// Mock projects data
-const _mockProjects: Project[] = [
-  {
-    id: '1',
-    slug: 'test-project-1',
-    title: 'Test Project One',
-    description: 'A test project for testing',
-    category: 'website',
-    thumbnail: '/test-thumb-1.jpg',
-    images: ['/test-1.jpg'],
-    techStack: ['React', 'TypeScript'],
-    duration: '3 months',
-    highlights: ['Test highlight'],
-    links: {},
-  },
-  {
-    id: '2',
-    slug: 'test-project-2',
-    title: 'Another Project',
-    description: 'Another test project',
-    category: 'app',
-    thumbnail: '/test-thumb-2.jpg',
-    images: ['/test-2.jpg'],
-    techStack: ['Vue', 'JavaScript'],
-    duration: '2 months',
-    highlights: ['Another highlight'],
-    links: {},
-  },
-  {
-    id: '3',
-    slug: 'ai-project',
-    title: 'AI Project',
-    description: 'An AI powered project',
-    category: 'ai',
-    thumbnail: '/test-thumb-3.jpg',
-    images: ['/test-3.jpg'],
-    techStack: ['Python', 'TensorFlow'],
-    duration: '6 months',
-    highlights: ['AI highlight'],
-    links: {},
-  },
-];
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { render, screen, fireEvent } from '@testing-library/react'
+import { PortfolioGrid } from '@/components/portfolio/PortfolioGrid'
+
+// Mock next-intl
+vi.mock('next-intl', () => ({
+  useTranslations: vi.fn(() => (key: string) => {
+    const translations: Record<string, string> = {
+      'searchPlaceholder': 'Search projects...',
+      'noProjectsFound': 'No projects found',
+      'allProjects': 'All',
+    }
+    return translations[key] || key
+  }),
+}))
 
 // Mock projects data
 vi.mock('@/lib/data/projects', () => ({
@@ -52,196 +24,234 @@ vi.mock('@/lib/data/projects', () => ({
     {
       id: '1',
       slug: 'test-project-1',
-      title: 'Test Project One',
-      description: 'A test project for testing',
+      title: 'Test Project 1',
+      description: 'A test project description',
       category: 'website',
-      thumbnail: '/test-thumb-1.jpg',
-      images: ['/test-1.jpg'],
+      thumbnail: '/images/test1.jpg',
+      images: [],
       techStack: ['React', 'TypeScript'],
+      client: 'Test Client',
       duration: '3 months',
-      highlights: ['Test highlight'],
+      highlights: [],
       links: {},
     },
     {
       id: '2',
       slug: 'test-project-2',
-      title: 'Another Project',
+      title: 'Test Project 2',
       description: 'Another test project',
       category: 'app',
-      thumbnail: '/test-thumb-2.jpg',
-      images: ['/test-2.jpg'],
-      techStack: ['Vue', 'JavaScript'],
-      duration: '2 months',
-      highlights: ['Another highlight'],
+      thumbnail: '/images/test2.jpg',
+      images: [],
+      techStack: ['Node.js', 'Vue'],
+      client: 'Another Client',
+      duration: '6 months',
+      highlights: [],
       links: {},
     },
     {
       id: '3',
       slug: 'ai-project',
       title: 'AI Project',
-      description: 'An AI powered project',
+      description: 'An AI-powered application',
       category: 'ai',
-      thumbnail: '/test-thumb-3.jpg',
-      images: ['/test-3.jpg'],
+      thumbnail: '/images/ai.jpg',
+      images: [],
       techStack: ['Python', 'TensorFlow'],
-      duration: '6 months',
-      highlights: ['AI highlight'],
+      client: 'AI Client',
+      duration: '12 months',
+      highlights: [],
       links: {},
     },
   ],
-}));
+}))
 
-// Mock next-intl
-vi.mock('next-intl', () => ({
-  useTranslations: () => {
-    const translations: Record<string, string> = {
-      'searchPlaceholder': 'Search projects...',
-      'noProjectsFound': 'No projects found',
-    };
-    const t = (key: string) => translations[key] || key;
-    t.raw = (key: string) => translations[key] || key;
-    return t;
-  },
-}));
-
-// Mock ProjectCard - default export
+// Mock ProjectCard component
 vi.mock('@/components/portfolio/ProjectCard', () => ({
-  default: ({ project }: { project: Project }) => (
+  default: ({ project }: { project: { id: string; title: string } }) => (
     <div data-testid={`project-card-${project.id}`}>{project.title}</div>
   ),
-}));
+}))
 
-// Mock CategoryFilter - default export
+// Mock CategoryFilter component
 vi.mock('@/components/portfolio/CategoryFilter', () => ({
-  default: ({ categories, selectedCategory, onSelectCategory }: {
-    categories: string[];
-    selectedCategory: string;
-    onSelectCategory?: (cat: string) => void;
+  default: ({ 
+    categories, 
+    selectedCategory, 
+    onCategoryChange 
+  }: { 
+    categories: string[]
+    selectedCategory: string
+    onCategoryChange: (cat: string) => void 
   }) => (
     <div data-testid="category-filter">
       {categories.map(cat => (
         <button
           key={cat}
           data-testid={`category-${cat}`}
-          onClick={() => onSelectCategory?.(cat)}
-          className={selectedCategory === cat ? 'selected' : ''}
+          data-selected={selectedCategory === cat}
+          onClick={() => onCategoryChange(cat)}
         >
           {cat}
         </button>
       ))}
     </div>
   ),
-}));
+}))
 
 describe('PortfolioGrid', () => {
-  beforeAll(() => {
-    // Mock projects is now done via vi.mock
-  });
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
 
-  it('renders all projects initially', () => {
-    render(<PortfolioGrid />);
-    
-    expect(screen.getByTestId('project-card-1')).toBeInTheDocument();
-    expect(screen.getByTestId('project-card-2')).toBeInTheDocument();
-    expect(screen.getByTestId('project-card-3')).toBeInTheDocument();
-  });
+  describe('基础渲染测试', () => {
+    it('renders without crashing', () => {
+      const { container } = render(<PortfolioGrid />)
+      expect(container).toBeTruthy()
+    })
 
-  it('renders search input', () => {
-    render(<PortfolioGrid />);
-    
-    const searchInput = screen.getByPlaceholderText('Search projects...');
-    expect(searchInput).toBeInTheDocument();
-  });
+    it('renders the search input', () => {
+      render(<PortfolioGrid />)
+      
+      const searchInput = screen.getByPlaceholderText('Search projects...')
+      expect(searchInput).toBeInTheDocument()
+    })
 
-  it('filters projects by search term', () => {
-    render(<PortfolioGrid />);
-    
-    const searchInput = screen.getByPlaceholderText('Search projects...');
-    
-    // Search for "AI"
-    fireEvent.change(searchInput, { target: { value: 'AI' } });
-    
-    expect(screen.getByTestId('project-card-3')).toBeInTheDocument();
-    expect(screen.queryByTestId('project-card-1')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('project-card-2')).not.toBeInTheDocument();
-  });
+    it('renders the category filter', () => {
+      render(<PortfolioGrid />)
+      
+      expect(screen.getByTestId('category-filter')).toBeInTheDocument()
+    })
 
-  it('filters projects by search term in description', () => {
-    render(<PortfolioGrid />);
-    
-    const searchInput = screen.getByPlaceholderText('Search projects...');
-    
-    // Search for "powered" (in description of project 3)
-    fireEvent.change(searchInput, { target: { value: 'powered' } });
-    
-    expect(screen.getByTestId('project-card-3')).toBeInTheDocument();
-    expect(screen.queryByTestId('project-card-1')).not.toBeInTheDocument();
-  });
+    it('renders all project cards', () => {
+      render(<PortfolioGrid />)
+      
+      expect(screen.getByTestId('project-card-1')).toBeInTheDocument()
+      expect(screen.getByTestId('project-card-2')).toBeInTheDocument()
+      expect(screen.getByTestId('project-card-3')).toBeInTheDocument()
+    })
 
-  it('shows no projects found message when search has no results', () => {
-    render(<PortfolioGrid />);
-    
-    const searchInput = screen.getByPlaceholderText('Search projects...');
-    
-    fireEvent.change(searchInput, { target: { value: 'nonexistent' } });
-    
-    expect(screen.getByText('No projects found')).toBeInTheDocument();
-    expect(screen.queryByTestId('project-card-1')).not.toBeInTheDocument();
-  });
+    it('displays project titles', () => {
+      render(<PortfolioGrid />)
+      
+      expect(screen.getByText('Test Project 1')).toBeInTheDocument()
+      expect(screen.getByText('Test Project 2')).toBeInTheDocument()
+      expect(screen.getByText('AI Project')).toBeInTheDocument()
+    })
+  })
 
-  it('filters projects by category', () => {
-    render(<PortfolioGrid />);
-    
-    // Click on 'ai' category
-    const aiButton = screen.getByTestId('category-ai');
-    fireEvent.click(aiButton);
-    
-    expect(screen.getByTestId('project-card-3')).toBeInTheDocument();
-    expect(screen.queryByTestId('project-card-1')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('project-card-2')).not.toBeInTheDocument();
-  });
+  describe('搜索功能测试', () => {
+    it('filters projects by search term', () => {
+      render(<PortfolioGrid />)
+      
+      const searchInput = screen.getByPlaceholderText('Search projects...')
+      
+      fireEvent.change(searchInput, { target: { value: 'AI' } })
+      
+      expect(screen.getByTestId('project-card-3')).toBeInTheDocument()
+      expect(screen.queryByTestId('project-card-1')).not.toBeInTheDocument()
+      expect(screen.queryByTestId('project-card-2')).not.toBeInTheDocument()
+    })
 
-  it('filters by both search term and category', () => {
-    render(<PortfolioGrid />);
-    
-    const searchInput = screen.getByPlaceholderText('Search projects...');
-    
-    // Filter by category first
-    const websiteButton = screen.getByTestId('category-website');
-    fireEvent.click(websiteButton);
-    
-    // Then search within that category
-    fireEvent.change(searchInput, { target: { value: 'Test' } });
-    
-    expect(screen.getByTestId('project-card-1')).toBeInTheDocument();
-    expect(screen.queryByTestId('project-card-2')).not.toBeInTheDocument();
-  });
+    it('filters projects by description', () => {
+      render(<PortfolioGrid />)
+      
+      const searchInput = screen.getByPlaceholderText('Search projects...')
+      
+      fireEvent.change(searchInput, { target: { value: 'test project description' } })
+      
+      expect(screen.getByTestId('project-card-1')).toBeInTheDocument()
+      expect(screen.queryByTestId('project-card-2')).not.toBeInTheDocument()
+    })
 
-  it('clears search when input is cleared', () => {
-    render(<PortfolioGrid />);
-    
-    const searchInput = screen.getByPlaceholderText('Search projects...');
-    
-    // Search and filter
-    fireEvent.change(searchInput, { target: { value: 'AI' } });
-    expect(screen.getByTestId('project-card-3')).toBeInTheDocument();
-    
-    // Clear search
-    fireEvent.change(searchInput, { target: { value: '' } });
-    
-    // All projects should be visible again
-    expect(screen.getByTestId('project-card-1')).toBeInTheDocument();
-    expect(screen.getByTestId('project-card-2')).toBeInTheDocument();
-    expect(screen.getByTestId('project-card-3')).toBeInTheDocument();
-  });
+    it('shows no results message when no projects match', () => {
+      render(<PortfolioGrid />)
+      
+      const searchInput = screen.getByPlaceholderText('Search projects...')
+      
+      fireEvent.change(searchInput, { target: { value: 'nonexistent' } })
+      
+      expect(screen.getByText('No projects found')).toBeInTheDocument()
+    })
 
-  it('renders category filter with all categories', () => {
-    render(<PortfolioGrid />);
-    
-    expect(screen.getByTestId('category-filter')).toBeInTheDocument();
-    expect(screen.getByTestId('category-all')).toBeInTheDocument();
-    expect(screen.getByTestId('category-website')).toBeInTheDocument();
-    expect(screen.getByTestId('category-app')).toBeInTheDocument();
-    expect(screen.getByTestId('category-ai')).toBeInTheDocument();
-  });
-});
+    it('clears filter when search term is cleared', () => {
+      render(<PortfolioGrid />)
+      
+      const searchInput = screen.getByPlaceholderText('Search projects...')
+      
+      fireEvent.change(searchInput, { target: { value: 'AI' } })
+      expect(screen.queryByTestId('project-card-1')).not.toBeInTheDocument()
+      
+      fireEvent.change(searchInput, { target: { value: '' } })
+      expect(screen.getByTestId('project-card-1')).toBeInTheDocument()
+    })
+  })
+
+  describe('分类过滤测试', () => {
+    it('filters projects by category', async () => {
+      render(<PortfolioGrid />)
+      
+      const aiCategoryBtn = screen.getByTestId('category-ai')
+      fireEvent.click(aiCategoryBtn)
+      
+      expect(screen.getByTestId('project-card-3')).toBeInTheDocument()
+      expect(screen.queryByTestId('project-card-1')).not.toBeInTheDocument()
+      expect(screen.queryByTestId('project-card-2')).not.toBeInTheDocument()
+    })
+
+    it('shows all projects when "all" category is selected', () => {
+      render(<PortfolioGrid />)
+      
+      const allCategoryBtn = screen.getByTestId('category-all')
+      fireEvent.click(allCategoryBtn)
+      
+      expect(screen.getByTestId('project-card-1')).toBeInTheDocument()
+      expect(screen.getByTestId('project-card-2')).toBeInTheDocument()
+      expect(screen.getByTestId('project-card-3')).toBeInTheDocument()
+    })
+  })
+
+  describe('组合过滤测试', () => {
+    it('combines search and category filters', () => {
+      render(<PortfolioGrid />)
+      
+      // 先选择 app 分类
+      const appCategoryBtn = screen.getByTestId('category-app')
+      fireEvent.click(appCategoryBtn)
+      
+      // 再搜索 "Test"
+      const searchInput = screen.getByPlaceholderText('Search projects...')
+      fireEvent.change(searchInput, { target: { value: 'Test' } })
+      
+      // 应该只显示 app 分类中匹配 "Test" 的项目
+      expect(screen.getByTestId('project-card-2')).toBeInTheDocument()
+      expect(screen.queryByTestId('project-card-1')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('自定义初始项目测试', () => {
+    it('accepts custom initial projects', () => {
+      const customProjects = [
+        {
+          id: 'custom-1',
+          slug: 'custom-project',
+          title: 'Custom Project',
+          description: 'A custom project',
+          category: 'design' as const,
+          thumbnail: '/images/custom.jpg',
+          images: [],
+          techStack: ['Figma'],
+          client: 'Custom Client',
+          duration: '1 month',
+          highlights: [],
+          links: {},
+        },
+      ]
+      
+      render(<PortfolioGrid initialProjects={customProjects} />)
+      
+      expect(screen.getByTestId('project-card-custom-1')).toBeInTheDocument()
+      expect(screen.queryByTestId('project-card-1')).not.toBeInTheDocument()
+    })
+  })
+})

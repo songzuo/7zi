@@ -2,7 +2,7 @@
  * Logger Types
  */
 
-export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'fatal';
+export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'audit';
 export type LogCategory = 'api' | 'auth' | 'database' | 'system' | 'user' | 'security' | 'performance';
 
 export interface LogEntry {

@@ -341,8 +341,7 @@ describe('Health Check Utilities', () => {
       it('should return started status', () => {
         const response = probes.startup();
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        expect((response as any).data.status).toBe('started');
+        expect((response as unknown as { data: { status: string } }).data.status).toBe('started');
         expect(response.status).toBe(200);
       });
     });

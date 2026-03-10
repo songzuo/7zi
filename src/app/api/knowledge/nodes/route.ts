@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error fetching nodes:', error);
+    apiLogger.error('Error fetching nodes', { error });
     return NextResponse.json(
       { success: false, error: 'Failed to fetch nodes' },
       { status: 500 }
@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
       data: lattice.getNode(nodeId),
     }, { status: 201 });
   } catch (error) {
-    console.error('Error creating node:', error);
+    apiLogger.error('Error creating node', { error });
     return NextResponse.json(
       { success: false, error: 'Failed to create node' },
       { status: 500 }

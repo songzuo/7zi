@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
       data: result,
     });
   } catch (error) {
-    console.error('Error performing inference:', error);
+    apiLogger.error('Error performing inference', { error });
     return NextResponse.json(
       { success: false, error: 'Failed to perform inference' },
       { status: 500 }
