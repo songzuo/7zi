@@ -3,11 +3,6 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import TaskCard from '@/app/[locale]/tasks/components/TaskCard'
 import type { Task } from '@/lib/types/task-types'
 
-// Mock child components
-vi.mock('./AssignmentSuggester', () => ({
-  default: vi.fn(() => <div data-testid="assignment-suggester">Assignment Suggester</div>),
-}))
-
 const mockTask: Task = {
   id: 'task_123',
   title: 'Test Task',
