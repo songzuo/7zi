@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
     // 按分配的团队成员过滤
     if (assignee) {
       filteredProjects = filteredProjects.filter(project => 
-        project.teamMembers?.includes(assignee)
+        project.members?.includes(assignee)
       );
     }
 
@@ -135,7 +135,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 验证优先级
-    const validPriorities: ProjectPriority[] = ['low', 'medium', 'high', 'critical'];
+    const validPriorities: ProjectPriority[] = ['low', 'medium', 'high', 'urgent'];
     if (body.priority && !validPriorities.includes(body.priority)) {
       return NextResponse.json(
         { error: `Invalid project priority. Valid values: ${validPriorities.join(', ')}` },

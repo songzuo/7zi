@@ -33,6 +33,7 @@ export interface Task {
   priority: TaskPriority;
   status: TaskStatus;
   assignee?: string; // AI member id
+  projectId?: string; // Optional project association
   createdBy: 'user' | 'ai';
   createdAt: string;
   updatedAt: string;

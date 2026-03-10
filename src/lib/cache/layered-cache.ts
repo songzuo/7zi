@@ -129,7 +129,9 @@ export class LayeredCache {
         // 先写 L1，异步写 L2
         this.l1.set(key, value, ttl, tags);
         this.l2.set(key, value, ttl, tags).catch((err) => {
-          console.error('L2 async write error:', err);
+          if (process.env.NODE_ENV === 'development') {
+            console.error('L2 async write error:', err);
+          }
         });
         return true;
 

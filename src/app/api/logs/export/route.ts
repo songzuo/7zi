@@ -133,7 +133,7 @@ export async function GET(request: NextRequest) {
     const dbTransport = getDbTransport();
     const result = dbTransport.query(query);
 
-    if (!result || !Array.isArray(result.data)) {
+    if (!result || !Array.isArray(result.logs)) {
       return NextResponse.json(
         { 
           success: false, 
@@ -143,7 +143,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const logs = result.data;
+    const logs = result.logs;
 
     // 5. 根据格式返回响应
     const filename = `logs_${startDate || 'all'}_${endDate || 'now'}.${format}`;

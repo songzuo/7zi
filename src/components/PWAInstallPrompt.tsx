@@ -46,7 +46,7 @@ export function PWAInstallPrompt() {
     } catch (err) {
       // Silent error handling in production
       if (process.env.NODE_ENV === 'development') {
-        pwaLogger.error('Error prompting for install:', err);
+        console.error('Error prompting for install:', err);
       }
     } finally {
       setDeferredPrompt(null);

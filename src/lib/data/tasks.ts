@@ -1,4 +1,4 @@
-import { Task } from '@/types/task-types';
+import type { Task } from '@/lib/types/task-types';
 
 // In-memory storage for tasks (in production, this would be a database)
 export const tasks: Task[] = [
