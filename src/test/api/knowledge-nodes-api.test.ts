@@ -6,22 +6,35 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
-// Mock KnowledgeLattice class - must be before any imports that use it
-const mockLattice = {
-  getAllNodes: vi.fn(),
-  getNode: vi.fn(),
-  addNode: vi.fn(),
-  updateNode: vi.fn(),
-  deleteNode: vi.fn(),
-  getNodesByType: vi.fn(),
-  getNodesByTag: vi.fn(),
-  getNodesBySource: vi.fn(),
+// Mock functions that will be reused
+const mockGetAllNodes = vi.fn();
+const mockGetNode = vi.fn();
+const mockAddNode = vi.fn();
+const mockUpdateNode = vi.fn();
+const mockDeleteNode = vi.fn();
+const mockGetNodesByType = vi.fn();
+const mockGetNodesByTag = vi.fn();
+const mockGetNodesBySource = vi.fn();
+
+// Create a mock lattice instance
+const mockLatticeInstance = {
+  getAllNodes: mockGetAllNodes,
+  getNode: mockGetNode,
+  addNode: mockAddNode,
+  updateNode: mockUpdateNode,
+  deleteNode: mockDeleteNode,
+  getNodesByType: mockGetNodesByType,
+  getNodesByTag: mockGetNodesByTag,
+  getNodesBySource: mockGetNodesBySource,
 };
 
-// Mock the KnowledgeLattice class constructor
+// Mock the KnowledgeLattice class with a proper class constructor
 vi.mock('@/lib/agents/knowledge-lattice', () => {
+  // Create a mock class constructor
+  const MockKnowledgeLattice = vi.fn(() => mockLatticeInstance);
+  
   return {
-    KnowledgeLattice: vi.fn().mockImplementation(() => mockLattice),
+    KnowledgeLattice: MockKnowledgeLattice,
     KnowledgeType: {
       CONCEPT: 'concept',
       FACT: 'fact',
@@ -65,20 +78,17 @@ function createMockRequest(
 
 describe('Knowledge Nodes API', () => {
   beforeEach(async () => {
-    // Reset modules to clear the singleton latticeInstance in the route
-    vi.resetModules();
+    // Clear all mock calls and implementations
+    vi.clearAllMocks();
     
-    // Re-import the mocked module and route handlers
+    // Re-import the route handlers to get fresh module state
     const routeModule = await import('@/app/api/knowledge/nodes/route');
     getNodes = routeModule.GET;
     postNodes = routeModule.POST;
-    
-    // Reset mock functions
-    vi.clearAllMocks();
   });
 
   afterEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('GET /api/knowledge/nodes', () => {
@@ -87,7 +97,7 @@ describe('Knowledge Nodes API', () => {
         { id: 'node-1', content: '概念1', type: 'concept', weight: 0.8 },
         { id: 'node-2', content: '事实1', type: 'fact', weight: 0.6 },
       ];
-      mockLattice.getAllNodes.mockReturnValue(mockNodes);
+      mockGetAllNodes.mockReturnValue(mockNodes);
 
       const request = createMockRequest('GET');
       const response = await getNodes(request);
@@ -104,7 +114,7 @@ describe('Knowledge Nodes API', () => {
         { id: 'node-2', content: '概念2', type: 'concept', weight: 0.7 },
         { id: 'node-3', content: '事实1', type: 'fact', weight: 0.6 },
       ];
-      mockLattice.getAllNodes.mockReturnValue(mockNodes);
+      mockGetAllNodes.mockReturnValue(mockNodes);
 
       const request = createMockRequest('GET', undefined, { type: 'concept' });
       const response = await getNodes(request);
@@ -119,7 +129,7 @@ describe('Knowledge Nodes API', () => {
         { id: 'node-1', content: '用户知识', type: 'concept', source: 'user' },
         { id: 'node-2', content: 'AI知识', type: 'fact', source: 'ai' },
       ];
-      mockLattice.getAllNodes.mockReturnValue(mockNodes);
+      mockGetAllNodes.mockReturnValue(mockNodes);
 
       const request = createMockRequest('GET', undefined, { source: 'user' });
       const response = await getNodes(request);
@@ -134,7 +144,7 @@ describe('Knowledge Nodes API', () => {
         { id: 'node-1', content: '重要概念', type: 'concept', tags: ['important', 'core'] },
         { id: 'node-2', content: '一般概念', type: 'concept', tags: ['general'] },
       ];
-      mockLattice.getAllNodes.mockReturnValue(mockNodes);
+      mockGetAllNodes.mockReturnValue(mockNodes);
 
       const request = createMockRequest('GET', undefined, { tags: 'important,core' });
       const response = await getNodes(request);
@@ -152,7 +162,7 @@ describe('Knowledge Nodes API', () => {
         { id: 'node-2', content: '中等权重', type: 'concept', weight: 0.6 },
         { id: 'node-3', content: '低权重', type: 'concept', weight: 0.3 },
       ];
-      mockLattice.getAllNodes.mockReturnValue(mockNodes);
+      mockGetAllNodes.mockReturnValue(mockNodes);
 
       const request = createMockRequest('GET', undefined, { minWeight: '0.5' });
       const response = await getNodes(request);
@@ -167,7 +177,7 @@ describe('Knowledge Nodes API', () => {
         { id: 'node-1', content: '高置信', type: 'fact', confidence: 0.95 },
         { id: 'node-2', content: '中等置信', type: 'fact', confidence: 0.7 },
       ];
-      mockLattice.getAllNodes.mockReturnValue(mockNodes);
+      mockGetAllNodes.mockReturnValue(mockNodes);
 
       const request = createMockRequest('GET', undefined, { minConfidence: '0.8' });
       const response = await getNodes(request);
@@ -184,7 +194,7 @@ describe('Knowledge Nodes API', () => {
         type: 'concept',
         weight: 0.5,
       }));
-      mockLattice.getAllNodes.mockReturnValue(mockNodes);
+      mockGetAllNodes.mockReturnValue(mockNodes);
 
       const request = createMockRequest('GET', undefined, { limit: '10', offset: '5' });
       const response = await getNodes(request);
@@ -203,7 +213,7 @@ describe('Knowledge Nodes API', () => {
         { id: 'node-2', content: 'AI概念', type: 'concept', source: 'ai', weight: 0.9 },
         { id: 'node-3', content: '用户事实', type: 'fact', source: 'user', weight: 0.7 },
       ];
-      mockLattice.getAllNodes.mockReturnValue(mockNodes);
+      mockGetAllNodes.mockReturnValue(mockNodes);
 
       const request = createMockRequest('GET', undefined, { 
         type: 'concept', 
@@ -219,7 +229,7 @@ describe('Knowledge Nodes API', () => {
     });
 
     it('空结果时应该返回空数组', async () => {
-      mockLattice.getAllNodes.mockReturnValue([]);
+      mockGetAllNodes.mockReturnValue([]);
 
       const request = createMockRequest('GET');
       const response = await getNodes(request);
@@ -231,7 +241,7 @@ describe('Knowledge Nodes API', () => {
     });
 
     it('错误时应该返回 500', async () => {
-      mockLattice.getAllNodes.mockImplementation(() => {
+      mockGetAllNodes.mockImplementation(() => {
         throw new Error('Database error');
       });
 
@@ -255,8 +265,8 @@ describe('Knowledge Nodes API', () => {
         source: 'user',
       };
       
-      mockLattice.addNode.mockReturnValue('node-new');
-      mockLattice.getNode.mockReturnValue({
+      mockAddNode.mockReturnValue('node-new');
+      mockGetNode.mockReturnValue({
         id: 'node-new',
         ...newNode,
         timestamp: Date.now(),
@@ -305,8 +315,8 @@ describe('Knowledge Nodes API', () => {
     });
 
     it('应该使用默认值', async () => {
-      mockLattice.addNode.mockReturnValue('node-default');
-      mockLattice.getNode.mockReturnValue({
+      mockAddNode.mockReturnValue('node-default');
+      mockGetNode.mockReturnValue({
         id: 'node-default',
         content: '默认值测试',
         type: 'concept',
@@ -328,8 +338,8 @@ describe('Knowledge Nodes API', () => {
     });
 
     it('应该支持添加标签', async () => {
-      mockLattice.addNode.mockReturnValue('node-tags');
-      mockLattice.getNode.mockReturnValue({
+      mockAddNode.mockReturnValue('node-tags');
+      mockGetNode.mockReturnValue({
         id: 'node-tags',
         content: '带标签的节点',
         type: 'concept',
@@ -349,8 +359,8 @@ describe('Knowledge Nodes API', () => {
     });
 
     it('应该支持添加元数据', async () => {
-      mockLattice.addNode.mockReturnValue('node-meta');
-      mockLattice.getNode.mockReturnValue({
+      mockAddNode.mockReturnValue('node-meta');
+      mockGetNode.mockReturnValue({
         id: 'node-meta',
         content: '带元数据的节点',
         type: 'fact',
@@ -371,8 +381,8 @@ describe('Knowledge Nodes API', () => {
 
     it('应该支持添加嵌入向量', async () => {
       const embedding = [0.1, 0.2, 0.3, 0.4, 0.5];
-      mockLattice.addNode.mockReturnValue('node-embedding');
-      mockLattice.getNode.mockReturnValue({
+      mockAddNode.mockReturnValue('node-embedding');
+      mockGetNode.mockReturnValue({
         id: 'node-embedding',
         content: '带嵌入的节点',
         type: 'concept',
@@ -392,7 +402,7 @@ describe('Knowledge Nodes API', () => {
     });
 
     it('错误时应该返回 500', async () => {
-      mockLattice.addNode.mockImplementation(() => {
+      mockAddNode.mockImplementation(() => {
         throw new Error('Failed to add node');
       });
 
