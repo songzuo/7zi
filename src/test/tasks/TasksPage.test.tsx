@@ -20,6 +20,10 @@ vi.mock('@/lib/store/tasks-store', () => ({
         })
       }),
       updateTask: vi.fn(),
+      deleteTask: vi.fn(),
+      assignTask: vi.fn(),
+      completeTask: vi.fn(),
+      addComment: vi.fn(),
     }
     return selector(state)
   }),
@@ -127,6 +131,10 @@ describe('TasksPage', () => {
           }],
           addTask: vi.fn(),
           updateTask: vi.fn(),
+          deleteTask: vi.fn(),
+          assignTask: vi.fn(),
+          completeTask: vi.fn(),
+          addComment: vi.fn(),
         }
         return selector(state)
       })
@@ -212,6 +220,10 @@ describe('TasksPage', () => {
           ],
           addTask: vi.fn(),
           updateTask: vi.fn(),
+          deleteTask: vi.fn(),
+          assignTask: vi.fn(),
+          completeTask: vi.fn(),
+          addComment: vi.fn(),
         }
         return selector(state)
       })
@@ -258,6 +270,10 @@ describe('TasksPage', () => {
           }],
           addTask: mockAddTask,
           updateTask: mockUpdateTask,
+          deleteTask: vi.fn(),
+          assignTask: vi.fn(),
+          completeTask: vi.fn(),
+          addComment: vi.fn(),
         }
         return selector(state)
       })

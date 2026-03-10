@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { act } from '@testing-library/react'
 import { useTasksStore } from '@/lib/store/tasks-store'
 import type { Task } from '@/lib/types/task-types'
-import type { DashboardState } from '@/stores/dashboardStore'
 
 // Mock dashboard store
 vi.mock('@/stores/dashboardStore', () => ({
