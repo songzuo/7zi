@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
       }
-      teamMembers = body.teamMembers.filter(member => typeof member === 'string' && member.trim());
+      teamMembers = body.teamMembers.filter((member: unknown) => typeof member === 'string' && member.trim());
     }
 
     const newProject: Omit<Project, 'id' | 'createdAt' | 'updatedAt'> = {
@@ -337,7 +337,7 @@ export async function PUT(request: NextRequest) {
           { status: 400 }
         );
       }
-      teamMembers = body.teamMembers.filter(member => typeof member === 'string' && member.trim());
+      teamMembers = body.teamMembers.filter((member: unknown) => typeof member === 'string' && member.trim());
     }
 
     const updateData: Partial<Project> = {
