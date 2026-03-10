@@ -18,7 +18,7 @@ interface Metric {
 
 // Thresholds for Web Vitals ratings
 // Note: FID removed in v5 - replaced by INP
-const thresholds = {
+export const thresholds = {
   LCP: { good: 2500, poor: 4000 },
   CLS: { good: 0.1, poor: 0.25 },
   TTFB: { good: 800, poor: 1800 },
@@ -29,7 +29,7 @@ const thresholds = {
 /**
  * Get rating for a metric value
  */
-function getRating(name: string, value: number): 'good' | 'needs-improvement' | 'poor' {
+export function getRating(name: string, value: number): 'good' | 'needs-improvement' | 'poor' {
   const threshold = thresholds[name as keyof typeof thresholds];
   if (!threshold) return 'good';
   
