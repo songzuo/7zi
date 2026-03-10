@@ -261,15 +261,32 @@ src/app/api/tasks/             # 任务 API
 ```
 
 **功能特性**:
-- AI 智能任务分配
+- AI 智能任务分配 (`/api/tasks/:id/assign`)
 - 任务优先级管理
 - 状态追踪与历史记录
 - 与 Dashboard 集成
+- 完整的 CRUD 操作支持
 
 **AI_MEMBER_ROLES 问题**: ✅ 已解决
 - 原问题: AI_MEMBER_ROLES 枚举定义位置不明确
 - 解决方案: 在 `src/lib/types/task-types.ts` 中统一定义
 - 相关角色: EXECUTOR, DESIGNER, CONSULTANT, PROMOTER, GENERAL
+
+### 3.6 新增 API 端点 - 任务分配系统
+
+**完成日期**: 2026-03-09
+
+**API 端点**:
+- `POST /api/tasks/:id/assign` - AI 智能任务分配
+  - 支持自动分配 (`autoAssign: true`)
+  - 支持指定成员分配 (`preferredMemberId`)
+  - 返回分配建议列表（前5名候选人）
+  - 基于专业匹配度、可用性和经验评分
+
+**安全特性**:
+- 认证保护（需要有效 token）
+- 审计日志记录
+- 输入验证和错误处理
 
 ---
 

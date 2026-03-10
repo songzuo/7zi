@@ -35,8 +35,14 @@ export {
 export {
   basicHealthCheck,
   detailedHealthCheck,
+  comprehensiveHealthReport,
+  getSystemResources,
   healthResponse,
   probes,
   type HealthStatus,
   type CheckResult,
+  type DetailedHealthReport,
+  type SystemResources,
+  type ServiceStatus,
+  type ConfigurationStatus,
 } from './health';

@@ -2,6 +2,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   basicHealthCheck,
   detailedHealthCheck,
+  comprehensiveHealthReport,
+  getSystemResources,
   healthResponse,
   probes,
 } from './health';
@@ -149,6 +151,115 @@ describe('Health Check Utilities', () => {
     });
   });
 
+  describe('getSystemResources', () => {
+    it('should return system resource information', () => {
+      const resources = getSystemResources();
+
+      expect(resources.memory).toBeDefined();
+      expect(resources.memory.total).toBeGreaterThan(0);
+      expect(resources.memory.used).toBeGreaterThanOrEqual(0);
+      expect(resources.memory.usagePercent).toBeGreaterThanOrEqual(0);
+      expect(resources.memory.usagePercent).toBeLessThanOrEqual(100);
+
+      expect(resources.cpu).toBeDefined();
+      expect(resources.cpu.cores).toBeGreaterThan(0);
+      expect(resources.cpu.model).toBeDefined();
+      expect(resources.cpu.loadAverage).toHaveLength(3);
+
+      expect(resources.process).toBeDefined();
+      expect(resources.process.pid).toBeGreaterThan(0);
+      expect(resources.process.nodeVersion).toMatch(/^v\d+/);
+      expect(resources.process.platform).toBeDefined();
+      expect(resources.process.arch).toBeDefined();
+    });
+  });
+
+  describe('comprehensiveHealthReport', () => {
+    it('should return comprehensive health report', async () => {
+      mockFetch.mockResolvedValue({ ok: true });
+
+      const report = await comprehensiveHealthReport();
+
+      expect(report.status).toBeDefined();
+      expect(report.timestamp).toBeDefined();
+      expect(report.version).toBeDefined();
+      expect(report.uptime).toBeGreaterThanOrEqual(0);
+      expect(report.environment).toBeDefined();
+
+      expect(report.system).toBeDefined();
+      expect(report.services).toBeDefined();
+      expect(report.configuration).toBeDefined();
+    });
+
+    it('should check all services', async () => {
+      mockFetch.mockResolvedValue({ ok: true });
+
+      const report = await comprehensiveHealthReport();
+
+      expect(report.services.database).toBeDefined();
+      expect(report.services.redis).toBeDefined();
+      expect(report.services.email.resend).toBeDefined();
+      expect(report.services.email.emailjs).toBeDefined();
+      expect(report.services.analytics.umami).toBeDefined();
+      expect(report.services.analytics.plausible).toBeDefined();
+      expect(report.services.analytics.google).toBeDefined();
+      expect(report.services.monitoring.sentry).toBeDefined();
+      expect(report.services.external.github).toBeDefined();
+    });
+
+    it('should report skipped status for unconfigured services', async () => {
+      vi.stubEnv('DATABASE_URL', '');
+      vi.stubEnv('REDIS_URL', '');
+      mockFetch.mockResolvedValue({ ok: true });
+
+      const report = await comprehensiveHealthReport();
+
+      expect(report.services.database.status).toBe('skipped');
+      expect(report.services.redis.status).toBe('skipped');
+    });
+
+    it('should check configuration status', async () => {
+      vi.stubEnv('JWT_SECRET', 'test-secret-key-at-least-32-chars-long');
+      vi.stubEnv('CSRF_SECRET', 'test-csrf-secret-at-least-32-chars');
+      mockFetch.mockResolvedValue({ ok: true });
+
+      const report = await comprehensiveHealthReport();
+
+      expect(report.configuration.requiredEnvVars).toBeDefined();
+      expect(report.configuration.optionalEnvVars).toBeDefined();
+      expect(report.configuration.security).toBeDefined();
+    });
+
+    it('should detect security issues', async () => {
+      vi.stubEnv('JWT_SECRET', 'short');
+      vi.stubEnv('CSRF_SECRET', 'short');
+      mockFetch.mockResolvedValue({ ok: true });
+
+      const report = await comprehensiveHealthReport();
+
+      expect(report.configuration.security.jwtConfigured).toBe(false);
+      expect(report.configuration.security.csrfConfigured).toBe(false);
+      expect(report.status).toBe('error');
+    });
+
+    it('should run all checks in parallel', async () => {
+      const startTime = Date.now();
+
+      mockFetch.mockImplementation(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(() => resolve({ ok: true }), 100);
+          })
+      );
+
+      await comprehensiveHealthReport();
+
+      const duration = Date.now() - startTime;
+      // All checks run in parallel, so should complete in ~100ms, not 300ms+
+      expect(duration).toBeLessThan(500);
+    });
+  });
+
   describe('healthResponse', () => {
     it('should return 200 for ok status', () => {
       const status = {
@@ -198,7 +309,8 @@ describe('Health Check Utilities', () => {
       it('should return alive status', () => {
         const response = probes.liveness();
 
-        expect(response.data).toEqual({ status: 'alive' });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        expect((response as any).data).toEqual({ status: 'alive' });
         expect(response.status).toBe(200);
       });
     });
@@ -225,7 +337,8 @@ describe('Health Check Utilities', () => {
       it('should return started status', () => {
         const response = probes.startup();
 
-        expect(response.data.status).toBe('started');
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        expect((response as any).data.status).toBe('started');
         expect(response.status).toBe(200);
       });
     });

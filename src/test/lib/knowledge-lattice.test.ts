@@ -43,7 +43,7 @@ describe('KnowledgeLattice', () => {
 
       it('应该为没有 ID 的节点自动生成 ID', () => {
         const node: LatticeNode = {
-          id: 'test-node-500',
+          id: '',
           content: '无 ID 节点',
           type: KnowledgeType.FACT,
           weight: 0.5,
@@ -55,7 +55,7 @@ describe('KnowledgeLattice', () => {
 
         const id = lattice.addNode(node);
         expect(id).toBeDefined();
-        expect(id.startsWith('node_')).toBe(true);
+        expect(id.startsWith('node-')).toBe(true);
       });
 
       it('应该自动设置时间戳', () => {

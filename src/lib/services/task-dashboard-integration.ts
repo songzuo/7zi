@@ -1,6 +1,6 @@
 import { useDashboardStore } from '@/stores/dashboardStore';
 import { useTasksStore } from '@/lib/store/tasks-store';
-import { TaskType, type Task } from '@/lib/types/task-types';
+import { TaskType, type Task, type AITeamMember } from '@/lib/types/task-types';
 
 /**
  * Task Dashboard Integration Service
@@ -13,7 +13,7 @@ import { TaskType, type Task } from '@/lib/types/task-types';
  */
 
 // Get AI team members from dashboard store for task assignment
-export const getAITeamForTaskAssignment = () => {
+export const getAITeamForTaskAssignment = (): AITeamMember[] => {
   const members = useDashboardStore.getState().members;
   
   return members.map(member => ({
@@ -21,7 +21,7 @@ export const getAITeamForTaskAssignment = () => {
     name: member.name,
     role: member.role,
     expertise: getExpertiseFromRole(member.role),
-    status: member.status === 'working' || member.status === 'busy' ? 'busy' : 'available',
+    status: (member.status === 'working' || member.status === 'busy' ? 'busy' : 'available') as 'available' | 'busy' | 'offline',
     completedTasks: member.completedTasks,
     avatar: member.avatar
   }));

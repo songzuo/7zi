@@ -153,13 +153,13 @@ ALERT_EMAIL_RECIPIENTS=admin@example.com
 
 | API 模块 | 实现状态 | 备注 |
 |----------|----------|------|
-| Tasks API | ✅ 完整 | `/api/tasks` |
+| Tasks API | ✅ 完整 | `/api/tasks`, `/api/tasks/:id/assign` |
 | Health API | ✅ 完整 | `/api/health/*` |
 | Knowledge API | ✅ 完整 | `/api/knowledge/*` |
-| Auth API | ✅ 基础 | `/api/auth` |
+| Auth API | ✅ 完整 | `/api/auth` (带完整认证和授权) |
 | Status API | ✅ 完整 | `/api/status` |
-| Logs API | ⚠️ 部分 | 缺少 export 端点 |
-| Projects API | ❌ 未实现 | 通过 Tasks API 管理 |
+| Logs API | ⚠️ 部分 | `/api/logs` 已实现，缺少 `/api/logs/export` 端点 |
+| Projects API | ❌ 未实现 | `/api/projects` 目录存在但未实现，项目数据通过 Tasks API 管理 |
 
 ### 重构状态
 

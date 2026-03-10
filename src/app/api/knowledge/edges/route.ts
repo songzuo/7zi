@@ -94,6 +94,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 验证节点存在性
+    const fromNode = lattice.getNode(body.from);
+    const toNode = lattice.getNode(body.to);
+    
+    if (!fromNode) {
+      return NextResponse.json(
+        { success: false, error: `Source node not found: ${body.from}` },
+        { status: 404 }
+      );
+    }
+    
+    if (!toNode) {
+      return NextResponse.json(
+        { success: false, error: `Target node not found: ${body.to}` },
+        { status: 404 }
+      );
+    }
+
     // 创建边
     const edge = {
       id: `edge-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,

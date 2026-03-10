@@ -10,6 +10,8 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./src/test/setup.tsx'],
     include: ['src/**/*.{test,spec}.{js,ts,jsx,tsx}'],
+    // 使用有效的 reporter 配置
+    reporters: ['default'],
     // 限制并行 worker 数量，避免 CPU 过载
     maxWorkers: 2,
     // 测试超时配置
