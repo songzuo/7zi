@@ -40,17 +40,6 @@ export function ErrorBoundary({
  * 错误日志记录函数
  */
 function logError(error: Error & { digest?: string }) {
-  // 控制台日志（开发环境）
-  if (process.env.NODE_ENV === 'development') {
-    console.group('🚨 Error Boundary 捕获到错误');
-    console.error('错误信息:', error.message);
-    console.error('错误堆栈:', error.stack);
-    if (error.digest) {
-      console.error('错误摘要:', error.digest);
-    }
-    console.groupEnd();
-  }
-
   // 生产环境发送到错误追踪服务
   if (process.env.NODE_ENV === 'production') {
     sendToErrorService(error);
