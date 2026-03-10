@@ -5,9 +5,8 @@
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
-import { GET as getNodes, POST as postNodes } from '@/app/api/knowledge/nodes/route';
 
-// Mock KnowledgeLattice class
+// Mock KnowledgeLattice class - must be before any imports that use it
 const mockLattice = {
   getAllNodes: vi.fn(),
   getNode: vi.fn(),
@@ -40,6 +39,11 @@ vi.mock('@/lib/agents/knowledge-lattice', () => {
   };
 });
 
+// Import route handlers AFTER mock is set up
+// and re-import them in beforeEach to reset the singleton
+let getNodes: (request: NextRequest) => Promise<Response>;
+let postNodes: (request: NextRequest) => Promise<Response>;
+
 // 辅助函数
 function createMockRequest(
   method: string,
@@ -60,11 +64,17 @@ function createMockRequest(
 }
 
 describe('Knowledge Nodes API', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    // Reset modules to clear the singleton latticeInstance in the route
+    vi.resetModules();
+    
+    // Re-import the mocked module and route handlers
+    const routeModule = await import('@/app/api/knowledge/nodes/route');
+    getNodes = routeModule.GET;
+    postNodes = routeModule.POST;
+    
+    // Reset mock functions
     vi.clearAllMocks();
-    mockLattice.getAllNodes.mockReset();
-    mockLattice.addNode.mockReset();
-    mockLattice.getNode.mockReset();
   });
 
   afterEach(() => {
@@ -400,6 +410,17 @@ describe('Knowledge Nodes API', () => {
 });
 
 describe('Knowledge API - 边界情况', () => {
+  let getNodes: (request: NextRequest) => Promise<Response>;
+  let postNodes: (request: NextRequest) => Promise<Response>;
+
+  beforeEach(async () => {
+    vi.resetModules();
+    const routeModule = await import('@/app/api/knowledge/nodes/route');
+    getNodes = routeModule.GET;
+    postNodes = routeModule.POST;
+    vi.clearAllMocks();
+  });
+
   it('应该处理超长内容', async () => {
     const longContent = 'A'.repeat(10000);
     mockLattice.addNode.mockReturnValue('node-long');
