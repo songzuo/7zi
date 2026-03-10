@@ -44,7 +44,10 @@ export function PWAInstallPrompt() {
         localStorage.setItem('pwa-install-dismissed', 'true');
       }
     } catch (err) {
-      console.error('[PWA] Error prompting for install:', err);
+      // Silent error handling in production
+      if (process.env.NODE_ENV === 'development') {
+        pwaLogger.error('Error prompting for install:', err);
+      }
     } finally {
       setDeferredPrompt(null);
       setShowPrompt(false);

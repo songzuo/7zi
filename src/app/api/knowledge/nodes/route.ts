@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { KnowledgeLattice, KnowledgeType, KnowledgeSource } from '@/lib/agents/knowledge-lattice';
+import { apiLogger } from '@/lib/logger';
 
 // 创建全局知识晶格实例
 let latticeInstance: KnowledgeLattice | null = null;

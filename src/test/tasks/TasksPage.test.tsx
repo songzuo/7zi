@@ -1,15 +1,15 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import TasksPage from '@/app/[locale]/tasks/page'
+import type { Task } from '@/lib/types/task-types'
 
 // Mock stores
 vi.mock('@/lib/store/tasks-store', () => ({
   useTasksStore: vi.fn((selector) => {
     const state = {
-      tasks: [] as any[],
-      addTask: vi.fn((taskData) => {
+      tasks: [] as Task[],
+      addTask: vi.fn((taskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'comments' | 'history'>) => {
         state.tasks.push({
           id: `task_${Date.now()}`,
           ...taskData,
@@ -110,7 +110,7 @@ describe('TasksPage', () => {
 
     it('should not show empty state when there are tasks', async () => {
       const { useTasksStore } = await import('@/lib/store/tasks-store')
-      vi.mocked(useTasksStore).mockImplementation((selector: any) => {
+      vi.mocked(useTasksStore).mockImplementation((selector) => {
         const state = {
           tasks: [{
             id: 'task_1',
@@ -179,7 +179,7 @@ describe('TasksPage', () => {
   describe('task list', () => {
     beforeEach(async () => {
       const { useTasksStore } = await import('@/lib/store/tasks-store')
-      vi.mocked(useTasksStore).mockImplementation((selector: any) => {
+      vi.mocked(useTasksStore).mockImplementation((selector) => {
         const state = {
           tasks: [
             {
@@ -241,7 +241,7 @@ describe('TasksPage', () => {
       mockUpdateTask = vi.fn()
       
       const { useTasksStore } = await import('@/lib/store/tasks-store')
-      vi.mocked(useTasksStore).mockImplementation((selector: any) => {
+      vi.mocked(useTasksStore).mockImplementation((selector) => {
         const state = {
           tasks: [{
             id: 'task_1',
@@ -288,7 +288,7 @@ describe('TasksPage', () => {
       mockUpdateTask = vi.fn()
       
       const { useTasksStore } = await import('@/lib/store/tasks-store')
-      vi.mocked(useTasksStore).mockImplementation((selector: any) => {
+      vi.mocked(useTasksStore).mockImplementation((selector) => {
         const state = {
           tasks: [{
             id: 'task_1',
@@ -325,7 +325,7 @@ describe('TasksPage', () => {
   describe('task selection', () => {
     beforeEach(async () => {
       const { useTasksStore } = await import('@/lib/store/tasks-store')
-      vi.mocked(useTasksStore).mockImplementation((selector: any) => {
+      vi.mocked(useTasksStore).mockImplementation((selector) => {
         const state = {
           tasks: [{
             id: 'task_1',
@@ -393,7 +393,7 @@ describe('TasksPage', () => {
   describe('edge cases', () => {
     it('should handle multiple rapid task selections', async () => {
       const { useTasksStore } = await import('@/lib/store/tasks-store')
-      vi.mocked(useTasksStore).mockImplementation((selector: any) => {
+      vi.mocked(useTasksStore).mockImplementation((selector) => {
         const state = {
           tasks: [
             { id: 'task_1', title: 'Task 1', description: '', type: 'development', priority: 'medium', status: 'pending', createdBy: 'user', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), comments: [], history: [] },
@@ -417,7 +417,7 @@ describe('TasksPage', () => {
 
     it('should handle create form toggle while task is selected', async () => {
       const { useTasksStore } = await import('@/lib/store/tasks-store')
-      vi.mocked(useTasksStore).mockImplementation((selector: any) => {
+      vi.mocked(useTasksStore).mockImplementation((selector) => {
         const state = {
           tasks: [{
             id: 'task_1',

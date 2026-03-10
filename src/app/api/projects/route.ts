@@ -1,37 +1,55 @@
 /**
  * 项目管理 API
- * 提供完整的 CRUD 操作，带认证和授权检查
+ * 提供完整的 CRUD 操作，带认证和授权检查，支持与任务系统的集成
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { Project, ProjectCategory } from '@/types/common';
+import { Project, ProjectStatus, ProjectPriority } from '@/types/project-types';
+import { Task } from '@/lib/types/task-types';
 import { v4 as uuidv4 } from 'uuid';
 import { verifyToken, extractToken, isAdmin } from '@/lib/security/auth';
 import { createCsrfMiddleware } from '@/lib/security/csrf';
 import { apiLogger } from '@/lib/logger';
-import { projects, getProjectBySlug } from '@/lib/data/projects';
+import { 
+  projects, 
+  getProjectById, 
+  createProject, 
+  updateProject, 
+  deleteProject,
+  getProjectsByStatus,
+  getProjectsByPriority
+} from '@/lib/data/projects';
+import { getTasksByProjectId } from '@/lib/data/tasks';
 
 // ============================================
 // GET /api/projects - 获取项目列表
+// 支持查询参数：status, priority, assignee
 // ============================================
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const category = searchParams.get('category') as ProjectCategory | null;
-    const status = searchParams.get('status') as 'active' | 'completed' | 'paused' | null;
+    const status = searchParams.get('status') as ProjectStatus | null;
+    const priority = searchParams.get('priority') as ProjectPriority | null;
+    const assignee = searchParams.get('assignee');
 
     let filteredProjects = [...projects];
 
-    // 按类别过滤
-    if (category) {
-      filteredProjects = filteredProjects.filter(project => project.category === category);
+    // 按状态过滤
+    if (status) {
+      filteredProjects = getProjectsByStatus(status);
     }
 
-    // 按状态过滤（基于 duration 字段推断状态）
-    if (status) {
-      // 这里可以根据实际需求实现状态过滤逻辑
-      // 目前项目数据中没有明确的状态字段，所以暂时不实现
+    // 按优先级过滤
+    if (priority) {
+      filteredProjects = getProjectsByPriority(priority);
+    }
+
+    // 按分配的团队成员过滤
+    if (assignee) {
+      filteredProjects = filteredProjects.filter(project => 
+        project.teamMembers?.includes(assignee)
+      );
     }
 
     return NextResponse.json({
@@ -53,6 +71,7 @@ export async function GET(request: NextRequest) {
 
 // ============================================
 // POST /api/projects - 创建项目
+// 需要认证，支持完整的项目元数据
 // ============================================
 
 export async function POST(request: NextRequest) {
@@ -92,56 +111,72 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     
     // 输入验证
-    if (!body.title || typeof body.title !== 'string') {
+    if (!body.name || typeof body.name !== 'string' || !body.name.trim()) {
       return NextResponse.json(
-        { error: 'Project title is required and must be a string' },
+        { error: 'Project name is required and must be a non-empty string' },
         { status: 400 }
       );
     }
 
-    if (!body.description || typeof body.description !== 'string') {
+    if (!body.description || typeof body.description !== 'string' || !body.description.trim()) {
       return NextResponse.json(
-        { error: 'Project description is required and must be a string' },
+        { error: 'Project description is required and must be a non-empty string' },
         { status: 400 }
       );
     }
 
-    if (!body.category || !['website', 'app', 'ai', 'design'].includes(body.category)) {
+    // 验证状态
+    const validStatuses: ProjectStatus[] = ['active', 'completed', 'paused'];
+    if (body.status && !validStatuses.includes(body.status)) {
       return NextResponse.json(
-        { error: 'Valid project category is required (website, app, ai, design)' },
+        { error: `Invalid project status. Valid values: ${validStatuses.join(', ')}` },
         { status: 400 }
       );
     }
 
-    const newProject: Project = {
-      id: uuidv4(),
-      slug: body.slug || body.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
-      title: body.title,
-      description: body.description,
-      category: body.category as ProjectCategory,
-      thumbnail: body.thumbnail || '/images/portfolio/default-thumb.jpg',
-      images: body.images || [],
-      techStack: Array.isArray(body.techStack) ? body.techStack : [],
-      client: body.client || undefined,
-      duration: body.duration || 'TBD',
-      highlights: Array.isArray(body.highlights) ? body.highlights : [],
-      testimonial: body.testimonial || undefined,
-      links: body.links || {},
+    // 验证优先级
+    const validPriorities: ProjectPriority[] = ['low', 'medium', 'high', 'critical'];
+    if (body.priority && !validPriorities.includes(body.priority)) {
+      return NextResponse.json(
+        { error: `Invalid project priority. Valid values: ${validPriorities.join(', ')}` },
+        { status: 400 }
+      );
+    }
+
+    // 验证团队成员（如果提供）
+    let teamMembers: string[] = [];
+    if (body.teamMembers) {
+      if (!Array.isArray(body.teamMembers)) {
+        return NextResponse.json(
+          { error: 'teamMembers must be an array of strings' },
+          { status: 400 }
+        );
+      }
+      teamMembers = body.teamMembers.filter(member => typeof member === 'string' && member.trim());
+    }
+
+    const newProject: Omit<Project, 'id' | 'createdAt' | 'updatedAt'> = {
+      name: body.name.trim(),
+      description: body.description.trim(),
+      status: body.status || 'active',
+      priority: body.priority || 'medium',
+      startDate: body.startDate || null,
+      endDate: body.endDate || null,
+      teamMembers: teamMembers,
+      metadata: body.metadata || {},
     };
 
-    // 在实际应用中，这里应该保存到数据库
-    // 目前使用内存存储，仅用于演示
-    projects.push(newProject);
+    const createdProject = createProject(newProject);
 
     apiLogger.audit('Project created', {
-      projectId: newProject.id,
+      projectId: createdProject.id,
       createdBy: payload.email,
       userRole: payload.role,
     });
 
     return NextResponse.json({
       success: true,
-      data: newProject,
+      data: createdProject,
     }, { status: 201 });
   } catch (error) {
     apiLogger.error('Error creating project', error);
@@ -152,6 +187,47 @@ export async function POST(request: NextRequest) {
         message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 400 }
+    );
+  }
+}
+
+// ============================================
+// GET /api/projects/:id - 获取项目详情
+// ============================================
+
+export async function GET_PROJECT_BY_ID(request: NextRequest) {
+  try {
+    const { pathname } = new URL(request.url);
+    const id = pathname.split('/').pop();
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Project ID is required' },
+        { status: 400 }
+      );
+    }
+
+    const project = getProjectById(id);
+    if (!project) {
+      return NextResponse.json(
+        { error: 'Project not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: project,
+    });
+  } catch (error) {
+    apiLogger.error('Error fetching project by ID', error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to fetch project',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
     );
   }
 }
@@ -194,8 +270,8 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
-    const { id, ...updateData } = body;
+    const { pathname } = new URL(request.url);
+    const id = pathname.split('/').pop();
 
     if (!id) {
       return NextResponse.json(
@@ -204,46 +280,85 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const projectIndex = projects.findIndex(project => project.id === id);
-    if (projectIndex === -1) {
+    const body = await request.json();
+    
+    // 验证项目是否存在
+    const existingProject = getProjectById(id);
+    if (!existingProject) {
       return NextResponse.json(
         { error: 'Project not found' },
         { status: 404 }
       );
     }
 
-    const existingProject = projects[projectIndex];
-    
     // 验证更新数据
-    if (updateData.title !== undefined && (typeof updateData.title !== 'string' || !updateData.title.trim())) {
+    if (body.name !== undefined) {
+      if (typeof body.name !== 'string' || !body.name.trim()) {
+        return NextResponse.json(
+          { error: 'Project name must be a non-empty string' },
+          { status: 400 }
+        );
+      }
+    }
+
+    if (body.description !== undefined) {
+      if (typeof body.description !== 'string' || !body.description.trim()) {
+        return NextResponse.json(
+          { error: 'Project description must be a non-empty string' },
+          { status: 400 }
+        );
+      }
+    }
+
+    // 验证状态
+    const validStatuses: ProjectStatus[] = ['active', 'completed', 'paused'];
+    if (body.status !== undefined && !validStatuses.includes(body.status)) {
       return NextResponse.json(
-        { error: 'Project title must be a non-empty string' },
+        { error: `Invalid project status. Valid values: ${validStatuses.join(', ')}` },
         { status: 400 }
       );
     }
 
-    if (updateData.description !== undefined && (typeof updateData.description !== 'string' || !updateData.description.trim())) {
+    // 验证优先级
+    const validPriorities: ProjectPriority[] = ['low', 'medium', 'high', 'critical'];
+    if (body.priority !== undefined && !validPriorities.includes(body.priority)) {
       return NextResponse.json(
-        { error: 'Project description must be a non-empty string' },
+        { error: `Invalid project priority. Valid values: ${validPriorities.join(', ')}` },
         { status: 400 }
       );
     }
 
-    if (updateData.category !== undefined && !['website', 'app', 'ai', 'design'].includes(updateData.category)) {
-      return NextResponse.json(
-        { error: 'Valid project category is required (website, app, ai, design)' },
-        { status: 400 }
-      );
+    // 验证团队成员
+    let teamMembers: string[] | undefined = undefined;
+    if (body.teamMembers !== undefined) {
+      if (!Array.isArray(body.teamMembers)) {
+        return NextResponse.json(
+          { error: 'teamMembers must be an array of strings' },
+          { status: 400 }
+        );
+      }
+      teamMembers = body.teamMembers.filter(member => typeof member === 'string' && member.trim());
     }
 
-    // 更新项目
-    const updatedProject: Project = {
-      ...existingProject,
-      ...updateData,
-      id: existingProject.id, // 确保ID不变
+    const updateData: Partial<Project> = {
+      name: body.name?.trim(),
+      description: body.description?.trim(),
+      status: body.status,
+      priority: body.priority,
+      startDate: body.startDate,
+      endDate: body.endDate,
+      teamMembers: teamMembers,
+      metadata: body.metadata,
     };
 
-    projects[projectIndex] = updatedProject;
+    // 移除 undefined 值
+    Object.keys(updateData).forEach(key => {
+      if (updateData[key as keyof typeof updateData] === undefined) {
+        delete updateData[key as keyof typeof updateData];
+      }
+    });
+
+    const updatedProject = updateProject(id, updateData);
 
     apiLogger.audit('Project updated', {
       projectId: updatedProject.id,
@@ -320,26 +435,23 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const { searchParams } = new URL(request.url);
-    const projectId = searchParams.get('id');
+    const { pathname } = new URL(request.url);
+    const id = pathname.split('/').pop();
 
-    if (!projectId) {
+    if (!id) {
       return NextResponse.json(
         { error: 'Project ID is required' },
         { status: 400 }
       );
     }
 
-    const projectIndex = projects.findIndex(project => project.id === projectId);
-    if (projectIndex === -1) {
+    const deletedProject = deleteProject(id);
+    if (!deletedProject) {
       return NextResponse.json(
         { error: 'Project not found' },
         { status: 404 }
       );
     }
-
-    const deletedProject = projects[projectIndex];
-    projects.splice(projectIndex, 1);
 
     apiLogger.audit('Project deleted by admin', {
       projectId: deletedProject.id,
@@ -363,3 +475,56 @@ export async function DELETE(request: NextRequest) {
     );
   }
 }
+
+// ============================================
+// GET /api/projects/:id/tasks - 获取项目相关任务
+// ============================================
+
+export async function GET_PROJECT_TASKS(request: NextRequest) {
+  try {
+    const { pathname } = new URL(request.url);
+    const id = pathname.split('/').slice(0, -1).pop(); // 获取 /api/projects/:id 部分
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Project ID is required' },
+        { status: 400 }
+      );
+    }
+
+    // 验证项目是否存在
+    const project = getProjectById(id);
+    if (!project) {
+      return NextResponse.json(
+        { error: 'Project not found' },
+        { status: 404 }
+      );
+    }
+
+    const tasks = getTasksByProjectId(id);
+
+    return NextResponse.json({
+      success: true,
+      data: tasks,
+    });
+  } catch (error) {
+    apiLogger.error('Error fetching project tasks', error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to fetch project tasks',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    );
+  }
+}
+
+// ============================================
+// 动态路由处理
+// ============================================
+
+export {
+  GET_PROJECT_BY_ID as GET_PROJECT,
+  GET_PROJECT_TASKS as GET_PROJECT_TASKS_ROUTE
+};

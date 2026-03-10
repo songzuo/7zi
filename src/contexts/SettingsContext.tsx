@@ -74,7 +74,9 @@ function loadStoredSettings(): Partial<UserSettings> | null {
       return JSON.parse(stored) as Partial<UserSettings>;
     }
   } catch (error) {
-    console.error('Failed to load settings from localStorage:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Failed to load settings from localStorage:', error);
+    }
   }
   return null;
 }

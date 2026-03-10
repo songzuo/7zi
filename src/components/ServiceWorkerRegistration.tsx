@@ -27,7 +27,10 @@ export function ServiceWorkerRegistration() {
           }
         });
       } catch (error) {
-        console.error('[SW] Service Worker registration failed:', error);
+        // Silent error handling in production
+        if (process.env.NODE_ENV === 'development') {
+          console.error('[SW] Service Worker registration failed:', error);
+        }
       }
     };
 

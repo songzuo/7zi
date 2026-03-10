@@ -11,6 +11,7 @@ import {
   Legend,
   ScriptableContext,
 } from 'chart.js';
+import { ChartOptions } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 
 // Register Chart.js components
@@ -113,24 +114,24 @@ export function TeamWorkloadChart({ members, tasks }: TeamWorkloadChartProps) {
     });
   }, [members, tasks]);
 
-  const options = {
+  const options: ChartOptions<'bar'> = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'top' as const,
+        position: 'top',
         labels: {
-          color: '#6b7280', // text-gray-500
+          color: '#6b7280',
           font: {
             size: 12,
           },
         },
       },
       tooltip: {
-        mode: 'index' as const,
+        mode: 'index',
         intersect: false,
         callbacks: {
-          label: function(context: ScriptableContext<'bar'>) {
+          label: function(context) {
             const label = context.dataset.label || '';
             const value = context.parsed.y || 0;
             return `${label}: ${value}`;
@@ -145,17 +146,17 @@ export function TeamWorkloadChart({ members, tasks }: TeamWorkloadChartProps) {
           display: false,
         },
         ticks: {
-          color: '#6b7280', // text-gray-500
+          color: '#6b7280',
         },
       },
       y: {
         stacked: true,
         beginAtZero: true,
         grid: {
-          color: 'rgba(156, 163, 175, 0.1)', // gray-400 with opacity
+          color: 'rgba(156, 163, 175, 0.1)',
         },
         ticks: {
-          color: '#6b7280', // text-gray-500
+          color: '#6b7280',
           stepSize: 1,
         },
       },
@@ -183,7 +184,7 @@ export function TeamWorkloadChart({ members, tasks }: TeamWorkloadChartProps) {
 
   return (
     <div className="h-64">
-      <Bar data={chartData} options={options as unknown as any} />
+      <Bar data={chartData} options={options} />
     </div>
   );
 }

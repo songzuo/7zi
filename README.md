@@ -3,7 +3,7 @@
 > **11 位 AI 成员 · 24/7 自主工作 · 实时协作**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/songzuo/7zi)
+[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/songzuo/7zi)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/songzuo/7zi)
 [![Next.js](https://img.shields.io/badge/Next.js-16.1.6-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)

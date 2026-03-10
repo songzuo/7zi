@@ -1,159 +1,181 @@
-/**
- * 日志导出接口 - 带认证和授权
- * 实现日志数据的导出功能，支持多种格式
- */
-
 import { NextRequest, NextResponse } from 'next/server';
 import { getDbTransport } from '@/lib/logger/database-transport';
-import { verifyToken, extractToken, isAdmin } from '@/lib/security/auth';
-import { createCsrfMiddleware } from '@/lib/security/csrf';
+import { verifyToken, extractToken } from '@/lib/security/auth';
 import { apiLogger } from '@/lib/logger';
-import type { LogQuery } from '@/lib/logger/types';
-import { Readable } from 'stream';
+import type { LogLevel, LogEntry } from '@/lib/logger/types';
+
+// 验证日期格式是否为 ISO 8601
+function isValidISODate(dateString: string): boolean {
+  const date = new Date(dateString);
+  return !isNaN(date.getTime()) && dateString === date.toISOString().split('T')[0];
+}
+
+// 验证日志级别
+function isValidLogLevel(level: string): level is LogLevel {
+  const validLevels: LogLevel[] = ['debug', 'info', 'warn', 'error', 'audit'];
+  return validLevels.includes(level as LogLevel);
+}
+
+// 将日志数据转换为 CSV 格式
+function logsToCSV(logs: LogEntry[]): string {
+  if (logs.length === 0) {
+    return 'timestamp,level,category,message,userId,requestId,route,metadata\n';
+  }
+
+  // CSV 头部
+  let csv = 'timestamp,level,category,message,userId,requestId,route,metadata\n';
+  
+  // 转义 CSV 字段中的特殊字符
+  const escapeCSV = (value: string | null | undefined): string => {
+    if (value === null || value === undefined) return '';
+    const str = String(value);
+    // 如果包含逗号、引号或换行符，则用双引号包围，并转义内部的双引号
+    if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+      return `"${str.replace(/"/g, '""')}"`;
+    }
+    return str;
+  };
+
+  // 转换每条日志
+  for (const log of logs) {
+    const metadataStr = log.metadata ? JSON.stringify(log.metadata) : '';
+    csv += `${log.timestamp},${escapeCSV(log.level)},${escapeCSV(log.category)},${escapeCSV(log.message)},${escapeCSV(log.userId)},${escapeCSV(log.requestId)},${escapeCSV(log.route)},${escapeCSV(metadataStr)}\n`;
+  }
+  
+  return csv;
+}
 
 // ============================================
-// GET /api/logs/export - 导出日志数据
+// GET /api/logs/export - 导出日志
 // ============================================
 
 export async function GET(request: NextRequest) {
   try {
-    // 1. CSRF 保护检查 (可选，因为这是GET请求)
-    // const csrfMiddleware = createCsrfMiddleware();
-    // const csrfResult = await csrfMiddleware(request);
-    // if (csrfResult) {
-    //   return csrfResult;
-    // }
+    const { searchParams } = new URL(request.url);
 
-    // 2. 认证检查 - 必须登录才能导出日志
+    // 1. 认证检查 - 必须登录才能导出日志
     const token = extractToken(request);
     if (!token) {
       return NextResponse.json(
-        { 
-          error: 'Authentication required', 
-          code: 'AUTH_REQUIRED',
-          message: 'You must be logged in to export logs'
-        },
+        { error: 'Authentication required' },
         { status: 401 }
       );
     }
 
-    // 3. 验证 Token
     const payload = await verifyToken(token);
     if (!payload) {
       return NextResponse.json(
-        { 
-          error: 'Invalid or expired token', 
-          code: 'AUTH_INVALID',
-          message: 'Please log in again'
-        },
+        { error: 'Invalid authentication token' },
         { status: 401 }
       );
     }
 
-    // 4. 授权检查 - 只有管理员可以导出日志
-    if (!isAdmin(payload)) {
+    // 2. 解析和验证查询参数
+    const format = searchParams.get('format')?.toLowerCase() || 'json';
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
+    const level = searchParams.get('level');
+
+    // 验证格式
+    if (format !== 'csv' && format !== 'json') {
       return NextResponse.json(
         { 
-          error: 'Admin access required', 
-          code: 'ADMIN_REQUIRED',
-          message: 'Only administrators can export logs',
-          userRole: payload.role
-        },
-        { status: 403 }
-      );
-    }
-
-    // 5. 解析查询参数
-    const { searchParams } = new URL(request.url);
-    const format = (searchParams.get('format') || 'json').toLowerCase();
-    const fileName = searchParams.get('fileName') || `logs-export-${new Date().toISOString().split('T')[0]}`;
-
-    // 支持的格式
-    const supportedFormats = ['json', 'csv'];
-    if (!supportedFormats.includes(format)) {
-      return NextResponse.json(
-        {
-          error: 'Unsupported format',
-          message: `Supported formats: ${supportedFormats.join(', ')}`,
-          requestedFormat: format,
+          error: 'Invalid format parameter', 
+          message: 'Format must be either "csv" or "json"' 
         },
         { status: 400 }
       );
     }
 
-    // 构建查询参数
-    const query: LogQuery = {
-      startTime: searchParams.get('startTime') || undefined,
-      endTime: searchParams.get('endTime') || undefined,
-      levels: searchParams.get('levels')?.split(',').filter(Boolean) as any[] | undefined,
-      categories: searchParams.get('categories')?.split(',').filter(Boolean) as any[] | undefined,
-      search: searchParams.get('search') || undefined,
-      userId: searchParams.get('userId') || undefined,
-      requestId: searchParams.get('requestId') || undefined,
-      route: searchParams.get('route') || undefined,
-      // 导出时默认获取所有匹配的日志，不分页
+    // 验证日期参数
+    if (startDate && !isValidISODate(startDate)) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid startDate parameter', 
+          message: 'startDate must be a valid ISO date (YYYY-MM-DD)' 
+        },
+        { status: 400 }
+      );
+    }
+
+    if (endDate && !isValidISODate(endDate)) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid endDate parameter', 
+          message: 'endDate must be a valid ISO date (YYYY-MM-DD)' 
+        },
+        { status: 400 }
+      );
+    }
+
+    // 验证日志级别
+    if (level && !isValidLogLevel(level)) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid level parameter', 
+          message: 'Level must be one of: debug, info, warn, error, audit' 
+        },
+        { status: 400 }
+      );
+    }
+
+    // 3. 构建查询条件
+    const query = {
+      startTime: startDate ? `${startDate}T00:00:00.000Z` : undefined,
+      endTime: endDate ? `${endDate}T23:59:59.999Z` : undefined,
+      levels: level ? [level as LogLevel] : undefined,
+      // 不限制分页，导出所有匹配的日志
       page: 1,
-      limit: 10000, // 设置一个合理的上限
-      orderBy: (searchParams.get('orderBy') as 'timestamp' | 'level') || 'timestamp',
-      order: (searchParams.get('order') as 'asc' | 'desc') || 'desc',
+      limit: 10000, // 设置合理的上限以防止内存溢出
     };
 
-    // 6. 查询日志数据
+    // 4. 查询日志
     const dbTransport = getDbTransport();
     const result = dbTransport.query(query);
 
-    // 7. 根据格式生成导出数据
-    let exportData: string;
-    let contentType: string;
-    let fileExtension: string;
-
-    switch (format) {
-      case 'json':
-        exportData = JSON.stringify(result.logs, null, 2);
-        contentType = 'application/json';
-        fileExtension = 'json';
-        break;
-      
-      case 'csv':
-        exportData = convertLogsToCsv(result.logs);
-        contentType = 'text/csv';
-        fileExtension = 'csv';
-        break;
-      
-      default:
-        // 这不应该发生，因为我们已经验证了格式
-        return NextResponse.json(
-          { error: 'Unexpected error', message: 'Unsupported format' },
-          { status: 500 }
-        );
+    if (!result || !Array.isArray(result.data)) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Failed to retrieve logs' 
+        },
+        { status: 500 }
+      );
     }
 
-    // 8. 记录审计日志
-    apiLogger.audit('Logs exported by admin', {
-      userId: payload.sub,
-      userEmail: payload.email,
-      format,
-      fileName,
-      logCount: result.logs.length,
-      filters: {
-        startTime: query.startTime,
-        endTime: query.endTime,
-        levels: query.levels,
-        categories: query.categories,
-        search: query.search,
-      },
-    });
+    const logs = result.data;
 
-    // 9. 返回导出文件
-    const headers = new Headers();
-    headers.set('Content-Type', contentType);
-    headers.set('Content-Disposition', `attachment; filename="${fileName}.${fileExtension}"`);
-    headers.set('Content-Length', exportData.length.toString());
-
-    return new NextResponse(exportData, {
-      status: 200,
-      headers,
-    });
+    // 5. 根据格式返回响应
+    const filename = `logs_${startDate || 'all'}_${endDate || 'now'}.${format}`;
+    
+    if (format === 'csv') {
+      const csvContent = logsToCSV(logs);
+      return new NextResponse(csvContent, {
+        headers: {
+          'Content-Type': 'text/csv',
+          'Content-Disposition': `attachment; filename="${filename}"`,
+          'Cache-Control': 'no-store',
+        },
+        status: 200,
+      });
+    } else {
+      // JSON 格式
+      const jsonContent = JSON.stringify({ 
+        success: true, 
+        data: logs,
+        count: logs.length,
+        exportedAt: new Date().toISOString(),
+      }, null, 2);
+      
+      return new NextResponse(jsonContent, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Disposition': `attachment; filename="${filename}"`,
+          'Cache-Control': 'no-store',
+        },
+        status: 200,
+      });
+    }
   } catch (error) {
     apiLogger.error('Failed to export logs', error);
     return NextResponse.json(
@@ -165,53 +187,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-// ============================================
-// 辅助函数：将日志转换为CSV格式
-// ============================================
-
-function convertLogsToCsv(logs: any[]): string {
-  if (logs.length === 0) {
-    return 'id,timestamp,level,category,message,userId,requestId,route,errorName,errorMessage\n';
-  }
-
-  // CSV头
-  const headers = ['id', 'timestamp', 'level', 'category', 'message', 'userId', 'requestId', 'route', 'errorName', 'errorMessage'];
-  let csv = headers.join(',') + '\n';
-
-  // 转义CSV字段（处理逗号、引号、换行符）
-  const escapeCsvField = (field: any): string => {
-    if (field === null || field === undefined) {
-      return '';
-    }
-    
-    const str = String(field);
-    
-    // 如果包含特殊字符，需要用双引号包围，并转义内部的双引号
-    if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
-      return `"${str.replace(/"/g, '""')}"`;
-    }
-    
-    return str;
-  };
-
-  // 转换每条日志
-  for (const log of logs) {
-    const row = [
-      escapeCsvField(log.id),
-      escapeCsvField(log.timestamp),
-      escapeCsvField(log.level),
-      escapeCsvField(log.category),
-      escapeCsvField(log.message),
-      escapeCsvField(log.userId),
-      escapeCsvField(log.requestId),
-      escapeCsvField(log.route),
-      escapeCsvField(log.error?.name),
-      escapeCsvField(log.error?.message),
-    ];
-    csv += row.join(',') + '\n';
-  }
-
-  return csv;
 }

@@ -95,7 +95,9 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
         message: "",
       });
     } catch (error) {
-      console.error("Form submission error:", error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Form submission error:", error);
+      }
       setSubmitStatus("error");
     } finally {
       setIsSubmitting(false);

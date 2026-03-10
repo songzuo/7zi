@@ -13,9 +13,14 @@ const mockFetch = vi.fn();
 global.fetch = mockFetch;
 
 // Mock NextResponse
+interface MockNextResponse {
+  data: unknown;
+  status: number;
+}
+
 vi.mock('next/server', () => ({
   NextResponse: {
-    json: vi.fn((data, options) => ({ data, status: options?.status || 200 })),
+    json: vi.fn((data, options): MockNextResponse => ({ data, status: options?.status || 200 })),
   },
 }));
 
@@ -309,8 +314,7 @@ describe('Health Check Utilities', () => {
       it('should return alive status', () => {
         const response = probes.liveness();
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        expect((response as any).data).toEqual({ status: 'alive' });
+        expect(response.data).toEqual({ status: 'alive' });
         expect(response.status).toBe(200);
       });
     });

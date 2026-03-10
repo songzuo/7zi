@@ -2,6 +2,7 @@
 
 import {
   Chart as ChartJS,
+  ChartOptions,
   CategoryScale,
   LinearScale,
   PointElement,
@@ -70,13 +71,12 @@ export function TaskProgressChart({ data, height = 300 }: TaskProgressChartProps
     ],
   };
 
-  const options = {
+  const options: ChartOptions<'line'> = {
     responsive: true,
     maintainAspectRatio: false,
-    height: height,
     plugins: {
       legend: {
-        position: 'top' as const,
+        position: 'top',
         labels: {
           color: '#6b7280',
           font: {
@@ -87,7 +87,7 @@ export function TaskProgressChart({ data, height = 300 }: TaskProgressChartProps
         },
       },
       tooltip: {
-        mode: 'index' as const,
+        mode: 'index',
         intersect: false,
         backgroundColor: 'rgba(255, 255, 255, 0.9)',
         titleColor: '#1f2937',
@@ -97,7 +97,7 @@ export function TaskProgressChart({ data, height = 300 }: TaskProgressChartProps
         padding: 12,
         displayColors: true,
         callbacks: {
-          label: function(context: { dataset: { label: string }; parsed: { y: number } }) {
+          label: function(context) {
             return `${context.dataset.label}: ${context.parsed.y}`;
           }
         }
@@ -108,7 +108,7 @@ export function TaskProgressChart({ data, height = 300 }: TaskProgressChartProps
         color: '#1f2937',
         font: {
           size: 16,
-          weight: 'bold' as const,
+          weight: 'bold',
         },
         padding: {
           top: 10,
@@ -145,15 +145,15 @@ export function TaskProgressChart({ data, height = 300 }: TaskProgressChartProps
       },
     },
     interaction: {
-      mode: 'nearest' as const,
-      axis: 'x' as const,
+      mode: 'nearest',
+      axis: 'x',
       intersect: false,
     },
   };
 
   return (
     <div className="w-full h-full">
-      <Line data={chartData} options={options as unknown as any} />
+      <Line data={chartData} options={options} />
     </div>
   );
 }

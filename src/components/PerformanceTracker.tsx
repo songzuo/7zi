@@ -29,10 +29,12 @@ export function useWebVitals() {
   });
 
   useEffect(() => {
-    // TTFB
+    // TTFB - 使用 queueMicrotask 避免 effect 中同步 setState
     const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
     if (navigation) {
-      setVitals(prev => ({ ...prev, ttfb: navigation.responseStart }));
+      queueMicrotask(() => {
+        setVitals(prev => ({ ...prev, ttfb: navigation.responseStart }));
+      });
     }
 
     // FCP

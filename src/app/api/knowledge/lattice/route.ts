@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { KnowledgeLattice } from '@/lib/agents/knowledge-lattice';
+import { apiLogger } from '@/lib/logger';
 
 // 创建全局知识晶格实例
 let latticeInstance: KnowledgeLattice | null = null;
@@ -48,7 +49,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Error fetching lattice:', error);
+    apiLogger.error('Error fetching lattice:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to fetch lattice' },
       { status: 500 }

@@ -238,7 +238,7 @@ export async function me(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Get user error:', error);
+    authLogger.error('Get user error', error);
     return NextResponse.json(
       { error: 'Failed to get user info' },
       { status: 500 }

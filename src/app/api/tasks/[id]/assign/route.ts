@@ -9,6 +9,29 @@ import { getAITeamForTaskAssignment } from '@/lib/services/task-dashboard-integr
 import { verifyToken, extractToken } from '@/lib/security/auth';
 import { apiLogger } from '@/lib/logger';
 
+// Type definitions for assignment results
+interface AssignedMember {
+  id: string;
+  name: string;
+  confidence: number;
+}
+
+interface AssignmentSuccessResult {
+  success: true;
+  message: string;
+  assignedTo: AssignedMember;
+  task: Task | null;
+}
+
+interface AssignmentSuggestionsResult {
+  success: true;
+  message: string;
+  suggestions: AssignmentSuggestion[];
+  task: Task;
+}
+
+type AssignmentResult = AssignmentSuccessResult | AssignmentSuggestionsResult;
+
 // Mock AI assignment logic - in production this would use actual AI models
 const aiAssignTask = (task: Task, teamMembers: AITeamMember[]): AssignmentSuggestion[] => {
   const suggestions: AssignmentSuggestion[] = [];
@@ -201,7 +224,7 @@ export async function POST(
     }
     
     let assignedTask: Task | null = null;
-    let assignmentResult: any = null;
+    let assignmentResult: AssignmentResult;
     
     if (autoAssign) {
       // Auto-assign to the best candidate

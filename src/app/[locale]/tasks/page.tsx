@@ -28,7 +28,9 @@ export default function TasksPage() {
       });
       setShowCreateForm(false);
     } catch (error) {
-      console.error('Failed to create task:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to create task:', error);
+      }
     }
   };
 
@@ -36,7 +38,9 @@ export default function TasksPage() {
     try {
       updateTask(taskId, updates);
     } catch (error) {
-      console.error('Failed to update task:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to update task:', error);
+      }
     }
   };
 
