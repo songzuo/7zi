@@ -169,7 +169,9 @@ export function SettingsProvider({
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
     } catch (error) {
-      console.error('Failed to save settings to localStorage:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to save settings to localStorage:', error);
+      }
     }
   }, [settings, mounted, isDark]);
 
