@@ -1,17 +1,31 @@
-import type { Project, ProjectStatus } from '@/types/project-types';
+import type { Project, ProjectStatus, ProjectPriority, ProjectTeamMember } from '@/types/project-types';
 import type { Task } from '@/lib/types/task-types';
 import { v4 as uuidv4 } from 'uuid';
 
 // Define a simpler project data type for in-memory storage
 interface ProjectData {
   id: string;
+  slug?: string;
   title: string;
   description: string;
   status: ProjectStatus;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  priority: ProjectPriority;
+  category?: string;
+  thumbnail?: string;
+  images?: string[];
+  techStack?: string[];
+  client?: string;
+  duration?: string;
+  highlights?: string[];
+  links?: {
+    live?: string;
+    github?: string;
+  };
   startDate?: string;
   endDate?: string;
+  budget?: number;
   members: string[];
+  teamMembers?: ProjectTeamMember[];
   metadata: {
     category: string;
     client?: string;
@@ -27,7 +41,7 @@ interface ProjectData {
 export const projects: ProjectData[] = [
   {
     id: 'proj-001',
-    name: 'AI-Powered Analytics Dashboard',
+    title: 'AI-Powered Analytics Dashboard',
     description: 'A comprehensive analytics platform that leverages machine learning to provide actionable insights and predictive analytics for business intelligence.',
     status: 'active',
     priority: 'high',
@@ -45,7 +59,7 @@ export const projects: ProjectData[] = [
   },
   {
     id: 'proj-002',
-    name: 'Mobile E-commerce Platform',
+    title: 'Mobile E-commerce Platform',
     description: 'A fully responsive e-commerce platform optimized for mobile devices with seamless payment integration and personalized shopping experience.',
     status: 'active',
     priority: 'medium',
@@ -63,7 +77,7 @@ export const projects: ProjectData[] = [
   },
   {
     id: 'proj-003',
-    name: 'Blockchain Supply Chain Tracker',
+    title: 'Blockchain Supply Chain Tracker',
     description: 'A decentralized supply chain management system using blockchain technology to ensure transparency, traceability, and security.',
     status: 'paused',
     priority: 'high',
@@ -84,22 +98,22 @@ export const projects: ProjectData[] = [
 /**
  * Get all projects
  */
-export function getProjects(): Project[] {
+export function getProjects(): ProjectData[] {
   return [...projects];
 }
 
 /**
  * Get project by ID
  */
-export function getProjectById(id: string): Project | undefined {
+export function getProjectById(id: string): ProjectData | undefined {
   return projects.find(project => project.id === id);
 }
 
 /**
  * Create a new project
  */
-export function createProject(project: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>): Project {
-  const newProject: Project = {
+export function createProject(project: Omit<ProjectData, 'id' | 'createdAt' | 'updatedAt'>): ProjectData {
+  const newProject: ProjectData = {
     ...project,
     id: `proj-${uuidv4().split('-')[0]}`,
     createdAt: new Date().toISOString(),
@@ -113,7 +127,7 @@ export function createProject(project: Omit<Project, 'id' | 'createdAt' | 'updat
 /**
  * Update an existing project
  */
-export function updateProject(id: string, updates: Partial<Project>): Project | null {
+export function updateProject(id: string, updates: Partial<ProjectData>): ProjectData | null {
   const index = projects.findIndex(project => project.id === id);
   if (index === -1) {
     return null;
@@ -133,7 +147,7 @@ export function updateProject(id: string, updates: Partial<Project>): Project | 
 /**
  * Delete a project
  */
-export function deleteProject(id: string): Project | null {
+export function deleteProject(id: string): ProjectData | null {
   const index = projects.findIndex(project => project.id === id);
   if (index === -1) {
     return null;
@@ -146,14 +160,21 @@ export function deleteProject(id: string): Project | null {
 /**
  * Get projects by status
  */
-export function getProjectsByStatus(status: ProjectStatus): Project[] {
+export function getProjectsByStatus(status: ProjectStatus): ProjectData[] {
   return projects.filter(project => project.status === status);
+}
+
+/**
+ * Get projects by priority
+ */
+export function getProjectsByPriority(priority: ProjectPriority): ProjectData[] {
+  return projects.filter(project => project.priority === priority);
 }
 
 /**
  * Get projects by member
  */
-export function getProjectsByMember(memberId: string): Project[] {
+export function getProjectsByMember(memberId: string): ProjectData[] {
   return projects.filter(project => project.members.includes(memberId));
 }
 
