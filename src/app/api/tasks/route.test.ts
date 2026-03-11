@@ -1,0 +1,529 @@
+/**
+ * Tasks API Route Tests
+ * Tests for task CRUD operations
+ */
+
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { GET, POST, PUT, DELETE } from '@/app/api/tasks/route';
+import { NextRequest } from 'next/server';
+import { verifyToken, extractToken, isAdmin } from '@/lib/security/auth';
+import { createCsrfMiddleware } from '@/lib/security/csrf';
+
+// Mock dependencies
+vi.mock('@/lib/security/auth', () => ({
+  verifyToken: vi.fn(),
+  extractToken: vi.fn(),
+  isAdmin: vi.fn(),
+}));
+
+vi.mock('@/lib/security/csrf', () => ({
+  createCsrfMiddleware: vi.fn(),
+}));
+
+vi.mock('@/lib/logger', () => ({
+  apiLogger: {
+    audit: vi.fn(),
+    error: vi.fn(),
+  },
+}));
+
+// Helper to create mock request
+function createRequest(
+  url: string,
+  options: {
+    method?: string;
+    body?: Record<string, unknown>;
+    headers?: Record<string, string>;
+  } = {}
+): NextRequest {
+  const { method = 'GET', body, headers = {} } = options;
+  
+  const init: RequestInit = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      ...headers,
+    },
+  };
+
+  if (body) {
+    init.body = JSON.stringify(body);
+  }
+
+  return new NextRequest(new URL(url, 'http://localhost:3000'), init);
+}
+
+describe('/api/tasks', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(createCsrfMiddleware).mockReturnValue(() => Promise.resolve(null));
+    vi.mocked(extractToken).mockReturnValue(null);
+    vi.mocked(verifyToken).mockResolvedValue(null);
+    vi.mocked(isAdmin).mockReturnValue(false);
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  describe('GET', () => {
+    it('should return all tasks when no filters', async () => {
+      const request = createRequest('/api/tasks');
+      const response = await GET(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(Array.isArray(data)).toBe(true);
+      expect(data.length).toBeGreaterThan(0);
+    });
+
+    it('should filter tasks by status', async () => {
+      const request = createRequest('/api/tasks?status=completed');
+      const response = await GET(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(Array.isArray(data)).toBe(true);
+      data.forEach((task: { status: string }) => {
+        expect(task.status).toBe('completed');
+      });
+    });
+
+    it('should filter tasks by type', async () => {
+      const request = createRequest('/api/tasks?type=research');
+      const response = await GET(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(Array.isArray(data)).toBe(true);
+      data.forEach((task: { type: string }) => {
+        expect(task.type).toBe('research');
+      });
+    });
+
+    it('should filter tasks by assignee', async () => {
+      const request = createRequest('/api/tasks?assignee=agent-world-expert');
+      const response = await GET(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(Array.isArray(data)).toBe(true);
+      data.forEach((task: { assignee: string }) => {
+        expect(task.assignee).toBe('agent-world-expert');
+      });
+    });
+
+    it('should combine multiple filters', async () => {
+      const request = createRequest('/api/tasks?status=in_progress&type=development');
+      const response = await GET(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(Array.isArray(data)).toBe(true);
+      data.forEach((task: { status: string; type: string }) => {
+        expect(task.status).toBe('in_progress');
+        expect(task.type).toBe('development');
+      });
+    });
+
+    it('should return empty array when no tasks match filter', async () => {
+      const request = createRequest('/api/tasks?assignee=nonexistent');
+      const response = await GET(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data).toEqual([]);
+    });
+
+    it('should include task properties', async () => {
+      const request = createRequest('/api/tasks');
+      const response = await GET(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      const task = data[0];
+      expect(task).toHaveProperty('id');
+      expect(task).toHaveProperty('title');
+      expect(task).toHaveProperty('status');
+      expect(task).toHaveProperty('priority');
+      expect(task).toHaveProperty('type');
+    });
+  });
+
+  describe('POST', () => {
+    it('should create a new task with minimal data', async () => {
+      const request = createRequest('/api/tasks', {
+        method: 'POST',
+        body: { title: 'New Test Task' },
+      });
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(201);
+      expect(data.title).toBe('New Test Task');
+      expect(data.status).toBe('pending');
+      expect(data.id).toMatch(/^task-/);
+    });
+
+    it('should create a task with all fields', async () => {
+      const request = createRequest('/api/tasks', {
+        method: 'POST',
+        body: {
+          title: 'Full Task',
+          description: 'Task description',
+          type: 'development',
+          priority: 'high',
+          assignee: 'architect',
+        },
+      });
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(201);
+      expect(data.title).toBe('Full Task');
+      expect(data.description).toBe('Task description');
+      expect(data.type).toBe('development');
+      expect(data.priority).toBe('high');
+      expect(data.assignee).toBe('architect');
+    });
+
+    it('should reject task without title', async () => {
+      const request = createRequest('/api/tasks', {
+        method: 'POST',
+        body: { description: 'No title' },
+      });
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data.error).toContain('title');
+    });
+
+    it('should reject task with non-string title', async () => {
+      const request = createRequest('/api/tasks', {
+        method: 'POST',
+        body: { title: 123 },
+      });
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data.error).toContain('string');
+    });
+
+    it('should set default values for optional fields', async () => {
+      const request = createRequest('/api/tasks', {
+        method: 'POST',
+        body: { title: 'Default Values Task' },
+      });
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(201);
+      expect(data.type).toBe('other');
+      expect(data.priority).toBe('medium');
+      expect(data.description).toBe('');
+    });
+
+    it('should include timestamps', async () => {
+      const request = createRequest('/api/tasks', {
+        method: 'POST',
+        body: { title: 'Timestamped Task' },
+      });
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(201);
+      expect(data.createdAt).toBeDefined();
+      expect(data.updatedAt).toBeDefined();
+      expect(new Date(data.createdAt).toISOString()).toBe(data.createdAt);
+    });
+
+    it('should add initial history entry', async () => {
+      const request = createRequest('/api/tasks', {
+        method: 'POST',
+        body: { title: 'History Task' },
+      });
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(201);
+      expect(data.history).toHaveLength(1);
+      expect(data.history[0].status).toBe('pending');
+    });
+
+    it('should handle CSRF failure', async () => {
+      vi.mocked(createCsrfMiddleware).mockReturnValue(() =>
+        Promise.resolve(new Response(JSON.stringify({ error: 'CSRF token invalid' }), { status: 403 }))
+      );
+
+      const request = createRequest('/api/tasks', {
+        method: 'POST',
+        body: { title: 'CSRF Test' },
+      });
+
+      const response = await POST(request);
+
+      expect(response.status).toBe(403);
+    });
+
+    it('should use authenticated user for createdBy', async () => {
+      vi.mocked(extractToken).mockReturnValue('valid-token');
+      vi.mocked(verifyToken).mockResolvedValue({
+        sub: 'user-123',
+        email: 'test@example.com',
+        role: 'user',
+        iat: Date.now(),
+        exp: Date.now() + 3600,
+      });
+
+      const request = createRequest('/api/tasks', {
+        method: 'POST',
+        body: { title: 'Auth Task' },
+      });
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(201);
+      expect(data.createdBy).toBe('user-123');
+    });
+  });
+
+  describe('PUT', () => {
+    it('should update task status', async () => {
+      const request = createRequest('/api/tasks', {
+        method: 'PUT',
+        body: { id: 'task-001', status: 'completed' },
+      });
+
+      const response = await PUT(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.status).toBe('completed');
+    });
+
+    it('should update task assignee', async () => {
+      const request = createRequest('/api/tasks', {
+        method: 'PUT',
+        body: { id: 'task-002', assignee: 'consultant' },
+      });
+
+      const response = await PUT(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.assignee).toBe('consultant');
+    });
+
+    it('should add comment to task', async () => {
+      const request = createRequest('/api/tasks', {
+        method: 'PUT',
+        body: { id: 'task-001', comment: 'Test comment' },
+      });
+
+      const response = await PUT(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      const lastComment = data.comments[data.comments.length - 1];
+      expect(lastComment.content).toBe('Test comment');
+    });
+
+    it('should require task ID', async () => {
+      const request = createRequest('/api/tasks', {
+        method: 'PUT',
+        body: { status: 'completed' },
+      });
+
+      const response = await PUT(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data.error).toContain('ID');
+    });
+
+    it('should return 404 for non-existent task', async () => {
+      const request = createRequest('/api/tasks', {
+        method: 'PUT',
+        body: { id: 'nonexistent-task', status: 'completed' },
+      });
+
+      const response = await PUT(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(404);
+      expect(data.error).toContain('not found');
+    });
+
+    it('should update updatedAt timestamp', async () => {
+      const request = createRequest('/api/tasks', {
+        method: 'PUT',
+        body: { id: 'task-001', status: 'in_progress' },
+      });
+
+      const response = await PUT(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.updatedAt).toBeDefined();
+    });
+
+    it('should add history entry for status change', async () => {
+      const request = createRequest('/api/tasks', {
+        method: 'PUT',
+        body: { id: 'task-001', status: 'in_progress' },
+      });
+
+      const response = await PUT(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      const lastHistory = data.history[data.history.length - 1];
+      expect(lastHistory.status).toBe('in_progress');
+    });
+
+    it('should handle CSRF failure', async () => {
+      vi.mocked(createCsrfMiddleware).mockReturnValue(() =>
+        Promise.resolve(new Response(JSON.stringify({ error: 'CSRF token invalid' }), { status: 403 }))
+      );
+
+      const request = createRequest('/api/tasks', {
+        method: 'PUT',
+        body: { id: 'task-001', status: 'completed' },
+      });
+
+      const response = await PUT(request);
+
+      expect(response.status).toBe(403);
+    });
+  });
+
+  describe('DELETE', () => {
+    it('should require authentication', async () => {
+      vi.mocked(extractToken).mockReturnValue(null);
+
+      const request = createRequest('/api/tasks?id=task-001', {
+        method: 'DELETE',
+      });
+
+      const response = await DELETE(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(401);
+      expect(data.error).toContain('Authentication');
+    });
+
+    it('should reject invalid token', async () => {
+      vi.mocked(extractToken).mockReturnValue('invalid-token');
+      vi.mocked(verifyToken).mockResolvedValue(null);
+
+      const request = createRequest('/api/tasks?id=task-001', {
+        method: 'DELETE',
+      });
+
+      const response = await DELETE(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(401);
+      expect(data.error).toContain('Invalid');
+    });
+
+    it('should require admin role', async () => {
+      vi.mocked(extractToken).mockReturnValue('valid-token');
+      vi.mocked(verifyToken).mockResolvedValue({
+        sub: 'user-123',
+        email: 'user@example.com',
+        role: 'user',
+        iat: Date.now(),
+        exp: Date.now() + 3600,
+      });
+      vi.mocked(isAdmin).mockReturnValue(false);
+
+      const request = createRequest('/api/tasks?id=task-001', {
+        method: 'DELETE',
+      });
+
+      const response = await DELETE(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(403);
+      expect(data.error).toContain('Admin');
+    });
+
+    it('should require task ID', async () => {
+      vi.mocked(extractToken).mockReturnValue('valid-token');
+      vi.mocked(verifyToken).mockResolvedValue({
+        sub: 'admin-123',
+        email: 'admin@example.com',
+        role: 'admin',
+        iat: Date.now(),
+        exp: Date.now() + 3600,
+      });
+      vi.mocked(isAdmin).mockReturnValue(true);
+
+      const request = createRequest('/api/tasks', {
+        method: 'DELETE',
+      });
+
+      const response = await DELETE(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data.error).toContain('ID');
+    });
+
+    it('should return 404 for non-existent task', async () => {
+      vi.mocked(extractToken).mockReturnValue('valid-token');
+      vi.mocked(verifyToken).mockResolvedValue({
+        sub: 'admin-123',
+        email: 'admin@example.com',
+        role: 'admin',
+        iat: Date.now(),
+        exp: Date.now() + 3600,
+      });
+      vi.mocked(isAdmin).mockReturnValue(true);
+
+      const request = createRequest('/api/tasks?id=nonexistent', {
+        method: 'DELETE',
+      });
+
+      const response = await DELETE(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(404);
+      expect(data.error).toContain('not found');
+    });
+
+    it('should delete task as admin', async () => {
+      vi.mocked(extractToken).mockReturnValue('valid-token');
+      vi.mocked(verifyToken).mockResolvedValue({
+        sub: 'admin-123',
+        email: 'admin@example.com',
+        role: 'admin',
+        iat: Date.now(),
+        exp: Date.now() + 3600,
+      });
+      vi.mocked(isAdmin).mockReturnValue(true);
+
+      const request = createRequest('/api/tasks?id=task-001', {
+        method: 'DELETE',
+      });
+
+      const response = await DELETE(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.success).toBe(true);
+      expect(data.task.id).toBe('task-001');
+    });
+  });
+});

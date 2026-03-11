@@ -10,7 +10,6 @@ import { usePathname } from 'next/navigation';
 
 // Mock next/navigation
 vi.mock('next/navigation', () => ({
-  usePathname: vi.fn(),
   usePathname: vi.fn(() => '/'),
 }));
 
