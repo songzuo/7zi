@@ -40,7 +40,7 @@ sync_file() {
     local dest="$2"
     if [ -f "$src" ]; then
         # 去除敏感信息
-        sed -e 's/ghp_[A-Za-z0-9]*/ghp_xxxx/g' \
+        sed -e 's/REDACTED[A-Za-z0-9]*/REDACTED/g' \
             -e 's/RESEND_API_KEY=.*/RESEND_API_KEY=xxx/g' \
             -e 's/SLACK_WEBHOOK_URL=.*/SLACK_WEBHOOK_URL=xxx/g' \
             "$src" > "$dest" 2>/dev/null || cp "$src" "$dest"

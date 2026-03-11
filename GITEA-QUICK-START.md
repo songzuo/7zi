@@ -207,7 +207,7 @@ cat ~/.ssh/gitea_actions
 |------|-------|
 | `GITEA_REGISTRY` | `165.232.43.117:3000` |
 | `GITEA_USERNAME` | `owner`（你的 Gitea 用户名） |
-| `GITEA_TOKEN` | `ghp_xxxxxxxxxxxxx`（刚才生成的 Token） |
+| `GITEA_TOKEN` | `REDACTED`（刚才生成的 Token） |
 | `SERVER_HOST` | `165.232.43.117` |
 | `SERVER_USER` | `root`（或部署用户） |
 | `SSH_PRIVATE_KEY` | `-----BEGIN RSA PRIVATE KEY-----...`（私钥完整内容） |

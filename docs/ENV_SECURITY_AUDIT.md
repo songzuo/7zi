@@ -131,7 +131,7 @@ next-env.d.ts
 - `sk-*` (OpenAI/Stripe 密钥)
 - `pk-*` (公钥模式)
 - `xoxb-*` (Slack Bot Token)
-- `ghp_*` (GitHub Personal Token)
+- `REDACTED*` (GitHub Personal Token)
 - `AKIA*` (AWS Access Key)
 - `eyJ*` (JWT Token)
 

@@ -248,7 +248,7 @@ git push gitea --tags
 |------------|------|--------|
 | `GITEA_REGISTRY` | Gitea 容器注册表地址 | `165.232.43.117:3000` |
 | `GITEA_USERNAME` | Gitea 用户名 | `owner` |
-| `GITEA_TOKEN` | Gitea 访问 Token | `ghp_xxxxxxxxxxxxx` |
+| `GITEA_TOKEN` | Gitea 访问 Token | `REDACTED` |
 | `SERVER_HOST` | 部署服务器地址 | `165.232.43.117` |
 | `SERVER_USER` | SSH 用户名 | `root` 或 `deploy` |
 | `SSH_PRIVATE_KEY` | SSH 私钥 | `-----BEGIN RSA PRIVATE KEY-----...` |
