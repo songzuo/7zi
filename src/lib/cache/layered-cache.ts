@@ -7,6 +7,7 @@
 import type { CacheOptions, CacheStats, CacheInvalidateOptions, TTL } from './types';
 import { MemoryCache } from './memory-cache';
 import { RedisCache } from './redis-cache';
+import { cacheLogger } from '@/lib/logger';
 
 export type WriteStrategy = 'write-through' | 'write-behind' | 'write-around';
 export type ReadStrategy = 'look-aside' | 'read-through';
@@ -129,9 +130,7 @@ export class LayeredCache {
         // 先写 L1，异步写 L2
         this.l1.set(key, value, ttl, tags);
         this.l2.set(key, value, ttl, tags).catch((err) => {
-          if (process.env.NODE_ENV === 'development') {
-            console.error('L2 async write error:', err);
-          }
+          cacheLogger.error('L2 async write error:', err);
         });
         return true;
 

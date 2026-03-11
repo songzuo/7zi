@@ -3,11 +3,21 @@
  * 测试任务管理 API 的完整流程
  */
 
-import { test, expect, Page, APIRequestContext } from '@playwright/test';
+import { test, expect, APIRequestContext } from '@playwright/test';
+
+// 定义任务类型
+interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  type?: string;
+  status: string;
+  priority?: string;
+  assignee?: string;
+}
 
 test.describe('Tasks API E2E', () => {
   let apiContext: APIRequestContext;
-  let authToken: string;
   let csrfToken: string;
 
   test.beforeAll(async ({ playwright }) => {
@@ -33,8 +43,8 @@ test.describe('Tasks API E2E', () => {
       const response = await apiContext.get('/api/tasks?status=completed');
       expect(response.ok()).toBeTruthy();
       
-      const tasks = await response.json();
-      tasks.forEach((task: any) => {
+      const tasks = await response.json() as Task[];
+      tasks.forEach((task) => {
         expect(task.status).toBe('completed');
       });
     });
@@ -43,8 +53,8 @@ test.describe('Tasks API E2E', () => {
       const response = await apiContext.get('/api/tasks?type=research');
       expect(response.ok()).toBeTruthy();
       
-      const tasks = await response.json();
-      tasks.forEach((task: any) => {
+      const tasks = await response.json() as Task[];
+      tasks.forEach((task) => {
         expect(task.type).toBe('research');
       });
     });

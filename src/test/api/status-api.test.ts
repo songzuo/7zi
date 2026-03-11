@@ -5,6 +5,7 @@
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { GET } from '@/app/api/status/route';
+import type { StatusApiService } from '@/test/types';
 
 describe('Status API', () => {
   beforeEach(() => {

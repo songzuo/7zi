@@ -8,6 +8,9 @@ import TaskForm from './components/TaskForm';
 import AssignmentSuggester from './components/AssignmentSuggester';
 import { Task } from '@/lib/types/task-types';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { createLogger } from '@/lib/logger';
+
+const logger = createLogger('Tasks');
 
 export default function TasksPage() {
   const tasks = useTasksStore((state) => state.tasks);
@@ -28,9 +31,7 @@ export default function TasksPage() {
       });
       setShowCreateForm(false);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Failed to create task:', error);
-      }
+      logger.error('Failed to create task:', error);
     }
   };
 
@@ -38,9 +39,7 @@ export default function TasksPage() {
     try {
       updateTask(taskId, updates);
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Failed to update task:', error);
-      }
+      logger.error('Failed to update task:', error);
     }
   };
 

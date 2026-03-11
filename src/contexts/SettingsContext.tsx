@@ -2,6 +2,9 @@
 
 import { createContext, useContext, useEffect, useState, useCallback, useMemo, useSyncExternalStore } from 'react';
 import type { Locale } from '@/i18n/config';
+import { createLogger } from '@/lib/logger';
+
+const logger = createLogger('Settings');
 
 // ============================================================================
 // Types
@@ -74,9 +77,7 @@ function loadStoredSettings(): Partial<UserSettings> | null {
       return JSON.parse(stored) as Partial<UserSettings>;
     }
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Failed to load settings from localStorage:', error);
-    }
+    logger.error('Failed to load settings from localStorage:', error);
   }
   return null;
 }
@@ -169,9 +170,7 @@ export function SettingsProvider({
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Failed to save settings to localStorage:', error);
-      }
+      logger.error('Failed to save settings to localStorage:', error);
     }
   }, [settings, mounted, isDark]);
 

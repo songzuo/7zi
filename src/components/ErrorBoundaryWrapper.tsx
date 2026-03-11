@@ -2,6 +2,9 @@
 
 import { Component, ReactNode } from 'react';
 import { ErrorDisplay } from './ErrorDisplay';
+import { createLogger } from '@/lib/logger';
+
+const logger = createLogger('ErrorBoundary');
 
 interface Props {
   children: ReactNode;
@@ -40,13 +43,11 @@ export class ErrorBoundaryWrapper extends Component<Props, State> {
     this.props.onError?.(error, errorInfo);
 
     // 开发环境日志
-    if (process.env.NODE_ENV === 'development') {
-      console.group('🚨 ErrorBoundaryWrapper 捕获到错误');
-      console.error('错误信息:', error.message);
-      console.error('错误堆栈:', error.stack);
-      console.error('组件堆栈:', errorInfo.componentStack);
-      console.groupEnd();
-    }
+    logger.error('ErrorBoundary caught:', {
+      message: error.message,
+      stack: error.stack,
+      componentStack: errorInfo.componentStack,
+    });
 
     // 生产环境发送到错误服务
     if (process.env.NODE_ENV === 'production') {

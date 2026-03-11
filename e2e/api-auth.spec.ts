@@ -3,12 +3,11 @@
  * 测试认证 API 的完整流程
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect, APIRequestContext } from '@playwright/test';
 
 test.describe('Auth API E2E', () => {
   const baseURL = 'http://localhost:3000';
-  let apiContext: any;
-  let authCookies: string;
+  let apiContext: APIRequestContext;
 
   test.beforeAll(async ({ playwright }) => {
     apiContext = await playwright.request.newContext({

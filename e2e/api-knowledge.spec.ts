@@ -3,11 +3,30 @@
  * 测试知识图谱 API 的完整流程
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect, APIRequestContext } from '@playwright/test';
+
+// 定义知识图谱类型
+interface KnowledgeNode {
+  id: string;
+  content: string;
+  type: string;
+  weight?: number;
+  confidence?: number;
+  source?: string;
+  tags?: string[];
+}
+
+interface KnowledgeEdge {
+  id: string;
+  from: string;
+  to: string;
+  type: string;
+  weight?: number;
+}
 
 test.describe('Knowledge API E2E', () => {
   const baseURL = 'http://localhost:3000';
-  let apiContext: any;
+  let apiContext: APIRequestContext;
 
   test.beforeAll(async ({ playwright }) => {
     apiContext = await playwright.request.newContext({
@@ -33,8 +52,8 @@ test.describe('Knowledge API E2E', () => {
       const response = await apiContext.get('/api/knowledge/nodes?type=concept');
       expect(response.ok()).toBeTruthy();
       
-      const data = await response.json();
-      data.data.forEach((node: any) => {
+      const data = await response.json() as { success: boolean; data: KnowledgeNode[] };
+      data.data.forEach((node) => {
         expect(node.type).toBe('concept');
       });
     });
@@ -43,8 +62,8 @@ test.describe('Knowledge API E2E', () => {
       const response = await apiContext.get('/api/knowledge/nodes?source=user');
       expect(response.ok()).toBeTruthy();
       
-      const data = await response.json();
-      data.data.forEach((node: any) => {
+      const data = await response.json() as { success: boolean; data: KnowledgeNode[] };
+      data.data.forEach((node) => {
         expect(node.source).toBe('user');
       });
     });
@@ -103,8 +122,8 @@ test.describe('Knowledge API E2E', () => {
       const response = await apiContext.get('/api/knowledge/nodes?minWeight=0.7');
       expect(response.ok()).toBeTruthy();
       
-      const data = await response.json();
-      data.data.forEach((node: any) => {
+      const data = await response.json() as { success: boolean; data: KnowledgeNode[] };
+      data.data.forEach((node) => {
         expect(node.weight).toBeGreaterThanOrEqual(0.7);
       });
     });
@@ -113,8 +132,8 @@ test.describe('Knowledge API E2E', () => {
       const response = await apiContext.get('/api/knowledge/nodes?minConfidence=0.8');
       expect(response.ok()).toBeTruthy();
       
-      const data = await response.json();
-      data.data.forEach((node: any) => {
+      const data = await response.json() as { success: boolean; data: KnowledgeNode[] };
+      data.data.forEach((node) => {
         expect(node.confidence).toBeGreaterThanOrEqual(0.8);
       });
     });
@@ -123,9 +142,9 @@ test.describe('Knowledge API E2E', () => {
       const response = await apiContext.get('/api/knowledge/nodes?tags=important,core');
       expect(response.ok()).toBeTruthy();
       
-      const data = await response.json();
-      data.data.forEach((node: any) => {
-        const hasTag = node.tags?.some((t: string) => 
+      const data = await response.json() as { success: boolean; data: KnowledgeNode[] };
+      data.data.forEach((node) => {
+        const hasTag = node.tags?.some((t) => 
           ['important', 'core'].includes(t)
         );
         expect(hasTag).toBe(true);
@@ -171,8 +190,8 @@ test.describe('Knowledge API E2E', () => {
       const response = await apiContext.get('/api/knowledge/edges?type=association');
       expect(response.ok()).toBeTruthy();
       
-      const data = await response.json();
-      data.data.forEach((edge: any) => {
+      const data = await response.json() as { success: boolean; data: KnowledgeEdge[] };
+      data.data.forEach((edge) => {
         expect(edge.type).toBe('association');
       });
     });
@@ -244,9 +263,9 @@ test.describe('Knowledge API E2E', () => {
       });
       
       expect(response.ok()).toBeTruthy();
-      const data = await response.json();
+      const data = await response.json() as { success: boolean; data: { nodes: KnowledgeNode[] } };
       
-      data.data.nodes.forEach((node: any) => {
+      data.data.nodes.forEach((node) => {
         expect(node.type).toBe('concept');
       });
     });
@@ -269,10 +288,10 @@ test.describe('Knowledge API E2E', () => {
       });
       
       expect(response.ok()).toBeTruthy();
-      const data = await response.json();
+      const data = await response.json() as { success: boolean; data: { nodes: KnowledgeNode[] } };
       
       // 验证返回的节点包含搜索文本
-      data.data.nodes.forEach((node: any) => {
+      data.data.nodes.forEach((node) => {
         expect(
           node.content.toLowerCase().includes('测试')
         ).toBe(true);
@@ -317,9 +336,9 @@ test.describe('Knowledge API E2E', () => {
       });
       
       expect(response.ok()).toBeTruthy();
-      const data = await response.json();
+      const data = await response.json() as { success: boolean; data: { nodes: KnowledgeNode[] } };
       
-      data.data.nodes.forEach((node: any) => {
+      data.data.nodes.forEach((node) => {
         expect(node.type).toBe('concept');
         expect(node.weight).toBeGreaterThanOrEqual(0.5);
         expect(node.confidence).toBeGreaterThanOrEqual(0.6);

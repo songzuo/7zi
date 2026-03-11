@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { pwaLogger } from '@/lib/logger';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -44,10 +45,7 @@ export function PWAInstallPrompt() {
         localStorage.setItem('pwa-install-dismissed', 'true');
       }
     } catch (err) {
-      // Silent error handling in production
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error prompting for install:', err);
-      }
+      pwaLogger.error('Error prompting for install:', err);
     } finally {
       setDeferredPrompt(null);
       setShowPrompt(false);

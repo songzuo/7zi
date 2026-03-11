@@ -2,6 +2,9 @@
 
 import { useState, FormEvent } from "react";
 import { useTranslations } from "next-intl";
+import { createLogger } from '@/lib/logger';
+
+const logger = createLogger('ContactForm');
 
 interface FormData {
   name: string;
@@ -95,9 +98,7 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
         message: "",
       });
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error("Form submission error:", error);
-      }
+      logger.error("Form submission error:", error);
       setSubmitStatus("error");
     } finally {
       setIsSubmitting(false);

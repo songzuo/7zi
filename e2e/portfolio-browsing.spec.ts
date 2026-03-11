@@ -199,8 +199,7 @@ test.describe('Portfolio Browsing - 项目详情查看', () => {
       // 2. 应该有描述或图片
       const hasContent = await firstCard.locator('p, img, [class*="image"], [class*="description"]').count() > 0;
       
-      // 3. 应该有技术标签
-      const hasTags = await firstCard.locator('[class*="tag"], [class*="tech"], [class*="badge"]').count() > 0;
+      // 注意：技术标签检查暂时跳过，因为某些项目可能没有标签
       
       expect(hasTitle || hasContent).toBeTruthy();
     }

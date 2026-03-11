@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { swLogger } from '@/lib/logger';
 
 export function ServiceWorkerRegistration() {
   useEffect(() => {
@@ -27,11 +28,8 @@ export function ServiceWorkerRegistration() {
           }
         });
       } catch (error) {
-        // Silent error handling in production
-        if (process.env.NODE_ENV === 'development') {
-          console.error('[SW] Service Worker registration failed:', error);
-        }
-      }
+      swLogger.error('Service Worker registration failed:', error);
+    }
     };
 
     // Wait for page to load before registering
