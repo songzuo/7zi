@@ -2,7 +2,7 @@
  * 知识晶格组件导出
  */
 
-export { KnowledgeLattice3D } from './KnowledgeLattice3D';
+export { default as KnowledgeLattice3D } from './KnowledgeLattice3D';
 export { ControlPanel } from './ControlPanel';
 export { NodeDetails } from './NodeDetails';
 export { StatsPanel } from './StatsPanel';
