@@ -94,8 +94,9 @@ describe('TaskForm', () => {
       
       expect(screen.getByDisplayValue('Initial Title')).toBeInTheDocument()
       expect(screen.getByDisplayValue('Initial description')).toBeInTheDocument()
-      expect(screen.getByDisplayValue('design')).toBeInTheDocument()
-      expect(screen.getByDisplayValue('high')).toBeInTheDocument()
+      // Check select values by their value attribute, not display text
+      expect(screen.getByLabelText(/任务类型/)).toHaveValue('design')
+      expect(screen.getByLabelText(/优先级/)).toHaveValue('high')
     })
 
     it('should use default values when no initial data', () => {

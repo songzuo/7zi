@@ -118,7 +118,7 @@ export function MobileMenu() {
             : 'opacity-0 invisible pointer-events-none'
         }`}
         role="dialog"
-        aria-modal="true"
+        aria-modal={isOpen ? 'true' : 'false'}
         aria-label="导航菜单"
       >
         {/* 背景遮罩 */}

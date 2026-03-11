@@ -1,6 +1,22 @@
 /**
  * 任务管理 API
- * 带认证和 CSRF 保护
+ * 提供任务的 CRUD 操作，支持认证和 CSRF 保护
+ * 
+ * @module api/tasks
+ * @description 任务管理端点，支持创建、查询、更新和删除任务
+ * 
+ * @example
+ * // 获取任务列表
+ * GET /api/tasks?status=pending&type=development
+ * 
+ * // 创建新任务
+ * POST /api/tasks
+ * {
+ *   "title": "新任务",
+ *   "description": "任务描述",
+ *   "type": "development",
+ *   "priority": "high"
+ * }
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -9,6 +25,50 @@ import { v4 as uuidv4 } from 'uuid';
 import { verifyToken, extractToken, isAdmin } from '@/lib/security/auth';
 import { createCsrfMiddleware } from '@/lib/security/csrf';
 import { apiLogger } from '@/lib/logger';
+
+/**
+ * 任务查询参数
+ * @typedef {Object} TaskQueryParams
+ * @property {TaskStatus} [status] - 按状态过滤
+ * @property {TaskType} [type] - 按类型过滤
+ * @property {string} [assignee] - 按分配人过滤
+ */
+
+/**
+ * 创建任务请求体
+ * @typedef {Object} CreateTaskBody
+ * @property {string} title - 任务标题（必填）
+ * @property {string} [description] - 任务描述
+ * @property {TaskType} [type='other'] - 任务类型
+ * @property {'low'|'medium'|'high'} [priority='medium'] - 优先级
+ * @property {string} [assignee] - 分配给的AI成员ID
+ */
+
+/**
+ * 更新任务请求体
+ * @typedef {Object} UpdateTaskBody
+ * @property {string} id - 任务ID（必填）
+ * @property {TaskStatus} [status] - 新状态
+ * @property {string} [assignee] - 新分配人
+ * @property {string} [comment] - 添加评论
+ */
+
+/**
+ * 任务列表响应
+ * @typedef {Task[]} TaskListResponse
+ */
+
+/**
+ * 任务创建响应
+ * @typedef {Task} TaskCreateResponse
+ */
+
+/**
+ * 错误响应
+ * @typedef {Object} ErrorResponse
+ * @property {string} error - 错误类型
+ * @property {string} [message] - 错误详情
+ */
 
 // In-memory storage for tasks (in production, this would be a database)
 const tasks: Task[] = [

@@ -28,6 +28,9 @@ export function SecuritySection() {
             </div>
             <button
               onClick={handleToggle2FA}
+              role="switch"
+              aria-checked={security.twoFactorEnabled}
+              aria-label="两步验证开关"
               className={`
                 relative inline-flex h-6 w-11 items-center rounded-full transition-colors
                 ${security.twoFactorEnabled 

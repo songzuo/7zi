@@ -1,6 +1,26 @@
 /**
- * AI 智能任务分配 API
- * POST /api/tasks/:id/assign
+ * @module api/tasks/assign
+ * @description AI 智能任务分配 API
+ * 
+ * 该模块提供基于 AI 的智能任务分配功能，根据任务类型、团队成员专业技能、
+ * 当前工作负载等因素自动推荐最佳分配人选。
+ * 
+ * @example
+ * // 获取分配建议（不自动分配）
+ * POST /api/tasks/task-001/assign
+ * {}
+ * 
+ * // 自动分配给最佳候选人
+ * POST /api/tasks/task-001/assign
+ * { "autoAssign": true }
+ * 
+ * // 分配给指定成员
+ * POST /api/tasks/task-001/assign
+ * { "preferredMemberId": "architect" }
+ * 
+ * @see {@link Task} 任务类型定义
+ * @see {@link AITeamMember} AI 团队成员类型
+ * @see {@link AssignmentSuggestion} 分配建议类型
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -9,28 +29,50 @@ import { getAITeamForTaskAssignment } from '@/lib/services/task-dashboard-integr
 import { verifyToken, extractToken } from '@/lib/security/auth';
 import { apiLogger } from '@/lib/logger';
 
-// Type definitions for assignment results
-interface AssignedMember {
-  id: string;
-  name: string;
-  confidence: number;
-}
+/**
+ * 分配成功的成员信息
+ * @typedef {Object} AssignedMember
+ * @property {string} id - 成员 ID
+ * @property {string} name - 成员名称
+ * @property {number} confidence - 匹配置信度 (0-100)
+ */
 
-interface AssignmentSuccessResult {
-  success: true;
-  message: string;
-  assignedTo: AssignedMember;
-  task: Task | null;
-}
+/**
+ * 自动分配成功响应
+ * @typedef {Object} AssignmentSuccessResult
+ * @property {true} success - 成功标志
+ * @property {string} message - 分配结果消息
+ * @property {AssignedMember} assignedTo - 分配的成员信息
+ * @property {Task|null} task - 更新后的任务对象
+ */
 
-interface AssignmentSuggestionsResult {
-  success: true;
-  message: string;
-  suggestions: AssignmentSuggestion[];
-  task: Task;
-}
+/**
+ * 分配建议列表响应
+ * @typedef {Object} AssignmentSuggestionsResult
+ * @property {true} success - 成功标志
+ * @property {string} message - 结果消息
+ * @property {AssignmentSuggestion[]} suggestions - 分配建议列表（最多5个）
+ * @property {Task} task - 任务对象
+ */
 
-type AssignmentResult = AssignmentSuccessResult | AssignmentSuggestionsResult;
+/**
+ * 分配请求体
+ * @typedef {Object} AssignmentRequestBody
+ * @property {boolean} [autoAssign=false] - 是否自动分配给最佳候选人
+ * @property {string} [preferredMemberId] - 指定分配的成员 ID
+ */
+
+/**
+ * 错误响应
+ * @typedef {Object} AssignmentErrorResponse
+ * @property {string} error - 错误类型
+ * @property {string} [message] - 错误详情
+ */
+
+/**
+ * 分配结果（联合类型）
+ * @typedef {AssignmentSuccessResult | AssignmentSuggestionsResult} AssignmentResult
+ */
 
 // Mock AI assignment logic - in production this would use actual AI models
 const aiAssignTask = (task: Task, teamMembers: AITeamMember[]): AssignmentSuggestion[] => {

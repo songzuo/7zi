@@ -5,52 +5,57 @@ import ContactPage from '@/app/[locale]/contact/page'
 // Mock next-intl/server
 vi.mock('next-intl/server', () => ({
   setRequestLocale: vi.fn(),
-  getTranslations: vi.fn(() =>
-    vi.fn().mockImplementation((opts) => {
-      const translations: Record<string, Record<string, string | Array<{ question: string; answer: string }>>> = {
-        nav: {
-          home: 'Home',
-          about: 'About',
-          team: 'Team',
-          blog: 'Blog',
-          dashboard: 'Dashboard',
-          contact: 'Contact',
-        },
-        contact: {
-          'hero.title': 'Contact',
-          'hero.description': 'Get in touch with us',
-          'form.title': 'Send Message',
-          'info.title': 'Contact Information',
-          'info.business.title': 'Business',
-          'info.business.email': 'business@7zi.studio',
-          'info.business.description': 'Business inquiries',
-          'info.support.title': 'Support',
-          'info.support.email': 'support@7zi.studio',
-          'info.support.description': 'Technical support',
-          'info.careers.title': 'Careers',
-          'info.careers.email': 'careers@7zi.studio',
-          'info.careers.description': 'Join our team',
-          'social.title': 'Follow Us',
-          'response.title': 'Quick Response',
-          'response.description': 'We respond within 24 hours',
-          'faq.title': 'FAQ',
-          'faq.items': [
-            { question: 'How can I contact you?', answer: 'You can email us anytime.' },
-            { question: 'What services do you offer?', answer: 'We offer various digital services.' },
-          ],
-          'cta.title': 'Ready to Start?',
-          'cta.description': 'Let us help you',
-          'cta.emailButton': 'Email Us',
-          'cta.homeButton': 'Back to Home',
-          description: 'Contact page',
-        },
-        footer: {
-          copyright: '© 2024 7zi Studio',
-        },
-      }
-      return translations[opts.namespace] || {}
+  getTranslations: vi.fn(() => {
+    const translations: Record<string, Record<string, string | Array<{ question: string; answer: string }>>> = {
+      nav: {
+        home: 'Home',
+        about: 'About',
+        team: 'Team',
+        blog: 'Blog',
+        dashboard: 'Dashboard',
+        contact: 'Contact',
+      },
+      contact: {
+        'hero.title': 'Contact',
+        'hero.description': 'Get in touch with us',
+        'form.title': 'Send Message',
+        'info.title': 'Contact Information',
+        'info.business.title': 'Business',
+        'info.business.email': 'business@7zi.studio',
+        'info.business.description': 'Business inquiries',
+        'info.support.title': 'Support',
+        'info.support.email': 'support@7zi.studio',
+        'info.support.description': 'Technical support',
+        'info.careers.title': 'Careers',
+        'info.careers.email': 'careers@7zi.studio',
+        'info.careers.description': 'Join our team',
+        'social.title': 'Follow Us',
+        'response.title': 'Quick Response',
+        'response.description': 'We respond within 24 hours',
+        'faq.title': 'FAQ',
+        'faq.items': [
+          { question: 'How can I contact you?', answer: 'You can email us anytime.' },
+          { question: 'What services do you offer?', answer: 'We offer various digital services.' },
+        ],
+        'cta.title': 'Ready to Start?',
+        'cta.description': 'Let us help you',
+        'cta.emailButton': 'Email Us',
+        'cta.homeButton': 'Back to Home',
+        description: 'Contact page',
+      },
+      footer: {
+        copyright: '© 2024 7zi Studio',
+      },
+    }
+    const translateFn = vi.fn((key: string) => {
+      const namespace = 'contact'
+      return translations[namespace]?.[key] ?? key
     })
-  ),
+    translateFn.raw = vi.fn((key: string) => {
+      return translations['contact']?.[key]
+    })
+    return translateFn
+  }),
 }))
 
 // Mock ClientProviders
@@ -229,14 +234,18 @@ describe('ContactPage', () => {
     const params = Promise.resolve({ locale: 'zh' })
     render(await ContactPage({ params }))
     
-    expect(screen.getByTestId('theme-toggle')).toBeInTheDocument()
+    // Multiple theme toggles may be present (nav + mobile nav)
+    const themeToggles = screen.getAllByTestId('theme-toggle')
+    expect(themeToggles.length).toBeGreaterThan(0)
   })
 
   it('renders language switcher', async () => {
     const params = Promise.resolve({ locale: 'zh' })
     render(await ContactPage({ params }))
     
-    expect(screen.getByTestId('language-switcher')).toBeInTheDocument()
+    // Multiple language switchers may be present (nav + mobile nav)
+    const languageSwitchers = screen.getAllByTestId('language-switcher')
+    expect(languageSwitchers.length).toBeGreaterThan(0)
   })
 
   it('renders mobile menu', async () => {

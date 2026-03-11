@@ -119,7 +119,10 @@ export function extractToken(request: NextRequest): string | null {
   // 1. 从 Authorization header 获取
   const authHeader = request.headers.get('authorization');
   if (authHeader?.startsWith('Bearer ')) {
-    return authHeader.substring(7);
+    const token = authHeader.substring(7);
+    if (token) {
+      return token;
+    }
   }
 
   // 2. 从 Cookie 获取
