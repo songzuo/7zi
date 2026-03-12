@@ -376,7 +376,7 @@ export function withApiHandler<T>(
         const result = config.bodySchema.safeParse(context.body);
         if (!result.success) {
           return errors.validation('请求数据验证失败', {
-            fields: result.error.errors.map(e => ({
+            fields: result.error.issues.map((e: z.ZodIssue) => ({
               path: e.path.join('.'),
               message: e.message,
             })),
@@ -390,7 +390,7 @@ export function withApiHandler<T>(
         const result = config.querySchema.safeParse(query);
         if (!result.success) {
           return errors.validation('查询参数验证失败', {
-            fields: result.error.errors.map(e => ({
+            fields: result.error.issues.map((e: z.ZodIssue) => ({
               path: e.path.join('.'),
               message: e.message,
             })),
@@ -446,12 +446,12 @@ function handleError(
     apiLogger.warn('Validation error', {
       requestId,
       path: url.pathname,
-      errors: err.errors,
+      errors: err.issues,
       duration,
     });
 
     return errors.validation('数据验证失败', {
-      fields: err.errors.map(e => ({
+      fields: err.issues.map((e: z.ZodIssue) => ({
         path: e.path.join('.'),
         message: e.message,
       })),
