@@ -25,6 +25,18 @@ import { v4 as uuidv4 } from 'uuid';
 import { verifyToken, extractToken, isAdmin } from '@/lib/security/auth';
 import { createCsrfMiddleware } from '@/lib/security/csrf';
 import { apiLogger } from '@/lib/logger';
+import {
+  AppError,
+  ErrorCodes,
+  ErrorCategory,
+  withApiErrorHandler,
+  successResponse,
+  validationError,
+  notFoundError,
+  authError,
+  forbiddenError,
+  createErrorResponse,
+} from '@/lib/errors';
 
 /**
  * 任务查询参数
@@ -133,7 +145,7 @@ const tasks: Task[] = [
 // GET /api/tasks - 获取任务列表
 // ============================================
 
-export async function GET(request: NextRequest) {
+export const GET = withApiErrorHandler(async (request: NextRequest) => {
   const { searchParams } = new URL(request.url);
   const status = searchParams.get('status') as TaskStatus | null;
   const type = searchParams.get('type') as TaskType | null;
@@ -153,8 +165,8 @@ export async function GET(request: NextRequest) {
     filteredTasks = filteredTasks.filter(task => task.assignee === assignee);
   }
 
-  return NextResponse.json(filteredTasks);
-}
+  return successResponse(filteredTasks);
+});
 
 // ============================================
 // POST /api/tasks - 创建任务

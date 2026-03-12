@@ -548,6 +548,26 @@ export function withSyncErrorHandler<T extends (...args: unknown[]) => unknown>(
 }
 
 // ============================================
+// 导出中间件
+// ============================================
+
+export {
+  createErrorResponse,
+  withErrorHandler as withApiErrorHandler,
+  withValidation,
+  validationError,
+  notFoundError,
+  authError,
+  forbiddenError,
+  successResponse,
+  paginatedResponse,
+  type ApiErrorResponse,
+  type ApiSuccessResponse,
+  type ApiResponse,
+  type ErrorHandlerOptions,
+} from './middleware';
+
+// ============================================
 // 导出
 // ============================================
 

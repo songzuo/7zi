@@ -12,7 +12,7 @@
 | 指标 | 状态 | 风险等级 |
 |------|------|---------|
 | 安全漏洞 | 0 个 | ✅ 低 |
-| ESLint 兼容性 | 1 个问题 | 🔴 高 |
+| ESLint 兼容性 | ✅ 已解决 | 🟢 正常 |
 | 代码质量 | 良好 | 🟡 中 |
 | 测试覆盖 | 119 个测试文件 | ⚠️ 中 (目标 80%) |
 | 大型组件 | 4 个 >300 行 | 🟡 中 |
@@ -21,7 +21,7 @@
 **总体评级**: B+ (良好，存在需关注的问题)
 
 ### 2026-03-11 新发现问题
-- 🔴 **ESLint v10 兼容性问题**: eslint-plugin-react 与 ESLint 10 不兼容，导致 lint 命令失败
+- 🟢 **ESLint v10 兼容性问题**: ✅ 已通过降级到 v9.39.4 解决（2026-03-12）
 - 🟡 **Settings Page 回归**: 从 160 行增长到 384 行，需要重新重构
 - 🟡 **新增大型组件**: knowledge-lattice (345行), tasks/[id] (334行), contact (316行)
 - 🟡 **测试文件减少**: 从 213 个减少到 119 个（需核实原因）
@@ -37,7 +37,7 @@
 | 包名 | 当前版本 | 最新版本 | 差距 | 风险 | 状态 |
 |------|---------|---------|------|------|------|
 | @sentry/nextjs | - | - | - | - | ✅ **已完全移除** |
-| eslint | 10.0.3 | 10.0.3 | 无 | 🔴 高 | ⚠️ **兼容性问题** |
+| eslint | 9.39.4 | 9.x 最新 | 无 | 🟢 低 | ✅ 正常 |
 | web-vitals | 5.1.0 | 5.1.0 | 无 | 🟢 低 | ✅ 最新 |
 | react | 19.2.4 | 19.2.4 | 无 | 🟢 低 | ✅ 最新 |
 | react-dom | 19.2.4 | 19.2.4 | 无 | 🟢 低 | ✅ 最新 |
@@ -54,9 +54,9 @@
 
 **结论**: 项目无安全漏洞，依赖安全性良好。
 
-### 1.3 ESLint v10 兼容性问题 🔴 NEW
+### 1.3 ESLint v10 兼容性问题 ✅ 已解决（临时方案）
 
-**问题描述**: ESLint 已升级到 v10.0.3，但 `eslint-plugin-react`（通过 `eslint-config-next` 依赖）与 ESLint 10 不兼容。
+**问题描述**: ESLint 曾升级到 v10.0.3，但 `eslint-plugin-react`（通过 `eslint-config-next` 依赖）与 ESLint 10 不兼容。
 
 **错误信息**:
 ```
@@ -65,21 +65,20 @@ TypeError: Error while loading rule 'react/display-name': contextOrFilename.getF
 
 **根本原因**: `eslint-plugin-react` 尚未完全支持 ESLint 10 的 API 变更。
 
-**影响**:
-- `npm run lint` 命令完全失败
-- 无法进行代码质量检查
-- CI/CD 流程可能受影响
-
-**解决方案** (按优先级):
-1. **临时方案**: 降级 ESLint 到 v9.x
+**已采取的解决方案**:
+1. ✅ **临时方案已实施**: 降级 ESLint 到 v9.39.4
    ```bash
    npm install eslint@^9 --save-dev
    ```
-2. **长期方案**: 等待 `eslint-config-next` 更新支持 ESLint 10
-3. **替代方案**: 使用 `@eslint/js` 和手动配置替代 `eslint-config-next`
+2. ✅ **验证通过**: `npm run lint` 命令正常工作
 
-**优先级**: 🔴 P0 - 立即处理  
-**预估工作量**: 0.5-1 小时
+**长期跟进计划**:
+- 监控 `eslint-config-next` 和 `eslint-plugin-react` 的更新
+- 当 ESLint 10 支持成熟后，重新升级
+- 关注 issue: https://github.com/jsx-eslint/eslint-plugin-react/issues/3830
+
+**优先级**: 🟡 P1 - 后续跟进  
+**完成日期**: 2026-03-12
 
 ### 1.4 Sentry 移除详情 ✅
 
