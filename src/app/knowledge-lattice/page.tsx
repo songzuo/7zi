@@ -11,7 +11,7 @@ import { ControlPanel } from '@/components/knowledge-lattice/ControlPanel';
 import { PageHeader } from '@/components/knowledge-lattice/PageHeader';
 import { VisualizationContainer } from '@/components/knowledge-lattice/VisualizationContainer';
 import { KnowledgeSidebar } from '@/components/knowledge-lattice/KnowledgeSidebar';
-import { useKnowledgeLattice } from '@/components/knowledge-lattice/useKnowledgeLattice';
+import { useKnowledgeLattice } from '@/components/knowledge-lattice/hooks/useKnowledgeLattice';
 
 export default function KnowledgeLatticeDemo() {
   const {

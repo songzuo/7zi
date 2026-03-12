@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { KnowledgeNode, KnowledgeEdge, LayoutType } from './types';
-import { KnowledgeLattice3D } from './KnowledgeLattice3D';
+import KnowledgeLattice3D from './KnowledgeLattice3D';
 
 interface VisualizationContainerProps {
   nodes: KnowledgeNode[];

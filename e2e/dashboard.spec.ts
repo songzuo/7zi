@@ -45,7 +45,8 @@ test.describe('仪表盘功能', () => {
     
     // 验证项目进度条存在
     const progressBars = page.locator('.progress-bar');
-    await expect(progressBars).toHaveCount({ greaterThan: 0 });
+    const progressCount = await progressBars.count();
+    expect(progressCount).toBeGreaterThan(0);
   });
 
   test('应该显示活动标签页', async ({ page }) => {
@@ -81,7 +82,8 @@ test.describe('仪表盘功能', () => {
     
     // 验证项目列表存在
     const projectCards = page.locator('.project-card');
-    await expect(projectCards).toHaveCount({ greaterThan: 0 });
+    const projectCount = await projectCards.count();
+    expect(projectCount).toBeGreaterThan(0);
     
     // 验证项目包含必要信息
     await expect(projectCards.first().getByText(/7zi.com 官网重构|AI 聊天系统集成/)).toBeVisible();
@@ -94,7 +96,8 @@ test.describe('仪表盘功能', () => {
     
     // 验证活动日志项存在
     const activityItems = page.locator('.activity-item');
-    await expect(activityItems).toHaveCount({ greaterThan: 0 });
+    const activityCount = await activityItems.count();
+    expect(activityCount).toBeGreaterThan(0);
     
     // 验证活动包含时间戳
     await expect(activityItems.first().getByText(/分钟前|小时前/i)).toBeVisible();

@@ -20,7 +20,8 @@ test.describe('项目展示功能', () => {
     
     // 验证项目卡片存在
     const projectCards = page.locator('.project-card');
-    await expect(projectCards).toHaveCount({ greaterThan: 0 });
+    const projectCount = await projectCards.count();
+    expect(projectCount).toBeGreaterThan(0);
     
     // 验证项目包含基本信息
     await expect(projectCards.first().getByText(/7zi.com 官网重构|AI 聊天系统集成/)).toBeVisible();
@@ -90,7 +91,8 @@ test.describe('任务页面中的项目信息', () => {
   test('应该在任务卡片中显示项目相关信息', async ({ page }) => {
     // 验证任务卡片存在
     const taskCards = page.locator('.task-card');
-    await expect(taskCards).toHaveCount({ greaterThan: 0 });
+    const taskCount = await taskCards.count();
+    expect(taskCount).toBeGreaterThan(0);
     
     // 验证任务类型显示（这对应于项目分类）
     await expect(page.getByText(/Development|Research|Design|Marketing/i)).toBeVisible();
@@ -124,7 +126,8 @@ test.describe('移动端项目展示', () => {
     
     // 验证移动端项目卡片布局
     const projectCards = page.locator('.project-card');
-    await expect(projectCards).toHaveCount({ greaterThan: 0 });
+    const projectCount = await projectCards.count();
+    expect(projectCount).toBeGreaterThan(0);
     
     // 验证响应式设计元素
     await expect(projectCards.first().locator('.progress-bar')).toBeVisible();

@@ -108,7 +108,8 @@ test.describe('智能任务分配功能', () => {
       
       // 验证建议列表存在
       const suggestions = page.locator('.assignment-suggestion');
-      await expect(suggestions).toHaveCount({ greaterThan: 0 });
+      const suggestionCount = await suggestions.count();
+      expect(suggestionCount).toBeGreaterThan(0);
     }
   });
 
@@ -170,7 +171,8 @@ test.describe('移动端任务管理', () => {
     
     // 验证任务卡片在移动端正确显示
     const taskCards = page.locator('.task-card');
-    await expect(taskCards).toHaveCount({ greaterThan: 0 });
+    const taskCount = await taskCards.count();
+    expect(taskCount).toBeGreaterThan(0);
     
     // 验证响应式设计元素
     await expect(page.getByRole('button', { name: /创建新任务/i })).toBeVisible();

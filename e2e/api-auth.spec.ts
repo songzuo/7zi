@@ -8,6 +8,7 @@ import { test, expect, APIRequestContext } from '@playwright/test';
 test.describe('Auth API E2E', () => {
   const baseURL = 'http://localhost:3000';
   let apiContext: APIRequestContext;
+  let authCookies: string | undefined;
 
   test.beforeAll(async ({ playwright }) => {
     apiContext = await playwright.request.newContext({

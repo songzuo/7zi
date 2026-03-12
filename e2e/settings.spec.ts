@@ -300,16 +300,20 @@ test.describe('通知设置', () => {
   test('点击通知开关应该切换状态', async ({ page }) => {
     // 直接查找圆角开关按钮
     const toggle = page.locator('button[class*="rounded-full"][class*="w-12"]').first();
-    
+
     if (await toggle.isVisible()) {
+      // 记录初始状态
+      const initialClass = await toggle.getAttribute('class') || '';
+      const wasEnabled = initialClass.includes('cyan-500');
+
       // 点击切换
       await toggle.click();
       await page.waitForTimeout(300);
-      
+
       // 验证状态变化
       const newClass = await toggle.getAttribute('class') || '';
       const isNowEnabled = newClass.includes('cyan-500');
-      
+
       // 状态应该改变
       expect(wasEnabled).not.toBe(isNowEnabled);
     }
