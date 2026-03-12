@@ -536,39 +536,7 @@ describe('Security Score Calculation', () => {
       .reduce((sum, check) => sum + check.weight, 0);
     
     const score = Math.round((passedWeight / totalWeight) * 10);
-    
-    // 移除生产环境的console.log输出
-    if (process.env.NODE_ENV === 'development') {
-      console.log('\n========================================');
-      console.log('       安全验证报告 - Security Audit Report');
-      console.log('========================================\n');
-      
-      console.log('📊 安全评分计算:');
-      console.log(`   总权重：${totalWeight}`);
-      console.log(`   通过权重：${passedWeight}`);
-      console.log(`   安全评分：${score}/10\n`);
-      
-      console.log('📋 分类详情:');
-      const categories = ['JWT', 'CSRF', 'Authorization', 'Input Validation', 'Rate Limiting'];
-      categories.forEach(category => {
-        const categoryChecks = securityChecks.filter(c => c.category === category);
-        const categoryTotal = categoryChecks.reduce((sum, c) => sum + c.weight, 0);
-        const categoryPassed = categoryChecks.filter(c => c.passed).reduce((sum, c) => sum + c.weight, 0);
-        const categoryScore = Math.round((categoryPassed / categoryTotal) * 100);
-        console.log(`   ${category}: ${categoryScore}% (${categoryPassed}/${categoryTotal})`);
-      });
-      
-      console.log('\n✅ 安全检查项目:');
-      securityChecks.forEach((check, i) => {
-        const icon = check.passed ? '✓' : '✗';
-        console.log(`   ${icon} ${check.name} (${check.weight}分)`);
-      });
-      
-      console.log('\n========================================');
-      console.log(`最终评分：${score}/10`);
-      console.log('========================================\n');
-    }
-    
+
     expect(score).toBeGreaterThanOrEqual(9);
   });
 });
