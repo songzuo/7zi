@@ -29,31 +29,39 @@ const mockLatticeInstance = {
 };
 
 // Mock the KnowledgeLattice class with a proper class constructor
-vi.mock('@/lib/agents/knowledge-lattice', () => {
-  // Create a mock class constructor
-  const MockKnowledgeLattice = vi.fn(() => mockLatticeInstance);
-  
-  return {
-    KnowledgeLattice: MockKnowledgeLattice,
-    KnowledgeType: {
-      CONCEPT: 'concept',
-      FACT: 'fact',
-      RULE: 'rule',
-      PROCESS: 'process',
-      RESOURCE: 'resource',
-      INSIGHT: 'insight',
-    },
-    KnowledgeSource: {
-      USER: 'user',
-      AI: 'ai',
-      EXTERNAL: 'external',
-      SYSTEM: 'system',
-    },
-  };
-});
+class MockKnowledgeLattice {
+  getAllNodes = mockGetAllNodes;
+  getNode = mockGetNode;
+  addNode = mockAddNode;
+  updateNode = mockUpdateNode;
+  deleteNode = mockDeleteNode;
+  getNodesByType = mockGetNodesByType;
+  getNodesByTag = mockGetNodesByTag;
+  getNodesBySource = mockGetNodesBySource;
+}
+
+vi.mock('@/lib/agents/knowledge-lattice', () => ({
+  KnowledgeLattice: MockKnowledgeLattice,
+  KnowledgeType: {
+    CONCEPT: 'concept',
+    FACT: 'fact',
+    RULE: 'rule',
+    EXPERIENCE: 'experience',
+    SKILL: 'skill',
+    PREFERENCE: 'preference',
+    MEMORY: 'memory',
+  },
+  KnowledgeSource: {
+    USER: 'user',
+    OBSERVATION: 'observation',
+    INFERENCE: 'inference',
+    EXTERNAL: 'external',
+    EXPERIENCE: 'experience',
+    EVOMAP: 'evomap',
+  },
+}));
 
 // Import route handlers AFTER mock is set up
-// and re-import them in beforeEach to reset the singleton
 let getNodes: (request: NextRequest) => Promise<Response>;
 let postNodes: (request: NextRequest) => Promise<Response>;
 
@@ -82,6 +90,7 @@ describe('Knowledge Nodes API', () => {
     vi.clearAllMocks();
     
     // Re-import the route handlers to get fresh module state
+    vi.resetModules();
     const routeModule = await import('@/app/api/knowledge/nodes/route');
     getNodes = routeModule.GET;
     postNodes = routeModule.POST;
@@ -425,16 +434,17 @@ describe('Knowledge API - 边界情况', () => {
 
   beforeEach(async () => {
     vi.resetModules();
+    vi.clearAllMocks();
+    
     const routeModule = await import('@/app/api/knowledge/nodes/route');
     getNodes = routeModule.GET;
     postNodes = routeModule.POST;
-    vi.clearAllMocks();
   });
 
   it('应该处理超长内容', async () => {
     const longContent = 'A'.repeat(10000);
-    mockLattice.addNode.mockReturnValue('node-long');
-    mockLattice.getNode.mockReturnValue({
+    mockAddNode.mockReturnValue('node-long');
+    mockGetNode.mockReturnValue({
       id: 'node-long',
       content: longContent,
       type: 'concept',
@@ -453,8 +463,8 @@ describe('Knowledge API - 边界情况', () => {
 
   it('应该处理特殊字符内容', async () => {
     const specialContent = '<script>alert("XSS")</script> 测试内容 🎉';
-    mockLattice.addNode.mockReturnValue('node-special');
-    mockLattice.getNode.mockReturnValue({
+    mockAddNode.mockReturnValue('node-special');
+    mockGetNode.mockReturnValue({
       id: 'node-special',
       content: specialContent,
       type: 'concept',
@@ -472,8 +482,8 @@ describe('Knowledge API - 边界情况', () => {
   });
 
   it('应该处理极端权重值', async () => {
-    mockLattice.addNode.mockReturnValue('node-weight');
-    mockLattice.getNode.mockReturnValue({
+    mockAddNode.mockReturnValue('node-weight');
+    mockGetNode.mockReturnValue({
       id: 'node-weight',
       content: '极端权重',
       type: 'concept',
@@ -494,8 +504,8 @@ describe('Knowledge API - 边界情况', () => {
 
   it('应该处理大量标签', async () => {
     const manyTags = Array.from({ length: 100 }, (_, i) => `tag-${i}`);
-    mockLattice.addNode.mockReturnValue('node-many-tags');
-    mockLattice.getNode.mockReturnValue({
+    mockAddNode.mockReturnValue('node-many-tags');
+    mockGetNode.mockReturnValue({
       id: 'node-many-tags',
       content: '多标签节点',
       type: 'concept',
@@ -521,7 +531,7 @@ describe('Knowledge API - 边界情况', () => {
       type: 'concept',
       weight: 0.5,
     }));
-    mockLattice.getAllNodes.mockReturnValue(manyNodes);
+    mockGetAllNodes.mockReturnValue(manyNodes);
 
     const request = createMockRequest('GET', undefined, { limit: '100', offset: '500' });
     const response = await getNodes(request);

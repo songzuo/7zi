@@ -24,6 +24,7 @@ export default function KnowledgeLatticeDemo() {
     showStats,
     layout,
     setLayout,
+    toggleStats,
     handleNodeClick,
     handleNodeHover,
     stats,

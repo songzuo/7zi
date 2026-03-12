@@ -5,7 +5,7 @@
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { GET } from '@/app/api/status/route';
-import type { StatusApiService } from '@/test/types';
+import type { StatusApiService, StatusApiResponse } from '@/test/types';
 
 describe('Status API', () => {
   beforeEach(() => {
@@ -55,9 +55,9 @@ describe('Status API', () => {
 
     it('should have correct service structure', async () => {
       const response = await GET();
-      const data = await response.json();
+      const data: StatusApiResponse = await response.json();
 
-      data.services.forEach((service: any) => {
+      data.services.forEach((service: StatusApiService) => {
         expect(service).toHaveProperty('name');
         expect(service).toHaveProperty('status');
         expect(service).toHaveProperty('uptime');
@@ -107,36 +107,36 @@ describe('Status API', () => {
 
     it('should have Website service', async () => {
       const response = await GET();
-      const data = await response.json();
+      const data: StatusApiResponse = await response.json();
 
-      const websiteService = data.services.find((s: any) => s.name === 'Website');
+      const websiteService = data.services.find((s: StatusApiService) => s.name === 'Website');
       expect(websiteService).toBeDefined();
-      expect(websiteService.status).toBe('operational');
+      expect(websiteService!.status).toBe('operational');
     });
 
     it('should have API service', async () => {
       const response = await GET();
-      const data = await response.json();
+      const data: StatusApiResponse = await response.json();
 
-      const apiService = data.services.find((s: any) => s.name === 'API');
+      const apiService = data.services.find((s: StatusApiService) => s.name === 'API');
       expect(apiService).toBeDefined();
-      expect(apiService.status).toBe('operational');
+      expect(apiService!.status).toBe('operational');
     });
 
     it('should have CDN service', async () => {
       const response = await GET();
-      const data = await response.json();
+      const data: StatusApiResponse = await response.json();
 
-      const cdnService = data.services.find((s: any) => s.name === 'CDN');
+      const cdnService = data.services.find((s: StatusApiService) => s.name === 'CDN');
       expect(cdnService).toBeDefined();
-      expect(cdnService.status).toBe('operational');
+      expect(cdnService!.status).toBe('operational');
     });
 
     it('should return numeric uptime values', async () => {
       const response = await GET();
-      const data = await response.json();
+      const data: StatusApiResponse = await response.json();
 
-      data.services.forEach((service: any) => {
+      data.services.forEach((service: StatusApiService) => {
         expect(typeof service.uptime).toBe('number');
         expect(service.uptime).toBeGreaterThanOrEqual(0);
         expect(service.uptime).toBeLessThanOrEqual(100);
@@ -145,9 +145,9 @@ describe('Status API', () => {
 
     it('should return numeric response time values', async () => {
       const response = await GET();
-      const data = await response.json();
+      const data: StatusApiResponse = await response.json();
 
-      data.services.forEach((service: any) => {
+      data.services.forEach((service: StatusApiService) => {
         expect(typeof service.responseTime).toBe('number');
         expect(service.responseTime).toBeGreaterThanOrEqual(0);
       });
