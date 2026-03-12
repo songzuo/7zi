@@ -58,8 +58,24 @@ export interface KnowledgeEdgeApiResponse {
   id: string;
   from: string;
   to: string;
-  relation: string;
+  relation?: string;
+  type?: string;
   weight?: number;
+}
+
+/**
+ * Tasks API 返回的任务对象（用于测试断言）
+ */
+export interface TaskApiResponse {
+  id: string;
+  title: string;
+  description?: string;
+  type?: string;
+  priority?: string;
+  status?: string;
+  assignee?: string;
+  comments?: Array<{ content: string }>;
+  history?: Array<{ status: string }>;
 }
 
 /**
