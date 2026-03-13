@@ -29,7 +29,6 @@ import {
   AppError,
   ErrorCodes,
   ErrorCategory,
-  withApiErrorHandler,
   successResponse,
   validationError,
   notFoundError,
@@ -145,7 +144,7 @@ const tasks: Task[] = [
 // GET /api/tasks - 获取任务列表
 // ============================================
 
-export const GET = withApiErrorHandler(async (request: NextRequest) => {
+export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const status = searchParams.get('status') as TaskStatus | null;
   const type = searchParams.get('type') as TaskType | null;
@@ -166,7 +165,7 @@ export const GET = withApiErrorHandler(async (request: NextRequest) => {
   }
 
   return successResponse(filteredTasks);
-});
+}
 
 // ============================================
 // POST /api/tasks - 创建任务

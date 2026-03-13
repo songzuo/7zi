@@ -102,8 +102,6 @@ export class RedisCache {
   private async loadRedisClient(): Promise<RedisClient | null> {
     try {
       // 尝试加载 ioredis
-      // @ts-expect-error - ioredis is an optional dependency
-       
       const RedisModule = await import('ioredis');
       const Redis = RedisModule.default || RedisModule;
       return new (Redis as new (url: string, options?: Record<string, unknown>) => RedisClient)(this.options.redisUrl, {

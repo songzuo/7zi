@@ -215,6 +215,10 @@ app/
 │   └── [slug]/page.tsx  → /blog/:slug
 ├── contact/page.tsx     → /contact
 ├── dashboard/page.tsx   → /dashboard
+├── portfolio/page.tsx   → /portfolio  ✅ 新增
+├── tasks/page.tsx       → /tasks      ✅ 新增
+├── knowledge-lattice/   → /knowledge-lattice ✅ 新增
+├── settings/page.tsx    → /settings   ✅ 新增
 └── team/page.tsx        → /team
 ```
 
@@ -734,6 +738,53 @@ jobs:
 - 静态资源需要单独处理
 - 图片优化功能受限
 
+### ADR-007: 知识图谱系统设计
+
+**背景**: 需要支持 AI 团队的知识管理和推理能力。
+
+**决策**: 实现知识图谱 API (Knowledge Graph API)。
+
+**理由**:
+- 支持知识节点和边的关联存储
+- 提供知识查询和推理能力
+- 知识晶格 (Lattice) 支持复杂知识结构
+- 为 AI 自主决策提供知识基础
+
+**后果**:
+- 需要维护知识数据一致性
+- 推理性能需持续优化
+
+### ADR-008: 认证与授权架构
+
+**背景**: 需要安全的 API 访问控制。
+
+**决策**: 使用 JWT + CSRF Token 双重验证机制。
+
+**理由**:
+- JWT 提供无状态认证
+- CSRF Token 防止跨站请求伪造
+- 角色权限控制 (RBAC)
+- 支持令牌刷新机制
+
+**后果**:
+- 需要管理令牌生命周期
+- CSRF Token 需要在每次请求时携带
+
 ---
 
-*本文档会随着项目演进持续更新。如有疑问，请联系维护团队。*
+## API 端点实现状态
+
+| API 模块 | 实现状态 | 端点 |
+|----------|----------|------|
+| Tasks API | ✅ 完整 | GET/POST/PUT `/api/tasks`, POST `/api/tasks/:id/assign` |
+| Projects API | ✅ 完整 | GET/POST/PUT/DELETE `/api/projects` |
+| Health API | ✅ 完整 | `/api/health`, `/api/health/ready`, `/api/health/live`, `/api/health/detailed` |
+| Knowledge API | ✅ 完整 | `/api/knowledge/nodes`, `/api/knowledge/edges`, `/api/knowledge/query`, `/api/knowledge/inference`, `/api/knowledge/lattice` |
+| Logs API | ✅ 完整 | GET/POST/DELETE `/api/logs`, GET `/api/logs/export` |
+| Auth API | ✅ 完整 | `/api/auth` (login, logout, refresh, me, csrf, check-secret) |
+| Status API | ✅ 完整 | GET `/api/status` |
+
+---
+
+*本文档会随着项目演进持续更新。如有疑问，请联系维护团队。*  
+*最后更新: 2026-03-13*

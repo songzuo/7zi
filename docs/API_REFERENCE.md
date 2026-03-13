@@ -11,6 +11,10 @@
 
 ## 🔔 更新日志
 
+### v1.0.2 (2026-03-13)
+- 添加项目管理 API 完整文档 (`/api/projects`, `/api/projects/:id`, `/api/projects/:id/tasks`)
+- 添加 Auth API 完整文档 (login, logout, refresh, me, csrf, check-secret)
+
 ### v1.0.1 (2026-03-08)
 - 添加任务 ID 参数支持 (`/api/tasks/:id`)
 - 添加任务分配端点 (`/api/tasks/:id/assign`)
@@ -447,6 +451,283 @@ curl -X POST http://localhost:3000/api/tasks/task-001/assign \
 
 ---
 
+## 项目管理 API
+
+> ⚠️ 需要认证: POST 请求需要有效的 JWT Token 和 CSRF Token
+
+### 获取项目列表
+
+```http
+GET /api/projects
+```
+
+**查询参数**
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `status` | string | 否 | 按状态过滤: `active`, `completed`, `archived`, `on_hold` |
+| `priority` | string | 否 | 按优先级过滤: `high`, `medium`, `low` |
+| `assignee` | string | 否 | 按成员过滤 |
+
+**响应示例**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "proj-001",
+      "name": "7zi Platform",
+      "description": "AI驱动的团队管理平台",
+      "status": "active",
+      "priority": "high",
+      "tags": ["AI", "Team Management", "Next.js"],
+      "startDate": "2026-03-01T00:00:00Z",
+      "endDate": "2026-06-30T00:00:00Z",
+      "members": ["architect", "executor", "designer"],
+      "createdAt": "2026-03-01T00:00:00Z",
+      "updatedAt": "2026-03-13T00:00:00Z"
+    }
+  ]
+}
+```
+
+**cURL 示例**
+
+```bash
+# 获取所有项目
+curl http://localhost:3000/api/projects
+
+# 获取进行中的高优先级项目
+curl "http://localhost:3000/api/projects?status=active&priority=high"
+```
+
+---
+
+### 创建项目
+
+```http
+POST /api/projects
+```
+
+> ⚠️ 需要认证: JWT Token + CSRF Token
+
+**请求头**
+
+```http
+Authorization: Bearer <jwt_token>
+X-CSRF-Token: <csrf_token>
+```
+
+**请求体**
+
+```json
+{
+  "name": "string (必填)",
+  "description": "string (可选)",
+  "status": "active | completed | archived | on_hold",
+  "priority": "high | medium | low",
+  "tags": ["string"],
+  "startDate": "ISO 8601 日期",
+  "endDate": "ISO 8601 日期",
+  "members": ["member-id"]
+}
+```
+
+**字段说明**
+
+| 字段 | 类型 | 必填 | 默认值 | 说明 |
+|------|------|------|--------|------|
+| `name` | string | ✅ | - | 项目名称 |
+| `description` | string | ❌ | `""` | 项目描述 |
+| `status` | string | ❌ | `"active"` | 项目状态 |
+| `priority` | string | ❌ | `"medium"` | 优先级 |
+| `tags` | string[] | ❌ | `[]` | 标签数组 |
+| `startDate` | string | ❌ | - | 开始日期 |
+| `endDate` | string | ❌ | - | 结束日期 |
+| `members` | string[] | ❌ | `[]` | 成员 ID 数组 |
+
+**响应示例**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "proj-abc123",
+    "name": "新项目",
+    "description": "项目描述",
+    "status": "active",
+    "priority": "medium",
+    "tags": ["AI"],
+    "members": [],
+    "createdAt": "2026-03-13T12:00:00Z",
+    "updatedAt": "2026-03-13T12:00:00Z"
+  }
+}
+```
+
+**cURL 示例**
+
+```bash
+curl -X POST http://localhost:3000/api/projects \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <jwt_token>" \
+  -H "X-CSRF-Token: <csrf_token>" \
+  -d '{
+    "name": "新项目开发",
+    "description": "AI 驱动的项目管理系统",
+    "priority": "high",
+    "tags": ["AI", "Management"]
+  }'
+```
+
+---
+
+### 获取单个项目
+
+```http
+GET /api/projects/:id
+```
+
+**路径参数**
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | string | ✅ | 项目 ID |
+
+**响应示例**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "proj-001",
+    "name": "7zi Platform",
+    "description": "AI驱动的团队管理平台",
+    "status": "active",
+    "priority": "high",
+    "tags": ["AI", "Team Management"],
+    "startDate": "2026-03-01T00:00:00Z",
+    "endDate": "2026-06-30T00:00:00Z",
+    "members": ["architect", "executor"],
+    "createdAt": "2026-03-01T00:00:00Z",
+    "updatedAt": "2026-03-13T00:00:00Z"
+  }
+}
+```
+
+**cURL 示例**
+
+```bash
+curl http://localhost:3000/api/projects/proj-001
+```
+
+---
+
+### 更新项目
+
+```http
+PUT /api/projects/:id
+```
+
+> ⚠️ 需要认证
+
+**请求体**
+
+```json
+{
+  "name": "string (可选)",
+  "description": "string (可选)",
+  "status": "active | completed | archived | on_hold",
+  "priority": "high | medium | low",
+  "tags": ["string"],
+  "endDate": "ISO 8601 日期"
+}
+```
+
+**响应示例**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "proj-001",
+    "name": "7zi Platform (更新版)",
+    "status": "completed",
+    "updatedAt": "2026-03-13T14:00:00Z"
+  }
+}
+```
+
+**cURL 示例**
+
+```bash
+curl -X PUT http://localhost:3000/api/projects/proj-001 \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <jwt_token>" \
+  -H "X-CSRF-Token: <csrf_token>" \
+  -d '{"status": "completed"}'
+```
+
+---
+
+### 删除项目
+
+```http
+DELETE /api/projects/:id
+```
+
+> ⚠️ 需要认证: 仅管理员可删除
+
+**响应示例**
+
+```json
+{
+  "success": true,
+  "message": "Project deleted successfully"
+}
+```
+
+**cURL 示例**
+
+```bash
+curl -X DELETE http://localhost:3000/api/projects/proj-001 \
+  -H "Authorization: Bearer <jwt_token>" \
+  -H "X-CSRF-Token: <csrf_token>"
+```
+
+---
+
+### 获取项目相关任务
+
+```http
+GET /api/projects/:id/tasks
+```
+
+**路径参数**
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | string | ✅ | 项目 ID |
+
+**响应示例**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "task-001",
+      "title": "项目任务",
+      "status": "in_progress",
+      "assignee": "executor"
+    }
+  ]
+}
+```
+
+---
+
 ## 日志系统 API
 
 ### 查询日志
@@ -673,6 +954,157 @@ GET /api/health/detailed
       "status": "healthy",
       "usage": 25
     }
+  }
+}
+```
+
+---
+
+## 认证 API
+
+> 用户身份验证与授权系统
+
+### 用户登录
+
+```http
+POST /api/auth/login
+```
+
+**请求体**
+
+```json
+{
+  "username": "string (必填)",
+  "password": "string (必填)"
+}
+```
+
+**响应示例**
+
+```json
+{
+  "success": true,
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIs...",
+    "user": {
+      "id": "user-001",
+      "username": "admin",
+      "role": "admin"
+    },
+    "csrfToken": "abc123..."
+  }
+}
+```
+
+**cURL 示例**
+
+```bash
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": "admin", "password": "password"}'
+```
+
+---
+
+### 用户登出
+
+```http
+POST /api/auth/logout
+```
+
+> ⚠️ 需要认证
+
+**响应示例**
+
+```json
+{
+  "success": true,
+  "message": "Logged out successfully"
+}
+```
+
+---
+
+### 刷新令牌
+
+```http
+POST /api/auth/refresh
+```
+
+> ⚠️ 需要认证
+
+**响应示例**
+
+```json
+{
+  "success": true,
+  "data": {
+    "token": "new_jwt_token...",
+    "csrfToken": "new_csrf_token..."
+  }
+}
+```
+
+---
+
+### 获取当前用户
+
+```http
+GET /api/auth/me
+```
+
+> ⚠️ 需要认证
+
+**响应示例**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "user-001",
+    "username": "admin",
+    "role": "admin",
+    "email": "admin@7zi.com"
+  }
+}
+```
+
+---
+
+### 获取 CSRF Token
+
+```http
+GET /api/auth?action=csrf
+```
+
+**响应示例**
+
+```json
+{
+  "success": true,
+  "data": {
+    "csrfToken": "abc123..."
+  }
+}
+```
+
+---
+
+### 检查 JWT Secret 强度
+
+```http
+GET /api/auth?action=check-secret
+```
+
+**响应示例**
+
+```json
+{
+  "success": true,
+  "data": {
+    "strong": true,
+    "length": 32,
+    "hasEntropy": true
   }
 }
 ```

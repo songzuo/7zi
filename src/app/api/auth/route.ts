@@ -12,16 +12,142 @@ import {
   setAuthCookies,
   clearAuthCookies,
   validateJwtSecret,
-  generateSecureSecret,
 } from '@/lib/security/auth';
 import { generateCsrfToken, setCsrfTokenCookie } from '@/lib/security/csrf';
 import { authLogger } from '@/lib/logger';
 
 // ============================================
-// POST /api/auth/login - 用户登录
+// GET /api/auth - 处理各种查询操作
+// ============================================
+
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const action = searchParams.get('action');
+
+  // 获取 CSRF Token
+  if (action === 'csrf') {
+    const csrfToken = generateCsrfToken();
+    const response = NextResponse.json({
+      success: true,
+      csrfToken,
+    });
+
+    const headers = setCsrfTokenCookie(csrfToken);
+    headers.forEach((value, key) => {
+      response.headers.append(key, value);
+    });
+
+    return response;
+  }
+
+  // 检查 JWT_SECRET 强度
+  if (action === 'check-secret') {
+    const jwtSecret = process.env.JWT_SECRET || '';
+    const validation = validateJwtSecret(jwtSecret);
+
+    return NextResponse.json({
+      success: true,
+      secretStrength: validation,
+      isDefault: jwtSecret === 'change-me-to-a-secure-random-string-min-32-chars',
+    });
+  }
+
+  // 获取当前用户信息
+  if (action === 'me') {
+    try {
+      const token = extractToken(request);
+
+      if (!token) {
+        return NextResponse.json(
+          { error: 'Not authenticated' },
+          { status: 401 }
+        );
+      }
+
+      const payload = await verifyToken(token);
+
+      if (!payload) {
+        return NextResponse.json(
+          { error: 'Invalid or expired token' },
+          { status: 401 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        user: {
+          id: payload.sub,
+          email: payload.email,
+          name: payload.name,
+          role: payload.role,
+          permissions: payload.permissions,
+        },
+      });
+    } catch (error) {
+      authLogger.error('Get user error', error);
+      return NextResponse.json(
+        { error: 'Failed to get user info' },
+        { status: 500 }
+      );
+    }
+  }
+
+  // 默认响应
+  return NextResponse.json({
+    message: 'Auth API',
+    endpoints: [
+      'POST /api/auth/login',
+      'POST /api/auth/logout',
+      'POST /api/auth/refresh',
+      'GET /api/auth?action=me',
+      'GET /api/auth?action=csrf',
+      'GET /api/auth?action=check-secret',
+    ],
+  });
+}
+
+// ============================================
+// POST /api/auth - 登录或登出
 // ============================================
 
 export async function POST(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const action = searchParams.get('action');
+
+  // 用户登录
+  if (action === 'login' || !action) {
+    return handleLogin(request);
+  }
+
+  // 刷新令牌
+  if (action === 'refresh') {
+    return handleRefresh(request);
+  }
+
+  // 用户登出
+  if (action === 'logout') {
+    return handleLogout(request);
+  }
+
+  return NextResponse.json(
+    { error: 'Invalid action' },
+    { status: 400 }
+  );
+}
+
+// ============================================
+// DELETE /api/auth - 用户登出
+// ============================================
+
+export async function DELETE(request: NextRequest) {
+  return handleLogout(request);
+}
+
+// ============================================
+// 处理登录
+// ============================================
+
+async function handleLogin(request: NextRequest) {
   try {
     const body = await request.json();
     const { email, password } = body;
@@ -33,11 +159,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
-    // TODO: 实际的密码验证逻辑
-    // 这里应该查询数据库验证用户凭据
-    // 示例：const user = await db.users.findByEmail(email);
-    // if (!user || !await verifyPassword(password, user.passwordHash)) { ... }
 
     // 模拟用户验证 (开发环境)
     if (email === 'admin@7zi.studio' && password === 'admin123') {
@@ -104,10 +225,10 @@ export async function POST(request: NextRequest) {
 }
 
 // ============================================
-// POST /api/auth/logout - 用户登出
+// 处理登出
 // ============================================
 
-export async function logout(request: NextRequest) {
+async function handleLogout(request: NextRequest) {
   try {
     const token = extractToken(request);
     
@@ -142,16 +263,11 @@ export async function logout(request: NextRequest) {
   }
 }
 
-// 支持 DELETE 方法登出
-export async function DELETE(request: NextRequest) {
-  return logout(request);
-}
-
 // ============================================
-// POST /api/auth/refresh - 刷新令牌
+// 处理令牌刷新
 // ============================================
 
-export async function refresh(request: NextRequest) {
+async function handleRefresh(request: NextRequest) {
   try {
     const refreshToken = request.cookies.get('refresh_token')?.value;
 
@@ -201,97 +317,4 @@ export async function refresh(request: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-// ============================================
-// GET /api/auth/me - 获取当前用户信息
-// ============================================
-
-export async function me(request: NextRequest) {
-  try {
-    const token = extractToken(request);
-
-    if (!token) {
-      return NextResponse.json(
-        { error: 'Not authenticated' },
-        { status: 401 }
-      );
-    }
-
-    const payload = await verifyToken(token);
-
-    if (!payload) {
-      return NextResponse.json(
-        { error: 'Invalid or expired token' },
-        { status: 401 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      user: {
-        id: payload.sub,
-        email: payload.email,
-        name: payload.name,
-        role: payload.role,
-        permissions: payload.permissions,
-      },
-    });
-  } catch (error) {
-    authLogger.error('Get user error', error);
-    return NextResponse.json(
-      { error: 'Failed to get user info' },
-      { status: 500 }
-    );
-  }
-}
-
-// ============================================
-// GET /api/auth/csrf - 获取 CSRF Token
-// ============================================
-
-export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const action = searchParams.get('action');
-
-  // 获取 CSRF Token
-  if (action === 'csrf') {
-    const csrfToken = generateCsrfToken();
-    const response = NextResponse.json({
-      success: true,
-      csrfToken,
-    });
-
-    const headers = setCsrfTokenCookie(csrfToken);
-    headers.forEach((value, key) => {
-      response.headers.append(key, value);
-    });
-
-    return response;
-  }
-
-  // 检查 JWT_SECRET 强度
-  if (action === 'check-secret') {
-    const jwtSecret = process.env.JWT_SECRET || '';
-    const validation = validateJwtSecret(jwtSecret);
-
-    return NextResponse.json({
-      success: true,
-      secretStrength: validation,
-      isDefault: jwtSecret === 'change-me-to-a-secure-random-string-min-32-chars',
-    });
-  }
-
-  // 默认响应
-  return NextResponse.json({
-    message: 'Auth API',
-    endpoints: [
-      'POST /api/auth/login',
-      'POST /api/auth/logout',
-      'POST /api/auth/refresh',
-      'GET /api/auth/me',
-      'GET /api/auth/csrf?action=csrf',
-      'GET /api/auth/check-secret?action=check-secret',
-    ],
-  });
 }

@@ -8,7 +8,7 @@
 
 ---
 
-## [Unreleased]
+## [0.2.1] - 2026-03-13
 
 ### Added
 - **Portfolio 模块完整上线**
@@ -54,6 +54,34 @@
 - 更新 README.md 与最新功能同步
 - 更新 TECH_DEBT.md 状态
 - 新增 docs/KNOWLEDGE_LATTICE.md 文档
+
+---
+
+## [Unreleased]
+
+### Added
+- **认证系统 API 完整实现**
+  - `POST /api/auth/login` - 用户登录（JWT + Cookie）
+  - `POST /api/auth/logout` - 用户登出（清除 Cookie）
+  - `POST /api/auth/refresh` - 令牌刷新机制
+  - `GET /api/auth/me` - 获取当前用户信息
+  - `GET /api/auth?action=csrf` - CSRF Token 获取
+  - `GET /api/auth?action=check-secret` - JWT Secret 强度检查
+
+- **Projects API 完整 CRUD**
+  - `GET /api/projects` - 获取项目列表（支持 status/priority/assignee 过滤）
+  - `POST /api/projects` - 创建项目（需认证）
+  - `GET /api/projects/:id` - 获取项目详情
+  - `PUT /api/projects/:id` - 更新项目（需认证）
+  - `DELETE /api/projects/:id` - 删除项目（需管理员权限）
+
+- **日志系统增强**
+  - `GET /api/logs/export` - 日志导出（支持 JSON/CSV 格式）
+
+- **安全增强**
+  - JWT + CSRF Token 双重认证机制
+  - 基于角色的权限控制 (RBAC)
+  - 安全中间件验证
 
 ---
 
@@ -271,4 +299,4 @@
 
 ---
 
-*最后更新：2026-03-10*
+*最后更新：2026-03-13*

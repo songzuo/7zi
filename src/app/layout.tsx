@@ -1,16 +1,7 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+export const dynamic = 'force-dynamic';
 
 const baseUrl = "https://7zi.studio";
 
@@ -20,7 +11,7 @@ export const metadata: Metadata = {
     default: "7zi Studio - AI 驱动的创新数字工作室",
     template: "%s | 7zi Studio",
   },
-  description: "7zi Studio - 由 11 位 AI 代理组成的创新数字工作室，提供网站开发、品牌设计、营销推广等全方位数字化服务",
+  description: "7zi Studio - 由 11 位 AI 代理组成的创新数字工作室，提供网站开发，品牌设计，营销推广等全方位数字化服务",
 };
 
 export default function RootLayout({
@@ -29,8 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <html lang="zh">
+      <body>
         {children}
       </body>
     </html>

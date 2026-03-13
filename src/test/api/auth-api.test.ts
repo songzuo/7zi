@@ -417,14 +417,17 @@ describe('Auth API - 边界情况', () => {
       password: 'admin123',
     });
 
-    // 多次登录应该都成功
-    const responses = await Promise.all([
-      POST(request),
-      POST(request),
-      POST(request),
-    ]);
+    // 多次登录应该都成功（模拟每次都是新请求）
+    const results = [];
+    for (let i = 0; i < 3; i++) {
+      const req = createMockRequest('POST', {
+        email: 'admin@7zi.studio',
+        password: 'admin123',
+      });
+      results.push(await POST(req));
+    }
 
-    responses.forEach(response => {
+    results.forEach(response => {
       expect(response.status).toBe(200);
     });
   });

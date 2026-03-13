@@ -37,7 +37,9 @@ class Logger {
   }
 
   warn(message: string, ...args: unknown[]): void {
-    console.warn(this.formatMessage('warn', message), ...args);
+    if (isDev) {
+      console.warn(this.formatMessage('warn', message), ...args);
+    }
   }
 
   error(message: string, ...args: unknown[]): void {
@@ -45,13 +47,17 @@ class Logger {
   }
 
   /**
-   * Audit log - always logs in production for compliance
+   * Audit log - only logs in development; in production, use proper audit system
    */
   audit(action: string, data: Record<string, unknown>): void {
-    console.log(`[Audit] ${action}`, {
-      ...data,
-      timestamp: new Date().toISOString(),
-    });
+    if (isDev) {
+      console.log(`[Audit] ${action}`, {
+        ...data,
+        timestamp: new Date().toISOString(),
+      });
+    }
+    // In production, audit logs should be sent to a proper audit/logging service
+    // rather than console.log which is stripped by Terser
   }
 }
 

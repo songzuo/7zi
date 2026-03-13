@@ -1,6 +1,6 @@
 # 7zi-frontend 文档索引
 
-> 📚 文档导航中心 | 更新日期: 2026-03-09 05:33
+> 📚 文档导航中心 | 更新日期: 2026-03-13
 
 ---
 
@@ -31,11 +31,12 @@
 7zi-frontend/
 ├── 📄 核心文档
 │   ├── README.md                    # 项目介绍
-│   ├── CHANGELOG.md                 # 变更日志 ⭐ 新增
+│   ├── CHANGELOG.md                 # 变更日志
 │   ├── ARCHITECTURE.md              # 技术架构说明
 │   ├── PROJECT_STATUS.md            # 项目状态报告
 │   ├── NEXT_FEATURES.md             # 功能规划
 │   ├── TECH_DEBT.md                 # 技术债务评估
+│   ├── MEMORY.md                    # 长期记忆
 │   └── DOCS_INDEX.md                # 本文档
 │
 ├── 📄 功能与状态
@@ -342,15 +343,88 @@ DEPLOYMENT-CHECKLIST.md → docs/DEPLOYMENT.md → docs/OPERATIONS_MANUAL.md
 
 | 指标 | 数值 | 来源 |
 |------|------|------|
-| 项目版本 | 0.1.0 | PROJECT_STATUS |
-| TypeScript 文件 | 139 个 | PROJECT_STATUS |
-| 代码总行数 | 20,098 行 | PROJECT_STATUS |
-| 组件数量 | 30+ 个 | PROJECT_STATUS |
-| 测试文件 | 17-23 个 | PROJECT_STATUS/TECH_DEBT |
-| 测试通过 | 294 个 | PROJECT_STATUS |
+| 项目版本 | 0.2.1 | README |
+| TypeScript 文件 | 270+ 个 | PROJECT_STATUS |
+| 代码总行数 | 20,000+ 行 | PROJECT_STATUS |
+| 组件数量 | 50+ 个 | PROJECT_STATUS |
+| 测试文件 | 270+ 个 | PROJECT_STATUS |
 | AI 团队成员 | 11 位 | README |
 | 技术债务评分 | 3/10 (低) | TECH_DEBT |
-| 总体评级 | B+ | TECH_DEBT |
+| API 端点 | 17 个 | API_REFERENCE |
+
+---
+
+## 🔌 API 端点完整列表
+
+### 任务管理 API (`/api/tasks`)
+
+| 方法 | 端点 | 说明 | 状态 |
+|------|------|------|------|
+| GET | `/api/tasks` | 获取任务列表（支持过滤） | ✅ |
+| POST | `/api/tasks` | 创建新任务 | ✅ |
+| PUT | `/api/tasks` | 更新任务 | ✅ |
+| GET | `/api/tasks/:id` | 获取单个任务详情 | ✅ |
+| POST | `/api/tasks/:id/assign` | AI 智能分配任务 | ✅ |
+
+### 项目管理 API (`/api/projects`)
+
+| 方法 | 端点 | 说明 | 状态 |
+|------|------|------|------|
+| GET | `/api/projects` | 获取项目列表 | ✅ |
+| POST | `/api/projects` | 创建新项目（需认证） | ✅ |
+| PUT | `/api/projects/:id` | 更新项目（需认证） | ✅ |
+| DELETE | `/api/projects/:id` | 删除项目（需管理员） | ✅ |
+| GET | `/api/projects/:id/tasks` | 获取项目相关任务 | ✅ |
+
+### 知识图谱 API (`/api/knowledge`)
+
+| 方法 | 端点 | 说明 | 状态 |
+|------|------|------|------|
+| GET | `/api/knowledge/nodes` | 获取知识节点列表 | ✅ |
+| POST | `/api/knowledge/nodes` | 创建知识节点 | ✅ |
+| GET | `/api/knowledge/nodes/:id` | 获取节点详情 | ✅ |
+| PUT | `/api/knowledge/nodes/:id` | 更新节点 | ✅ |
+| DELETE | `/api/knowledge/nodes/:id` | 删除节点 | ✅ |
+| GET | `/api/knowledge/edges` | 获取知识边列表 | ✅ |
+| POST | `/api/knowledge/edges` | 创建知识边 | ✅ |
+| POST | `/api/knowledge/query` | 知识查询 | ✅ |
+| POST | `/api/knowledge/inference` | 知识推理 | ✅ |
+| GET | `/api/knowledge/lattice` | 获取知识晶格 | ✅ |
+
+### 健康检查 API (`/api/health`)
+
+| 方法 | 端点 | 说明 | 状态 |
+|------|------|------|------|
+| GET | `/api/health` | 基础健康检查 | ✅ |
+| GET | `/api/health/ready` | 就绪状态检查 | ✅ |
+| GET | `/api/health/live` | 存活状态检查 | ✅ |
+| GET | `/api/health/detailed` | 详细健康报告 | ✅ |
+
+### 日志系统 API (`/api/logs`)
+
+| 方法 | 端点 | 说明 | 状态 |
+|------|------|------|------|
+| GET | `/api/logs` | 查询日志（支持分页） | ✅ |
+| POST | `/api/logs` | 创建日志条目 | ✅ |
+| DELETE | `/api/logs` | 清理旧日志 | ✅ |
+| GET | `/api/logs/export` | 导出日志（JSON/CSV） | ✅ |
+
+### 认证 API (`/api/auth`)
+
+| 方法 | 端点 | 说明 | 状态 |
+|------|------|------|------|
+| POST | `/api/auth/login` | 用户登录 | ✅ |
+| POST | `/api/auth/logout` | 用户登出 | ✅ |
+| POST | `/api/auth/refresh` | 刷新令牌 | ✅ |
+| GET | `/api/auth/me` | 获取当前用户 | ✅ |
+| GET | `/api/auth?action=csrf` | 获取 CSRF Token | ✅ |
+| GET | `/api/auth?action=check-secret` | JWT Secret 强度检查 | ✅ |
+
+### 系统状态 API (`/api/status`)
+
+| 方法 | 端点 | 说明 | 状态 |
+|------|------|------|------|
+| GET | `/api/status` | 获取系统状态 | ✅ |
 
 ---
 

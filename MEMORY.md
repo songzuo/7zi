@@ -1,7 +1,7 @@
 # MEMORY.md - 长期记忆
 
 **创建时间**: 2026-03-08  
-**最后更新**: 2026-03-10 16:31 (Europe/Berlin)
+**最后更新**: 2026-03-13 14:35 (Europe/Berlin)
 
 ---
 
@@ -179,17 +179,44 @@
 
 ### 任务管理
 - `GET/POST /api/tasks` - 任务列表/创建
-- `PUT/DELETE /api/tasks/:id` - 任务更新/删除
+- `PUT /api/tasks` - 任务更新
+- `GET /api/tasks/:id` - 获取任务详情
 - `POST /api/tasks/:id/assign` - AI 智能分配
 
-### 项目展示
-- `GET /api/projects` - 项目列表
-- `GET /api/projects/:id` - 项目详情
+### 项目管理
+- `GET/POST /api/projects` - 项目列表/创建
+- `PUT/DELETE /api/projects/:id` - 项目更新/删除
+- `GET /api/projects/:id/tasks` - 项目相关任务
+
+### 知识图谱
+- `GET/POST /api/knowledge/nodes` - 知识节点列表/创建
+- `GET/PUT/DELETE /api/knowledge/nodes/:id` - 节点操作
+- `GET/POST /api/knowledge/edges` - 知识边列表/创建
+- `POST /api/knowledge/query` - 知识查询
+- `POST /api/knowledge/inference` - 知识推理
+- `GET /api/knowledge/lattice` - 知识晶格
+
+### 健康检查
+- `GET /api/health` - 基础健康检查
+- `GET /api/health/ready` - 就绪状态
+- `GET /api/health/live` - 存活状态
+- `GET /api/health/detailed` - 详细健康报告
 
 ### 日志系统
 - `GET /api/logs` - 日志列表
 - `POST /api/logs` - 创建日志
-- `GET /api/logs/export` - 导出日志
+- `DELETE /api/logs` - 清理旧日志
+- `GET /api/logs/export` - 导出日志 (JSON/CSV)
+
+### 认证系统
+- `POST /api/auth/login` - 用户登录
+- `POST /api/auth/logout` - 用户登出
+- `POST /api/auth/refresh` - 刷新令牌
+- `GET /api/auth/me` - 获取当前用户
+- `GET /api/auth?action=csrf` - 获取 CSRF Token
+
+### 系统状态
+- `GET /api/status` - 系统状态
 
 ---
 
@@ -244,13 +271,15 @@ ALERT_EMAIL_RECIPIENTS=
 | 优先级 | 项目 | 状态 |
 |--------|------|------|
 | P0 | Sentry 集成 | ✅ 已移除，使用自定义系统 |
-| P1 | UserSettingsPage 重构 | ✅ 已完成 |
-| P1 | Dashboard 重构 | ✅ 已完成 |
-| P1 | AboutContent 重构 | ✅ 已完成 |
-| P1 | eslint v10 升级 | ✅ 已完成 |
+| P1 | UserSettingsPage 重构 | ✅ 已完成 (713→160 行) |
+| P1 | Dashboard 重构 | ✅ 已完成 (466 行) |
+| P1 | AboutContent 重构 | ✅ 已完成 (584 行) |
+| P1 | eslint v9/v10 升级 | ✅ 已完成 (v9.39.4) |
 | P1 | 测试覆盖率提升 | 🔄 进行中 (目标 80%) |
-| P2 | console 清理 | 🔄 进行中 |
+| P1 | Knowledge API 测试 | ✅ 已完成 |
+| P1 | Console 清理 | ✅ 已完成 |
 | P2 | any 类型减少 | 🔄 进行中 |
+| P2 | 类型安全提升 | ✅ 已完成 (29 个类型错误修复) |
 
 ---
 
@@ -258,13 +287,14 @@ ALERT_EMAIL_RECIPIENTS=
 
 ### 高优先级
 - [ ] 测试覆盖率提升至 80%
-- [ ] 修复 TaskCard 测试失败问题
 - [ ] E2E 测试完善
+- [ ] Gitea Actions Secrets 配置
 
 ### 中优先级
 - [ ] 多模态 AI 支持
 - [ ] 语音会议系统
 - [ ] 移动端适配
+- [ ] Claw-Mesh 协作系统优化
 
 ### 低优先级
 - [ ] 多语言扩展

@@ -9,17 +9,13 @@ import CategoryFilter from '@/components/portfolio/CategoryFilter'
 // Mock next-intl
 vi.mock('next-intl', () => ({
   useTranslations: vi.fn(() => (key: string) => {
-    const translations: Record<string, string> = {
-      'Portfolio': {
-        'allProjects': 'All Projects',
-      }[key] || key
-    }
-    return translations[key] || key
+    if (key === 'allProjects') return 'All Projects'
+    return key
   }),
 }))
 
 describe('CategoryFilter', () => {
-  const mockCategories = ['all', 'website', 'app', 'ai', 'design']
+  const mockCategories = ['website', 'app', 'ai', 'design']
   const mockOnCategoryChange = vi.fn()
 
   beforeEach(() => {
@@ -47,8 +43,12 @@ describe('CategoryFilter', () => {
         />
       )
       
+      // Check for "All Projects" button
+      expect(screen.getByText('All Projects')).toBeInTheDocument()
+      
+      // Check for each category button
       mockCategories.forEach(category => {
-        expect(screen.getByText(category === 'all' ? 'Portfolio' : category)).toBeInTheDocument()
+        expect(screen.getByText(category)).toBeInTheDocument()
       })
     })
 
@@ -62,7 +62,8 @@ describe('CategoryFilter', () => {
       )
       
       const buttons = screen.getAllByRole('button')
-      expect(buttons).toHaveLength(mockCategories.length)
+      // All Projects button + category buttons
+      expect(buttons).toHaveLength(mockCategories.length + 1)
     })
   })
 
@@ -92,6 +93,19 @@ describe('CategoryFilter', () => {
       
       const unselectedBtn = screen.getByText('app')
       expect(unselectedBtn).toHaveClass('bg-gray-100')
+    })
+
+    it('highlights "All Projects" when all is selected', () => {
+      render(
+        <CategoryFilter
+          categories={mockCategories}
+          selectedCategory="all"
+          onCategoryChange={mockOnCategoryChange}
+        />
+      )
+      
+      const allProjectsBtn = screen.getByText('All Projects')
+      expect(allProjectsBtn).toHaveClass('bg-primary')
     })
 
     it('updates styling when selection changes', () => {
@@ -138,7 +152,21 @@ describe('CategoryFilter', () => {
       expect(mockOnCategoryChange).toHaveBeenCalledWith('website')
     })
 
-    it('calls onCategoryChange with correct category value', () => {
+    it('calls onCategoryChange with "all" when All Projects is clicked', () => {
+      render(
+        <CategoryFilter
+          categories={mockCategories}
+          selectedCategory="website"
+          onCategoryChange={mockOnCategoryChange}
+        />
+      )
+      
+      fireEvent.click(screen.getByText('All Projects'))
+      
+      expect(mockOnCategoryChange).toHaveBeenCalledWith('all')
+    })
+
+    it('calls onCategoryChange with correct category value for each button', () => {
       render(
         <CategoryFilter
           categories={mockCategories}
@@ -148,7 +176,7 @@ describe('CategoryFilter', () => {
       )
       
       mockCategories.forEach(category => {
-        fireEvent.click(screen.getByText(category === 'all' ? 'Portfolio' : category))
+        fireEvent.click(screen.getByText(category))
       })
       
       expect(mockOnCategoryChange).toHaveBeenCalledTimes(mockCategories.length)
@@ -198,6 +226,21 @@ describe('CategoryFilter', () => {
       const unselectedBtn = screen.getByText('website')
       expect(unselectedBtn).toHaveClass('dark:bg-gray-800')
     })
+
+    it('applies capitalize class to category buttons', () => {
+      render(
+        <CategoryFilter
+          categories={mockCategories}
+          selectedCategory="all"
+          onCategoryChange={mockOnCategoryChange}
+        />
+      )
+      
+      mockCategories.forEach(category => {
+        const btn = screen.getByText(category)
+        expect(btn).toHaveClass('capitalize')
+      })
+    })
   })
 
   describe('边界情况测试', () => {
@@ -210,24 +253,28 @@ describe('CategoryFilter', () => {
         />
       )
       
-      const buttons = screen.queryAllByRole('button')
-      expect(buttons).toHaveLength(0)
+      // Should still render "All Projects" button
+      expect(screen.getByText('All Projects')).toBeInTheDocument()
+      
+      const buttons = screen.getAllByRole('button')
+      expect(buttons).toHaveLength(1)
     })
 
     it('handles single category', () => {
       render(
         <CategoryFilter
-          categories={['all']}
+          categories={['website']}
           selectedCategory="all"
           onCategoryChange={mockOnCategoryChange}
         />
       )
       
-      expect(screen.getByText('Portfolio')).toBeInTheDocument()
+      expect(screen.getByText('All Projects')).toBeInTheDocument()
+      expect(screen.getByText('website')).toBeInTheDocument()
     })
 
     it('handles categories with special characters', () => {
-      const specialCategories = ['all', 'web-site', 'app_mobile', 'ai/ml']
+      const specialCategories = ['web-site', 'app_mobile', 'ai/ml']
       
       render(
         <CategoryFilter
