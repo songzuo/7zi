@@ -20,9 +20,11 @@ describe('/api/health', () => {
   describe('GET', () => {
     it('should return health status', async () => {
       vi.mocked(basicHealthCheck).mockReturnValue({
-        status: 'ok',
+        status: 'ok' as const,
         timestamp: '2026-03-11T15:00:00Z',
         version: '1.0.0',
+        uptime: 100,
+        environment: 'test',
       });
 
       const response = await GET();
@@ -36,11 +38,13 @@ describe('/api/health', () => {
 
     it('should return 200 even with degraded status', async () => {
       vi.mocked(basicHealthCheck).mockReturnValue({
-        status: 'degraded',
+        status: 'degraded' as const,
         timestamp: '2026-03-11T15:00:00Z',
         version: '1.0.0',
+        uptime: 100,
+        environment: 'test',
         checks: {
-          database: 'degraded',
+          database: { status: 'warning' as const, message: 'Slow response' },
         },
       });
 
@@ -53,11 +57,13 @@ describe('/api/health', () => {
 
     it('should return 200 even with unhealthy status', async () => {
       vi.mocked(basicHealthCheck).mockReturnValue({
-        status: 'unhealthy',
+        status: 'error' as const,
         timestamp: '2026-03-11T15:00:00Z',
         version: '1.0.0',
+        uptime: 100,
+        environment: 'test',
         checks: {
-          database: 'failed',
+          database: { status: 'error' as const, message: 'Connection failed' },
         },
       });
 
@@ -70,9 +76,11 @@ describe('/api/health', () => {
 
     it('should include version in response', async () => {
       vi.mocked(basicHealthCheck).mockReturnValue({
-        status: 'ok',
+        status: 'ok' as const,
         timestamp: '2026-03-11T15:00:00Z',
         version: '2.0.0',
+        uptime: 100,
+        environment: 'test',
       });
 
       const response = await GET();
@@ -83,8 +91,11 @@ describe('/api/health', () => {
 
     it('should call basicHealthCheck once', async () => {
       vi.mocked(basicHealthCheck).mockReturnValue({
-        status: 'ok',
+        status: 'ok' as const,
         timestamp: '2026-03-11T15:00:00Z',
+        version: '1.0.0',
+        uptime: 100,
+        environment: 'test',
       });
 
       await GET();

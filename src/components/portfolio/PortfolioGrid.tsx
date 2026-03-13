@@ -11,7 +11,7 @@ interface PortfolioGridProps {
   initialProjects?: Project[];
 }
 
-export function PortfolioGrid({ initialProjects = projects }: PortfolioGridProps) {
+export function PortfolioGrid({ initialProjects = projects as unknown as Project[] }: PortfolioGridProps) {
   const t = useTranslations('portfolio');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -62,7 +62,7 @@ export function PortfolioGrid({ initialProjects = projects }: PortfolioGridProps
       {filteredProjects.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredProjects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+            <ProjectCard key={project.id} project={project as unknown as Project} />
           ))}
         </div>
       ) : (

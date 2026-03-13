@@ -31,48 +31,53 @@ import { apiLogger } from '@/lib/logger';
 
 /**
  * 分配成功的成员信息
- * @typedef {Object} AssignedMember
- * @property {string} id - 成员 ID
- * @property {string} name - 成员名称
- * @property {number} confidence - 匹配置信度 (0-100)
  */
+interface AssignedMember {
+  id: string;
+  name: string;
+  confidence: number;
+}
 
 /**
  * 自动分配成功响应
- * @typedef {Object} AssignmentSuccessResult
- * @property {true} success - 成功标志
- * @property {string} message - 分配结果消息
- * @property {AssignedMember} assignedTo - 分配的成员信息
- * @property {Task|null} task - 更新后的任务对象
  */
+interface AssignmentSuccessResult {
+  success: true;
+  message: string;
+  assignedTo: AssignedMember;
+  task: Task;
+}
 
 /**
  * 分配建议列表响应
- * @typedef {Object} AssignmentSuggestionsResult
- * @property {true} success - 成功标志
- * @property {string} message - 结果消息
- * @property {AssignmentSuggestion[]} suggestions - 分配建议列表（最多5个）
- * @property {Task} task - 任务对象
  */
+interface AssignmentSuggestionsResult {
+  success: false;
+  message: string;
+  suggestions: AssignmentSuggestion[];
+  task: Task;
+}
 
 /**
  * 分配请求体
- * @typedef {Object} AssignmentRequestBody
- * @property {boolean} [autoAssign=false] - 是否自动分配给最佳候选人
- * @property {string} [preferredMemberId] - 指定分配的成员 ID
  */
+interface AssignmentRequestBody {
+  autoAssign?: boolean;
+  preferredMemberId?: string;
+}
 
 /**
  * 错误响应
- * @typedef {Object} AssignmentErrorResponse
- * @property {string} error - 错误类型
- * @property {string} [message] - 错误详情
  */
+interface AssignmentErrorResponse {
+  error: string;
+  message?: string;
+}
 
 /**
  * 分配结果（联合类型）
- * @typedef {AssignmentSuccessResult | AssignmentSuggestionsResult} AssignmentResult
  */
+type AssignmentResult = AssignmentSuccessResult | AssignmentSuggestionsResult;
 
 // Mock AI assignment logic - in production this would use actual AI models
 const aiAssignTask = (task: Task, teamMembers: AITeamMember[]): AssignmentSuggestion[] => {
@@ -281,7 +286,7 @@ export async function POST(
           name: bestCandidate.memberName,
           confidence: bestCandidate.confidence
         },
-        task: assignedTask
+        task: assignedTask!
       };
     } else if (preferredMemberId) {
       // Assign to specific member if requested
@@ -303,12 +308,12 @@ export async function POST(
           name: preferredMember.memberName,
           confidence: preferredMember.confidence
         },
-        task: assignedTask
+        task: assignedTask!
       };
     } else {
       // Return suggestions without assigning
       assignmentResult = {
-        success: true,
+        success: false,
         message: 'AI assignment suggestions generated',
         suggestions: suggestions.slice(0, 5), // Return top 5 suggestions
         task: task

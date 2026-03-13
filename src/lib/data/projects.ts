@@ -3,7 +3,7 @@ import type { Task } from '@/lib/types/task-types';
 import { v4 as uuidv4 } from 'uuid';
 
 // Define a simpler project data type for in-memory storage
-interface ProjectData {
+export interface ProjectData {
   id: string;
   slug?: string;
   title: string;

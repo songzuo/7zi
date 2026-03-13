@@ -10,10 +10,50 @@
 
 ## [Unreleased]
 
+### Added
+- **Portfolio 模块完整上线**
+  - 项目卡片组件 (ProjectCard)
+  - 分类过滤功能 (CategoryFilter)
+  - SEO 优化的详情页
+  - 6 个示例项目展示
+  - 完整 CRUD API 支持
+
+- **Tasks AI 任务管理系统**
+  - AI 驱动的智能任务分配算法
+  - 任务优先级管理
+  - 工作负载均衡
+  - 任务详情页面
+  - `/api/tasks/:id/assign` AI 分配端点
+
+- **Knowledge API 完整实现**
+  - `/api/knowledge/nodes` - 知识节点 CRUD
+  - `/api/knowledge/edges` - 知识边关系管理
+  - `/api/knowledge/query` - 知识查询
+  - `/api/knowledge/inference` - 知识推理
+  - `/api/knowledge/lattice` - 知识晶格展示
+
+- **Health API 标准化**
+  - `/api/health` - 基础健康检查
+  - `/api/health/ready` - 就绪状态检查
+  - `/api/health/live` - 存活状态检查
+  - `/api/health/detailed` - 详细健康报告
+
 ### Changed
-- **Console 清理**: 移除开发环境的 console.log/warn/error 调用，优化生产代码质量
-- **测试增强**: 新增更多组件单元测试，提升测试覆盖率
-- **ESLint 升级准备**: 评估 ESLint v10 升级方案，检查插件兼容性
+- **代码质量改进**
+  - Console 清理：移除开发环境的 console.log/warn/error 调用
+  - 测试增强：新增更多组件单元测试
+  - ESLint 配置优化：降级到 v9.39.4 解决兼容性问题
+  - 类型安全改进：`any` 类型使用减少到 4 处
+
+### Fixed
+- 修复 ESLint v10 兼容性问题（降级到 v9.39.4）
+- 修复 Settings Page 回归问题（重新优化组件结构）
+- 修复大型组件（knowledge-lattice, tasks/[id], contact 拆分优化）
+
+### Documentation
+- 更新 README.md 与最新功能同步
+- 更新 TECH_DEBT.md 状态
+- 新增 docs/KNOWLEDGE_LATTICE.md 文档
 
 ---
 

@@ -120,7 +120,6 @@ export function TaskProgressChart({ data, height = 300 }: TaskProgressChartProps
       x: {
         grid: {
           display: false,
-          drawBorder: false,
         },
         ticks: {
           color: '#6b7280',
@@ -133,7 +132,6 @@ export function TaskProgressChart({ data, height = 300 }: TaskProgressChartProps
         beginAtZero: true,
         grid: {
           color: 'rgba(0, 0, 0, 0.05)',
-          drawBorder: false,
         },
         ticks: {
           color: '#6b7280',

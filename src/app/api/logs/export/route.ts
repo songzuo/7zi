@@ -213,7 +213,7 @@ export async function GET(request: NextRequest) {
 
     // 根据格式返回数据
     if (format === 'csv') {
-      const csvContent = convertToCSV(result.logs as Array<Record<string, unknown>>);
+      const csvContent = convertToCSV(result.logs as unknown as Array<Record<string, unknown>>);
       const filename = getExportFilename('csv');
       
       const response = new NextResponse(csvContent, { status: 200 });
@@ -235,7 +235,7 @@ export async function GET(request: NextRequest) {
         requestId: query.requestId,
         route: query.route,
       },
-      logs: result.logs,
+      logs: result.logs as unknown as Record<string, unknown>[],
     };
 
     const filename = getExportFilename('json');

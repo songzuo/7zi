@@ -60,8 +60,7 @@ npm run build:analyze    # 构建分析
 | 端点 | 方法 | 说明 |
 |------|------|------|
 | `/api/logs` | GET, POST | 日志列表/创建 |
-
-> 注: `/api/logs/export` 端点尚未实现
+| `/api/logs/export` | GET | 导出日志 (JSON/CSV) |
 
 #### 健康检查 API
 | 端点 | 方法 | 说明 |
@@ -158,7 +157,7 @@ ALERT_EMAIL_RECIPIENTS=admin@example.com
 | Knowledge API | ✅ 完整 | `/api/knowledge/*` |
 | Auth API | ✅ 完整 | `/api/auth` (带完整认证和授权) |
 | Status API | ✅ 完整 | `/api/status` |
-| Logs API | ⚠️ 部分 | `/api/logs` 已实现，缺少 `/api/logs/export` 端点 |
+| Logs API | ✅ 完整 | `/api/logs`, `/api/logs/export` (JSON/CSV) |
 | Projects API | ❌ 未实现 | `/api/projects` 目录存在但未实现，项目数据通过 Tasks API 管理 |
 
 ### 重构状态

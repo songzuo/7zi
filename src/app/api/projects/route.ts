@@ -156,17 +156,25 @@ export async function POST(request: NextRequest) {
     }
 
     const newProject: Omit<Project, 'id' | 'createdAt' | 'updatedAt'> = {
-      name: body.name.trim(),
+      slug: body.name.toLowerCase().replace(/\s+/g, '-'),
+      title: body.name.trim(),
       description: body.description.trim(),
       status: body.status || 'active',
       priority: body.priority || 'medium',
+      category: body.category || 'general',
+      thumbnail: body.thumbnail || '',
+      images: body.images || [],
+      techStack: body.techStack || [],
+      duration: body.duration || '',
+      highlights: body.highlights || [],
+      links: body.links || {},
       startDate: body.startDate || null,
       endDate: body.endDate || null,
-      teamMembers: teamMembers,
-      metadata: body.metadata || {},
+      teamMembers: [],
+      createdBy: payload.email || 'system',
     };
 
-    const createdProject = createProject(newProject);
+    const createdProject = createProject(newProject as any);
 
     apiLogger.audit('Project created', {
       projectId: createdProject.id,
@@ -320,7 +328,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // 验证优先级
-    const validPriorities: ProjectPriority[] = ['low', 'medium', 'high', 'critical'];
+    const validPriorities: ProjectPriority[] = ['low', 'medium', 'high', 'urgent'];
     if (body.priority !== undefined && !validPriorities.includes(body.priority)) {
       return NextResponse.json(
         { error: `Invalid project priority. Valid values: ${validPriorities.join(', ')}` },
@@ -341,14 +349,12 @@ export async function PUT(request: NextRequest) {
     }
 
     const updateData: Partial<Project> = {
-      name: body.name?.trim(),
+      title: body.name?.trim(),
       description: body.description?.trim(),
       status: body.status,
       priority: body.priority,
       startDate: body.startDate,
       endDate: body.endDate,
-      teamMembers: teamMembers,
-      metadata: body.metadata,
     };
 
     // 移除 undefined 值
@@ -359,6 +365,13 @@ export async function PUT(request: NextRequest) {
     });
 
     const updatedProject = updateProject(id, updateData);
+    
+    if (!updatedProject) {
+      return NextResponse.json(
+        { error: 'Project not found' },
+        { status: 404 }
+      );
+    }
 
     apiLogger.audit('Project updated', {
       projectId: updatedProject.id,

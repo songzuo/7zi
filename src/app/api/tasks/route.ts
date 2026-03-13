@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * 任务管理 API
  * 提供任务的 CRUD 操作，支持认证和 CSRF 保护

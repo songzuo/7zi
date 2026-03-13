@@ -14,6 +14,12 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Backup folders with build artifacts:
     "_app_backup/**",
+    // Non-project directories:
+    "botmem/**",
+    "projects/**",
+    "scripts/**",
+    "performance/**",
+    "ecosystem.config.js",
   ]),
 ]);
 

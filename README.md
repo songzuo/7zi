@@ -3,7 +3,7 @@
 > **11 位 AI 成员 · 24/7 自主工作 · 实时协作**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/songzuo/7zi)
+[![Version](https://img.shields.io/badge/version-0.2.1-blue.svg)](https://github.com/songzuo/7zi)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/songzuo/7zi)
 [![Next.js](https://img.shields.io/badge/Next.js-16.1.6-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
@@ -36,9 +36,14 @@
 | 语音会议系统 | 🟡 规划中 | Q2 2026 |
 | 跨平台消息同步 | 🟡 进行中 | Q2 2026 |
 | 自动化报告生成 | 🟢 已完成 | - |
+| Knowledge API | 🟢 已完成 | - |
+| Health API 标准化 | 🟢 已完成 | - |
 
 ### 最新进展
 
+- ✅ **2026-03-13**: 代码质量改进完成 - Console 清理、ESLint v9.39.4 优化、类型安全提升
+- ✅ **2026-03-13**: Knowledge API 完整实现 - 知识节点/边/查询/推理/晶格端点全面上线
+- ✅ **2026-03-13**: Health API 标准化 - 健康检查/就绪/存活/详细报告端点
 - ✅ **2026-03-08**: 代码重构完成 (UserSettingsPage 713→160 行，Dashboard 466 行，AboutContent 584 行) - 总代码减少~1350 行
 - ✅ **2026-03-08**: 依赖升级完成 (eslint v10, web-vitals v5, @types/node v25, @sentry 移除)
 - ✅ **2026-03-08**: Portfolio 模块和 Tasks AI 系统上线
@@ -116,6 +121,9 @@
 
 - **🔌 API 系统**
   - `/api/tasks` - 任务管理 API
+  - `/api/tasks/:id/assign` - AI 智能分配
+  - `/api/knowledge/*` - 知识图谱 API (节点/边/查询/推理/晶格)
+  - `/api/health` - 健康检查 API (基础/就绪/存活/详细)
   - `/api/logs` - 系统日志 API
   - RESTful 设计
   - 完整的 CRUD 操作
@@ -392,8 +400,8 @@ http://localhost:3000/portfolio
 
 # API 端点
 GET  /api/projects       # 获取项目列表
-POST /api/projects       # 创建新项目
-GET  /api/projects/:id   # 获取项目详情
+POST /api/projects      # 创建新项目
+GET  /api/projects/:id  # 获取项目详情
 ```
 
 **使用示例:**
@@ -449,7 +457,7 @@ function TasksPage() {
 GET  /api/logs         # 获取日志列表
 GET  /api/logs/:id     # 获取日志详情
 POST /api/logs         # 创建日志条目
-GET  /api/logs/export # 导出日志
+GET  /api/logs/export  # 导出日志 (支持 JSON/CSV)
 ```
 
 **日志类型:**
@@ -457,6 +465,33 @@ GET  /api/logs/export # 导出日志
 - `system` - 系统事件日志
 - `error` - 错误日志
 - `audit` - 审计日志
+```
+
+### 知识图谱 API
+
+```bash
+# API 端点
+GET    /api/knowledge/nodes       # 获取知识节点列表
+POST   /api/knowledge/nodes       # 创建知识节点
+GET    /api/knowledge/nodes/:id  # 获取节点详情
+PUT    /api/knowledge/nodes/:id  # 更新节点
+DELETE /api/knowledge/nodes/:id   # 删除节点
+GET    /api/knowledge/edges      # 获取知识边列表
+POST   /api/knowledge/edges      # 创建知识边
+POST   /api/knowledge/query      # 知识查询
+POST   /api/knowledge/inference  # 知识推理
+GET    /api/knowledge/lattice    # 获取知识晶格
+```
+
+### 健康检查 API
+
+```bash
+# API 端点
+GET /api/health           # 基础健康检查
+GET /api/health/ready    # 就绪状态检查
+GET /api/health/live     # 存活状态检查
+GET /api/health/detailed # 详细健康报告
+```
 
 ---
 

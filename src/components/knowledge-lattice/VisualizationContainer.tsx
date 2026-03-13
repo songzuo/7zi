@@ -5,15 +5,16 @@
 'use client';
 
 import React from 'react';
-import { KnowledgeNode, KnowledgeEdge, LayoutType } from './types';
+import { LatticeNode, LatticeEdge } from '@/lib/agents/knowledge-lattice';
+import type { LayoutType } from './layoutUtils';
 import KnowledgeLattice3D from './KnowledgeLattice3D';
 
 interface VisualizationContainerProps {
-  nodes: KnowledgeNode[];
-  edges: KnowledgeEdge[];
+  nodes: LatticeNode[];
+  edges: LatticeEdge[];
   layout: LayoutType;
-  onNodeClick: (node: KnowledgeNode) => void;
-  onNodeHover: (node: KnowledgeNode | null) => void;
+  onNodeClick: (node: LatticeNode) => void;
+  onNodeHover: (node: LatticeNode | null) => void;
 }
 
 export function VisualizationContainer({

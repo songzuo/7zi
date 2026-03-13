@@ -5,15 +5,15 @@
 'use client';
 
 import React from 'react';
-import { KnowledgeNode, KnowledgeStats } from './types';
+import { LatticeNode, LatticeStats } from '@/lib/agents/knowledge-lattice';
 import { NodeDetails } from './NodeDetails';
 import { StatsPanel } from './StatsPanel';
 import { UsageGuide } from './UsageGuide';
 
 interface KnowledgeSidebarProps {
-  selectedNode: KnowledgeNode | null;
+  selectedNode: LatticeNode | null;
   showStats: boolean;
-  stats: KnowledgeStats;
+  stats: LatticeStats;
 }
 
 export function KnowledgeSidebar({

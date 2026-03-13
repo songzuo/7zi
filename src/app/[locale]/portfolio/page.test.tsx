@@ -32,7 +32,7 @@ vi.mock('@/lib/data/projects', () => ({
       title: 'Project 1',
       description: 'Description 1',
       category: 'web',
-      image: '/images/project1.jpg',
+      images: ['/images/project1.jpg'],
       technologies: ['React', 'TypeScript'],
       status: 'completed',
     },
@@ -41,7 +41,7 @@ vi.mock('@/lib/data/projects', () => ({
       title: 'Project 2',
       description: 'Description 2',
       category: 'mobile',
-      image: '/images/project2.jpg',
+      images: ['/images/project2.jpg'],
       technologies: ['React Native'],
       status: 'in-progress',
     },
@@ -86,7 +86,8 @@ describe('PortfolioPage', () => {
 
   describe('元数据生成', () => {
     it('应该生成正确的元数据', async () => {
-      const metadata = await PortfolioPage.generateMetadata?.();
+      const portfolioPage = PortfolioPage as any;
+      const metadata = await portfolioPage.generateMetadata?.();
       
       expect(metadata).toBeDefined();
       expect(metadata?.title).toBe('Portfolio - 7zi');
@@ -94,7 +95,8 @@ describe('PortfolioPage', () => {
     });
 
     it('应该包含OpenGraph元数据', async () => {
-      const metadata = await PortfolioPage.generateMetadata?.();
+      const portfolioPage = PortfolioPage as any;
+      const metadata = await portfolioPage.generateMetadata?.();
       
       expect(metadata?.openGraph).toBeDefined();
       expect(metadata?.openGraph?.title).toBe('Portfolio - 7zi');
@@ -140,10 +142,15 @@ describe('PortfolioPage', () => {
           title: 'Single Project',
           description: 'Single Description',
           category: 'web',
-          image: '/images/single.jpg',
-          technologies: ['Next.js'],
-          status: 'completed',
-        },
+          images: ['/images/single.jpg'],
+          techStack: ['Next.js'],
+          status: 'completed' as const,
+          priority: 'medium' as const,
+          members: [],
+          metadata: { category: 'web' },
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        } as any,
       ]);
       
       const page = await PortfolioPage();

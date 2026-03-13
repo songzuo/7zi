@@ -185,7 +185,7 @@ export function SearchModal({ isOpen, onClose, locale = 'en' }: SearchModalProps
       description: p.description,
       href: `/portfolio/${p.slug}`,
       category: p.category,
-      keywords: [...p.techStack, p.client].filter(Boolean) as string[],
+      keywords: [...(p.techStack || []), p.client || ''].filter(Boolean) as string[],
     }));
 
     return [...teamMembers, ...projectItems, ...blogPosts];

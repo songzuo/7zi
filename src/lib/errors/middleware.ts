@@ -87,7 +87,7 @@ export function createErrorResponse(
     error: {
       code: finalError.code,
       message: finalError.userMessage || getUserFriendlyMessage(finalError.code),
-      details: buildErrorDetails(finalError, mergedOptions.includeStackTrace),
+      details: buildErrorDetails(finalError, mergedOptions.includeStackTrace ?? false),
     },
     timestamp: finalError.timestamp,
   };

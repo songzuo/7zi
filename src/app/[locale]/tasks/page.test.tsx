@@ -2,18 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import TasksPage from '@/app/[locale]/tasks/page';
 
-// Mock next-intl/server
-vi.mock('next-intl/server', () => ({
-  getTranslations: vi.fn().mockResolvedValue((key: string) => {
-    const translations: Record<string, string> = {
-      'meta.title': 'Tasks - 7zi',
-      'meta.description': 'Manage your tasks',
-      'title': 'Tasks',
-      'description': 'Task management',
-    };
-    return translations[key] || key;
-  }),
-}));
+// Note: This is a client component ('use client'), so no generateMetadata
+// Metadata for this page would be handled via a layout or separate server component
 
 // Mock next/navigation
 vi.mock('next/navigation', () => ({
@@ -48,15 +38,7 @@ describe('TasksPage', () => {
     });
   });
 
-  describe('元数据生成', () => {
-    it('应该生成正确的元数据', async () => {
-      const metadata = await TasksPage.generateMetadata?.();
-      
-      expect(metadata).toBeDefined();
-      expect(metadata?.title).toBe('Tasks - 7zi');
-      expect(metadata?.description).toBe('Manage your tasks');
-    });
-  });
+
 
   describe('边界情况', () => {
     it('应该处理空任务列表', async () => {

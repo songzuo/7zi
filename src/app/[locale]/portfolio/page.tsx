@@ -2,6 +2,8 @@ import { PortfolioGrid } from '@/components/portfolio/PortfolioGrid';
 import { getProjects } from '@/lib/data/projects';
 import { getTranslations } from 'next-intl/server';
 import { Metadata } from 'next';
+import type { Project } from '@/types';
+import type { ProjectCategory } from '@/types/common';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('Portfolio');
@@ -17,9 +19,28 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+// Helper to convert ProjectData to Project type
+function toProject(projectData: ReturnType<typeof getProjects>[0]): Project {
+  return {
+    id: projectData.id,
+    slug: projectData.slug || projectData.id,
+    title: projectData.title,
+    description: projectData.description,
+    category: (projectData.metadata?.category || 'website') as ProjectCategory,
+    thumbnail: projectData.metadata?.thumbnail || '/images/placeholder.jpg',
+    images: projectData.images || (projectData.metadata?.thumbnail ? [projectData.metadata.thumbnail] : []),
+    techStack: projectData.techStack || [],
+    client: projectData.client || projectData.metadata?.client,
+    duration: projectData.duration || '',
+    highlights: projectData.highlights || [],
+    links: projectData.links || {},
+  };
+}
+
 export default async function PortfolioPage() {
   const t = await getTranslations('Portfolio');
-  const projects = getProjects();
+  const projectData = getProjects();
+  const projects: Project[] = projectData.map(toProject);
   
   return (
     <div className="min-h-screen bg-background">

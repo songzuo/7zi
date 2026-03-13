@@ -66,13 +66,13 @@ function createRequest(
 
   const init: RequestInit = {
     method,
-    headers: {
+    headers: new Headers({
       'Content-Type': 'application/json',
       ...headers,
-    },
+    }),
   };
 
-  return new NextRequest(new URL(url, 'http://localhost:3000'), init);
+  return new NextRequest(new URL(url, 'http://localhost:3000'), init as RequestInit);
 }
 
 describe('/api/logs/export', () => {

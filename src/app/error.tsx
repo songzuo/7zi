@@ -1,7 +1,5 @@
 'use client';
 
-import { ErrorBoundary } from '@/components/ErrorBoundary';
-
 /**
  * 首页错误边界
  */
@@ -13,10 +11,10 @@ export default function HomeError({
   reset: () => void;
 }) {
   return (
-    <ErrorBoundary
-      error={error}
-      reset={reset}
-      title="首页加载失败"
-    />
+    <div>
+      <h2>Error</h2>
+      <p>{error.message}</p>
+      <button onClick={() => reset()}>Retry</button>
+    </div>
   );
 }
