@@ -13,7 +13,7 @@ import {
 } from '@/components/contact';
 import {
   generateContactMetadata,
-  useContactTranslations,
+  getContactTranslations,
   getFAQItems,
 } from '@/hooks/useContact';
 
@@ -23,7 +23,7 @@ export { generateContactMetadata as generateMetadata };
 
 export default async function ContactPage({ params }: { params: Params }) {
   const { locale } = await params;
-  const { tNav, tContact, tFooter, baseUrl, contactInfo } = await useContactTranslations(locale);
+  const { tNav, tContact, tFooter, baseUrl, contactInfo } = await getContactTranslations(locale);
 
   const faqItems = getFAQItems(tContact as unknown as (key: string) => string, locale as 'zh' | 'en');
 

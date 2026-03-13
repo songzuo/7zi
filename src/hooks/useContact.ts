@@ -53,7 +53,7 @@ export async function generateContactMetadata({ params }: { params: Params }): P
 }
 
 // 获取翻译的 hook
-export async function useContactTranslations(locale: string) {
+export async function getContactTranslations(locale: string) {
   if (!locales.includes(locale as Locale)) {
     // notFound() - 但在服务器组件中我们直接返回
   }
