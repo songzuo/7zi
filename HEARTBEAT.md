@@ -1,23 +1,24 @@
-# HEARTBEAT.md
+# HEARTBEAT.md - 7zi 项目状态
 
-## Current Status
-- **TypeScript Errors:** ~140 (down from 186 at start)
-- **Status:** Working on fixing TypeScript errors
+## ⚠️ 自动任务管理规则
+当活跃任务 ≤ 2 时，自动启动新任务使总数达到 5 个。
 
-## Key Accomplishments
-- Fixed Settings imports and props
-- Fixed Tasks Module interfaces
-- Console cleanup complete (production code clean)
-- Settings page refactored (85% code reduction)
-- ESLint confirmed working at v9.39.4
+## 🎯 2026-03-13 今日重点任务
 
-## Focus
-Continue fixing TypeScript errors in src/ directory.
+### P0: Claw-Mesh 协作部署 ✅
+- [x] 下载并安装脚本
+- [x] 修改配置 (MACHINE_NAME=bot6)
+- [x] 创建 PLAZA.md
+- [x] 设置定时任务
 
-## Issues
-- GLM-5 API configuration causing subagent failures
-- Test file type mismatches (~140 errors)
+### P1: 7zi 项目推进 ✅
+- [x] TypeScript 修复 (154→125)
+- [x] 代码推送完成
+- [x] 测试 2102 通过
 
-## Notes
-- Session started March 8, 2026
-- Multiple subagent tasks completed despite API issues
+### P2: 代码清理 ✅
+- [x] Console 语句清理 (仅 8 处，合理使用)
+- [x] Lint 0 错误
+
+---
+**最后更新**: 2026-03-13 14:10 CET
