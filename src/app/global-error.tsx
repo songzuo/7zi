@@ -1,5 +1,3 @@
-'use client';
-
 export default function GlobalError({
   error,
   reset,
@@ -10,11 +8,9 @@ export default function GlobalError({
   return (
     <html>
       <body>
-        <div>
-          <h2>Error</h2>
-          <p>{error.message}</p>
-          <button onClick={() => reset()}>Retry</button>
-        </div>
+        <h1>Error</h1>
+        <p>{error.message}</p>
+        <button onClick={() => reset()}>Retry</button>
       </body>
     </html>
   );
