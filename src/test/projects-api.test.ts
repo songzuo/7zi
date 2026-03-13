@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { NextRequest } from 'next/server';
-import { GET, POST, PUT, DELETE } from '@/app/api/projects/route';
+import { GET, POST, PUT, DELETE } from '@/app/api/projects/[id]/route';
 import { projects } from '@/lib/data/projects';
 import { tasks } from '@/lib/data/tasks';
 

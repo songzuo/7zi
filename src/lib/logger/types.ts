@@ -33,6 +33,7 @@ export interface LogQuery {
   route?: string;
   page?: number;
   limit?: number;
+  offset?: number;
   orderBy?: 'timestamp' | 'level';
   order?: 'asc' | 'desc';
 }
@@ -49,4 +50,5 @@ export interface DbTransport {
   log: (entry: LogEntry) => void;
   query: (query: LogQuery) => LogQueryResult;
   cleanup: (days: number) => number;
+  count: (query: LogQuery) => number;
 }
