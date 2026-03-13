@@ -174,7 +174,7 @@ export async function POST(request: NextRequest) {
       createdBy: payload.email || 'system',
     };
 
-    const createdProject = createProject(newProject as any);
+    const createdProject = createProject(newProject as Parameters<typeof createProject>[0]);
 
     apiLogger.audit('Project created', {
       projectId: createdProject.id,

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * 任务验证 Schema
  * 使用 Zod 进行请求验证

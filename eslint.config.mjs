@@ -21,6 +21,13 @@ const eslintConfig = defineConfig([
     "performance/**",
     "ecosystem.config.js",
   ]),
+  // Allow any type in test files (for mocking purposes)
+  {
+    files: ["**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;
