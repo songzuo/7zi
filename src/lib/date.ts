@@ -1,28 +1,16 @@
 /**
  * @fileoverview 时间格式化工具
  * @description 统一的时间处理函数，避免在多个组件中重复定义
+ * 
+ * @deprecated 请使用 @/lib/utils 中的 formatTimeAgo
  */
+import { formatTimeAgo as utilsFormatTimeAgo } from './utils';
 
 /**
  * 格式化相对时间（几分钟前、几小时前等）
- * @param date - 日期字符串或 Date 对象
- * @returns 格式化后的相对时间字符串
+ * @deprecated 使用 utils.formatTimeAgo 代替
  */
-export function formatTimeAgo(date: Date | string): string {
-  const now = new Date();
-  const then = new Date(date);
-  const diffMs = now.getTime() - then.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMins < 1) return '刚刚';
-  if (diffMins < 60) return `${diffMins}分钟前`;
-  if (diffHours < 24) return `${diffHours}小时前`;
-  if (diffDays < 7) return `${diffDays}天前`;
-
-  return then.toLocaleDateString('zh-CN');
-}
+export const formatTimeAgo = utilsFormatTimeAgo;
 
 /**
  * 格式化日期为标准格式
