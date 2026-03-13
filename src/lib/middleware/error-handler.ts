@@ -160,6 +160,7 @@ function getHttpStatusFromError(error: AppError): number {
  * 默认错误日志记录器
  */
 function logError(error: AppError, context: ErrorContext, requestId: string): void {
+  // 构建日志数据 - 敏感信息已由 Logger 自动过滤
   const logData = {
     requestId,
     code: error.code,
@@ -167,7 +168,10 @@ function logError(error: AppError, context: ErrorContext, requestId: string): vo
     severity: error.severity,
     userMessage: error.userMessage,
     context: error.context,
-    cause: error.cause?.message,
+    // 仅在开发环境记录 cause 详情
+    cause: process.env.NODE_ENV === 'development' ? error.cause?.message : undefined,
+    // 生产环境应发送到日志服务，这里仅记录内部消息
+    internalMessage: process.env.NODE_ENV === 'development' ? error.message : undefined,
   };
 
   switch (error.severity) {

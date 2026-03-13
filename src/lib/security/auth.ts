@@ -107,7 +107,12 @@ export async function verifyToken(token: string): Promise<TokenPayload | null> {
       exp: payload.exp,
     };
   } catch (error) {
-    authLogger.error('Token verification failed', error);
+    // Only log sanitized error info - don't expose internal error details
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    authLogger.error('Token verification failed', { 
+      message: errorMessage,
+      // Don't log the actual error object to prevent internal info leakage
+    });
     return null;
   }
 }

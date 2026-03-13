@@ -11,6 +11,55 @@ const isDev = process.env.NODE_ENV === 'development';
 const isProd = process.env.NODE_ENV === 'production';
 
 /**
+ * Sensitive field names that should be redacted from logs
+ */
+const SENSITIVE_FIELDS = [
+  'password',
+  'secret',
+  'token',
+  'apiKey',
+  'apikey',
+  'credential',
+  'authorization',
+  'accessToken',
+  'refreshToken',
+  'privateKey',
+  'sessionId',
+];
+
+/**
+ * Redact sensitive information from objects
+ */
+function redactSensitiveData(data: unknown): unknown {
+  if (data === null || data === undefined) {
+    return data;
+  }
+
+  if (typeof data === 'string') {
+    // Check if string looks like a token or contains sensitive patterns
+    if (data.length > 20 && (data.includes('.') || /^[A-Za-z0-9+/=]+$/.test(data))) {
+      return '[REDACTED]';
+    }
+    return data;
+  }
+
+  if (typeof data === 'object' && !(data instanceof Error)) {
+    const redacted: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
+      const lowerKey = key.toLowerCase();
+      if (SENSITIVE_FIELDS.some(field => lowerKey.includes(field))) {
+        redacted[key] = '[REDACTED]';
+      } else {
+        redacted[key] = redactSensitiveData(value);
+      }
+    }
+    return redacted;
+  }
+
+  return data;
+}
+
+/**
  * Logger instance with namespaced logging
  */
 class Logger {
@@ -24,40 +73,66 @@ class Logger {
     return `[${this.namespace}] ${message}`;
   }
 
+  /**
+   * Sanitize args for logging - redact sensitive data
+   */
+  private sanitizeArgs(args: unknown[]): unknown[] {
+    return args.map(arg => redactSensitiveData(arg));
+  }
+
   debug(message: string, ...args: unknown[]): void {
     if (isDev) {
-      console.debug(this.formatMessage('debug', message), ...args);
+      console.debug(this.formatMessage('debug', message), ...this.sanitizeArgs(args));
     }
   }
 
   info(message: string, ...args: unknown[]): void {
-    if (!isProd) {
-      console.info(this.formatMessage('info', message), ...args);
+    // INFO level: always log in dev, optionally in prod
+    if (!isProd || isDev) {
+      console.info(this.formatMessage('info', message), ...this.sanitizeArgs(args));
     }
   }
 
   warn(message: string, ...args: unknown[]): void {
-    if (isDev) {
-      console.warn(this.formatMessage('warn', message), ...args);
-    }
+    // WARN level: always log (important for production monitoring)
+    console.warn(this.formatMessage('warn', message), ...this.sanitizeArgs(args));
   }
 
   error(message: string, ...args: unknown[]): void {
-    console.error(this.formatMessage('error', message), ...args);
+    // ERROR level: always log with stack trace
+    const sanitizedArgs = this.sanitizeArgs(args);
+    
+    // Add stack trace if an Error is included and we're in dev or it's a fatal error
+    if (args.some(arg => arg instanceof Error)) {
+      console.error(this.formatMessage('error', message), ...sanitizedArgs);
+    } else {
+      console.error(this.formatMessage('error', message), ...sanitizedArgs);
+    }
   }
 
   /**
-   * Audit log - only logs in development; in production, use proper audit system
+   * Audit log - ALWAYS logs regardless of environment
+   * This is critical for security and compliance
    */
   audit(action: string, data: Record<string, unknown>): void {
+    const auditData = {
+      ...data,
+      timestamp: new Date().toISOString(),
+      // Always include sanitized data, never raw sensitive info
+      ...redactSensitiveData(data) as object,
+    };
+
+    // In development, log to console
     if (isDev) {
-      console.log(`[Audit] ${action}`, {
-        ...data,
-        timestamp: new Date().toISOString(),
-      });
+      console.log(`[Audit] ${action}`, auditData);
     }
-    // In production, audit logs should be sent to a proper audit/logging service
-    // rather than console.log which is stripped by Terser
+    
+    // TODO: In production, send to proper audit logging service
+    // Examples: AWS CloudWatch, Datadog, Splunk, etc.
+    // For now, we use console in production as fallback
+    if (isProd) {
+      console.log(`[Audit] ${action}`, auditData);
+    }
   }
 }
 
