@@ -144,8 +144,12 @@ async function handleLogin(request: NextRequest) {
       return validationError('Email and password are required', 'credentials', request);
     }
 
-    // 模拟用户验证 (开发环境)
-    if (email === 'admin@7zi.studio' && password === 'admin123') {
+    // 从环境变量获取管理员凭据
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || '';
+    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
+    
+    // 验证用户
+    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
       const user = {
         id: 'user-admin-001',
         email: email,
