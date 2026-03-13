@@ -52,7 +52,7 @@ function createRequest(
 ): NextRequest {
   const { method = 'GET', headers = {} } = options;
 
-  const init: RequestInit = {
+  const init = {
     method,
     headers: {
       'Content-Type': 'application/json',
@@ -60,7 +60,8 @@ function createRequest(
     },
   };
 
-  return new NextRequest(new URL(url, 'http://localhost:3000'), init);
+  // Cast to Next.js RequestInit to avoid signal type incompatibility
+  return new NextRequest(new URL(url, 'http://localhost:3000'), init as RequestInit);
 }
 
 describe('/api/logs', () => {

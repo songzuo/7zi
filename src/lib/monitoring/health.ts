@@ -5,6 +5,12 @@
 
 import { NextResponse } from 'next/server';
 import os from 'os';
+import { getCacheManager } from '@/lib/cache/cache-manager';
+import { cacheLogger } from '@/lib/logger';
+
+// In-memory health check history (last 50 checks)
+const HEALTH_HISTORY: HealthSummary[] = [];
+const MAX_HISTORY_SIZE = 50;
 
 /**
  * Health check status
@@ -16,6 +22,9 @@ export interface HealthStatus {
   uptime: number;
   environment: string;
   checks?: Record<string, CheckResult>;
+  responseTime?: number;
+  components?: ComponentStatus;
+  history?: HealthSummary[];
 }
 
 /**
@@ -26,6 +35,30 @@ export interface CheckResult {
   latency?: number;
   message?: string;
   details?: Record<string, unknown>;
+}
+
+/**
+ * Component status for key application components
+ */
+export interface ComponentStatus {
+  cache: CheckResult;
+  auth: CheckResult;
+  logger: CheckResult;
+  cacheLayer?: {
+    memory: CheckResult;
+    redis?: CheckResult;
+  };
+}
+
+/**
+ * Health summary for history
+ */
+export interface HealthSummary {
+  timestamp: string;
+  status: 'ok' | 'degraded' | 'error';
+  responseTime: number;
+  checksCount: number;
+  errorsCount: number;
 }
 
 /**
@@ -540,6 +573,304 @@ async function checkResendAPI(): Promise<CheckResult> {
 export function healthResponse(status: HealthStatus): NextResponse {
   const statusCode = status.status === 'ok' ? 200 : status.status === 'degraded' ? 200 : 503;
   return NextResponse.json(status, { status: statusCode });
+}
+
+/**
+ * Check component health (cache, auth, logger)
+ */
+export async function checkComponents(): Promise<ComponentStatus> {
+  const [cacheStatus, authStatus, loggerStatus] = await Promise.all([
+    checkCacheComponent(),
+    checkAuthComponent(),
+    checkLoggerComponent(),
+  ]);
+
+  // Also check Redis if configured
+  let redisStatus: CheckResult | undefined;
+  const redisUrl = process.env.REDIS_URL;
+  if (redisUrl) {
+    redisStatus = await checkRedisConnection();
+  }
+
+  return {
+    cache: cacheStatus,
+    auth: authStatus,
+    logger: loggerStatus,
+    cacheLayer: {
+      memory: { status: 'ok', message: 'In-memory cache operational' },
+      ...(redisStatus && { redis: redisStatus }),
+    },
+  };
+}
+
+/**
+ * Check cache component
+ */
+async function checkCacheComponent(): Promise<CheckResult> {
+  try {
+    const cacheManager = getCacheManager();
+    
+    if (!cacheManager) {
+      return { status: 'skipped', message: 'Cache manager not initialized' };
+    }
+
+    const start = Date.now();
+    // Try a simple get/set operation
+    const testKey = `__health_check_${Date.now()}`;
+    await cacheManager.set(testKey, 'ok', 10);
+    const value = await cacheManager.get(testKey);
+    const latency = Date.now() - start;
+
+    if (value === 'ok') {
+      return { status: 'ok', latency, message: 'Cache operational' };
+    }
+
+    return { status: 'warning', message: 'Cache returned unexpected value' };
+  } catch (error) {
+    return { 
+      status: 'error', 
+      message: error instanceof Error ? error.message : 'Cache check failed' 
+    };
+  }
+}
+
+/**
+ * Check auth component
+ */
+async function checkAuthComponent(): Promise<CheckResult> {
+  try {
+    const jwtSecret = process.env.JWT_SECRET;
+    const csrfSecret = process.env.CSRF_SECRET;
+
+    if (!jwtSecret) {
+      return { status: 'error', message: 'JWT_SECRET not configured' };
+    }
+
+    if (!csrfSecret) {
+      return { status: 'warning', message: 'CSRF_SECRET not configured' };
+    }
+
+    // Check JWT secret strength
+    if (jwtSecret.length < 32) {
+      return { status: 'warning', message: 'JWT_SECRET too short (min 32 chars)' };
+    }
+
+    return { status: 'ok', message: 'Auth configured correctly' };
+  } catch (error) {
+    return { 
+      status: 'error', 
+      message: error instanceof Error ? error.message : 'Auth check failed' 
+    };
+  }
+}
+
+/**
+ * Check logger component
+ */
+async function checkLoggerComponent(): Promise<CheckResult> {
+  try {
+    if (!cacheLogger) {
+      return { status: 'skipped', message: 'Logger not available' };
+    }
+
+    // Try a test log
+    cacheLogger.info('Health check: Logger operational');
+    
+    return { status: 'ok', message: 'Logger operational' };
+  } catch (error) {
+    return { 
+      status: 'error', 
+      message: error instanceof Error ? error.message : 'Logger check failed' 
+    };
+  }
+}
+
+/**
+ * Check Redis connection (actual ping)
+ */
+async function checkRedisConnection(): Promise<CheckResult> {
+  const redisUrl = process.env.REDIS_URL;
+
+  if (!redisUrl) {
+    return { status: 'skipped', message: 'REDIS_URL not configured' };
+  }
+
+  try {
+    const start = Date.now();
+    
+    // Dynamic import for Redis client
+    const { Redis } = await import('ioredis');
+    const redis = new Redis(redisUrl, {
+      connectTimeout: 5000,
+      maxRetriesPerRequest: 1,
+    });
+
+    await redis.ping();
+    const latency = Date.now() - start;
+    await redis.quit();
+
+    return { 
+      status: 'ok', 
+      latency, 
+      details: { host: new URL(redisUrl).host } 
+    };
+  } catch (error) {
+    return { 
+      status: 'error', 
+      message: error instanceof Error ? error.message : 'Redis connection failed' 
+    };
+  }
+}
+
+/**
+ * Add health status to history
+ */
+export function addToHistory(status: HealthStatus): void {
+  const summary: HealthSummary = {
+    timestamp: status.timestamp,
+    status: status.status,
+    responseTime: status.responseTime || 0,
+    checksCount: Object.keys(status.checks || {}).length,
+    errorsCount: Object.values(status.checks || {}).filter(c => c.status === 'error').length,
+  };
+
+  HEALTH_HISTORY.push(summary);
+  
+  // Keep only last MAX_HISTORY_SIZE entries
+  if (HEALTH_HISTORY.length > MAX_HISTORY_SIZE) {
+    HEALTH_HISTORY.shift();
+  }
+}
+
+/**
+ * Get health check history
+ */
+export function getHealthHistory(limit: number = 10): HealthSummary[] {
+  return HEALTH_HISTORY.slice(-limit);
+}
+
+/**
+ * Clear health check history
+ */
+export function clearHealthHistory(): void {
+  HEALTH_HISTORY.length = 0;
+}
+
+/**
+ * Get performance metrics
+ */
+export function getPerformanceMetrics(): {
+  responseTime: {
+    avg: number;
+    min: number;
+    max: number;
+    count: number;
+  };
+  memory: {
+    heapUsed: number;
+    heapTotal: number;
+    rss: number;
+    external: number;
+  };
+  cpu: {
+    usage: number;
+    cores: number;
+  };
+} {
+  const memoryUsage = process.memoryUsage();
+  const cpuUsage = process.cpuUsage();
+  
+  // Calculate average response time from history
+  const responseTimes = HEALTH_HISTORY.map(h => h.responseTime).filter(t => t > 0);
+  const avgResponseTime = responseTimes.length > 0
+    ? responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length
+    : 0;
+
+  return {
+    responseTime: {
+      avg: Math.round(avgResponseTime),
+      min: Math.min(...responseTimes, 0),
+      max: Math.max(...responseTimes, 0),
+      count: responseTimes.length,
+    },
+    memory: {
+      heapUsed: memoryUsage.heapUsed,
+      heapTotal: memoryUsage.heapTotal,
+      rss: memoryUsage.rss,
+      external: memoryUsage.external,
+    },
+    cpu: {
+      usage: (cpuUsage.user + cpuUsage.system) / 1000000, // Convert to seconds
+      cores: os.cpus().length,
+    },
+  };
+}
+
+/**
+ * Enhanced comprehensive health report with history
+ */
+export async function enhancedHealthReport(includeHistory: boolean = false): Promise<HealthStatus> {
+  const startTime = Date.now();
+  
+  // Get comprehensive report
+  const report = await comprehensiveHealthReport();
+  
+  // Get component status
+  const components = await checkComponents();
+  
+  // Get performance metrics
+  const metrics = getPerformanceMetrics();
+  
+  // Calculate response time
+  const responseTime = Date.now() - startTime;
+  
+  // Determine overall status considering components
+  const componentErrors = [
+    components.cache.status,
+    components.auth.status,
+    components.logger.status,
+  ].filter(s => s === 'error');
+  
+  let finalStatus = report.status;
+  if (componentErrors.length > 0) {
+    finalStatus = 'error';
+  } else if (report.status === 'error') {
+    finalStatus = 'error';
+  } else if (components.auth.status === 'warning' || components.cache.status === 'warning') {
+    finalStatus = 'degraded';
+  }
+
+  const healthStatus: HealthStatus = {
+    ...report,
+    status: finalStatus,
+    responseTime,
+    components,
+  };
+
+  // Add performance metrics to checks
+  healthStatus.checks = {
+    ...healthStatus.checks,
+    performance: {
+      status: 'ok',
+      latency: responseTime,
+      message: `Response time: ${responseTime}ms`,
+      details: {
+        avgResponseTime: metrics.responseTime.avg,
+        memoryHeapUsed: metrics.memory.heapUsed,
+        memoryRss: metrics.memory.rss,
+      },
+    },
+  };
+
+  // Add history if requested
+  if (includeHistory) {
+    healthStatus.history = getHealthHistory(10);
+  }
+
+  // Add to history
+  addToHistory(healthStatus);
+
+  return healthStatus;
 }
 
 /**

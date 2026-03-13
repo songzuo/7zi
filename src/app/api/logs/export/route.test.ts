@@ -64,7 +64,7 @@ function createRequest(
 ): NextRequest {
   const { method = 'GET', headers = {} } = options;
 
-  const init: RequestInit = {
+  const init = {
     method,
     headers: new Headers({
       'Content-Type': 'application/json',

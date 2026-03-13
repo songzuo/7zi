@@ -4,39 +4,45 @@
 
 import { describe, it, expect, vi } from 'vitest';
 import { GET } from './route';
+import { NextResponse } from 'next/server';
 
-// Mock NextResponse
+// Properly mock NextResponse
 vi.mock('next/server', () => ({
   NextResponse: {
-    json: vi.fn((data) => ({
-      json: data,
-      status: 200,
-    })),
+    json: vi.fn((data: unknown, init?: ResponseInit) => {
+      const response = new NextResponse(JSON.stringify(data), init);
+      // Add json method for testing
+      (response as unknown as { json: () => Promise<unknown> }).json = async () => data;
+      return response;
+    }),
   },
 }));
 
 describe('api/status/route', () => {
   describe('GET', () => {
     it('should return system status', async () => {
-      const response = await GET() as { json: Record<string, unknown> };
+      const response = await GET();
+      const data = await response.json() as Record<string, unknown>;
       
-      expect(response.json.status).toBeDefined();
-      expect(response.json.lastUpdated).toBeDefined();
-      expect(response.json.services).toBeDefined();
-      expect(response.json.metrics).toBeDefined();
-      expect(response.json.incidents).toBeDefined();
-      expect(response.json.maintenance).toBeDefined();
+      expect(data.status).toBeDefined();
+      expect(data.lastUpdated).toBeDefined();
+      expect(data.services).toBeDefined();
+      expect(data.metrics).toBeDefined();
+      expect(data.incidents).toBeDefined();
+      expect(data.maintenance).toBeDefined();
     });
 
     it('should have valid status value', async () => {
-      const response = await GET() as { json: Record<string, unknown> };
+      const response = await GET();
+      const data = await response.json() as { status: string };
       
-      expect(['operational', 'degraded', 'outage']).toContain(response.json.status);
+      expect(['operational', 'degraded', 'outage']).toContain(data.status);
     });
 
     it('should return services array', async () => {
-      const response = await GET() as { json: Record<string, unknown> };
-      const services = response.json.services as Array<Record<string, unknown>>;
+      const response = await GET();
+      const data = await response.json() as { services: Array<Record<string, unknown>> };
+      const services = data.services;
       
       expect(Array.isArray(services)).toBe(true);
       expect(services.length).toBeGreaterThan(0);
@@ -50,8 +56,9 @@ describe('api/status/route', () => {
     });
 
     it('should return metrics object', async () => {
-      const response = await GET() as { json: Record<string, unknown> };
-      const metrics = response.json.metrics as Record<string, unknown>;
+      const response = await GET();
+      const data = await response.json() as { metrics: Record<string, unknown> };
+      const metrics = data.metrics;
       
       expect(typeof metrics.requests).toBe('number');
       expect(typeof metrics.errors).toBe('number');
@@ -60,29 +67,32 @@ describe('api/status/route', () => {
     });
 
     it('should return incidents array', async () => {
-      const response = await GET() as { json: Record<string, unknown> };
+      const response = await GET();
+      const data = await response.json() as { incidents: unknown[] };
       
-      expect(Array.isArray(response.json.incidents)).toBe(true);
+      expect(Array.isArray(data.incidents)).toBe(true);
     });
 
     it('should return maintenance array', async () => {
-      const response = await GET() as { json: Record<string, unknown> };
+      const response = await GET();
+      const data = await response.json() as { maintenance: unknown[] };
       
-      expect(Array.isArray(response.json.maintenance)).toBe(true);
+      expect(Array.isArray(data.maintenance)).toBe(true);
     });
 
     it('should have valid ISO 8601 timestamp', async () => {
-      const response = await GET() as { json: Record<string, unknown> };
-      const lastUpdated = response.json.lastUpdated as string;
+      const response = await GET();
+      const data = await response.json() as { lastUpdated: string };
+      const lastUpdated = data.lastUpdated;
       
       // Check ISO 8601 format
       expect(new Date(lastUpdated).toISOString()).toBe(lastUpdated);
     });
 
     it('should have expected services', async () => {
-      const response = await GET() as { json: Record<string, unknown> };
-      const services = response.json.services as Array<Record<string, unknown>>;
-      const serviceNames = services.map((s) => s.name);
+      const response = await GET();
+      const data = await response.json() as { services: Array<{ name: string }> };
+      const serviceNames = data.services.map((s) => s.name);
       
       expect(serviceNames).toContain('Website');
       expect(serviceNames).toContain('API');
@@ -90,18 +100,19 @@ describe('api/status/route', () => {
     });
 
     it('should have reasonable metric values', async () => {
-      const response = await GET() as { json: Record<string, unknown> };
-      const metrics = response.json.metrics as Record<string, unknown>;
+      const response = await GET();
+      const data = await response.json() as { metrics: Record<string, number> };
+      const metrics = data.metrics;
       
       // Requests should be positive
-      expect(metrics.requests as number).toBeGreaterThan(0);
+      expect(metrics.requests).toBeGreaterThan(0);
       
       // Errors should be non-negative
-      expect(metrics.errors as number).toBeGreaterThanOrEqual(0);
+      expect(metrics.errors).toBeGreaterThanOrEqual(0);
       
       // Response times should be reasonable (< 1 second)
-      expect(metrics.avgResponseTime as number).toBeLessThan(1000);
-      expect(metrics.p95ResponseTime as number).toBeLessThan(1000);
+      expect(metrics.avgResponseTime).toBeLessThan(1000);
+      expect(metrics.p95ResponseTime).toBeLessThan(1000);
     });
   });
 });

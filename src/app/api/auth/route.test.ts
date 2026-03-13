@@ -54,7 +54,7 @@ function createRequest(
 ): NextRequest {
   const { method = 'GET', body, headers = {}, cookies = {} } = options;
 
-  const init: RequestInit = {
+  const init = {
     method,
     headers: {
       'Content-Type': 'application/json',
@@ -66,15 +66,19 @@ function createRequest(
     init.body = JSON.stringify(body);
   }
 
-  const request = new NextRequest(new URL(url, 'http://localhost:3000'), init);
+  // Cast to Next.js RequestInit to avoid signal type incompatibility
+  const request = new NextRequest(new URL(url, 'http://localhost:3000'), init as RequestInit);
   
-  // Mock cookies
-  Object.entries(cookies).forEach(([key, value]) => {
-    vi.spyOn(request.cookies, 'get').mockImplementation((name: string) => {
-      if (name === key) return { name, value };
-      return undefined as unknown as ReturnType<typeof request.cookies.get>;
-    });
-  });
+  // Mock cookies - fix the function signature
+  const getCookieFn = (name: string) => {
+    if (name in cookies) {
+      return { name, value: cookies[name] };
+    }
+    return undefined;
+  };
+  
+  // Use vi.spyOn properly
+  vi.spyOn(request.cookies, 'get').mockImplementation(getCookieFn as never);
 
   return request;
 }
@@ -87,10 +91,23 @@ describe('/api/auth', () => {
     vi.mocked(verifyToken).mockResolvedValue(null);
     vi.mocked(extractToken).mockReturnValue(null);
     vi.mocked(generateCsrfToken).mockReturnValue('mock-csrf-token');
-    vi.mocked(setAuthCookies).mockReturnValue(new Map([['Set-Cookie', 'auth_token=mock']]));
-    vi.mocked(setCsrfTokenCookie).mockReturnValue(new Map([['Set-Cookie', 'csrf_token=mock']]));
-    vi.mocked(clearAuthCookies).mockReturnValue(new Map([['Set-Cookie', 'auth_token=']]));
-    vi.mocked(validateJwtSecret).mockReturnValue({ valid: true, strength: 'strong', issues: [] });
+    
+    // Mock setAuthCookies to return proper Headers
+    const mockAuthHeaders = new Headers();
+    mockAuthHeaders.append('Set-Cookie', 'auth_token=mock; Path=/; HttpOnly; Secure; SameSite=Strict');
+    vi.mocked(setAuthCookies).mockReturnValue(mockAuthHeaders);
+    
+    // Mock setCsrfTokenCookie to return proper Headers
+    const mockCsrfHeaders = new Headers();
+    mockCsrfHeaders.append('Set-Cookie', 'csrf_token=mock; Path=/; HttpOnly; Secure; SameSite=Strict');
+    vi.mocked(setCsrfTokenCookie).mockReturnValue(mockCsrfHeaders);
+    
+    // Mock clearAuthCookies to return proper Headers
+    const mockClearHeaders = new Headers();
+    mockClearHeaders.append('Set-Cookie', 'auth_token=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0');
+    vi.mocked(clearAuthCookies).mockReturnValue(mockClearHeaders);
+    
+    vi.mocked(validateJwtSecret).mockReturnValue({ valid: true, issues: [] });
   });
 
   afterEach(() => {
