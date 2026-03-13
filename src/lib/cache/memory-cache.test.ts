@@ -357,6 +357,317 @@ describe('MemoryCache', () => {
       prefixedCache.stopCleanup();
     });
   });
+
+  // ============================================================================
+  // TTL Edge Cases
+  // ============================================================================
+
+  describe('TTL edge cases', () => {
+    it('expires at exact TTL boundary', () => {
+      cache.set('key', 'value', 1); // 1 second
+
+      vi.advanceTimersByTime(999);
+      expect(cache.get('key')).toBe('value'); // Still valid at 999ms
+
+      vi.advanceTimersByTime(2); // Now at 1001ms
+      expect(cache.get('key')).toBeNull(); // Expired
+    });
+
+    it('handles multiple TTL units correctly', () => {
+      cache.set('seconds', 'v1', 30);
+      cache.set('minutes', 'v2', '1m');
+      cache.set('hours', 'v3', '1h');
+      cache.set('days', 'v4', '1d');
+
+      expect(cache.get('seconds')).toBe('v1');
+      expect(cache.get('minutes')).toBe('v2');
+      expect(cache.get('hours')).toBe('v3');
+      expect(cache.get('days')).toBe('v4');
+
+      // Advance 30 seconds - only seconds should expire
+      vi.advanceTimersByTime(31 * 1000);
+      expect(cache.get('seconds')).toBeNull();
+      expect(cache.get('minutes')).toBe('v2');
+      expect(cache.get('hours')).toBe('v3');
+      expect(cache.get('days')).toBe('v4');
+
+      // Advance 1 more minute - minutes should expire
+      vi.advanceTimersByTime(60 * 1000);
+      expect(cache.get('minutes')).toBeNull();
+      expect(cache.get('hours')).toBe('v3');
+    });
+
+    it('updates expiration on repeated access (sliding window)', () => {
+      cache.set('key', 'value', 2); // 2 seconds
+
+      vi.advanceTimersByTime(1000);
+      expect(cache.get('key')).toBe('value');
+
+      // Touch to extend TTL
+      cache.touch('key', 2);
+      vi.advanceTimersByTime(1500);
+      expect(cache.get('key')).toBe('value'); // Still valid (total 2.5s with touch)
+
+      vi.advanceTimersByTime(1000); // Now at 2.5s since original set
+      expect(cache.get('key')).toBeNull(); // Expired after extended TTL
+    });
+
+    it('handles zero TTL as immediate expiration', () => {
+      cache.set('key', 'value', 0);
+      expect(cache.get('key')).toBeNull();
+    });
+
+    it('handles very long TTL', () => {
+      cache.set('key', 'value', '365d');
+      vi.advanceTimersByTime(364 * 24 * 60 * 60 * 1000); // 364 days
+      expect(cache.get('key')).toBe('value');
+
+      vi.advanceTimersByTime(2 * 24 * 60 * 60 * 1000); // 2 more days
+      expect(cache.get('key')).toBeNull();
+    });
+  });
+
+  // ============================================================================
+  // Invalidation Strategy Tests
+  // ============================================================================
+
+  describe('invalidation strategy', () => {
+    it('invalidates multiple patterns', () => {
+      cache.set('user:1:profile', 'profile1');
+      cache.set('user:1:settings', 'settings1');
+      cache.set('user:2:profile', 'profile2');
+      cache.set('post:1', 'post1');
+      cache.set('post:2', 'post2');
+
+      // Invalidate all user data
+      let count = cache.invalidate({ pattern: 'user:*' });
+      expect(count).toBe(3);
+      expect(cache.get('user:1:profile')).toBeNull();
+      expect(cache.get('user:1:settings')).toBeNull();
+      expect(cache.get('user:2:profile')).toBeNull();
+      expect(cache.get('post:1')).toBe('post1');
+
+      // Invalidate all post data
+      count = cache.invalidate({ pattern: 'post:*' });
+      expect(count).toBe(2);
+      expect(cache.get('post:1')).toBeNull();
+    });
+
+    it('combines tags and pattern invalidation', () => {
+      cache.set('key1', 'value1', undefined, ['tag1', 'tag2']);
+      cache.set('key2', 'value2', undefined, ['tag1']);
+      cache.set('key3', 'value3', undefined, ['tag2']);
+
+      // First invalidate by tag
+      let count = cache.invalidate({ tags: ['tag1'] });
+      expect(count).toBe(2);
+      expect(cache.get('key1')).toBeNull();
+      expect(cache.get('key2')).toBeNull();
+      expect(cache.get('key3')).toBe('value3');
+
+      // Reset and test pattern
+      cache.set('key1', 'value1', undefined, ['tag1']);
+      cache.set('key2', 'value2', undefined, ['tag2']);
+      cache.set('key3', 'value3');
+
+      count = cache.invalidate({ pattern: 'key[13]' });
+      expect(count).toBe(2);
+      expect(cache.get('key1')).toBeNull();
+      expect(cache.get('key2')).toBe('value2');
+      expect(cache.get('key3')).toBeNull();
+    });
+
+    it('handles complex wildcard patterns', () => {
+      cache.set('api:v1:users:123', 'user1');
+      cache.set('api:v1:users:456', 'user2');
+      cache.set('api:v2:users:123', 'user3');
+      cache.set('api:v1:posts:789', 'post1');
+
+      // Invalidate all v1 endpoints
+      let count = cache.invalidate({ pattern: 'api:v1:*' });
+      expect(count).toBe(3);
+      expect(cache.get('api:v1:users:123')).toBeNull();
+      expect(cache.get('api:v1:users:456')).toBeNull();
+      expect(cache.get('api:v1:posts:789')).toBeNull();
+      expect(cache.get('api:v2:users:123')).toBe('user3');
+
+      // Invalidate all user endpoints
+      count = cache.invalidate({ pattern: '*:users:*' });
+      expect(count).toBe(1);
+      expect(cache.get('api:v2:users:123')).toBeNull();
+    });
+
+    it('returns zero for non-matching pattern', () => {
+      cache.set('key1', 'value1');
+      const count = cache.invalidate({ pattern: 'nonexistent:*' });
+      expect(count).toBe(0);
+      expect(cache.get('key1')).toBe('value1');
+    });
+
+    it('invalidates with empty options returns zero', () => {
+      cache.set('key1', 'value1');
+      const count = cache.invalidate({});
+      expect(count).toBe(0);
+      expect(cache.get('key1')).toBe('value1');
+    });
+  });
+
+  // ============================================================================
+  // Concurrent Access Tests
+  // ============================================================================
+
+  describe('concurrent access', () => {
+    it('handles rapid sequential reads', async () => {
+      cache.set('key', 'value');
+
+      // Rapid sequential reads
+      for (let i = 0; i < 100; i++) {
+        expect(cache.get('key')).toBe('value');
+      }
+
+      const stats = cache.getStats();
+      expect(stats.hits).toBe(100);
+    });
+
+    it('handles rapid sequential writes', () => {
+      // Rapid writes to same key
+      for (let i = 0; i < 100; i++) {
+        cache.set('key', `value-${i}`);
+      }
+
+      expect(cache.get('key')).toBe('value-99');
+      expect(cache.size()).toBe(1);
+    });
+
+    it('handles concurrent writes to different keys', () => {
+      const keys = Array.from({ length: 50 }, (_, i) => `key-${i}`);
+
+      // Write to different keys rapidly
+      for (const key of keys) {
+        cache.set(key, key);
+      }
+
+      expect(cache.size()).toBe(50);
+
+      // Verify all keys
+      for (const key of keys) {
+        expect(cache.get(key)).toBe(key);
+      }
+    });
+
+    it('getOrSet handles concurrent calls for same key', async () => {
+      let factoryCallCount = 0;
+      const factory = vi.fn().mockImplementation(async () => {
+        factoryCallCount++;
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        return 'computed-value';
+      });
+
+      // Multiple concurrent calls for same key
+      const promises = Array.from({ length: 5 }, () =>
+        cache.getOrSet('key', factory)
+      );
+
+      const results = await Promise.all(promises);
+
+      // All should get the same value
+      expect(results.every((v) => v === 'computed-value')).toBe(true);
+
+      // Factory should be called only once (cache-aside pattern)
+      expect(factoryCallCount).toBe(1);
+    });
+
+    it('getOrSet race condition: first call populates cache for subsequent', async () => {
+      const results: string[] = [];
+
+      // Simulate slightly staggered calls
+      const p1 = cache.getOrSet('key', async () => {
+        await new Promise((resolve) => setTimeout(resolve, 5));
+        return 'value1';
+      });
+
+      const p2 = cache.getOrSet('key', async () => 'value2');
+
+      results.push(await p1);
+      results.push(await p2);
+
+      // At least one should get a value
+      expect(results.some((v) => v !== null)).toBe(true);
+
+      // Cache should have the value
+      expect(cache.get('key')).not.toBeNull();
+    });
+
+    it('handles mixed concurrent reads and writes', () => {
+      cache.set('counter', 0);
+
+      // Mixed operations
+      for (let i = 0; i < 50; i++) {
+        if (i % 2 === 0) {
+          const current = cache.get<number>('counter') || 0;
+          cache.set('counter', current + 1);
+        } else {
+          cache.get('counter');
+        }
+      }
+
+      // Final value should be 25 (every even iteration increments)
+      expect(cache.get<number>('counter')).toBe(25);
+    });
+  });
+
+  // ============================================================================
+  // Memory Pressure Tests
+  // ============================================================================
+
+  describe('memory pressure', () => {
+    it('handles maxEntries with TTL interaction', () => {
+      const smallCache = new MemoryCache({ maxEntries: 2, defaultTTL: 10 });
+
+      smallCache.set('key1', 'value1');
+      smallCache.set('key2', 'value2');
+
+      // Access key1 to make it recently used
+      smallCache.get('key1');
+
+      // This should evict key2 (LRU), not key1
+      smallCache.set('key3', 'value3');
+
+      expect(cache.get('key1')).toBeNull(); // original cache
+      expect(smallCache.get('key1')).toBe('value1'); // Still in smallCache
+      expect(smallCache.get('key2')).toBeNull(); // Evicted
+      expect(smallCache.get('key3')).toBe('value3');
+
+      smallCache.stopCleanup();
+    });
+
+    it('tracks memory usage accurately', () => {
+      const cacheWithTracking = new MemoryCache();
+      
+      cacheWithTracking.set('small', 'x');
+      const smallUsage = cacheWithTracking.getStats().memoryUsage;
+
+      cacheWithTracking.set('large', 'x'.repeat(1000));
+      const largeUsage = cacheWithTracking.getStats().memoryUsage;
+
+      expect(largeUsage).toBeGreaterThan(smallUsage);
+    });
+
+    it('evicts multiple entries when exceeding maxEntries significantly', () => {
+      const tinyCache = new MemoryCache({ maxEntries: 5 });
+
+      // Add 10 entries
+      for (let i = 0; i < 10; i++) {
+        tinyCache.set(`key${i}`, `value${i}`);
+      }
+
+      // Should have exactly 5 entries (evicted 5)
+      expect(tinyCache.size()).toBe(5);
+      expect(tinyCache.getStats().evictions).toBe(5);
+
+      tinyCache.stopCleanup();
+    });
+  });
 });
 
 // ============================================================================
