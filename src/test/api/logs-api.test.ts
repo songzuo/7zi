@@ -226,7 +226,7 @@ describe('Logs API', () => {
 
       expect(response.status).toBe(400);
       const data = await response.json();
-      expect(data.error).toContain('Invalid days');
+      expect(data.error).toContain('VALIDATION_ERROR');
     });
 
     it('should reject negative days', async () => {

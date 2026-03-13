@@ -3,7 +3,7 @@
 > **11 位 AI 成员 · 24/7 自主工作 · 实时协作**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.2.1-blue.svg)](https://github.com/songzuo/7zi)
+[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/songzuo/7zi)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/songzuo/7zi)
 [![Next.js](https://img.shields.io/badge/Next.js-16.1.6-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
@@ -38,9 +38,11 @@
 | 自动化报告生成 | 🟢 已完成 | - |
 | Knowledge API | 🟢 已完成 | - |
 | Health API 标准化 | 🟢 已完成 | - |
+| Projects API | 🟢 已完成 | 2026-03-13 |
 
 ### 最新进展
 
+- ✅ **2026-03-13**: Projects API 完整实现 - GET/POST 项目管理端点支持
 - ✅ **2026-03-13**: 文档完善 - README/ARCHITECTURE/DOCS_INDEX 更新，Projects API 文档补充
 - ✅ **2026-03-13**: 代码质量改进完成 - Console 清理、ESLint v9.39.4 优化、类型安全提升
 - ✅ **2026-03-13**: Knowledge API 完整实现 - 知识节点/边/查询/推理/晶格端点全面上线
@@ -123,9 +125,14 @@
 - **🔌 API 系统**
   - `/api/tasks` - 任务管理 API
   - `/api/tasks/:id/assign` - AI 智能分配
+  - `/api/projects` - 项目管理 API (新增)
+  - `/api/projects/:id` - 项目详情 API (新增)
   - `/api/knowledge/*` - 知识图谱 API (节点/边/查询/推理/晶格)
+  - `/api/notifications` - 通知管理 API (新增)
   - `/api/health` - 健康检查 API (基础/就绪/存活/详细)
   - `/api/logs` - 系统日志 API
+  - `/api/auth` - 认证 API
+  - `/api/status` - 系统状态 API
   - RESTful 设计
   - 完整的 CRUD 操作
 
@@ -399,27 +406,12 @@ docker run -p 3000:3000 --env-file .env 7zi-team
 # 访问项目展示页面
 http://localhost:3000/portfolio
 
-# API 端点
-GET  /api/projects       # 获取项目列表
-POST /api/projects      # 创建新项目
-GET  /api/projects/:id  # 获取项目详情
-```
-
-**使用示例:**
-```tsx
-import { ProjectGrid, ProjectCard } from '@/components';
-
-function PortfolioPage() {
-  const { projects, loading } = useProjects();
-  
-  return (
-    <ProjectGrid>
-      {projects.map(project => (
-        <ProjectCard key={project.id} project={project} />
-      ))}
-    </ProjectGrid>
-  );
-}
+# Projects API 端点
+GET    /api/projects           # 获取项目列表
+POST   /api/projects           # 创建新项目 (需认证)
+GET    /api/projects/:id       # 获取项目详情
+PUT    /api/projects/:id       # 更新项目
+DELETE /api/projects/:id       # 删除项目
 ```
 
 ### Tasks AI 任务分配系统
@@ -492,6 +484,58 @@ GET /api/health           # 基础健康检查
 GET /api/health/ready    # 就绪状态检查
 GET /api/health/live     # 存活状态检查
 GET /api/health/detailed # 详细健康报告
+```
+
+### 通知系统 API
+
+```bash
+# API 端点
+GET    /api/notifications           # 获取通知列表 (支持 userId, type, read 筛选)
+POST   /api/notifications           # 创建新通知 (需认证)
+PUT    /api/notifications           # 标记已读/全部已读
+DELETE /api/notifications           # 删除通知/清空全部
+```
+
+**查询参数 (GET /api/notifications):**
+- `userId` - 筛选用户 ID
+- `type` - 筛选通知类型 (task_assigned, project_update, mention, system_alert)
+- `read` - 筛选已读状态 (true/false)
+- `limit` - 返回数量限制
+- `offset` - 分页偏移量
+
+### 项目管理 API
+
+```bash
+# API 端点
+GET    /api/projects           # 获取项目列表 (支持 status, priority, assignee 筛选)
+POST   /api/projects           # 创建新项目 (需认证)
+GET    /api/projects/:id       # 获取项目详情
+PUT    /api/projects/:id       # 更新项目
+DELETE /api/projects/:id       # 删除项目
+```
+
+**查询参数 (GET /api/projects):**
+- `status` - 筛选项目状态 (active, completed, archived, on-hold)
+- `priority` - 筛选优先级 (critical, high, medium, low)
+- `assignee` - 筛选项目成员
+
+**使用示例:**
+```typescript
+// 获取所有项目
+const response = await fetch('/api/projects');
+const { success, data } = await response.json();
+
+// 创建新项目 (需认证 token)
+const newProject = await fetch('/api/projects', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    name: '新项目名称',
+    description: '项目描述',
+    priority: 'high',
+    status: 'active'
+  })
+});
 ```
 
 ---

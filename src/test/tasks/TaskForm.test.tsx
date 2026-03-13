@@ -29,10 +29,15 @@ vi.mock('./AssignmentSuggester', () => ({
 vi.mock('@/lib/store/tasks-store', () => ({
   useTasksStore: vi.fn((selector) => {
     const state = {
+      tasks: [] as any[],
       addTask: vi.fn(),
       updateTask: vi.fn(),
+      deleteTask: vi.fn(),
+      assignTask: vi.fn(),
+      completeTask: vi.fn(),
+      addComment: vi.fn(),
     }
-    return selector(state)
+    return selector(state as any)
   }),
 }))
 
@@ -256,8 +261,16 @@ describe('TaskForm', () => {
     it('should call updateTask when taskId provided and no onSubmit', async () => {
       const { useTasksStore } = await import('@/lib/store/tasks-store')
       const mockUpdateTask = vi.fn()
-      vi.mocked(useTasksStore).mockImplementation((selector: (state: { addTask: ReturnType<typeof vi.fn>; updateTask: typeof mockUpdateTask }) => unknown) => 
-        selector({ addTask: vi.fn(), updateTask: mockUpdateTask })
+      vi.mocked(useTasksStore).mockImplementation((selector: any) => 
+        selector({ 
+          addTask: vi.fn(), 
+          updateTask: mockUpdateTask,
+          tasks: [],
+          deleteTask: vi.fn(),
+          assignTask: vi.fn(),
+          completeTask: vi.fn(),
+          addComment: vi.fn(),
+        })
       )
       
       render(<TaskForm taskId="task_123" />)
@@ -276,7 +289,15 @@ describe('TaskForm', () => {
       const { useTasksStore } = await import('@/lib/store/tasks-store')
       const mockAddTask = vi.fn()
       vi.mocked(useTasksStore).mockImplementation((selector: any) => 
-        selector({ addTask: mockAddTask, updateTask: vi.fn() })
+        selector({ 
+          addTask: mockAddTask, 
+          updateTask: vi.fn(),
+          tasks: [],
+          deleteTask: vi.fn(),
+          assignTask: vi.fn(),
+          completeTask: vi.fn(),
+          addComment: vi.fn(),
+        })
       )
       
       render(<TaskForm />)

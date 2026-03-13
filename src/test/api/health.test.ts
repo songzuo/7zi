@@ -38,6 +38,11 @@ import { GET as liveGET } from '@/app/api/health/live/route';
 import { GET as detailedGET, HEAD as detailedHEAD } from '@/app/api/health/detailed/route';
 
 describe('Health API Routes', () => {
+  const mockRequest = new Request('http://localhost:3000/api/health');
+  const mockRequestLive = new Request('http://localhost:3000/api/health/live');
+  const mockRequestReady = new Request('http://localhost:3000/api/health/ready');
+  const mockRequestDetailed = new Request('http://localhost:3000/api/health/detailed');
+  
   beforeEach(() => {
     vi.clearAllMocks();
     vi.stubEnv('NODE_ENV', 'test');
@@ -62,7 +67,7 @@ describe('Health API Routes', () => {
         environment: 'test',
       });
 
-      const response = await healthGET();
+      const response = await healthGET(mockRequest);
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -82,7 +87,7 @@ describe('Health API Routes', () => {
         environment: 'test',
       });
 
-      await healthGET();
+      await healthGET(mockRequest);
 
       expect(mockBasicHealthCheck).toHaveBeenCalledTimes(1);
     });
@@ -121,7 +126,7 @@ describe('Health API Routes', () => {
         checks: {},
       });
 
-      const response = await readyGET();
+      const response = await readyGET(mockRequestReady);
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -140,7 +145,7 @@ describe('Health API Routes', () => {
         },
       });
 
-      const response = await readyGET();
+      const response = await readyGET(mockRequestReady);
 
       expect(response.status).toBe(503);
     });
@@ -157,7 +162,7 @@ describe('Health API Routes', () => {
         },
       });
 
-      const response = await readyGET();
+      const response = await readyGET(mockRequestReady);
 
       expect(response.status).toBe(200);
     });
@@ -169,7 +174,7 @@ describe('Health API Routes', () => {
 
   describe('GET /api/health/live', () => {
     it('should return alive status', async () => {
-      const response = await liveGET();
+      const response = await liveGET(mockRequestLive);
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -177,7 +182,7 @@ describe('Health API Routes', () => {
     });
 
     it('should always return 200', async () => {
-      const response = await liveGET();
+      const response = await liveGET(mockRequestLive);
 
       expect(response.status).toBe(200);
     });

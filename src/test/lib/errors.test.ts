@@ -1,17 +1,18 @@
 import { describe, it, expect } from 'vitest'
 import {
-  createAppError,
+  createApiError,
   formatErrorMessage,
   isNetworkError,
-  getErrorCode,
+  getErrorCodeFromStatus,
   getUserFriendlyMessage,
   ErrorCodes,
+  AppError,
 } from '@/lib/errors'
 
 describe('errors', () => {
-  describe('createAppError', () => {
+  describe('AppError', () => {
     it('creates an error with message only', () => {
-      const error = createAppError('Test error')
+      const error = new AppError('Test error')
       
       expect(error).toBeInstanceOf(Error)
       expect(error.message).toBe('Test error')
@@ -20,14 +21,14 @@ describe('errors', () => {
     })
 
     it('creates an error with code', () => {
-      const error = createAppError('Test error', 'TEST_CODE')
+      const error = new AppError('Test error', 'TEST_CODE')
       
       expect(error.message).toBe('Test error')
       expect(error.code).toBe('TEST_CODE')
     })
 
     it('creates an error with code and status code', () => {
-      const error = createAppError('Test error', 'TEST_CODE', 404)
+      const error = new AppError('Test error', 'TEST_CODE', 404)
       
       expect(error.message).toBe('Test error')
       expect(error.code).toBe('TEST_CODE')
@@ -72,56 +73,41 @@ describe('errors', () => {
     })
   })
 
-  describe('getErrorCode', () => {
-    it('returns code from AppError', () => {
-      const error = createAppError('Test', 'CUSTOM_CODE')
-      expect(getErrorCode(error)).toBe('CUSTOM_CODE')
+  describe('getErrorCodeFromStatus', () => {
+    it('maps 200-299 to OK', () => {
+      expect(getErrorCodeFromStatus(200)).toBe('OK')
     })
 
-    it('detects network errors', () => {
-      const error = new Error('network failed')
-      expect(getErrorCode(error)).toBe(ErrorCodes.NETWORK_ERROR)
+    it('maps 401 to UNAUTHORIZED', () => {
+      expect(getErrorCodeFromStatus(401)).toBe(ErrorCodes.UNAUTHORIZED)
     })
 
-    it('maps 401 status to UNAUTHORIZED', () => {
-      const error = createAppError('Unauthorized', undefined, 401)
-      expect(getErrorCode(error)).toBe(ErrorCodes.UNAUTHORIZED)
+    it('maps 403 to FORBIDDEN', () => {
+      expect(getErrorCodeFromStatus(403)).toBe(ErrorCodes.FORBIDDEN)
     })
 
-    it('maps 403 status to FORBIDDEN', () => {
-      const error = createAppError('Forbidden', undefined, 403)
-      expect(getErrorCode(error)).toBe(ErrorCodes.FORBIDDEN)
+    it('maps 404 to NOT_FOUND', () => {
+      expect(getErrorCodeFromStatus(404)).toBe(ErrorCodes.NOT_FOUND)
     })
 
-    it('maps 404 status to NOT_FOUND', () => {
-      const error = createAppError('Not found', undefined, 404)
-      expect(getErrorCode(error)).toBe(ErrorCodes.NOT_FOUND)
+    it('maps 500 to SERVER_ERROR', () => {
+      expect(getErrorCodeFromStatus(500)).toBe(ErrorCodes.SERVER_ERROR)
     })
 
-    it('maps 500 status to SERVER_ERROR', () => {
-      const error = createAppError('Server error', undefined, 500)
-      expect(getErrorCode(error)).toBe(ErrorCodes.SERVER_ERROR)
+    it('maps 502 to SERVER_ERROR', () => {
+      expect(getErrorCodeFromStatus(502)).toBe(ErrorCodes.SERVER_ERROR)
     })
 
-    it('maps 502 status to SERVER_ERROR', () => {
-      const error = createAppError('Bad gateway', undefined, 502)
-      expect(getErrorCode(error)).toBe(ErrorCodes.SERVER_ERROR)
+    it('maps 503 to SERVICE_UNAVAILABLE', () => {
+      expect(getErrorCodeFromStatus(503)).toBe(ErrorCodes.SERVICE_UNAVAILABLE)
     })
 
-    it('maps 503 status to SERVER_ERROR', () => {
-      const error = createAppError('Service unavailable', undefined, 503)
-      expect(getErrorCode(error)).toBe(ErrorCodes.SERVER_ERROR)
-    })
-
-    it('maps 504 status to SERVER_ERROR', () => {
-      const error = createAppError('Gateway timed out', undefined, 504)
-      expect(getErrorCode(error)).toBe(ErrorCodes.SERVER_ERROR)
+    it('maps 504 to TIMEOUT', () => {
+      expect(getErrorCodeFromStatus(504)).toBe(ErrorCodes.TIMEOUT)
     })
 
     it('returns UNKNOWN for unhandled cases', () => {
-      expect(getErrorCode(null)).toBe(ErrorCodes.UNKNOWN)
-      expect(getErrorCode('string')).toBe(ErrorCodes.UNKNOWN)
-      expect(getErrorCode(new Error('unknown'))).toBe(ErrorCodes.UNKNOWN)
+      expect(getErrorCodeFromStatus(418)).toBe(ErrorCodes.UNKNOWN)
     })
   })
 
@@ -151,7 +137,7 @@ describe('errors', () => {
     })
 
     it('returns default message for unknown codes', () => {
-      expect(getUserFriendlyMessage('UNKNOWN_CODE')).toBe('发生未知错误，请稍后重试')
+      expect(getUserFriendlyMessage('UNKNOWN_CODE' as any)).toBe('发生未知错误，请稍后重试')
     })
   })
 

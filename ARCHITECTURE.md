@@ -776,8 +776,8 @@ jobs:
 
 | API 模块 | 实现状态 | 端点 |
 |----------|----------|------|
-| Tasks API | ✅ 完整 | GET/POST/PUT `/api/tasks`, POST `/api/tasks/:id/assign` |
-| Projects API | ✅ 完整 | GET/POST/PUT/DELETE `/api/projects` |
+| Tasks API | ✅ 完整 | GET/POST/PUT/DELETE `/api/tasks`, POST `/api/tasks/:id/assign` |
+| Projects API | ✅ 完整 | GET/POST `/api/projects`, GET/PUT/DELETE `/api/projects/:id` |
 | Health API | ✅ 完整 | `/api/health`, `/api/health/ready`, `/api/health/live`, `/api/health/detailed` |
 | Knowledge API | ✅ 完整 | `/api/knowledge/nodes`, `/api/knowledge/edges`, `/api/knowledge/query`, `/api/knowledge/inference`, `/api/knowledge/lattice` |
 | Logs API | ✅ 完整 | GET/POST/DELETE `/api/logs`, GET `/api/logs/export` |

@@ -11,6 +11,12 @@
 ## [0.2.1] - 2026-03-13
 
 ### Added
+- **通知系统 API 完整实现 (2026-03-13)**
+  - `GET /api/notifications` - 获取通知列表（支持 userId/type/read 过滤）
+  - `POST /api/notifications` - 创建通知（需认证+CSRF）
+  - `PUT /api/notifications` - 标记已读/全部已读
+  - `DELETE /api/notifications` - 删除通知/清空全部
+
 - **Portfolio 模块完整上线**
   - 项目卡片组件 (ProjectCard)
   - 分类过滤功能 (CategoryFilter)
@@ -77,6 +83,12 @@
 
 - **日志系统增强**
   - `GET /api/logs/export` - 日志导出（支持 JSON/CSV 格式）
+
+- **通知系统 API 完整实现**
+  - `GET /api/notifications` - 获取通知列表（支持 userId/type/read 过滤）
+  - `POST /api/notifications` - 创建通知（需认证+CSRF）
+  - `PUT /api/notifications` - 标记已读/全部已读
+  - `DELETE /api/notifications` - 删除通知/清空全部
 
 - **安全增强**
   - JWT + CSRF Token 双重认证机制

@@ -196,7 +196,7 @@ describe('seo', () => {
       };
       const schema = getServiceSchema(service);
       expect(schema.offers).toBeDefined();
-      expect(schema.offers.price).toBe('100');
+      expect(schema.offers!.price).toBe('100');
     });
   });
 
@@ -244,7 +244,7 @@ describe('seo', () => {
       };
       const schema = getLocalBusinessSchema(business);
       expect(schema.address).toBeDefined();
-      expect(schema.address.streetAddress).toBe('123 Main St');
+      expect(schema.address!.streetAddress).toBe('123 Main St');
     });
   });
 

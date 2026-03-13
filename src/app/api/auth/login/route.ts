@@ -1,5 +1,13 @@
 /**
  * 登录 API - POST /api/auth/login
+ * 演示如何使用认证中间件
+ * 
+ * @example
+ * 使用速率限制:
+ * export const POST = withRateLimit()(handleLogin);
+ * 
+ * 使用自定义认证:
+ * export const POST = withAuth({ rateLimit: { windowMs: 60000, maxRequests: 5 } })(handleLogin);
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -10,20 +18,26 @@ import {
 } from '@/lib/security/auth';
 import { generateCsrfToken, setCsrfTokenCookie } from '@/lib/security/csrf';
 import { authLogger } from '@/lib/logger';
+import { withRateLimit, validationError } from '@/lib/middleware';
 
-export async function POST(request: NextRequest) {
+// 速率限制: 5次/分钟 (防止暴力破解)
+const RATE_LIMIT_CONFIG = {
+  windowMs: 60 * 1000, // 1分钟
+  maxRequests: 5,
+  message: 'Too many login attempts, please try again later',
+};
+
+export const POST = withRateLimit(RATE_LIMIT_CONFIG)(async (request: NextRequest) => {
   try {
     const body = await request.json();
     const { email, password } = body;
 
+    // 输入验证
     if (!email || !password) {
-      return NextResponse.json(
-        { error: 'Email and password are required' },
-        { status: 400 }
-      );
+      return validationError('Email and password are required', 'credentials', request);
     }
 
-    // 模拟用户验证 (开发环境)
+    // 模拟用户验证 (开发环境 - 生产环境应连接真实用户系统)
     if (email === 'admin@7zi.studio' && password === 'admin123') {
       const user = {
         id: 'user-admin-001',
@@ -67,8 +81,9 @@ export async function POST(request: NextRequest) {
       return response;
     }
 
+    // 验证失败
     return NextResponse.json(
-      { error: 'Invalid email or password' },
+      { error: 'Invalid email or password', code: 'AUTH_INVALID' },
       { status: 401 }
     );
   } catch (error) {
@@ -78,4 +93,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

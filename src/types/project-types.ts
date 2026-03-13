@@ -54,6 +54,7 @@ export interface Project {
   slug: string;
   title: string;
   description: string;
+  color?: string; // Project color for UI identification
   status: ProjectStatus;
   priority: ProjectPriority;
   category: string; // Keeping this for backward compatibility
@@ -89,6 +90,7 @@ export interface Project {
 export interface CreateProjectInput {
   title: string;
   description: string;
+  color?: string;
   status?: ProjectStatus;
   priority?: ProjectPriority;
   category: string;
@@ -117,6 +119,7 @@ export interface UpdateProjectInput {
   id: string;
   title?: string;
   description?: string;
+  color?: string;
   status?: ProjectStatus;
   priority?: ProjectPriority;
   category?: string;

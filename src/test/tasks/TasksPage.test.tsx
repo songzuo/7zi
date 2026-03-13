@@ -25,7 +25,7 @@ vi.mock('@/lib/store/tasks-store', () => ({
       completeTask: vi.fn(),
       addComment: vi.fn(),
     }
-    return selector(state)
+    return selector(state as any)
   }),
 }))
 
@@ -136,7 +136,7 @@ describe('TasksPage', () => {
           completeTask: vi.fn(),
           addComment: vi.fn(),
         }
-        return selector(state)
+        return selector(state as any)
       })
 
       render(<TasksPage />)
@@ -225,7 +225,7 @@ describe('TasksPage', () => {
           completeTask: vi.fn(),
           addComment: vi.fn(),
         }
-        return selector(state)
+        return selector(state as any)
       })
     })
 
@@ -249,8 +249,8 @@ describe('TasksPage', () => {
     let mockUpdateTask: ReturnType<typeof vi.fn>
 
     beforeEach(async () => {
-      mockAddTask = vi.fn()
-      mockUpdateTask = vi.fn()
+      mockAddTask = vi.fn() as ReturnType<typeof vi.fn>
+      mockUpdateTask = vi.fn() as ReturnType<typeof vi.fn>
       
       const { useTasksStore } = await import('@/lib/store/tasks-store')
       vi.mocked(useTasksStore).mockImplementation((selector) => {
@@ -259,10 +259,10 @@ describe('TasksPage', () => {
             id: 'task_1',
             title: 'Test Task',
             description: 'Test',
-            type: 'development',
-            priority: 'medium',
-            status: 'pending',
-            createdBy: 'user',
+            type: 'development' as const,
+            priority: 'medium' as const,
+            status: 'pending' as const,
+            createdBy: 'user' as const,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
             comments: [],
@@ -275,7 +275,7 @@ describe('TasksPage', () => {
           completeTask: vi.fn(),
           addComment: vi.fn(),
         }
-        return selector(state)
+        return selector(state as any)
       })
     })
 
@@ -321,8 +321,12 @@ describe('TasksPage', () => {
           }],
           addTask: vi.fn(),
           updateTask: mockUpdateTask,
+          deleteTask: vi.fn(),
+          assignTask: vi.fn(),
+          completeTask: vi.fn(),
+          addComment: vi.fn(),
         }
-        return selector(state)
+        return selector(state as any)
       })
     })
 
@@ -358,8 +362,12 @@ describe('TasksPage', () => {
           }],
           addTask: vi.fn(),
           updateTask: vi.fn(),
+          deleteTask: vi.fn(),
+          assignTask: vi.fn(),
+          completeTask: vi.fn(),
+          addComment: vi.fn(),
         }
-        return selector(state)
+        return selector(state as any)
       })
     })
 
@@ -417,8 +425,12 @@ describe('TasksPage', () => {
           ],
           addTask: vi.fn(),
           updateTask: vi.fn(),
+          deleteTask: vi.fn(),
+          assignTask: vi.fn(),
+          completeTask: vi.fn(),
+          addComment: vi.fn(),
         }
-        return selector(state)
+        return selector(state as any)
       })
 
       render(<TasksPage />)
@@ -450,8 +462,12 @@ describe('TasksPage', () => {
           }],
           addTask: vi.fn(),
           updateTask: vi.fn(),
+          deleteTask: vi.fn(),
+          assignTask: vi.fn(),
+          completeTask: vi.fn(),
+          addComment: vi.fn(),
         }
-        return selector(state)
+        return selector(state as any)
       })
 
       render(<TasksPage />)

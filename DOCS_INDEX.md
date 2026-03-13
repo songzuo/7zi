@@ -370,11 +370,13 @@ DEPLOYMENT-CHECKLIST.md → docs/DEPLOYMENT.md → docs/OPERATIONS_MANUAL.md
 
 | 方法 | 端点 | 说明 | 状态 |
 |------|------|------|------|
-| GET | `/api/projects` | 获取项目列表 | ✅ |
-| POST | `/api/projects` | 创建新项目（需认证） | ✅ |
-| PUT | `/api/projects/:id` | 更新项目（需认证） | ✅ |
-| DELETE | `/api/projects/:id` | 删除项目（需管理员） | ✅ |
-| GET | `/api/projects/:id/tasks` | 获取项目相关任务 | ✅ |
+| - | `/api/projects` | 获取项目列表 | ⚠️ 未实现 |
+| - | `/api/projects` | 创建新项目（需认证） | ⚠️ 未实现 |
+| - | `/api/projects/:id` | 更新项目（需认证） | ⚠️ 未实现 |
+| - | `/api/projects/:id` | 删除项目（需管理员） | ⚠️ 未实现 |
+| - | `/api/projects/:id/tasks` | 获取项目相关任务 | ⚠️ 未实现 |
+
+> 注: 项目数据目前通过 `/api/tasks` 管理
 
 ### 知识图谱 API (`/api/knowledge`)
 

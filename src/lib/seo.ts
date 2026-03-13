@@ -222,6 +222,10 @@ export function getLocalBusinessSchema(business: {
 
 // 生成规范的 URL
 export function getCanonicalUrl(path: string = '') {
+  // 空路径返回基础 URL
+  if (!path || path === '') {
+    return siteConfig.url;
+  }
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
   return `${siteConfig.url}${cleanPath}`;
 }

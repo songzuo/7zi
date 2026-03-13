@@ -52,9 +52,8 @@ npm run build:analyze    # 构建分析
 #### 项目管理 API
 | 端点 | 方法 | 说明 |
 |------|------|------|
-| `/api/tasks` | GET, POST | 任务列表/创建 |
-
-> 注: `/api/projects` 端点尚未实现，项目数据通过 `/api/tasks` 管理
+| `/api/projects` | GET, POST | 项目列表/创建 |
+| `/api/projects/:id` | GET, PUT, DELETE | 项目详情/更新/删除 |
 
 #### 日志系统 API
 | 端点 | 方法 | 说明 |
@@ -85,6 +84,13 @@ npm run build:analyze    # 构建分析
 |------|------|------|
 | `/api/status` | GET | 系统状态 |
 | `/api/auth` | GET, POST | 认证接口 |
+
+#### 通知系统 API
+| 端点 | 方法 | 说明 |
+|------|------|------|
+| `/api/notifications` | GET, POST | 通知列表/创建 |
+| `/api/notifications` | PUT | 标记已读/全部已读 |
+| `/api/notifications` | DELETE | 删除通知/清空全部 |
 
 ### 外部服务配置
 
@@ -153,12 +159,12 @@ ALERT_EMAIL_RECIPIENTS=admin@example.com
 | API 模块 | 实现状态 | 备注 |
 |----------|----------|------|
 | Tasks API | ✅ 完整 | `/api/tasks`, `/api/tasks/:id/assign` |
+| Projects API | ✅ 完整 | `/api/projects`, `/api/projects/:id` |
 | Health API | ✅ 完整 | `/api/health/*` |
 | Knowledge API | ✅ 完整 | `/api/knowledge/*` |
 | Auth API | ✅ 完整 | `/api/auth` (带完整认证和授权) |
 | Status API | ✅ 完整 | `/api/status` |
 | Logs API | ✅ 完整 | `/api/logs`, `/api/logs/export` (JSON/CSV) |
-| Projects API | ❌ 未实现 | `/api/projects` 目录存在但未实现，项目数据通过 Tasks API 管理 |
 
 ### 重构状态
 

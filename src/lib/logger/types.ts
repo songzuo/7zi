@@ -3,7 +3,7 @@
  */
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'audit';
-export type LogCategory = 'api' | 'auth' | 'database' | 'system' | 'user' | 'security' | 'performance';
+export type LogCategory = 'api' | 'auth' | 'database' | 'system' | 'user' | 'security' | 'performance' | 'error' | 'client_error';
 
 export interface LogEntry {
   id: string;

@@ -24,7 +24,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { Task, AITeamMember, AssignmentSuggestion, TaskType } from '@/lib/types/task-types';
+import { Task, AITeamMember, AssignmentSuggestion } from '@/lib/types/task-types';
 import { getAITeamForTaskAssignment } from '@/lib/services/task-dashboard-integration';
 import { verifyToken, extractToken } from '@/lib/security/auth';
 import { apiLogger } from '@/lib/logger';
@@ -59,19 +59,13 @@ interface AssignmentSuggestionsResult {
 }
 
 /**
- * 分配请求体
+ * 分配建议列表响应
  */
-interface AssignmentRequestBody {
-  autoAssign?: boolean;
-  preferredMemberId?: string;
-}
-
-/**
- * 错误响应
- */
-interface AssignmentErrorResponse {
-  error: string;
-  message?: string;
+interface AssignmentSuggestionsResult {
+  success: false;
+  message: string;
+  suggestions: AssignmentSuggestion[];
+  task: Task;
 }
 
 /**

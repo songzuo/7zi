@@ -15,12 +15,19 @@ import {
 } from '@/lib/security/auth';
 import { generateCsrfToken, setCsrfTokenCookie } from '@/lib/security/csrf';
 import { authLogger } from '@/lib/logger';
+import {
+  withErrorHandler,
+  validationError,
+  authError,
+  successResponse,
+  serverError,
+} from '@/lib/middleware';
 
 // ============================================
 // GET /api/auth - 处理各种查询操作
 // ============================================
 
-export async function GET(request: NextRequest) {
+export const GET = withErrorHandler(async (request: NextRequest) => {
   const { searchParams } = new URL(request.url);
   const action = searchParams.get('action');
 
@@ -54,42 +61,27 @@ export async function GET(request: NextRequest) {
 
   // 获取当前用户信息
   if (action === 'me') {
-    try {
-      const token = extractToken(request);
+    const token = extractToken(request);
 
-      if (!token) {
-        return NextResponse.json(
-          { error: 'Not authenticated' },
-          { status: 401 }
-        );
-      }
-
-      const payload = await verifyToken(token);
-
-      if (!payload) {
-        return NextResponse.json(
-          { error: 'Invalid or expired token' },
-          { status: 401 }
-        );
-      }
-
-      return NextResponse.json({
-        success: true,
-        user: {
-          id: payload.sub,
-          email: payload.email,
-          name: payload.name,
-          role: payload.role,
-          permissions: payload.permissions,
-        },
-      });
-    } catch (error) {
-      authLogger.error('Get user error', error);
-      return NextResponse.json(
-        { error: 'Failed to get user info' },
-        { status: 500 }
-      );
+    if (!token) {
+      return authError('Not authenticated', request);
     }
+
+    const payload = await verifyToken(token);
+
+    if (!payload) {
+      return authError('Invalid or expired token', request);
+    }
+
+    return successResponse({
+      user: {
+        id: payload.sub,
+        email: payload.email,
+        name: payload.name,
+        role: payload.role,
+        permissions: payload.permissions,
+      },
+    });
   }
 
   // 默认响应
@@ -104,13 +96,13 @@ export async function GET(request: NextRequest) {
       'GET /api/auth?action=check-secret',
     ],
   });
-}
+});
 
 // ============================================
 // POST /api/auth - 登录或登出
 // ============================================
 
-export async function POST(request: NextRequest) {
+export const POST = withErrorHandler(async (request: NextRequest) => {
   const { searchParams } = new URL(request.url);
   const action = searchParams.get('action');
 
@@ -129,19 +121,14 @@ export async function POST(request: NextRequest) {
     return handleLogout(request);
   }
 
-  return NextResponse.json(
-    { error: 'Invalid action' },
-    { status: 400 }
-  );
-}
+  return validationError('Invalid action', 'action', request);
+});
 
 // ============================================
 // DELETE /api/auth - 用户登出
 // ============================================
 
-export async function DELETE(request: NextRequest) {
-  return handleLogout(request);
-}
+export const DELETE = withErrorHandler(handleLogout);
 
 // ============================================
 // 处理登录
@@ -154,10 +141,7 @@ async function handleLogin(request: NextRequest) {
 
     // 输入验证
     if (!email || !password) {
-      return NextResponse.json(
-        { error: 'Email and password are required' },
-        { status: 400 }
-      );
+      return validationError('Email and password are required', 'credentials', request);
     }
 
     // 模拟用户验证 (开发环境)
@@ -211,16 +195,10 @@ async function handleLogin(request: NextRequest) {
     }
 
     // 验证失败
-    return NextResponse.json(
-      { error: 'Invalid email or password' },
-      { status: 401 }
-    );
+    return authError('Invalid email or password', request);
   } catch (error) {
     authLogger.error('Login error', error);
-    return NextResponse.json(
-      { error: 'Login failed', message: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
-    );
+    return serverError('Login failed', request);
   }
 }
 
@@ -256,10 +234,7 @@ async function handleLogout(request: NextRequest) {
     return response;
   } catch (error) {
     authLogger.error('Logout error', error);
-    return NextResponse.json(
-      { error: 'Logout failed' },
-      { status: 500 }
-    );
+    return serverError('Logout failed', request);
   }
 }
 
@@ -272,19 +247,13 @@ async function handleRefresh(request: NextRequest) {
     const refreshToken = request.cookies.get('refresh_token')?.value;
 
     if (!refreshToken) {
-      return NextResponse.json(
-        { error: 'Refresh token required' },
-        { status: 401 }
-      );
+      return authError('Refresh token required', request);
     }
 
     const payload = await verifyToken(refreshToken);
 
     if (!payload) {
-      return NextResponse.json(
-        { error: 'Invalid or expired refresh token' },
-        { status: 401 }
-      );
+      return authError('Invalid or expired refresh token', request);
     }
 
     const user = {
@@ -312,9 +281,6 @@ async function handleRefresh(request: NextRequest) {
     return response;
   } catch (error) {
     authLogger.error('Token refresh error', error);
-    return NextResponse.json(
-      { error: 'Token refresh failed' },
-      { status: 500 }
-    );
+    return serverError('Token refresh failed', request);
   }
 }

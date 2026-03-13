@@ -16,11 +16,14 @@ export function StatsCards({ totalMembers, overallProgress, completedTasks, acti
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
       {stats.map((stat, index) => (
-        <div key={index} className="bg-white dark:bg-zinc-800 rounded-2xl p-6 shadow-lg">
-          <div className={`text-3xl font-bold ${stat.colorClass}`}>{stat.value}</div>
-          <div className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">{stat.label}</div>
+        <div 
+          key={index} 
+          className="bg-white dark:bg-zinc-800 rounded-2xl p-4 md:p-6 shadow-lg hover:shadow-xl transition-shadow duration-300"
+        >
+          <div className={`text-2xl md:text-3xl font-bold ${stat.colorClass}`}>{stat.value}</div>
+          <div className="text-sm text-zinc-600 dark:text-zinc-400 mt-1 md:mt-2">{stat.label}</div>
         </div>
       ))}
     </div>

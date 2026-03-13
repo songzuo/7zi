@@ -40,9 +40,40 @@ export const LazyProjectDashboard = dynamic(
   () => import('./ProjectDashboard').then((mod) => ({ default: mod.ProjectDashboard })),
   {
     ssr: true,
-    loading: LoadingPlaceholder,
+    loading: ({}) => (
+      <DashboardSkeleton />
+    ),
   }
 );
+
+// Dashboard Skeleton 加载效果
+function DashboardSkeleton() {
+  return (
+    <div className="animate-pulse space-y-8">
+      {/* Stats Cards Skeleton */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[1, 2, 3, 4].map((i) => (
+          <div
+            key={i}
+            className="bg-zinc-200 dark:bg-zinc-800 rounded-2xl p-6 h-28"
+          >
+            <div className="h-8 w-16 bg-zinc-300 dark:bg-zinc-700 rounded mb-3" />
+            <div className="h-4 w-24 bg-zinc-300 dark:bg-zinc-700 rounded" />
+          </div>
+        ))}
+      </div>
+
+      {/* Charts Skeleton */}
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="bg-zinc-200 dark:bg-zinc-800 rounded-2xl p-6 h-64" />
+        <div className="bg-zinc-200 dark:bg-zinc-800 rounded-2xl p-6 h-64" />
+      </div>
+
+      {/* Activity Skeleton */}
+      <div className="bg-zinc-200 dark:bg-zinc-800 rounded-2xl p-6 h-48" />
+    </div>
+  );
+}
 
 /**
  * GitHub 活动组件 - 滚动到视口时加载

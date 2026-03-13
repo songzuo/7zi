@@ -1,188 +1,25 @@
 /**
  * 统一错误处理系统
  * 整合所有错误处理逻辑，提供完整的错误管理能力
+ * 
+ * @module lib/errors
  */
 
 // ============================================
-// 类型定义
+// 类型定义导出
 // ============================================
-
-/**
- * 错误分类
- */
-export enum ErrorCategory {
-  APPLICATION = 'application',
-  API = 'api',
-  NETWORK = 'network',
-  VALIDATION = 'validation',
-  USER_INPUT = 'user_input',
-  PERMISSION = 'permission',
-  INFRASTRUCTURE = 'infrastructure',
-  EXTERNAL_SERVICE = 'external_service',
-  THIRD_PARTY = 'third_party',
-  DATABASE = 'database',
-  AUTH = 'auth',
-}
-
-/**
- * 错误严重级别
- */
-export enum ErrorSeverity {
-  FATAL = 'fatal',     // 应用崩溃，需要重启
-  ERROR = 'error',     // 功能失败，但应用可继续
-  WARNING = 'warning', // 警告，可能影响体验
-  INFO = 'info',       // 信息性错误日志
-  DEBUG = 'debug',     // 调试信息
-}
-
-/**
- * 错误代码
- */
-export const ErrorCodes = {
-  // 通用错误
-  UNKNOWN: 'UNKNOWN',
-  NOT_FOUND: 'NOT_FOUND',
-  VALIDATION_ERROR: 'VALIDATION_ERROR',
-  
-  // 认证授权
-  UNAUTHORIZED: 'UNAUTHORIZED',
-  FORBIDDEN: 'FORBIDDEN',
-  SESSION_EXPIRED: 'SESSION_EXPIRED',
-  
-  // 网络
-  NETWORK_ERROR: 'NETWORK_ERROR',
-  TIMEOUT: 'TIMEOUT',
-  CONNECTION_REFUSED: 'CONNECTION_REFUSED',
-  
-  // 服务器
-  SERVER_ERROR: 'SERVER_ERROR',
-  SERVICE_UNAVAILABLE: 'SERVICE_UNAVAILABLE',
-  RATE_LIMITED: 'RATE_LIMITED',
-  
-  // 数据
-  DATABASE_ERROR: 'DATABASE_ERROR',
-  DATA_NOT_FOUND: 'DATA_NOT_FOUND',
-  DUPLICATE_ENTRY: 'DUPLICATE_ENTRY',
-  
-  // 第三方服务
-  EXTERNAL_SERVICE_ERROR: 'EXTERNAL_SERVICE_ERROR',
-  EMAIL_ERROR: 'EMAIL_ERROR',
-  STORAGE_ERROR: 'STORAGE_ERROR',
-} as const;
-
-export type ErrorCode = typeof ErrorCodes[keyof typeof ErrorCodes];
-
-/**
- * 错误上下文
- */
-export interface ErrorContext {
-  userId?: string;
-  requestId?: string;
-  route?: string;
-  component?: string;
-  action?: string;
-  timestamp?: string;
-  [key: string]: unknown;
-}
-
-/**
- * 错误恢复策略
- */
-export interface RecoveryStrategy {
-  type: 'retry' | 'fallback' | 'redirect' | 'refresh' | 'none';
-  maxRetries?: number;
-  retryDelay?: number;
-  fallbackValue?: unknown;
-  redirectUrl?: string;
-}
-
-/**
- * 错误配置
- */
-export interface ErrorConfig {
-  code: ErrorCode;
-  category: ErrorCategory;
-  severity: ErrorSeverity;
-  userMessage: string;
-  recoveryStrategy?: RecoveryStrategy;
-  shouldReport?: boolean;
-}
+import { ErrorCategory, ErrorSeverity, ErrorCodes } from './types';
+export { ErrorCategory, ErrorSeverity, ErrorCodes };
+export type { ErrorCode, ErrorContext, RecoveryStrategy, ErrorConfig } from './types';
 
 // ============================================
-// 自定义错误类
+// 错误类导出
 // ============================================
+import { AppError } from './app-error';
+export { AppError };
 
-/**
- * 应用错误类
- */
-export class AppError extends Error {
-  public readonly code: ErrorCode;
-  public readonly category: ErrorCategory;
-  public readonly severity: ErrorSeverity;
-  public readonly userMessage: string;
-  public readonly context: ErrorContext;
-  public readonly recoveryStrategy?: RecoveryStrategy;
-  public readonly shouldReport: boolean;
-  public readonly cause?: Error;
-  public readonly timestamp: string;
-
-  constructor(
-    message: string,
-    options: {
-      code?: ErrorCode;
-      category?: ErrorCategory;
-      severity?: ErrorSeverity;
-      userMessage?: string;
-      context?: ErrorContext;
-      recoveryStrategy?: RecoveryStrategy;
-      shouldReport?: boolean;
-      cause?: Error;
-    } = {}
-  ) {
-    super(message);
-    
-    this.name = 'AppError';
-    this.code = options.code ?? ErrorCodes.UNKNOWN;
-    this.category = options.category ?? ErrorCategory.APPLICATION;
-    this.severity = options.severity ?? ErrorSeverity.ERROR;
-    this.userMessage = options.userMessage ?? this.getDefaultUserMessage();
-    this.context = options.context ?? {};
-    this.recoveryStrategy = options.recoveryStrategy;
-    this.shouldReport = options.shouldReport ?? true;
-    this.cause = options.cause;
-    this.timestamp = new Date().toISOString();
-
-    // 保持正确的堆栈跟踪
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, AppError);
-    }
-  }
-
-  /**
-   * 获取默认用户消息
-   */
-  private getDefaultUserMessage(): string {
-    return getUserFriendlyMessage(this.code);
-  }
-
-  /**
-   * 转换为 JSON
-   */
-  toJSON() {
-    return {
-      name: this.name,
-      message: this.message,
-      code: this.code,
-      category: this.category,
-      severity: this.severity,
-      userMessage: this.userMessage,
-      context: this.context,
-      timestamp: this.timestamp,
-      stack: this.stack,
-      cause: this.cause?.message,
-    };
-  }
-}
+import { ValidationError, AuthError, ForbiddenError, NotFoundError, ServerError, DatabaseError, NetworkError, RateLimitError } from './classes';
+export { ValidationError, AuthError, ForbiddenError, NotFoundError, ServerError, DatabaseError, NetworkError, RateLimitError };
 
 // ============================================
 // 错误工厂函数
@@ -480,10 +317,13 @@ export function toAppError(
 // 错误处理包装器
 // ============================================
 
+import type { NextRequest } from 'next/server';
+import type { NextResponse } from '@vercel/edge';
+
 /**
- * 异步函数错误处理包装器
+ * 异步函数错误处理包装器 - 支持 Next.js Route Handlers
  */
-export function withErrorHandler<T extends (...args: unknown[]) => Promise<unknown>>(
+export function withErrorHandler<T extends (request: NextRequest, ...args: unknown[]) => Promise<NextResponse | Response>>(
   fn: T,
   options: {
     errorCode?: ErrorCode;
@@ -493,12 +333,12 @@ export function withErrorHandler<T extends (...args: unknown[]) => Promise<unkno
     fallback?: ReturnType<T> | (() => ReturnType<T>);
   } = {}
 ): T {
-  return (async (...args: Parameters<T>) => {
+  return (async (request: NextRequest, ...args: Parameters<T>) => {
     try {
-      return await fn(...args);
+      return await fn(request, ...args);
     } catch (error) {
       const context = typeof options.context === 'function'
-        ? options.context(args)
+        ? options.context([request, ...args] as Parameters<T>)
         : options.context;
       
       const appError = toAppError(error, context);
@@ -550,7 +390,6 @@ export function withSyncErrorHandler<T extends (...args: unknown[]) => unknown>(
 // ============================================
 // 导出中间件
 // ============================================
-
 export {
   createErrorResponse,
   withErrorHandler as withApiErrorHandler,
@@ -566,28 +405,3 @@ export {
   type ApiResponse,
   type ErrorHandlerOptions,
 } from './middleware';
-
-// ============================================
-// 导出
-// ============================================
-
-export default {
-  AppError,
-  ErrorCategory,
-  ErrorSeverity,
-  ErrorCodes,
-  createNetworkError,
-  createApiError,
-  createValidationError,
-  createAuthError,
-  createNotFoundError,
-  createDatabaseError,
-  formatErrorMessage,
-  getUserFriendlyMessage,
-  isNetworkError,
-  isRetryable,
-  shouldReportError,
-  toAppError,
-  withErrorHandler,
-  withSyncErrorHandler,
-};

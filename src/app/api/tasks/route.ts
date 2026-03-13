@@ -20,22 +20,18 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { Task, TaskStatus, TaskType } from '@/lib/types/task-types';
 import { v4 as uuidv4 } from 'uuid';
+import { Task, TaskStatus, TaskType } from '@/lib/types/task-types';
 import { verifyToken, extractToken, isAdmin } from '@/lib/security/auth';
 import { createCsrfMiddleware } from '@/lib/security/csrf';
 import { apiLogger } from '@/lib/logger';
 import {
-  AppError,
-  ErrorCodes,
-  ErrorCategory,
-  successResponse,
   validationError,
   notFoundError,
   authError,
   forbiddenError,
-  createErrorResponse,
-} from '@/lib/errors';
+  successResponse,
+} from '@/lib/middleware';
 
 /**
  * 任务查询参数
@@ -172,72 +168,61 @@ export async function GET(request: NextRequest) {
 // ============================================
 
 export async function POST(request: NextRequest) {
-  try {
-    // CSRF 保护检查
-    const csrfMiddleware = createCsrfMiddleware();
-    const csrfResult = await csrfMiddleware(request);
-    if (csrfResult) {
-      return csrfResult;
-    }
-
-    // 认证检查 (可选 - 根据需求决定是否要求登录)
-    const token = extractToken(request);
-    let userId = 'anonymous';
-    let userRole = 'user';
-    
-    if (token) {
-      const payload = await verifyToken(token);
-      if (payload) {
-        userId = payload.sub;
-        userRole = payload.role;
-      }
-    }
-
-    const body = await request.json();
-    
-    // 输入验证
-    if (!body.title || typeof body.title !== 'string') {
-      return NextResponse.json(
-        { error: 'Task title is required and must be a string' },
-        { status: 400 }
-      );
-    }
-
-    const newTask: Task = {
-      id: `task-${uuidv4().split('-')[0]}`,
-      title: body.title,
-      description: body.description || '',
-      type: body.type || 'other',
-      priority: body.priority || 'medium',
-      status: 'pending',
-      assignee: body.assignee || undefined,
-      createdBy: userId as 'user' | 'ai',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      comments: [],
-      history: [{
-        timestamp: new Date().toISOString(),
-        status: 'pending',
-        changedBy: userId
-      }]
-    };
-
-    tasks.push(newTask);
-
-    apiLogger.audit('Task created', {
-      taskId: newTask.id,
-      createdBy: userId,
-      userRole,
-    });
-
-    return NextResponse.json(newTask, { status: 201 });
-  } catch (error) {
-    apiLogger.error('Error creating task', error);
-    return NextResponse.json(
-      { error: 'Failed to create task', message: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 400 }
-    );
+  // CSRF 保护检查
+  const csrfMiddleware = createCsrfMiddleware();
+  const csrfResult = await csrfMiddleware(request);
+  if (csrfResult) {
+    return csrfResult;
   }
+
+  // 认证检查 (可选 - 根据需求决定是否要求登录)
+  const token = extractToken(request);
+  let userId = 'anonymous';
+  let userRole = 'user';
+  
+  if (token) {
+    const payload = await verifyToken(token);
+    if (payload) {
+      userId = payload.sub;
+      userRole = payload.role;
+    }
+  }
+
+  const body = await request.json();
+  
+  // 输入验证 - 使用统一错误处理
+  if (!body.title || typeof body.title !== 'string') {
+    return validationError('Task title is required and must be a string', 'title', request);
+  }
+
+  const newTask: Task = {
+    id: `task-${uuidv4().split('-')[0]}`,
+    title: body.title,
+    description: body.description || '',
+    type: body.type || 'other',
+    priority: body.priority || 'medium',
+    status: 'pending',
+    assignee: body.assignee || undefined,
+    createdBy: userId as 'user' | 'ai',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    comments: [],
+    history: [{
+      timestamp: new Date().toISOString(),
+      status: 'pending',
+      changedBy: userId
+    }]
+  };
+
+  tasks.push(newTask);
+
+  apiLogger.audit('Task created', {
+    taskId: newTask.id,
+    createdBy: userId,
+    userRole,
+  });
+
+  return NextResponse.json(newTask, { status: 201 });
 }
 
 // ============================================
@@ -245,104 +230,85 @@ export async function POST(request: NextRequest) {
 // ============================================
 
 export async function PUT(request: NextRequest) {
-  try {
-    // CSRF 保护检查
-    const csrfMiddleware = createCsrfMiddleware();
-    const csrfResult = await csrfMiddleware(request);
-    if (csrfResult) {
-      return csrfResult;
+  // CSRF 保护检查
+  const csrfMiddleware = createCsrfMiddleware();
+  const csrfResult = await csrfMiddleware(request);
+  if (csrfResult) {
+    return csrfResult;
+  }
+
+  // 认证检查
+  const token = extractToken(request);
+  let userId = 'anonymous';
+  let userRole = 'user';
+  
+  if (token) {
+    const payload = await verifyToken(token);
+    if (!payload) {
+      return authError('Invalid authentication token', request);
     }
+    userId = payload.sub;
+    userRole = payload.role;
+  }
 
-    // 认证检查
-    const token = extractToken(request);
-    let userId = 'anonymous';
-    let userRole = 'user';
-    
-    if (token) {
-      const payload = await verifyToken(token);
-      if (!payload) {
-        return NextResponse.json(
-          { error: 'Invalid authentication token' },
-          { status: 401 }
-        );
-      }
-      userId = payload.sub;
-      userRole = payload.role;
-    }
+  const body = await request.json();
+  const { id, status, assignee, comment } = body;
 
-    const body = await request.json();
-    const { id, status, assignee, comment } = body;
+  if (!id) {
+    return validationError('Task ID is required', 'id', request);
+  }
 
-    if (!id) {
-      return NextResponse.json(
-        { error: 'Task ID is required' },
-        { status: 400 }
-      );
-    }
+  const taskIndex = tasks.findIndex(task => task.id === id);
+  if (taskIndex === -1) {
+    return notFoundError('Task', id, request);
+  }
 
-    const taskIndex = tasks.findIndex(task => task.id === id);
-    if (taskIndex === -1) {
-      return NextResponse.json(
-        { error: 'Task not found' },
-        { status: 404 }
-      );
-    }
+  const task = tasks[taskIndex];
 
-    const task = tasks[taskIndex];
-    const oldStatus = task.status;
-    const oldAssignee = task.assignee;
+  // 更新任务
+  if (status) {
+    task.status = status;
+    task.history.push({
+      timestamp: new Date().toISOString(),
+      status: status,
+      changedBy: userId,
+      assignee: assignee
+    });
+  }
 
-    // 更新任务
-    if (status) {
-      task.status = status;
+  if (assignee !== undefined) {
+    task.assignee = assignee;
+    if (!status) {
       task.history.push({
         timestamp: new Date().toISOString(),
-        status: status,
+        status: task.status,
         changedBy: userId,
         assignee: assignee
       });
     }
-
-    if (assignee !== undefined) {
-      task.assignee = assignee;
-      if (!status) {
-        task.history.push({
-          timestamp: new Date().toISOString(),
-          status: task.status,
-          changedBy: userId,
-          assignee: assignee
-        });
-      }
-    }
-
-    if (comment) {
-      task.comments.push({
-        id: `comment-${uuidv4().split('-')[0]}`,
-        content: comment,
-        author: userId,
-        timestamp: new Date().toISOString()
-      });
-    }
-
-    task.updatedAt = new Date().toISOString();
-
-    tasks[taskIndex] = task;
-
-    apiLogger.audit('Task updated', {
-      taskId: task.id,
-      updatedBy: userId,
-      userRole,
-      changes: { status, assignee, comment: !!comment },
-    });
-
-    return NextResponse.json(task);
-  } catch (error) {
-    apiLogger.error('Error updating task', error);
-    return NextResponse.json(
-      { error: 'Failed to update task', message: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 400 }
-    );
   }
+
+  if (comment) {
+    task.comments.push({
+      id: `comment-${uuidv4().split('-')[0]}`,
+      content: comment,
+      author: userId,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  task.updatedAt = new Date().toISOString();
+
+  tasks[taskIndex] = task;
+
+  apiLogger.audit('Task updated', {
+    taskId: task.id,
+    updatedBy: userId,
+    userRole,
+    changes: { status, assignee, comment: !!comment },
+  });
+
+  return successResponse(task);
 }
 
 // ============================================
@@ -350,75 +316,52 @@ export async function PUT(request: NextRequest) {
 // ============================================
 
 export async function DELETE(request: NextRequest) {
-  try {
-    // CSRF 保护检查
-    const csrfMiddleware = createCsrfMiddleware();
-    const csrfResult = await csrfMiddleware(request);
-    if (csrfResult) {
-      return csrfResult;
-    }
-
-    // 认证检查
-    const token = extractToken(request);
-    if (!token) {
-      return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      );
-    }
-
-    const payload = await verifyToken(token);
-    if (!payload) {
-      return NextResponse.json(
-        { error: 'Invalid or expired token' },
-        { status: 401 }
-      );
-    }
-
-    // 管理员权限检查
-    if (!isAdmin(payload)) {
-      return NextResponse.json(
-        { error: 'Admin access required to delete tasks' },
-        { status: 403 }
-      );
-    }
-
-    const { searchParams } = new URL(request.url);
-    const taskId = searchParams.get('id');
-
-    if (!taskId) {
-      return NextResponse.json(
-        { error: 'Task ID is required' },
-        { status: 400 }
-      );
-    }
-
-    const taskIndex = tasks.findIndex(task => task.id === taskId);
-    if (taskIndex === -1) {
-      return NextResponse.json(
-        { error: 'Task not found' },
-        { status: 404 }
-      );
-    }
-
-    const deletedTask = tasks[taskIndex];
-    tasks.splice(taskIndex, 1);
-
-    apiLogger.audit('Task deleted by admin', {
-      taskId: deletedTask.id,
-      deletedBy: payload.email,
-    });
-
-    return NextResponse.json({
-      success: true,
-      message: 'Task deleted successfully',
-      task: deletedTask,
-    });
-  } catch (error) {
-    apiLogger.error('Error deleting task', error);
-    return NextResponse.json(
-      { error: 'Failed to delete task', message: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 400 }
-    );
+  // CSRF 保护检查
+  const csrfMiddleware = createCsrfMiddleware();
+  const csrfResult = await csrfMiddleware(request);
+  if (csrfResult) {
+    return csrfResult;
   }
+
+  // 认证检查
+  const token = extractToken(request);
+  if (!token) {
+    return authError('Authentication required', request);
+  }
+
+  const payload = await verifyToken(token);
+  if (!payload) {
+    return authError('Invalid or expired token', request);
+  }
+
+  // 管理员权限检查
+  if (!isAdmin(payload)) {
+    return forbiddenError('Admin access required to delete tasks', request);
+  }
+
+  const { searchParams } = new URL(request.url);
+  const taskId = searchParams.get('id');
+
+  if (!taskId) {
+    return validationError('Task ID is required', 'id', request);
+  }
+
+  const taskIndex = tasks.findIndex(task => task.id === taskId);
+  if (taskIndex === -1) {
+    return notFoundError('Task', taskId, request);
+  }
+
+  const deletedTask = tasks[taskIndex];
+  tasks.splice(taskIndex, 1);
+
+  apiLogger.audit('Task deleted by admin', {
+    taskId: deletedTask.id,
+    deletedBy: payload.email,
+  });
+
+  return successResponse({
+    success: true,
+    message: 'Task deleted successfully',
+    task: deletedTask,
+  });
 }
