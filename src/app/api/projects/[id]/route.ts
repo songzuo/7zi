@@ -8,7 +8,7 @@ import { createCsrfMiddleware } from '@/lib/security/csrf';
 import { apiLogger } from '@/lib/logger';
 import { getProjectById, updateProject, deleteProject } from '@/lib/data/projects';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const project = getProjectById(id);
@@ -37,7 +37,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   try {
     const csrfMiddleware = createCsrfMiddleware();
     const csrfResult = await csrfMiddleware(request);
@@ -81,7 +82,8 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   try {
     const csrfMiddleware = createCsrfMiddleware();
     const csrfResult = await csrfMiddleware(request);

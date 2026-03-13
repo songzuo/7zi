@@ -7,7 +7,7 @@ import { apiLogger } from '@/lib/logger';
 import { getProjectById } from '@/lib/data/projects';
 import { getTasksByProjectId } from '@/lib/data/tasks';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const project = getProjectById(id);
