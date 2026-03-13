@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
   // Docker 部署使用 standalone 输出模式
   output: 'standalone',
   
+  // 不预渲染任何页面
+  generateStaticParams: () => [],
+  
   // 构建性能优化
   experimental: {
     // 优化包处理
