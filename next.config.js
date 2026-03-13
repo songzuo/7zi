@@ -1,6 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  // 强制动态渲染
+  dynamic: 'force-dynamic',
+  
+  // 跳过 trailing slash 重定向
+  skipTrailingSlashRedirect: true,
+  
   experimental: {
     optimizePackageImports: [
       '@react-three/fiber',
