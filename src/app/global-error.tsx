@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { ErrorDisplay } from '@/components/ErrorDisplay';
 import { createLogger } from '@/lib/logger';
 import { captureError } from '@/lib/monitoring/errors';
+import { ErrorCategory, ErrorSeverity } from '@/lib/errors/types';
 
 const logger = createLogger('GlobalError');
 
@@ -32,8 +33,8 @@ export default function GlobalError({
 
     // 使用增强的错误追踪
     captureError(error, {
-      category: 'application' as any,
-      severity: 'fatal' as any,
+      category: 'application' as ErrorCategory,
+      severity: 'fatal' as ErrorSeverity,
       extra: {
         digest: error.digest,
         url: typeof window !== 'undefined' ? window.location.href : '',

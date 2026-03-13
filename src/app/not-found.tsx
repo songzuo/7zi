@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function NotFound() {
   return (
     <div style={{
@@ -14,7 +16,7 @@ export default function NotFound() {
       <p style={{ fontSize: '1.5rem', color: '#666', marginBottom: '2rem' }}>
         页面未找到
       </p>
-      <a 
+      <Link 
         href="/"
         style={{
           padding: '0.75rem 1.5rem',
@@ -28,7 +30,7 @@ export default function NotFound() {
         }}
       >
         返回首页
-      </a>
+      </Link>
     </div>
   );
 }

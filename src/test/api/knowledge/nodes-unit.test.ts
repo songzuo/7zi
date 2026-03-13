@@ -404,8 +404,8 @@ describe('Knowledge Nodes API 单元测试', () => {
 });
 
 describe('Knowledge Type 枚举测试', () => {
-  it('应该包含所有定义的知识类型', () => {
-    const { KnowledgeType } = require('@/lib/agents/knowledge-lattice');
+  it('应该包含所有定义的知识类型', async () => {
+    const { KnowledgeType } = await import('@/lib/agents/knowledge-lattice');
     
     expect(KnowledgeType.CONCEPT).toBe('concept');
     expect(KnowledgeType.RULE).toBe('rule');
@@ -418,8 +418,8 @@ describe('Knowledge Type 枚举测试', () => {
 });
 
 describe('Knowledge Source 枚举测试', () => {
-  it('应该包含所有定义的知识来源', () => {
-    const { KnowledgeSource } = require('@/lib/agents/knowledge-lattice');
+  it('应该包含所有定义的知识来源', async () => {
+    const { KnowledgeSource } = await import('@/lib/agents/knowledge-lattice');
     
     expect(KnowledgeSource.USER).toBe('user');
     expect(KnowledgeSource.OBSERVATION).toBe('observation');

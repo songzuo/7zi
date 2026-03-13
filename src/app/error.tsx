@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { ErrorDisplay } from '@/components/ErrorDisplay';
 import { createLogger } from '@/lib/logger';
 import { captureError } from '@/lib/monitoring/errors';
+import { ErrorCategory, ErrorSeverity } from '@/lib/errors/types';
 
 const logger = createLogger('ErrorBoundary');
 
@@ -33,8 +34,8 @@ export default function Error({
     // 使用增强的错误追踪
     if (process.env.NODE_ENV === 'production') {
       captureError(error, {
-        category: 'application' as any,
-        severity: 'error' as any,
+        category: 'application' as ErrorCategory,
+        severity: 'error' as ErrorSeverity,
         extra: {
           digest: error.digest,
           url: typeof window !== 'undefined' ? window.location.href : '',
