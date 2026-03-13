@@ -1,16 +1,5 @@
-import Link from 'next/link';
+export const dynamic = "force-dynamic";
 
-// 强制动态渲染
-export const dynamic = 'force-dynamic';
-
-/**
- * 404 Not Found 页面
- */
 export default function NotFound() {
-  return (
-    <div>
-      <h1>404 - Page Not Found</h1>
-      <Link href="/">Go Home</Link>
-    </div>
-  );
+  return <div>404 - Page Not Found</div>;
 }
