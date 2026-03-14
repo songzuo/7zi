@@ -1,7 +1,17 @@
-import type { Task } from '@/lib/types/task-types';
+/**
+ * @fileoverview 任务数据持久化存储
+ * @module lib/data/tasks
+ * 
+ * @description
+ * 提供任务的持久化存储功能。数据存储在 data/tasks.json 文件中，
+ * 确保服务器重启后数据不丢失。
+ */
 
-// In-memory storage for tasks (in production, this would be a database)
-export const tasks: Task[] = [
+import type { Task } from '@/lib/types/task-types';
+import { ArrayStore } from '@/lib/store/persistent-store';
+
+// 初始示例数据
+const initialTasks: Task[] = [
   {
     id: 'task-001',
     title: '分析市场趋势',
@@ -10,7 +20,7 @@ export const tasks: Task[] = [
     priority: 'high',
     status: 'completed',
     assignee: 'agent-world-expert',
-    projectId: 'proj-001', // 关联到项目
+    projectId: 'proj-001',
     createdBy: 'user',
     createdAt: '2026-03-05T10:00:00Z',
     updatedAt: '2026-03-06T15:30:00Z',
@@ -30,7 +40,7 @@ export const tasks: Task[] = [
     priority: 'medium',
     status: 'in_progress',
     assignee: 'consultant',
-    projectId: 'proj-001', // 关联到项目
+    projectId: 'proj-001',
     createdBy: 'user',
     createdAt: '2026-03-06T09:00:00Z',
     updatedAt: '2026-03-06T09:00:00Z',
@@ -49,7 +59,7 @@ export const tasks: Task[] = [
     priority: 'high',
     status: 'in_progress',
     assignee: 'architect',
-    projectId: 'proj-002', // 关联到另一个项目
+    projectId: 'proj-002',
     createdBy: 'user',
     createdAt: '2026-03-06T11:00:00Z',
     updatedAt: '2026-03-06T11:00:00Z',
@@ -62,18 +72,33 @@ export const tasks: Task[] = [
   }
 ];
 
+// 创建持久化存储实例
+const taskStore = new ArrayStore<Task>('tasks', initialTasks);
+
+/**
+ * 获取所有任务
+ */
 export const getTasks = (): Task[] => {
-  return [...tasks];
+  return taskStore.getAll();
 };
 
+/**
+ * 根据 ID 获取任务
+ */
 export const getTaskById = (id: string): Task | undefined => {
-  return tasks.find(task => task.id === id);
+  return taskStore.find(task => task.id === id);
 };
 
+/**
+ * 根据项目 ID 获取任务
+ */
 export const getTasksByProjectId = (projectId: string): Task[] => {
-  return tasks.filter(task => task.projectId === projectId);
+  return taskStore.filter(task => task.projectId === projectId);
 };
 
+/**
+ * 创建任务
+ */
 export const createTask = (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'comments' | 'history'>): Task => {
   const newTask: Task = {
     ...task,
@@ -88,23 +113,76 @@ export const createTask = (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt' | '
     }]
   };
   
-  tasks.push(newTask);
+  taskStore.add(newTask);
   return newTask;
 };
 
+/**
+ * 更新任务
+ */
 export const updateTask = (id: string, updates: Partial<Task>): Task | null => {
-  const index = tasks.findIndex(task => task.id === id);
-  if (index === -1) return null;
+  let updatedTask: Task | null = null;
   
-  const updatedTask = { ...tasks[index], ...updates, updatedAt: new Date().toISOString() };
-  tasks[index] = updatedTask;
-  return updatedTask;
+  const found = taskStore.update(
+    task => task.id === id,
+    task => {
+      updatedTask = { ...task, ...updates, updatedAt: new Date().toISOString() };
+      return updatedTask;
+    }
+  );
+  
+  return found ? updatedTask : null;
 };
 
+/**
+ * 删除任务
+ */
 export const deleteTask = (id: string): Task | null => {
-  const index = tasks.findIndex(task => task.id === id);
-  if (index === -1) return null;
+  const task = taskStore.find(t => t.id === id);
+  if (!task) return null;
   
-  const deletedTask = tasks.splice(index, 1)[0];
-  return deletedTask;
+  taskStore.delete(t => t.id === id);
+  return task;
 };
+
+/**
+ * 添加任务评论
+ */
+export const addTaskComment = (taskId: string, author: string, content: string): Task | null => {
+  const task = taskStore.find(t => t.id === taskId);
+  if (!task) return null;
+  
+  const newComment = {
+    id: `comment-${Date.now()}`,
+    author,
+    content,
+    timestamp: new Date().toISOString()
+  };
+  
+  return updateTask(taskId, {
+    comments: [...task.comments, newComment]
+  });
+};
+
+/**
+ * 添加状态变更历史
+ */
+export const addTaskHistory = (taskId: string, status: Task['status'], changedBy: string, assignee?: string): Task | null => {
+  const task = taskStore.find(t => t.id === taskId);
+  if (!task) return null;
+  
+  const newHistory = {
+    timestamp: new Date().toISOString(),
+    status,
+    changedBy,
+    assignee
+  };
+  
+  return updateTask(taskId, {
+    status,
+    history: [...task.history, newHistory]
+  });
+};
+
+// 导出存储实例（供直接访问，如需要）
+export { taskStore };
