@@ -120,22 +120,22 @@ export const getTaskStats = (tasks: Task[]) => {
 /**
  * Validate task form data
  */
-export const validateTaskData = (data: Partial<Task>): { isValid: boolean; errors: string[] } => {
+export const validateTaskData = (data: Partial<Task> | null | undefined): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
   
-  if (!data.title || data.title.trim().length === 0) {
+  if (!data || !data.title || data.title.trim().length === 0) {
     errors.push('Title is required');
   }
   
-  if (!data.description || data.description.trim().length === 0) {
+  if (!data || !data.description || data.description.trim().length === 0) {
     errors.push('Description is required');
   }
   
-  if (!data.type) {
+  if (!data || !data.type) {
     errors.push('Task type is required');
   }
   
-  if (!data.priority) {
+  if (!data || !data.priority) {
     errors.push('Priority is required');
   }
   

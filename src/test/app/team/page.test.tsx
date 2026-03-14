@@ -5,58 +5,39 @@ import TeamPage from '@/app/[locale]/team/page'
 // Mock next-intl/server
 vi.mock('next-intl/server', () => ({
   setRequestLocale: vi.fn(),
-  getTranslations: vi.fn(() =>
-    vi.fn().mockImplementation((opts) => {
+  getTranslations: vi.fn(() => {
+    const t = vi.fn((opts: any) => {
       const translations: Record<string, Record<string, string | Record<string, string>>> = {
-        nav: {
-          home: 'Home',
-          about: 'About',
-          team: 'Team',
-          blog: 'Blog',
-          dashboard: 'Dashboard',
-          contact: 'Contact',
-        },
+        nav: { home: 'Home', about: 'About', team: 'Team', blog: 'Blog', dashboard: 'Dashboard', contact: 'Contact' },
         team: {
-          'hero.badge': 'Our Team',
-          'hero_title': 'Meet Our Experts',
-          'hero.description': '11 Professional AI Agents',
-          'hero.stats.members.value': '11',
-          'hero.stats.members.label': 'AI Agents',
-          'hero.stats.coverage.value': '100%',
-          'hero.stats.coverage.label': 'Coverage',
-          'hero.stats.support.value': '24/7',
-          'hero.stats.support.label': 'Support',
-          'collaboration.title': 'How We Work',
-          'collaboration.description': 'Seamless teamwork',
-          'collaboration.items.strategy.title': 'Strategy',
-          'collaboration.items.strategy.description': 'Strategic planning',
-          'collaboration.items.design.title': 'Design',
-          'collaboration.items.design.description': 'Creative design',
-          'collaboration.items.testing.title': 'Testing',
-          'collaboration.items.testing.description': 'Quality assurance',
-          'collaboration.items.promotion.title': 'Promotion',
-          'collaboration.items.promotion.description': 'Marketing',
-          'cta.title': 'Ready to Start?',
-          'cta.description': 'Contact us today',
-          'cta.button': 'Get in Touch',
+          'hero.badge': 'Our Team', 'hero_title': 'Meet Our Experts', 'hero.description': '11 Professional AI Agents',
+          'hero.stats.members.value': '11', 'hero.stats.members.label': 'AI Agents',
+          'hero.stats.coverage.value': '100%', 'hero.stats.coverage.label': 'Coverage',
+          'hero.stats.support.value': '24/7', 'hero.stats.support.label': 'Support',
+          'collaboration.title': 'How We Work', 'collaboration.description': 'Seamless teamwork',
+          'collaboration.items.strategy.title': 'Strategy', 'collaboration.items.strategy.description': 'Strategic planning',
+          'collaboration.items.design.title': 'Design', 'collaboration.items.design.description': 'Creative design',
+          'collaboration.items.testing.title': 'Testing', 'collaboration.items.testing.description': 'Quality assurance',
+          'collaboration.items.promotion.title': 'Promotion', 'collaboration.items.promotion.description': 'Marketing',
+          'cta.title': 'Ready to Start?', 'cta.description': 'Contact us today', 'cta.button': 'Get in Touch',
         },
         'team.members': {
-          'expert.name': 'Strategy Expert',
-          'expert.role': 'Strategist',
-          'expert.description': 'Strategic planning expert',
-          'expert.skills': 'Planning,Analysis',
-          'consultant.name': 'Consultant',
-          'consultant.role': 'Advisor',
-          'consultant.description': 'Business consultant',
-          'consultant.skills': 'Consulting,Advisory',
+          'expert.name': 'Strategy Expert', 'expert.role': 'Strategist', 'expert.description': 'Strategic planning expert',
+          'consultant.name': 'Consultant', 'consultant.role': 'Advisor', 'consultant.description': 'Business consultant',
         },
-        footer: {
-          copyright: '© 2024 7zi Studio',
-        },
-      }
-      return translations[opts.namespace] || {}
-    })
-  ),
+        footer: { copyright: '© 2024 7zi Studio' },
+      };
+      return translations[opts?.namespace] || {};
+    });
+    // Add raw method for skills
+    (t as any).raw = vi.fn((key: string) => {
+      const rawData: Record<string, string[]> = {
+        'expert.skills': ['Planning', 'Analysis'], 'consultant.skills': ['Consulting', 'Advisory'],
+      };
+      return rawData[key] || [];
+    });
+    return t;
+  }),
 }))
 
 // Mock ClientProviders

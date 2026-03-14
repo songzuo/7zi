@@ -1,8 +1,8 @@
 # 7zi-frontend 技术债务评估报告
 
 **评估日期**: 2026-03-13  
-**最后更新**: 2026-03-14 01:16 AM (Europe/Berlin)  
-**评估人**: 文档专家子代理  
+**最后更新**: 2026-03-14 2:48 PM (Europe/Berlin)  
+**评估人**: 主管（主代理）  
 **项目版本**: 0.2.0
 
 ---
@@ -20,6 +20,13 @@
 
 **总体评级**: B+ (良好，存在需关注的问题)
 
+### 2026-03-14 更新
+- 🟢 **博客评论系统 API**: ✅ 新建 `/api/comments` 端点 (GET, POST, PUT, DELETE)
+- 🟢 **Projects API 持久化**: ✅ 已从内存存储迁移到文件存储 (`data/projects.json`)
+- 🟢 **通知系统测试**: ✅ 新增 11 个单元测试，覆盖 CRUD 操作
+- 🟢 **Tasks API 持久化**: ✅ 已使用 ArrayStore 实现持久化 (之前已完成)
+- 🟢 **TypeScript 类型检查**: ✅ 所有类型错误已修复
+
 ### 2026-03-13 更新
 - 🟢 **Portfolio 模块**: ✅ 已完成并上线
 - 🟢 **Tasks AI 系统**: ✅ 已完成并上线
@@ -33,12 +40,13 @@
 - 🟡 **console 清理**: 🔄 进行中
 
 ### 2026-03-14 新发现问题 (来自代码质量审计)
-- 🔴 **API 内存存储**: 任务/项目 API 使用内存数组，服务器重启数据丢失
-- 🟡 **CSRF 中间件重复创建**: 每个 API 请求都创建新实例，应模块级别复用
-- 🟡 **EventEmitter 监听器限制**: KnowledgeLattice 未设置 maxListeners
-- 🟡 **缓存管理器单例**: getCacheManager() 忽略配置变化
-- 🟢 **未使用 loading 状态**: tasks/page.tsx 定义了 setLoading 但未使用
-- 🟢 **getFilteredTasks 效率**: 应使用 useMemo 优化
+- 🟢 **API 内存存储**: ✅ 已修复 - Projects API 已迁移到文件持久化 (`data/projects.json`)
+- 🟡 **CSRF 中间件重复创建**: 🔄 每个 API 请求都创建新实例，应模块级别复用 (部分修复)
+- 🟡 **EventEmitter 监听器限制**: 🔄 KnowledgeLattice 未设置 maxListeners
+- 🟡 **缓存管理器单例**: 🔄 getCacheManager() 忽略配置变化
+- 🟢 **未使用 loading 状态**: ✅ 已确认无需修复 (tasks/page.tsx 已使用 useMemo)
+- 🟢 **getFilteredTasks 效率**: ✅ 已使用 useMemo 优化 (tasks/page.tsx:48)
+- 🟢 **CSRF 中间件优化**: ✅ 已实现模块级单例缓存 (2026-03-14)
 
 ### 2026-03-11 历史问题
 - 🟢 **ESLint v10 兼容性问题**: ✅ 已通过降级到 v9.39.4 解决（2026-03-12）
@@ -411,6 +419,7 @@ src/app/api/tasks/             # 任务 API
 | ~~web-vitals 升级到 v5~~ | ~~0.5h~~ | 性能监控 | ✅ 已完成 |
 | ~~Dashboard 模块化重构~~ | ~~4-6h~~ | 代码可维护性 | ✅ 已完成 |
 | ~~AboutContent 模块化重构~~ | ~~4-6h~~ | 代码可维护性 | ✅ 已完成 |
+| ~~CSRF 中间件优化~~ | ~~1h~~ | 性能优化 | ✅ 已完成 (2026-03-14) |
 | ~~Portfolio 模块上线~~ | ~~8h~~ | 核心功能 | ✅ 已完成 (2026-03-13) |
 | ~~Tasks AI 系统上线~~ | ~~8h~~ | 核心功能 | ✅ 已完成 (2026-03-13) |
 | ~~Projects API 完整实现~~ | ~~6h~~ | 核心功能 | ✅ 已完成 (2026-03-13) |

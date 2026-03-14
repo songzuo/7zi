@@ -129,14 +129,18 @@ describe('projects data module', () => {
     });
 
     it('should set createdAt and updatedAt to current time', () => {
-      const before = new Date().toISOString();
+      const before = Date.now();
       const result = createProject(validProjectData);
-      const after = new Date().toISOString();
+      const after = Date.now();
       
-      expect(result.createdAt).toBeGreaterThanOrEqual(before);
-      expect(result.createdAt).toBeLessThanOrEqual(after);
-      expect(result.updatedAt).toBeGreaterThanOrEqual(before);
-      expect(result.updatedAt).toBeLessThanOrEqual(after);
+      // Convert ISO strings to timestamps for comparison
+      const createdAtTime = new Date(result.createdAt).getTime();
+      const updatedAtTime = new Date(result.updatedAt).getTime();
+      
+      expect(createdAtTime).toBeGreaterThanOrEqual(before);
+      expect(createdAtTime).toBeLessThanOrEqual(after);
+      expect(updatedAtTime).toBeGreaterThanOrEqual(before);
+      expect(updatedAtTime).toBeLessThanOrEqual(after);
     });
 
     it('should handle project with optional fields', () => {

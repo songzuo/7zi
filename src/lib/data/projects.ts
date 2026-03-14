@@ -1,8 +1,22 @@
+/**
+ * @fileoverview 项目数据持久化存储
+ * @module lib/data/projects
+ * 
+ * @description
+ * 提供项目的持久化存储功能。数据存储在 data/projects.json 文件中，
+ * 确保服务器重启后数据不丢失。
+ */
+
 import type { Project, ProjectStatus, ProjectPriority, ProjectTeamMember } from '@/types/project-types';
 import type { Task } from '@/lib/types/task-types';
 import { v4 as uuidv4 } from 'uuid';
+import fs from 'fs';
+import path from 'path';
 
-// Define a simpler project data type for in-memory storage
+// 数据文件路径
+const DATA_FILE = path.join(process.cwd(), 'data', 'projects.json');
+
+// 定义项目数据类型
 export interface ProjectData {
   id: string;
   slug?: string;
@@ -37,8 +51,8 @@ export interface ProjectData {
   createdBy?: string;
 }
 
-// In-memory storage for projects (in production, this would be a database)
-export const projects: ProjectData[] = [
+// 初始示例数据
+const initialProjects: ProjectData[] = [
   {
     id: 'proj-001',
     title: 'AI-Powered Analytics Dashboard',
@@ -95,24 +109,90 @@ export const projects: ProjectData[] = [
   }
 ];
 
+// 内存缓存
+let projectsCache: ProjectData[] | null = null;
+
 /**
- * Get all projects
+ * 从文件加载项目数据
  */
-export function getProjects(): ProjectData[] {
-  return [...projects];
+function loadProjects(): ProjectData[] {
+  if (projectsCache) {
+    return projectsCache;
+  }
+  
+  try {
+    if (fs.existsSync(DATA_FILE)) {
+      const data = fs.readFileSync(DATA_FILE, 'utf-8');
+      projectsCache = JSON.parse(data);
+      return projectsCache!;
+    }
+  } catch (error) {
+    console.error('Error loading projects from file:', error);
+  }
+  
+  // 如果文件不存在，使用初始数据并保存
+  projectsCache = [...initialProjects];
+  saveProjects(projectsCache);
+  return projectsCache;
 }
 
 /**
- * Get project by ID
+ * 保存项目数据到文件
+ */
+function saveProjects(projects: ProjectData[]): void {
+  try {
+    const dir = path.dirname(DATA_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(DATA_FILE, JSON.stringify(projects, null, 2));
+  } catch (error) {
+    console.error('Error saving projects to file:', error);
+  }
+}
+
+/**
+ * 同步缓存到文件
+ */
+function syncToFile(): void {
+  if (projectsCache) {
+    saveProjects(projectsCache);
+  }
+}
+
+// 初始化时加载数据
+loadProjects();
+
+/**
+ * 项目列表 (导出用于兼容)
+ * 注意：直接修改此数组不会保存到文件，请使用 createProject/updateProject/deleteProject
+ */
+export const projects: ProjectData[] = [];
+
+// 初始化 projects 导出
+projects.push(...loadProjects());
+
+/**
+ * 获取所有项目
+ */
+export function getProjects(): ProjectData[] {
+  return [...loadProjects()];
+}
+
+/**
+ * 根据ID获取项目
  */
 export function getProjectById(id: string): ProjectData | undefined {
+  const projects = loadProjects();
   return projects.find(project => project.id === id);
 }
 
 /**
- * Create a new project
+ * 创建新项目
  */
 export function createProject(project: Omit<ProjectData, 'id' | 'createdAt' | 'updatedAt'>): ProjectData {
+  const projects = loadProjects();
+  
   const newProject: ProjectData = {
     ...project,
     id: `proj-${uuidv4().split('-')[0]}`,
@@ -121,14 +201,19 @@ export function createProject(project: Omit<ProjectData, 'id' | 'createdAt' | 'u
   };
   
   projects.push(newProject);
+  projectsCache = projects;
+  syncToFile();
+  
   return newProject;
 }
 
 /**
- * Update an existing project
+ * 更新现有项目
  */
 export function updateProject(id: string, updates: Partial<ProjectData>): ProjectData | null {
+  const projects = loadProjects();
   const index = projects.findIndex(project => project.id === id);
+  
   if (index === -1) {
     return null;
   }
@@ -136,53 +221,63 @@ export function updateProject(id: string, updates: Partial<ProjectData>): Projec
   const updatedProject = {
     ...projects[index],
     ...updates,
-    id, // Ensure ID doesn't change
+    id, // 确保ID不变
     updatedAt: new Date().toISOString()
   };
   
   projects[index] = updatedProject;
+  projectsCache = projects;
+  syncToFile();
+  
   return updatedProject;
 }
 
 /**
- * Delete a project
+ * 删除项目
  */
 export function deleteProject(id: string): ProjectData | null {
+  const projects = loadProjects();
   const index = projects.findIndex(project => project.id === id);
+  
   if (index === -1) {
     return null;
   }
   
   const deletedProject = projects.splice(index, 1)[0];
+  projectsCache = projects;
+  syncToFile();
+  
   return deletedProject;
 }
 
 /**
- * Get projects by status
+ * 按状态获取项目
  */
 export function getProjectsByStatus(status: ProjectStatus): ProjectData[] {
+  const projects = loadProjects();
   return projects.filter(project => project.status === status);
 }
 
 /**
- * Get projects by priority
+ * 按优先级获取项目
  */
 export function getProjectsByPriority(priority: ProjectPriority): ProjectData[] {
+  const projects = loadProjects();
   return projects.filter(project => project.priority === priority);
 }
 
 /**
- * Get projects by member
+ * 按成员获取项目
  */
 export function getProjectsByMember(memberId: string): ProjectData[] {
+  const projects = loadProjects();
   return projects.filter(project => project.members.includes(memberId));
 }
 
 /**
- * Get tasks for a specific project
+ * 获取特定项目的任务
  */
 export function getProjectTasks(projectId: string): Task[] {
-  // This will be implemented in the tasks data module
-  // For now, return empty array
+  // 这将在 tasks 数据模块中实现
   return [];
 }

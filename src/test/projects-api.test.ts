@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 import { GET, POST, PUT, DELETE } from '@/app/api/projects/[id]/route';
 import { projects } from '@/lib/data/projects';
-import { tasks } from '@/lib/data/tasks';
+import { tasks as allTasks } from '@/lib/data/tasks';
 
 // Mock the auth and security modules
 vi.mock('@/lib/security/auth', () => ({
@@ -33,7 +33,7 @@ describe('Projects API', () => {
     
     // Reset test data
     projects.length = 0;
-    tasks.length = 0;
+    allTasks.length = 0;
   });
 
   describe('GET /api/projects', () => {

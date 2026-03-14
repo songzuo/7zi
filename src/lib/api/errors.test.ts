@@ -215,9 +215,7 @@ describe('api/errors', () => {
   describe('withErrorHandler', () => {
     it('should return handler result on success', async () => {
       const mockHandler = vi.fn().mockResolvedValue({ success: true } as unknown as Response);
-      const wrappedHandler = withErrorHandler(mockHandler);
-      
-      const result = await wrappedHandler();
+      const result = await withErrorHandler(mockHandler);
       expect(result).toEqual({ success: true });
     });
 
@@ -225,27 +223,24 @@ describe('api/errors', () => {
       const mockHandler = vi.fn().mockRejectedValue(
         new ApiError(ErrorCode.NOT_FOUND, 'Not found')
       );
-      const wrappedHandler = withErrorHandler(mockHandler);
       
-      const result = await wrappedHandler() as { json: Record<string, unknown>; status: number };
+      const result = await withErrorHandler(mockHandler) as { json: Record<string, unknown>; status: number };
       expect(result.status).toBe(404);
       expect(result.json.error.code).toBe(ErrorCode.NOT_FOUND);
     });
 
     it('should handle generic Error', async () => {
       const mockHandler = vi.fn().mockRejectedValue(new Error('Something went wrong'));
-      const wrappedHandler = withErrorHandler(mockHandler);
       
-      const result = await wrappedHandler() as { json: Record<string, unknown>; status: number };
+      const result = await withErrorHandler(mockHandler) as { json: Record<string, unknown>; status: number };
       expect(result.status).toBe(500);
       expect(result.json.error.code).toBe(ErrorCode.INTERNAL_ERROR);
     });
 
     it('should handle non-Error throws', async () => {
       const mockHandler = vi.fn().mockRejectedValue('string error');
-      const wrappedHandler = withErrorHandler(mockHandler);
       
-      const result = await wrappedHandler() as { json: Record<string, unknown>; status: number };
+      const result = await withErrorHandler(mockHandler) as { json: Record<string, unknown>; status: number };
       expect(result.status).toBe(500);
       expect(result.json.error.message).toBe('An unexpected error occurred');
     });

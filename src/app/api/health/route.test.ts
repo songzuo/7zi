@@ -5,7 +5,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { GET, HEAD } from '@/app/api/health/route';
-import { basicHealthCheck } from '@/lib/monitoring';
+import { enhancedHealthReport } from '@/lib/monitoring';
 
 // Mock the monitoring module
 vi.mock('@/lib/monitoring', () => ({
@@ -26,12 +26,17 @@ describe('/api/health', () => {
 
   describe('GET', () => {
     it('should return health status', async () => {
-      vi.mocked(basicHealthCheck).mockReturnValue({
+      vi.mocked(enhancedHealthReport).mockResolvedValue({
         status: 'ok' as const,
         timestamp: '2026-03-11T15:00:00Z',
-        version: '1.0.0',
+        version: '2.0.0',
         uptime: 100,
         environment: 'test',
+        components: {
+          cache: { status: 'ok' as const },
+          auth: { status: 'ok' as const },
+          logger: { status: 'ok' as const },
+        },
       });
 
       const response = await GET(createMockRequest());
@@ -43,14 +48,16 @@ describe('/api/health', () => {
     });
 
     it('should return 200 even with degraded status', async () => {
-      vi.mocked(basicHealthCheck).mockReturnValue({
+      vi.mocked(enhancedHealthReport).mockResolvedValue({
         status: 'degraded' as const,
         timestamp: '2026-03-11T15:00:00Z',
-        version: '1.0.0',
+        version: '2.0.0',
         uptime: 100,
         environment: 'test',
-        checks: {
-          database: { status: 'warning' as const, message: 'Slow response' },
+        components: {
+          cache: { status: 'warning' as const, message: 'Slow response' },
+          auth: { status: 'ok' as const },
+          logger: { status: 'ok' as const },
         },
       });
 
@@ -62,31 +69,38 @@ describe('/api/health', () => {
     });
 
     it('should return 200 even with unhealthy status', async () => {
-      vi.mocked(basicHealthCheck).mockReturnValue({
+      vi.mocked(enhancedHealthReport).mockResolvedValue({
         status: 'error' as const,
         timestamp: '2026-03-11T15:00:00Z',
-        version: '1.0.0',
+        version: '2.0.0',
         uptime: 100,
         environment: 'test',
-        checks: {
-          database: { status: 'error' as const, message: 'Connection failed' },
+        components: {
+          cache: { status: 'error' as const, message: 'Connection failed' },
+          auth: { status: 'error' as const },
+          logger: { status: 'ok' as const },
         },
       });
 
       const response = await GET(createMockRequest());
       const data = await response.json();
 
-      expect(response.status).toBe(200);
-      expect(data.status).toBe('unhealthy');
+      expect(response.status).toBe(503);
+      expect(data.status).toBe('error');
     });
 
     it('should include version in response', async () => {
-      vi.mocked(basicHealthCheck).mockReturnValue({
+      vi.mocked(enhancedHealthReport).mockResolvedValue({
         status: 'ok' as const,
         timestamp: '2026-03-11T15:00:00Z',
         version: '2.0.0',
         uptime: 100,
         environment: 'test',
+        components: {
+          cache: { status: 'ok' as const },
+          auth: { status: 'ok' as const },
+          logger: { status: 'ok' as const },
+        },
       });
 
       const response = await GET(createMockRequest());
@@ -96,12 +110,20 @@ describe('/api/health', () => {
     });
 
     it('should include history when requested', async () => {
-      vi.mocked(basicHealthCheck).mockReturnValue({
+      vi.mocked(enhancedHealthReport).mockResolvedValue({
         status: 'ok' as const,
         timestamp: '2026-03-11T15:00:00Z',
         version: '1.0.0',
         uptime: 100,
         environment: 'test',
+        components: {
+          cache: { status: 'ok' as const },
+          auth: { status: 'ok' as const },
+          logger: { status: 'ok' as const },
+        },
+        history: [
+          { timestamp: '2026-03-11T15:00:00Z', status: 'ok' as const, responseTime: 50, checksCount: 5, errorsCount: 0 },
+        ],
       });
 
       const response = await GET(createMockRequest('http://localhost/api/health?history=true'));

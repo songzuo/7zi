@@ -52,7 +52,8 @@ export const updateTaskSchema = z.object({
   title: z.string()
     .min(1, '任务标题不能为空')
     .max(200, '任务标题不能超过200个字符')
-    .trim(),
+    .trim()
+    .optional(),
   description: z.string()
     .max(5000, '任务描述不能超过5000个字符')
     .optional(),
@@ -64,7 +65,7 @@ export const updateTaskSchema = z.object({
     .optional()
     .nullable(),
 }).strict().refine(data => Object.keys(data).length > 0, {
-  message: '更新数据不能为空'
+  message: '至少需要提供一个更新字段'
 });
 
 // 添加评论 Schema
@@ -123,5 +124,7 @@ export const batchUpdateSchema = z.object({
       .max(100, '分配者ID不能超过100个字符')
       .optional()
       .nullable(),
-  }).strict(),
+  }).strict().refine(data => Object.keys(data).length > 0, {
+    message: '至少需要提供一个更新字段'
+  }),
 }).strict();

@@ -112,14 +112,39 @@ export interface CsrfMiddlewareOptions {
 }
 
 /**
+ * 默认 CSRF 中间件实例 (模块级单例，避免重复创建)
+ * 缓存默认配置的中间件函数
+ */
+let defaultCsrfMiddleware: ((request: NextRequest) => Promise<NextResponse | null>) | null = null;
+
+/**
  * 创建 CSRF 保护中间件
+ * 优化：使用单例模式缓存默认配置的中间件
  */
 export function createCsrfMiddleware(options: CsrfMiddlewareOptions = {}) {
-  const {
-    exemptPaths = CSRF_EXEMPT_PATHS,
-    protectedMethods = STATE_CHANGING_METHODS,
-  } = options;
+  // 如果使用默认配置，返回缓存的单例
+  if (Object.keys(options).length === 0) {
+    if (!defaultCsrfMiddleware) {
+      defaultCsrfMiddleware = createCsrfMiddlewareInternal(CSRF_EXEMPT_PATHS, STATE_CHANGING_METHODS);
+    }
+    return defaultCsrfMiddleware;
+  }
 
+  return createCsrfMiddlewareInternal(
+    options.exemptPaths || CSRF_EXEMPT_PATHS,
+    options.protectedMethods || STATE_CHANGING_METHODS,
+    options.customValidate
+  );
+}
+
+/**
+ * 内部函数：创建实际的中间件逻辑
+ */
+function createCsrfMiddlewareInternal(
+  exemptPaths: string[],
+  protectedMethods: string[],
+  customValidate?: (token: string, request: NextRequest) => boolean | Promise<boolean>
+) {
   return async (request: NextRequest): Promise<NextResponse | null> => {
     const { pathname } = request.nextUrl;
 
@@ -162,8 +187,8 @@ export function createCsrfMiddleware(options: CsrfMiddlewareOptions = {}) {
     }
 
     // 自定义验证 (如果有)
-    if (options.customValidate) {
-      const isValid = await options.customValidate(headerToken, request);
+    if (customValidate) {
+      const isValid = await customValidate(headerToken, request);
       if (!isValid) {
         return NextResponse.json(
           { error: 'CSRF token validation failed', code: 'CSRF_INVALID' },
