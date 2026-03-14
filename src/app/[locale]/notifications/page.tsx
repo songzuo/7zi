@@ -505,7 +505,7 @@ export default function NotificationsPage() {
       });
       setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
     } catch (err) {
-      console.error('Failed to mark as read:', err);
+      console.warn('[Notifications] Failed to mark as read:', err);
     }
   };
   
@@ -525,7 +525,7 @@ export default function NotificationsPage() {
       ));
       clear();
     } catch (err) {
-      console.error('Failed to mark as read:', err);
+      console.warn('[Notifications] Failed to mark as read:', err);
     }
   };
   
@@ -539,7 +539,7 @@ export default function NotificationsPage() {
       });
       setNotifications(prev => prev.map(n => ({ ...n, read: true })));
     } catch (err) {
-      console.error('Failed to mark all as read:', err);
+      console.warn('[Notifications] Failed to mark all as read:', err);
     }
   };
   
@@ -549,7 +549,7 @@ export default function NotificationsPage() {
       await fetch(`/api/notifications?id=${id}`, { method: 'DELETE' });
       setNotifications(prev => prev.filter(n => n.id !== id));
     } catch (err) {
-      console.error('Failed to delete notification:', err);
+      console.warn('[Notifications] Failed to delete notification:', err);
     }
   };
   
@@ -572,7 +572,7 @@ export default function NotificationsPage() {
       setNotifications(prev => prev.filter(n => !ids.includes(n.id)));
       clear();
     } catch (err) {
-      console.error('Failed to delete notifications:', err);
+      console.warn('[Notifications] Failed to delete notifications:', err);
     }
   };
   
@@ -587,7 +587,7 @@ export default function NotificationsPage() {
       await fetch('/api/notifications?deleteAll=true', { method: 'DELETE' });
       setNotifications([]);
     } catch (err) {
-      console.error('Failed to clear notifications:', err);
+      console.warn('[Notifications] Failed to clear notifications:', err);
     }
   };
   

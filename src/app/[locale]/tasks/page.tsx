@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useTasksStore } from '@/lib/store/tasks-store';
 import { useMembers } from '@/stores/dashboardStore';
 import TaskCard from './components/TaskCard';
@@ -20,7 +20,6 @@ export default function TasksPage() {
   const members = useMembers();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [loading] = useState(false);
 
   const handleCreateTask = (data: { title: string; description: string; type: Task['type']; priority: Task['priority']; assignee?: string }) => {
     try {
@@ -63,20 +62,9 @@ export default function TasksPage() {
     }
   };
 
-  const getFilteredTasks = () => {
+  const filteredTasks = useMemo(() => {
     return tasks.filter(task => !selectedTask || task.id === selectedTask.id);
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <LoadingSpinner size="lg" />
-          <p className="mt-4 text-gray-600">Loading tasks...</p>
-        </div>
-      </div>
-    );
-  }
+  }, [tasks, selectedTask]);
 
   return (
     <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -120,7 +108,7 @@ export default function TasksPage() {
       )}
 
       <div className="space-y-6">
-        {getFilteredTasks().map((task) => (
+        {filteredTasks.map((task) => (
           <TaskCard
             key={task.id}
             task={task}

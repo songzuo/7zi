@@ -117,6 +117,7 @@ export class KnowledgeLattice extends EventEmitter {
 
   constructor() {
     super();
+    this.setMaxListeners(100);
     this.initializeIndexes();
   }
 
