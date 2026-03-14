@@ -17,7 +17,9 @@ vi.mock('@/lib/security/auth', () => ({
 }));
 
 vi.mock('@/lib/security/csrf', () => ({
-  createCsrfMiddleware: vi.fn(),
+  createCsrfMiddleware: vi.fn(() => vi.fn(() => null)),
+  generateCsrfToken: vi.fn(() => 'mock-csrf-token'),
+  setCsrfTokenCookie: vi.fn(() => new Headers()),
 }));
 
 vi.mock('@/lib/logger', () => ({

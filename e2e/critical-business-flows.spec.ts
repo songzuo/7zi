@@ -780,7 +780,8 @@ test.describe('UI 页面交互测试', () => {
     await page.waitForLoadState('networkidle');
     
     // 验证页面加载
-    expect(page.url()).toContain('notifications') || expect(page.locator('body')).toBeVisible();
+    expect(page.url()).toContain('notifications');
+    expect(page.locator('body')).toBeVisible();
   });
   
   test('Dashboard 页面应该正确加载', async ({ page }) => {
