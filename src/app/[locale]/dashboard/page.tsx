@@ -41,7 +41,7 @@ export default function DashboardPage() {
         <h1 className="text-4xl font-bold text-zinc-900 dark:text-white mb-8">
           {locale === "zh" ? "实时看板" : "Dashboard"}
         </h1>
-        <LazyProjectDashboard loading={<DashboardSkeleton />} />
+        <LazyProjectDashboard />
       </div>
     </div>
   );

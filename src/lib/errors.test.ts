@@ -1,30 +1,46 @@
 /**
- * 测试 src/lib/errors.ts
+ * 测试 src/lib/errors/index.ts
  */
 
 import { describe, it, expect } from 'vitest';
 import {
-  createAppError,
+  toAppError,
   formatErrorMessage,
   isNetworkError,
-  getErrorCode,
   getUserFriendlyMessage,
   ErrorCodes,
+  ErrorCategory,
+  AppError,
+  createValidationError,
+  createNotFoundError,
+  createAuthError,
+  createNetworkError,
+  createApiError,
 } from './errors';
 
 describe('errors', () => {
-  describe('createAppError', () => {
-    it('should create an error with message only', () => {
-      const error = createAppError('Test error');
-      expect(error).toBeInstanceOf(Error);
+  describe('toAppError', () => {
+    it('should convert Error instance to AppError', () => {
+      const error = toAppError(new Error('Test error'));
+      expect(error).toBeInstanceOf(AppError);
       expect(error.message).toBe('Test error');
     });
 
-    it('should create an error with code and statusCode', () => {
-      const error = createAppError('Not found', 'NOT_FOUND', 404);
-      expect(error.message).toBe('Not found');
-      expect(error.code).toBe('NOT_FOUND');
-      expect(error.statusCode).toBe(404);
+    it('should convert string to AppError', () => {
+      const error = toAppError('String error');
+      expect(error).toBeInstanceOf(AppError);
+      expect(error.message).toBe('String error');
+    });
+
+    it('should preserve AppError instance', () => {
+      const original = new AppError('Original', { code: ErrorCodes.VALIDATION_ERROR });
+      const converted = toAppError(original);
+      expect(converted).toBe(original);
+    });
+
+    it('should merge context when provided', () => {
+      const error = toAppError(new Error('Test'), { userId: '123' });
+      expect(error.context.userId).toBe('123');
     });
   });
 
@@ -43,6 +59,13 @@ describe('errors', () => {
       expect(formatErrorMessage(undefined)).toBe('发生未知错误');
       expect(formatErrorMessage({})).toBe('发生未知错误');
     });
+
+    it('should format AppError', () => {
+      const error = new AppError('Test error', {
+        userMessage: 'User friendly message'
+      });
+      expect(formatErrorMessage(error)).toBe('User friendly message');
+    });
   });
 
   describe('isNetworkError', () => {
@@ -51,6 +74,7 @@ describe('errors', () => {
       expect(isNetworkError(new Error('fetch timeout'))).toBe(true);
       expect(isNetworkError(new Error('request timeout'))).toBe(true);
       expect(isNetworkError(new Error('request aborted'))).toBe(true);
+      expect(isNetworkError(new Error('connection refused'))).toBe(true);
     });
 
     it('should not detect non-network errors', () => {
@@ -58,41 +82,17 @@ describe('errors', () => {
       expect(isNetworkError(new Error('something went wrong'))).toBe(false);
     });
 
+    it('should detect AppError with NETWORK category', () => {
+      const error = new AppError('Network error', {
+        category: ErrorCategory.NETWORK
+      });
+      expect(isNetworkError(error)).toBe(true);
+    });
+
     it('should handle non-Error inputs', () => {
       expect(isNetworkError('string')).toBe(false);
       expect(isNetworkError(null)).toBe(false);
       expect(isNetworkError(undefined)).toBe(false);
-    });
-  });
-
-  describe('getErrorCode', () => {
-    it('should return code from AppError', () => {
-      const error = createAppError('Test', 'VALIDATION_ERROR', 400);
-      expect(getErrorCode(error)).toBe('VALIDATION_ERROR');
-    });
-
-    it('should detect network errors', () => {
-      const error = new Error('network failed');
-      expect(getErrorCode(error)).toBe(ErrorCodes.NETWORK_ERROR);
-    });
-
-    it('should map status codes to error codes', () => {
-      const error401 = { ...new Error('Unauthorized'), statusCode: 401 } as Error & { statusCode: number };
-      expect(getErrorCode(error401)).toBe(ErrorCodes.UNAUTHORIZED);
-
-      const error403 = { ...new Error('Forbidden'), statusCode: 403 } as Error & { statusCode: number };
-      expect(getErrorCode(error403)).toBe(ErrorCodes.FORBIDDEN);
-
-      const error404 = { ...new Error('Not found'), statusCode: 404 } as Error & { statusCode: number };
-      expect(getErrorCode(error404)).toBe(ErrorCodes.NOT_FOUND);
-
-      const error500 = { ...new Error('Server error'), statusCode: 500 } as Error & { statusCode: number };
-      expect(getErrorCode(error500)).toBe(ErrorCodes.SERVER_ERROR);
-    });
-
-    it('should return UNKNOWN for unrecognized errors', () => {
-      expect(getErrorCode(new Error('random error'))).toBe(ErrorCodes.UNKNOWN);
-      expect(getErrorCode('string')).toBe(ErrorCodes.UNKNOWN);
     });
   });
 
@@ -107,7 +107,7 @@ describe('errors', () => {
     });
 
     it('should return default message for unknown code', () => {
-      expect(getUserFriendlyMessage('UNKNOWN_CODE')).toBe('发生未知错误，请稍后重试');
+      expect(getUserFriendlyMessage('UNKNOWN_CODE' as any)).toBe('发生未知错误，请稍后重试');
     });
   });
 
@@ -120,6 +120,50 @@ describe('errors', () => {
       expect(ErrorCodes.NETWORK_ERROR).toBe('NETWORK_ERROR');
       expect(ErrorCodes.SERVER_ERROR).toBe('SERVER_ERROR');
       expect(ErrorCodes.UNKNOWN).toBe('UNKNOWN');
+    });
+  });
+
+  describe('createValidationError', () => {
+    it('should create validation error with field', () => {
+      const error = createValidationError('Invalid email', 'email');
+      expect(error.code).toBe(ErrorCodes.VALIDATION_ERROR);
+      expect(error.context.field).toBe('email');
+      expect(error.userMessage).toContain('email');
+    });
+  });
+
+  describe('createNotFoundError', () => {
+    it('should create not found error', () => {
+      const error = createNotFoundError('User');
+      expect(error.code).toBe(ErrorCodes.NOT_FOUND);
+      expect(error.message).toContain('User');
+    });
+  });
+
+  describe('createAuthError', () => {
+    it('should create auth error', () => {
+      const error = createAuthError();
+      expect(error.code).toBe(ErrorCodes.UNAUTHORIZED);
+    });
+  });
+
+  describe('createNetworkError', () => {
+    it('should create network error', () => {
+      const error = createNetworkError('Connection failed');
+      expect(error.code).toBe(ErrorCodes.NETWORK_ERROR);
+      expect(error.category).toBe('network');
+    });
+  });
+
+  describe('createApiError', () => {
+    it('should create API error with status code', () => {
+      const error = createApiError('Bad request', 400);
+      expect(error.code).toBe(ErrorCodes.VALIDATION_ERROR);
+    });
+
+    it('should create server error for 5xx', () => {
+      const error = createApiError('Server error', 500);
+      expect(error.code).toBe(ErrorCodes.SERVER_ERROR);
     });
   });
 });

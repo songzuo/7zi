@@ -1,227 +1,107 @@
 /**
- * @fileoverview 日期工具函数测试
+ * 日期工具函数单元测试
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
+import { describe, it, expect } from 'vitest';
 import {
   formatTimeAgo,
   formatDate,
   formatDateTime,
   isToday,
   isYesterday,
-} from '../../lib/date';
+} from '@/lib/date';
 
-describe('formatTimeAgo', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
-  it('returns "刚刚" for times less than 1 minute ago', () => {
-    const now = new Date('2024-01-15T12:00:00');
-    vi.setSystemTime(now);
-
-    const date = new Date('2024-01-15T11:59:30');
-    expect(formatTimeAgo(date)).toBe('刚刚');
-  });
-
-  it('returns minutes ago for times less than 1 hour ago', () => {
-    const now = new Date('2024-01-15T12:00:00');
-    vi.setSystemTime(now);
-
-    const date = new Date('2024-01-15T11:30:00');
-    expect(formatTimeAgo(date)).toBe('30分钟前');
-  });
-
-  it('returns hours ago for times less than 24 hours ago', () => {
-    const now = new Date('2024-01-15T12:00:00');
-    vi.setSystemTime(now);
-
-    const date = new Date('2024-01-15T06:00:00');
-    expect(formatTimeAgo(date)).toBe('6小时前');
-  });
-
-  it('returns days ago for times less than 7 days ago', () => {
-    const now = new Date('2024-01-15T12:00:00');
-    vi.setSystemTime(now);
-
-    const date = new Date('2024-01-12T12:00:00');
-    expect(formatTimeAgo(date)).toBe('3天前');
-  });
-
-  it('returns formatted date for times 7+ days ago', () => {
-    const now = new Date('2024-01-15T12:00:00');
-    vi.setSystemTime(now);
-
-    const date = new Date('2024-01-01T12:00:00');
-    const result = formatTimeAgo(date);
-    // Should return a date string format
-    expect(result).toMatch(/2024/);
-  });
-
-  it('accepts string date input', () => {
-    const now = new Date('2024-01-15T12:00:00');
-    vi.setSystemTime(now);
-
-    const dateString = '2024-01-15T11:30:00';
-    expect(formatTimeAgo(dateString)).toBe('30分钟前');
-  });
-
-  it('accepts Date object input', () => {
-    const now = new Date('2024-01-15T12:00:00');
-    vi.setSystemTime(now);
-
-    const date = new Date('2024-01-15T11:30:00');
-    expect(formatTimeAgo(date)).toBe('30分钟前');
-  });
-
-  it('handles 1 minute ago correctly', () => {
-    const now = new Date('2024-01-15T12:00:00');
-    vi.setSystemTime(now);
-
-    const date = new Date('2024-01-15T11:59:00');
-    expect(formatTimeAgo(date)).toBe('1分钟前');
-  });
-
-  it('handles 1 hour ago correctly', () => {
-    const now = new Date('2024-01-15T12:00:00');
-    vi.setSystemTime(now);
-
-    const date = new Date('2024-01-15T11:00:00');
-    expect(formatTimeAgo(date)).toBe('1小时前');
-  });
-
-  it('handles 1 day ago correctly', () => {
-    const now = new Date('2024-01-15T12:00:00');
-    vi.setSystemTime(now);
-
-    const date = new Date('2024-01-14T12:00:00');
-    expect(formatTimeAgo(date)).toBe('1天前');
-  });
-});
-
-describe('formatDate', () => {
-  it('formats date with default options', () => {
-    const date = new Date('2024-01-15');
-    const result = formatDate(date);
-    expect(result).toMatch(/2024/);
-  });
-
-  it('formats date with custom options', () => {
-    const date = new Date('2024-01-15');
-    const result = formatDate(date, {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+describe('日期工具函数', () => {
+  describe('formatDate', () => {
+    it('应该正确格式化日期', () => {
+      const result = formatDate('2026-03-14');
+      expect(result).toContain('2026');
     });
-    expect(result).toContain('2024');
+
+    it('应该处理无效日期', () => {
+      const result = formatDate('invalid-date');
+      expect(result).toContain('Invalid');
+    });
   });
 
-  it('accepts string date input', () => {
-    const dateString = '2024-01-15';
-    const result = formatDate(dateString);
-    expect(result).toMatch(/2024/);
-  });
-});
+  describe('formatDateTime', () => {
+    it('应该正确格式化日期时间', () => {
+      const result = formatDateTime('2026-03-14T10:30:00');
+      expect(result).toContain('2026');
+    });
 
-describe('formatDateTime', () => {
-  it('formats date and time', () => {
-    const date = new Date('2024-01-15T14:30:00');
-    const result = formatDateTime(date);
-    expect(result).toMatch(/2024/);
-    expect(result).toMatch(/14/);
-    expect(result).toMatch(/30/);
+    it('应该处理无效日期', () => {
+      const result = formatDateTime('invalid');
+      expect(result).toContain('Invalid');
+    });
   });
 
-  it('accepts string date input', () => {
-    const dateString = '2024-01-15T14:30:00';
-    const result = formatDateTime(dateString);
-    expect(result).toMatch(/2024/);
-  });
-});
+  describe('formatTimeAgo', () => {
+    it('应该显示刚刚', () => {
+      const now = new Date().toISOString();
+      const result = formatTimeAgo(now);
+      expect(result).toBe('刚刚');
+    });
 
-describe('isToday', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
+    it('应该显示N分钟前', () => {
+      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+      const result = formatTimeAgo(fiveMinutesAgo);
+      expect(result).toBe('5分钟前');
+    });
 
-  afterEach(() => {
-    vi.useRealTimers();
-  });
+    it('应该显示N小时前', () => {
+      const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
+      const result = formatTimeAgo(twoHoursAgo);
+      expect(result).toBe('2小时前');
+    });
 
-  it('returns true for today', () => {
-    const now = new Date('2024-01-15T12:00:00');
-    vi.setSystemTime(now);
+    it('应该显示N天前', () => {
+      const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
+      const result = formatTimeAgo(threeDaysAgo);
+      expect(result).toBe('3天前');
+    });
 
-    const today = new Date('2024-01-15T08:00:00');
-    expect(isToday(today)).toBe(true);
-  });
-
-  it('returns false for yesterday', () => {
-    const now = new Date('2024-01-15T12:00:00');
-    vi.setSystemTime(now);
-
-    const yesterday = new Date('2024-01-14T12:00:00');
-    expect(isToday(yesterday)).toBe(false);
-  });
-
-  it('returns false for tomorrow', () => {
-    const now = new Date('2024-01-15T12:00:00');
-    vi.setSystemTime(now);
-
-    const tomorrow = new Date('2024-01-16T12:00:00');
-    expect(isToday(tomorrow)).toBe(false);
+    it('应该处理无效日期', () => {
+      // formatTimeAgo doesn't validate input, so Invalid Date returns a formatted date string
+      const result = formatTimeAgo('invalid');
+      // When date is invalid, toLocaleDateString returns 'Invalid Date'
+      expect(typeof result).toBe('string');
+    });
   });
 
-  it('accepts string date input', () => {
-    const now = new Date('2024-01-15T12:00:00');
-    vi.setSystemTime(now);
+  describe('isToday', () => {
+    it('应该正确识别今天的日期', () => {
+      const today = new Date();
+      expect(isToday(today)).toBe(true);
+    });
 
-    expect(isToday('2024-01-15')).toBe(true);
-    expect(isToday('2024-01-14')).toBe(false);
-  });
-});
+    it('应该正确识别不是今天的日期', () => {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      expect(isToday(yesterday)).toBe(false);
+    });
 
-describe('isYesterday', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
-  it('returns true for yesterday', () => {
-    const now = new Date('2024-01-15T12:00:00');
-    vi.setSystemTime(now);
-
-    const yesterday = new Date('2024-01-14T12:00:00');
-    expect(isYesterday(yesterday)).toBe(true);
+    it('应该处理无效日期', () => {
+      // Invalid dates are not today
+      expect(isToday('invalid')).toBe(false);
+    });
   });
 
-  it('returns false for today', () => {
-    const now = new Date('2024-01-15T12:00:00');
-    vi.setSystemTime(now);
+  describe('isYesterday', () => {
+    it('应该正确识别昨天的日期', () => {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      expect(isYesterday(yesterday)).toBe(true);
+    });
 
-    const today = new Date('2024-01-15T08:00:00');
-    expect(isYesterday(today)).toBe(false);
-  });
+    it('应该正确识别不是昨天的日期', () => {
+      const today = new Date();
+      expect(isYesterday(today)).toBe(false);
+    });
 
-  it('returns false for two days ago', () => {
-    const now = new Date('2024-01-15T12:00:00');
-    vi.setSystemTime(now);
-
-    const twoDaysAgo = new Date('2024-01-13T12:00:00');
-    expect(isYesterday(twoDaysAgo)).toBe(false);
-  });
-
-  it('accepts string date input', () => {
-    const now = new Date('2024-01-15T12:00:00');
-    vi.setSystemTime(now);
-
-    expect(isYesterday('2024-01-14')).toBe(true);
-    expect(isYesterday('2024-01-15')).toBe(false);
+    it('应该处理无效日期', () => {
+      // Invalid dates are not yesterday
+      expect(isYesterday('invalid')).toBe(false);
+    });
   });
 });

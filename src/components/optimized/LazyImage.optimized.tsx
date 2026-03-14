@@ -113,7 +113,7 @@ export function LazyImageOptimized({
   // 图片加载失败
   const handleError = useCallback(() => {
     setHasError(true);
-  }, [src]);
+  }, []);
 
   return (
     <div

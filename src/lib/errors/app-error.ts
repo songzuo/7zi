@@ -6,7 +6,7 @@
  */
 
 import { ErrorCodes, ErrorCategory, ErrorSeverity } from './types';
-import type { ErrorCode, ErrorCategory, ErrorSeverity, ErrorContext, RecoveryStrategy } from './types';
+import type { ErrorCode, ErrorContext, RecoveryStrategy } from './types';
 
 /**
  * 应用错误类 - 所有自定义错误的基类

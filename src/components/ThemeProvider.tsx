@@ -31,7 +31,7 @@ interface ThemeProviderProps {
 export function ThemeProvider({ 
   children, 
   defaultTheme = 'system',
-  storageKey: _storageKey, // eslint-disable-line @typescript-eslint/no-unused-vars
+  storageKey: _storageKey, 
 }: ThemeProviderProps) {
   return (
     <SettingsProvider defaultSettings={{ theme: defaultTheme }}>

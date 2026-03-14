@@ -33,6 +33,9 @@ import {
   successResponse,
 } from '@/lib/middleware';
 
+// 模块级别创建 CSRF 中间件（复用实例）
+const csrfMiddleware = createCsrfMiddleware();
+
 /**
  * 任务查询参数
  * @typedef {Object} TaskQueryParams
@@ -169,7 +172,6 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   // CSRF 保护检查
-  const csrfMiddleware = createCsrfMiddleware();
   const csrfResult = await csrfMiddleware(request);
   if (csrfResult) {
     return csrfResult;
@@ -231,7 +233,6 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   // CSRF 保护检查
-  const csrfMiddleware = createCsrfMiddleware();
   const csrfResult = await csrfMiddleware(request);
   if (csrfResult) {
     return csrfResult;
@@ -317,7 +318,6 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   // CSRF 保护检查
-  const csrfMiddleware = createCsrfMiddleware();
   const csrfResult = await csrfMiddleware(request);
   if (csrfResult) {
     return csrfResult;

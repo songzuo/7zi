@@ -9,8 +9,10 @@
 // 类型定义导出
 // ============================================
 import { ErrorCategory, ErrorSeverity, ErrorCodes } from './types';
+import type { ErrorCode, ErrorContext, RecoveryStrategy, ErrorConfig } from './types';
+
 export { ErrorCategory, ErrorSeverity, ErrorCodes };
-export type { ErrorCode, ErrorContext, RecoveryStrategy, ErrorConfig } from './types';
+export type { ErrorCode, ErrorContext, RecoveryStrategy, ErrorConfig };
 
 // ============================================
 // 错误类导出
@@ -318,7 +320,7 @@ export function toAppError(
 // ============================================
 
 import type { NextRequest } from 'next/server';
-import type { NextResponse } from '@vercel/edge';
+import type { NextResponse } from 'next/server';
 
 /**
  * 异步函数错误处理包装器 - 支持 Next.js Route Handlers
@@ -335,10 +337,10 @@ export function withErrorHandler<T extends (request: NextRequest, ...args: unkno
 ): T {
   return (async (request: NextRequest, ...args: Parameters<T>) => {
     try {
-      return await fn(request, ...args);
+      return await fn(request, ...args as unknown as Parameters<T>);
     } catch (error) {
       const context = typeof options.context === 'function'
-        ? options.context([request, ...args] as Parameters<T>)
+        ? options.context([request, ...args] as unknown as Parameters<T>)
         : options.context;
       
       const appError = toAppError(error, context);

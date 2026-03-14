@@ -135,9 +135,19 @@ describe('Health API', () => {
     vi.resetAllMocks();
   });
 
+  // Helper to create mock request
+  const createMockRequest = (url: string = 'http://localhost/api/health') => {
+    return new Request(url, { method: 'GET' });
+  };
+
+  // Helper to create async mock request for readiness
+  const createMockRequestAsync = async (url: string = 'http://localhost/api/health/ready') => {
+    return new Request(url, { method: 'GET' });
+  };
+
   describe('GET /api/health', () => {
     it('should return valid response', async () => {
-      const response = await healthGet();
+      const response = await healthGet(createMockRequest());
       // Just verify it returns a valid status (not crashing)
       expect([200, 500]).toContain(response.status);
       
@@ -147,13 +157,13 @@ describe('Health API', () => {
     });
 
     it('should return JSON content-type', async () => {
-      const response = await healthGet();
+      const response = await healthGet(createMockRequest());
       const contentType = response.headers.get('content-type');
       expect(contentType).toContain('application/json');
     });
 
     it('should include basic health fields when successful', async () => {
-      const response = await healthGet();
+      const response = await healthGet(createMockRequest());
       
       if (response.status === 200) {
         const data = await response.json();
@@ -188,14 +198,14 @@ describe('Health API', () => {
 
   describe('GET /api/health/ready', () => {
     it('should return ready status', async () => {
-      const response = await healthReady();
+      const response = await healthReady(createMockRequestAsync());
       expect(response.status).toBe(200);
     });
   });
 
   describe('GET /api/health/detailed', () => {
     it('should return valid response', async () => {
-      const response = await healthDetailed();
+      const response = await healthDetailed(createMockRequest());
       // Just verify it doesn't crash - may return 500 if dependencies fail
       expect([200, 500]).toContain(response.status);
       

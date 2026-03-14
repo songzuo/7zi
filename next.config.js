@@ -49,8 +49,8 @@ const nextConfig = {
   poweredByHeader: false,
   // 压缩响应
   compress: true,
-  // 生成静态页面时排除 API 路由
-  excludeFilePathsFromExpressMiddleware: ['/api'],
+  // 生成静态页面时排除 API 路由 (已移除不支持的选项)
+  // excludeFilePathsFromExpressMiddleware: ['/api'],
 };
 
 module.exports = nextConfig;

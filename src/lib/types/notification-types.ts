@@ -87,7 +87,7 @@ export const createNotificationSchema = z.object({
   userId: z.string().min(1),
   priority: z.enum(['low', 'medium', 'high']).optional(),
   link: z.string().url().optional(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 /**

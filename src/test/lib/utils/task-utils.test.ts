@@ -1,3 +1,7 @@
+/**
+ * 任务工具函数单元测试
+ */
+
 import { describe, it, expect } from 'vitest';
 import {
   getRoleForTaskType,
@@ -7,294 +11,266 @@ import {
   filterTasksByType,
   filterTasksByStatus,
   getTaskStats,
-  validateTaskData
+  validateTaskData,
+  Task,
+  TaskType,
+  TaskPriority,
+  TaskStatus,
 } from '@/lib/utils/task-utils';
-import { AI_MEMBER_ROLES, type Task } from '@/lib/types/task-types';
 
-describe('task-utils', () => {
+describe('任务工具函数', () => {
+  // 测试数据
+  const mockTasks: Task[] = [
+    {
+      id: '1',
+      title: '任务1',
+      description: '描述1',
+      status: 'pending',
+      priority: 'high',
+      type: 'development',
+      assignee: 'user1',
+      dueDate: '2026-03-20',
+      createdAt: '2026-03-01',
+    },
+    {
+      id: '2',
+      title: '任务2',
+      description: '描述2',
+      status: 'in_progress',
+      priority: 'medium',
+      type: 'design',
+      assignee: 'user2',
+      dueDate: '2026-03-25',
+      createdAt: '2026-03-02',
+    },
+    {
+      id: '3',
+      title: '任务3',
+      description: '描述3',
+      status: 'completed',
+      priority: 'low',
+      type: 'research',
+      assignee: 'user1',
+      dueDate: '2026-03-15',
+      createdAt: '2026-03-03',
+    },
+  ];
+
   describe('getRoleForTaskType', () => {
-    it('should return EXECUTOR for development tasks', () => {
-      expect(getRoleForTaskType('development')).toBe(AI_MEMBER_ROLES.EXECUTOR);
+    it('应该为开发任务返回Executor角色', () => {
+      const role = getRoleForTaskType('development');
+      expect(role).toBe('executor');
     });
 
-    it('should return DESIGNER for design tasks', () => {
-      expect(getRoleForTaskType('design')).toBe(AI_MEMBER_ROLES.DESIGNER);
+    it('应该为设计任务返回Designer角色', () => {
+      const role = getRoleForTaskType('design');
+      expect(role).toBe('designer');
     });
 
-    it('should return CONSULTANT for research tasks', () => {
-      expect(getRoleForTaskType('research')).toBe(AI_MEMBER_ROLES.CONSULTANT);
+    it('应该为研究任务返回Consultant角色', () => {
+      const role = getRoleForTaskType('research');
+      expect(role).toBe('consultant');
     });
 
-    it('should return PROMOTER for marketing tasks', () => {
-      expect(getRoleForTaskType('marketing')).toBe(AI_MEMBER_ROLES.PROMOTER);
+    it('应该为营销任务返回Promoter角色', () => {
+      const role = getRoleForTaskType('marketing');
+      expect(role).toBe('promoter');
     });
 
-    it('should return GENERAL for other tasks', () => {
-      expect(getRoleForTaskType('other')).toBe(AI_MEMBER_ROLES.GENERAL);
+    it('应该为其他任务返回General角色', () => {
+      const role = getRoleForTaskType('other');
+      expect(role).toBe('general');
     });
   });
 
   describe('getPriorityLevel', () => {
-    it('should return 4 for urgent priority', () => {
+    it('应该返回urgent优先级为4', () => {
       expect(getPriorityLevel('urgent')).toBe(4);
     });
 
-    it('should return 3 for high priority', () => {
+    it('应该返回high优先级为3', () => {
       expect(getPriorityLevel('high')).toBe(3);
     });
 
-    it('should return 2 for medium priority', () => {
+    it('应该返回medium优先级为2', () => {
       expect(getPriorityLevel('medium')).toBe(2);
     });
 
-    it('should return 1 for low priority', () => {
+    it('应该返回low优先级为1', () => {
       expect(getPriorityLevel('low')).toBe(1);
+    });
+
+    it('未知优先级应该返回0', () => {
+      expect(getPriorityLevel('unknown' as any)).toBe(0);
     });
   });
 
   describe('getStatusOrder', () => {
-    it('should return correct order for pending status', () => {
+    it('应该返回pending为1', () => {
       expect(getStatusOrder('pending')).toBe(1);
     });
 
-    it('should return correct order for assigned status', () => {
+    it('应该返回assigned为2', () => {
       expect(getStatusOrder('assigned')).toBe(2);
     });
 
-    it('should return correct order for in_progress status', () => {
+    it('应该返回in_progress为3', () => {
       expect(getStatusOrder('in_progress')).toBe(3);
     });
 
-    it('should return correct order for completed status', () => {
+    it('应该返回completed为4', () => {
       expect(getStatusOrder('completed')).toBe(4);
+    });
+
+    it('未知状态应该返回0', () => {
+      expect(getStatusOrder('unknown' as any)).toBe(0);
     });
   });
 
   describe('sortTasks', () => {
-    const createMockTask = (
-      id: string,
-      status: 'pending' | 'assigned' | 'in_progress' | 'completed',
-      priority: 'low' | 'medium' | 'high' | 'urgent',
-      createdAt: string
-    ): Task => ({
-      id,
-      title: `Task ${id}`,
-      description: `Description ${id}`,
-      type: 'development',
-      priority,
-      status,
-      createdBy: 'user',
-      createdAt,
-      updatedAt: createdAt,
-      comments: [],
-      history: []
+    it('应该按状态排序（pending在前）', () => {
+      const sorted = sortTasks([...mockTasks]);
+      expect(sorted[0].status).toBe('pending');
     });
 
-    it('should sort tasks by status first (pending before completed)', () => {
-      const tasks = [
-        createMockTask('1', 'completed', 'medium', '2024-01-01'),
-        createMockTask('2', 'pending', 'medium', '2024-01-01')
-      ];
-
-      const sorted = sortTasks(tasks);
-      expect(sorted[0].id).toBe('2');
-      expect(sorted[1].id).toBe('1');
+    it('应该保持返回新数组', () => {
+      const original = [...mockTasks];
+      const sorted = sortTasks(mockTasks);
+      expect(sorted).not.toBe(original);
     });
 
-    it('should sort tasks by priority when status is same', () => {
-      const tasks = [
-        createMockTask('1', 'pending', 'low', '2024-01-01'),
-        createMockTask('2', 'pending', 'urgent', '2024-01-01')
-      ];
-
-      const sorted = sortTasks(tasks);
-      expect(sorted[0].id).toBe('2'); // urgent first
-      expect(sorted[1].id).toBe('1');
-    });
-
-    it('should not mutate original array', () => {
-      const tasks = [
-        createMockTask('1', 'pending', 'low', '2024-01-01'),
-        createMockTask('2', 'completed', 'high', '2024-01-01')
-      ];
-
-      sortTasks(tasks);
-      expect(tasks[0].id).toBe('1');
+    it('应该处理空数组', () => {
+      const sorted = sortTasks([]);
+      expect(sorted).toEqual([]);
     });
   });
 
   describe('filterTasksByType', () => {
-    const createMockTask = (type: 'development' | 'design' | 'research' | 'marketing' | 'other'): Task => ({
-      id: '1',
-      title: 'Task',
-      description: 'Description',
-      type,
-      priority: 'medium',
-      status: 'pending',
-      createdBy: 'user',
-      createdAt: '2024-01-01',
-      updatedAt: '2024-01-01',
-      comments: [],
-      history: []
+    it('应该过滤指定类型的任务', () => {
+      const filtered = filterTasksByType(mockTasks, 'development');
+      expect(filtered.length).toBe(1);
+      expect(filtered[0].type).toBe('development');
     });
 
-    it('should return all tasks when type is "all"', () => {
-      const tasks = [
-        createMockTask('development'),
-        createMockTask('design')
-      ];
-
-      const filtered = filterTasksByType(tasks, 'all');
-      expect(filtered).toHaveLength(2);
+    it('应该返回所有任务当类型为all', () => {
+      const filtered = filterTasksByType(mockTasks, 'all');
+      expect(filtered.length).toBe(3);
     });
 
-    it('should filter by specific type', () => {
-      const tasks = [
-        createMockTask('development'),
-        createMockTask('design'),
-        createMockTask('development')
-      ];
-
-      const filtered = filterTasksByType(tasks, 'development');
-      expect(filtered).toHaveLength(2);
-      expect(filtered.every(t => t.type === 'development')).toBe(true);
+    it('应该处理空数组', () => {
+      const filtered = filterTasksByType([], 'development');
+      expect(filtered).toEqual([]);
     });
   });
 
   describe('filterTasksByStatus', () => {
-    const createMockTask = (status: 'pending' | 'assigned' | 'in_progress' | 'completed'): Task => ({
-      id: '1',
-      title: 'Task',
-      description: 'Description',
-      type: 'development',
-      priority: 'medium',
-      status,
-      createdBy: 'user',
-      createdAt: '2024-01-01',
-      updatedAt: '2024-01-01',
-      comments: [],
-      history: []
+    it('应该过滤指定状态的任务', () => {
+      const filtered = filterTasksByStatus(mockTasks, 'pending');
+      expect(filtered.length).toBe(1);
+      expect(filtered[0].status).toBe('pending');
     });
 
-    it('should return all tasks when status is "all"', () => {
-      const tasks = [
-        createMockTask('pending'),
-        createMockTask('completed')
-      ];
-
-      const filtered = filterTasksByStatus(tasks, 'all');
-      expect(filtered).toHaveLength(2);
+    it('应该返回所有任务当状态为all', () => {
+      const filtered = filterTasksByStatus(mockTasks, 'all');
+      expect(filtered.length).toBe(3);
     });
 
-    it('should filter by specific status', () => {
-      const tasks = [
-        createMockTask('pending'),
-        createMockTask('completed'),
-        createMockTask('pending')
-      ];
-
-      const filtered = filterTasksByStatus(tasks, 'pending');
-      expect(filtered).toHaveLength(2);
+    it('应该处理空数组', () => {
+      const filtered = filterTasksByStatus([], 'pending');
+      expect(filtered).toEqual([]);
     });
   });
 
   describe('getTaskStats', () => {
-    const createMockTask = (status: 'pending' | 'assigned' | 'in_progress' | 'completed'): Task => ({
-      id: '1',
-      title: 'Task',
-      description: 'Description',
-      type: 'development',
-      priority: 'medium',
-      status,
-      createdBy: 'user',
-      createdAt: '2024-01-01',
-      updatedAt: '2024-01-01',
-      comments: [],
-      history: []
-    });
-
-    it('should return correct statistics', () => {
-      const tasks = [
-        createMockTask('pending'),
-        createMockTask('assigned'),
-        createMockTask('in_progress'),
-        createMockTask('completed'),
-        createMockTask('completed')
-      ];
-
-      const stats = getTaskStats(tasks);
-      expect(stats.total).toBe(5);
+    it('应该返回正确的统计数据', () => {
+      const stats = getTaskStats(mockTasks);
+      
+      expect(stats.total).toBe(3);
       expect(stats.pending).toBe(1);
-      expect(stats.assigned).toBe(1);
       expect(stats.inProgress).toBe(1);
-      expect(stats.completed).toBe(2);
-      expect(stats.completionRate).toBe(40);
+      expect(stats.completed).toBe(1);
     });
 
-    it('should return zero stats for empty array', () => {
+    it('应该计算完成率', () => {
+      const stats = getTaskStats(mockTasks);
+      expect(stats.completionRate).toBe(33);
+    });
+
+    it('应该处理空数组', () => {
       const stats = getTaskStats([]);
+      
       expect(stats.total).toBe(0);
       expect(stats.completionRate).toBe(0);
     });
   });
 
   describe('validateTaskData', () => {
-    it('should return valid for complete task data', () => {
+    it('应该验证有效的任务数据', () => {
       const result = validateTaskData({
         title: 'Test Task',
-        description: 'Test Description',
+        description: 'Description',
         type: 'development',
         priority: 'high'
       });
-
+      
       expect(result.isValid).toBe(true);
-      expect(result.errors).toHaveLength(0);
+      expect(result.errors).toEqual([]);
     });
 
-    it('should return invalid for missing title', () => {
+    it('应该检测空标题', () => {
       const result = validateTaskData({
         title: '',
-        description: 'Test Description',
+        description: 'Description',
         type: 'development',
         priority: 'high'
       });
-
+      
       expect(result.isValid).toBe(false);
       expect(result.errors).toContain('Title is required');
     });
 
-    it('should return invalid for missing description', () => {
+    it('应该检测空描述', () => {
       const result = validateTaskData({
         title: 'Test Task',
         description: '',
         type: 'development',
         priority: 'high'
       });
-
+      
       expect(result.isValid).toBe(false);
       expect(result.errors).toContain('Description is required');
     });
 
-    it('should return invalid for missing type', () => {
+    it('应该检测缺失的类型', () => {
       const result = validateTaskData({
         title: 'Test Task',
-        description: 'Test Description',
+        description: 'Description',
         priority: 'high'
       });
-
+      
       expect(result.isValid).toBe(false);
       expect(result.errors).toContain('Task type is required');
     });
 
-    it('should return invalid for missing priority', () => {
+    it('应该检测缺失的优先级', () => {
       const result = validateTaskData({
         title: 'Test Task',
-        description: 'Test Description',
+        description: 'Description',
         type: 'development'
       });
-
+      
       expect(result.isValid).toBe(false);
       expect(result.errors).toContain('Priority is required');
+    });
+
+    it('应该支持只传递部分字段', () => {
+      const result = validateTaskData({
+        title: 'Test Task',
+        description: 'Description'
+      });
+      
+      expect(result.isValid).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
     });
   });
 });

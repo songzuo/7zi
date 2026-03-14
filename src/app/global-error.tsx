@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { ErrorDisplay } from '@/components/ErrorDisplay';
 import { createLogger } from '@/lib/logger';
 import { captureError } from '@/lib/monitoring/errors';
-import { ErrorCategory, ErrorSeverity } from '@/lib/errors/types';
+import { ErrorCategory, ErrorSeverity } from '@/lib/monitoring/errors';
 
 const logger = createLogger('GlobalError');
 

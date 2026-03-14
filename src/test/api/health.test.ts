@@ -126,7 +126,7 @@ describe('Health API Routes', () => {
         checks: {},
       });
 
-      const response = await readyGET(mockRequestReady);
+      const response = await readyGET();
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -145,7 +145,7 @@ describe('Health API Routes', () => {
         },
       });
 
-      const response = await readyGET(mockRequestReady);
+      const response = await readyGET();
 
       expect(response.status).toBe(503);
     });
@@ -162,7 +162,7 @@ describe('Health API Routes', () => {
         },
       });
 
-      const response = await readyGET(mockRequestReady);
+      const response = await readyGET();
 
       expect(response.status).toBe(200);
     });

@@ -125,6 +125,37 @@ export function getDbTransport(): DbTransport {
       
       return initialLength - logs.length;
     },
+
+    count: (query: LogQuery): number => {
+      let filtered = [...logs];
+
+      // Filter by time range
+      if (query.startTime) {
+        const start = new Date(query.startTime).getTime();
+        filtered = filtered.filter(log => new Date(log.timestamp).getTime() >= start);
+      }
+      if (query.endTime) {
+        const end = new Date(query.endTime).getTime();
+        filtered = filtered.filter(log => new Date(log.timestamp).getTime() <= end);
+      }
+
+      // Filter by levels
+      if (query.levels?.length) {
+        filtered = filtered.filter(log => query.levels!.includes(log.level));
+      }
+
+      // Filter by categories
+      if (query.categories?.length) {
+        filtered = filtered.filter(log => query.categories!.includes(log.category));
+      }
+
+      // Filter by userId
+      if (query.userId) {
+        filtered = filtered.filter(log => log.userId === query.userId);
+      }
+
+      return filtered.length;
+    },
   };
 }
 

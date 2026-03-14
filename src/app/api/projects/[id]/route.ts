@@ -8,6 +8,9 @@ import { createCsrfMiddleware } from '@/lib/security/csrf';
 import { apiLogger } from '@/lib/logger';
 import { getProjectById, updateProject, deleteProject } from '@/lib/data/projects';
 
+// 模块级别创建 CSRF 中间件（复用实例）
+const csrfMiddleware = createCsrfMiddleware();
+
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
@@ -40,7 +43,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   try {
-    const csrfMiddleware = createCsrfMiddleware();
     const csrfResult = await csrfMiddleware(request);
     if (csrfResult) {
       return csrfResult;
@@ -85,7 +87,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   try {
-    const csrfMiddleware = createCsrfMiddleware();
     const csrfResult = await csrfMiddleware(request);
     if (csrfResult) {
       return csrfResult;

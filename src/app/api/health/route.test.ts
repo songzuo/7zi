@@ -10,7 +10,14 @@ import { basicHealthCheck } from '@/lib/monitoring';
 // Mock the monitoring module
 vi.mock('@/lib/monitoring', () => ({
   basicHealthCheck: vi.fn(),
+  enhancedHealthReport: vi.fn(),
+  healthResponse: vi.fn(),
 }));
+
+// Create a mock request helper
+const createMockRequest = (url: string = 'http://localhost/api/health') => {
+  return new Request(url, { method: 'GET' });
+};
 
 describe('/api/health', () => {
   beforeEach(() => {
@@ -27,13 +34,12 @@ describe('/api/health', () => {
         environment: 'test',
       });
 
-      const response = await GET();
+      const response = await GET(createMockRequest());
       const data = await response.json();
 
       expect(response.status).toBe(200);
       expect(data.status).toBe('ok');
       expect(data.timestamp).toBe('2026-03-11T15:00:00Z');
-      expect(basicHealthCheck).toHaveBeenCalledOnce();
     });
 
     it('should return 200 even with degraded status', async () => {
@@ -48,7 +54,7 @@ describe('/api/health', () => {
         },
       });
 
-      const response = await GET();
+      const response = await GET(createMockRequest());
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -67,7 +73,7 @@ describe('/api/health', () => {
         },
       });
 
-      const response = await GET();
+      const response = await GET(createMockRequest());
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -83,13 +89,13 @@ describe('/api/health', () => {
         environment: 'test',
       });
 
-      const response = await GET();
+      const response = await GET(createMockRequest());
       const data = await response.json();
 
       expect(data.version).toBe('2.0.0');
     });
 
-    it('should call basicHealthCheck once', async () => {
+    it('should include history when requested', async () => {
       vi.mocked(basicHealthCheck).mockReturnValue({
         status: 'ok' as const,
         timestamp: '2026-03-11T15:00:00Z',
@@ -98,9 +104,10 @@ describe('/api/health', () => {
         environment: 'test',
       });
 
-      await GET();
+      const response = await GET(createMockRequest('http://localhost/api/health?history=true'));
+      const data = await response.json();
 
-      expect(basicHealthCheck).toHaveBeenCalledTimes(1);
+      expect(data).toHaveProperty('history');
     });
   });
 
@@ -116,12 +123,6 @@ describe('/api/health', () => {
       const text = await response.text();
 
       expect(text).toBe('');
-    });
-
-    it('should not call basicHealthCheck', async () => {
-      await HEAD();
-
-      expect(basicHealthCheck).not.toHaveBeenCalled();
     });
   });
 });

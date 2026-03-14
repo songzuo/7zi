@@ -18,7 +18,7 @@ import {
 } from '@/lib/security/auth';
 import { generateCsrfToken, setCsrfTokenCookie } from '@/lib/security/csrf';
 import { authLogger } from '@/lib/logger';
-import { withRateLimit, validationError } from '@/lib/middleware';
+import { rateLimit, validationError } from '@/lib/middleware';
 
 // 速率限制: 5次/分钟 (防止暴力破解)
 const RATE_LIMIT_CONFIG = {
@@ -27,7 +27,8 @@ const RATE_LIMIT_CONFIG = {
   message: 'Too many login attempts, please try again later',
 };
 
-export const POST = withRateLimit(RATE_LIMIT_CONFIG)(async (request: NextRequest) => {
+// 登录处理函数
+async function handleLogin(request: NextRequest): Promise<Response> {
   try {
     const body = await request.json();
     const { email, password } = body;
@@ -97,4 +98,18 @@ export const POST = withRateLimit(RATE_LIMIT_CONFIG)(async (request: NextRequest
       { status: 500 }
     );
   }
-});
+}
+
+// 应用速率限制的 POST 处理器
+const rateLimitMiddleware = rateLimit(RATE_LIMIT_CONFIG);
+
+export async function POST(request: NextRequest): Promise<Response> {
+  // 先应用速率限制
+  const rateLimitResponse = rateLimitMiddleware(request);
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
+  
+  // 然后处理登录
+  return handleLogin(request);
+}

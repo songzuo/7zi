@@ -23,6 +23,9 @@ import {
 } from '@/lib/middleware';
 import { AppError } from '@/lib/errors';
 
+// 模块级别创建 CSRF 中间件（复用实例）
+const csrfMiddleware = createCsrfMiddleware();
+
 /**
  * 错误响应格式 (统一)
  * @typedef {Object} ApiErrorResponse
@@ -69,7 +72,6 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   // CSRF 检查
-  const csrfMiddleware = createCsrfMiddleware();
   const csrfResult = await csrfMiddleware(request);
   if (csrfResult) {
     return csrfResult;
