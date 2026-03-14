@@ -4,6 +4,7 @@
  * 
  * @module api/tasks
  * @description 任务管理端点，支持创建、查询、更新和删除任务
+ * 使用文件持久化存储，数据不会因服务器重启丢失
  * 
  * @example
  * // 获取任务列表
@@ -20,7 +21,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { v4 as uuidv4 } from 'uuid';
 import { Task, TaskStatus, TaskType } from '@/lib/types/task-types';
 import { verifyToken, extractToken, isAdmin } from '@/lib/security/auth';
 import { createCsrfMiddleware } from '@/lib/security/csrf';
@@ -32,6 +32,14 @@ import {
   forbiddenError,
   successResponse,
 } from '@/lib/middleware';
+// 使用持久化存储
+import { 
+  getTasks, 
+  getTaskById, 
+  createTask as dataCreateTask, 
+  updateTask as dataUpdateTask,
+  deleteTask as dataDeleteTask
+} from '@/lib/data/tasks';
 
 // 模块级别创建 CSRF 中间件（复用实例）
 const csrfMiddleware = createCsrfMiddleware();
@@ -80,65 +88,6 @@ const csrfMiddleware = createCsrfMiddleware();
  * @property {string} [message] - 错误详情
  */
 
-// In-memory storage for tasks (in production, this would be a database)
-const tasks: Task[] = [
-  {
-    id: 'task-001',
-    title: '分析市场趋势',
-    description: '研究当前 AI 代理市场的趋势和竞争对手',
-    type: 'research',
-    priority: 'high',
-    status: 'completed',
-    assignee: 'agent-world-expert',
-    createdBy: 'user',
-    createdAt: '2026-03-05T10:00:00Z',
-    updatedAt: '2026-03-06T15:30:00Z',
-    comments: [],
-    history: [
-      { timestamp: '2026-03-05T10:00:00Z', status: 'pending', changedBy: 'user' },
-      { timestamp: '2026-03-05T10:15:00Z', status: 'assigned', changedBy: 'system', assignee: 'agent-world-expert' },
-      { timestamp: '2026-03-05T10:20:00Z', status: 'in_progress', changedBy: 'agent-world-expert' },
-      { timestamp: '2026-03-06T15:30:00Z', status: 'completed', changedBy: 'agent-world-expert' }
-    ]
-  },
-  {
-    id: 'task-002',
-    title: '竞品调研报告',
-    description: '分析主要竞争对手的产品功能和市场策略',
-    type: 'research',
-    priority: 'medium',
-    status: 'in_progress',
-    assignee: 'consultant',
-    createdBy: 'user',
-    createdAt: '2026-03-06T09:00:00Z',
-    updatedAt: '2026-03-06T09:00:00Z',
-    comments: [],
-    history: [
-      { timestamp: '2026-03-06T09:00:00Z', status: 'pending', changedBy: 'user' },
-      { timestamp: '2026-03-06T09:05:00Z', status: 'assigned', changedBy: 'system', assignee: 'consultant' },
-      { timestamp: '2026-03-06T09:10:00Z', status: 'in_progress', changedBy: 'consultant' }
-    ]
-  },
-  {
-    id: 'task-003',
-    title: '系统架构评审',
-    description: '评审当前系统的架构设计并提出改进建议',
-    type: 'development',
-    priority: 'high',
-    status: 'in_progress',
-    assignee: 'architect',
-    createdBy: 'user',
-    createdAt: '2026-03-06T11:00:00Z',
-    updatedAt: '2026-03-06T11:00:00Z',
-    comments: [],
-    history: [
-      { timestamp: '2026-03-06T11:00:00Z', status: 'pending', changedBy: 'user' },
-      { timestamp: '2026-03-06T11:05:00Z', status: 'assigned', changedBy: 'system', assignee: 'architect' },
-      { timestamp: '2026-03-06T11:10:00Z', status: 'in_progress', changedBy: 'architect' }
-    ]
-  }
-];
-
 // ============================================
 // GET /api/tasks - 获取任务列表
 // ============================================
@@ -149,7 +98,8 @@ export async function GET(request: NextRequest) {
   const type = searchParams.get('type') as TaskType | null;
   const assignee = searchParams.get('assignee');
 
-  let filteredTasks = [...tasks];
+  // 使用持久化存储获取任务
+  let filteredTasks = getTasks();
 
   if (status) {
     filteredTasks = filteredTasks.filter(task => task.status === status);
@@ -197,26 +147,17 @@ export async function POST(request: NextRequest) {
     return validationError('Task title is required and must be a string', 'title', request);
   }
 
-  const newTask: Task = {
-    id: `task-${uuidv4().split('-')[0]}`,
+  // 使用持久化存储创建任务
+  const newTask = dataCreateTask({
     title: body.title,
     description: body.description || '',
     type: body.type || 'other',
     priority: body.priority || 'medium',
     status: 'pending',
-    assignee: body.assignee || undefined,
+    assignee: body.assignee,
     createdBy: userId as 'user' | 'ai',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    comments: [],
-    history: [{
-      timestamp: new Date().toISOString(),
-      status: 'pending',
-      changedBy: userId
-    }]
-  };
-
-  tasks.push(newTask);
+    projectId: body.projectId
+  });
 
   apiLogger.audit('Task created', {
     taskId: newTask.id,
@@ -259,57 +200,70 @@ export async function PUT(request: NextRequest) {
     return validationError('Task ID is required', 'id', request);
   }
 
-  const taskIndex = tasks.findIndex(task => task.id === id);
-  if (taskIndex === -1) {
+  // 检查任务是否存在
+  const existingTask = getTaskById(id);
+  if (!existingTask) {
     return notFoundError('Task', id, request);
   }
 
-  const task = tasks[taskIndex];
+  // 构建更新数据
+  const updates: Partial<Task> = {};
 
-  // 更新任务
   if (status) {
-    task.status = status;
-    task.history.push({
-      timestamp: new Date().toISOString(),
-      status: status,
-      changedBy: userId,
-      assignee: assignee
-    });
+    updates.status = status;
+    updates.history = [
+      ...existingTask.history,
+      {
+        timestamp: new Date().toISOString(),
+        status: status,
+        changedBy: userId,
+        assignee: assignee
+      }
+    ];
   }
 
   if (assignee !== undefined) {
-    task.assignee = assignee;
+    updates.assignee = assignee;
     if (!status) {
-      task.history.push({
-        timestamp: new Date().toISOString(),
-        status: task.status,
-        changedBy: userId,
-        assignee: assignee
-      });
+      updates.history = [
+        ...existingTask.history,
+        {
+          timestamp: new Date().toISOString(),
+          status: existingTask.status,
+          changedBy: userId,
+          assignee: assignee
+        }
+      ];
     }
   }
 
   if (comment) {
-    task.comments.push({
-      id: `comment-${uuidv4().split('-')[0]}`,
-      content: comment,
-      author: userId,
-      timestamp: new Date().toISOString()
-    });
+    updates.comments = [
+      ...existingTask.comments,
+      {
+        id: `comment-${Date.now()}`,
+        content: comment,
+        author: userId,
+        timestamp: new Date().toISOString()
+      }
+    ];
   }
 
-  task.updatedAt = new Date().toISOString();
+  // 使用持久化存储更新任务
+  const updatedTask = dataUpdateTask(id, updates);
 
-  tasks[taskIndex] = task;
+  if (!updatedTask) {
+    return notFoundError('Task', id, request);
+  }
 
   apiLogger.audit('Task updated', {
-    taskId: task.id,
+    taskId: updatedTask.id,
     updatedBy: userId,
     userRole,
     changes: { status, assignee, comment: !!comment },
   });
 
-  return successResponse(task);
+  return successResponse(updatedTask);
 }
 
 // ============================================
@@ -346,13 +300,18 @@ export async function DELETE(request: NextRequest) {
     return validationError('Task ID is required', 'id', request);
   }
 
-  const taskIndex = tasks.findIndex(task => task.id === taskId);
-  if (taskIndex === -1) {
+  // 检查任务是否存在
+  const existingTask = getTaskById(taskId);
+  if (!existingTask) {
     return notFoundError('Task', taskId, request);
   }
 
-  const deletedTask = tasks[taskIndex];
-  tasks.splice(taskIndex, 1);
+  // 使用持久化存储删除任务
+  const deletedTask = dataDeleteTask(taskId);
+
+  if (!deletedTask) {
+    return notFoundError('Task', taskId, request);
+  }
 
   apiLogger.audit('Task deleted by admin', {
     taskId: deletedTask.id,
