@@ -49,3 +49,4 @@ next-env.d.ts
 _app_backup/node_modules
 moltbook-gateway/node_modules
 botmem/
+data/
