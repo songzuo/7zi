@@ -268,10 +268,39 @@ export class CacheManager {
 
 // 默认缓存管理器实例
 let defaultManager: CacheManager | null = null;
+let lastOptions: CacheManagerOptions | null = null;
+
+// 深度比较两个对象是否相等
+function deepEqual(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (a === null || b === null) return false;
+  if (typeof a !== 'object' || typeof b !== 'object') return false;
+
+  const keysA = Object.keys(a as object);
+  const keysB = Object.keys(b as object);
+
+  if (keysA.length !== keysB.length) return false;
+
+  for (const key of keysA) {
+    if (!keysB.includes(key) || !deepEqual((a as object)[key], (b as object)[key])) {
+      return false;
+    }
+  }
+  return true;
+}
 
 export function getCacheManager(options?: CacheManagerOptions): CacheManager {
+  // 如果配置发生变化，销毁旧实例并创建新的
+  if (defaultManager && options && !deepEqual(options, lastOptions)) {
+    cacheLogger.info('CacheManager config changed, recreating instance');
+    defaultManager.shutdown().catch((err) => cacheLogger.error('Shutdown error:', err));
+    defaultManager = null;
+    lastOptions = null;
+  }
+
   if (!defaultManager) {
     defaultManager = new CacheManager(options);
+    lastOptions = options || null;
   }
   return defaultManager;
 }

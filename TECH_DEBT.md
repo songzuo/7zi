@@ -42,8 +42,8 @@
 ### 2026-03-14 新发现问题 (来自代码质量审计)
 - 🟢 **API 内存存储**: ✅ 已修复 - Projects API 已迁移到文件持久化 (`data/projects.json`)
 - 🟡 **CSRF 中间件重复创建**: 🔄 每个 API 请求都创建新实例，应模块级别复用 (部分修复)
-- 🟡 **EventEmitter 监听器限制**: 🔄 KnowledgeLattice 未设置 maxListeners
-- 🟡 **缓存管理器单例**: 🔄 getCacheManager() 忽略配置变化
+- 🟢 **EventEmitter 监听器限制**: ✅ 已修复 - KnowledgeLattice 在构造函数中设置 `this.setMaxListeners(100)` (2026-03-14)
+- 🟢 **缓存管理器单例**: ✅ 已修复 - getCacheManager() 现在支持配置变化时重建实例 (2026-03-14)
 - 🟢 **未使用 loading 状态**: ✅ 已确认无需修复 (tasks/page.tsx 已使用 useMemo)
 - 🟢 **getFilteredTasks 效率**: ✅ 已使用 useMemo 优化 (tasks/page.tsx:48)
 - 🟢 **CSRF 中间件优化**: ✅ 已实现模块级单例缓存 (2026-03-14)

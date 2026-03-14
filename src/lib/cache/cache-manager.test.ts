@@ -2,8 +2,8 @@
  * CacheManager 单元测试
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { CacheManager } from './cache-manager';
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { CacheManager, getCacheManager, resetCacheManager, cache } from './cache-manager';
 
 // Mock logger
 vi.mock('../logger', () => ({
@@ -333,6 +333,82 @@ describe('CacheManager', () => {
     it('应该返回底层缓存实例', () => {
       const cache = cacheManager.getCache();
       expect(cache).toBeDefined();
+    });
+  });
+
+  describe('getCacheManager (单例模式)', () => {
+    beforeEach(() => {
+      // 重置单例
+      resetCacheManager();
+    });
+
+    it('应该返回同一个实例当选项相同时', () => {
+      const manager1 = getCacheManager({ provider: 'memory', defaultTTL: 60 });
+      const manager2 = getCacheManager({ provider: 'memory', defaultTTL: 60 });
+      expect(manager1).toBe(manager2);
+    });
+
+    it('应该在选项变化时返回新实例', () => {
+      resetCacheManager();
+      
+      const manager1 = getCacheManager({ provider: 'memory', defaultTTL: 60 });
+      const manager2 = getCacheManager({ provider: 'memory', defaultTTL: 120 });
+      
+      expect(manager1).not.toBe(manager2);
+    });
+
+    it('应该支持 resetCacheManager', () => {
+      const manager1 = getCacheManager({ provider: 'memory' });
+      resetCacheManager();
+      const manager2 = getCacheManager({ provider: 'memory' });
+      
+      expect(manager1).not.toBe(manager2);
+    });
+  });
+
+  describe('cache 便捷方法', () => {
+    beforeEach(async () => {
+      resetCacheManager();
+      await cache.clear();
+    });
+
+    it('应该通过 cache.set 和 cache.get 存储和获取值', async () => {
+      await cache.set('便捷测试', '测试值', 60);
+      const value = await cache.get<string>('便捷测试');
+      expect(value).toBe('测试值');
+    });
+
+    it('应该通过 cache.has 检查键是否存在', async () => {
+      await cache.set('has-test', 'value');
+      const exists = await cache.has('has-test');
+      expect(exists).toBe(true);
+    });
+
+    it('应该通过 cache.delete 删除键', async () => {
+      await cache.set('delete-test', 'value');
+      await cache.delete('delete-test');
+      const exists = await cache.has('delete-test');
+      expect(exists).toBe(false);
+    });
+
+    it('应该通过 cache.getOrSet 自动获取或设置值', async () => {
+      const value = await cache.getOrSet('getOrSet-test', async () => 'computed-value', 60);
+      expect(value).toBe('computed-value');
+    });
+
+    it('应该通过 cache.clear 清空所有缓存', async () => {
+      await cache.set('clear1', 'value1');
+      await cache.set('clear2', 'value2');
+      await cache.clear();
+      
+      const exists1 = await cache.has('clear1');
+      const exists2 = await cache.has('clear2');
+      expect(exists1).toBe(false);
+      expect(exists2).toBe(false);
+    });
+
+    afterEach(async () => {
+      resetCacheManager();
     });
   });
 });
