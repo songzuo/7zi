@@ -16,23 +16,22 @@ describe('errors', () => {
       
       expect(error).toBeInstanceOf(Error)
       expect(error.message).toBe('Test error')
-      expect(error.code).toBeUndefined()
-      expect(error.statusCode).toBeUndefined()
+      expect(error.code).toBe(ErrorCodes.UNKNOWN)
     })
 
     it('creates an error with code', () => {
-      const error = new AppError('Test error', 'TEST_CODE')
+      const error = new AppError('Test error', { code: ErrorCodes.VALIDATION_ERROR })
       
       expect(error.message).toBe('Test error')
-      expect(error.code).toBe('TEST_CODE')
+      expect(error.code).toBe(ErrorCodes.VALIDATION_ERROR)
     })
 
     it('creates an error with code and status code', () => {
-      const error = new AppError('Test error', 'TEST_CODE', 404)
+      const error = new AppError('Test error', { code: ErrorCodes.NOT_FOUND, context: { statusCode: 404 } })
       
       expect(error.message).toBe('Test error')
-      expect(error.code).toBe('TEST_CODE')
-      expect(error.statusCode).toBe(404)
+      expect(error.code).toBe(ErrorCodes.NOT_FOUND)
+      expect(error.context.statusCode).toBe(404)
     })
   })
 

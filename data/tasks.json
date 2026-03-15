@@ -11,7 +11,7 @@
       "projectId": "proj-001",
       "createdBy": "user",
       "createdAt": "2026-03-06T09:00:00Z",
-      "updatedAt": "2026-03-15T02:18:15.129Z",
+      "updatedAt": "2026-03-15T02:37:13.694Z",
       "comments": [],
       "history": [
         {
@@ -833,6 +833,56 @@
         },
         {
           "timestamp": "2026-03-15T02:18:15.103Z",
+          "status": "completed",
+          "changedBy": "test-user"
+        },
+        {
+          "timestamp": "2026-03-15T02:25:19.812Z",
+          "status": "completed",
+          "changedBy": "test-user"
+        },
+        {
+          "timestamp": "2026-03-15T02:25:19.878Z",
+          "status": "completed",
+          "changedBy": "test-user"
+        },
+        {
+          "timestamp": "2026-03-15T02:29:50.154Z",
+          "status": "completed",
+          "changedBy": "test-user"
+        },
+        {
+          "timestamp": "2026-03-15T02:29:50.313Z",
+          "status": "completed",
+          "changedBy": "test-user"
+        },
+        {
+          "timestamp": "2026-03-15T02:30:27.166Z",
+          "status": "completed",
+          "changedBy": "test-user"
+        },
+        {
+          "timestamp": "2026-03-15T02:30:27.250Z",
+          "status": "completed",
+          "changedBy": "test-user"
+        },
+        {
+          "timestamp": "2026-03-15T02:34:32.587Z",
+          "status": "completed",
+          "changedBy": "test-user"
+        },
+        {
+          "timestamp": "2026-03-15T02:34:32.659Z",
+          "status": "completed",
+          "changedBy": "test-user"
+        },
+        {
+          "timestamp": "2026-03-15T02:37:13.576Z",
+          "status": "completed",
+          "changedBy": "test-user"
+        },
+        {
+          "timestamp": "2026-03-15T02:37:13.671Z",
           "status": "completed",
           "changedBy": "test-user"
         }
@@ -26213,6 +26263,2445 @@
         },
         {
           "timestamp": "2026-03-15T02:20:27.689Z",
+          "status": "in_progress",
+          "changedBy": "anonymous",
+          "assignee": "tester"
+        }
+      ],
+      "assignee": "tester"
+    },
+    {
+      "title": "集成测试任务",
+      "description": "完整生命周期测试",
+      "type": "development",
+      "priority": "high",
+      "status": "pending",
+      "assignee": "executor",
+      "createdBy": "test-user",
+      "id": "task-1773541518806",
+      "createdAt": "2026-03-15T02:25:18.806Z",
+      "updatedAt": "2026-03-15T02:25:18.806Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:25:18.806Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "集成测试任务",
+      "description": "完整生命周期测试",
+      "type": "development",
+      "priority": "high",
+      "status": "pending",
+      "assignee": "executor",
+      "createdBy": "test-user",
+      "id": "task-1773541519063",
+      "createdAt": "2026-03-15T02:25:19.063Z",
+      "updatedAt": "2026-03-15T02:25:19.063Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:25:19.063Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541519468",
+      "createdAt": "2026-03-15T02:25:19.468Z",
+      "updatedAt": "2026-03-15T02:25:19.468Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:25:19.468Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "测试任务",
+      "description": "测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541519547",
+      "createdAt": "2026-03-15T02:25:19.547Z",
+      "updatedAt": "2026-03-15T02:25:19.547Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:25:19.547Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "时间戳测试",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541519623",
+      "createdAt": "2026-03-15T02:25:19.625Z",
+      "updatedAt": "2026-03-15T02:25:19.625Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:25:19.625Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 0",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541519938",
+      "createdAt": "2026-03-15T02:25:19.938Z",
+      "updatedAt": "2026-03-15T02:25:19.938Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:25:19.938Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 1",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541519995",
+      "createdAt": "2026-03-15T02:25:19.997Z",
+      "updatedAt": "2026-03-15T02:25:19.997Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:25:19.997Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 2",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541520079",
+      "createdAt": "2026-03-15T02:25:20.079Z",
+      "updatedAt": "2026-03-15T02:25:20.079Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:25:20.079Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 3",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541520178",
+      "createdAt": "2026-03-15T02:25:20.178Z",
+      "updatedAt": "2026-03-15T02:25:20.178Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:25:20.178Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 4",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541520246",
+      "createdAt": "2026-03-15T02:25:20.246Z",
+      "updatedAt": "2026-03-15T02:25:20.246Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:25:20.246Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 0",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541520432",
+      "createdAt": "2026-03-15T02:25:20.432Z",
+      "updatedAt": "2026-03-15T02:25:20.432Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:25:20.432Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 1",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541520486",
+      "createdAt": "2026-03-15T02:25:20.486Z",
+      "updatedAt": "2026-03-15T02:25:20.486Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:25:20.486Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 2",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541520519",
+      "createdAt": "2026-03-15T02:25:20.519Z",
+      "updatedAt": "2026-03-15T02:25:20.519Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:25:20.519Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 3",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541520541",
+      "createdAt": "2026-03-15T02:25:20.541Z",
+      "updatedAt": "2026-03-15T02:25:20.541Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:25:20.541Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 4",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541520561",
+      "createdAt": "2026-03-15T02:25:20.561Z",
+      "updatedAt": "2026-03-15T02:25:20.561Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:25:20.561Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "只设置标题的任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541520775",
+      "createdAt": "2026-03-15T02:25:20.775Z",
+      "updatedAt": "2026-03-15T02:25:20.775Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:25:20.775Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "测试任务",
+      "description": "这是一个测试任务",
+      "type": "development",
+      "priority": "high",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773541640565",
+      "createdAt": "2026-03-15T02:27:20.565Z",
+      "updatedAt": "2026-03-15T02:27:20.565Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:27:20.565Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "简单任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773541640620",
+      "createdAt": "2026-03-15T02:27:20.620Z",
+      "updatedAt": "2026-03-15T02:27:20.621Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:27:20.621Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "分配任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "assignee": "executor",
+      "createdBy": "anonymous",
+      "id": "task-1773541640703",
+      "createdAt": "2026-03-15T02:27:20.703Z",
+      "updatedAt": "2026-03-15T02:27:20.703Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:27:20.703Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "带历史记录的任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773541640753",
+      "createdAt": "2026-03-15T02:27:20.753Z",
+      "updatedAt": "2026-03-15T02:27:20.753Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:27:20.753Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "临时测试任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "completed",
+      "createdBy": "anonymous",
+      "id": "task-1773541640806",
+      "createdAt": "2026-03-15T02:27:20.806Z",
+      "updatedAt": "2026-03-15T02:27:20.921Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:27:20.806Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        },
+        {
+          "timestamp": "2026-03-15T02:27:20.894Z",
+          "status": "completed",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "临时测试任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773541640948",
+      "createdAt": "2026-03-15T02:27:20.948Z",
+      "updatedAt": "2026-03-15T02:27:21.035Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:27:20.948Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        },
+        {
+          "timestamp": "2026-03-15T02:27:21.015Z",
+          "status": "pending",
+          "changedBy": "anonymous",
+          "assignee": "consultant"
+        }
+      ],
+      "assignee": "consultant"
+    },
+    {
+      "title": "临时测试任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773541641067",
+      "createdAt": "2026-03-15T02:27:21.067Z",
+      "updatedAt": "2026-03-15T02:27:21.185Z",
+      "comments": [
+        {
+          "id": "comment-1773541641165",
+          "content": "这是一条测试评论",
+          "author": "anonymous",
+          "timestamp": "2026-03-15T02:27:21.165Z"
+        }
+      ],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:27:21.067Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "临时测试任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "completed",
+      "createdBy": "anonymous",
+      "id": "task-1773541641269",
+      "createdAt": "2026-03-15T02:27:21.269Z",
+      "updatedAt": "2026-03-15T02:27:21.364Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:27:21.269Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        },
+        {
+          "timestamp": "2026-03-15T02:27:21.341Z",
+          "status": "completed",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "任务类型测试",
+      "description": "",
+      "type": "invalid-type",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773541641405",
+      "createdAt": "2026-03-15T02:27:21.405Z",
+      "updatedAt": "2026-03-15T02:27:21.405Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:27:21.405Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "优先级测试",
+      "description": "",
+      "type": "other",
+      "priority": "urgent",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773541641451",
+      "createdAt": "2026-03-15T02:27:21.451Z",
+      "updatedAt": "2026-03-15T02:27:21.451Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:27:21.451Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "空描述任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773541641492",
+      "createdAt": "2026-03-15T02:27:21.492Z",
+      "updatedAt": "2026-03-15T02:27:21.492Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:27:21.492Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "<script>alert(\"XSS\")</script> 测试任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773541641534",
+      "createdAt": "2026-03-15T02:27:21.534Z",
+      "updatedAt": "2026-03-15T02:27:21.534Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:27:21.534Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773541641586",
+      "createdAt": "2026-03-15T02:27:21.586Z",
+      "updatedAt": "2026-03-15T02:27:21.586Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:27:21.586Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "并发测试任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "in_progress",
+      "createdBy": "anonymous",
+      "id": "task-1773541641633",
+      "createdAt": "2026-03-15T02:27:21.633Z",
+      "updatedAt": "2026-03-15T02:27:21.793Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:27:21.633Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        },
+        {
+          "timestamp": "2026-03-15T02:27:21.695Z",
+          "status": "in_progress",
+          "changedBy": "anonymous"
+        },
+        {
+          "timestamp": "2026-03-15T02:27:21.760Z",
+          "status": "in_progress",
+          "changedBy": "anonymous",
+          "assignee": "tester"
+        }
+      ],
+      "assignee": "tester"
+    },
+    {
+      "title": "集成测试任务",
+      "description": "完整生命周期测试",
+      "type": "development",
+      "priority": "high",
+      "status": "pending",
+      "assignee": "executor",
+      "createdBy": "test-user",
+      "id": "task-1773541788983",
+      "createdAt": "2026-03-15T02:29:48.983Z",
+      "updatedAt": "2026-03-15T02:29:48.983Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:29:48.983Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "集成测试任务",
+      "description": "完整生命周期测试",
+      "type": "development",
+      "priority": "high",
+      "status": "pending",
+      "assignee": "executor",
+      "createdBy": "test-user",
+      "id": "task-1773541789144",
+      "createdAt": "2026-03-15T02:29:49.144Z",
+      "updatedAt": "2026-03-15T02:29:49.144Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:29:49.144Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541789659",
+      "createdAt": "2026-03-15T02:29:49.659Z",
+      "updatedAt": "2026-03-15T02:29:49.660Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:29:49.660Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "测试任务",
+      "description": "测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541789772",
+      "createdAt": "2026-03-15T02:29:49.772Z",
+      "updatedAt": "2026-03-15T02:29:49.772Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:29:49.772Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "时间戳测试",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541789942",
+      "createdAt": "2026-03-15T02:29:49.942Z",
+      "updatedAt": "2026-03-15T02:29:49.942Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:29:49.942Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 0",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541790468",
+      "createdAt": "2026-03-15T02:29:50.468Z",
+      "updatedAt": "2026-03-15T02:29:50.468Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:29:50.468Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 1",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541790539",
+      "createdAt": "2026-03-15T02:29:50.539Z",
+      "updatedAt": "2026-03-15T02:29:50.539Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:29:50.539Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 2",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541790644",
+      "createdAt": "2026-03-15T02:29:50.644Z",
+      "updatedAt": "2026-03-15T02:29:50.644Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:29:50.644Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 3",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541790749",
+      "createdAt": "2026-03-15T02:29:50.749Z",
+      "updatedAt": "2026-03-15T02:29:50.749Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:29:50.749Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 4",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541790829",
+      "createdAt": "2026-03-15T02:29:50.829Z",
+      "updatedAt": "2026-03-15T02:29:50.829Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:29:50.829Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 0",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541791040",
+      "createdAt": "2026-03-15T02:29:51.040Z",
+      "updatedAt": "2026-03-15T02:29:51.040Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:29:51.040Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 1",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541791136",
+      "createdAt": "2026-03-15T02:29:51.136Z",
+      "updatedAt": "2026-03-15T02:29:51.137Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:29:51.137Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 2",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541791224",
+      "createdAt": "2026-03-15T02:29:51.224Z",
+      "updatedAt": "2026-03-15T02:29:51.224Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:29:51.224Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 3",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541791312",
+      "createdAt": "2026-03-15T02:29:51.312Z",
+      "updatedAt": "2026-03-15T02:29:51.312Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:29:51.312Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 4",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541791389",
+      "createdAt": "2026-03-15T02:29:51.389Z",
+      "updatedAt": "2026-03-15T02:29:51.389Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:29:51.389Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "只设置标题的任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541791615",
+      "createdAt": "2026-03-15T02:29:51.615Z",
+      "updatedAt": "2026-03-15T02:29:51.615Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:29:51.615Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "集成测试任务",
+      "description": "完整生命周期测试",
+      "type": "development",
+      "priority": "high",
+      "status": "pending",
+      "assignee": "executor",
+      "createdBy": "test-user",
+      "id": "task-1773541826358",
+      "createdAt": "2026-03-15T02:30:26.358Z",
+      "updatedAt": "2026-03-15T02:30:26.358Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:30:26.358Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "集成测试任务",
+      "description": "完整生命周期测试",
+      "type": "development",
+      "priority": "high",
+      "status": "pending",
+      "assignee": "executor",
+      "createdBy": "test-user",
+      "id": "task-1773541826531",
+      "createdAt": "2026-03-15T02:30:26.531Z",
+      "updatedAt": "2026-03-15T02:30:26.531Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:30:26.531Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541826848",
+      "createdAt": "2026-03-15T02:30:26.848Z",
+      "updatedAt": "2026-03-15T02:30:26.848Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:30:26.848Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "测试任务",
+      "description": "测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541826926",
+      "createdAt": "2026-03-15T02:30:26.926Z",
+      "updatedAt": "2026-03-15T02:30:26.926Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:30:26.926Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "时间戳测试",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541826996",
+      "createdAt": "2026-03-15T02:30:26.996Z",
+      "updatedAt": "2026-03-15T02:30:26.996Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:30:26.996Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 0",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541827343",
+      "createdAt": "2026-03-15T02:30:27.343Z",
+      "updatedAt": "2026-03-15T02:30:27.343Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:30:27.343Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 1",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541827411",
+      "createdAt": "2026-03-15T02:30:27.411Z",
+      "updatedAt": "2026-03-15T02:30:27.411Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:30:27.411Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 2",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541827482",
+      "createdAt": "2026-03-15T02:30:27.482Z",
+      "updatedAt": "2026-03-15T02:30:27.482Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:30:27.482Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 3",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541827531",
+      "createdAt": "2026-03-15T02:30:27.531Z",
+      "updatedAt": "2026-03-15T02:30:27.531Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:30:27.531Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 4",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541827582",
+      "createdAt": "2026-03-15T02:30:27.586Z",
+      "updatedAt": "2026-03-15T02:30:27.586Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:30:27.586Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 0",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541827792",
+      "createdAt": "2026-03-15T02:30:27.792Z",
+      "updatedAt": "2026-03-15T02:30:27.792Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:30:27.792Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 1",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541827846",
+      "createdAt": "2026-03-15T02:30:27.846Z",
+      "updatedAt": "2026-03-15T02:30:27.846Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:30:27.846Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 2",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541827891",
+      "createdAt": "2026-03-15T02:30:27.891Z",
+      "updatedAt": "2026-03-15T02:30:27.891Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:30:27.891Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 3",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541827994",
+      "createdAt": "2026-03-15T02:30:27.994Z",
+      "updatedAt": "2026-03-15T02:30:27.995Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:30:27.995Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 4",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541828066",
+      "createdAt": "2026-03-15T02:30:28.066Z",
+      "updatedAt": "2026-03-15T02:30:28.066Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:30:28.066Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "只设置标题的任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773541828200",
+      "createdAt": "2026-03-15T02:30:28.200Z",
+      "updatedAt": "2026-03-15T02:30:28.200Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:30:28.200Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "测试任务",
+      "description": "这是一个测试任务",
+      "type": "development",
+      "priority": "high",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773541969956",
+      "createdAt": "2026-03-15T02:32:49.956Z",
+      "updatedAt": "2026-03-15T02:32:49.956Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:32:49.956Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "简单任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773541970046",
+      "createdAt": "2026-03-15T02:32:50.046Z",
+      "updatedAt": "2026-03-15T02:32:50.046Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:32:50.046Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "分配任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "assignee": "executor",
+      "createdBy": "anonymous",
+      "id": "task-1773541970121",
+      "createdAt": "2026-03-15T02:32:50.121Z",
+      "updatedAt": "2026-03-15T02:32:50.121Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:32:50.121Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "带历史记录的任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773541970147",
+      "createdAt": "2026-03-15T02:32:50.147Z",
+      "updatedAt": "2026-03-15T02:32:50.147Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:32:50.147Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "临时测试任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "completed",
+      "createdBy": "anonymous",
+      "id": "task-1773541970178",
+      "createdAt": "2026-03-15T02:32:50.178Z",
+      "updatedAt": "2026-03-15T02:32:50.252Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:32:50.179Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        },
+        {
+          "timestamp": "2026-03-15T02:32:50.239Z",
+          "status": "completed",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "临时测试任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773541970278",
+      "createdAt": "2026-03-15T02:32:50.278Z",
+      "updatedAt": "2026-03-15T02:32:50.354Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:32:50.278Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        },
+        {
+          "timestamp": "2026-03-15T02:32:50.338Z",
+          "status": "pending",
+          "changedBy": "anonymous",
+          "assignee": "consultant"
+        }
+      ],
+      "assignee": "consultant"
+    },
+    {
+      "title": "临时测试任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773541970382",
+      "createdAt": "2026-03-15T02:32:50.382Z",
+      "updatedAt": "2026-03-15T02:32:50.441Z",
+      "comments": [
+        {
+          "id": "comment-1773541970426",
+          "content": "这是一条测试评论",
+          "author": "anonymous",
+          "timestamp": "2026-03-15T02:32:50.426Z"
+        }
+      ],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:32:50.382Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "临时测试任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "completed",
+      "createdBy": "anonymous",
+      "id": "task-1773541970477",
+      "createdAt": "2026-03-15T02:32:50.477Z",
+      "updatedAt": "2026-03-15T02:32:50.528Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:32:50.477Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        },
+        {
+          "timestamp": "2026-03-15T02:32:50.518Z",
+          "status": "completed",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "任务类型测试",
+      "description": "",
+      "type": "invalid-type",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773541970548",
+      "createdAt": "2026-03-15T02:32:50.548Z",
+      "updatedAt": "2026-03-15T02:32:50.548Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:32:50.548Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "优先级测试",
+      "description": "",
+      "type": "other",
+      "priority": "urgent",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773541970585",
+      "createdAt": "2026-03-15T02:32:50.585Z",
+      "updatedAt": "2026-03-15T02:32:50.585Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:32:50.585Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "空描述任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773541970610",
+      "createdAt": "2026-03-15T02:32:50.610Z",
+      "updatedAt": "2026-03-15T02:32:50.610Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:32:50.610Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "<script>alert(\"XSS\")</script> 测试任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773541970665",
+      "createdAt": "2026-03-15T02:32:50.665Z",
+      "updatedAt": "2026-03-15T02:32:50.665Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:32:50.665Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773541970688",
+      "createdAt": "2026-03-15T02:32:50.688Z",
+      "updatedAt": "2026-03-15T02:32:50.688Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:32:50.688Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "并发测试任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "in_progress",
+      "createdBy": "anonymous",
+      "id": "task-1773541970712",
+      "createdAt": "2026-03-15T02:32:50.712Z",
+      "updatedAt": "2026-03-15T02:32:50.848Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:32:50.712Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        },
+        {
+          "timestamp": "2026-03-15T02:32:50.773Z",
+          "status": "in_progress",
+          "changedBy": "anonymous"
+        },
+        {
+          "timestamp": "2026-03-15T02:32:50.838Z",
+          "status": "in_progress",
+          "changedBy": "anonymous",
+          "assignee": "tester"
+        }
+      ],
+      "assignee": "tester"
+    },
+    {
+      "title": "集成测试任务",
+      "description": "完整生命周期测试",
+      "type": "development",
+      "priority": "high",
+      "status": "pending",
+      "assignee": "executor",
+      "createdBy": "test-user",
+      "id": "task-1773542071005",
+      "createdAt": "2026-03-15T02:34:31.005Z",
+      "updatedAt": "2026-03-15T02:34:31.005Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:34:31.005Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "集成测试任务",
+      "description": "完整生命周期测试",
+      "type": "development",
+      "priority": "high",
+      "status": "pending",
+      "assignee": "executor",
+      "createdBy": "test-user",
+      "id": "task-1773542071356",
+      "createdAt": "2026-03-15T02:34:31.356Z",
+      "updatedAt": "2026-03-15T02:34:31.356Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:34:31.356Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773542072196",
+      "createdAt": "2026-03-15T02:34:32.196Z",
+      "updatedAt": "2026-03-15T02:34:32.196Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:34:32.196Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "测试任务",
+      "description": "测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773542072290",
+      "createdAt": "2026-03-15T02:34:32.290Z",
+      "updatedAt": "2026-03-15T02:34:32.290Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:34:32.290Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "时间戳测试",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773542072381",
+      "createdAt": "2026-03-15T02:34:32.381Z",
+      "updatedAt": "2026-03-15T02:34:32.381Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:34:32.381Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 0",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773542072782",
+      "createdAt": "2026-03-15T02:34:32.782Z",
+      "updatedAt": "2026-03-15T02:34:32.782Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:34:32.782Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 1",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773542072858",
+      "createdAt": "2026-03-15T02:34:32.858Z",
+      "updatedAt": "2026-03-15T02:34:32.858Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:34:32.858Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 2",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773542072917",
+      "createdAt": "2026-03-15T02:34:32.917Z",
+      "updatedAt": "2026-03-15T02:34:32.918Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:34:32.918Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 3",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773542072966",
+      "createdAt": "2026-03-15T02:34:32.966Z",
+      "updatedAt": "2026-03-15T02:34:32.966Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:34:32.966Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 4",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773542073038",
+      "createdAt": "2026-03-15T02:34:33.038Z",
+      "updatedAt": "2026-03-15T02:34:33.038Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:34:33.038Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 0",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773542073162",
+      "createdAt": "2026-03-15T02:34:33.162Z",
+      "updatedAt": "2026-03-15T02:34:33.162Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:34:33.162Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 1",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773542073208",
+      "createdAt": "2026-03-15T02:34:33.208Z",
+      "updatedAt": "2026-03-15T02:34:33.208Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:34:33.208Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 2",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773542073256",
+      "createdAt": "2026-03-15T02:34:33.256Z",
+      "updatedAt": "2026-03-15T02:34:33.256Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:34:33.256Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 3",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773542073308",
+      "createdAt": "2026-03-15T02:34:33.308Z",
+      "updatedAt": "2026-03-15T02:34:33.308Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:34:33.308Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 4",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773542073374",
+      "createdAt": "2026-03-15T02:34:33.374Z",
+      "updatedAt": "2026-03-15T02:34:33.374Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:34:33.374Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "只设置标题的任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773542073475",
+      "createdAt": "2026-03-15T02:34:33.475Z",
+      "updatedAt": "2026-03-15T02:34:33.475Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:34:33.475Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "集成测试任务",
+      "description": "完整生命周期测试",
+      "type": "development",
+      "priority": "high",
+      "status": "pending",
+      "assignee": "executor",
+      "createdBy": "test-user",
+      "id": "task-1773542232374",
+      "createdAt": "2026-03-15T02:37:12.374Z",
+      "updatedAt": "2026-03-15T02:37:12.374Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:12.374Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "集成测试任务",
+      "description": "完整生命周期测试",
+      "type": "development",
+      "priority": "high",
+      "status": "pending",
+      "assignee": "executor",
+      "createdBy": "test-user",
+      "id": "task-1773542232690",
+      "createdAt": "2026-03-15T02:37:12.690Z",
+      "updatedAt": "2026-03-15T02:37:12.690Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:12.690Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题测试任务标题",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773542233262",
+      "createdAt": "2026-03-15T02:37:13.262Z",
+      "updatedAt": "2026-03-15T02:37:13.262Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:13.262Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "测试任务",
+      "description": "测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述测试描述",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773542233327",
+      "createdAt": "2026-03-15T02:37:13.327Z",
+      "updatedAt": "2026-03-15T02:37:13.327Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:13.327Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "时间戳测试",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773542233400",
+      "createdAt": "2026-03-15T02:37:13.401Z",
+      "updatedAt": "2026-03-15T02:37:13.401Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:13.401Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 0",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773542233810",
+      "createdAt": "2026-03-15T02:37:13.810Z",
+      "updatedAt": "2026-03-15T02:37:13.810Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:13.810Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 1",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773542233896",
+      "createdAt": "2026-03-15T02:37:13.896Z",
+      "updatedAt": "2026-03-15T02:37:13.896Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:13.896Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 2",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773542234037",
+      "createdAt": "2026-03-15T02:37:14.037Z",
+      "updatedAt": "2026-03-15T02:37:14.037Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:14.037Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 3",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773542234162",
+      "createdAt": "2026-03-15T02:37:14.162Z",
+      "updatedAt": "2026-03-15T02:37:14.162Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:14.162Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 4",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773542234254",
+      "createdAt": "2026-03-15T02:37:14.254Z",
+      "updatedAt": "2026-03-15T02:37:14.254Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:14.254Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 0",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773542234465",
+      "createdAt": "2026-03-15T02:37:14.465Z",
+      "updatedAt": "2026-03-15T02:37:14.470Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:14.470Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 1",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773542234548",
+      "createdAt": "2026-03-15T02:37:14.548Z",
+      "updatedAt": "2026-03-15T02:37:14.548Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:14.548Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 2",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773542234640",
+      "createdAt": "2026-03-15T02:37:14.640Z",
+      "updatedAt": "2026-03-15T02:37:14.640Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:14.640Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 3",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773542234727",
+      "createdAt": "2026-03-15T02:37:14.727Z",
+      "updatedAt": "2026-03-15T02:37:14.727Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:14.727Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "并发任务 4",
+      "description": "",
+      "type": "development",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773542234813",
+      "createdAt": "2026-03-15T02:37:14.813Z",
+      "updatedAt": "2026-03-15T02:37:14.813Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:14.813Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "只设置标题的任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "test-user",
+      "id": "task-1773542235150",
+      "createdAt": "2026-03-15T02:37:15.150Z",
+      "updatedAt": "2026-03-15T02:37:15.154Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:15.154Z",
+          "status": "pending",
+          "changedBy": "test-user"
+        }
+      ]
+    },
+    {
+      "title": "测试任务",
+      "description": "这是一个测试任务",
+      "type": "development",
+      "priority": "high",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773542242248",
+      "createdAt": "2026-03-15T02:37:22.248Z",
+      "updatedAt": "2026-03-15T02:37:22.248Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:22.248Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "简单任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773542242352",
+      "createdAt": "2026-03-15T02:37:22.352Z",
+      "updatedAt": "2026-03-15T02:37:22.352Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:22.352Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "分配任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "assignee": "executor",
+      "createdBy": "anonymous",
+      "id": "task-1773542242469",
+      "createdAt": "2026-03-15T02:37:22.469Z",
+      "updatedAt": "2026-03-15T02:37:22.469Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:22.469Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "带历史记录的任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773542242538",
+      "createdAt": "2026-03-15T02:37:22.538Z",
+      "updatedAt": "2026-03-15T02:37:22.538Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:22.538Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "临时测试任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "completed",
+      "createdBy": "anonymous",
+      "id": "task-1773542242610",
+      "createdAt": "2026-03-15T02:37:22.610Z",
+      "updatedAt": "2026-03-15T02:37:22.727Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:22.610Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        },
+        {
+          "timestamp": "2026-03-15T02:37:22.695Z",
+          "status": "completed",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "临时测试任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773542242759",
+      "createdAt": "2026-03-15T02:37:22.759Z",
+      "updatedAt": "2026-03-15T02:37:22.873Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:22.759Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        },
+        {
+          "timestamp": "2026-03-15T02:37:22.846Z",
+          "status": "pending",
+          "changedBy": "anonymous",
+          "assignee": "consultant"
+        }
+      ],
+      "assignee": "consultant"
+    },
+    {
+      "title": "临时测试任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773542242911",
+      "createdAt": "2026-03-15T02:37:22.911Z",
+      "updatedAt": "2026-03-15T02:37:23.005Z",
+      "comments": [
+        {
+          "id": "comment-1773542242980",
+          "content": "这是一条测试评论",
+          "author": "anonymous",
+          "timestamp": "2026-03-15T02:37:22.980Z"
+        }
+      ],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:22.911Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "临时测试任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "completed",
+      "createdBy": "anonymous",
+      "id": "task-1773542243070",
+      "createdAt": "2026-03-15T02:37:23.070Z",
+      "updatedAt": "2026-03-15T02:37:23.172Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:23.070Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        },
+        {
+          "timestamp": "2026-03-15T02:37:23.148Z",
+          "status": "completed",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "任务类型测试",
+      "description": "",
+      "type": "invalid-type",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773542243267",
+      "createdAt": "2026-03-15T02:37:23.267Z",
+      "updatedAt": "2026-03-15T02:37:23.267Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:23.267Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "优先级测试",
+      "description": "",
+      "type": "other",
+      "priority": "urgent",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773542243338",
+      "createdAt": "2026-03-15T02:37:23.338Z",
+      "updatedAt": "2026-03-15T02:37:23.338Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:23.339Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "空描述任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773542243399",
+      "createdAt": "2026-03-15T02:37:23.399Z",
+      "updatedAt": "2026-03-15T02:37:23.402Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:23.402Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "<script>alert(\"XSS\")</script> 测试任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773542243534",
+      "createdAt": "2026-03-15T02:37:23.534Z",
+      "updatedAt": "2026-03-15T02:37:23.534Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:23.534Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "pending",
+      "createdBy": "anonymous",
+      "id": "task-1773542243603",
+      "createdAt": "2026-03-15T02:37:23.603Z",
+      "updatedAt": "2026-03-15T02:37:23.603Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:23.603Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        }
+      ]
+    },
+    {
+      "title": "并发测试任务",
+      "description": "",
+      "type": "other",
+      "priority": "medium",
+      "status": "in_progress",
+      "createdBy": "anonymous",
+      "id": "task-1773542243763",
+      "createdAt": "2026-03-15T02:37:23.763Z",
+      "updatedAt": "2026-03-15T02:37:23.974Z",
+      "comments": [],
+      "history": [
+        {
+          "timestamp": "2026-03-15T02:37:23.763Z",
+          "status": "pending",
+          "changedBy": "anonymous"
+        },
+        {
+          "timestamp": "2026-03-15T02:37:23.857Z",
+          "status": "in_progress",
+          "changedBy": "anonymous"
+        },
+        {
+          "timestamp": "2026-03-15T02:37:23.946Z",
           "status": "in_progress",
           "changedBy": "anonymous",
           "assignee": "tester"
