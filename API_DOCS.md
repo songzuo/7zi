@@ -1,6 +1,6 @@
 # API Documentation
 
-> Generated: 2026-03-13  
+> Generated: 2026-03-15  
 > Base URL: `http://localhost:3001/api`
 
 ## Table of Contents
@@ -12,8 +12,10 @@
 - [Health](#health)
 - [Knowledge](#knowledge)
 - [Notifications](#notifications)
+- [Comments](#comments)
 - [Status](#status)
 - [Errors](#errors)
+- [Analytics](#analytics)
 
 ---
 
@@ -201,7 +203,8 @@ Create a new task.
   "description": "任务描述（可选）",
   "type": "development",
   "priority": "high",
-  "assignee": "architect"
+  "assignee": "architect",
+  "projectId": "proj-001"
 }
 ```
 
@@ -214,6 +217,7 @@ Create a new task.
 | type | string | No | Task type (research, development, other) |
 | priority | string | No | Priority (low, medium, high) |
 | assignee | string | No | AI team member ID |
+| projectId | string | No | Associated project ID |
 
 **Response (201):**
 
@@ -226,6 +230,7 @@ Create a new task.
   "priority": "high",
   "status": "pending",
   "assignee": "architect",
+  "projectId": "proj-001",
   "createdBy": "user",
   "createdAt": "2026-03-13T17:50:00Z",
   "updatedAt": "2026-03-13T17:50:00Z",
@@ -395,7 +400,7 @@ GET /api/projects?status=active&priority=high
   "data": [
     {
       "id": "proj-001",
-      "title": "AI-Powered Analytics Dashboard",
+      "name": "AI-Powered Analytics Dashboard",
       "description": "A comprehensive analytics platform...",
       "status": "active",
       "priority": "high",
@@ -427,7 +432,7 @@ Create a new project.
 
 ```json
 {
-  "title": "New Project",
+  "name": "New Project",
   "description": "Project description",
   "status": "active",
   "priority": "high",
@@ -448,8 +453,19 @@ Create a new project.
   "success": true,
   "data": {
     "id": "proj-xxx",
-    "title": "New Project",
-    ...
+    "name": "New Project",
+    "description": "Project description",
+    "status": "active",
+    "priority": "high",
+    "startDate": "2026-03-15T00:00:00Z",
+    "endDate": "2026-06-15T00:00:00Z",
+    "members": ["architect", "executor"],
+    "metadata": {
+      "category": "website",
+      "budget": 25000
+    },
+    "createdAt": "2026-03-15T10:00:00Z",
+    "updatedAt": "2026-03-15T10:00:00Z"
   }
 }
 ```
@@ -1170,6 +1186,291 @@ DELETE /api/notifications?deleteAll=true
 
 ---
 
+## Comments
+
+### 概述
+
+博客评论 API 提供评论的完整 CRUD 操作，支持按文章筛选评论。
+
+### 端点
+
+| 方法 | 路径 | 说明 | 认证 |
+|------|------|------|------|
+| GET | `/api/comments` | 获取评论列表（支持按文章筛选） | 无 |
+| POST | `/api/comments` | 创建新评论 | 无 |
+| GET | `/api/comments/[id]` | 获取单个评论详情 | 无 |
+| PUT | `/api/comments/[id]` | 更新评论内容 | 无 |
+| DELETE | `/api/comments/[id]` | 删除评论 | 无 |
+
+### GET /api/comments
+
+获取评论列表，可按文章 ID 筛选。
+
+**查询参数:**
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| postId | string | 否 | 按文章 ID 筛选评论 |
+
+**请求示例:**
+
+```bash
+# 获取所有评论
+GET /api/comments
+
+# 获取特定文章的评论
+GET /api/comments?postId=post-001
+```
+
+**响应 (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "comments": [
+      {
+        "id": "comment-001",
+        "postId": "post-001",
+        "author": "张三",
+        "content": "这是一篇很棒的文章！",
+        "tags": ["有帮助", "推荐"],
+        "createdAt": "2026-03-14T10:00:00Z",
+        "updatedAt": "2026-03-14T10:00:00Z"
+      },
+      {
+        "id": "comment-002",
+        "postId": "post-001",
+        "author": "李四",
+        "content": "学到了很多，谢谢分享！",
+        "tags": [],
+        "createdAt": "2026-03-14T11:30:00Z",
+        "updatedAt": "2026-03-14T11:30:00Z"
+      }
+    ],
+    "total": 2
+  }
+}
+```
+
+### POST /api/comments
+
+创建新评论。
+
+**请求体:**
+
+```json
+{
+  "postId": "post-001",
+  "author": "访客用户",
+  "content": "评论内容，最多 5000 个字符",
+  "tags": ["标签1", "标签2"]
+}
+```
+
+**字段说明:**
+
+| 字段 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| postId | string | 是 | 文章 ID |
+| author | string | 是 | 评论者名称 |
+| content | string | 是 | 评论内容（最大 5000 字符） |
+| tags | string[] | 否 | 评论标签数组 |
+
+**响应 (201):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "comment-xxx",
+    "postId": "post-001",
+    "author": "访客用户",
+    "content": "评论内容，最多 5000 个字符",
+    "tags": ["标签1", "标签2"],
+    "createdAt": "2026-03-15T12:00:00Z",
+    "updatedAt": "2026-03-15T12:00:00Z"
+  }
+}
+```
+
+**错误响应 (400):**
+
+```json
+{
+  "error": "内容不能超过 5000 个字符",
+  "field": "content",
+  "maxLength": 5000
+}
+```
+
+### GET /api/comments/[id]
+
+获取单个评论的详细信息。
+
+**路径参数:**
+
+| 参数 | 说明 |
+|------|------|
+| id | 评论 ID |
+
+**请求示例:**
+
+```bash
+GET /api/comments/comment-001
+```
+
+**响应 (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "comment-001",
+    "postId": "post-001",
+    "author": "张三",
+    "content": "这是一篇很棒的文章！",
+    "tags": ["有帮助", "推荐"],
+    "createdAt": "2026-03-14T10:00:00Z",
+    "updatedAt": "2026-03-14T10:00:00Z"
+  }
+}
+```
+
+**错误响应 (404):**
+
+```json
+{
+  "error": "Comment not found"
+}
+```
+
+### PUT /api/comments/[id]
+
+更新评论内容。
+
+**路径参数:**
+
+| 参数 | 说明 |
+|------|------|
+| id | 评论 ID |
+
+**请求体:**
+
+```json
+{
+  "content": "更新后的评论内容",
+  "author": "更新后的作者名"
+}
+```
+
+**字段说明:**
+
+| 字段 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| content | string | 否 | 更新后的评论内容（最大 5000 字符） |
+| author | string | 否 | 更新后的作者名（不能为空） |
+
+> 注意：至少需要提供一个字段进行更新
+
+**响应 (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "comment-001",
+    "postId": "post-001",
+    "author": "更新后的作者名",
+    "content": "更新后的评论内容",
+    "tags": ["有帮助", "推荐"],
+    "createdAt": "2026-03-14T10:00:00Z",
+    "updatedAt": "2026-03-15T12:30:00Z"
+  }
+}
+```
+
+**错误响应 (400):**
+
+```json
+{
+  "error": "Request body is required for update"
+}
+```
+
+```json
+{
+  "error": "Content must be less than 5000 characters"
+}
+```
+
+**错误响应 (404):**
+
+```json
+{
+  "error": "Comment not found"
+}
+```
+
+### DELETE /api/comments/[id]
+
+删除评论。
+
+**路径参数:**
+
+| 参数 | 说明 |
+|------|------|
+| id | 评论 ID |
+
+**请求示例:**
+
+```bash
+DELETE /api/comments/comment-001
+```
+
+**响应 (200):**
+
+```json
+{
+  "success": true,
+  "message": "Comment deleted successfully"
+}
+```
+
+**错误响应 (404):**
+
+```json
+{
+  "error": "Comment not found"
+}
+```
+
+### 数据模型
+
+**Comment 对象:**
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | string | 评论唯一标识符 (UUID) |
+| postId | string | 关联的文章 ID |
+| author | string | 评论者名称 |
+| content | string | 评论内容（最大 5000 字符） |
+| tags | string[] | 评论标签（可选） |
+| createdAt | string | 创建时间 (ISO 8601) |
+| updatedAt | string | 最后更新时间 (ISO 8601) |
+
+### 错误代码
+
+| 状态码 | 说明 |
+|--------|------|
+| 200 | 成功 |
+| 201 | 创建成功 |
+| 400 | 请求参数错误 |
+| 404 | 评论不存在 |
+| 500 | 服务器内部错误 |
+
+---
+
 ## Status
 
 ### GET /api/status
@@ -1430,3 +1731,81 @@ All API errors follow this format:
   "message": "Preferences reset to defaults"
 }
 ```
+
+---
+
+## 性能优化记录 (2026-03-15)
+
+### 项目列表 API 优化
+
+**文件**: `src/app/api/projects/route.ts`
+
+**优化内容**:
+- 移除不必要的数组拷贝 (`[...projects]` → 直接使用 `projects`)
+- 替换函数调用为内联过滤，减少函数调用开销
+- 优化前: 每次过滤都创建新数组 + 函数调用
+- 优化后: 链式过滤，直接在原引用上操作
+
+```typescript
+// 优化前
+let filteredProjects = [...projects];
+if (status) filteredProjects = getProjectsByStatus(status);
+if (priority) filteredProjects = getProjectsByPriority(priority);
+
+// 优化后
+let filteredProjects = projects;
+if (status) filteredProjects = filteredProjects.filter(p => p.status === status);
+if (priority) filteredProjects = filteredProjects.filter(p => p.priority === priority);
+```
+
+### 知识查询 API 优化
+
+**文件**: `src/app/api/knowledge/query/route.ts`
+
+**优化内容**:
+- 提前解析过滤参数，避免重复解析
+- 使用 `store.queryNodes()` 替代全量获取 + 内存过滤
+- 添加空数据提前返回，减少不必要的计算
+- 优化相关性计算，合并到单次遍历
+- 减少不必要的 Set 创建
+
+```typescript
+// 优化前: 全量获取 + 内存过滤
+let nodes = store.getAllNodes();
+// ... 多次 filter
+
+// 优化后: 使用数据库查询
+if (hasFilters) {
+  const queryResult = store.queryNodes({ type, source, tags, ... });
+  nodes = queryResult.nodes;
+}
+
+// 优化前: 先计算分数再建索引
+const relevanceScores = nodes.map(n => ...);
+const indexedNodes = nodes.map((n, i) => ({ node: n, relevance: relevanceScores[i] }));
+
+// 优化后: 单次遍历
+const indexedNodes = nodes.map(node => ({
+  node,
+  relevance: (node.weight * 0.5) + (node.confidence * 0.5),
+}));
+```
+
+### 知识节点 API 缓存
+
+**文件**: `src/app/api/knowledge/nodes/route.ts`
+
+**优化内容**:
+- 实现查询缓存 (30秒 TTL)
+- 添加缓存头优化 CDN 命中率
+- 缓存键基于查询参数生成
+
+```typescript
+const cacheKey = cache.createKey('nodes', { type, source, tags, ... });
+const cached = cache.get(cacheKey);
+if (cached) return NextResponse.json({ ..., cached: true });
+```
+
+---
+
+*最后更新: 2026-03-15*

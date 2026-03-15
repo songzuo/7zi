@@ -1,54 +1,77 @@
 /**
- * @fileoverview 时间格式化工具
- * @description 统一的时间处理函数，避免在多个组件中重复定义
+ * @fileoverview 时间格式化工具（已废弃）
+ * @deprecated 请使用 @/lib/datetime 或 @/lib/utils 中的日期时间函数
  * 
- * @deprecated 请使用 @/lib/utils 中的 formatTimeAgo
+ * @description
+ * 此文件已废弃，所有功能已迁移到：
+ * - @/lib/datetime - 统一的日期时间处理
+ * - @/lib/utils - 包含 formatTimeAgo 等工具函数
+ * 
+ * @example
+ * ```typescript
+ * // 旧用法（已废弃）
+ * import { formatTimeAgo } from '@/lib/date';
+ * 
+ * // 新用法（推荐）
+ * import { formatTimeAgo, formatDate, isToday } from '@/lib/datetime';
+ * // 或
+ * import { formatTimeAgo } from '@/lib/utils';
+ * ```
  */
-import { formatTimeAgo as utilsFormatTimeAgo } from './utils';
+
+import {
+  formatTimeAgo as datetimeFormatTimeAgo,
+  formatDate as datetimeFormatDate,
+  formatDateTime as datetimeFormatDateTime,
+  isToday as datetimeIsToday,
+  isYesterday as datetimeIsYesterday,
+} from './datetime';
 
 /**
  * 格式化相对时间（几分钟前、几小时前等）
- * @deprecated 使用 utils.formatTimeAgo 代替
+ * @deprecated 使用 @/lib/datetime 中的 formatTimeAgo 代替
  */
-export const formatTimeAgo = utilsFormatTimeAgo;
+export const formatTimeAgo = datetimeFormatTimeAgo;
 
 /**
  * 格式化日期为标准格式
+ * @deprecated 使用 @/lib/datetime 中的 formatDate 代替
  */
 export function formatDate(date: Date | string, options?: Intl.DateTimeFormatOptions): string {
-  const d = new Date(date);
-  return d.toLocaleDateString('zh-CN', options);
+  return datetimeFormatDate(date, 'zh-CN', options);
 }
 
 /**
  * 格式化日期时间
+ * @deprecated 使用 @/lib/datetime 中的 formatDateTime 代替
  */
 export function formatDateTime(date: Date | string): string {
-  const d = new Date(date);
-  return d.toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  return datetimeFormatDateTime(date);
 }
 
 /**
  * 检查日期是否是今天
+ * @deprecated 使用 @/lib/datetime 中的 isToday 代替
  */
 export function isToday(date: Date | string): boolean {
-  const d = new Date(date);
-  const today = new Date();
-  return d.toDateString() === today.toDateString();
+  return datetimeIsToday(date);
 }
 
 /**
  * 检查日期是否是昨天
+ * @deprecated 使用 @/lib/datetime 中的 isYesterday 代替
  */
 export function isYesterday(date: Date | string): boolean {
-  const d = new Date(date);
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  return d.toDateString() === yesterday.toDateString();
+  return datetimeIsYesterday(date);
 }
+
+/**
+ * @deprecated 此模块已废弃，请迁移到 @/lib/datetime
+ */
+export default {
+  formatTimeAgo,
+  formatDate,
+  formatDateTime,
+  isToday,
+  isYesterday,
+};

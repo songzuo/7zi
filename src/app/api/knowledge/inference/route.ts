@@ -1,10 +1,61 @@
+/**
+ * 知识推理 API
+ * 基于知识图谱进行推理，发现节点间隐含关系
+ * 
+ * @module api/knowledge/inference
+ * @description 执行图遍历推理，从起始节点出发发现相关知识和推断结论
+ * 
+ * @example
+ * // 请求示例
+ * POST /api/knowledge/inference
+ * {
+ *   "startNodeId": "node-001",
+ *   "maxDepth": 3
+ * }
+ * 
+ * // 响应示例
+ * {
+ *   "success": true,
+ *   "data": {
+ *     "conclusion": "Based on 5 related knowledge items",
+ *     "confidence": 0.85,
+ *     "path": ["node-001", "node-002", "node-003"],
+ *     "relatedNodes": [...]
+ *   }
+ * }
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 import { getKnowledgeStore } from '@/lib/store/knowledge-store';
 import { apiLogger } from '@/lib/logger';
 
 /**
+ * 推理请求参数
+ * @typedef {Object} InferenceRequest
+ * @property {string} startNodeId - 起始节点 ID（必填）
+ * @property {number} [maxDepth=3] - 推理深度，最大遍历层数
+ */
+
+/**
+ * 推理响应数据
+ * @typedef {Object} InferenceData
+ * @property {string} conclusion - 推理结论描述
+ * @property {number} confidence - 置信度 (0-1)
+ * @property {string[]} path - 遍历路径（节点 ID 列表）
+ * @property {Object[]} relatedNodes - 相关节点列表（按置信度排序，最多5个）
+ */
+
+/**
  * POST /api/knowledge/inference
- * 执行推理
+ * 执行基于图遍历的知识推理
+ * 
+ * @param {NextRequest} request - 请求对象
+ * @returns {Promise<NextResponse>} 推理结果
+ * 
+ * @throws {400} 缺少 startNodeId 参数
+ * @throws {404} 起始节点不存在
+ * @throws {404} 未找到相关节点
+ * @throws {500} 服务器内部错误
  */
 export async function POST(request: NextRequest) {
   try {

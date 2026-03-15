@@ -6,59 +6,35 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
-// Mock functions that will be reused
-const mockGetAllNodes = vi.fn();
-const mockGetNode = vi.fn();
+// Mock the knowledge store
+const mockQueryNodes = vi.fn();
 const mockAddNode = vi.fn();
-const mockUpdateNode = vi.fn();
-const mockDeleteNode = vi.fn();
-const mockGetNodesByType = vi.fn();
-const mockGetNodesByTag = vi.fn();
-const mockGetNodesBySource = vi.fn();
+const mockGetNode = vi.fn();
+const mockGetAllNodes = vi.fn();
 
-// Create a mock lattice instance
-const mockLatticeInstance = {
-  getAllNodes: mockGetAllNodes,
-  getNode: mockGetNode,
+const mockKnowledgeStore = {
+  queryNodes: mockQueryNodes,
   addNode: mockAddNode,
-  updateNode: mockUpdateNode,
-  deleteNode: mockDeleteNode,
-  getNodesByType: mockGetNodesByType,
-  getNodesByTag: mockGetNodesByTag,
-  getNodesBySource: mockGetNodesBySource,
+  getNode: mockGetNode,
+  getAllNodes: mockGetAllNodes,
 };
 
-// Mock the KnowledgeLattice class with a proper class constructor
-class MockKnowledgeLattice {
-  getAllNodes = mockGetAllNodes;
-  getNode = mockGetNode;
-  addNode = mockAddNode;
-  updateNode = mockUpdateNode;
-  deleteNode = mockDeleteNode;
-  getNodesByType = mockGetNodesByType;
-  getNodesByTag = mockGetNodesByTag;
-  getNodesBySource = mockGetNodesBySource;
-}
+vi.mock('@/lib/store/knowledge-store', () => ({
+  getKnowledgeStore: vi.fn(() => mockKnowledgeStore),
+}));
 
-vi.mock('@/lib/agents/knowledge-lattice', () => ({
-  KnowledgeLattice: MockKnowledgeLattice,
-  KnowledgeType: {
-    CONCEPT: 'concept',
-    FACT: 'fact',
-    RULE: 'rule',
-    EXPERIENCE: 'experience',
-    SKILL: 'skill',
-    PREFERENCE: 'preference',
-    MEMORY: 'memory',
-  },
-  KnowledgeSource: {
-    USER: 'user',
-    OBSERVATION: 'observation',
-    INFERENCE: 'inference',
-    EXTERNAL: 'external',
-    EXPERIENCE: 'experience',
-    EVOMAP: 'evomap',
-  },
+// Mock the cache
+const mockGet = vi.fn();
+const mockSet = vi.fn();
+const mockInvalidatePrefix = vi.fn();
+
+vi.mock('@/lib/cache/knowledge-cache', () => ({
+  getKnowledgeQueryCache: vi.fn(() => ({
+    get: mockGet,
+    set: mockSet,
+    invalidatePrefix: mockInvalidatePrefix,
+    createKey: vi.fn(() => 'test-key'),
+  })),
 }));
 
 // Import route handlers AFTER mock is set up
@@ -81,6 +57,7 @@ function createMockRequest(
   return new NextRequest(url, {
     method,
     body: body ? JSON.stringify(body) : undefined,
+    headers: { 'Content-Type': 'application/json' },
   });
 }
 
@@ -88,6 +65,10 @@ describe('Knowledge Nodes API', () => {
   beforeEach(async () => {
     // Clear all mock calls and implementations
     vi.clearAllMocks();
+    
+    // Reset mock implementations
+    mockGet.mockReturnValue(null);
+    mockQueryNodes.mockReturnValue({ nodes: [], total: 0 });
     
     // Re-import the route handlers to get fresh module state
     vi.resetModules();
@@ -106,7 +87,7 @@ describe('Knowledge Nodes API', () => {
         { id: 'node-1', content: '概念1', type: 'concept', weight: 0.8 },
         { id: 'node-2', content: '事实1', type: 'fact', weight: 0.6 },
       ];
-      mockGetAllNodes.mockReturnValue(mockNodes);
+      mockQueryNodes.mockReturnValue({ nodes: mockNodes, total: 2 });
 
       const request = createMockRequest('GET');
       const response = await getNodes(request);
@@ -123,87 +104,87 @@ describe('Knowledge Nodes API', () => {
         { id: 'node-2', content: '概念2', type: 'concept', weight: 0.7 },
         { id: 'node-3', content: '事实1', type: 'fact', weight: 0.6 },
       ];
-      mockGetAllNodes.mockReturnValue(mockNodes);
+      mockQueryNodes.mockReturnValue({ nodes: mockNodes, total: 3 });
 
       const request = createMockRequest('GET', undefined, { type: 'concept' });
       const response = await getNodes(request);
       const data = await response.json();
 
       expect(response.status).toBe(200);
-      expect(data.data.every((n: any) => n.type === 'concept')).toBe(true);
+      expect(mockQueryNodes).toHaveBeenCalledWith(expect.objectContaining({ type: 'concept' }));
     });
 
     it('应该按来源过滤节点', async () => {
       const mockNodes = [
         { id: 'node-1', content: '用户知识', type: 'concept', source: 'user' },
-        { id: 'node-2', content: 'AI知识', type: 'fact', source: 'ai' },
+        { id: 'node-2', content: 'AI知识', type: 'fact', source: 'inference' },
       ];
-      mockGetAllNodes.mockReturnValue(mockNodes);
+      mockQueryNodes.mockReturnValue({ nodes: mockNodes, total: 2 });
 
       const request = createMockRequest('GET', undefined, { source: 'user' });
       const response = await getNodes(request);
       const data = await response.json();
 
       expect(response.status).toBe(200);
-      expect(data.data.every((n: any) => n.source === 'user')).toBe(true);
+      expect(mockQueryNodes).toHaveBeenCalledWith(expect.objectContaining({ source: 'user' }));
     });
 
     it('应该按标签过滤节点', async () => {
       const mockNodes = [
         { id: 'node-1', content: '重要概念', type: 'concept', tags: ['important', 'core'] },
-        { id: 'node-2', content: '一般概念', type: 'concept', tags: ['general'] },
       ];
-      mockGetAllNodes.mockReturnValue(mockNodes);
+      mockQueryNodes.mockReturnValue({ nodes: mockNodes, total: 1 });
 
       const request = createMockRequest('GET', undefined, { tags: 'important,core' });
       const response = await getNodes(request);
       const data = await response.json();
 
       expect(response.status).toBe(200);
-      expect(data.data.every((n: any) => 
-        n.tags.some((t: string) => ['important', 'core'].includes(t))
-      )).toBe(true);
+      expect(mockQueryNodes).toHaveBeenCalledWith(expect.objectContaining({ 
+        tags: ['important', 'core'] 
+      }));
     });
 
     it('应该按最小权重过滤节点', async () => {
       const mockNodes = [
         { id: 'node-1', content: '高权重', type: 'concept', weight: 0.9 },
-        { id: 'node-2', content: '中等权重', type: 'concept', weight: 0.6 },
-        { id: 'node-3', content: '低权重', type: 'concept', weight: 0.3 },
       ];
-      mockGetAllNodes.mockReturnValue(mockNodes);
+      mockQueryNodes.mockReturnValue({ nodes: mockNodes, total: 1 });
 
       const request = createMockRequest('GET', undefined, { minWeight: '0.5' });
       const response = await getNodes(request);
       const data = await response.json();
 
       expect(response.status).toBe(200);
-      expect(data.data.every((n: any) => n.weight >= 0.5)).toBe(true);
+      expect(mockQueryNodes).toHaveBeenCalledWith(expect.objectContaining({ 
+        minWeight: 0.5 
+      }));
     });
 
     it('应该按最小置信度过滤节点', async () => {
       const mockNodes = [
         { id: 'node-1', content: '高置信', type: 'fact', confidence: 0.95 },
-        { id: 'node-2', content: '中等置信', type: 'fact', confidence: 0.7 },
       ];
-      mockGetAllNodes.mockReturnValue(mockNodes);
+      mockQueryNodes.mockReturnValue({ nodes: mockNodes, total: 1 });
 
       const request = createMockRequest('GET', undefined, { minConfidence: '0.8' });
       const response = await getNodes(request);
       const data = await response.json();
 
       expect(response.status).toBe(200);
-      expect(data.data.every((n: any) => n.confidence >= 0.8)).toBe(true);
+      expect(mockQueryNodes).toHaveBeenCalledWith(expect.objectContaining({ 
+        minConfidence: 0.8 
+      }));
     });
 
     it('应该支持分页', async () => {
-      const mockNodes = Array.from({ length: 25 }, (_, i) => ({
+      const mockNodes = Array.from({ length: 10 }, (_, i) => ({
         id: `node-${i}`,
         content: `节点${i}`,
         type: 'concept',
         weight: 0.5,
       }));
-      mockGetAllNodes.mockReturnValue(mockNodes);
+      mockQueryNodes.mockReturnValue({ nodes: mockNodes, total: 25 });
 
       const request = createMockRequest('GET', undefined, { limit: '10', offset: '5' });
       const response = await getNodes(request);
@@ -219,10 +200,8 @@ describe('Knowledge Nodes API', () => {
     it('应该支持组合过滤条件', async () => {
       const mockNodes = [
         { id: 'node-1', content: '用户概念', type: 'concept', source: 'user', weight: 0.8 },
-        { id: 'node-2', content: 'AI概念', type: 'concept', source: 'ai', weight: 0.9 },
-        { id: 'node-3', content: '用户事实', type: 'fact', source: 'user', weight: 0.7 },
       ];
-      mockGetAllNodes.mockReturnValue(mockNodes);
+      mockQueryNodes.mockReturnValue({ nodes: mockNodes, total: 1 });
 
       const request = createMockRequest('GET', undefined, { 
         type: 'concept', 
@@ -238,7 +217,7 @@ describe('Knowledge Nodes API', () => {
     });
 
     it('空结果时应该返回空数组', async () => {
-      mockGetAllNodes.mockReturnValue([]);
+      mockQueryNodes.mockReturnValue({ nodes: [], total: 0 });
 
       const request = createMockRequest('GET');
       const response = await getNodes(request);
@@ -250,7 +229,7 @@ describe('Knowledge Nodes API', () => {
     });
 
     it('错误时应该返回 500', async () => {
-      mockGetAllNodes.mockImplementation(() => {
+      mockQueryNodes.mockImplementation(() => {
         throw new Error('Database error');
       });
 
@@ -433,9 +412,11 @@ describe('Knowledge API - 边界情况', () => {
   let postNodes: (request: NextRequest) => Promise<Response>;
 
   beforeEach(async () => {
-    vi.resetModules();
     vi.clearAllMocks();
+    mockGet.mockReturnValue(null);
+    mockQueryNodes.mockReturnValue({ nodes: [], total: 0 });
     
+    vi.resetModules();
     const routeModule = await import('@/app/api/knowledge/nodes/route');
     getNodes = routeModule.GET;
     postNodes = routeModule.POST;
@@ -525,13 +506,13 @@ describe('Knowledge API - 边界情况', () => {
   });
 
   it('应该处理大量分页请求', async () => {
-    const manyNodes = Array.from({ length: 1000 }, (_, i) => ({
+    const manyNodes = Array.from({ length: 100 }, (_, i) => ({
       id: `node-${i}`,
       content: `节点${i}`,
       type: 'concept',
       weight: 0.5,
     }));
-    mockGetAllNodes.mockReturnValue(manyNodes);
+    mockQueryNodes.mockReturnValue({ nodes: manyNodes, total: 1000 });
 
     const request = createMockRequest('GET', undefined, { limit: '100', offset: '500' });
     const response = await getNodes(request);

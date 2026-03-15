@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbo",
+    "dev:3001": "PORT=3001 next dev --turbo",
+    "dev:3002": "PORT=3002 next dev --turbo",
     "dev:turbopack": "next dev --turbo",
     "build": "next build",
     "build:turbopack": "NEXT_TURBO=1 next build",
@@ -27,7 +29,9 @@
     "test:all": "npm run test:run && npm run test:e2e",
     "perf:baseline": "node performance/measure-performance.js",
     "perf:monitor": "node performance/monitor.js",
-    "perf:report": "node performance/generate-report.js"
+    "perf:report": "node performance/generate-report.js",
+    "storybook": "storybook dev -p 6006",
+    "storybook:build": "storybook build"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
@@ -50,6 +54,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
+    "@storybook/react-vite": "^10.2.19",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
@@ -65,6 +70,7 @@
     "eslint-config-next": "^16.2.0-canary.85",
     "jsdom": "^28.1.0",
     "playwright": "^1.58.2",
+    "storybook": "^10.2.19",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.0.18",

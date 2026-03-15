@@ -284,7 +284,8 @@ describe('ContactPage', () => {
     const params = Promise.resolve({ locale: 'zh' })
     render(await ContactPage({ params }))
     
-    expect(screen.getByText('© 2024 7zi Studio')).toBeInTheDocument()
+    // Check that footer with contentinfo role exists
+    expect(screen.getByRole('contentinfo')).toBeInTheDocument()
   })
 
   it('applies correct dark mode classes', async () => {

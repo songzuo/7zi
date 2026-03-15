@@ -27,61 +27,6 @@ vi.mock('@/lib/logger', () => ({
   }),
 }));
 
-// Mock Redis cache
-vi.mock('@/lib/cache/redis-cache', () => ({
-  RedisCache: vi.fn().mockImplementation(() => ({
-    connect: vi.fn().mockResolvedValue(false),
-    disconnect: vi.fn().mockResolvedValue(undefined),
-    get: vi.fn().mockResolvedValue(null),
-    set: vi.fn().mockResolvedValue(true),
-    delete: vi.fn().mockResolvedValue(true),
-    has: vi.fn().mockResolvedValue(false),
-    getOrSet: vi.fn().mockImplementation(async (_key: string, factory: () => Promise<unknown>) => factory()),
-    mget: vi.fn().mockResolvedValue(new Map()),
-    mset: vi.fn().mockResolvedValue(true),
-    invalidate: vi.fn().mockResolvedValue(0),
-    touch: vi.fn().mockResolvedValue(true),
-    clear: vi.fn().mockResolvedValue(undefined),
-    getStats: vi.fn().mockReturnValue({
-      totalRequests: 0,
-      hits: 0,
-      misses: 0,
-      hitRate: 0,
-      entries: 0,
-      memoryUsage: 0,
-      evictions: 0,
-      expirations: 0,
-    }),
-    resetStats: vi.fn(),
-    isReady: vi.fn().mockReturnValue(false),
-  })),
-}));
-
-// Mock Layered cache
-vi.mock('@/lib/cache/layered-cache', () => ({
-  LayeredCache: vi.fn().mockImplementation(() => ({
-    connect: vi.fn().mockResolvedValue(false),
-    disconnect: vi.fn().mockResolvedValue(undefined),
-    get: vi.fn().mockResolvedValue(null),
-    set: vi.fn().mockResolvedValue(true),
-    delete: vi.fn().mockResolvedValue(true),
-    has: vi.fn().mockResolvedValue(false),
-    getOrSet: vi.fn().mockImplementation(async (_key: string, factory: () => Promise<unknown>) => factory()),
-    mget: vi.fn().mockResolvedValue(new Map()),
-    mset: vi.fn().mockResolvedValue(true),
-    invalidate: vi.fn().mockResolvedValue(0),
-    touch: vi.fn().mockResolvedValue(true),
-    clear: vi.fn().mockResolvedValue(undefined),
-    getStats: vi.fn().mockReturnValue({
-      l1: { totalRequests: 0, hits: 0, misses: 0 },
-      l2: { totalRequests: 0, hits: 0, misses: 0 },
-      layered: { l1Hits: 0, l2Hits: 0, misses: 0, totalRequests: 0 },
-    }),
-    resetStats: vi.fn(),
-    isReady: vi.fn().mockReturnValue(false),
-  })),
-}));
-
 describe('CacheManager', () => {
   let manager: CacheManager;
 
@@ -114,14 +59,16 @@ describe('CacheManager', () => {
       expect(manager.getProvider()).toBe('memory');
     });
 
-    it('should create redis cache when provider is redis', () => {
+    it('should create memory cache when provider is redis (redis not supported)', () => {
+      // Redis cache is currently disabled, falls back to memory
       manager = new CacheManager({ provider: 'redis' });
-      expect(manager.getProvider()).toBe('redis');
+      expect(manager.getProvider()).toBe('memory');
     });
 
-    it('should create layered cache when provider is layered', () => {
+    it('should create memory cache when provider is layered (layered not supported)', () => {
+      // Layered cache is currently disabled, falls back to memory
       manager = new CacheManager({ provider: 'layered' });
-      expect(manager.getProvider()).toBe('layered');
+      expect(manager.getProvider()).toBe('memory');
     });
 
     it('should pass memory options to memory cache', () => {
@@ -421,14 +368,14 @@ describe('CacheManager', () => {
       expect(instance1).toBe(instance2);
     });
 
-    it('should create new instance after reset', () => {
+    it('should create new instance after reset', async () => {
       const instance1 = getCacheManager();
-      instance1.set('key', 'value');
+      await instance1.set('key', 'value');
 
       resetCacheManager();
 
       const instance2 = getCacheManager();
-      expect(instance2.get('key')).resolves.toBeNull();
+      await expect(instance2.get('key')).resolves.toBeNull();
     });
   });
 

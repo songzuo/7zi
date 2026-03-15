@@ -8,7 +8,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { createLogger } from '@/lib/logger';
 
+const logger = createLogger('CommentsAPI');
 const DATA_FILE = path.join(process.cwd(), 'data', 'comments.json');
 
 interface Comment {
@@ -29,7 +31,7 @@ function loadComments(): Comment[] {
       return Array.isArray(parsed) ? parsed : [];
     }
   } catch (error) {
-    console.error('Error loading comments:', error);
+    logger.error('Error loading comments', error);
   }
   return [];
 }
@@ -43,7 +45,7 @@ function saveComments(comments: Comment[]): void {
     }
     fs.writeFileSync(DATA_FILE, JSON.stringify(comments, null, 2));
   } catch (error) {
-    console.error('Error saving comments:', error);
+    logger.error('Error saving comments', error);
     throw error;
   }
 }
@@ -100,7 +102,7 @@ export async function GET(request: NextRequest) {
       data: comment
     });
   } catch (error) {
-    console.error('Error fetching comment:', error);
+    logger.error('Error fetching comment', error);
     return NextResponse.json(
       { error: 'Failed to fetch comment', message: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
@@ -197,7 +199,7 @@ export async function PUT(request: NextRequest) {
       data: comments[index]
     });
   } catch (error) {
-    console.error('Error updating comment:', error);
+    logger.error('Error updating comment', error);
     return NextResponse.json(
       { error: 'Failed to update comment', message: error instanceof Error ? error.message : 'Unknown error' },
       { status: 400 }
@@ -238,7 +240,7 @@ export async function DELETE(request: NextRequest) {
       message: 'Comment deleted successfully'
     });
   } catch (error) {
-    console.error('Error deleting comment:', error);
+    logger.error('Error deleting comment', error);
     return NextResponse.json(
       { error: 'Failed to delete comment', message: error instanceof Error ? error.message : 'Unknown error' },
       { status: 400 }

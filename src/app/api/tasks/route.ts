@@ -2,6 +2,12 @@
  * 任务管理 API
  * 提供任务的 CRUD 操作，支持认证和 CSRF 保护
  * 
+ * 优化特性：
+ * - 使用 IndexedStore 进行 O(1) 索引查询
+ * - 支持分页，减少大数据集传输
+ * - 集成缓存，减少重复查询
+ * - 缓存失效策略
+ * 
  * @module api/tasks
  * @description 任务管理端点，支持创建、查询、更新和删除任务
  * 使用文件持久化存储，数据不会因服务器重启丢失
@@ -9,6 +15,9 @@
  * @example
  * // 获取任务列表
  * GET /api/tasks?status=pending&type=development
+ * 
+ * // 分页查询
+ * GET /api/tasks?page=1&limit=20&sortBy=priority&sortOrder=desc
  * 
  * // 创建新任务
  * POST /api/tasks
@@ -32,17 +41,29 @@ import {
   forbiddenError,
   successResponse,
 } from '@/lib/middleware';
-// 使用持久化存储
-import { 
-  getTasks, 
-  getTaskById, 
-  createTask as dataCreateTask, 
+import { withPerformanceTracking } from '@/lib/middleware/performance-middleware';
+// 使用索引优化存储
+import {
+  getTasks,
+  getTaskById,
+  createTask as dataCreateTask,
   updateTask as dataUpdateTask,
-  deleteTask as dataDeleteTask
-} from '@/lib/data/tasks';
+  deleteTask as dataDeleteTask,
+  queryTasks,
+  paginateTasks,
+} from '@/lib/data/tasks-indexed';
+import {
+  cachedQuery,
+  generateCacheKey,
+  CacheInvalidator,
+} from '@/lib/data/cached-api';
 
 // 模块级别创建 CSRF 中间件（复用实例）
 const csrfMiddleware = createCsrfMiddleware();
+
+// 缓存配置
+const TASKS_CACHE_TTL = '2m'; // 2 分钟缓存
+const TASKS_CACHE_TAGS = ['tasks'];
 
 /**
  * 任务查询参数
@@ -50,6 +71,12 @@ const csrfMiddleware = createCsrfMiddleware();
  * @property {TaskStatus} [status] - 按状态过滤
  * @property {TaskType} [type] - 按类型过滤
  * @property {string} [assignee] - 按分配人过滤
+ * @property {string} [projectId] - 按项目过滤
+ * @property {'low'|'medium'|'high'} [priority] - 按优先级过滤
+ * @property {number} [page] - 分页页码
+ * @property {number} [limit] - 每页数量（最大100）
+ * @property {'createdAt'|'updatedAt'|'priority'} [sortBy] - 排序字段
+ * @property {'asc'|'desc'} [sortOrder] - 排序方向
  */
 
 /**
@@ -89,31 +116,74 @@ const csrfMiddleware = createCsrfMiddleware();
  */
 
 // ============================================
-// GET /api/tasks - 获取任务列表
+// GET /api/tasks - 获取任务列表（支持分页）
 // ============================================
 
 export async function GET(request: NextRequest) {
+  apiLogger.info('GET handler called', { path: request.nextUrl.pathname });
   const { searchParams } = new URL(request.url);
+  
+  // 解析参数
+  const page = parseInt(searchParams.get('page') || '1', 10);
+  const limit = Math.min(parseInt(searchParams.get('limit') || '20', 10), 100); // 最大 100
   const status = searchParams.get('status') as TaskStatus | null;
   const type = searchParams.get('type') as TaskType | null;
   const assignee = searchParams.get('assignee');
+  const projectId = searchParams.get('projectId');
+  const priority = searchParams.get('priority') as 'low' | 'medium' | 'high' | null;
+  const sortBy = (searchParams.get('sortBy') || 'createdAt') as 'createdAt' | 'updatedAt' | 'priority';
+  const sortOrder = (searchParams.get('sortOrder') || 'desc') as 'asc' | 'desc';
+  const useCache = searchParams.get('cache') !== 'false';
 
-  // 使用持久化存储获取任务
-  let filteredTasks = getTasks();
+  // 检查是否需要分页
+  const needsPagination = searchParams.has('page') || searchParams.has('limit');
 
-  if (status) {
-    filteredTasks = filteredTasks.filter(task => task.status === status);
+  // 简单查询（无分页）- 兼容旧 API
+  if (!needsPagination && !sortBy && !sortOrder) {
+    const filters: Parameters<typeof queryTasks>[0] = {};
+    if (status) filters.status = status;
+    if (type) filters.type = type;
+    if (assignee) filters.assignee = assignee;
+    if (projectId) filters.projectId = projectId;
+    if (priority) filters.priority = priority;
+
+    // 如果没有任何过滤，返回全部
+    if (Object.keys(filters).length === 0) {
+      // 使用缓存
+      if (useCache) {
+        const cacheKey = generateCacheKey('tasks:all', { status, type, assignee });
+        const cached = await cachedQuery(
+          cacheKey,
+          () => Promise.resolve(getTasks()),
+          { ttl: TASKS_CACHE_TTL, tags: TASKS_CACHE_TAGS }
+        );
+        return successResponse(cached);
+      }
+      return successResponse(getTasks());
+    }
+
+    // 使用索引查询
+    const tasks = queryTasks(filters);
+    return successResponse(tasks);
   }
 
-  if (type) {
-    filteredTasks = filteredTasks.filter(task => task.type === type);
-  }
+  // 分页查询
+  const result = paginateTasks({
+    page,
+    limit,
+    status: status || undefined,
+    type: type || undefined,
+    assignee: assignee || undefined,
+    projectId: projectId || undefined,
+    priority: priority || undefined,
+    sortBy,
+    sortOrder,
+  });
 
-  if (assignee) {
-    filteredTasks = filteredTasks.filter(task => task.assignee === assignee);
-  }
-
-  return successResponse(filteredTasks);
+  return successResponse({
+    data: result.data,
+    pagination: result.pagination,
+  });
 }
 
 // ============================================
@@ -127,7 +197,7 @@ export async function POST(request: NextRequest) {
     return csrfResult;
   }
 
-  // 认证检查 (可选 - 根据需求决定是否要求登录)
+  // 认证检查 (可选)
   const token = extractToken(request);
   let userId = 'anonymous';
   let userRole = 'user';
@@ -142,12 +212,12 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json();
   
-  // 输入验证 - 使用统一错误处理
+  // 输入验证
   if (!body.title || typeof body.title !== 'string') {
     return validationError('Task title is required and must be a string', 'title', request);
   }
 
-  // 使用持久化存储创建任务
+  // 创建任务
   const newTask = dataCreateTask({
     title: body.title,
     description: body.description || '',
@@ -158,6 +228,9 @@ export async function POST(request: NextRequest) {
     createdBy: userId as 'user' | 'ai',
     projectId: body.projectId
   });
+
+  // 失效缓存
+  await CacheInvalidator.invalidateTasks();
 
   apiLogger.audit('Task created', {
     taskId: newTask.id,
@@ -249,12 +322,15 @@ export async function PUT(request: NextRequest) {
     ];
   }
 
-  // 使用持久化存储更新任务
+  // 更新任务
   const updatedTask = dataUpdateTask(id, updates);
 
   if (!updatedTask) {
     return notFoundError('Task', id, request);
   }
+
+  // 失效缓存
+  await CacheInvalidator.invalidateTasks();
 
   apiLogger.audit('Task updated', {
     taskId: updatedTask.id,
@@ -306,12 +382,15 @@ export async function DELETE(request: NextRequest) {
     return notFoundError('Task', taskId, request);
   }
 
-  // 使用持久化存储删除任务
+  // 删除任务
   const deletedTask = dataDeleteTask(taskId);
 
   if (!deletedTask) {
     return notFoundError('Task', taskId, request);
   }
+
+  // 失效缓存
+  await CacheInvalidator.invalidateTasks();
 
   apiLogger.audit('Task deleted by admin', {
     taskId: deletedTask.id,

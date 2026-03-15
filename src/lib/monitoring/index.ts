@@ -53,3 +53,23 @@ export {
   type ServiceStatus,
   type ConfigurationStatus,
 } from './health';
+
+// Performance metrics
+export {
+  recordResponseTime,
+  takeSystemSnapshot,
+  getEndpointMetrics,
+  getSlowestEndpoints,
+  getErrorProneEndpoints,
+  getMostAccessedEndpoints,
+  getPerformanceSummary,
+  getHourlyStats,
+  getSystemSnapshots,
+  getLatestSnapshot,
+  resetPerformanceMetrics,
+  withPerformanceTracking,
+  createPerformanceTracker,
+  type EndpointMetrics,
+  type SystemSnapshot,
+  type PerformanceStore,
+} from './performance-metrics';

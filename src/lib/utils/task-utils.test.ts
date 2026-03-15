@@ -6,8 +6,10 @@ import {
   sortTasks,
   filterTasksByType,
   filterTasksByStatus,
+  filterTasks,
   getTaskStats,
   validateTaskData,
+  isValidTaskId,
 } from './task-utils';
 import type { Task, TaskType, TaskPriority, TaskStatus } from '@/lib/types/task-types';
 import { AI_MEMBER_ROLES } from '@/lib/types/task-types';
@@ -311,7 +313,7 @@ describe('task-utils', () => {
       });
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Title is required');
+      expect(result.errors).toContain('任务标题不能为空');
     });
 
     it('should return error for empty title', () => {
@@ -323,7 +325,7 @@ describe('task-utils', () => {
       });
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Title is required');
+      expect(result.errors).toContain('任务标题不能为空');
     });
 
     it('should return error for whitespace-only title', () => {
@@ -335,7 +337,7 @@ describe('task-utils', () => {
       });
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Title is required');
+      expect(result.errors).toContain('任务标题不能为空');
     });
 
     it('should return error for missing description', () => {
@@ -346,7 +348,7 @@ describe('task-utils', () => {
       });
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Description is required');
+      expect(result.errors).toContain('任务描述不能为空');
     });
 
     it('should return error for missing type', () => {
@@ -357,7 +359,7 @@ describe('task-utils', () => {
       });
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Task type is required');
+      expect(result.errors).toContain('任务类型不能为空');
     });
 
     it('should return error for missing priority', () => {
@@ -368,7 +370,7 @@ describe('task-utils', () => {
       });
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Priority is required');
+      expect(result.errors).toContain('任务优先级不能为空');
     });
 
     it('should return multiple errors for multiple missing fields', () => {
@@ -376,10 +378,71 @@ describe('task-utils', () => {
 
       expect(result.isValid).toBe(false);
       expect(result.errors).toHaveLength(4);
-      expect(result.errors).toContain('Title is required');
-      expect(result.errors).toContain('Description is required');
-      expect(result.errors).toContain('Task type is required');
-      expect(result.errors).toContain('Priority is required');
+      expect(result.errors).toContain('任务标题不能为空');
+      expect(result.errors).toContain('任务描述不能为空');
+      expect(result.errors).toContain('任务类型不能为空');
+      expect(result.errors).toContain('任务优先级不能为空');
+    });
+  });
+
+  describe('filterTasks', () => {
+    it('should filter by multiple conditions', () => {
+      const tasks = [
+        createMockTask({ id: '1', type: 'development', status: 'pending', priority: 'high' }),
+        createMockTask({ id: '2', type: 'development', status: 'completed', priority: 'high' }),
+        createMockTask({ id: '3', type: 'design', status: 'pending', priority: 'high' }),
+      ];
+
+      const filtered = filterTasks(tasks, { type: 'development', status: 'pending' });
+
+      expect(filtered).toHaveLength(1);
+      expect(filtered[0].id).toBe('1');
+    });
+
+    it('should filter by search keyword', () => {
+      const tasks = [
+        createMockTask({ id: '1', title: 'Implement login' }),
+        createMockTask({ id: '2', title: 'Design homepage' }),
+        createMockTask({ id: '3', description: 'Login system description' }),
+      ];
+
+      const filtered = filterTasks(tasks, { search: 'login' });
+
+      expect(filtered).toHaveLength(2);
+    });
+
+    it('should return all tasks when no filters applied', () => {
+      const tasks = [createMockTask(), createMockTask()];
+
+      const filtered = filterTasks(tasks, {});
+
+      expect(filtered).toHaveLength(2);
+    });
+
+    it('should handle empty tasks array', () => {
+      const filtered = filterTasks([], { type: 'development' });
+
+      expect(filtered).toHaveLength(0);
+    });
+  });
+
+  describe('isValidTaskId', () => {
+    it('should return true for valid task ID format', () => {
+      expect(isValidTaskId('task_1710489600000_abc123')).toBe(true);
+      expect(isValidTaskId('task_1234567890_xyz')).toBe(true);
+    });
+
+    it('should return false for invalid task ID format', () => {
+      expect(isValidTaskId('invalid-id')).toBe(false);
+      expect(isValidTaskId('task_')).toBe(false);
+      expect(isValidTaskId('')).toBe(false);
+      expect(isValidTaskId('Task_123_abc')).toBe(false); // 大写 T
+    });
+
+    it('should return false for non-string input', () => {
+      expect(isValidTaskId(null as unknown as string)).toBe(false);
+      expect(isValidTaskId(undefined as unknown as string)).toBe(false);
+      expect(isValidTaskId(123 as unknown as string)).toBe(false);
     });
   });
 });

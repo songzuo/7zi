@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, vi } from 'vitest';
-import { GET, POST } from './route';
+import { GET, POST } from '@/app/api/log-error/route';
 import { NextRequest } from 'next/server';
 
 // Mock dependencies

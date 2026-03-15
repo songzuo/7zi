@@ -64,6 +64,12 @@ vi.mock('@/lib/logger', () => ({
     error: vi.fn(),
     audit: vi.fn(),
   },
+  createLogger: vi.fn(() => ({
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+  })),
 }))
 
 describe('Knowledge Edges API', () => {

@@ -5,6 +5,7 @@
 
 import { NextResponse } from 'next/server';
 import { apiLogger } from '@/lib/logger';
+import { generateRequestId } from '@/lib/id';
 
 /**
  * 标准错误码枚举
@@ -165,12 +166,7 @@ export function withErrorHandler<T>(
   });
 }
 
-/**
- * 请求 ID 生成器
- */
-export function generateRequestId(): string {
-  return `req_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-}
+// 请求 ID 生成器 - 使用统一工具
 
 /**
  * 预定义错误工厂函数

@@ -1,14 +1,21 @@
 /**
- * @fileoverview 知识晶格持久化存储
+ * @fileoverview 知识晶格持久化存储（优化版）
  * @module lib/store/knowledge-store
  * 
  * @description
  * 知识图谱数据的文件系统持久化存储。
  * 使用 PersistentStore 实现节点和边的持久化。
+ * 
+ * 优化内容：
+ * - 边索引加速出边/入边查询（O(n) -> O(1)）
+ * - 防抖保存减少 I/O 频率
+ * - 批量操作支持
+ * - 懒保存机制
  */
 
 import { PersistentStore } from './persistent-store';
 import { LatticeNode, LatticeEdge, KnowledgeType, KnowledgeSource, RelationType } from '@/lib/agents/knowledge-lattice';
+import { generateNodeId, generateEdgeId } from '@/lib/id';
 
 /**
  * 知识存储数据结构
@@ -33,8 +40,22 @@ export class KnowledgeStore {
   // 内存缓存（用于快速查询）
   private nodesMap: Map<string, LatticeNode> = new Map();
   private edgesMap: Map<string, LatticeEdge> = new Map();
+  
+  // 邻接表（节点 ID -> 相邻节点 ID 集合）
   private adjacencyList: Map<string, Set<string>> = new Map();
   private reverseAdjacencyList: Map<string, Set<string>> = new Map();
+  
+  // 边索引（优化：O(1) 查找出边/入边）
+  // nodeId -> edgeId[]
+  private outgoingEdgesIndex: Map<string, Map<string, LatticeEdge>> = new Map();
+  private incomingEdgesIndex: Map<string, Map<string, LatticeEdge>> = new Map();
+  
+  // 防抖保存
+  private saveTimer: ReturnType<typeof setTimeout> | null = null;
+  private pendingSave = false;
+  private readonly saveDebounceMs = 100; // 100ms 防抖
+  private readonly lazySaveThreshold = 10; // 累积 10 次操作后强制保存
+  private operationCount = 0;
 
   constructor() {
     this.store = new PersistentStore<KnowledgeStoreData>({
@@ -66,26 +87,72 @@ export class KnowledgeStore {
     this.edgesMap.clear();
     this.adjacencyList.clear();
     this.reverseAdjacencyList.clear();
+    this.outgoingEdgesIndex.clear();
+    this.incomingEdgesIndex.clear();
 
     // 加载节点
     for (const node of data.nodes) {
       this.nodesMap.set(node.id, node);
       this.adjacencyList.set(node.id, new Set());
       this.reverseAdjacencyList.set(node.id, new Set());
+      this.outgoingEdgesIndex.set(node.id, new Map());
+      this.incomingEdgesIndex.set(node.id, new Map());
     }
 
-    // 加载边并构建邻接表
+    // 加载边并构建邻接表和边索引
     for (const edge of data.edges) {
       this.edgesMap.set(edge.id, edge);
       this.adjacencyList.get(edge.from)?.add(edge.to);
       this.reverseAdjacencyList.get(edge.to)?.add(edge.from);
+      
+      // 构建边索引
+      this.outgoingEdgesIndex.get(edge.from)?.set(edge.id, edge);
+      this.incomingEdgesIndex.get(edge.to)?.set(edge.id, edge);
     }
   }
 
   /**
-   * 保存内存数据到文件
+   * 防抖保存到文件
    */
-  private saveToFile(): void {
+  private scheduleSave(): void {
+    this.operationCount++;
+    this.pendingSave = true;
+    
+    // 达到阈值立即保存
+    if (this.operationCount >= this.lazySaveThreshold) {
+      this.flushSave();
+      return;
+    }
+    
+    // 防抖保存
+    if (this.saveTimer) {
+      clearTimeout(this.saveTimer);
+    }
+    this.saveTimer = setTimeout(() => {
+      this.flushSave();
+    }, this.saveDebounceMs);
+  }
+
+  /**
+   * 立即保存到文件
+   */
+  private flushSave(): void {
+    if (this.saveTimer) {
+      clearTimeout(this.saveTimer);
+      this.saveTimer = null;
+    }
+    
+    if (!this.pendingSave) return;
+    
+    this.saveToFileImmediate();
+    this.pendingSave = false;
+    this.operationCount = 0;
+  }
+
+  /**
+   * 立即保存内存数据到文件（内部方法）
+   */
+  private saveToFileImmediate(): void {
     const data: KnowledgeStoreData = {
       nodes: Array.from(this.nodesMap.values()),
       edges: Array.from(this.edgesMap.values()),
@@ -98,6 +165,14 @@ export class KnowledgeStore {
     this.store.write(data);
   }
 
+  /**
+   * 保存内存数据到文件（已废弃，使用 scheduleSave）
+   * @deprecated 使用 scheduleSave() 替代
+   */
+  private saveToFile(): void {
+    this.scheduleSave();
+  }
+
   // ============== 节点操作 ==============
 
   /**
@@ -105,7 +180,7 @@ export class KnowledgeStore {
    */
   addNode(node: LatticeNode): string {
     if (!node.id) {
-      node.id = `node-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      node.id = generateNodeId();
     }
     if (!node.timestamp) {
       node.timestamp = Date.now();
@@ -123,8 +198,10 @@ export class KnowledgeStore {
     this.nodesMap.set(node.id, node);
     this.adjacencyList.set(node.id, new Set());
     this.reverseAdjacencyList.set(node.id, new Set());
+    this.outgoingEdgesIndex.set(node.id, new Map());
+    this.incomingEdgesIndex.set(node.id, new Map());
 
-    this.saveToFile();
+    this.scheduleSave();
     return node.id;
   }
 
@@ -161,15 +238,31 @@ export class KnowledgeStore {
     const node = this.nodesMap.get(id);
     if (!node) return false;
 
-    // 删除相关边
-    const adjacentEdges = this.getAdjacentEdges(id);
-    adjacentEdges.forEach(edge => this.deleteEdge(edge.id));
+    // 使用边索引高效删除相关边（O(边数) 而非 O(总边数)）
+    const outgoingEdges = this.outgoingEdgesIndex.get(id);
+    const incomingEdges = this.incomingEdgesIndex.get(id);
+    
+    // 删除出边
+    if (outgoingEdges) {
+      for (const edgeId of outgoingEdges.keys()) {
+        this.deleteEdgeInternal(edgeId, false); // 不触发保存
+      }
+    }
+    
+    // 删除入边
+    if (incomingEdges) {
+      for (const edgeId of incomingEdges.keys()) {
+        this.deleteEdgeInternal(edgeId, false); // 不触发保存
+      }
+    }
 
     this.nodesMap.delete(id);
     this.adjacencyList.delete(id);
     this.reverseAdjacencyList.delete(id);
+    this.outgoingEdgesIndex.delete(id);
+    this.incomingEdgesIndex.delete(id);
 
-    this.saveToFile();
+    this.scheduleSave();
     return true;
   }
 
@@ -187,7 +280,7 @@ export class KnowledgeStore {
    */
   addEdge(edge: LatticeEdge): string {
     if (!edge.id) {
-      edge.id = `edge-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      edge.id = generateEdgeId();
     }
     if (!edge.timestamp) {
       edge.timestamp = Date.now();
@@ -213,8 +306,18 @@ export class KnowledgeStore {
     
     this.adjacencyList.get(edge.from)?.add(edge.to);
     this.reverseAdjacencyList.get(edge.to)?.add(edge.from);
+    
+    // 更新边索引
+    if (!this.outgoingEdgesIndex.has(edge.from)) {
+      this.outgoingEdgesIndex.set(edge.from, new Map());
+    }
+    if (!this.incomingEdgesIndex.has(edge.to)) {
+      this.incomingEdgesIndex.set(edge.to, new Map());
+    }
+    this.outgoingEdgesIndex.get(edge.from)?.set(edge.id, edge);
+    this.incomingEdgesIndex.get(edge.to)?.set(edge.id, edge);
 
-    this.saveToFile();
+    this.scheduleSave();
     return edge.id;
   }
 
@@ -226,18 +329,34 @@ export class KnowledgeStore {
   }
 
   /**
-   * 删除边
+   * 删除边（内部方法）
+   * @param id 边 ID
+   * @param scheduleSave 是否触发保存
    */
-  deleteEdge(id: string): boolean {
+  private deleteEdgeInternal(id: string, scheduleSave: boolean = true): boolean {
     const edge = this.edgesMap.get(id);
     if (!edge) return false;
 
     this.adjacencyList.get(edge.from)?.delete(edge.to);
     this.reverseAdjacencyList.get(edge.to)?.delete(edge.from);
+    
+    // 更新边索引
+    this.outgoingEdgesIndex.get(edge.from)?.delete(id);
+    this.incomingEdgesIndex.get(edge.to)?.delete(id);
+    
     this.edgesMap.delete(id);
 
-    this.saveToFile();
+    if (scheduleSave) {
+      this.scheduleSave();
+    }
     return true;
+  }
+
+  /**
+   * 删除边
+   */
+  deleteEdge(id: string): boolean {
+    return this.deleteEdgeInternal(id, true);
   }
 
   /**
@@ -248,12 +367,28 @@ export class KnowledgeStore {
   }
 
   /**
-   * 获取节点相关的边
+   * 获取节点相关的边（使用索引，O(边数) 而非 O(总边数)）
    */
   getAdjacentEdges(nodeId: string): LatticeEdge[] {
-    return Array.from(this.edgesMap.values()).filter(edge =>
-      edge.from === nodeId || edge.to === nodeId
-    );
+    const result: LatticeEdge[] = [];
+    
+    // 使用边索引直接获取
+    const outgoing = this.outgoingEdgesIndex.get(nodeId);
+    const incoming = this.incomingEdgesIndex.get(nodeId);
+    
+    if (outgoing) {
+      result.push(...outgoing.values());
+    }
+    if (incoming) {
+      // 避免重复添加（自环边）
+      for (const edge of incoming.values()) {
+        if (edge.from !== nodeId) {
+          result.push(edge);
+        }
+      }
+    }
+    
+    return result;
   }
 
   // ============== 高性能查询 ==============
@@ -273,36 +408,23 @@ export class KnowledgeStore {
   }
 
   /**
-   * 高效获取相邻边（使用邻接表）
-   * 解决 N+1 查询问题
+   * 高效获取出边（使用边索引，O(1) 查找）
+   * 已优化：避免遍历所有边
    */
   getOutgoingEdges(nodeId: string): LatticeEdge[] {
-    const result: LatticeEdge[] = [];
-    const neighbors = this.adjacencyList.get(nodeId);
-    if (!neighbors) return result;
-
-    for (const edge of this.edgesMap.values()) {
-      if (edge.from === nodeId) {
-        result.push(edge);
-      }
-    }
-    return result;
+    const edgeMap = this.outgoingEdgesIndex.get(nodeId);
+    if (!edgeMap) return [];
+    return Array.from(edgeMap.values());
   }
 
   /**
-   * 高效获取入边（使用反向邻接表）
+   * 高效获取入边（使用边索引，O(1) 查找）
+   * 已优化：避免遍历所有边
    */
   getIncomingEdges(nodeId: string): LatticeEdge[] {
-    const result: LatticeEdge[] = [];
-    const neighbors = this.reverseAdjacencyList.get(nodeId);
-    if (!neighbors) return result;
-
-    for (const edge of this.edgesMap.values()) {
-      if (edge.to === nodeId) {
-        result.push(edge);
-      }
-    }
-    return result;
+    const edgeMap = this.incomingEdgesIndex.get(nodeId);
+    if (!edgeMap) return [];
+    return Array.from(edgeMap.values());
   }
 
   /**
@@ -462,7 +584,17 @@ export class KnowledgeStore {
     this.edgesMap.clear();
     this.adjacencyList.clear();
     this.reverseAdjacencyList.clear();
-    this.saveToFile();
+    this.outgoingEdgesIndex.clear();
+    this.incomingEdgesIndex.clear();
+    this.saveToFileImmediate();
+  }
+  
+  /**
+   * 确保所有挂起的保存操作完成
+   * 在程序退出前调用
+   */
+  flush(): void {
+    this.flushSave();
   }
 
   /**
@@ -476,12 +608,52 @@ export class KnowledgeStore {
   }
 
   /**
-   * 导入数据
+   * 导入数据（批量操作，优化版）
    */
   import(data: { nodes: LatticeNode[]; edges: LatticeEdge[] }): void {
-    this.clear();
-    data.nodes.forEach(node => this.addNode(node));
-    data.edges.forEach(edge => this.addEdge(edge));
+    // 清空现有数据
+    this.nodesMap.clear();
+    this.edgesMap.clear();
+    this.adjacencyList.clear();
+    this.reverseAdjacencyList.clear();
+    this.outgoingEdgesIndex.clear();
+    this.incomingEdgesIndex.clear();
+    
+    // 批量添加节点
+    for (const node of data.nodes) {
+      if (!node.id) node.id = generateNodeId();
+      if (!node.timestamp) node.timestamp = Date.now();
+      if (!node.metadata) node.metadata = {};
+      if (!node.weight) node.weight = 0.5;
+      if (!node.confidence) node.confidence = 0.5;
+      
+      this.nodesMap.set(node.id, node);
+      this.adjacencyList.set(node.id, new Set());
+      this.reverseAdjacencyList.set(node.id, new Set());
+      this.outgoingEdgesIndex.set(node.id, new Map());
+      this.incomingEdgesIndex.set(node.id, new Map());
+    }
+    
+    // 批量添加边
+    for (const edge of data.edges) {
+      if (!edge.id) edge.id = generateEdgeId();
+      if (!edge.timestamp) edge.timestamp = Date.now();
+      if (!edge.weight) edge.weight = 0.5;
+      
+      // 跳过无效边
+      if (!this.nodesMap.has(edge.from) || !this.nodesMap.has(edge.to)) {
+        continue;
+      }
+      
+      this.edgesMap.set(edge.id, edge);
+      this.adjacencyList.get(edge.from)?.add(edge.to);
+      this.reverseAdjacencyList.get(edge.to)?.add(edge.from);
+      this.outgoingEdgesIndex.get(edge.from)?.set(edge.id, edge);
+      this.incomingEdgesIndex.get(edge.to)?.set(edge.id, edge);
+    }
+    
+    // 单次保存
+    this.saveToFileImmediate();
   }
 }
 

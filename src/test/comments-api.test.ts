@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { GET, POST } from './route';
+import { GET, POST } from '@/app/api/comments/route';
 import { NextRequest } from 'next/server';
 
 // Mock the in-memory store

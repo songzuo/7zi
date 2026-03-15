@@ -17,6 +17,9 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { createLogger } from '@/lib/logger';
+
+const logger = createLogger('PersistentStore');
 
 // 数据目录 - 存储在项目根目录下的 data 文件夹
 const DATA_DIR = path.join(process.cwd(), 'data');
@@ -123,7 +126,7 @@ export class PersistentStore<T extends object> {
       const data = JSON.parse(content);
       return data;
     } catch (error) {
-      console.error(`[PersistentStore] Error reading ${this.filePath}:`, error);
+      logger.error(`Error reading ${this.filePath}`, error);
       
       // 尝试恢复备份
       if (this.enableBackup) {
@@ -161,7 +164,7 @@ export class PersistentStore<T extends object> {
         this.createBackup();
       }
     } catch (error) {
-      console.error(`[PersistentStore] Error writing ${this.filePath}:`, error);
+      logger.error(`Error writing ${this.filePath}`, error);
       
       // 清理临时文件
       if (fs.existsSync(tempPath)) {
@@ -205,7 +208,7 @@ export class PersistentStore<T extends object> {
       // 清理旧备份
       this.cleanOldBackups();
     } catch (error) {
-      console.error(`[PersistentStore] Error creating backup:`, error);
+      logger.error('Error creating backup', error);
     }
   }
 
@@ -226,7 +229,7 @@ export class PersistentStore<T extends object> {
         fs.unlinkSync(path.join(BACKUP_DIR, file));
       }
     } catch (error) {
-      console.error(`[PersistentStore] Error cleaning old backups:`, error);
+      logger.error('Error cleaning old backups', error);
     }
   }
 
@@ -249,10 +252,10 @@ export class PersistentStore<T extends object> {
       const content = fs.readFileSync(latestBackup, 'utf-8');
       const data = JSON.parse(content);
       
-      console.log(`[PersistentStore] Restored from backup: ${files[0]}`);
+      logger.info(`Restored from backup: ${files[0]}`);
       return data;
     } catch (error) {
-      console.error(`[PersistentStore] Error restoring backup:`, error);
+      logger.error('Error restoring backup', error);
       return null;
     }
   }
@@ -348,6 +351,47 @@ export class ArrayStore<T> {
     }));
     const after = this.getAll().length;
     return before > after;
+  }
+
+  /**
+   * 批量更新所有匹配项
+   * 性能优化：单次遍历，避免 N+1 问题
+   * @param predicate 匹配条件
+   * @param updater 更新函数
+   * @returns 更新的项目数量
+   */
+  updateAll(predicate: (item: T) => boolean, updater: (item: T) => T): number {
+    let count = 0;
+    this.store.update(current => ({
+      items: current.items.map(item => {
+        if (predicate(item)) {
+          count++;
+          return updater(item);
+        }
+        return item;
+      })
+    }));
+    return count;
+  }
+
+  /**
+   * 批量删除所有匹配项
+   * 性能优化：单次遍历，避免 N+1 问题
+   * @param predicate 匹配条件
+   * @returns 被删除的项目数组
+   */
+  deleteAll(predicate: (item: T) => boolean): T[] {
+    const deleted: T[] = [];
+    this.store.update(current => ({
+      items: current.items.filter(item => {
+        if (predicate(item)) {
+          deleted.push(item);
+          return false;
+        }
+        return true;
+      })
+    }));
+    return deleted;
   }
 
   /**

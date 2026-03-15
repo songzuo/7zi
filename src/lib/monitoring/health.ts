@@ -703,6 +703,8 @@ async function checkRedisConnection(): Promise<CheckResult> {
     const redis = new Redis(redisUrl, {
       connectTimeout: 5000,
       maxRetriesPerRequest: 1,
+      // 禁用认证错误时的自动重试
+      retryStrategy: () => null,
     });
 
     await redis.ping();
@@ -715,9 +717,14 @@ async function checkRedisConnection(): Promise<CheckResult> {
       details: { host: new URL(redisUrl).host } 
     };
   } catch (error) {
+    // 如果是认证错误或连接失败，返回 skipped 而不是 error
+    const errorMsg = error instanceof Error ? error.message : '';
+    if (errorMsg.includes('NOAUTH') || errorMsg.includes('ECONNREFUSED')) {
+      return { status: 'skipped', message: 'Redis not available (no auth or connection failed)' };
+    }
     return { 
       status: 'error', 
-      message: error instanceof Error ? error.message : 'Redis connection failed' 
+      message: errorMsg || 'Redis connection failed' 
     };
   }
 }

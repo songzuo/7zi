@@ -2,6 +2,21 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import PortfolioPage from '@/app/[locale]/portfolio/page';
 
+/**
+ * Portfolio page component with optional generateMetadata static method
+ */
+interface PortfolioPageComponent {
+  (): Promise<JSX.Element>;
+  generateMetadata?: () => Promise<{
+    title?: string;
+    description?: string;
+    openGraph?: {
+      title?: string;
+      images?: string[];
+    };
+  }>;
+}
+
 // Mock next-intl/server
 vi.mock('next-intl/server', () => ({
   getTranslations: vi.fn().mockResolvedValue((key: string) => {

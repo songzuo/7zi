@@ -13,7 +13,7 @@ import {
   NotificationQueryParams,
   NotificationListResponse,
 } from '@/lib/types/notification-types';
-import { getNotificationsStore } from '@/lib/store/notifications-store';
+import { getNotificationsStore } from '@/lib/store/notifications-indexed-store';
 import { apiLogger } from '@/lib/logger';
 
 /**

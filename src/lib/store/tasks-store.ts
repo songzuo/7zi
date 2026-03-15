@@ -16,6 +16,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { useDashboardStore } from '@/stores/dashboardStore';
+import { generateTaskId, generateCommentId } from '@/lib/id';
 
 // Import task types
 import type { Task, TaskComment } from '@/lib/types/task-types';
@@ -258,7 +259,7 @@ export const useTasksStore = create<TasksState>()(
       
       addTask: (taskData: TaskCreatePayload) => {
         const newTask: Task = {
-          id: `task_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+          id: generateTaskId(),
           ...taskData,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
@@ -365,7 +366,7 @@ export const useTasksStore = create<TasksState>()(
           tasks: state.tasks.map(task => {
             if (task.id === taskId) {
               const newComment: TaskComment = {
-                id: `comment_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+                id: generateCommentId(),
                 ...commentData,
                 timestamp: new Date().toISOString()
               };

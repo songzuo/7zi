@@ -1,6 +1,6 @@
 # 7zi-frontend 文档索引
 
-> 📚 文档导航中心 | 更新日期: 2026-03-13
+> 📚 文档导航中心 | 更新日期: 2026-03-15
 
 ---
 
@@ -14,6 +14,8 @@
 | [PROJECT_STATUS.md](./PROJECT_STATUS.md) | 当前项目状态 | 开发者、管理者 |
 | [NEXT_FEATURES.md](./NEXT_FEATURES.md) | 功能规划与路线图 | 产品、开发团队 |
 | [TECH_DEBT.md](./TECH_DEBT.md) | 技术债务与改进建议 | 开发者 |
+| [CONTRIBUTING.md](./CONTRIBUTING.md) | **🤝 贡献指南** | 开发者 |
+| [docs/API.md](./docs/API.md) | **📗 完整 API 文档** | 开发者 |
 | [docs/USER_GUIDE.md](./docs/USER_GUIDE.md) | **📘 使用指南** | 所有用户 |
 | [docs/API_REFERENCE.md](./docs/API_REFERENCE.md) | **📗 API 参考文档** | 开发者 |
 | [docs/COMPONENTS.md](./docs/COMPONENTS.md) | **🧩 组件库文档** | 前端开发者 |
@@ -61,6 +63,7 @@
     │
     ├── 📘 使用指南
     │   ├── USER_GUIDE.md            # 用户使用指南 ⭐ 新增
+    │   ├── API.md                   # 完整 API 文档 ⭐ 2026-03-15 新增
     │   └── API_REFERENCE.md         # API 参考文档 ⭐ 新增
     │
     ├── 📦 模块文档
@@ -356,6 +359,8 @@ DEPLOYMENT-CHECKLIST.md → docs/DEPLOYMENT.md → docs/OPERATIONS_MANUAL.md
 
 ## 🔌 API 端点完整列表
 
+> 📖 详细 API 文档请参考 [docs/API.md](./docs/API.md)
+
 ### 任务管理 API (`/api/tasks`)
 
 | 方法 | 端点 | 说明 | 状态 |
@@ -363,20 +368,19 @@ DEPLOYMENT-CHECKLIST.md → docs/DEPLOYMENT.md → docs/OPERATIONS_MANUAL.md
 | GET | `/api/tasks` | 获取任务列表（支持过滤） | ✅ |
 | POST | `/api/tasks` | 创建新任务 | ✅ |
 | PUT | `/api/tasks` | 更新任务 | ✅ |
-| GET | `/api/tasks/:id` | 获取单个任务详情 | ✅ |
+| DELETE | `/api/tasks` | 删除任务（需管理员） | ✅ |
 | POST | `/api/tasks/:id/assign` | AI 智能分配任务 | ✅ |
 
 ### 项目管理 API (`/api/projects`)
 
 | 方法 | 端点 | 说明 | 状态 |
 |------|------|------|------|
-| - | `/api/projects` | 获取项目列表 | ⚠️ 未实现 |
-| - | `/api/projects` | 创建新项目（需认证） | ⚠️ 未实现 |
-| - | `/api/projects/:id` | 更新项目（需认证） | ⚠️ 未实现 |
-| - | `/api/projects/:id` | 删除项目（需管理员） | ⚠️ 未实现 |
-| - | `/api/projects/:id/tasks` | 获取项目相关任务 | ⚠️ 未实现 |
-
-> 注: 项目数据目前通过 `/api/tasks` 管理
+| GET | `/api/projects` | 获取项目列表 | ✅ |
+| POST | `/api/projects` | 创建新项目（需认证） | ✅ |
+| GET | `/api/projects/:id` | 获取项目详情 | ✅ |
+| PUT | `/api/projects/:id` | 更新项目（需认证） | ✅ |
+| DELETE | `/api/projects/:id` | 删除项目（需管理员） | ✅ |
+| GET | `/api/projects/:id/tasks` | 获取项目相关任务 | ✅ |
 
 ### 知识图谱 API (`/api/knowledge`)
 
@@ -426,12 +430,39 @@ DEPLOYMENT-CHECKLIST.md → docs/DEPLOYMENT.md → docs/OPERATIONS_MANUAL.md
 
 | 方法 | 端点 | 说明 | 状态 |
 |------|------|------|------|
+| GET | `/api/auth` | API 信息 / CSRF Token | ✅ |
 | POST | `/api/auth/login` | 用户登录 | ✅ |
 | POST | `/api/auth/logout` | 用户登出 | ✅ |
 | POST | `/api/auth/refresh` | 刷新令牌 | ✅ |
 | GET | `/api/auth/me` | 获取当前用户 | ✅ |
 | GET | `/api/auth?action=csrf` | 获取 CSRF Token | ✅ |
 | GET | `/api/auth?action=check-secret` | JWT Secret 强度检查 | ✅ |
+
+### 博客评论 API (`/api/comments`)
+
+| 方法 | 端点 | 说明 | 状态 |
+|------|------|------|------|
+| GET | `/api/comments` | 获取评论列表（可按文章过滤） | ✅ |
+| POST | `/api/comments` | 创建评论 | ✅ |
+| GET | `/api/comments/:id` | 获取单个评论 | ✅ |
+| PUT | `/api/comments/:id` | 更新评论 | ✅ |
+| DELETE | `/api/comments/:id` | 删除评论 | ✅ |
+
+### 错误上报 API (`/api/log-error`)
+
+| 方法 | 端点 | 说明 | 状态 |
+|------|------|------|------|
+| POST | `/api/log-error` | 上报前端错误 | ✅ |
+| GET | `/api/log-error` | 获取错误统计（管理员） | ✅ |
+
+### 示例 API (`/api/examples`)
+
+| 方法 | 端点 | 说明 | 状态 |
+|------|------|------|------|
+| GET | `/api/examples/protected` | 受保护路由示例 | ✅ |
+| DELETE | `/api/examples/protected` | 管理员路由示例 | ✅ |
+| POST | `/api/examples/protected` | 自定义认证示例 | ✅ |
+| PUT | `/api/examples/protected` | 可选认证示例 | ✅ |
 
 ### 系统状态 API (`/api/status`)
 

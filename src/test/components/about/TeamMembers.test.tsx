@@ -2,65 +2,72 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { TeamMembers } from '@/components/about/TeamMembers';
 
+// Mock useAboutData hook
+vi.mock('@/components/about/subcomponents/useAboutData', () => ({
+  useAboutData: () => ({
+    teamMembers: [
+      { id: 'expert', key: 'expert', emoji: '🌟', color: 'from-cyan-500 to-blue-500' },
+      { id: 'consultant', key: 'consultant', emoji: '📚', color: 'from-purple-500 to-pink-500' },
+      { id: 'architect', key: 'architect', emoji: '🏗️', color: 'from-orange-500 to-red-500' },
+      { id: 'executor', key: 'executor', emoji: '⚡', color: 'from-yellow-500 to-amber-500' },
+      { id: 'admin', key: 'admin', emoji: '🛡️', color: 'from-green-500 to-emerald-500' },
+      { id: 'tester', key: 'tester', emoji: '🧪', color: 'from-teal-500 to-cyan-500' },
+      { id: 'designer', key: 'designer', emoji: '🎨', color: 'from-pink-500 to-rose-500' },
+      { id: 'promoter', key: 'promoter', emoji: '📣', color: 'from-indigo-500 to-purple-500' },
+      { id: 'sales', key: 'sales', emoji: '💼', color: 'from-blue-500 to-indigo-500' },
+      { id: 'finance', key: 'finance', emoji: '💰', color: 'from-green-500 to-teal-500' },
+      { id: 'media', key: 'media', emoji: '📺', color: 'from-red-500 to-orange-500' },
+    ],
+  }),
+}));
+
 // Mock next-intl
 vi.mock('next-intl', () => ({
-  useTranslations: () => (key: string) => {
-    const translations: Record<string, string> = {
-      'team.badge': 'Our Team',
-      'team.title': 'Meet the Team',
-      'team.description': 'A diverse group of experts working together.',
+  useTranslations: vi.fn((namespace: string) => {
+    const translations: Record<string, Record<string, string>> = {
+      about: {
+        'team.badge': 'Our Team',
+        'team.title': 'Meet the Team',
+        'team.description': 'A diverse group of experts working together.',
+      },
+      'team.members': {
+        'expert.name': 'Technical Expert',
+        'expert.role': 'Full-Stack Development',
+        'expert.description': 'Building robust and scalable solutions.',
+        'consultant.name': 'Business Consultant',
+        'consultant.role': 'Business Strategy',
+        'consultant.description': 'Providing strategic business guidance.',
+        'architect.name': 'Solution Architect',
+        'architect.role': 'System Design',
+        'architect.description': 'Designing system architecture.',
+        'executor.name': 'Project Executor',
+        'executor.role': 'Project Management',
+        'executor.description': 'Managing projects efficiently.',
+        'admin.name': 'System Admin',
+        'admin.role': 'Infrastructure',
+        'admin.description': 'Maintaining system infrastructure.',
+        'tester.name': 'QA Engineer',
+        'tester.role': 'Quality Assurance',
+        'tester.description': 'Ensuring product quality.',
+        'designer.name': 'UI Designer',
+        'designer.role': 'User Experience',
+        'designer.description': 'Creating beautiful interfaces.',
+        'promoter.name': 'Marketing Lead',
+        'promoter.role': 'Brand Promotion',
+        'promoter.description': 'Promoting brand awareness.',
+        'sales.name': 'Sales Manager',
+        'sales.role': 'Client Relations',
+        'sales.description': 'Building client relationships.',
+        'finance.name': 'Finance Lead',
+        'finance.role': 'Financial Planning',
+        'finance.description': 'Managing financial operations.',
+        'media.name': 'Media Specialist',
+        'media.role': 'Content Creation',
+        'media.description': 'Producing engaging content.',
+      },
     };
-    // Handle nested translations for team members
-    if (key.startsWith('team.members.')) {
-      const parts = key.split('.');
-      const memberKey = parts[2];
-      const field = parts[3];
-      const names: Record<string, string> = {
-        expert: 'Technical Expert',
-        consultant: 'Business Consultant',
-        architect: 'Solution Architect',
-        executor: 'Project Executor',
-        admin: 'System Admin',
-        tester: 'QA Engineer',
-        designer: 'UI Designer',
-        promoter: 'Marketing Lead',
-        sales: 'Sales Manager',
-        finance: 'Finance Lead',
-        media: 'Media Specialist',
-      };
-      const roles: Record<string, string> = {
-        expert: 'Full-Stack Development',
-        consultant: 'Business Strategy',
-        architect: 'System Design',
-        executor: 'Project Management',
-        admin: 'Infrastructure',
-        tester: 'Quality Assurance',
-        designer: 'User Experience',
-        promoter: 'Brand Promotion',
-        sales: 'Client Relations',
-        finance: 'Financial Planning',
-        media: 'Content Creation',
-      };
-      const descriptions: Record<string, string> = {
-        expert: 'Building robust and scalable solutions.',
-        consultant: 'Providing strategic business guidance.',
-        architect: 'Designing system architecture.',
-        executor: 'Managing projects efficiently.',
-        admin: 'Maintaining system infrastructure.',
-        tester: 'Ensuring product quality.',
-        designer: 'Creating beautiful interfaces.',
-        promoter: 'Promoting brand awareness.',
-        sales: 'Building client relationships.',
-        finance: 'Managing financial operations.',
-        media: 'Producing engaging content.',
-      };
-      
-      if (field === 'name') return names[memberKey] || memberKey;
-      if (field === 'role') return roles[memberKey] || memberKey;
-      if (field === 'description') return descriptions[memberKey] || memberKey;
-    }
-    return translations[key] || key;
-  },
+    return (key: string) => translations[namespace]?.[key] || key;
+  }),
   useLocale: () => 'en',
 }));
 

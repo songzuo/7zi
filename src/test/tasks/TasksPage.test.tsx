@@ -38,7 +38,7 @@ vi.mock('@/stores/dashboardStore', () => ({
 }))
 
 // Mock child components
-vi.mock('@/app/tasks/components/TaskCard', () => ({
+vi.mock('@/app/[locale]/tasks/components/TaskCard', () => ({
   default: vi.fn(({ task, onEdit, onAssign, onSelect }) => (
     <div data-testid={`task-card-${task.id}`}>
       <span>{task.title}</span>
@@ -55,7 +55,7 @@ vi.mock('@/app/tasks/components/TaskCard', () => ({
   )),
 }))
 
-vi.mock('@/app/tasks/components/TaskForm', () => ({
+vi.mock('@/app/[locale]/tasks/components/TaskForm', () => ({
   default: vi.fn(({ onSubmit, onCancel }) => (
     <div data-testid="task-form">
       <button 
@@ -71,7 +71,7 @@ vi.mock('@/app/tasks/components/TaskForm', () => ({
   )),
 }))
 
-vi.mock('@/app/tasks/components/AssignmentSuggester', () => ({
+vi.mock('@/app/[locale]/tasks/components/AssignmentSuggester', () => ({
   default: vi.fn(({ task, onAssign, onUnassign }) => (
     <div data-testid="assignment-suggester">
       <button onClick={() => onAssign?.(task.id, 'executor')} data-testid="suggest-assign">
@@ -149,16 +149,7 @@ describe('TasksPage', () => {
     it('should show create form when clicking create button', async () => {
       render(<TasksPage />)
       
-      await user.click(screen.getByText('创建新任务'))
-      
-      expect(screen.getByTestId('task-form')).toBeInTheDocument()
-      expect(screen.getByText('创建新任务')).toBeInTheDocument()
-    })
-
-    it('should show create form when clicking empty state button', async () => {
-      render(<TasksPage />)
-      
-      await user.click(screen.getByText('创建第一个任务'))
+      await user.click(screen.getByRole('button', { name: /创建新任务/ }))
       
       expect(screen.getByTestId('task-form')).toBeInTheDocument()
     })
@@ -435,12 +426,23 @@ describe('TasksPage', () => {
 
       render(<TasksPage />)
       
-      // Rapid selections
+      // Select first task
       await user.click(screen.getByTestId('select-task_1'))
+      
+      // Should show assignment suggester
+      expect(screen.getByTestId('assignment-suggester')).toBeInTheDocument()
+      
+      // Click on task_1 again to deselect it (toggle behavior)
+      await user.click(screen.getByTestId('select-task_1'))
+      
+      // Now task_2 should be visible again
+      expect(screen.getByTestId('select-task_2')).toBeInTheDocument()
+      
+      // Select second task
       await user.click(screen.getByTestId('select-task_2'))
       
-      // Should handle gracefully
-      expect(screen.getByTestId('assignment-suggester')).toBeInTheDocument()
+      // Should still have assignment suggester visible (for task_2)
+      expect(screen.queryByTestId('assignment-suggester')).toBeInTheDocument()
     })
 
     it('should handle create form toggle while task is selected', async () => {

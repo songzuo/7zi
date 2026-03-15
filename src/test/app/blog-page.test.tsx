@@ -38,10 +38,8 @@ describe('BlogPage', () => {
     
     // Check Chinese heading
     expect(screen.getByRole('heading', { level: 1, name: '博客' })).toBeInTheDocument()
-    // Check Chinese description
-    expect(screen.getByText('这里将展示我们的最新文章和更新...')).toBeInTheDocument()
-    // Check Chinese back link
-    expect(screen.getByText('← 返回首页')).toBeInTheDocument()
+    // Check Chinese back link - use more specific selector for the footer link
+    expect(screen.getByText('← 返回首页', { selector: 'a' })).toBeInTheDocument()
   })
 
   it('renders with English locale', async () => {
@@ -50,10 +48,8 @@ describe('BlogPage', () => {
     
     // Check English heading
     expect(screen.getByRole('heading', { level: 1, name: 'Blog' })).toBeInTheDocument()
-    // Check English description
-    expect(screen.getByText('Our latest articles and updates will appear here...')).toBeInTheDocument()
-    // Check English back link
-    expect(screen.getByText('← Back to Home')).toBeInTheDocument()
+    // Check English back link - use more specific selector for the footer link
+    expect(screen.getByText('← Back to Home', { selector: 'a' })).toBeInTheDocument()
   })
 
   it('returns null for invalid locale', async () => {

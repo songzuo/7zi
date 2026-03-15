@@ -18,10 +18,22 @@ const ToggleSwitch = memo(function ToggleSwitch({
   disabled = false,
   label,
 }: ToggleSwitchProps) {
+  const handleClick = () => {
+    if (disabled) {
+      // Do nothing when disabled - explicit check to prevent callback
+      console.log('ToggleSwitch: clicked but disabled, not calling onChange');
+      return;
+    }
+    console.log('ToggleSwitch: calling onChange with', !checked);
+    onChange(!checked);
+  };
+
   return (
     <button
-      onClick={() => !disabled && onChange(!checked)}
+      type="button"
+      onClick={handleClick}
       disabled={disabled}
+      aria-disabled={disabled}
       className={`
         relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200
         ${checked ? 'bg-cyan-500' : 'bg-zinc-300 dark:bg-zinc-600'}

@@ -120,10 +120,9 @@ describe('task-schemas', () => {
     });
 
     it('should handle whitespace-only title (trim behavior)', () => {
-      // Note: Zod's trim() without min(1) after trim may allow whitespace
-      // This test documents the actual behavior
+      // Zod's trim() converts whitespace-only to empty string
       const result = createTaskSchema.parse({ ...validTask, title: '   ' });
-      expect(result.title).toBe('   ');
+      expect(result.title).toBe('');
     });
 
     it('should reject title exceeding 200 characters', () => {
@@ -213,9 +212,9 @@ describe('task-schemas', () => {
     });
 
     it('should handle whitespace-only title (trim behavior)', () => {
-      // Note: Zod's trim() without min(1) after trim may allow whitespace
+      // Zod's trim() converts whitespace-only to empty string
       const result = updateTaskSchema.parse({ title: '   ' });
-      expect(result.title).toBe('   ');
+      expect(result.title).toBe('');
     });
 
     it('should reject title exceeding 200 characters', () => {
@@ -266,9 +265,9 @@ describe('task-schemas', () => {
     });
 
     it('should handle whitespace-only content (trim behavior)', () => {
-      // Note: Zod trims but without min(1) after trim, whitespace passes
+      // Zod's trim() converts whitespace-only to empty string
       const result = addCommentSchema.parse({ content: '   ' });
-      expect(result.content).toBe('   ');
+      expect(result.content).toBe('');
     });
 
     it('should reject content exceeding 2000 characters', () => {

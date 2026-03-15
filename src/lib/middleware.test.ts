@@ -67,6 +67,13 @@ describe('Auth Middleware', () => {
   });
 });
 
+/**
+ * Error with optional status code for testing
+ */
+interface ErrorWithStatusCode extends Error {
+  statusCode?: number;
+}
+
 describe('Error Handler', () => {
   describe('errorHandler', () => {
     it('should handle validation errors', () => {
@@ -78,8 +85,8 @@ describe('Error Handler', () => {
     });
 
     it('should handle authentication errors', () => {
-      const error = new Error('Unauthorized');
-      (error as any).statusCode = 401;
+      const error = new Error('Unauthorized') as ErrorWithStatusCode;
+      error.statusCode = 401;
       
       const response = errorHandler(error);
       
@@ -87,8 +94,8 @@ describe('Error Handler', () => {
     });
 
     it('should handle not found errors', () => {
-      const error = new Error('Not found');
-      (error as any).statusCode = 404;
+      const error = new Error('Not found') as ErrorWithStatusCode;
+      error.statusCode = 404;
       
       const response = errorHandler(error);
       
@@ -96,8 +103,8 @@ describe('Error Handler', () => {
     });
 
     it('should handle server errors', () => {
-      const error = new Error('Internal server error');
-      (error as any).statusCode = 500;
+      const error = new Error('Internal server error') as ErrorWithStatusCode;
+      error.statusCode = 500;
       
       const response = errorHandler(error);
       

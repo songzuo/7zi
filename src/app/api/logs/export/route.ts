@@ -1,7 +1,29 @@
 /**
- * 日志导出接口
- * GET /api/logs/export - 导出日志数据
- * 支持格式: JSON (默认), CSV
+ * 日志导出 API
+ * 支持将系统日志导出为 JSON 或 CSV 格式
+ * 
+ * @module api/logs/export
+ * @description 提供日志数据导出功能，支持多种过滤条件和导出格式
+ * 
+ * @example
+ * // 导出 JSON 格式
+ * GET /api/logs/export?format=json&startDate=2026-03-01&limit=1000
+ * 
+ * // 导出 CSV 格式（按错误级别过滤）
+ * GET /api/logs/export?format=csv&levels=error,warn&categories=api
+ * 
+ * // 响应 - JSON 格式
+ * {
+ *   "exportedAt": "2026-03-15T10:00:00Z",
+ *   "format": "json",
+ *   "totalRecords": 100,
+ *   "filters": { ... },
+ *   "logs": [...]
+ * }
+ * 
+ * // 响应 - CSV 格式（文件下载）
+ * Content-Type: text/csv
+ * Content-Disposition: attachment; filename="logs-export-2026-03-15.csv"
  */
 
 import { NextRequest, NextResponse } from 'next/server';

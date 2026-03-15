@@ -12,6 +12,10 @@
  * - 内存使用监控
  */
 
+import { createLogger } from '@/lib/logger';
+
+const logger = createLogger('KnowledgeCache');
+
 interface CacheEntry<T> {
   data: T;
   timestamp: number;
@@ -52,8 +56,13 @@ function stableHash(str: string): string {
 
 /**
  * 安全序列化参数（处理循环引用和稳定排序）
+ * 优化：限制递归深度防止栈溢出
  */
-function safeStringify(obj: unknown, seen = new WeakSet()): string {
+function safeStringify(obj: unknown, seen = new WeakSet(), depth = 0): string {
+  // 深度限制防止栈溢出
+  const MAX_DEPTH = 50;
+  if (depth > MAX_DEPTH) return '[deep]';
+  
   if (obj === null) return 'null';
   if (obj === undefined) return 'undefined';
   
@@ -71,13 +80,13 @@ function safeStringify(obj: unknown, seen = new WeakSet()): string {
     seen.add(obj as object);
     
     if (Array.isArray(obj)) {
-      const items = obj.map(item => safeStringify(item, seen));
+      const items = obj.map(item => safeStringify(item, seen, depth + 1));
       return `[${items.join(',')}]`;
     }
     
     // 对象：按 key 排序确保稳定
     const keys = Object.keys(obj as Record<string, unknown>).sort();
-    const pairs = keys.map(k => `"${k}":${safeStringify((obj as Record<string, unknown>)[k], seen)}`);
+    const pairs = keys.map(k => `"${k}":${safeStringify((obj as Record<string, unknown>)[k], seen, depth + 1)}`);
     return `{${pairs.join(',')}}`;
   }
   
@@ -86,10 +95,18 @@ function safeStringify(obj: unknown, seen = new WeakSet()): string {
 
 /**
  * 估计对象内存大小（字节）
+ * 优化：对小对象使用快速估计
  */
 function estimateSize(obj: unknown): number {
+  // 快速路径：小对象直接序列化
+  const type = typeof obj;
+  if (obj === null || obj === undefined) return 8;
+  if (type === 'number') return 8;
+  if (type === 'boolean') return 4;
+  if (type === 'string') return ((obj as string).length + 1) * 2;
+  
+  // 大对象使用采样估计
   const str = safeStringify(obj);
-  // UTF-8 字符串大约每字符 1-4 字节，取平均 2 字节
   return str.length * 2;
 }
 
@@ -231,7 +248,7 @@ export class KnowledgeQueryCache {
     // 检查内存限制
     if (size > this.maxMemoryBytes * 0.5) {
       // 单个条目超过总内存 50%，不缓存
-      console.warn(`[KnowledgeCache] Entry too large (${(size / 1024 / 1024).toFixed(2)}MB), skipping cache`);
+      logger.warn(`Entry too large (${(size / 1024 / 1024).toFixed(2)}MB), skipping cache`);
       return;
     }
     

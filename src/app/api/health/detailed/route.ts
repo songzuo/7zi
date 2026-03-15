@@ -1,4 +1,4 @@
-import { enhancedHealthReport, comprehensiveHealthReport, healthResponse, DetailedHealthReport, ComponentStatus } from '@/lib/monitoring';
+import { enhancedHealthReport, comprehensiveHealthReport, healthResponse, DetailedHealthReport, ComponentStatus, getPerformanceSummary, getLatestSnapshot } from '@/lib/monitoring';
 import { NextResponse } from 'next/server';
 
 /**
@@ -14,10 +14,11 @@ import { NextResponse } from 'next/server';
  * - Configuration status (env vars, security settings)
  * - Component status (cache, auth, logger)
  * - Performance metrics (response time, memory, CPU)
+ * - API performance statistics (endpoint metrics, error rates)
  * - Health check history (optional)
  * 
  * Query params:
- * - include: comma-separated list of sections to include (system,services,configuration,components,history)
+ * - include: comma-separated list of sections to include (system,services,configuration,components,history,performance)
  * - history: include health check history (true/false)
  */
 export async function GET(request: Request) {
@@ -25,12 +26,17 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const include = url.searchParams.get('include');
     const includeHistory = url.searchParams.get('history') === 'true';
+    const includePerformance = !include || include.includes('performance');
 
     // Get both enhanced report (with components and performance) and comprehensive report (with system/services)
     const [health, detailed] = await Promise.all([
       enhancedHealthReport(includeHistory),
       comprehensiveHealthReport(),
     ]);
+
+    // Get API performance metrics
+    const performanceSummary = getPerformanceSummary();
+    const systemSnapshot = getLatestSnapshot();
 
     // Merge the reports
     const merged = {
@@ -41,6 +47,28 @@ export async function GET(request: Request) {
       system: detailed.system,
       services: detailed.services,
       configuration: detailed.configuration,
+      // Add API performance metrics
+      ...(includePerformance && {
+        apiPerformance: {
+          totalRequests: performanceSummary.totalRequests,
+          totalErrors: performanceSummary.totalErrors,
+          errorRate: Math.round(performanceSummary.errorRate * 100) / 100,
+          avgResponseTime: performanceSummary.avgResponseTime,
+          endpointsCount: performanceSummary.endpointsCount,
+          uptime: performanceSummary.uptime,
+          slowestEndpoint: performanceSummary.slowestEndpoint ? {
+            path: performanceSummary.slowestEndpoint.path,
+            method: performanceSummary.slowestEndpoint.method,
+            avgResponseTime: performanceSummary.slowestEndpoint.avgResponseTime,
+          } : null,
+          mostAccessedEndpoint: performanceSummary.mostAccessedEndpoint ? {
+            path: performanceSummary.mostAccessedEndpoint.path,
+            method: performanceSummary.mostAccessedEndpoint.method,
+            count: performanceSummary.mostAccessedEndpoint.count,
+          } : null,
+          memoryUsage: systemSnapshot?.memory?.usagePercent || null,
+        },
+      }),
     };
 
     // Allow filtering response via query params

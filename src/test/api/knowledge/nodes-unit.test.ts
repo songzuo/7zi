@@ -96,6 +96,12 @@ vi.mock('@/lib/logger', () => ({
     audit: vi.fn(),
     info: vi.fn(),
   },
+  createLogger: vi.fn(() => ({
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+  })),
 }));
 
 // 辅助函数

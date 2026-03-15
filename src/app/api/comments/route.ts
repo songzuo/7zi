@@ -20,7 +20,9 @@ import {
   validateString,
   validateRange,
 } from '@/lib/api-error';
+import { createLogger } from '@/lib/logger';
 
+const logger = createLogger('CommentsAPI');
 const DATA_FILE = path.join(process.cwd(), 'data', 'comments.json');
 
 interface Comment {
@@ -42,7 +44,7 @@ function loadComments(): Comment[] {
       return Array.isArray(parsed) ? parsed : [];
     }
   } catch (error) {
-    console.error('Error loading comments:', error);
+    logger.error('Error loading comments', error);
   }
   return [];
 }
@@ -56,7 +58,7 @@ function saveComments(comments: Comment[]): void {
     }
     fs.writeFileSync(DATA_FILE, JSON.stringify(comments, null, 2));
   } catch (error) {
-    console.error('Error saving comments:', error);
+    logger.error('Error saving comments', error);
     throw error;
   }
 }

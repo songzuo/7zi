@@ -1,11 +1,74 @@
+/**
+ * 知识边关系 API
+ * 管理知识图谱中节点之间的关系（边）
+ * 
+ * @module api/knowledge/edges
+ * @description 提供知识图谱边的 CRUD 操作，支持多条件过滤
+ * 
+ * @example
+ * // 获取所有边
+ * GET /api/knowledge/edges
+ * 
+ * // 按类型过滤
+ * GET /api/knowledge/edges?type=relates_to&minWeight=0.7
+ * 
+ * // 获取特定节点的边
+ * GET /api/knowledge/edges?from=node-001
+ * 
+ * // 创建新边
+ * POST /api/knowledge/edges
+ * {
+ *   "from": "node-001",
+ *   "to": "node-002",
+ *   "type": "relates_to",
+ *   "weight": 0.8
+ * }
+ * 
+ * // 响应示例
+ * {
+ *   "success": true,
+ *   "data": {
+ *     "id": "edge-xxx",
+ *     "from": "node-001",
+ *     "to": "node-002",
+ *     "type": "relates_to",
+ *     "weight": 0.8
+ *   }
+ * }
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 import { getKnowledgeStore } from '@/lib/store/knowledge-store';
 import { RelationType } from '@/lib/agents/knowledge-lattice';
 import { apiLogger } from '@/lib/logger';
 
 /**
+ * 边查询参数
+ * @typedef {Object} EdgeQueryParams
+ * @property {string} [type] - 关系类型: relates_to, depends_on, extends, contradicts
+ * @property {string} [from] - 起始节点 ID
+ * @property {string} [to] - 目标节点 ID
+ * @property {number} [minWeight] - 最小权重 (0-1)
+ * @property {number} [limit] - 结果数量限制
+ * @property {number} [offset] - 偏移量
+ */
+
+/**
+ * 创建边请求体
+ * @typedef {Object} CreateEdgeRequest
+ * @property {string} from - 起始节点 ID（必填）
+ * @property {string} to - 目标节点 ID（必填）
+ * @property {string} type - 关系类型（必填）
+ * @property {number} [weight=0.5] - 权重 (0-1)
+ * @property {Object} [metadata] - 元数据
+ */
+
+/**
  * GET /api/knowledge/edges
- * 获取所有边或根据查询参数过滤
+ * 获取边关系列表，支持过滤和分页
+ * 
+ * @param {NextRequest} request - 请求对象
+ * @returns {Promise<NextResponse>} 边列表
  */
 export async function GET(request: NextRequest) {
   try {

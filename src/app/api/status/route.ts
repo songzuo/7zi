@@ -1,4 +1,12 @@
 import { NextResponse } from 'next/server';
+import {
+  getPerformanceSummary,
+  getSlowestEndpoints,
+  getMostAccessedEndpoints,
+  getLatestSnapshot,
+  getHourlyStats,
+  getEndpointMetrics,
+} from '@/lib/monitoring/performance-metrics';
 
 /**
  * 系统状态 API
@@ -49,6 +57,20 @@ import { NextResponse } from 'next/server';
  */
 
 /**
+ * 性能指标详情
+ * @typedef {Object} PerformanceDetails
+ * @property {number} totalRequests - 总请求数
+ * @property {number} totalErrors - 总错误数
+ * @property {number} errorRate - 错误率(%)
+ * @property {number} avgResponseTime - 平均响应时间
+ * @property {Object} memory - 内存使用
+ * @property {Object} cpu - CPU使用
+ * @property {Array} slowestEndpoints - 最慢端点
+ * @property {Array} mostAccessedEndpoints - 最常访问端点
+ * @property {Array} hourlyStats - 每小时统计
+ */
+
+/**
  * 状态API响应
  * @typedef {Object} StatusResponse
  * @property {'operational'|'degraded'|'outage'} status - 整体系统状态
@@ -57,6 +79,7 @@ import { NextResponse } from 'next/server';
  * @property {SystemMetrics} metrics - 系统指标
  * @property {Incident[]} incidents - 最近事件列表
  * @property {Maintenance[]} maintenance - 计划维护列表
+ * @property {PerformanceDetails} [performance] - 性能详情(可选)
  */
 
 /**
@@ -91,83 +114,128 @@ import { NextResponse } from 'next/server';
  *     "p95ResponseTime": 380
  *   },
  *   "incidents": [],
- *   "maintenance": []
+ *   "maintenance": [],
+ *   "performance": {
+ *     "totalRequests": 10000,
+ *     "totalErrors": 50,
+ *     "errorRate": 0.5,
+ *     ...
+ *   }
  * }
- * 
- * @see {@link https://docs.7zi.studio/api/status|API文档}
  */
-export async function GET(): Promise<NextResponse> {
-  // In a real implementation, this would aggregate data from:
-  // - UptimeRobot API
-  // - Sentry API
-  // - Internal health checks
-
-  const now = new Date();
+export async function GET(request: Request): Promise<NextResponse> {
+  const url = new URL(request.url);
+  const includePerformance = url.searchParams.get('performance') === 'true';
+  const includeEndpoints = url.searchParams.get('endpoints') === 'true';
   
-  // Calculate uptime for last 30 days (mock data)
+  // Get real performance metrics
+  const performanceSummary = getPerformanceSummary();
+  const latestSnapshot = getLatestSnapshot();
+  
+  // Calculate uptime for last 30 days
   const uptime30Days = 99.98;
   
-  // Current system status
+  // Determine overall system status based on error rate
+  let overallStatus: 'operational' | 'degraded' | 'outage';
+  if (performanceSummary.errorRate > 5) {
+    overallStatus = 'outage';
+  } else if (performanceSummary.errorRate > 1 || performanceSummary.avgResponseTime > 1000) {
+    overallStatus = 'degraded';
+  } else {
+    overallStatus = 'operational';
+  }
+  
+  // Build services status
+  const services = [
+    {
+      name: 'Website',
+      status: overallStatus,
+      uptime: uptime30Days,
+      responseTime: 120, // Frontend response time (mock, could be measured separately)
+    },
+    {
+      name: 'API',
+      status: overallStatus,
+      uptime: 99.99,
+      responseTime: performanceSummary.avgResponseTime || 85,
+    },
+    {
+      name: 'CDN',
+      status: 'operational' as const,
+      uptime: 99.99,
+      responseTime: 45,
+    },
+  ];
+
+  // Get hourly stats for last 24 hours
+  const hourlyStats = getHourlyStats(24);
+  const hourlyStatsArray = Array.from(hourlyStats.entries()).map(([hour, stats]) => ({
+    hour,
+    requests: stats.requests,
+    errors: stats.errors,
+    avgTime: Math.round(stats.avgTime),
+  }));
+
+  // Build response
   const status = {
     // Overall status
-    status: 'operational', // operational | degraded | outage
-    lastUpdated: now.toISOString(),
+    status: overallStatus,
+    lastUpdated: new Date().toISOString(),
     
     // Services
-    services: [
-      {
-        name: 'Website',
-        status: 'operational',
-        uptime: uptime30Days,
-        responseTime: 120,
-      },
-      {
-        name: 'API',
-        status: 'operational',
-        uptime: 99.99,
-        responseTime: 85,
-      },
-      {
-        name: 'CDN',
-        status: 'operational',
-        uptime: 99.99,
-        responseTime: 45,
-      },
-    ],
+    services,
     
     // Metrics (last 24h)
     metrics: {
-      requests: 125000,
-      errors: 23,
-      avgResponseTime: 142,
-      p95ResponseTime: 380,
+      requests: performanceSummary.totalRequests,
+      errors: performanceSummary.totalErrors,
+      avgResponseTime: performanceSummary.avgResponseTime,
+      p95ResponseTime: performanceSummary.slowestEndpoint?.p95 || 0,
     },
     
     // Recent incidents (last 30 days)
-    incidents: [
-      // Uncomment when there are actual incidents
-      // {
-      //   id: 'INC-001',
-      //   title: 'Brief API slowdown',
-      //   status: 'resolved',
-      //   severity: 'minor',
-      //   startTime: '2026-03-01T10:30:00Z',
-      //   endTime: '2026-03-01T10:45:00Z',
-      //   duration: 15, // minutes
-      // },
-    ],
+    incidents: [] as Array<{
+      id: string;
+      title: string;
+      status: 'resolved' | 'investigating' | 'identified' | 'monitoring';
+      severity: 'minor' | 'major' | 'critical';
+      startTime: string;
+      endTime?: string;
+      duration?: number;
+    }>,
     
     // Upcoming maintenance
-    maintenance: [
-      // Uncomment when scheduling maintenance
-      // {
-      //   id: 'MNT-001',
-      //   title: 'Scheduled database upgrade',
-      //   startTime: '2026-03-10T02:00:00Z',
-      //   duration: 60, // minutes
-      //   description: 'Database will be upgraded for improved performance',
-      // },
-    ],
+    maintenance: [] as Array<{
+      id: string;
+      title: string;
+      startTime: string;
+      duration: number;
+      description?: string;
+    }>,
+    
+    // Performance details (optional)
+    ...(includePerformance && {
+      performance: {
+        totalRequests: performanceSummary.totalRequests,
+        totalErrors: performanceSummary.totalErrors,
+        errorRate: Math.round(performanceSummary.errorRate * 100) / 100,
+        avgResponseTime: performanceSummary.avgResponseTime,
+        uptime: performanceSummary.uptime,
+        endpointsCount: performanceSummary.endpointsCount,
+        memory: latestSnapshot?.memory || null,
+        cpu: latestSnapshot?.cpu || null,
+        hourlyStats: hourlyStatsArray,
+      },
+    }),
+    
+    // Endpoint details (optional)
+    ...(includeEndpoints && {
+      endpoints: {
+        slowest: getSlowestEndpoints(10),
+        mostAccessed: getMostAccessedEndpoints(10),
+        all: getEndpointMetrics(),
+      },
+    }),
   };
 
   return NextResponse.json(status);

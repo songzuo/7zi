@@ -293,11 +293,11 @@ Vitest + Playwright (E2E)
 
 ### 环境要求
 
-- Node.js 22+
+- Node.js 22+ (推荐 v22.22.0)
 - pnpm 8+ (推荐) 或 npm 10+
 - Git
 
-### 本地运行
+### 一键启动（无需配置）
 
 ```bash
 # 1. 克隆仓库
@@ -309,7 +309,7 @@ pnpm install
 # 或
 npm install
 
-# 3. 启动开发服务器（无需配置环境变量即可运行基础功能）
+# 3. 启动开发服务器
 pnpm dev
 # 或
 npm run dev
@@ -318,31 +318,80 @@ npm run dev
 # 打开浏览器访问 http://localhost:3000
 ```
 
-### 环境变量配置（可选）
+**🎉 无需任何环境变量配置即可运行基础功能！**
 
-创建 `.env.local` 文件以启用高级功能：
+### 完整功能配置（可选）
+
+如需启用邮件通知、错误监控等高级功能，创建 `.env.local` 文件：
 
 ```bash
-# 网站配置
+# ==================
+# 网站基础配置
+# ==================
 NEXT_PUBLIC_SITE_URL=https://your-domain.com
 
-# EmailJS（联系表单）
+# ==================
+# 邮件服务（联系表单）
+# ==================
+# EmailJS 配置 - https://www.emailjs.com/
 NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=your_public_key
 NEXT_PUBLIC_EMAILJS_SERVICE_ID=your_service_id
 NEXT_PUBLIC_EMAILJS_TEMPLATE_ID=your_template_id
 
-# Resend（邮件通知）
-RESEND_API_KEY=your_resend_key
+# ==================
+# 邮件通知服务
+# ==================
+# Resend API - https://resend.com/
+RESEND_API_KEY=re_xxx
 
+# ==================
 # 告警通知
-SLACK_WEBHOOK_URL=https://hooks.slack.com/...
+# ==================
+# Slack Webhook（运维告警）
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/xxx/xxx/xxx
+# 告警邮件接收者（逗号分隔）
 ALERT_EMAIL_RECIPIENTS=admin@example.com,ops@example.com
 
-# Sentry（错误监控）
+# ==================
+# 错误监控（可选）
+# ==================
 NEXT_PUBLIC_SENTRY_RELEASE=1.0.0
 ```
 
+### 常用开发命令
+
+```bash
+# 开发
+pnpm dev                    # 启动开发服务器 (Turbo 模式)
+pnpm dev:3001               # 指定端口启动
+
+# 代码质量
+pnpm lint                   # ESLint 检查
+pnpm lint:fix               # 自动修复 lint 问题
+pnpm type-check             # TypeScript 类型检查
+pnpm format                 # Prettier 格式化
+
+# 测试
+pnpm test                   # 单元测试 (watch 模式)
+pnpm test:run               # 单元测试 (单次运行)
+pnpm test:coverage          # 测试覆盖率报告
+pnpm test:e2e               # E2E 测试
+pnpm test:all               # 运行所有测试
+
+# 构建
+pnpm build                  # 生产构建
+pnpm build:analyze          # 构建分析（包体积）
+pnpm start                  # 启动生产服务器
+
+# 性能
+pnpm perf:baseline          # 性能基线测量
+pnpm perf:monitor           # 性能监控
+pnpm perf:report            # 生成性能报告
+```
+
 ### 生产部署
+
+#### 方式一：标准部署
 
 ```bash
 # 构建
@@ -352,7 +401,7 @@ pnpm build
 pnpm start
 ```
 
-### Docker 部署
+#### 方式二：Docker 部署
 
 ```bash
 # 构建镜像
@@ -360,6 +409,35 @@ docker build -t 7zi-team .
 
 # 运行容器
 docker run -p 3000:3000 --env-file .env 7zi-team
+
+# 或使用 Docker Compose
+docker-compose up -d
+```
+
+#### 方式三：PM2 部署
+
+```bash
+# 安装 PM2
+npm install -g pm2
+
+# 启动
+pm2 start ecosystem.config.js
+
+# 管理命令
+pm2 logs 7zi           # 查看日志
+pm2 restart 7zi        # 重启
+pm2 stop 7zi           # 停止
+pm2 monit              # 监控面板
+```
+
+### 验证安装
+
+```bash
+# 运行完整检查
+pnpm lint && pnpm type-check && pnpm test:run && pnpm build
+
+# 访问健康检查端点
+curl http://localhost:3000/api/health
 ```
 
 ---
@@ -375,6 +453,8 @@ docker run -p 3000:3000 --env-file .env 7zi-team
 | [📊 PROJECT_STATUS.md](./PROJECT_STATUS.md) | 项目当前状态 |
 | [🚀 NEXT_FEATURES.md](./NEXT_FEATURES.md) | 功能规划路线图 |
 | [🔧 TECH_DEBT.md](./TECH_DEBT.md) | 技术债务清单 |
+| [📖 CONTRIBUTING.md](./CONTRIBUTING.md) | 贡献指南 |
+| [📡 API.md](./docs/API.md) | API 文档 |
 
 ### 运维文档
 
@@ -382,7 +462,6 @@ docker run -p 3000:3000 --env-file .env 7zi-team
 |------|------|
 | [✅ DEPLOYMENT-CHECKLIST.md](./DEPLOYMENT-CHECKLIST.md) | 部署检查清单 |
 | [🔄 CI-CD-REPORT.md](./CI-CD-REPORT.md) | CI/CD 配置报告 |
-| [📖 CONTRIBUTING.md](./CONTRIBUTING.md) | 贡献指南 |
 
 ### docs/ 详细文档
 

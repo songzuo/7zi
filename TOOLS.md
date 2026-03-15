@@ -48,18 +48,35 @@ npm run build:analyze    # 构建分析
 
 | 端点 | 方法 | 说明 | 认证 |
 |------|------|------|------|
-| `/api/tasks` | GET | 获取任务列表（支持过滤） | 可选 |
-| `/api/tasks` | POST | 创建新任务 | 可选 |
-| `/api/tasks` | PUT | 更新任务（需传 id） | 可选 |
-| `/api/tasks` | DELETE | 删除任务（需管理员） | 必需 |
+| `/api/tasks` | GET | 获取任务列表（支持分页、过滤） | 可选 |
+| `/api/tasks` | POST | 创建新任务 | 可选（CSRF 必需） |
+| `/api/tasks` | PUT | 更新任务（需传 id） | 可选（CSRF 必需） |
+| `/api/tasks` | DELETE | 删除任务（需管理员） | 必需（CSRF 必需） |
 | `/api/tasks/:id/assign` | POST | AI 智能分配任务 | 必需 |
+| `/api/tasks/import` | GET | 获取导入模板和帮助 | 无 |
+| `/api/tasks/import` | POST | 批量导入任务（CSV） | 可选（CSRF 必需） |
 
-**GET /api/tasks - 获取任务列表**
+**GET /api/tasks - 获取任务列表（支持分页）**
 ```bash
-# 请求
+# 基础请求
 GET /api/tasks?status=pending&type=development&assignee=architect
 
-# 响应
+# 分页请求
+GET /api/tasks?page=1&limit=20&sortBy=priority&sortOrder=desc
+
+# 响应（分页模式）
+{
+  "success": true,
+  "data": [...],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 150,
+    "totalPages": 8
+  }
+}
+
+# 响应（简单模式）
 {
   "success": true,
   "data": [
@@ -76,6 +93,20 @@ GET /api/tasks?status=pending&type=development&assignee=architect
   ]
 }
 ```
+
+**Query 参数:**
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `page` | number | 页码（默认 1） |
+| `limit` | number | 每页数量（默认 20，最大 100） |
+| `status` | string | 按状态过滤: pending, assigned, in_progress, completed |
+| `type` | string | 按类型过滤: development, design, research, marketing, other |
+| `assignee` | string | 按分配人 ID 过滤 |
+| `projectId` | string | 按项目 ID 过滤 |
+| `priority` | string | 按优先级过滤: low, medium, high, urgent |
+| `sortBy` | string | 排序字段: createdAt, updatedAt, priority（默认 createdAt） |
+| `sortOrder` | string | 排序方向: asc, desc（默认 desc） |
+| `cache` | boolean | 是否使用缓存（默认 true） |
 
 **POST /api/tasks - 创建任务**
 ```bash
@@ -134,6 +165,52 @@ Authorization: Bearer <token>
   "message": "Task automatically assigned to 架构师",
   "assignedTo": { "id": "architect", "name": "架构师", "confidence": 85 },
   "task": { ... }
+}
+
+# 请求 - 指定成员分配
+POST /api/tasks/task-001/assign
+Authorization: Bearer <token>
+{ "preferredMemberId": "developer" }
+```
+
+**POST /api/tasks/import - 批量导入任务**
+```bash
+# 获取导入模板
+GET /api/tasks/import
+
+# 响应
+{
+  "success": true,
+  "message": "任务导入 API",
+  "format": {
+    "type": "CSV",
+    "requiredFields": ["title"],
+    "optionalFields": ["description", "type", "priority", "status", "assignee"],
+    "fieldTypes": {
+      "type": ["feature", "bug", "refactor", "test", "docs", "development", "design", "research", "marketing", "other"],
+      "priority": ["low", "medium", "high", "urgent"],
+      "status": ["pending", "assigned", "in_progress", "completed"]
+    }
+  },
+  "template": "title,description,type,priority,status,assignee\n..."
+}
+
+# 导入 CSV 文件
+POST /api/tasks/import
+Content-Type: text/csv
+
+title,description,type,priority,status,assignee
+"任务1","描述1","feature","high","pending","architect"
+"任务2","描述2","bug","medium","pending",""
+
+# 响应
+{
+  "success": true,
+  "total": 2,
+  "imported": 2,
+  "failed": 0,
+  "errors": [],
+  "tasks": [...]
 }
 ```
 
@@ -205,7 +282,7 @@ X-CSRF-Token: <token>
 **GET /api/logs - 查询日志**
 ```bash
 # 请求
-GET /api/logs?levels=error,warn&categories=api&limit=100&page=1&order=desc
+GET /api/logs?levels=error,warn&categories=api&limit=100&page=1&orderBy=timestamp&order=desc
 
 # 响应
 {
@@ -217,7 +294,10 @@ GET /api/logs?levels=error,warn&categories=api&limit=100&page=1&order=desc
         "level": "error",
         "category": "api",
         "message": "Database connection failed",
-        "timestamp": "2026-03-14T10:00:00Z"
+        "timestamp": "2026-03-14T10:00:00Z",
+        "userId": "user-001",
+        "requestId": "req-xxx",
+        "route": "/api/tasks"
       }
     ],
     "total": 150,
@@ -226,6 +306,22 @@ GET /api/logs?levels=error,warn&categories=api&limit=100&page=1&order=desc
   }
 }
 ```
+
+**Query 参数:**
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `levels` | string | 日志级别（逗号分隔）: debug, info, warn, error |
+| `categories` | string | 分类（逗号分隔）: api, auth, database, system, client_error |
+| `search` | string | 搜索文本（匹配消息内容） |
+| `userId` | string | 用户 ID 过滤 |
+| `requestId` | string | 请求 ID 过滤 |
+| `route` | string | 路由过滤 |
+| `startTime` | string | 开始时间（ISO 8601） |
+| `endTime` | string | 结束时间（ISO 8601） |
+| `page` | number | 页码（默认 1） |
+| `limit` | number | 每页数量（默认 100，最大 1000） |
+| `orderBy` | string | 排序字段: timestamp, level（默认 timestamp） |
+| `order` | string | 排序方向: asc, desc（默认 desc） |
 
 **GET /api/logs/export - 导出日志**
 ```bash
@@ -297,8 +393,8 @@ GET /api/health?history=true
 
 **GET /api/health/detailed - 详细报告**
 ```bash
-# 请求
-GET /api/health/detailed?include=system,services,configuration&history=true
+# 请求 - 完整报告
+GET /api/health/detailed?include=system,services,configuration,components,history,performance&history=true
 
 # 响应
 {
@@ -306,8 +402,10 @@ GET /api/health/detailed?include=system,services,configuration&history=true
   "timestamp": "2026-03-14T10:00:00Z",
   "version": "1.0.0",
   "uptime": 86400,
+  "environment": "production",
+  "responseTime": 5,
   "system": {
-    "memory": { "used": 256, "total": 1024 },
+    "memory": { "used": 256, "total": 1024, "usagePercent": 25 },
     "cpu": { "usage": 25 }
   },
   "services": {
@@ -317,9 +415,27 @@ GET /api/health/detailed?include=system,services,configuration&history=true
   "configuration": {
     "envVars": "configured",
     "security": "enabled"
+  },
+  "components": {
+    "cache": { "status": "ok" },
+    "auth": { "status": "ok" },
+    "logger": { "status": "ok" }
+  },
+  "apiPerformance": {
+    "totalRequests": 10000,
+    "totalErrors": 50,
+    "errorRate": 0.5,
+    "avgResponseTime": 142,
+    "uptime": 99.98
   }
 }
 ```
+
+**Query 参数:**
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `include` | string | 包含的模块（逗号分隔）: system, services, configuration, components, history, performance |
+| `history` | boolean | 是否包含历史记录 |
 
 ---
 
@@ -341,7 +457,7 @@ GET /api/health/detailed?include=system,services,configuration&history=true
 **GET /api/knowledge/nodes - 获取节点**
 ```bash
 # 请求
-GET /api/knowledge/nodes?type=concept&minConfidence=0.7&limit=50
+GET /api/knowledge/nodes?type=concept&source=ai&minConfidence=0.7&minWeight=0.5&limit=50&offset=0
 
 # 响应
 {
@@ -353,12 +469,26 @@ GET /api/knowledge/nodes?type=concept&minConfidence=0.7&limit=50
       "type": "concept",
       "weight": 0.8,
       "confidence": 0.9,
-      "tags": ["react", "frontend"]
+      "source": "ai",
+      "tags": ["react", "frontend"],
+      "timestamp": 1709500800000
     }
   ],
-  "pagination": { "total": 100, "offset": 0, "limit": 50 }
+  "pagination": { "total": 100, "offset": 0, "limit": 50 },
+  "cached": false
 }
 ```
+
+**Query 参数:**
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `type` | string | 节点类型: concept, fact, rule, procedure |
+| `source` | string | 来源: user, ai, document |
+| `tags` | string | 标签过滤（逗号分隔） |
+| `minWeight` | number | 最小权重（0-1） |
+| `minConfidence` | number | 最小置信度（0-1） |
+| `limit` | number | 结果数量限制 |
+| `offset` | number | 偏移量（分页） |
 
 **POST /api/knowledge/nodes - 创建节点**
 ```bash
@@ -369,25 +499,92 @@ POST /api/knowledge/nodes
   "type": "concept",
   "weight": 0.8,
   "confidence": 0.9,
-  "tags": ["tag1", "tag2"]
+  "source": "user",
+  "tags": ["tag1", "tag2"],
+  "metadata": { "customField": "value" }
 }
 
 # 响应
 {
   "success": true,
-  "data": { "id": "node-xxx", ... }
+  "data": { "id": "node-xxx", "timestamp": 1709500800000, ... }
 }
 ```
+
+**GET /api/knowledge/nodes/:id - 获取节点详情**
+```bash
+# 请求
+GET /api/knowledge/nodes/node-001
+
+# 响应
+{
+  "success": true,
+  "data": { "id": "node-001", ... },
+  "edges": [...],
+  "neighbors": [...]
+}
+```
+
+**GET /api/knowledge/edges - 获取边关系**
+```bash
+# 请求
+GET /api/knowledge/edges?type=relates_to&from=node-001&minWeight=0.7&limit=50
+
+# 响应
+{
+  "success": true,
+  "data": [
+    {
+      "id": "edge-001",
+      "from": "node-001",
+      "to": "node-002",
+      "type": "relates_to",
+      "weight": 0.85,
+      "timestamp": 1709500800000
+    }
+  ],
+  "pagination": { "total": 50, "offset": 0, "limit": 50 }
+}
+```
+
+**POST /api/knowledge/edges - 创建边**
+```bash
+# 请求
+POST /api/knowledge/edges
+{
+  "from": "node-001",
+  "to": "node-002",
+  "type": "relates_to",
+  "weight": 0.85,
+  "metadata": {}
+}
+
+# 响应
+{
+  "success": true,
+  "data": { "id": "edge-xxx", ... }
+}
+```
+
+**边关系类型:**
+| 类型 | 说明 |
+|------|------|
+| `relates_to` | 相关关系 |
+| `depends_on` | 依赖关系 |
+| `extends` | 扩展关系 |
+| `contradicts` | 矛盾关系 |
 
 **POST /api/knowledge/query - 知识查询**
 ```bash
 # 请求
 POST /api/knowledge/query
 {
-  "type": "concept",
-  "tags": ["react"],
   "searchText": "组件",
+  "type": "concept",
+  "source": "ai",
+  "tags": ["react"],
   "minConfidence": 0.5,
+  "minWeight": 0.3,
   "limit": 20
 }
 
@@ -396,7 +593,7 @@ POST /api/knowledge/query
   "success": true,
   "data": {
     "nodes": [...],
-    "relevanceScores": [0.95, 0.85, ...],
+    "relevanceScores": [0.95, 0.85, 0.75],
     "edges": [...],
     "total": 50
   }
@@ -416,9 +613,30 @@ POST /api/knowledge/inference
 {
   "success": true,
   "data": {
-    "relatedNodes": [...],
-    "inferredRelations": [...],
-    "confidence": 0.85
+    "conclusion": "Based on 5 related knowledge items",
+    "confidence": 0.85,
+    "path": ["node-001", "node-002", "node-003"],
+    "relatedNodes": [...]
+  }
+}
+```
+
+**GET /api/knowledge/lattice - 获取完整晶格**
+```bash
+# 请求
+GET /api/knowledge/lattice?includeStats=true
+
+# 响应
+{
+  "success": true,
+  "data": {
+    "nodes": [...],
+    "edges": [...],
+    "stats": {
+      "totalNodes": 100,
+      "totalEdges": 250,
+      "avgConnectivity": 2.5
+    }
   }
 }
 ```
@@ -656,6 +874,175 @@ POST /api/comments
 
 ---
 
+#### 性能监控 API
+
+| 端点 | 方法 | 说明 | 认证 |
+|------|------|------|------|
+| `/api/performance` | GET | 获取性能指标 | 无 |
+
+**GET /api/performance - 性能指标**
+```bash
+# 基础摘要
+GET /api/performance
+
+# 完整详情
+GET /api/performance?detail=full
+
+# 仅端点统计
+GET /api/performance?detail=endpoints&limit=20
+
+# 系统快照历史
+GET /api/performance?detail=system&limit=50
+
+# 每小时统计
+GET /api/performance?detail=hourly&limit=168
+
+# 响应（summary 模式）
+{
+  "timestamp": "2026-03-14T10:00:00Z",
+  "summary": {
+    "totalRequests": 10000,
+    "totalErrors": 50,
+    "errorRate": 0.5,
+    "avgResponseTime": 142,
+    "uptime": 99.98,
+    "endpointsCount": 25
+  },
+  "latestSnapshot": {
+    "memory": { "used": 256, "total": 1024 },
+    "cpu": { "usage": 25 }
+  },
+  "slowestEndpoints": [...],
+  "mostAccessedEndpoints": [...]
+}
+```
+
+**Query 参数:**
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `detail` | string | 详情级别: summary（默认）, full, endpoints, system, hourly |
+| `limit` | number | 列表项数量（默认 10） |
+
+---
+
+#### 通知偏好 API
+
+| 端点 | 方法 | 说明 | 认证 |
+|------|------|------|------|
+| `/api/notifications/preferences` | GET | 获取用户通知偏好 | 可选 |
+| `/api/notifications/preferences` | PUT | 更新用户通知偏好 | 可选（CSRF 必需） |
+| `/api/notifications/preferences` | POST | 重置为默认偏好 | 可选（CSRF 必需） |
+
+**GET /api/notifications/preferences - 获取偏好**
+```bash
+# 请求
+GET /api/notifications/preferences?userId=user-001
+
+# 响应
+{
+  "success": true,
+  "data": {
+    "preferences": {
+      "userId": "user-001",
+      "email": true,
+      "push": true,
+      "slack": false,
+      "digest": "daily",
+      "taskAssigned": true,
+      "taskCompleted": true,
+      "mentions": true,
+      "updatedAt": "2026-03-15T10:00:00Z"
+    }
+  }
+}
+```
+
+**偏好设置字段说明:**
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `email` | boolean | 邮件通知开关 |
+| `push` | boolean | 推送通知开关 |
+| `slack` | boolean | Slack 通知开关 |
+| `digest` | string | 摘要频率: 'none', 'daily', 'weekly' |
+| `taskAssigned` | boolean | 任务分配通知开关 |
+| `taskCompleted` | boolean | 任务完成通知开关 |
+| `mentions` | boolean | 提及通知开关 |
+
+**PUT /api/notifications/preferences - 更新偏好**
+```bash
+# 请求
+PUT /api/notifications/preferences
+X-CSRF-Token: <token>
+
+{
+  "email": true,
+  "push": false,
+  "slack": true,
+  "digest": "weekly",
+  "taskAssigned": true,
+  "taskCompleted": true,
+  "mentions": true
+}
+
+# 响应
+{
+  "success": true,
+  "data": {
+    "preferences": { ... },
+    "message": "Notification preferences updated successfully"
+  }
+}
+```
+
+**POST /api/notifications/preferences - 重置为默认**
+```bash
+# 请求
+POST /api/notifications/preferences
+X-CSRF-Token: <token>
+
+# 响应
+{
+  "success": true,
+  "data": {
+    "preferences": {
+      "userId": "user-001",
+      "email": true,
+      "push": true,
+      "slack": false,
+      "digest": "daily",
+      "taskAssigned": true,
+      "taskCompleted": true,
+      "mentions": true,
+      "updatedAt": "2026-03-15T10:00:00Z"
+    },
+    "message": "Notification preferences reset to defaults"
+  }
+}
+```
+
+---
+
+#### 测试 API
+
+| 端点 | 方法 | 说明 | 认证 |
+|------|------|------|------|
+| `/api/test` | GET | 简单测试端点 | 无 |
+
+**GET /api/test - 测试端点**
+```bash
+# 请求
+GET /api/test
+
+# 响应
+{
+  "success": true,
+  "data": "Hello from /api/test",
+  "timestamp": "2026-03-14T10:00:00Z"
+}
+```
+
+---
+
 #### 系统状态 API
 
 | 端点 | 方法 | 说明 | 认证 |
@@ -664,8 +1051,14 @@ POST /api/comments
 
 **GET /api/status - 系统状态**
 ```bash
-# 请求
+# 基础请求
 GET /api/status
+
+# 包含性能详情
+GET /api/status?performance=true
+
+# 包含端点详情
+GET /api/status?endpoints=true
 
 # 响应
 {
@@ -673,7 +1066,8 @@ GET /api/status
   "lastUpdated": "2026-03-14T10:00:00Z",
   "services": [
     { "name": "Website", "status": "operational", "uptime": 99.98, "responseTime": 120 },
-    { "name": "API", "status": "operational", "uptime": 99.99, "responseTime": 85 }
+    { "name": "API", "status": "operational", "uptime": 99.99, "responseTime": 85 },
+    { "name": "CDN", "status": "operational", "uptime": 99.99, "responseTime": 45 }
   ],
   "metrics": {
     "requests": 125000,
@@ -682,9 +1076,28 @@ GET /api/status
     "p95ResponseTime": 380
   },
   "incidents": [],
-  "maintenance": []
+  "maintenance": [],
+  "performance": {  // 可选（?performance=true）
+    "totalRequests": 10000,
+    "totalErrors": 50,
+    "errorRate": 0.5,
+    "avgResponseTime": 142,
+    "uptime": 99.98,
+    "hourlyStats": [...]
+  },
+  "endpoints": {  // 可选（?endpoints=true）
+    "slowest": [...],
+    "mostAccessed": [...],
+    "all": [...]
+  }
 }
 ```
+
+**Query 参数:**
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `performance` | boolean | 是否包含性能详情 |
+| `endpoints` | boolean | 是否包含端点详情 |
 
 ---
 
@@ -703,9 +1116,11 @@ POST /api/log-error
   "message": "Uncaught TypeError: ...",
   "stack": "at App.tsx:25...",
   "componentStack": "at Component...",
+  "digest": "NEXT_ERROR_DIGEST_xxx",
   "url": "https://example.com/page",
   "userAgent": "Mozilla/5.0...",
-  "timestamp": "2026-03-14T10:00:00Z"
+  "timestamp": "2026-03-14T10:00:00Z",
+  "additionalInfo": { "customField": "value" }
 }
 
 # 响应
@@ -713,6 +1128,33 @@ POST /api/log-error
   "success": true,
   "requestId": "req-xxx",
   "message": "错误已记录"
+}
+```
+
+**GET /api/log-error - 获取错误统计（管理员）**
+```bash
+# 请求
+GET /api/log-error?limit=50&offset=0
+Authorization: Bearer <token>
+
+# 响应
+{
+  "success": true,
+  "data": [
+    {
+      "id": "log-001",
+      "level": "error",
+      "category": "client_error",
+      "message": "Uncaught TypeError...",
+      "timestamp": "2026-03-14T10:00:00Z"
+    }
+  ],
+  "pagination": {
+    "total": 150,
+    "limit": 50,
+    "offset": 0,
+    "totalPages": 3
+  }
 }
 ```
 
@@ -793,17 +1235,19 @@ ALERT_EMAIL_RECIPIENTS=admin@example.com
 
 | API 模块 | 实现状态 | 端点数 | 备注 |
 |----------|----------|--------|------|
-| Tasks API | ✅ 完整 | 5 | `/api/tasks` (CRUD), `/api/tasks/:id/assign` |
+| Tasks API | ✅ 完整 | 7 | `/api/tasks` (CRUD), `/api/tasks/:id/assign`, `/api/tasks/import` |
 | Projects API | ✅ 完整 | 6 | `/api/projects` (CRUD), `/api/projects/:id/tasks` |
 | Health API | ✅ 完整 | 6 | `/api/health`, `/api/health/ready`, `/api/health/live`, `/api/health/detailed` |
 | Knowledge API | ✅ 完整 | 10 | `/api/knowledge/nodes`, `/api/knowledge/edges`, `/api/knowledge/query`, `/api/knowledge/inference`, `/api/knowledge/lattice` |
 | Auth API | ✅ 完整 | 10 | `/api/auth`, `/api/auth/login`, `/api/auth/logout`, `/api/auth/refresh`, `/api/auth/me` |
-| Status API | ✅ 完整 | 1 | `/api/status` (公开状态页面) |
+| Status API | ✅ 完整 | 1 | `/api/status` (公开状态页面，含性能指标) |
+| Performance API | ✅ 完整 | 1 | `/api/performance` (性能监控) |
 | Logs API | ✅ 完整 | 3 | `/api/logs` (查询/删除), `/api/logs/export` (JSON/CSV) |
-| Notifications API | ✅ 完整 | 4 | `/api/notifications` (CRUD, 标记已读, 批量操作) |
+| Notifications API | ✅ 完整 | 7 | `/api/notifications` (CRUD, 标记已读), `/api/notifications/preferences` (GET/PUT/POST) |
 | Comments API | ✅ 完整 | 5 | `/api/comments` (CRUD, 按文章过滤) |
 | Log Error API | ✅ 完整 | 2 | `/api/log-error` (上报/查询) |
 | Examples API | ✅ 完整 | 4 | `/api/examples/protected` (认证示例) |
+| Test API | ✅ 完整 | 1 | `/api/test` (简单测试) |
 
 ### 重构状态
 

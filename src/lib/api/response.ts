@@ -6,6 +6,8 @@
 
 import { NextResponse } from 'next/server';
 import { apiLogger } from '@/lib/logger';
+import { generateRequestId } from '@/lib/id';
+import { now } from '@/lib/datetime';
 import { z } from 'zod';
 
 // ============================================
@@ -79,12 +81,7 @@ export interface PaginationParams {
 // 请求 ID 生成
 // ============================================
 
-/**
- * 生成请求 ID
- */
-export function generateRequestId(): string {
-  return `req_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-}
+// 使用统一的 ID 生成工具 (已导入 generateRequestId)
 
 // ============================================
 // 成功响应
@@ -107,7 +104,7 @@ export function success<T>(
     success: true,
     data,
     requestId,
-    timestamp: new Date().toISOString(),
+    timestamp: now(),
   };
 
   if (options.meta) {
@@ -214,7 +211,7 @@ export function error(
       message: displayMessage,
     },
     requestId,
-    timestamp: new Date().toISOString(),
+    timestamp: now(),
   };
 
   // 仅在开发环境添加详细信息

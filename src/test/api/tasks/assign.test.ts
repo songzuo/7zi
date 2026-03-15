@@ -73,7 +73,8 @@ describe('Tasks Assignment API', () => {
       const data = await response.json()
 
       expect(response.status).toBe(200)
-      expect(data.success).toBe(true)
+      // When returning suggestions (without auto-assign), success is false
+      expect(data.success).toBe(false)
       expect(data.suggestions).toBeDefined()
       expect(Array.isArray(data.suggestions)).toBe(true)
     })

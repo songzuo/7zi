@@ -8,6 +8,7 @@
 - [架构设计](#架构设计)
 - [目录结构](#目录结构)
 - [核心模块](#核心模块)
+- [API 系统](#api-系统)
 - [数据流](#数据流)
 - [状态管理](#状态管理)
 - [国际化](#国际化)
@@ -23,8 +24,8 @@
 
 | 技术 | 版本 | 用途 | 选择理由 |
 |------|------|------|----------|
-| Next.js | 16.1.6 | React 全栈框架 | SSG/SSR 支持、文件系统路由、内置优化 |
-| React | 19.2.3 | UI 库 | 组件化开发、生态系统丰富 |
+| Next.js | 15.5.12 | React 全栈框架 | SSG/SSR 支持、文件系统路由、内置优化 |
+| React | 18.3.1 | UI 库 | 组件化开发、生态系统丰富 |
 | TypeScript | 5.x | 类型系统 | 类型安全、更好的 IDE 支持 |
 
 ### 样式方案
@@ -33,18 +34,36 @@
 |------|------|------|----------|
 | Tailwind CSS | 4.x | 原子化 CSS | 快速开发、一致性设计、小包体积 |
 
+### 状态管理
+
+| 技术 | 版本 | 用途 | 选择理由 |
+|------|------|------|----------|
+| Zustand | 5.0.11 | 全局状态管理 | 轻量、简洁 API、无 Provider 包裹 |
+
 ### 测试工具
 
 | 技术 | 版本 | 用途 | 选择理由 |
 |------|------|------|----------|
 | Vitest | 4.0.18 | 单元测试 | Vite 生态、快速、兼容 Jest API |
 | Testing Library | 16.x | 组件测试 | 最佳实践、关注用户行为 |
+| Playwright | 1.58.2 | E2E 测试 | 跨浏览器支持、现代化 API |
 
 ### 国际化
 
 | 技术 | 版本 | 用途 | 选择理由 |
 |------|------|------|----------|
 | next-intl | 4.8.3 | 国际化方案 | Next.js App Router 原生支持、服务端渲染友好 |
+
+### 其他依赖
+
+| 技术 | 版本 | 用途 |
+|------|------|------|
+| Three.js | 0.183.2 | 3D 渲染 (Hero 区域) |
+| Chart.js | 4.5.1 | 数据可视化 |
+| Resend | 6.9.3 | 邮件发送服务 |
+| EmailJS | 4.4.1 | 联系表单邮件 |
+| Fuse.js | 7.1.0 | 模糊搜索 |
+| jose | 6.2.0 | JWT 处理 |
 
 ## 架构设计
 
@@ -197,6 +216,130 @@ const nextConfig: NextConfig = {
 ├── vitest.config.ts            # Vitest 配置
 ├── eslint.config.mjs           # ESLint 配置
 └── package.json                # 项目依赖
+```
+
+## API 系统
+
+### API 架构概览
+
+7zi 提供完整的 RESTful API 系统，支持任务管理、项目管理、知识图谱、认证等核心功能。
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│                       API Gateway                               │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐               │
+│  │   Auth      │ │   CSRF      │ │   Rate      │               │
+│  │   中间件     │ │   保护       │ │   Limit     │               │
+│  └─────────────┘ └─────────────┘ └─────────────┘               │
+├────────────────────────────────────────────────────────────────┤
+│                       API Routes                                │
+│  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐  │
+│  │  Tasks  │ │Projects │ │Knowledge│ │  Auth   │ │  Logs   │  │
+│  └─────────┘ └─────────┘ └─────────┘ └─────────┘ └─────────┘  │
+│  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐  │
+│  │ Health  │ │ Status  │ │Notifs   │ │Comments │ │Examples │  │
+│  └─────────┘ └─────────┘ └─────────┘ └─────────┘ └─────────┘  │
+├────────────────────────────────────────────────────────────────┤
+│                       Data Layer                                │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐              │
+│  │  In-Memory  │ │  LocalStorage│ │  External   │              │
+│  │    Store    │ │   (Client)   │ │  Services   │              │
+│  └─────────────┘ └─────────────┘ └─────────────┘              │
+└────────────────────────────────────────────────────────────────┘
+```
+
+### API 端点总览
+
+| 模块 | 基础路径 | 功能 | 认证 |
+|------|----------|------|------|
+| **Tasks** | `/api/tasks` | 任务 CRUD、AI 分配 | 可选/必需 |
+| **Projects** | `/api/projects` | 项目管理 | 可选/必需 |
+| **Knowledge** | `/api/knowledge/*` | 知识图谱（节点/边/查询/推理/晶格） | 无 |
+| **Auth** | `/api/auth/*` | 登录/登出/刷新/用户信息 | 部分必需 |
+| **Health** | `/api/health/*` | 健康检查（基础/就绪/存活/详细） | 无 |
+| **Logs** | `/api/logs` | 日志查询/导出/清理 | 部分必需 |
+| **Notifications** | `/api/notifications` | 通知管理 | 可选 |
+| **Comments** | `/api/comments` | 博客评论 | 无 |
+| **Status** | `/api/status` | 系统状态页面 | 无 |
+| **Log-Error** | `/api/log-error` | 前端错误上报 | 无 |
+| **Examples** | `/api/examples/protected` | 认证示例 | 必需 |
+
+### 认证机制
+
+```typescript
+// 双重认证：JWT + CSRF Token
+// 1. 登录获取 JWT
+POST /api/auth/login
+{ "email": "user@example.com", "password": "xxx" }
+→ Set-Cookie: access_token=...; refresh_token=...
+→ { "csrfToken": "xxx" }
+
+// 2. 访问受保护 API
+DELETE /api/tasks?id=xxx
+Headers: 
+  Authorization: Bearer <access_token>
+  X-CSRF-Token: <csrf_token>
+
+// 3. 刷新令牌
+POST /api/auth/refresh
+Cookie: refresh_token=...
+→ { "accessToken": "..." }
+```
+
+### API 目录结构
+
+```
+src/app/api/
+├── auth/                    # 认证 API
+│   ├── route.ts            # 主入口 (info/csrf/check-secret)
+│   ├── login/route.ts      # 登录
+│   ├── logout/route.ts     # 登出
+│   ├── refresh/route.ts    # 刷新令牌
+│   └── me/route.ts         # 当前用户
+│
+├── tasks/                   # 任务 API
+│   ├── route.ts            # GET/POST 任务列表
+│   ├── [id]/               # 单个任务
+│   │   └── assign/route.ts # AI 智能分配
+│   └── import/route.ts     # 批量导入
+│
+├── projects/                # 项目 API
+│   ├── route.ts            # GET/POST 项目
+│   └── [id]/
+│       ├── route.ts        # GET/PUT/DELETE 单个项目
+│       └── tasks/route.ts  # 项目任务列表
+│
+├── knowledge/               # 知识图谱 API
+│   ├── nodes/
+│   │   ├── route.ts        # GET/POST 节点
+│   │   └── [id]/route.ts   # GET/PUT/DELETE 节点
+│   ├── edges/route.ts      # GET/POST 边
+│   ├── query/route.ts      # 知识查询
+│   ├── inference/route.ts  # 知识推理
+│   └── lattice/route.ts    # 知识晶格
+│
+├── health/                  # 健康检查 API
+│   ├── route.ts            # 基础检查
+│   ├── ready/route.ts      # Kubernetes 就绪探针
+│   ├── live/route.ts       # Kubernetes 存活探针
+│   └── detailed/route.ts   # 详细报告
+│
+├── logs/                    # 日志 API
+│   ├── route.ts            # GET/DELETE 日志
+│   └── export/route.ts     # 导出 (JSON/CSV)
+│
+├── notifications/           # 通知 API
+│   ├── route.ts            # GET/POST/PUT/DELETE
+│   └── preferences/route.ts # 通知偏好
+│
+├── comments/                # 评论 API
+│   ├── route.ts            # GET/POST 评论
+│   └── [id]/route.ts       # GET/PUT/DELETE
+│
+├── status/route.ts         # 公开状态页面
+├── log-error/route.ts      # 前端错误上报
+└── examples/protected/     # 认证示例
+    └── route.ts
 ```
 
 ## 核心模块

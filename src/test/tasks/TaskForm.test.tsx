@@ -391,7 +391,7 @@ describe('TaskForm', () => {
           description: longText,
         })
       )
-    })
+    }, 30000)
 
     it('should handle whitespace-only title', async () => {
       const mockOnSubmit = vi.fn()

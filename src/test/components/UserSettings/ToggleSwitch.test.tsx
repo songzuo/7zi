@@ -1,9 +1,15 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import ToggleSwitch from '@/components/UserSettings/ToggleSwitch';
 
 describe('ToggleSwitch', () => {
   const mockOnChange = vi.fn();
+  const user = userEvent.setup();
+
+  beforeEach(() => {
+    mockOnChange.mockClear();
+  });
 
   it('renders in unchecked state by default', () => {
     render(<ToggleSwitch checked={false} onChange={mockOnChange} />);
@@ -19,17 +25,24 @@ describe('ToggleSwitch', () => {
     expect(switchButton).toHaveAttribute('aria-checked', 'true');
   });
 
-  it('calls onChange when clicked and not disabled', () => {
+  it('calls onChange when clicked and not disabled', async () => {
     render(<ToggleSwitch checked={false} onChange={mockOnChange} />);
     const switchButton = screen.getByRole('switch');
-    fireEvent.click(switchButton);
+    await user.click(switchButton);
     expect(mockOnChange).toHaveBeenCalledWith(true);
   });
 
   it('does not call onChange when disabled', () => {
+    console.log('=== TEST: disabled click test starting ===');
     render(<ToggleSwitch checked={false} onChange={mockOnChange} disabled={true} />);
     const switchButton = screen.getByRole('switch');
+    console.log('Button HTML:', switchButton.outerHTML);
+    
+    // Fire click event
     fireEvent.click(switchButton);
+    console.log('After click, mock calls:', mockOnChange.mock.calls);
+    
+    // onChange should not be called when disabled
     expect(mockOnChange).not.toHaveBeenCalled();
   });
 

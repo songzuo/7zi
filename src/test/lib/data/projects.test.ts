@@ -1,6 +1,6 @@
 /**
  * Projects Module Tests
- * Tests for src/lib/data/projects.ts
+ * Tests for src/lib/data/projects.server.ts
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -15,12 +15,29 @@ import {
   getProjectsByMember,
   getProjectTasks,
   projects
-} from '@/lib/data/projects';
+} from '@/lib/data/projects.server';
 import type { ProjectStatus, ProjectPriority } from '@/types/project-types';
 
 describe('projects data module', () => {
   // Store original projects for restoration
-  const originalProjectsLength = projects.length;
+  let originalProjectsLength: number;
+
+  beforeEach(() => {
+    originalProjectsLength = getProjects().length;
+  });
+
+  // Clean up any test-created projects after each test
+  afterEach(() => {
+    // Get current projects and remove any test-created ones
+    // (projects with IDs not in the initial set)
+    const initialIds = ['proj-001', 'proj-002', 'proj-003'];
+    const currentProjects = getProjects();
+    currentProjects.forEach(p => {
+      if (!initialIds.includes(p.id)) {
+        deleteProject(p.id);
+      }
+    });
+  });
 
   // ============================================================================
   // getProjects
@@ -107,7 +124,7 @@ describe('projects data module', () => {
     };
 
     it('should create a new project with valid data', () => {
-      const initialCount = projects.length;
+      const initialCount = getProjects().length;
       const result = createProject(validProjectData);
       
       expect(result).toBeDefined();
@@ -118,7 +135,7 @@ describe('projects data module', () => {
       expect(result.priority).toBe(validProjectData.priority);
       expect(result.createdAt).toBeDefined();
       expect(result.updatedAt).toBeDefined();
-      expect(projects.length).toBe(initialCount + 1);
+      expect(getProjects().length).toBe(initialCount + 1);
     });
 
     it('should generate unique IDs for new projects', () => {
@@ -267,12 +284,12 @@ describe('projects data module', () => {
     });
 
     it('should delete existing project', () => {
-      const initialCount = projects.length;
+      const initialCount = getProjects().length;
       const result = deleteProject(projectToDelete.id);
       
       expect(result).toBeDefined();
       expect(result?.id).toBe(projectToDelete.id);
-      expect(projects.length).toBe(initialCount - 1);
+      expect(getProjects().length).toBe(initialCount - 1);
       
       // Verify it's actually deleted
       expect(getProjectById(projectToDelete.id)).toBeUndefined();

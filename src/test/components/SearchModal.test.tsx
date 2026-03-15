@@ -77,7 +77,9 @@ describe('SearchModal', () => {
     it('renders backdrop that closes modal on click', () => {
       render(<SearchModal isOpen={true} onClose={mockOnClose} />)
       
-      const backdrop = screen.getByRole('dialog').parentElement?.querySelector('.bg-black\\/50')
+      // Get the backdrop by its class (fixed positioning at the root of modal)
+      const backdrop = document.querySelector('.fixed.inset-0.bg-black\\/50')
+      expect(backdrop).toBeInTheDocument()
       fireEvent.click(backdrop!)
       
       expect(mockOnClose).toHaveBeenCalled()

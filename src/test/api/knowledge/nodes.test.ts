@@ -5,7 +5,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { NextRequest } from 'next/server'
 
-// Mock the KnowledgeLattice before importing the route
+// Mock the KnowledgeStore before importing the route
 const mockNodes = [
   {
     id: 'node-1',
@@ -42,42 +42,61 @@ const mockNodes = [
   },
 ]
 
-const mockLatticeInstance = {
-  getAllNodes: vi.fn(() => [...mockNodes]),
+// Mock the knowledge store and cache
+const mockKnowledgeStore = {
+  queryNodes: vi.fn((filters: { type?: string; source?: string; tags?: string[]; minWeight?: number; minConfidence?: number; limit?: number; offset?: number }) => {
+    let nodes = [...mockNodes]
+    
+    // Apply filters
+    if (filters.type) {
+      nodes = nodes.filter(n => n.type === filters.type)
+    }
+    if (filters.minWeight) {
+      nodes = nodes.filter(n => (n.weight ?? 0) >= filters.minWeight!)
+    }
+    if (filters.minConfidence) {
+      nodes = nodes.filter(n => (n.confidence ?? 0) >= filters.minConfidence!)
+    }
+    
+    const total = nodes.length
+    
+    // Apply pagination
+    const offset = filters.offset || 0
+    const limit = filters.limit || nodes.length
+    nodes = nodes.slice(offset, offset + limit)
+    
+    return { nodes, total }
+  }),
   getNode: vi.fn((id: string) => mockNodes.find(n => n.id === id)),
-  addNode: vi.fn((node: { id?: string }) => node.id || 'new-node-id'),
+  addNode: vi.fn((node: { id?: string }) => ({ id: node.id || 'new-node-id', ...node })),
 }
 
-vi.mock('@/lib/agents/knowledge-lattice', () => {
-  return {
-    KnowledgeLattice: vi.fn(function () {
-      return mockLatticeInstance
-    }),
-    KnowledgeType: {
-      CONCEPT: 'concept',
-      RULE: 'rule',
-      EXPERIENCE: 'experience',
-      SKILL: 'skill',
-      FACT: 'fact',
-      PREFERENCE: 'preference',
-      MEMORY: 'memory',
-    },
-    KnowledgeSource: {
-      USER: 'user',
-      OBSERVATION: 'observation',
-      INFERENCE: 'inference',
-      EXTERNAL: 'external',
-      EXPERIENCE: 'experience',
-      EVOMAP: 'evomap',
-    },
-  }
-})
+const mockKnowledgeQueryCache = {
+  createKey: vi.fn(() => 'test-key'),
+  get: vi.fn(() => null),
+  set: vi.fn(),
+  invalidatePrefix: vi.fn(),
+}
+
+vi.mock('@/lib/store/knowledge-store', () => ({
+  getKnowledgeStore: vi.fn(() => mockKnowledgeStore),
+}))
+
+vi.mock('@/lib/cache/knowledge-cache', () => ({
+  getKnowledgeQueryCache: vi.fn(() => mockKnowledgeQueryCache),
+}))
 
 vi.mock('@/lib/logger', () => ({
   apiLogger: {
     error: vi.fn(),
     audit: vi.fn(),
   },
+  createLogger: vi.fn(() => ({
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+  })),
 }))
 
 // Import after mocking
@@ -86,7 +105,30 @@ import { GET, POST } from '@/app/api/knowledge/nodes/route'
 describe('Knowledge Nodes API', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockLatticeInstance.getAllNodes.mockReturnValue([...mockNodes])
+    // Reset mock implementation to return fresh copy of nodes with proper filtering
+    mockKnowledgeStore.queryNodes.mockImplementation((filters: { type?: string; source?: string; tags?: string[]; minWeight?: number; minConfidence?: number; limit?: number; offset?: number }) => {
+      let nodes = [...mockNodes]
+      
+      // Apply filters
+      if (filters.type) {
+        nodes = nodes.filter(n => n.type === filters.type)
+      }
+      if (filters.minWeight) {
+        nodes = nodes.filter(n => (n.weight ?? 0) >= filters.minWeight!)
+      }
+      if (filters.minConfidence) {
+        nodes = nodes.filter(n => (n.confidence ?? 0) >= filters.minConfidence!)
+      }
+      
+      const total = nodes.length
+      
+      // Apply pagination
+      const offset = filters.offset || 0
+      const limit = filters.limit || nodes.length
+      nodes = nodes.slice(offset, offset + limit)
+      
+      return { nodes, total }
+    })
   })
 
   describe('GET /api/knowledge/nodes', () => {
@@ -201,8 +243,7 @@ describe('Knowledge Nodes API', () => {
         body: JSON.stringify(requestBody),
       })
 
-      mockLatticeInstance.addNode.mockReturnValue('new-node-id')
-      mockLatticeInstance.getNode.mockReturnValue({
+      mockKnowledgeStore.addNode.mockReturnValue({
         id: 'new-node-id',
         ...requestBody,
         timestamp: Date.now(),
@@ -214,7 +255,7 @@ describe('Knowledge Nodes API', () => {
 
       expect(response.status).toBe(201)
       expect(data.success).toBe(true)
-      expect(mockLatticeInstance.addNode).toHaveBeenCalled()
+      expect(mockKnowledgeStore.addNode).toHaveBeenCalled()
     })
 
     it('should require content field', async () => {
@@ -283,7 +324,7 @@ describe('Knowledge Nodes API', () => {
         body: JSON.stringify(requestBody),
       })
 
-      mockLatticeInstance.addNode.mockImplementation((node: { weight?: number; confidence?: number; source?: string; tags?: string[]; metadata?: Record<string, unknown> }) => {
+      mockKnowledgeStore.addNode.mockImplementation((node: { weight?: number; confidence?: number; source?: string; tags?: string[]; metadata?: Record<string, unknown> }) => {
         expect(node.weight ?? 0.5).toBeDefined()
         expect(node.confidence ?? 0.5).toBeDefined()
         expect(node.source ?? 'user').toBeDefined()
@@ -305,7 +346,7 @@ describe('Knowledge Nodes API', () => {
         body: JSON.stringify(requestBody),
       })
 
-      mockLatticeInstance.addNode.mockImplementation((node: { embedding?: number[] }) => {
+      mockKnowledgeStore.addNode.mockImplementation((node: { embedding?: number[] }) => {
         expect(node.embedding).toEqual([0.1, 0.2, 0.3, 0.4])
         return 'new-node-id'
       })
@@ -328,7 +369,7 @@ describe('Knowledge Nodes API', () => {
         body: JSON.stringify(requestBody),
       })
 
-      mockLatticeInstance.addNode.mockImplementation((node: { metadata?: Record<string, unknown> }) => {
+      mockKnowledgeStore.addNode.mockImplementation((node: { metadata?: Record<string, unknown> }) => {
         expect(node.metadata).toEqual({
           author: 'test-user',
           version: '1.0',

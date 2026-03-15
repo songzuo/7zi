@@ -107,7 +107,8 @@ describe('errors', () => {
     });
 
     it('should return default message for unknown code', () => {
-      expect(getUserFriendlyMessage('UNKNOWN_CODE' as any)).toBe('发生未知错误，请稍后重试');
+      // Test with an invalid error code to verify default message handling
+      expect(getUserFriendlyMessage('UNKNOWN_CODE' as ErrorCodes)).toBe('发生未知错误，请稍后重试');
     });
   });
 
