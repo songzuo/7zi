@@ -41,6 +41,7 @@ export enum ErrorSeverity {
  */
 export const ErrorCodes = {
   // 通用错误
+  OK: 'OK',
   UNKNOWN: 'UNKNOWN',
   NOT_FOUND: 'NOT_FOUND',
   VALIDATION_ERROR: 'VALIDATION_ERROR',

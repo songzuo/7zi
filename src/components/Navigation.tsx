@@ -130,7 +130,7 @@ export const Navigation: React.FC = () => {
   };
 
   return (
-    <nav className="bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-700 sticky top-0 z-50">
+    <nav aria-label="主导航" className="bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-700 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -230,7 +230,7 @@ export const Navigation: React.FC = () => {
           </div>
 
           {/* 导航项 - 可滚动区域 */}
-          <nav className="flex-1 overflow-y-auto p-4 overscroll-contain">
+          <nav aria-label="移动导航" className="flex-1 overflow-y-auto p-4 overscroll-contain">
             <ul className="space-y-1" role="menu">
               {NAV_ITEMS.map((item, index) => (
                 <li key={item.href} role="menuitem">

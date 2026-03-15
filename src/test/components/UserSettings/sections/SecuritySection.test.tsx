@@ -19,9 +19,9 @@ vi.mock('@/components/UserSettings/hooks/useUserSettings', () => ({
   }),
 }));
 
-// Mock PasswordForm
+// Mock PasswordForm - 使用具名导出
 vi.mock('@/components/UserSettings/subcomponents/PasswordForm', () => ({
-  default: () => <div data-testid="password-form">Password Form</div>,
+  PasswordForm: () => <div data-testid="password-form">Password Form</div>,
 }));
 
 // Mock SectionCard

@@ -43,8 +43,10 @@ describe('Footer', () => {
 
     it('应该显示品牌名称', () => {
       render(<Footer />);
-      const brandName = screen.getByText(/7zi/);
-      expect(brandName).toBeInTheDocument();
+      // 使用更具体的查询找到品牌名称（h2标题）
+      const footer = screen.getByRole('contentinfo');
+      const brandName = footer.querySelector('h2');
+      expect(brandName).toHaveTextContent(/7zi/);
     });
 
     it('应该显示品牌描述', () => {
@@ -154,7 +156,11 @@ describe('Footer', () => {
 
     it('网站链接应该是外部链接', () => {
       render(<Footer />);
-      const websiteLink = screen.getByRole('link', { name: '7zi.studio' });
+      // 在 footer 内查找网站链接
+      const footer = screen.getByRole('contentinfo');
+      const links = footer.querySelectorAll('a[href^="https://"]');
+      const websiteLink = Array.from(links).find(link => link.textContent?.includes('7zi.studio'));
+      expect(websiteLink).toBeInTheDocument();
       expect(websiteLink).toHaveAttribute('href', 'https://7zi.studio');
     });
   });

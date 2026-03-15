@@ -1,104 +1,41 @@
 /**
  * 缓存管理器
- * 统一缓存接口，支持多种缓存提供者
+ * 统一缓存接口，支持 Memory 缓存
+ * 注意：Redis/Layered 缓存暂时禁用
  */
 
 import type {
   CacheOptions,
   CacheStats,
   CacheInvalidateOptions,
-  CacheProvider,
   TTL,
 } from './types';
 import { MemoryCache } from './memory-cache';
-import { RedisCache } from './redis-cache';
-import { LayeredCache } from './layered-cache';
 import { cacheLogger } from '../logger';
 
 export interface CacheManagerOptions extends CacheOptions {
-  provider?: CacheProvider;
-  redis?: {
-    enabled: boolean;
-    url?: string;
-    prefix?: string;
-  };
   memory?: {
     maxEntries?: number;
     defaultTTL?: number;
   };
-  layered?: {
-    writeStrategy?: 'write-through' | 'write-behind' | 'write-around';
-    readStrategy?: 'look-aside' | 'read-through';
-  };
 }
 
-type CacheInstance = MemoryCache | RedisCache | LayeredCache;
-
 export class CacheManager {
-  private cache: CacheInstance;
-  private provider: CacheProvider;
+  private cache: MemoryCache;
   private initialized: boolean = false;
 
   constructor(options: CacheManagerOptions = {}) {
-    this.provider = options.provider || 'memory';
-
-    switch (this.provider) {
-      case 'redis':
-        this.cache = new RedisCache({
-          ...options,
-          redisUrl: options.redis?.url || options.redisUrl,
-          redisPrefix: options.redis?.prefix || options.redisPrefix,
-        });
-        break;
-
-      case 'layered':
-        this.cache = new LayeredCache({
-          ...options,
-          l1Options: {
-            maxEntries: options.memory?.maxEntries,
-            defaultTTL: options.memory?.defaultTTL,
-          },
-          l2Options: {
-            redisUrl: options.redis?.url || options.redisUrl,
-            redisPrefix: options.redis?.prefix || options.redisPrefix,
-          },
-          writeStrategy: options.layered?.writeStrategy,
-          readStrategy: options.layered?.readStrategy,
-        });
-        break;
-
-      case 'memory':
-      default:
-        this.cache = new MemoryCache({
-          ...options,
-          maxEntries: options.memory?.maxEntries,
-          defaultTTL: options.memory?.defaultTTL,
-        });
-        break;
-    }
+    this.cache = new MemoryCache({
+      ...options,
+      maxEntries: options.memory?.maxEntries,
+      defaultTTL: options.memory?.defaultTTL,
+    });
   }
 
   /**
-   * 初始化缓存 (连接 Redis 等)
+   * 初始化缓存
    */
   public async initialize(): Promise<boolean> {
-    if (this.initialized) return true;
-
-    if (this.provider === 'redis' || this.provider === 'layered') {
-      const redisCache =
-        this.provider === 'redis'
-          ? (this.cache as RedisCache)
-          : (this.cache as LayeredCache);
-      
-      const connected = await redisCache.connect();
-      if (!connected && this.provider === 'redis') {
-        cacheLogger.warn('Redis connection failed, falling back to memory cache');
-        // 降级到内存缓存
-        this.cache = new MemoryCache();
-        this.provider = 'memory';
-      }
-    }
-
     this.initialized = true;
     return true;
   }
@@ -107,10 +44,7 @@ export class CacheManager {
    * 获取缓存值
    */
   public async get<T = unknown>(key: string): Promise<T | null> {
-    if (this.provider === 'memory') {
-      return (this.cache as MemoryCache).get<T>(key);
-    }
-    return await (this.cache as RedisCache | LayeredCache).get<T>(key);
+    return this.cache.get<T>(key);
   }
 
   /**
@@ -122,30 +56,21 @@ export class CacheManager {
     ttl?: TTL,
     tags?: string[]
   ): Promise<boolean> {
-    if (this.provider === 'memory') {
-      return (this.cache as MemoryCache).set(key, value, ttl, tags);
-    }
-    return await (this.cache as RedisCache | LayeredCache).set(key, value, ttl, tags);
+    return this.cache.set(key, value, ttl, tags);
   }
 
   /**
    * 删除缓存值
    */
   public async delete(key: string): Promise<boolean> {
-    if (this.provider === 'memory') {
-      return (this.cache as MemoryCache).delete(key);
-    }
-    return await (this.cache as RedisCache | LayeredCache).delete(key);
+    return this.cache.delete(key);
   }
 
   /**
    * 检查键是否存在
    */
   public async has(key: string): Promise<boolean> {
-    if (this.provider === 'memory') {
-      return (this.cache as MemoryCache).has(key);
-    }
-    return await (this.cache as RedisCache | LayeredCache).has(key);
+    return this.cache.has(key);
   }
 
   /**
@@ -157,20 +82,14 @@ export class CacheManager {
     ttl?: TTL,
     tags?: string[]
   ): Promise<T> {
-    if (this.provider === 'memory') {
-      return await (this.cache as MemoryCache).getOrSet(key, factory, ttl, tags);
-    }
-    return await (this.cache as RedisCache | LayeredCache).getOrSet(key, factory, ttl, tags);
+    return this.cache.getOrSet(key, factory, ttl, tags);
   }
 
   /**
    * 批量获取
    */
   public async mget<T = unknown>(keys: string[]): Promise<Map<string, T | null>> {
-    if (this.provider === 'memory') {
-      return (this.cache as MemoryCache).mget<T>(keys);
-    }
-    return await (this.cache as RedisCache | LayeredCache).mget<T>(keys);
+    return this.cache.mget<T>(keys);
   }
 
   /**
@@ -179,47 +98,34 @@ export class CacheManager {
   public async mset<T = unknown>(
     entries: Array<{ key: string; value: T; ttl?: TTL; tags?: string[] }>
   ): Promise<boolean> {
-    if (this.provider === 'memory') {
-      return (this.cache as MemoryCache).mset(entries);
-    }
-    return await (this.cache as RedisCache | LayeredCache).mset(entries);
+    return this.cache.mset(entries);
   }
 
   /**
    * 失效缓存
    */
   public async invalidate(options: CacheInvalidateOptions): Promise<number> {
-    if (this.provider === 'memory') {
-      return (this.cache as MemoryCache).invalidate(options);
-    }
-    return await (this.cache as RedisCache | LayeredCache).invalidate(options);
+    return this.cache.invalidate(options);
   }
 
   /**
    * 更新 TTL
    */
   public async touch(key: string, ttl?: TTL): Promise<boolean> {
-    if (this.provider === 'memory') {
-      return (this.cache as MemoryCache).touch(key, ttl);
-    }
-    return await (this.cache as RedisCache | LayeredCache).touch(key, ttl);
+    return this.cache.touch(key, ttl);
   }
 
   /**
    * 清空所有缓存
    */
   public async clear(): Promise<void> {
-    if (this.provider === 'memory') {
-      (this.cache as MemoryCache).clear();
-    } else {
-      await (this.cache as RedisCache | LayeredCache).clear();
-    }
+    return this.cache.clear();
   }
 
   /**
    * 获取缓存统计
    */
-  public getStats(): CacheStats | { l1: CacheStats; l2: CacheStats; layered: Record<string, unknown> } {
+  public getStats(): CacheStats {
     return this.cache.getStats();
   }
 
@@ -233,14 +139,14 @@ export class CacheManager {
   /**
    * 获取缓存提供者
    */
-  public getProvider(): CacheProvider {
-    return this.provider;
+  public getProvider(): string {
+    return 'memory';
   }
 
   /**
    * 获取底层缓存实例
    */
-  public getCache(): CacheInstance {
+  public getCache(): MemoryCache {
     return this.cache;
   }
 
@@ -255,56 +161,23 @@ export class CacheManager {
    * 关闭连接
    */
   public async shutdown(): Promise<void> {
-    if (this.provider === 'redis') {
-      await (this.cache as RedisCache).disconnect();
-    } else if (this.provider === 'layered') {
-      await (this.cache as LayeredCache).disconnect();
-    } else {
-      (this.cache as MemoryCache).stopCleanup();
-    }
+    this.cache.stopCleanup();
     this.initialized = false;
   }
 }
 
 // 默认缓存管理器实例
 let defaultManager: CacheManager | null = null;
-let lastOptions: CacheManagerOptions | null = null;
 
-// 深度比较两个对象是否相等
-function deepEqual(a: unknown, b: unknown): boolean {
-  if (a === b) return true;
-  if (a === null || b === null) return false;
-  if (typeof a !== 'object' || typeof b !== 'object') return false;
-
-  const keysA = Object.keys(a as object);
-  const keysB = Object.keys(b as object);
-
-  if (keysA.length !== keysB.length) return false;
-
-  for (const key of keysA) {
-    if (!keysB.includes(key) || !deepEqual((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key])) {
-      return false;
-    }
-  }
-  return true;
-}
-
-export function getCacheManager(options?: CacheManagerOptions): CacheManager {
-  // 如果配置发生变化，销毁旧实例并创建新的
-  if (defaultManager && options && !deepEqual(options, lastOptions)) {
-    cacheLogger.info('CacheManager config changed, recreating instance');
-    defaultManager.shutdown().catch((err) => cacheLogger.error('Shutdown error:', err));
-    defaultManager = null;
-    lastOptions = null;
-  }
-
+// 获取缓存管理器实例
+export function getCacheManager(_options?: CacheManagerOptions): CacheManager {
   if (!defaultManager) {
-    defaultManager = new CacheManager(options);
-    lastOptions = options || null;
+    defaultManager = new CacheManager(_options);
   }
   return defaultManager;
 }
 
+// 重置缓存管理器
 export function resetCacheManager(): void {
   if (defaultManager) {
     defaultManager.shutdown().catch((err) => cacheLogger.error('Shutdown error:', err));

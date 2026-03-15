@@ -11,12 +11,7 @@
 import { Task, TaskType, AITeamMember, AssignmentSuggestion } from '@/lib/types/task-types';
 import { getAITeamForTaskAssignment } from '@/lib/services/task-dashboard-integration';
 
-// Export internal functions for testing
-export const calculateAssignmentScore = calculateAssignmentScore_;
-export const calculateExpertiseMatch = calculateExpertiseMatch_;
-export const generateAssignmentReason = generateAssignmentReason_;
-export const getRelatedExpertiseMatches = getRelatedExpertiseMatches_;
-export { WEIGHTS };
+// Weight factors for assignment scoring
 const WEIGHTS = {
   expertise: 0.4,      // How well the member's expertise matches the task
   availability: 0.3,   // Member's current availability status

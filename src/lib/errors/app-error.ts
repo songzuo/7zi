@@ -9,6 +9,15 @@ import { ErrorCodes, ErrorCategory, ErrorSeverity } from './types';
 import type { ErrorCode, ErrorContext, RecoveryStrategy } from './types';
 
 /**
+ * 检查是否是有效的 ErrorCode
+ */
+function isValidErrorCode(code: string): code is ErrorCode {
+  // ErrorCodes 是一个 const 对象，我们需要检查其值
+  const validValues = Object.values(ErrorCodes);
+  return validValues.includes(code as ErrorCode);
+}
+
+/**
  * 应用错误类 - 所有自定义错误的基类
  */
 export class AppError extends Error {
@@ -25,7 +34,7 @@ export class AppError extends Error {
   constructor(
     message: string,
     options: {
-      code?: ErrorCode;
+      code?: string;
       category?: ErrorCategory;
       severity?: ErrorSeverity;
       userMessage?: string;
@@ -38,7 +47,10 @@ export class AppError extends Error {
     super(message);
     
     this.name = 'AppError';
-    this.code = options.code ?? ErrorCodes.UNKNOWN;
+    // 支持自定义错误代码，如果是有效的 ErrorCode 则使用，否则使用 UNKNOWN
+    this.code = options.code && isValidErrorCode(options.code) 
+      ? options.code as ErrorCode 
+      : ErrorCodes.UNKNOWN;
     this.category = options.category ?? ErrorCategory.APPLICATION;
     this.severity = options.severity ?? ErrorSeverity.ERROR;
     this.userMessage = options.userMessage ?? this.getDefaultUserMessage();
@@ -59,6 +71,7 @@ export class AppError extends Error {
    */
   private getDefaultUserMessage(): string {
     const messages: Record<ErrorCode, string> = {
+      [ErrorCodes.OK]: '操作成功',
       [ErrorCodes.UNKNOWN]: '发生未知错误，请稍后重试',
       [ErrorCodes.NOT_FOUND]: '您请求的资源不存在',
       [ErrorCodes.VALIDATION_ERROR]: '您提交的数据格式不正确',

@@ -58,7 +58,11 @@ const nextConfig = {
         fs: false,
         net: false,
         tls: false,
+        // 忽略 node: 协议
+        child_process: false,
       };
+      // 完全排除 Redis 相关的打包
+      config.externals = [...(config.externals || []), { redis: 'redis' }];
     }
     return config;
   },

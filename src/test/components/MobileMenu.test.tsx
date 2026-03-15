@@ -126,13 +126,15 @@ describe('MobileMenu', () => {
       // Open menu
       fireEvent.click(toggleButton)
       await waitFor(() => {
-        expect(screen.getByRole('dialog')).toBeVisible()
+        const dialog = screen.queryByRole('dialog');
+        expect(dialog).not.toHaveClass('invisible');
       })
       
       // Close menu
       fireEvent.click(toggleButton)
       await waitFor(() => {
-        expect(screen.getByRole('dialog')).not.toBeVisible()
+        const dialog = screen.queryByRole('dialog');
+        expect(dialog).toHaveClass('invisible');
       })
     })
 
@@ -166,8 +168,10 @@ describe('MobileMenu', () => {
       
       fireEvent.keyDown(window, { key: 'Escape' })
       
+      // 菜单关闭后检查 dialog 是否不可见
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: '打开菜单' })).toBeInTheDocument()
+        const dialog = screen.queryByRole('dialog');
+        expect(dialog).toHaveClass('invisible');
       })
     })
 
@@ -177,15 +181,23 @@ describe('MobileMenu', () => {
       const toggleButton = screen.getByRole('button')
       fireEvent.click(toggleButton)
       
+      // 等待菜单打开
       await waitFor(() => {
-        expect(screen.getByRole('dialog')).toBeInTheDocument()
+        const dialog = screen.queryByRole('dialog');
+        expect(dialog).not.toHaveClass('invisible');
       })
       
-      const homeLink = screen.getByRole('menuitem', { name: /首页/ })
-      fireEvent.click(homeLink)
+      // 点击首页链接
+      const dialog = screen.getByRole('dialog');
+      const homeLink = dialog.querySelector('a[href="/"]');
+      if (homeLink) {
+        fireEvent.click(homeLink);
+      }
       
+      // 菜单关闭后检查 dialog 是否不可见
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: '打开菜单' })).toBeInTheDocument()
+        const closedDialog = screen.queryByRole('dialog');
+        expect(closedDialog).toHaveClass('invisible');
       })
     })
 

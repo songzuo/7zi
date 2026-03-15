@@ -35,30 +35,36 @@ describe('Navigation', () => {
   describe('渲染测试', () => {
     it('应该正确渲染导航组件', () => {
       render(<Navigation />);
-      expect(screen.getByRole('navigation')).toBeInTheDocument();
+      expect(screen.getByRole('navigation', { name: '主导航' })).toBeInTheDocument();
     });
 
     it('应该显示 Logo 和品牌名称', () => {
       render(<Navigation />);
-      const logo = screen.getByText('🤖');
+      // 使用更具体的查询避免匹配多个元素
+      const logo = screen.getAllByText('🤖')[0];
       expect(logo).toBeInTheDocument();
       
-      const brandName = screen.getByText('AI 团队');
+      const brandName = screen.getAllByText('AI 团队')[0];
       expect(brandName).toBeInTheDocument();
     });
 
     it('应该渲染所有导航链接', () => {
       render(<Navigation />);
       
+      // 使用更具体的查询，只检查桌面端导航（不检查移动端菜单中的重复项）
+      const nav = screen.getByRole('navigation', { name: '主导航' });
       const navItems = ['首页', '实时看板', '子代理', '任务', '记忆'];
       navItems.forEach(item => {
-        expect(screen.getByText(item)).toBeInTheDocument();
+        // 在主导航容器内查找
+        expect(nav).toHaveTextContent(item);
       });
     });
 
     it('应该渲染主题切换按钮', () => {
       render(<Navigation />);
-      expect(screen.getByTestId('theme-toggle')).toBeInTheDocument();
+      // 桌面端只有一个主题切换按钮
+      const nav = screen.getByRole('navigation', { name: '主导航' });
+      expect(nav.querySelector('[data-testid="theme-toggle"]')).toBeInTheDocument();
     });
 
     it('应该渲染设置按钮', () => {
@@ -68,7 +74,8 @@ describe('Navigation', () => {
 
     it('应该渲染语言切换器', () => {
       render(<Navigation />);
-      expect(screen.getByTestId('language-switcher')).toBeInTheDocument();
+      const nav = screen.getByRole('navigation', { name: '主导航' });
+      expect(nav.querySelector('[data-testid="language-switcher"]')).toBeInTheDocument();
     });
   });
 
@@ -77,7 +84,10 @@ describe('Navigation', () => {
       vi.mocked(usePathname).mockReturnValue('/');
       render(<Navigation />);
       
-      const homeLink = screen.getByRole('link', { name: /首页/ });
+      // 在桌面端导航内查找
+      const nav = screen.getByRole('navigation', { name: '主导航' });
+      const desktopNav = nav.querySelector('.hidden.md\\:flex');
+      const homeLink = desktopNav?.querySelector('a[href="/"]');
       expect(homeLink).toHaveClass('bg-[var(--nav-active-bg)]');
     });
 
@@ -85,7 +95,9 @@ describe('Navigation', () => {
       vi.mocked(usePathname).mockReturnValue('/dashboard');
       render(<Navigation />);
       
-      const dashboardLink = screen.getByRole('link', { name: /实时看板/ });
+      const nav = screen.getByRole('navigation', { name: '主导航' });
+      const desktopNav = nav.querySelector('.hidden.md\\:flex');
+      const dashboardLink = desktopNav?.querySelector('a[href="/dashboard"]');
       expect(dashboardLink).toHaveClass('bg-[var(--nav-active-bg)]');
     });
 
@@ -93,7 +105,9 @@ describe('Navigation', () => {
       vi.mocked(usePathname).mockReturnValue('/tasks');
       render(<Navigation />);
       
-      const tasksLink = screen.getByRole('link', { name: /任务/ });
+      const nav = screen.getByRole('navigation', { name: '主导航' });
+      const desktopNav = nav.querySelector('.hidden.md\\:flex');
+      const tasksLink = desktopNav?.querySelector('a[href="/tasks"]');
       expect(tasksLink).toHaveClass('bg-[var(--nav-active-bg)]');
     });
 
@@ -101,7 +115,9 @@ describe('Navigation', () => {
       vi.mocked(usePathname).mockReturnValue('/');
       render(<Navigation />);
       
-      const tasksLink = screen.getByRole('link', { name: /任务/ });
+      const nav = screen.getByRole('navigation', { name: '主导航' });
+      const desktopNav = nav.querySelector('.hidden.md\\:flex');
+      const tasksLink = desktopNav?.querySelector('a[href="/tasks"]');
       expect(tasksLink).not.toHaveClass('bg-[var(--nav-active-bg)]');
     });
   });
@@ -144,15 +160,20 @@ describe('Navigation', () => {
       fireEvent.click(menuButton);
       
       await waitFor(() => {
-        const overlay = screen.getByRole('dialog').querySelector('.bg-black\\/60');
-        if (overlay) {
-          fireEvent.click(overlay);
-        }
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
       });
       
-      // 菜单应该关闭
+      // 点击遮罩层
+      const dialog = screen.getByRole('dialog');
+      const overlay = dialog.querySelector('.bg-black\\/60') || dialog.querySelector('.absolute');
+      if (overlay) {
+        fireEvent.click(overlay as Element);
+      }
+      
+      // 菜单应该关闭 - 检查是否包含 invisible 类
       await waitFor(() => {
-        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+        const dialogEl = screen.queryByRole('dialog');
+        expect(dialogEl).toHaveClass('invisible');
       });
     });
 
@@ -185,16 +206,17 @@ describe('Navigation', () => {
         expect(screen.getByRole('dialog')).toBeInTheDocument();
       });
       
-      // 点击链接
-      const homeLinks = screen.getAllByRole('link', { name: /首页/ });
-      const mobileHomeLink = homeLinks.find(link => link.closest('[role="menuitem"]'));
+      // 点击链接 - 在移动端菜单的导航项中找到首页链接
+      const dialog = screen.getByRole('dialog');
+      const mobileHomeLink = dialog.querySelector('a[href="/"]');
       if (mobileHomeLink) {
         fireEvent.click(mobileHomeLink);
       }
       
-      // 菜单应该关闭
+      // 菜单应该关闭 - 检查是否包含 invisible 类
       await waitFor(() => {
-        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+        const dialogEl = screen.queryByRole('dialog');
+        expect(dialogEl).toHaveClass('invisible');
       });
     });
   });
@@ -202,7 +224,7 @@ describe('Navigation', () => {
   describe('可访问性测试', () => {
     it('导航应该有正确的语义标签', () => {
       render(<Navigation />);
-      const nav = screen.getByRole('navigation');
+      const nav = screen.getByRole('navigation', { name: '主导航' });
       expect(nav).toBeInTheDocument();
     });
 
@@ -237,25 +259,26 @@ describe('Navigation', () => {
     it('导航链接应该有正确的 href', () => {
       render(<Navigation />);
       
-      const linkTests = [
-        { text: /首页/, href: '/' },
-        { text: /实时看板/, href: '/dashboard' },
-        { text: /子代理/, href: '/subagents' },
-        { text: /任务/, href: '/tasks' },
-        { text: /记忆/, href: '/memory' },
-      ];
+      // 使用角色查询找到导航链接
+      const nav = screen.getByRole('navigation', { name: '主导航' });
+      const desktopLinks = nav.querySelectorAll('.hidden.md\\:flex a[href]');
       
-      linkTests.forEach(({ text, href }) => {
-        const link = screen.getByRole('link', { name: text });
-        expect(link).toHaveAttribute('href', href);
+      const expectedHrefs = ['/', '/dashboard', '/subagents', '/tasks', '/memory'];
+      expect(desktopLinks.length).toBe(expectedHrefs.length);
+      
+      expectedHrefs.forEach((href, index) => {
+        expect(desktopLinks[index]).toHaveAttribute('href', href);
       });
     });
 
     it('Logo 链接应该指向首页', () => {
       render(<Navigation />);
       
-      const logoLink = screen.getByRole('link', { name: /AI 团队/ });
-      expect(logoLink).toHaveAttribute('href', '/');
+      // 在主导航内查找Logo链接
+      const nav = screen.getByRole('navigation', { name: '主导航' });
+      const logoLink = nav.querySelector('a[href="/"]');
+      expect(logoLink).toBeInTheDocument();
+      expect(logoLink).toHaveTextContent(/AI 团队/);
     });
   });
 });

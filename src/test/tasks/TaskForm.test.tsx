@@ -6,7 +6,7 @@ import type { TaskType, TaskPriority } from '@/lib/types/task-types'
 import type { MockTokenPayload } from '@/test/types'
 
 // Mock AssignmentSuggester
-vi.mock('./AssignmentSuggester', () => ({
+vi.mock('@/app/[locale]/tasks/components/AssignmentSuggester', () => ({
   default: vi.fn(({ onAssigneeChange }) => (
     <div data-testid="assignment-suggester">
       <button 
@@ -107,8 +107,11 @@ describe('TaskForm', () => {
     it('should use default values when no initial data', () => {
       render(<TaskForm />)
       
-      expect(screen.getByDisplayValue('development')).toBeInTheDocument()
-      expect(screen.getByDisplayValue('medium')).toBeInTheDocument()
+      // Check that select elements have the correct default values
+      const typeSelect = screen.getByLabelText(/任务类型/)
+      const prioritySelect = screen.getByLabelText(/优先级/)
+      expect(typeSelect).toHaveValue('development')
+      expect(prioritySelect).toHaveValue('medium')
     })
   })
 

@@ -143,12 +143,15 @@ describe('errors', () => {
 
   describe('ErrorCodes constants', () => {
     it('has all expected error codes', () => {
+      expect(ErrorCodes.OK).toBe('OK')
       expect(ErrorCodes.NOT_FOUND).toBe('NOT_FOUND')
       expect(ErrorCodes.UNAUTHORIZED).toBe('UNAUTHORIZED')
       expect(ErrorCodes.FORBIDDEN).toBe('FORBIDDEN')
       expect(ErrorCodes.VALIDATION_ERROR).toBe('VALIDATION_ERROR')
       expect(ErrorCodes.NETWORK_ERROR).toBe('NETWORK_ERROR')
       expect(ErrorCodes.SERVER_ERROR).toBe('SERVER_ERROR')
+      expect(ErrorCodes.SERVICE_UNAVAILABLE).toBe('SERVICE_UNAVAILABLE')
+      expect(ErrorCodes.TIMEOUT).toBe('TIMEOUT')
       expect(ErrorCodes.UNKNOWN).toBe('UNKNOWN')
     })
   })

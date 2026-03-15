@@ -40,7 +40,8 @@ describe('ThemeToggle', () => {
     render(<TestWrapper />)
     
     await waitFor(() => {
-      const button = screen.getByLabelText('Toggle theme')
+      // 亮色模式下 aria-label 是 '切换到暗色模式'
+      const button = screen.getByRole('button', { name: /切换到暗色模式/ })
       expect(button).toBeInTheDocument()
     })
   })
@@ -49,10 +50,10 @@ describe('ThemeToggle', () => {
     render(<TestWrapper defaultTheme="light" />)
     
     await waitFor(() => {
-      expect(screen.getByLabelText('Toggle theme')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /切换到暗色模式/ })).toBeInTheDocument()
     })
     
-    const button = screen.getByLabelText('Toggle theme')
+    const button = screen.getByRole('button', { name: /切换到暗色模式/ })
     
     await act(async () => {
       fireEvent.click(button)
@@ -67,7 +68,8 @@ describe('ThemeToggle', () => {
     render(<TestWrapper defaultTheme="light" />)
     
     await waitFor(() => {
-      const toggleSpan = screen.getByLabelText('Toggle theme').querySelector('span')
+      const button = screen.getByRole('button', { name: /切换到暗色模式/ })
+      const toggleSpan = button.querySelector('span')
       expect(toggleSpan?.className).not.toContain('translate-x-6')
     })
   })
@@ -76,7 +78,8 @@ describe('ThemeToggle', () => {
     render(<TestWrapper defaultTheme="dark" />)
     
     await waitFor(() => {
-      const toggleSpan = screen.getByLabelText('Toggle theme').querySelector('span')
+      const button = screen.getByRole('button', { name: /切换到亮色模式/ })
+      const toggleSpan = button.querySelector('span')
       expect(toggleSpan?.className).toContain('translate-x-6')
     })
   })

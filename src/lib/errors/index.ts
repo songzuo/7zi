@@ -150,6 +150,10 @@ export function createDatabaseError(
  * 从 HTTP 状态码获取错误代码
  */
 export function getErrorCodeFromStatus(status: number): ErrorCode {
+  // 2xx 成功状态码
+  if (status >= 200 && status < 300) {
+    return ErrorCodes.OK as ErrorCode;
+  }
   switch (status) {
     case 400:
       return ErrorCodes.VALIDATION_ERROR;
@@ -167,9 +171,11 @@ export function getErrorCodeFromStatus(status: number): ErrorCode {
       return ErrorCodes.RATE_LIMITED;
     case 500:
     case 502:
-    case 503:
-    case 504:
       return ErrorCodes.SERVER_ERROR;
+    case 503:
+      return ErrorCodes.SERVICE_UNAVAILABLE;
+    case 504:
+      return ErrorCodes.TIMEOUT;
     default:
       return ErrorCodes.UNKNOWN;
   }
@@ -180,6 +186,7 @@ export function getErrorCodeFromStatus(status: number): ErrorCode {
  */
 export function getUserFriendlyMessage(code: ErrorCode): string {
   const messages: Record<ErrorCode, string> = {
+    [ErrorCodes.OK]: '操作成功',
     [ErrorCodes.UNKNOWN]: '发生未知错误，请稍后重试',
     [ErrorCodes.NOT_FOUND]: '您请求的资源不存在',
     [ErrorCodes.VALIDATION_ERROR]: '您提交的数据格式不正确',
