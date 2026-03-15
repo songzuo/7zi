@@ -13,64 +13,26 @@ import {
   NotificationQueryParams,
   NotificationListResponse,
 } from '@/lib/types/notification-types';
+import { getNotificationsStore } from '@/lib/store/notifications-store';
 import { apiLogger } from '@/lib/logger';
-
-// 内存存储 (生产环境应使用数据库)
-const notifications: Notification[] = [
-  {
-    id: 'notif-001',
-    type: 'task_assigned',
-    title: '新任务分配',
-    message: '您被分配了新任务"系统架构评审"，请及时查看。',
-    read: false,
-    createdAt: '2026-03-13T08:00:00Z',
-    userId: 'user-001',
-    priority: 'high',
-    link: '/tasks/task-003',
-  },
-  {
-    id: 'notif-002',
-    type: 'project_update',
-    title: '项目进度更新',
-    message: '项目"AI 助手平台"已更新至 v2.0 版本。',
-    read: true,
-    createdAt: '2026-03-12T15:30:00Z',
-    userId: 'user-001',
-    priority: 'medium',
-    link: '/projects/proj-001',
-  },
-  {
-    id: 'notif-003',
-    type: 'mention',
-    title: '被提及',
-    message: 'architect 在评论中提到了您。',
-    read: false,
-    createdAt: '2026-03-13T10:15:00Z',
-    userId: 'user-001',
-    priority: 'medium',
-    link: '/tasks/task-003',
-  },
-  {
-    id: 'notif-004',
-    type: 'system_alert',
-    title: '系统维护通知',
-    message: '系统将于 2026-03-14 02:00 进行维护，预计持续 30 分钟。',
-    read: true,
-    createdAt: '2026-03-13T09:00:00Z',
-    userId: 'user-001',
-    priority: 'low',
-  },
-];
 
 /**
  * 通知服务类
  */
 export class NotificationService {
   /**
+   * 获取通知存储实例
+   */
+  private static getStore() {
+    return getNotificationsStore();
+  }
+
+  /**
    * 获取用户通知列表
    */
   static getNotifications(params: NotificationQueryParams): NotificationListResponse {
-    let filtered = [...notifications];
+    const store = this.getStore();
+    let filtered = [...store.getAll()];
 
     // 按用户ID过滤
     if (params.userId) {
@@ -111,13 +73,16 @@ export class NotificationService {
    * 获取单个通知
    */
   static getNotification(id: string): Notification | null {
-    return notifications.find(n => n.id === id) || null;
+    const store = this.getStore();
+    return store.find(n => n.id === id) || null;
   }
 
   /**
    * 创建新通知
    */
   static createNotification(body: CreateNotificationBody): Notification {
+    const store = this.getStore();
+    
     const newNotification: Notification = {
       id: `notif-${uuidv4().split('-')[0]}`,
       type: body.type,
@@ -131,7 +96,7 @@ export class NotificationService {
       metadata: body.metadata,
     };
 
-    notifications.push(newNotification);
+    store.add(newNotification);
 
     apiLogger.audit('Notification created', {
       notificationId: newNotification.id,
@@ -146,28 +111,31 @@ export class NotificationService {
    * 标记通知为已读
    */
   static markAsRead(id: string): Notification | null {
-    const notification = notifications.find(n => n.id === id);
+    const store = this.getStore();
+    const notification = store.find(n => n.id === id);
     
     if (!notification) {
       return null;
     }
 
-    notification.read = true;
+    store.update(n => n.id === id, n => ({ ...n, read: true }));
 
     apiLogger.audit('Notification marked as read', {
       notificationId: id,
     });
 
-    return notification;
+    return { ...notification, read: true };
   }
 
   /**
    * 标记所有通知为已读
    */
   static markAllAsRead(userId: string): number {
-    const userNotifications = notifications.filter(n => n.userId === userId && !n.read);
+    const store = this.getStore();
+    const userNotifications = store.filter(n => n.userId === userId && !n.read);
+    
     userNotifications.forEach(n => {
-      n.read = true;
+      store.update(notif => notif.id === n.id, notif => ({ ...notif, read: true }));
     });
 
     apiLogger.audit('All notifications marked as read', {
@@ -182,36 +150,32 @@ export class NotificationService {
    * 删除通知
    */
   static deleteNotification(id: string): boolean {
-    const index = notifications.findIndex(n => n.id === id);
-    
-    if (index === -1) {
-      return false;
+    const store = this.getStore();
+    const before = store.count();
+    const deleted = store.delete(n => n.id === id);
+    const after = store.count();
+
+    if (deleted) {
+      apiLogger.audit('Notification deleted', {
+        notificationId: id,
+      });
     }
 
-    notifications.splice(index, 1);
-
-    apiLogger.audit('Notification deleted', {
-      notificationId: id,
-    });
-
-    return true;
+    return before > after;
   }
 
   /**
    * 删除用户的所有通知
    */
   static deleteAllUserNotifications(userId: string): number {
-    const initialLength = notifications.length;
-    const userNotifications = notifications.filter(n => n.userId === userId);
+    const store = this.getStore();
+    const userNotifications = store.filter(n => n.userId === userId);
     
     userNotifications.forEach(n => {
-      const index = notifications.findIndex(notif => notif.id === n.id);
-      if (index !== -1) {
-        notifications.splice(index, 1);
-      }
+      store.delete(notif => notif.id === n.id);
     });
 
-    const deletedCount = initialLength - notifications.length;
+    const deletedCount = userNotifications.length;
 
     apiLogger.audit('All user notifications deleted', {
       userId,
@@ -225,7 +189,8 @@ export class NotificationService {
    * 获取用户未读通知数量
    */
   static getUnreadCount(userId: string): number {
-    return notifications.filter(n => n.userId === userId && !n.read).length;
+    const store = this.getStore();
+    return store.filter(n => n.userId === userId && !n.read).length;
   }
 
   /**

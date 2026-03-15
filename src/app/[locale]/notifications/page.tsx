@@ -17,6 +17,9 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { create } from 'zustand';
+import { createLogger } from '@/lib/logger';
+
+const logger = createLogger('Notifications');
 
 // ============================================
 // 类型定义
@@ -505,7 +508,7 @@ export default function NotificationsPage() {
       });
       setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
     } catch (err) {
-      console.warn('[Notifications] Failed to mark as read:', err);
+      logger.warn('Failed to mark as read:', { error: err });
     }
   };
   
@@ -525,7 +528,7 @@ export default function NotificationsPage() {
       ));
       clear();
     } catch (err) {
-      console.warn('[Notifications] Failed to mark as read:', err);
+      logger.warn('Failed to mark selected as read:', { error: err });
     }
   };
   
@@ -539,7 +542,7 @@ export default function NotificationsPage() {
       });
       setNotifications(prev => prev.map(n => ({ ...n, read: true })));
     } catch (err) {
-      console.warn('[Notifications] Failed to mark all as read:', err);
+      logger.warn('Failed to mark all as read:', { error: err });
     }
   };
   
@@ -549,7 +552,7 @@ export default function NotificationsPage() {
       await fetch(`/api/notifications?id=${id}`, { method: 'DELETE' });
       setNotifications(prev => prev.filter(n => n.id !== id));
     } catch (err) {
-      console.warn('[Notifications] Failed to delete notification:', err);
+      logger.warn('Failed to delete notification:', { error: err });
     }
   };
   
@@ -572,7 +575,7 @@ export default function NotificationsPage() {
       setNotifications(prev => prev.filter(n => !ids.includes(n.id)));
       clear();
     } catch (err) {
-      console.warn('[Notifications] Failed to delete notifications:', err);
+      logger.warn('Failed to delete notifications:', { error: err });
     }
   };
   
@@ -587,7 +590,7 @@ export default function NotificationsPage() {
       await fetch('/api/notifications?deleteAll=true', { method: 'DELETE' });
       setNotifications([]);
     } catch (err) {
-      console.warn('[Notifications] Failed to clear notifications:', err);
+      logger.warn('Failed to clear notifications:', { error: err });
     }
   };
   

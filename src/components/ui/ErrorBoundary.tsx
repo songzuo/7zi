@@ -1,4 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { createLogger } from '@/lib/logger';
+
+const logger = createLogger('ErrorBoundary');
 
 export interface ErrorBoundaryProps {
   /** Child components to render */
@@ -41,10 +44,12 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    // Log error to console in development
-    if (process.env.NODE_ENV === 'development') {
-      console.warn('[ErrorBoundary] Caught an error:', error, errorInfo);
-    }
+    // Log error using the project's logger system
+    logger.error('Caught an error in component', { 
+      error: error.message, 
+      stack: error.stack,
+      componentStack: errorInfo.componentStack 
+    });
 
     // Call the onError callback if provided
     this.props.onError?.(error, errorInfo);

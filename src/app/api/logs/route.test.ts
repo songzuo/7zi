@@ -22,6 +22,7 @@ vi.mock('@/lib/security/csrf', () => ({
 
 vi.mock('@/lib/logger', () => ({
   apiLogger: {
+    info: vi.fn(),
     audit: vi.fn(),
     error: vi.fn(),
   },

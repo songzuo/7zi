@@ -1,16 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { KnowledgeLattice, RelationType } from '@/lib/agents/knowledge-lattice';
+import { getKnowledgeStore } from '@/lib/store/knowledge-store';
+import { RelationType } from '@/lib/agents/knowledge-lattice';
 import { apiLogger } from '@/lib/logger';
-
-// 创建全局知识晶格实例
-let latticeInstance: KnowledgeLattice | null = null;
-
-function getLattice(): KnowledgeLattice {
-  if (!latticeInstance) {
-    latticeInstance = new KnowledgeLattice();
-  }
-  return latticeInstance;
-}
 
 /**
  * GET /api/knowledge/edges
@@ -19,10 +10,10 @@ function getLattice(): KnowledgeLattice {
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const lattice = getLattice();
+    const store = getKnowledgeStore();
 
     // 获取所有边
-    let edges = lattice.getAllEdges();
+    let edges = store.getAllEdges();
 
     // 过滤参数
     const type = searchParams.get('type') as RelationType | null;
@@ -77,7 +68,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const lattice = getLattice();
+    const store = getKnowledgeStore();
 
     // 验证必需字段
     if (!body.from || !body.to || !body.type) {
@@ -96,8 +87,8 @@ export async function POST(request: NextRequest) {
     }
 
     // 验证节点存在性
-    const fromNode = lattice.getNode(body.from);
-    const toNode = lattice.getNode(body.to);
+    const fromNode = store.getNode(body.from);
+    const toNode = store.getNode(body.to);
     
     if (!fromNode) {
       return NextResponse.json(
@@ -124,11 +115,11 @@ export async function POST(request: NextRequest) {
       metadata: body.metadata || {},
     };
 
-    const edgeId = lattice.addEdge(edge);
+    const edgeId = store.addEdge(edge);
 
     return NextResponse.json({
       success: true,
-      data: lattice.getEdge(edgeId),
+      data: store.getEdge(edgeId),
     }, { status: 201 });
   } catch (error) {
     apiLogger.error('Error creating edge', { error });

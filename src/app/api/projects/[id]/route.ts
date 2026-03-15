@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken, extractToken } from '@/lib/security/auth';
 import { createCsrfMiddleware } from '@/lib/security/csrf';
 import { apiLogger } from '@/lib/logger';
-import { getProjectById, updateProject, deleteProject } from '@/lib/data/projects';
+import { getProjectById, updateProject, deleteProject } from '@/lib/data/projects.server';
 
 // 模块级别创建 CSRF 中间件（复用实例）
 const csrfMiddleware = createCsrfMiddleware();

@@ -1,16 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { KnowledgeLattice, KnowledgeType, KnowledgeSource } from '@/lib/agents/knowledge-lattice';
+import { getKnowledgeStore } from '@/lib/store/knowledge-store';
+import { KnowledgeType, KnowledgeSource, LatticeNode, LatticeEdge } from '@/lib/agents/knowledge-lattice';
 import { apiLogger } from '@/lib/logger';
-
-// 创建全局知识晶格实例
-let latticeInstance: KnowledgeLattice | null = null;
-
-function getLattice(): KnowledgeLattice {
-  if (!latticeInstance) {
-    latticeInstance = new KnowledgeLattice();
-  }
-  return latticeInstance;
-}
 
 /**
  * POST /api/knowledge/query
@@ -19,7 +10,7 @@ function getLattice(): KnowledgeLattice {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const lattice = getLattice();
+    const store = getKnowledgeStore();
 
     // 构建查询过滤器
     const filters: {
@@ -47,35 +38,79 @@ export async function POST(request: NextRequest) {
     }
 
     // 执行查询
-    const result = lattice.query(filters);
+    let nodes: LatticeNode[] = store.getAllNodes();
+    let edges: LatticeEdge[] = store.getAllEdges();
 
-    // 如果提供了搜索文本，可以进行内容匹配
+    // 应用过滤
+    if (filters.type) {
+      nodes = nodes.filter(n => n.type === filters.type);
+    }
+    if (filters.source) {
+      nodes = nodes.filter(n => n.source === filters.source);
+    }
+    if (filters.tags?.length) {
+      nodes = nodes.filter(n =>
+        filters.tags!.some(tag => n.tags?.includes(tag))
+      );
+    }
+    if (filters.minWeight !== undefined) {
+      nodes = nodes.filter(n => n.weight >= filters.minWeight!);
+    }
+    if (filters.minConfidence !== undefined) {
+      nodes = nodes.filter(n => n.confidence >= filters.minConfidence!);
+    }
+
+    // 获取相关边
+    const nodeIds = new Set(nodes.map(n => n.id));
+    edges = edges.filter(e =>
+      nodeIds.has(e.from) && nodeIds.has(e.to)
+    );
+
+    // 计算相关性分数
+    const relevanceScores = nodes.map(n =>
+      (n.weight * 0.5) + (n.confidence * 0.5)
+    );
+
+    // 构建索引结果
+    const indexedNodes = nodes.map((node, index) => ({
+      node,
+      relevance: relevanceScores[index],
+    }));
+
+    // 如果提供了搜索文本，进行内容匹配
+    let searchResults = indexedNodes;
     if (body.searchText) {
       const searchTerm = body.searchText.toLowerCase();
-      result.nodes = result.nodes.filter(n =>
-        n.content.toLowerCase().includes(searchTerm)
+      searchResults = indexedNodes.filter(item =>
+        item.node.content.toLowerCase().includes(searchTerm)
+      );
+
+      const filteredNodeIds = new Set(searchResults.map(item => item.node.id));
+      edges = edges.filter(e =>
+        filteredNodeIds.has(e.from) && filteredNodeIds.has(e.to)
       );
     }
 
     // 按相关性排序
-    const indexedNodes = result.nodes.map((node, index) => ({
-      node,
-      relevance: result.relevanceScores[index],
-    }));
-
-    indexedNodes.sort((a, b) => b.relevance - a.relevance);
+    searchResults.sort((a, b) => b.relevance - a.relevance);
 
     // 限制结果数量
     const limit = body.limit || 50;
-    const sortedNodes = indexedNodes.slice(0, limit);
+    const sortedNodes = searchResults.slice(0, limit);
+
+    // 获取相关的边
+    const sortedNodeIds = new Set(sortedNodes.map(item => item.node.id));
+    const relatedEdges = edges.filter(e =>
+      sortedNodeIds.has(e.from) || sortedNodeIds.has(e.to)
+    );
 
     return NextResponse.json({
       success: true,
       data: {
         nodes: sortedNodes.map(item => item.node),
         relevanceScores: sortedNodes.map(item => item.relevance),
-        edges: result.edges,
-        total: result.nodes.length,
+        edges: relatedEdges,
+        total: nodes.length,
       },
     });
   } catch (error) {

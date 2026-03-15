@@ -18,6 +18,28 @@ export {
   paginatedResponse,
 } from './error-handler';
 
+// 统一 API 错误处理
+export {
+  apiError,
+  badRequest,
+  unauthorized,
+  forbidden,
+  notFound,
+  conflict,
+  unprocessable,
+  rateLimited,
+  serverError as apiServerError,
+  serviceUnavailable,
+  unknownError,
+  success,
+  paginated,
+  handleApiRequest,
+  validateRequired,
+  validateString,
+  validateRange,
+  validateEnum,
+} from '@/lib/api-error';
+
 // 认证中间件
 export {
   withAuth,

@@ -3,17 +3,20 @@
  * 演示如何使用认证中间件保护 API 路由
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { 
-  withAuth, 
   requireAuth, 
   requireAdmin,
-  getCurrentUser,
-  validationError,
-  successResponse,
   extractToken,
   verifyToken,
 } from '@/lib/middleware';
+import {
+  badRequest,
+  unauthorized,
+  forbidden,
+  success,
+  handleApiRequest,
+} from '@/lib/api-error';
 
 /**
  * 示例: 需要登录的路由
@@ -22,25 +25,19 @@ import {
  * GET /api/examples/protected
  * Headers: Authorization: Bearer <token>
  */
-export async function GET(request: NextRequest): Promise<Response> {
+export const GET = handleApiRequest(async (request: NextRequest): Promise<Response> => {
   // 手动认证检查
   const token = extractToken(request);
   if (!token) {
-    return NextResponse.json(
-      { error: 'Authentication required', code: 'AUTH_REQUIRED' },
-      { status: 401 }
-    );
+    return unauthorized('需要登录才能访问', request);
   }
   
   const payload = await verifyToken(token);
   if (!payload) {
-    return NextResponse.json(
-      { error: 'Invalid or expired token', code: 'AUTH_INVALID' },
-      { status: 401 }
-    );
+    return unauthorized('登录已过期，请重新登录', request);
   }
   
-  return successResponse({
+  return success({
     message: 'This is a protected route',
     user: {
       id: payload.sub,
@@ -48,8 +45,8 @@ export async function GET(request: NextRequest): Promise<Response> {
       role: payload.role,
     },
     timestamp: new Date().toISOString(),
-  });
-}
+  }, request);
+});
 
 /**
  * 示例: 需要管理员角色的路由
@@ -58,29 +55,20 @@ export async function GET(request: NextRequest): Promise<Response> {
  * DELETE /api/examples/admin-only
  * Headers: Authorization: Bearer <token>
  */
-export async function DELETE(request: NextRequest): Promise<Response> {
+export const DELETE = handleApiRequest(async (request: NextRequest): Promise<Response> => {
   // 手动认证 + 角色检查
   const token = extractToken(request);
   if (!token) {
-    return NextResponse.json(
-      { error: 'Authentication required', code: 'AUTH_REQUIRED' },
-      { status: 401 }
-    );
+    return unauthorized('需要登录才能访问', request);
   }
   
   const payload = await verifyToken(token);
   if (!payload) {
-    return NextResponse.json(
-      { error: 'Invalid or expired token', code: 'AUTH_INVALID' },
-      { status: 401 }
-    );
+    return unauthorized('登录已过期，请重新登录', request);
   }
   
   if (payload.role !== 'admin') {
-    return NextResponse.json(
-      { error: 'Admin access required', code: 'FORBIDDEN' },
-      { status: 403 }
-    );
+    return forbidden('需要管理员权限', request);
   }
   
   // 获取请求体
@@ -88,15 +76,15 @@ export async function DELETE(request: NextRequest): Promise<Response> {
   const { targetId } = body;
 
   if (!targetId) {
-    return validationError('Target ID is required', 'targetId', request);
+    return badRequest('目标 ID 是必填字段', { field: 'targetId' }, request);
   }
 
-  return successResponse({
+  return success({
     message: 'Admin action completed',
     admin: payload.email,
     targetId,
-  });
-}
+  }, request);
+});
 
 /**
  * 示例: 自定义认证选项
@@ -107,49 +95,37 @@ export async function DELETE(request: NextRequest): Promise<Response> {
  *   Authorization: Bearer <token>
  *   X-CSRF-Token: <csrf-token>
  */
-export async function POST(request: NextRequest): Promise<Response> {
+export const POST = handleApiRequest(async (request: NextRequest): Promise<Response> => {
   // 速率限制 + 认证 + CSRF 检查
   const token = extractToken(request);
   if (!token) {
-    return NextResponse.json(
-      { error: 'Authentication required', code: 'AUTH_REQUIRED' },
-      { status: 401 }
-    );
+    return unauthorized('需要登录才能访问', request);
   }
   
   const payload = await verifyToken(token);
   if (!payload) {
-    return NextResponse.json(
-      { error: 'Invalid or expired token', code: 'AUTH_INVALID' },
-      { status: 401 }
-    );
+    return unauthorized('登录已过期，请重新登录', request);
   }
   
   // 角色检查
   if (!['admin', 'user'].includes(payload.role || '')) {
-    return NextResponse.json(
-      { error: 'Insufficient permissions', code: 'FORBIDDEN' },
-      { status: 403 }
-    );
+    return forbidden('权限不足', request);
   }
   
   // 权限检查 (需要 'write' 权限)
   const hasWritePermission = payload.permissions?.includes('write');
   if (!hasWritePermission) {
-    return NextResponse.json(
-      { error: 'Write permission required', code: 'FORBIDDEN' },
-      { status: 403 }
-    );
+    return forbidden('需要写入权限', request);
   }
   
   const body = await request.json();
   
-  return successResponse({
+  return success({
     message: 'Custom auth completed',
     user: payload.email,
     data: body,
-  });
-}
+  }, request);
+});
 
 /**
  * 示例: 可选认证 (用户可能未登录)
@@ -157,26 +133,26 @@ export async function POST(request: NextRequest): Promise<Response> {
  * @example
  * GET /api/examples/optional-auth
  */
-export async function PUT(request: NextRequest): Promise<Response> {
+export const PUT = handleApiRequest(async (request: NextRequest): Promise<Response> => {
   // 可选认证 - token 可能不存在
   const token = extractToken(request);
   
   if (token) {
     const payload = await verifyToken(token);
     if (payload) {
-      return successResponse({
+      return success({
         message: 'Authenticated access',
         user: {
           id: payload.sub,
           email: payload.email,
         },
-      });
+      }, request);
     }
   }
   
   // 未登录
-  return successResponse({
+  return success({
     message: 'Anonymous access',
     user: null,
-  });
-}
+  }, request);
+});

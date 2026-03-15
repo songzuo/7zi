@@ -1,16 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { KnowledgeLattice } from '@/lib/agents/knowledge-lattice';
+import { getKnowledgeStore } from '@/lib/store/knowledge-store';
 import { apiLogger } from '@/lib/logger';
-
-// 创建全局知识晶格实例
-let latticeInstance: KnowledgeLattice | null = null;
-
-function getLattice(): KnowledgeLattice {
-  if (!latticeInstance) {
-    latticeInstance = new KnowledgeLattice();
-  }
-  return latticeInstance;
-}
 
 /**
  * GET /api/knowledge/lattice
@@ -18,21 +8,21 @@ function getLattice(): KnowledgeLattice {
  */
 export async function GET(request: NextRequest) {
   try {
-    const lattice = getLattice();
+    const store = getKnowledgeStore();
 
     const searchParams = request.nextUrl.searchParams;
     const includeNeighbors = searchParams.get('includeNeighbors') === 'true';
     const includeStats = searchParams.get('includeStats') === 'true';
 
-    const nodes = lattice.getAllNodes();
-    const edges = lattice.getAllEdges();
+    const nodes = store.getAllNodes();
+    const edges = store.getAllEdges();
 
     const result: {
       success: true;
       data: {
         nodes: typeof nodes;
         edges: typeof edges;
-        stats?: ReturnType<typeof lattice.getStats>;
+        stats?: ReturnType<typeof store.getStats>;
       };
     } = {
       success: true,
@@ -44,7 +34,7 @@ export async function GET(request: NextRequest) {
 
     // 包含统计信息
     if (includeStats) {
-      result.data.stats = lattice.getStats();
+      result.data.stats = store.getStats();
     }
 
     return NextResponse.json(result);

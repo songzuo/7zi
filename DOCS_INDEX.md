@@ -411,6 +411,17 @@ DEPLOYMENT-CHECKLIST.md → docs/DEPLOYMENT.md → docs/OPERATIONS_MANUAL.md
 | DELETE | `/api/logs` | 清理旧日志 | ✅ |
 | GET | `/api/logs/export` | 导出日志（JSON/CSV） | ✅ |
 
+### 通知系统 API (`/api/notifications`)
+
+| 方法 | 端点 | 说明 | 状态 |
+|------|------|------|------|
+| GET | `/api/notifications` | 获取通知列表 | ✅ |
+| POST | `/api/notifications` | 创建通知 | ✅ |
+| PUT | `/api/notifications` | 标记已读/全部已读 | ✅ |
+| DELETE | `/api/notifications` | 删除通知/清空全部 | ✅ |
+| GET | `/api/notifications/preferences` | 获取通知偏好 | ✅ |
+| PUT | `/api/notifications/preferences` | 更新通知偏好 | ✅ |
+
 ### 认证 API (`/api/auth`)
 
 | 方法 | 端点 | 说明 | 状态 |

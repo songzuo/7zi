@@ -49,8 +49,19 @@ const nextConfig = {
   poweredByHeader: false,
   // 压缩响应
   compress: true,
-  // 生成静态页面时排除 API 路由 (已移除不支持的选项)
-  // excludeFilePathsFromExpressMiddleware: ['/api'],
+  // Webpack 配置：处理 Redis 等 Node.js 原生模块
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      // 客户端代码不包含 Redis 相关代码
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+    return config;
+  },
 };
 
 module.exports = nextConfig;

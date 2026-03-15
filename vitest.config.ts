@@ -10,8 +10,10 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./src/test/setup.tsx'],
     include: ['src/**/*.{test,spec}.{js,ts,jsx,tsx}'],
-    // 支持多种 reporter: default, verbose, dot, json, html 等
-    // 命令行可覆盖: npm run test:run -- --reporter=verbose
+    // API 错误测试使用 node 环境
+    environmentMatchGlobs: [
+      ['src/test/api-error.test.ts', 'node'],
+    ],
     // 限制并行 worker 数量，避免 CPU 过载
     maxWorkers: 2,
     // 测试超时配置

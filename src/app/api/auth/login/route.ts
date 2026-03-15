@@ -1,13 +1,13 @@
 /**
  * 登录 API - POST /api/auth/login
- * 演示如何使用认证中间件
+ * 用户认证端点，包含速率限制
  * 
  * @example
- * 使用速率限制:
- * export const POST = withRateLimit()(handleLogin);
- * 
- * 使用自定义认证:
- * export const POST = withAuth({ rateLimit: { windowMs: 60000, maxRequests: 5 } })(handleLogin);
+ * POST /api/auth/login
+ * {
+ *   "email": "admin@example.com",
+ *   "password": "your-password"
+ * }
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -18,7 +18,13 @@ import {
 } from '@/lib/security/auth';
 import { generateCsrfToken, setCsrfTokenCookie } from '@/lib/security/csrf';
 import { authLogger } from '@/lib/logger';
-import { rateLimit, validationError } from '@/lib/middleware';
+import { rateLimit } from '@/lib/middleware';
+import {
+  badRequest,
+  unauthorized,
+  handleApiRequest,
+  success,
+} from '@/lib/api-error';
 
 // 速率限制: 5次/分钟 (防止暴力破解)
 const RATE_LIMIT_CONFIG = {
@@ -28,77 +34,70 @@ const RATE_LIMIT_CONFIG = {
 };
 
 // 登录处理函数
-async function handleLogin(request: NextRequest): Promise<Response> {
-  try {
-    const body = await request.json();
-    const { email, password } = body;
+const handleLogin = handleApiRequest(async (request: NextRequest): Promise<Response> => {
+  const body = await request.json();
+  const { email, password } = body;
 
-    // 输入验证
-    if (!email || !password) {
-      return validationError('Email and password are required', 'credentials', request);
-    }
-
-    // 从环境变量获取管理员凭据
-    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || '';
-    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
-    
-    // 验证用户
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      const user = {
-        id: 'user-admin-001',
-        email: email,
-        name: 'Administrator',
-        role: 'admin' as const,
-        permissions: ['read', 'write', 'delete', 'admin'],
-      };
-
-      const accessToken = await generateAccessToken(user);
-      const refreshToken = await generateRefreshToken(user);
-      const csrfToken = generateCsrfToken();
-
-      const response = NextResponse.json({
-        success: true,
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-        },
-        csrfToken,
-      });
-
-      const authHeaders = setAuthCookies(accessToken, refreshToken);
-      authHeaders.forEach((value, key) => {
-        response.headers.append(key, value);
-      });
-
-      const csrfHeaders = setCsrfTokenCookie(csrfToken);
-      csrfHeaders.forEach((value, key) => {
-        response.headers.append(key, value);
-      });
-
-      authLogger.info('User logged in', {
-        userId: user.id,
-        email: user.email,
-        role: user.role,
-      });
-
-      return response;
-    }
-
-    // 验证失败
-    return NextResponse.json(
-      { error: 'Invalid email or password', code: 'AUTH_INVALID' },
-      { status: 401 }
-    );
-  } catch (error) {
-    authLogger.error('Login error', error);
-    return NextResponse.json(
-      { error: 'Login failed', message: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
-    );
+  // 输入验证
+  if (!email || !password) {
+    return badRequest('邮箱和密码都是必填字段', { fields: ['email', 'password'] }, request);
   }
-}
+
+  if (typeof email !== 'string' || typeof password !== 'string') {
+    return badRequest('邮箱和密码必须是字符串', { fields: ['email', 'password'] }, request);
+  }
+
+  // 从环境变量获取管理员凭据
+  const ADMIN_EMAIL = process.env.ADMIN_EMAIL || '';
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
+  
+  // 验证用户
+  if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+    const user = {
+      id: 'user-admin-001',
+      email: email,
+      name: 'Administrator',
+      role: 'admin' as const,
+      permissions: ['read', 'write', 'delete', 'admin'],
+    };
+
+    const accessToken = await generateAccessToken(user);
+    const refreshToken = await generateRefreshToken(user);
+    const csrfToken = generateCsrfToken();
+
+    const response = success({
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      },
+      csrfToken,
+    }, request);
+
+    const authHeaders = setAuthCookies(accessToken, refreshToken);
+    authHeaders.forEach((value, key) => {
+      response.headers.append(key, value);
+    });
+
+    const csrfHeaders = setCsrfTokenCookie(csrfToken);
+    csrfHeaders.forEach((value, key) => {
+      response.headers.append(key, value);
+    });
+
+    authLogger.info('User logged in', {
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+    });
+
+    return response;
+  }
+
+  // 验证失败
+  authLogger.warn('Login failed - invalid credentials', { email });
+  return unauthorized('邮箱或密码错误', request);
+});
 
 // 应用速率限制的 POST 处理器
 const rateLimitMiddleware = rateLimit(RATE_LIMIT_CONFIG);

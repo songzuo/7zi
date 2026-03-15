@@ -1,7 +1,38 @@
 # MEMORY.md - 长期记忆
 
 **创建时间**: 2026-03-08  
-**最后更新**: 2026-03-13 20:15 (Europe/Berlin)
+**最后更新**: 2026-03-15 01:45 (Europe/Berlin)
+
+---
+
+## 🔴 重要：会话启动流程
+
+每个会话开始时必须执行：
+1. 读取 `SOUL.md` — 了解自己是谁
+2. 读取 `USER.md` — 了解用户信息
+3. 读取 `memory/2026-MM-DD.md` 和 `memory/2026-MM-DD.md` (今天和昨天)
+4. **主会话中**：读取 `MEMORY.md`
+
+这是解决"没有持续记忆"问题的关键！
+
+---
+
+## 2026-03-14 重要记录
+
+### GITHUB_TOKEN 配置
+- 在 `~/.openclaw/openclaw.json` 中添加了 `env.vars.GITHUB_TOKEN`
+- 重启 Gateway 使配置生效
+- Git 推送正常工作
+
+### 技能分析结论
+- skill-vetter: 不需要（安全审查）
+- tavily-search: 不需要（已有 web_search）
+- playwright-browser: 不需要（已有 browser 工具）
+- code-interpreter: 不需要（AI 模型自带）
+
+### 测试修复
+- 修复了 tasks API route 中 CSRF 中间件重复声明问题
+- 修复了测试 mock 配置
 
 ---
 

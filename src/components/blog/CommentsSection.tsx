@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 export interface Comment {
   id: string;
@@ -23,12 +23,7 @@ export default function CommentsSection({ postId, locale = "zh" }: CommentsSecti
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  // Fetch comments on mount
-  useEffect(() => {
-    fetchComments();
-  }, [postId]);
-
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async () => {
     try {
       setLoading(true);
       const res = await fetch(`/api/comments?postId=${postId}`);
@@ -41,7 +36,12 @@ export default function CommentsSection({ postId, locale = "zh" }: CommentsSecti
     } finally {
       setLoading(false);
     }
-  };
+  }, [postId]);
+
+  // Fetch comments on mount
+  useEffect(() => {
+    fetchComments();
+  }, [fetchComments]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,16 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { KnowledgeLattice } from '@/lib/agents/knowledge-lattice';
+import { getKnowledgeStore } from '@/lib/store/knowledge-store';
 import { apiLogger } from '@/lib/logger';
-
-// 创建全局知识晶格实例
-let latticeInstance: KnowledgeLattice | null = null;
-
-function getLattice(): KnowledgeLattice {
-  if (!latticeInstance) {
-    latticeInstance = new KnowledgeLattice();
-  }
-  return latticeInstance;
-}
 
 /**
  * GET /api/knowledge/nodes/[id]
@@ -22,9 +12,9 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const lattice = getLattice();
+    const store = getKnowledgeStore();
 
-    const node = lattice.getNode(id);
+    const node = store.getNode(id);
 
     if (!node) {
       return NextResponse.json(
@@ -34,14 +24,14 @@ export async function GET(
     }
 
     // 获取相关边
-    const edges = lattice.getAdjacentEdges(id);
+    const edges = store.getAdjacentEdges(id);
 
     // 获取邻居节点
     const neighborIds = edges.flatMap(e =>
       e.from === id ? [e.to] : [e.from]
     );
     const neighbors = neighborIds
-      .map(nid => lattice.getNode(nid))
+      .map(nid => store.getNode(nid))
       .filter(n => n !== undefined);
 
     return NextResponse.json({
@@ -70,9 +60,9 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const lattice = getLattice();
+    const store = getKnowledgeStore();
 
-    const updatedNode = lattice.updateNode(id, body);
+    const updatedNode = store.updateNode(id, body);
 
     if (!updatedNode) {
       return NextResponse.json(
@@ -104,9 +94,9 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const lattice = getLattice();
+    const store = getKnowledgeStore();
 
-    const deleted = lattice.deleteNode(id);
+    const deleted = store.deleteNode(id);
 
     if (!deleted) {
       return NextResponse.json(

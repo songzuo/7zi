@@ -25,7 +25,8 @@ function loadComments(): Comment[] {
   try {
     if (fs.existsSync(DATA_FILE)) {
       const data = fs.readFileSync(DATA_FILE, 'utf-8');
-      return JSON.parse(data);
+      const parsed = JSON.parse(data);
+      return Array.isArray(parsed) ? parsed : [];
     }
   } catch (error) {
     console.error('Error loading comments:', error);
@@ -35,13 +36,38 @@ function loadComments(): Comment[] {
 
 // 保存评论数据
 function saveComments(comments: Comment[]): void {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(comments, null, 2));
+  try {
+    const dir = path.dirname(DATA_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(DATA_FILE, JSON.stringify(comments, null, 2));
+  } catch (error) {
+    console.error('Error saving comments:', error);
+    throw error;
+  }
 }
 
 // 提取评论 ID
 function getCommentId(request: NextRequest): string | null {
   const urlParts = request.url.split('/');
-  return urlParts[urlParts.length - 1] || null;
+  const id = urlParts[urlParts.length - 1];
+  // 过滤掉查询参数
+  return id ? id.split('?')[0] : null;
+}
+
+// 安全解析请求体
+async function safeParseBody(request: NextRequest): Promise<Record<string, unknown> | null> {
+  try {
+    const text = await request.text();
+    if (!text || text.trim() === '') {
+      return null;
+    }
+    const parsed = JSON.parse(text);
+    return parsed && typeof parsed === 'object' ? parsed : null;
+  } catch {
+    return null;
+  }
 }
 
 // ============================================
@@ -107,13 +133,29 @@ export async function PUT(request: NextRequest) {
       );
     }
     
-    const body = await request.json();
+    const body = await safeParseBody(request);
     
-    // 更新字段
-    if (body.content !== undefined) {
+    // 检查请求体是否为空
+    if (!body) {
+      return NextResponse.json(
+        { error: 'Request body is required for update' },
+        { status: 400 }
+      );
+    }
+    
+    let hasUpdates = false;
+    
+    // 更新 content 字段
+    if (body.content !== null && body.content !== undefined) {
       if (typeof body.content !== 'string') {
         return NextResponse.json(
           { error: 'Content must be a string' },
+          { status: 400 }
+        );
+      }
+      if (body.content.trim() === '') {
+        return NextResponse.json(
+          { error: 'Content cannot be empty' },
           { status: 400 }
         );
       }
@@ -123,22 +165,32 @@ export async function PUT(request: NextRequest) {
           { status: 400 }
         );
       }
-      comments[index].content = body.content;
+      comments[index].content = body.content.trim();
+      hasUpdates = true;
     }
     
-    if (body.author !== undefined) {
+    // 更新 author 字段
+    if (body.author !== null && body.author !== undefined) {
       if (typeof body.author !== 'string') {
         return NextResponse.json(
           { error: 'Author must be a string' },
           { status: 400 }
         );
       }
-      comments[index].author = body.author;
+      if (body.author.trim() === '') {
+        return NextResponse.json(
+          { error: 'Author cannot be empty' },
+          { status: 400 }
+        );
+      }
+      comments[index].author = body.author.trim();
+      hasUpdates = true;
     }
     
-    comments[index].updatedAt = new Date().toISOString();
-    
-    saveComments(comments);
+    if (hasUpdates) {
+      comments[index].updatedAt = new Date().toISOString();
+      saveComments(comments);
+    }
     
     return NextResponse.json({
       success: true,

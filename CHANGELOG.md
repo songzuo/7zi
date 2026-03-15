@@ -8,6 +8,50 @@
 
 ---
 
+## [0.2.2] - 2026-03-14
+
+### Added
+- **统一 API 错误处理模块**
+  - `src/lib/api-error.ts` - 完整的错误处理工具库
+  - 预设错误配置 (400, 401, 403, 404, 409, 422, 429, 500, 503, 504)
+  - 快捷错误创建函数 (badRequest, unauthorized, forbidden, notFound 等)
+  - 验证辅助函数 (validateRequired, validateString, validateRange, validateEnum)
+  - 请求处理包装器 (handleApiRequest)
+  - `src/test/api-error.test.ts` - 29 个单元测试用例
+
+- **知识图谱状态管理**
+  - `src/lib/store/knowledge-store.ts` - Zustand 状态管理
+
+- **通知偏好设置**
+  - `src/app/api/notifications/preferences/` - 通知偏好设置 API
+
+- **博客评论系统 API**
+  - `GET /api/comments` - 获取评论列表（支持 postId 过滤）
+  - `POST /api/comments` - 创建评论
+  - `PUT /api/comments/:id` - 更新评论
+  - `DELETE /api/comments/:id` - 删除评论
+
+- **单元测试覆盖提升**
+  - `src/test/cache-manager.test.ts` - 缓存管理器测试 (14 个测试用例)
+  - `src/test/notifications-page.test.ts` - 通知页面测试 (13 个测试用例)
+  - `src/test/notifications-preferences.test.ts` - 通知偏好测试
+
+### Changed
+- **代码优化**
+  - console.warn 替换为结构化 logger (`src/app/[locale]/notifications/page.tsx`)
+  - CSRF 中间件已使用单例缓存优化
+  - 缓存管理器支持配置变化时重建实例
+  - 登录路由已集成统一错误处理
+
+### Fixed
+- **技术债务清理**
+  - KnowledgeLattice EventEmitter 监听器限制已设置
+  - 多个 API 路由 CSRF 中间件已优化为模块级单例
+  - 登录 API 密码验证已修复
+  - ErrorBoundary 日志记录已优化
+
+---
+
 ## [0.2.1] - 2026-03-13
 
 ### Added

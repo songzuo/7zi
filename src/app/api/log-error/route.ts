@@ -7,49 +7,30 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { verifyToken, extractToken, isAdmin } from '@/lib/security/auth';
 import { apiLogger } from '@/lib/logger';
 
 /**
- * 客户端错误日志请求体
+ * 客户端错误日志 Zod Schema
+ * 正确处理 nullable 值，将 null 转换为 undefined
  */
-interface ClientErrorLog {
-  message: string;
-  stack?: string;
-  componentStack?: string;
-  digest?: string;
-  timestamp: string;
-  url?: string;
-  userAgent?: string;
-  additionalInfo?: Record<string, unknown>;
-}
+const ClientErrorLogSchema = z.object({
+  message: z.string().min(1, 'message is required'),
+  stack: z.string().nullable().optional().transform(v => v ?? undefined),
+  componentStack: z.string().nullable().optional().transform(v => v ?? undefined),
+  digest: z.string().nullable().optional().transform(v => v ?? undefined),
+  timestamp: z.string().nullable().optional().default(() => new Date().toISOString()),
+  url: z.string().nullable().optional().transform(v => v ?? undefined),
+  userAgent: z.string().nullable().optional().transform(v => v ?? undefined),
+  additionalInfo: z.record(z.string(), z.unknown()).nullable().optional().transform(v => v ?? undefined),
+});
 
 /**
- * 验证错误日志请求体
+ * 客户端错误日志类型
  */
-function validateClientErrorLog(body: unknown): ClientErrorLog | null {
-  if (!body || typeof body !== 'object') {
-    return null;
-  }
-
-  const log = body as Partial<ClientErrorLog>;
-
-  if (!log.message || typeof log.message !== 'string') {
-    return null;
-  }
-
-  return {
-    message: log.message,
-    stack: log.stack,
-    componentStack: log.componentStack,
-    digest: log.digest,
-    timestamp: log.timestamp || new Date().toISOString(),
-    url: log.url,
-    userAgent: log.userAgent,
-    additionalInfo: log.additionalInfo,
-  };
-}
+type ClientErrorLog = z.infer<typeof ClientErrorLogSchema>;
 
 // ============================================
 // POST /api/log-error - 记录客户端错误
@@ -59,18 +40,24 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    // 验证请求体
-    const errorLog = validateClientErrorLog(body);
-    if (!errorLog) {
+    // 使用 Zod 验证请求体，处理 nullable 值
+    const parseResult = ClientErrorLogSchema.safeParse(body);
+    
+    if (!parseResult.success) {
       return NextResponse.json(
         {
           error: 'INVALID_PAYLOAD',
           message: '无效的错误日志格式',
+          details: parseResult.error.issues.map(issue => ({
+            path: issue.path.join('.'),
+            message: issue.message,
+          })),
         },
         { status: 400 }
       );
     }
 
+    const errorLog = parseResult.data;
     const requestId = uuidv4();
 
     // 记录到日志系统

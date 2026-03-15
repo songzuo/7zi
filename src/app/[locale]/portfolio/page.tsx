@@ -19,14 +19,33 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+// Project data type from data source
+interface ProjectData {
+  id: string;
+  slug?: string;
+  title: string;
+  description: string;
+  metadata?: {
+    category?: ProjectCategory;
+    thumbnail?: string;
+    client?: string;
+  };
+  images?: string[];
+  techStack?: string[];
+  client?: string;
+  duration?: string;
+  highlights?: string[];
+  links?: Record<string, string>;
+}
+
 // Helper to convert ProjectData to Project type
-function toProject(projectData: ReturnType<typeof getProjects>[0]): Project {
+function toProject(projectData: ProjectData): Project {
   return {
     id: projectData.id,
     slug: projectData.slug || projectData.id,
     title: projectData.title,
     description: projectData.description,
-    category: (projectData.metadata?.category || 'website') as ProjectCategory,
+    category: projectData.metadata?.category || 'website',
     thumbnail: projectData.metadata?.thumbnail || '/images/placeholder.jpg',
     images: projectData.images || (projectData.metadata?.thumbnail ? [projectData.metadata.thumbnail] : []),
     techStack: projectData.techStack || [],

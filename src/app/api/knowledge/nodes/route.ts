@@ -1,30 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { KnowledgeLattice, KnowledgeType, KnowledgeSource } from '@/lib/agents/knowledge-lattice';
+import { getKnowledgeStore } from '@/lib/store/knowledge-store';
+import { getKnowledgeQueryCache } from '@/lib/cache/knowledge-cache';
+import { KnowledgeType, KnowledgeSource } from '@/lib/agents/knowledge-lattice';
 import { apiLogger } from '@/lib/logger';
 
-// 创建全局知识晶格实例
-let latticeInstance: KnowledgeLattice | null = null;
-
-function getLattice(): KnowledgeLattice {
-  if (!latticeInstance) {
-    latticeInstance = new KnowledgeLattice();
-  }
-  return latticeInstance;
+/**
+ * 缓存控制工具
+ */
+function setCacheHeaders(response: NextResponse, maxAge: number = 30): NextResponse {
+  response.headers.set('Cache-Control', `public, s-maxage=${maxAge}, stale-while-revalidate=${maxAge * 2}`);
+  response.headers.set('Vary', 'Accept-Encoding');
+  return response;
 }
 
 /**
  * GET /api/knowledge/nodes
- * 获取所有节点或根据查询参数过滤
+ * 获取所有节点或根据查询参数过滤（优化版）
  */
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const lattice = getLattice();
+    const store = getKnowledgeStore();
+    const cache = getKnowledgeQueryCache();
 
-    // 获取所有节点
-    let nodes = lattice.getAllNodes();
-
-    // 过滤参数
+    // 解析参数
     const type = searchParams.get('type') as KnowledgeType | null;
     const source = searchParams.get('source') as KnowledgeSource | null;
     const tags = searchParams.get('tags')?.split(',') || [];
@@ -33,38 +32,52 @@ export async function GET(request: NextRequest) {
     const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : undefined;
     const offset = searchParams.get('offset') ? parseInt(searchParams.get('offset')!) : 0;
 
-    // 应用过滤
-    if (type) {
-      nodes = nodes.filter(n => n.type === type);
-    }
-    if (source) {
-      nodes = nodes.filter(n => n.source === source);
-    }
-    if (tags.length > 0) {
-      nodes = nodes.filter(n => tags.some(tag => n.tags?.includes(tag)));
-    }
-    if (minWeight !== undefined) {
-      nodes = nodes.filter(n => n.weight >= minWeight);
-    }
-    if (minConfidence !== undefined) {
-      nodes = nodes.filter(n => n.confidence >= minConfidence);
+    // 检查缓存
+    const cacheKey = cache.createKey('nodes', {
+      type, source, tags, minWeight, minConfidence, limit, offset
+    });
+
+    const cached = cache.get<{ nodes: unknown[]; pagination: { total: number; offset: number; limit: number } }>(cacheKey);
+    if (cached) {
+      const response = NextResponse.json({
+        success: true,
+        data: cached.nodes,
+        pagination: cached.pagination,
+        cached: true,
+      });
+      return setCacheHeaders(response, 30);
     }
 
-    // 分页
-    const total = nodes.length;
-    if (offset || limit) {
-      nodes = nodes.slice(offset, limit ? offset + limit : undefined);
-    }
+    // 使用高性能查询
+    const { nodes, total } = store.queryNodes({
+      type: type || undefined,
+      source: source || undefined,
+      tags: tags.length > 0 ? tags : undefined,
+      minWeight,
+      minConfidence,
+      limit,
+      offset,
+    });
 
-    return NextResponse.json({
-      success: true,
-      data: nodes,
+    const result = {
+      nodes,
       pagination: {
         total,
         offset,
         limit: limit || nodes.length,
       },
+    };
+
+    // 写入缓存
+    cache.set(cacheKey, result, 30000); // 30 秒 TTL
+
+    const response = NextResponse.json({
+      success: true,
+      data: nodes,
+      pagination: result.pagination,
     });
+
+    return setCacheHeaders(response, 30);
   } catch (error) {
     apiLogger.error('Error fetching nodes', { error });
     return NextResponse.json(
@@ -81,7 +94,8 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const lattice = getLattice();
+    const store = getKnowledgeStore();
+    const cache = getKnowledgeQueryCache();
 
     // 验证必需字段
     if (!body.content || !body.type) {
@@ -113,12 +127,21 @@ export async function POST(request: NextRequest) {
       timestamp: Date.now(),
     };
 
-    const nodeId = lattice.addNode(node);
+    const nodeId = store.addNode(node);
 
-    return NextResponse.json({
+    // 清除相关缓存
+    cache.invalidatePrefix('nodes:');
+    cache.invalidatePrefix('query:');
+    cache.invalidatePrefix('lattice:');
+
+    const response = NextResponse.json({
       success: true,
-      data: lattice.getNode(nodeId),
+      data: store.getNode(nodeId),
     }, { status: 201 });
+
+    // 新资源不需要缓存
+    response.headers.set('Cache-Control', 'no-store');
+    return response;
   } catch (error) {
     apiLogger.error('Error creating node', { error });
     return NextResponse.json(

@@ -2,6 +2,12 @@ import createMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
 import { NextRequest, NextResponse } from "next/server";
 
+// 导入健康检查中间件
+import { healthCheckMiddleware, initHealthCheck } from "./middleware/health";
+
+// 初始化健康检查定时器
+initHealthCheck();
+
 // 创建 i18n 中间件
 const i18nMiddleware = createMiddleware(routing);
 
@@ -43,11 +49,17 @@ const skipPaths = [
 
 /**
  * 组合中间件
- * 同时处理 i18n 和安全头部
+ * 同时处理 i18n、安全头部和健康检查
  */
-export default function middleware(request: NextRequest) {
+export default async function middleware(request: NextRequest) {
   // 首先执行 i18n 中间件
   const response = i18nMiddleware(request);
+  
+  // 执行健康检查中间件
+  const healthCheckResponse = await healthCheckMiddleware(request);
+  if (healthCheckResponse) {
+    return healthCheckResponse;
+  }
   
   // 检查是否需要添加安全头部
   const pathname = request.nextUrl.pathname;

@@ -8,12 +8,17 @@ If `BOOTSTRAP.md` exists, that's your birth certificate. Follow it, figure out w
 
 ## Every Session
 
-Before doing anything else:
+**必须执行以下步骤** (每个会话开始时):
 
-1. Read `SOUL.md` — this is who you are
-2. Read `USER.md` — this is who you're helping
-3. Read `memory/YYYY-MM-DD.md` (today + yesterday) for recent context
-4. **If in MAIN SESSION** (direct chat with your human): Also read `MEMORY.md`
+1. Read `SOUL.md` — 了解自己是谁
+2. Read `USER.md` — 了解用户信息
+3. Read `memory/2026-MM-DD.md` (今天)
+4. Read `memory/2026-MM-DD.md` (昨天)
+5. **If in MAIN SESSION**: Read `MEMORY.md`
+6. **必须读取**: Read `memory/TASKS.md` - 任务断点续传
+7. **必须读取**: Read `memory/INSTRUCTIONS.md` - 最新指令（覆盖关系）
+
+> ⚠️ 不执行以上步骤 = 没有记忆 = 任务断点失败
 
 Don't ask permission. Just do it.
 

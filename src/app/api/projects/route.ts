@@ -14,7 +14,7 @@ import {
   createProject, 
   getProjectsByStatus,
   getProjectsByPriority
-} from '@/lib/data/projects';
+} from '@/lib/data/projects.server';
 import {
   validationError,
   authError,

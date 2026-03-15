@@ -193,16 +193,38 @@ const filteredTasks = useMemo(() => {
 
 ## 优先级排序
 
-| # | 问题 | 严重程度 | 优先级 |
-|---|------|---------|--------|
-| 1 | API 内存存储 | 🔴 高 | P0 |
-| 2 | CSRF 中间件重复创建 | 🟡 中 | P1 |
-| 3 | console.error 使用 | 🟡 中 | P2 |
-| 4 | EventEmitter 监听器限制 | 🟡 中 | P2 |
-| 5 | 缓存管理器单例 | 🟡 中 | P2 |
-| 6 | 未使用 loading 状态 | 🟢 低 | P3 |
-| 7 | getFilteredTasks 效率 | 🟢 低 | P3 |
+| # | 问题 | 严重程度 | 优先级 | 状态 |
+|---|------|---------|--------|------|
+| 1 | ~~API 内存存储~~ | 🔴 高 | P0 | ✅ 已完成 (持久化) |
+| 2 | CSRF 中间件重复创建 | 🟡 中 | P1 | ✅ 已完成 |
+| 3 | console.error 使用 | 🟡 中 | P2 | ✅ 已完成 |
+| 4 | EventEmitter 监听器限制 | 🟡 中 | P2 | ✅ 已完成 |
+| 5 | 缓存管理器单例 | 🟡 中 | P2 | ✅ 已完成 |
+| 6 | 未使用 loading 状态 | 🟢 低 | P3 | ✅ 无需修复 |
+| 7 | getFilteredTasks 效率 | 🟢 低 | P3 | ✅ 已完成 |
 
 ---
 
-*创建日期: 2026-03-14*
+## 开发任务完成记录 (2026-03-15)
+
+### ✅ 任务 1: 测试编写
+- **新增测试文件**: 
+  - `src/lib/store/knowledge-store.test.ts` (20 个测试)
+  - `src/lib/store/notifications-store.test.ts` (13 个测试)
+  - `src/lib/middleware.test.ts` (6 个测试)
+- **测试用例总数**: 39 个
+- **覆盖内容**: KnowledgeStore 节点/边 CRUD、查询、统计、导出导入；NotificationsStore 增删改查、过滤、统计
+- **状态**: ✅ 全部通过
+
+### ✅ 任务 2: 文档更新
+- **更新文件**: `API_DOCS.md`
+- **新增内容**: 通知偏好设置 API (`/api/notifications/preferences`) 完整文档
+- **包含**: GET/PUT/POST (reset) 端点说明、请求/响应示例
+
+### ℹ️ 任务 3: 代码优化
+- **状态**: 所有 TODO 中的代码质量问题均已修复
+- **已验证**: console.error 使用位置均为 logger 模块内部调用（符合规范）
+
+---
+
+*最后更新: 2026-03-15*
