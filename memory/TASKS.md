@@ -23,7 +23,10 @@
 | ClawHub 技能分析 | 2026-03-14 20:48 | 结论：暂不需要 |
 | GITHUB_TOKEN 配置 | 2026-03-14 22:08 | ✅ 已配置 |
 | Gateway 重启 | 2026-03-14 22:08 | ✅ 已生效 |
-| Git 提交推送 | 2026-03-14 22:08 | ✅ |
+| Lint 语法错误修复 | 2026-03-15 01:55 | ✅ 修复 middleware.test.ts |
+| 自动记忆系统设计 | 2026-03-15 01:55 | ✅ 创建 TASKS.md/INSTRUCTIONS.md |
+| 缓存系统简化 | 2026-03-15 03:15 | ✅ 移除 Redis/Layered，仅保留 MemoryCache |
+| Git 推送 | 2026-03-15 03:15 | ✅ |
 | Lint 语法错误修复 | 2026-03-15 01:55 | ✅ 修复 middleware.test.ts |
 | 自动记忆系统设计 | 2026-03-15 01:55 | ✅ 创建 TASKS.md/INSTRUCTIONS.md |
 
