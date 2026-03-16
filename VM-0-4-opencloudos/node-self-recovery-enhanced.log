@@ -1,0 +1,30 @@
+[2026-03-01T05:27:12.581404] [INFO] 测试日志功能
+[2026-03-01T05:32:23.971042] [INFO] 执行单次节点连通性检查
+[2026-03-01T05:32:23.971445] [INFO] 检测节点连通性: 7zi.com
+[2026-03-01T05:32:24.130721] [ERROR] 节点 7zi.com 无法SSH连接
+[2026-03-01T05:32:24.130900] [INFO] 检测节点连通性: bot.szspd.cn
+[2026-03-01T05:32:28.298398] [DEBUG] 节点 bot.szspd.cn SSH连接正常
+[2026-03-01T05:32:28.300274] [INFO] 检测节点连通性: bot2.szspd.cn
+[2026-03-01T05:32:35.124388] [DEBUG] 节点 bot2.szspd.cn SSH连接正常
+[2026-03-01T05:32:35.124990] [INFO] 检测节点连通性: bot3.szspd.cn
+[2026-03-01T05:32:35.500509] [DEBUG] 节点 bot3.szspd.cn SSH连接正常
+[2026-03-01T05:32:35.500619] [INFO] 检测节点连通性: bot4.szspd.cn
+[2026-03-01T05:32:36.466181] [DEBUG] 节点 bot4.szspd.cn SSH连接正常
+[2026-03-01T05:32:36.466284] [INFO] 检测节点连通性: bot5.szspd.cn
+[2026-03-01T05:32:36.500002] [ERROR] 节点 bot5.szspd.cn 无法SSH连接
+[2026-03-01T05:32:36.500358] [INFO] 检测节点连通性: bot6.szspd.cn
+[2026-03-01T05:32:39.499555] [DEBUG] 节点 bot6.szspd.cn SSH连接正常
+[2026-03-01T05:32:39.500595] [INFO] 处理不可达节点: 7zi.com
+[2026-03-01T05:32:39.501849] [INFO] 处理节点恢复任务: 7zi.com
+[2026-03-01T05:32:40.545831] [WARNING] Evomap通知失败 (状态码: 404)
+[2026-03-01T05:32:45.566035] [ERROR] OpenClaw通知异常: HTTPConnectionPool(host='7zi.com', port=18789): Max retries exceeded with url: /api/v1/notify (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f25935f9850>, 'Connection to 7zi.com timed out. (connect timeout=5)'))
+[2026-03-01T05:32:50.627749] [ERROR] Picoclaw通知异常: HTTPConnectionPool(host='7zi.com', port=18790): Max retries exceeded with url: /notify (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f25942966d0>, 'Connection to 7zi.com timed out. (connect timeout=5)'))
+[2026-03-01T05:32:50.628354] [ERROR] 所有通知渠道均失败，无法通知节点 7zi.com
+[2026-03-01T05:32:50.628903] [ERROR] 无法通知节点 7zi.com，任务失败
+[2026-03-01T05:32:50.629163] [INFO] 处理不可达节点: bot5.szspd.cn
+[2026-03-01T05:32:50.629444] [INFO] 处理节点恢复任务: bot5.szspd.cn
+[2026-03-01T05:32:51.532239] [WARNING] Evomap通知失败 (状态码: 404)
+[2026-03-01T05:32:51.600623] [WARNING] OpenClaw通知失败 (状态码: 405)
+[2026-03-01T05:32:51.628276] [ERROR] Picoclaw通知异常: HTTPConnectionPool(host='bot5.szspd.cn', port=18790): Max retries exceeded with url: /notify (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f25936003d0>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2026-03-01T05:32:51.628390] [ERROR] 所有通知渠道均失败，无法通知节点 bot5.szspd.cn
+[2026-03-01T05:32:51.628424] [ERROR] 无法通知节点 bot5.szspd.cn，任务失败

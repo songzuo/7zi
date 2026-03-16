@@ -1,52 +1,17 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
-
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
-.DS_Store
+# 敏感信息文件 - 不要提交到 git
+.env
+.env.local
+.env.*.local
 *.pem
+*.key
+secrets.json
+credentials.json
+private.key
 
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# env files (can opt-in for committing if needed)
-.env*
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-
-# playwright
-/test-results/
-/playwright-report/
-/playwright/.cache/
-
-# backup directories
-_app_backup/node_modules
-moltbook-gateway/node_modules
-botmem/
-data/
+# 运行时日志和状态
+state/recovery-*.json
+state/recovery-triggered-*.json
+logs/*.log
+temp/auto-task-report-*.md
+agents/*/logs/*.log
+agents/*/memory/*.md

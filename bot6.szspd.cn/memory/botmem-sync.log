@@ -1,0 +1,97 @@
+[2026-03-11 01:37:56] === 开始同步 botmem 仓库 ===
+[2026-03-11 01:37:56]   Cloning into '.'...
+[2026-03-11 01:37:58] 同步记忆文件 (MEMORY.md, memory/)...
+[2026-03-11 01:37:58]   同步: MEMORY.md
+[2026-03-11 01:37:59]   同步目录: memory
+[2026-03-11 01:54:07] === 开始同步 botmem 仓库 ===
+[2026-03-11 01:54:07]   Cloning into '.'...
+[2026-03-11 01:54:10] 同步记忆文件 (MEMORY.md, memory/)...
+[2026-03-11 01:54:10]   同步: MEMORY.md
+[2026-03-11 01:54:10]   同步目录: memory
+[2026-03-11 01:54:10] [DRY-RUN] 检测到以下更改将被提交:
+[2026-03-11 01:54:10] === 同步完成 ===
+[2026-03-11 01:54:30] === 开始同步 botmem 仓库 ===
+[2026-03-11 01:54:30]   Cloning into '.'...
+[2026-03-11 01:54:32] 同步记忆文件 (MEMORY.md, memory/)...
+[2026-03-11 01:54:32]   同步: MEMORY.md
+[2026-03-11 01:54:32]   同步目录: memory
+[2026-03-11 01:54:33]   To https://github.com/songzuo/botmem.git
+[2026-03-11 01:54:33]   6dabe6c..5900123  main -> main
+[2026-03-11 01:54:33] ✅ 推送完成
+[2026-03-11 01:54:34] === 同步完成 ===
+[2026-03-11 02:30:31] === 开始同步 botmem 仓库 ===
+[2026-03-11 02:30:31]   Cloning into '.'...
+[2026-03-11 02:30:34] 同步记忆文件 (MEMORY.md, memory/)...
+[2026-03-11 02:30:34]   同步: MEMORY.md
+[2026-03-11 02:30:34]   同步目录: memory
+[2026-03-11 02:30:34] 同步常规文件...
+[2026-03-11 02:30:34]   同步: AGENTS.md
+[2026-03-11 02:30:34]   同步: SOUL.md
+[2026-03-11 02:30:34]   同步: IDENTITY.md
+[2026-03-11 02:30:34]   同步: USER.md
+[2026-03-11 02:30:34]   同步: README.md
+[2026-03-11 02:30:34]   同步: HEARTBEAT.md
+[2026-03-11 02:30:34]   同步: TOOLS.md
+[2026-03-11 02:30:34]   同步目录: docs
+[2026-03-11 02:30:34]   同步目录: skills
+[2026-03-11 02:30:36]   To https://github.com/songzuo/botmem.git
+[2026-03-11 02:30:36]   5900123..63f4f4b  main -> main
+[2026-03-11 02:30:36] ✅ 推送完成
+[2026-03-11 02:30:36] === 同步完成 ===
+[2026-03-11 17:46:37] ❌ 同步失败: GITHUB_TOKEN 未设置
+[2026-03-15 01:58:29] === 开始同步 botmem 仓库 ===
+[2026-03-15 01:58:29]   Cloning into '.'...
+[2026-03-15 01:58:31] 同步记忆文件 (MEMORY.md, memory/)...
+[2026-03-15 01:58:31]   同步: MEMORY.md
+[2026-03-15 01:58:31]   同步目录: memory
+[2026-03-15 01:58:33]   To https://github.com/songzuo/botmem.git
+[2026-03-15 01:58:33]   f8cac52..43fd659  main -> main
+[2026-03-15 01:58:33] ✅ 推送完成
+[2026-03-15 01:58:33] === 同步完成 ===
+[2026-03-15 05:58:52] === 开始同步 botmem 仓库 ===
+[2026-03-15 05:58:52]   Cloning into '.'...
+[2026-03-15 05:58:55] 同步记忆文件 (MEMORY.md, memory/)...
+[2026-03-15 05:58:55]   同步: MEMORY.md
+[2026-03-15 05:58:55]   同步目录: memory
+[2026-03-15 05:58:56]   To https://github.com/songzuo/botmem.git
+[2026-03-15 05:58:56]   f97a92a..f7d788f  main -> main
+[2026-03-15 05:58:56] ✅ 推送完成
+[2026-03-15 05:58:56] === 同步完成 ===
+[2026-03-15 08:03:12] === 开始同步 botmem 仓库 ===
+[2026-03-15 08:03:12]   Cloning into '.'...
+[2026-03-15 08:03:14] 同步记忆文件 (MEMORY.md, memory/)...
+[2026-03-15 08:03:14]   同步: MEMORY.md
+[2026-03-15 08:03:14]   同步目录: memory
+[2026-03-15 08:03:14] 同步常规文件...
+[2026-03-15 08:03:14]   同步: AGENTS.md
+[2026-03-15 08:03:14]   同步: SOUL.md
+[2026-03-15 08:03:14]   同步: IDENTITY.md
+[2026-03-15 08:03:14]   同步: USER.md
+[2026-03-15 08:03:14]   同步: README.md
+[2026-03-15 08:03:14]   同步: HEARTBEAT.md
+[2026-03-15 08:03:14]   同步: TOOLS.md
+[2026-03-15 08:03:15]   同步目录: docs
+[2026-03-15 08:03:15]   同步目录: skills
+[2026-03-15 08:03:16]   To https://github.com/songzuo/botmem.git
+[2026-03-15 08:03:16]   f7d788f..fe8eddd  main -> main
+[2026-03-15 08:03:16] ✅ 推送完成
+[2026-03-15 08:03:16] === 同步完成 ===
+[2026-03-15 09:58:18] === 开始同步 botmem 仓库 ===
+[2026-03-15 09:58:18]   Cloning into '.'...
+[2026-03-15 09:58:21] 同步记忆文件 (MEMORY.md, memory/)...
+[2026-03-15 09:58:21]   同步: MEMORY.md
+[2026-03-15 09:58:21]   同步目录: memory
+[2026-03-15 09:58:22]   To https://github.com/songzuo/botmem.git
+[2026-03-15 09:58:22]   719c58e..cc4ed4b  main -> main
+[2026-03-15 09:58:22] ✅ 推送完成
+[2026-03-15 09:58:22] === 同步完成 ===
+[2026-03-15 17:58:59] === 开始同步 botmem 仓库 ===
+[2026-03-15 17:58:59]   Cloning into '.'...
+[2026-03-15 17:59:10]   Updating files:  18% (1804/9740)Updating files:  19% (1851/9740)Updating files:  20% (1948/9740)Updating files:  21% (2046/9740)Updating files:  22% (2143/9740)Updating files:  23% (2241/9740)Updating files:  24% (2338/9740)Updating files:  25% (2435/9740)Updating files:  26% (2533/9740)Updating files:  27% (2630/9740)Updating files:  28% (2728/9740)Updating files:  29% (2825/9740)Updating files:  30% (2922/9740)Updating files:  31% (3020/9740)Updating files:  32% (3117/9740)Updating files:  33% (3215/9740)Updating files:  34% (3312/9740)Updating files:  35% (3409/9740)Updating files:  36% (3507/9740)Updating files:  37% (3604/9740)Updating files:  38% (3702/9740)Updating files:  39% (3799/9740)Updating files:  40% (3896/9740)Updating files:  41% (3994/9740)Updating files:  42% (4091/9740)Updating files:  43% (4189/9740)Updating files:  44% (4286/9740)Updating files:  44% (4370/9740)Updating files:  45% (4383/9740)Updating files:  46% (4481/9740)Updating files:  47% (4578/9740)Updating files:  48% (4676/9740)Updating files:  49% (4773/9740)Updating files:  50% (4870/9740)Updating files:  51% (4968/9740)Updating files:  52% (5065/9740)Updating files:  53% (5163/9740)Updating files:  54% (5260/9740)Updating files:  55% (5357/9740)Updating files:  56% (5455/9740)Updating files:  57% (5552/9740)Updating files:  58% (5650/9740)Updating files:  59% (5747/9740)Updating files:  59% (5810/9740)Updating files:  60% (5844/9740)Updating files:  61% (5942/9740)Updating files:  62% (6039/9740)Updating files:  63% (6137/9740)Updating files:  64% (6234/9740)Updating files:  65% (6331/9740)Updating files:  66% (6429/9740)Updating files:  67% (6526/9740)Updating files:  68% (6624/9740)Updating files:  69% (6721/9740)Updating files:  70% (6818/9740)Updating files:  71% (6916/9740)Updating files:  72% (7013/9740)Updating files:  73% (7111/9740)Updating files:  74% (7208/9740)Updating files:  75% (7305/9740)Updating files:  75% (7366/9740)Updating files:  76% (7403/9740)Updating files:  77% (7500/9740)Updating files:  78% (7598/9740)Updating files:  79% (7695/9740)Updating files:  80% (7792/9740)Updating files:  81% (7890/9740)Updating files:  82% (7987/9740)Updating files:  83% (8085/9740)Updating files:  84% (8182/9740)Updating files:  85% (8279/9740)Updating files:  86% (8377/9740)Updating files:  87% (8474/9740)Updating files:  88% (8572/9740)Updating files:  89% (8669/9740)Updating files:  90% (8766/9740)Updating files:  91% (8864/9740)Updating files:  92% (8961/9740)Updating files:  92% (9016/9740)Updating files:  93% (9059/9740)Updating files:  94% (9156/9740)Updating files:  95% (9253/9740)Updating files:  96% (9351/9740)Updating files:  97% (9448/9740)Updating files:  98% (9546/9740)Updating files:  99% (9643/9740)Updating files: 100% (9740/9740)Updating files: 100% (9740/9740), done.
+[2026-03-15 17:59:10] 同步记忆文件 (MEMORY.md, memory/)...
+[2026-03-15 17:59:10]   同步: MEMORY.md
+[2026-03-15 17:59:11]   同步目录: memory
+[2026-03-15 17:59:13]   To https://github.com/songzuo/botmem.git
+[2026-03-15 17:59:13]   aad8359..7c7042f  main -> main
+[2026-03-15 17:59:13] ✅ 推送完成
+[2026-03-15 17:59:16] === 同步完成 ===

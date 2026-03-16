@@ -1,0 +1,20 @@
+{
+  "lastHeartbeat": "2026-03-16T07:41:00+08:00",
+  "status": "idle",
+  "currentTask": null,
+  "currentPhase": null,
+  "gatewayStatus": "running",
+  "gatewayStartTime": "2026-03-16T04:48:00+08:00",
+  "activeSessions": 1,
+  "activeSubagents": 0,
+  "subagents": [],
+  "recoveryFiles": [],
+  "pendingTasks": [
+    "监控统一实施 (high priority) - BLOCKED: SSH 认证失败，需要用户协助",
+    "同步优化脚本部署 (high priority) - ✅ COMPLETED",
+    "bot6/bot5/bot7 通信修复 (medium) - ✅ 诊断完成，待远程操作",
+    "Telegram/国内频道配置 (medium) - ✅ COMPLETED"
+  ],
+  "lastCheck": "2026-03-16T07:41:00+08:00",
+  "checkResult": "无超时任务，系统空闲状态正常"
+}

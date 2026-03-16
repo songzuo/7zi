@@ -1,0 +1,98 @@
+[2026-03-01T05:17:55.479682] [INFO] 执行单次节点连通性检查
+[2026-03-01T05:17:55.480185] [INFO] 检测节点连通性: 7zi.com
+[2026-03-01T05:17:55.714786] [ERROR] 节点 7zi.com 无法SSH连接
+[2026-03-01T05:17:55.714915] [INFO] 检测节点连通性: bot.szspd.cn
+[2026-03-01T05:17:59.816562] [DEBUG] 节点 bot.szspd.cn SSH连接正常
+[2026-03-01T05:17:59.816676] [INFO] 检测节点连通性: bot2.szspd.cn
+[2026-03-01T05:18:06.520219] [DEBUG] 节点 bot2.szspd.cn SSH连接正常
+[2026-03-01T05:18:06.520321] [INFO] 检测节点连通性: bot3.szspd.cn
+[2026-03-01T05:18:07.264695] [DEBUG] 节点 bot3.szspd.cn SSH连接正常
+[2026-03-01T05:18:07.264821] [INFO] 检测节点连通性: bot4.szspd.cn
+[2026-03-01T05:18:08.407378] [DEBUG] 节点 bot4.szspd.cn SSH连接正常
+[2026-03-01T05:18:08.407573] [INFO] 检测节点连通性: bot5.szspd.cn
+[2026-03-01T05:18:08.450914] [ERROR] 节点 bot5.szspd.cn 无法SSH连接
+[2026-03-01T05:18:08.451053] [INFO] 检测节点连通性: bot6.szspd.cn
+[2026-03-01T05:18:41.024443] [INFO] 执行单次节点连通性检查
+[2026-03-01T05:18:41.024851] [INFO] 检测节点连通性: 7zi.com
+[2026-03-01T05:18:41.162234] [ERROR] 节点 7zi.com 无法SSH连接
+[2026-03-01T05:18:41.162329] [INFO] 检测节点连通性: bot.szspd.cn
+[2026-03-01T05:18:45.314613] [DEBUG] 节点 bot.szspd.cn SSH连接正常
+[2026-03-01T05:18:45.314763] [INFO] 检测节点连通性: bot2.szspd.cn
+[2026-03-01T05:18:51.153294] [DEBUG] 节点 bot2.szspd.cn SSH连接正常
+[2026-03-01T05:18:51.165246] [INFO] 检测节点连通性: bot3.szspd.cn
+[2026-03-01T05:18:51.969430] [DEBUG] 节点 bot3.szspd.cn SSH连接正常
+[2026-03-01T05:18:51.969533] [INFO] 检测节点连通性: bot4.szspd.cn
+[2026-03-01T05:18:52.979305] [DEBUG] 节点 bot4.szspd.cn SSH连接正常
+[2026-03-01T05:18:52.979414] [INFO] 检测节点连通性: bot5.szspd.cn
+[2026-03-01T05:18:53.019124] [ERROR] 节点 bot5.szspd.cn 无法SSH连接
+[2026-03-01T05:18:53.019730] [INFO] 检测节点连通性: bot6.szspd.cn
+[2026-03-01T05:18:57.137336] [DEBUG] 节点 bot6.szspd.cn SSH连接正常
+[2026-03-01T05:18:57.137935] [INFO] 处理不可达节点: 7zi.com
+[2026-03-01T05:18:57.138760] [INFO] 处理节点恢复任务: 7zi.com
+[2026-03-01T05:18:58.299329] [WARNING] Evomap通知失败 (状态码: 404)
+[2026-03-01T05:32:09.149701] [INFO] 执行单次节点连通性检查
+[2026-03-01T05:32:09.150632] [INFO] 检测节点连通性: 7zi.com
+[2026-03-01T05:32:09.295876] [ERROR] 节点 7zi.com 无法SSH连接
+[2026-03-01T05:32:09.295967] [INFO] 检测节点连通性: bot.szspd.cn
+[2026-03-01T05:32:13.269379] [DEBUG] 节点 bot.szspd.cn SSH连接正常
+[2026-03-01T05:32:13.269525] [INFO] 检测节点连通性: bot2.szspd.cn
+[2026-03-01T05:32:19.704948] [DEBUG] 节点 bot2.szspd.cn SSH连接正常
+[2026-03-01T05:32:19.705054] [INFO] 检测节点连通性: bot3.szspd.cn
+[2026-03-01T05:32:20.363323] [DEBUG] 节点 bot3.szspd.cn SSH连接正常
+[2026-03-01T05:32:20.363455] [INFO] 检测节点连通性: bot4.szspd.cn
+[2026-03-01T05:32:21.388935] [DEBUG] 节点 bot4.szspd.cn SSH连接正常
+[2026-03-01T05:32:21.389437] [INFO] 检测节点连通性: bot5.szspd.cn
+[2026-03-01T05:32:21.452967] [ERROR] 节点 bot5.szspd.cn 无法SSH连接
+[2026-03-01T05:32:21.453414] [INFO] 检测节点连通性: bot6.szspd.cn
+[2026-03-01T05:32:24.753096] [DEBUG] 节点 bot6.szspd.cn SSH连接正常
+[2026-03-01T05:32:24.753497] [INFO] 处理不可达节点: 7zi.com
+[2026-03-01T05:32:24.754586] [INFO] 处理节点恢复任务: 7zi.com
+[2026-03-01T05:32:25.822511] [WARNING] Evomap通知失败 (状态码: 404)
+[2026-03-01T05:32:30.843849] [ERROR] OpenClaw通知异常: HTTPConnectionPool(host='7zi.com', port=18789): Max retries exceeded with url: /api/v1/notify (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f3f7ab30b50>, 'Connection to 7zi.com timed out. (connect timeout=5)'))
+[2026-03-01T05:32:35.862465] [ERROR] Picoclaw通知异常: HTTPConnectionPool(host='7zi.com', port=18790): Max retries exceeded with url: /notify (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7f3f7ab32e10>, 'Connection to 7zi.com timed out. (connect timeout=5)'))
+[2026-03-01T05:32:35.863161] [ERROR] 所有通知渠道均失败，无法通知节点 7zi.com
+[2026-03-01T05:32:35.863404] [ERROR] 无法通知节点 7zi.com，恢复流程终止
+[2026-03-01T05:32:35.863653] [INFO] 处理不可达节点: bot5.szspd.cn
+[2026-03-01T05:32:35.863754] [INFO] 处理节点恢复任务: bot5.szspd.cn
+[2026-03-01T05:32:36.588554] [WARNING] Evomap通知失败 (状态码: 404)
+[2026-03-01T05:32:36.712951] [WARNING] OpenClaw通知失败 (状态码: 405)
+[2026-03-01T05:32:36.740076] [ERROR] Picoclaw通知异常: HTTPConnectionPool(host='bot5.szspd.cn', port=18790): Max retries exceeded with url: /notify (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f3f7ab33650>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2026-03-01T05:32:36.740170] [ERROR] 所有通知渠道均失败，无法通知节点 bot5.szspd.cn
+[2026-03-01T05:32:36.740202] [ERROR] 无法通知节点 bot5.szspd.cn，恢复流程终止
+[2026-03-01T13:52:13.829323] [INFO] 执行单次节点连通性检查
+[2026-03-01T13:52:13.830680] [INFO] 检测节点连通性: 7zi.com
+[2026-03-01T13:52:16.806074] [DEBUG] 节点 7zi.com SSH连接正常
+[2026-03-01T13:52:16.806169] [INFO] 检测节点连通性: bot.szspd.cn
+[2026-03-01T13:52:21.420533] [DEBUG] 节点 bot.szspd.cn SSH连接正常
+[2026-03-01T13:52:21.420634] [INFO] 检测节点连通性: bot2.szspd.cn
+[2026-03-01T13:52:30.419651] [DEBUG] 节点 bot2.szspd.cn SSH连接正常
+[2026-03-01T13:52:30.419760] [INFO] 检测节点连通性: bot3.szspd.cn
+[2026-03-01T13:52:30.765634] [DEBUG] 节点 bot3.szspd.cn SSH连接正常
+[2026-03-01T13:52:30.765725] [INFO] 检测节点连通性: bot4.szspd.cn
+[2026-03-01T13:52:32.300752] [DEBUG] 节点 bot4.szspd.cn SSH连接正常
+[2026-03-01T13:52:32.300876] [INFO] 检测节点连通性: bot5.szspd.cn
+[2026-03-01T13:52:32.760826] [DEBUG] 节点 bot5.szspd.cn SSH连接正常
+[2026-03-01T13:52:32.760931] [INFO] 检测节点连通性: bot6.szspd.cn
+[2026-03-01T13:52:36.105776] [DEBUG] 节点 bot6.szspd.cn SSH连接正常
+[2026-03-03T13:11:08.908495] [INFO] 执行单次节点连通性检查
+[2026-03-03T13:11:08.909036] [INFO] 检测节点连通性: 7zi.com
+[2026-03-03T13:11:10.479545] [DEBUG] 节点 7zi.com SSH连接正常
+[2026-03-03T13:11:10.479648] [INFO] 检测节点连通性: bot.szspd.cn
+[2026-03-03T13:11:14.602638] [DEBUG] 节点 bot.szspd.cn SSH连接正常
+[2026-03-03T13:11:14.602745] [INFO] 检测节点连通性: bot2.szspd.cn
+[2026-03-03T13:11:23.341083] [DEBUG] 节点 bot2.szspd.cn SSH连接正常
+[2026-03-03T13:11:23.341178] [INFO] 检测节点连通性: bot3.szspd.cn
+[2026-03-03T13:11:23.593932] [DEBUG] 节点 bot3.szspd.cn SSH连接正常
+[2026-03-03T13:11:23.594030] [INFO] 检测节点连通性: bot4.szspd.cn
+[2026-03-03T13:11:25.858853] [DEBUG] 节点 bot4.szspd.cn SSH连接正常
+[2026-03-03T13:11:25.858955] [INFO] 检测节点连通性: bot5.szspd.cn
+[2026-03-03T13:11:26.314782] [DEBUG] 节点 bot5.szspd.cn SSH连接正常
+[2026-03-03T13:11:26.314927] [INFO] 检测节点连通性: bot6.szspd.cn
+[2026-03-03T13:11:36.320257] [ERROR] 节点 bot6.szspd.cn 无法SSH连接
+[2026-03-03T13:11:36.320369] [INFO] 处理不可达节点: bot6.szspd.cn
+[2026-03-03T13:11:36.320404] [INFO] 处理节点恢复任务: bot6.szspd.cn
+[2026-03-03T13:11:37.857717] [WARNING] Evomap通知失败 (状态码: 404)
+[2026-03-03T13:11:38.121169] [ERROR] OpenClaw通知异常: HTTPConnectionPool(host='bot6.szspd.cn', port=18789): Max retries exceeded with url: /api/v1/notify (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7fc871f10e10>: Failed to establish a new connection: [Errno 111] Connection refused'))
+[2026-03-03T13:11:43.129131] [ERROR] Picoclaw通知异常: HTTPConnectionPool(host='bot6.szspd.cn', port=18790): Max retries exceeded with url: /notify (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7fc871f12f10>, 'Connection to bot6.szspd.cn timed out. (connect timeout=5)'))
+[2026-03-03T13:11:43.129272] [ERROR] 所有通知渠道均失败，无法通知节点 bot6.szspd.cn
+[2026-03-03T13:11:43.129308] [ERROR] 无法通知节点 bot6.szspd.cn，恢复流程终止

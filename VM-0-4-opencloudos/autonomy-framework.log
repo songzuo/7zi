@@ -1,0 +1,1 @@
+[2026-03-01T06:04:58.506465] cluster-agent failed for bot.szspd.cn: Command '['python3', '/root/.openclaw/workspace/tools/cluster_agent_client.py', 'exec', 'bot.szspd.cn', "echo 'alive'"]' timed out after 30 seconds
