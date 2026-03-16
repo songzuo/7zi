@@ -9,6 +9,7 @@ import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistratio
 import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
 import { Analytics } from '@/components/Analytics';
 import { Footer } from '@/components/Footer';
+import { Navigation } from '@/components/Navigation';
 import { StructuredData } from '@/components/SEO';
 import type { Metadata } from 'next';
 import '@/app/globals.css';
@@ -165,6 +166,7 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiassed`}
       >
+        <Navigation />
         <Analytics />
         <NextIntlClientProvider messages={messages}>
           <Providers>
