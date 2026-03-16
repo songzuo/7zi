@@ -94,6 +94,60 @@ export {
 export type { DateTimeOptions } from '../datetime';
 
 // ============================================
+// 字符串处理工具
+// ============================================
+
+export {
+  // 类型守卫
+  isString,
+  isStringLike,
+  
+  // 搜索匹配
+  matchesSearchIgnoreCase,
+  matchesAnyField,
+  prepareSearchTerm,
+  
+  // 字符串清理
+  safeTrim,
+  isEmptyString,
+  isNotEmptyString,
+  
+  // 大小写转换
+  safeLowerCase,
+  safeUpperCase,
+  
+  // 截断和格式化
+  truncate,
+  capitalize,
+} from './string';
+
+// ============================================
+// 数组处理工具
+// ============================================
+
+export {
+  // 类型守卫
+  isArray,
+  isArrayLike,
+  
+  // 空数组检查
+  isEmptyArray,
+  isNotEmptyArray,
+  safeLength,
+  
+  // 数组去重
+  unique,
+  uniqueBy,
+  
+  // 数组分组
+  groupBy,
+  chunk,
+  
+  // 数组排序
+  sortBy,
+} from './array';
+
+// ============================================
 // 类型重导出
 // ============================================
 
