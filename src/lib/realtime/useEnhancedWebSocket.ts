@@ -460,13 +460,17 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
   // 初始化
   useEffect(() => {
     if (autoConnect) {
-      createConnection();
+      // Defer connection to avoid synchronous setState in effect
+      const timeoutId = setTimeout(() => {
+        createConnectionRef.current?.();
+      }, 0);
+      return () => clearTimeout(timeoutId);
     }
 
     return () => {
       disconnectConnection();
     };
-  }, [autoConnect, createConnection, disconnectConnection]);
+  }, [autoConnect, disconnectConnection]);
 
   return {
     isConnected: connectionState === 'connected',
@@ -479,7 +483,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
     disconnect: disconnectConnection,
     reconnect: () => {
       disconnectConnection();
-      setTimeout(createConnection, 100);
+      setTimeout(() => createConnectionRef.current?.(), 100);
     },
     send: sendMessage,
     subscribe: subscribeToChannels,
