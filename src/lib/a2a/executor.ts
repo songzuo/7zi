@@ -7,9 +7,7 @@ import {
   Message,
   TaskStatusUpdateEvent,
   TaskArtifactUpdateEvent,
-  TaskStatus,
   Artifact,
-  Part,
 } from './types';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -174,8 +172,8 @@ export class SevenZiExecutor implements AgentExecutor {
     eventBus.finished();
   }
 
-  async cancelTask(taskId: string, eventBus: ExecutionEventBus): Promise<void> {
-    this.cancelledTasks.add(taskId);
+  async cancelTask(_taskId: string, _eventBus: ExecutionEventBus): Promise<void> {
+    this.cancelledTasks.add(_taskId);
   }
 
   private async publishCanceledStatus(

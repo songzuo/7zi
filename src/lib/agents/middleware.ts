@@ -42,24 +42,31 @@ export async function withAgentAuth(
       requestId,
     };
 
+    // 执行处理器
     return handler(request, context);
   } catch (error) {
-    console.error('Agent auth middleware error:', error);
-    return createErrorResponse('Internal server error', 'INTERNAL_ERROR', 500, requestId);
+    console.error('Agent auth error:', error);
+    return createErrorResponse(
+      error instanceof Error ? error.message : 'Internal server error',
+      'INTERNAL_ERROR',
+      500,
+      requestId
+    );
   }
 }
 
 /**
  * 权限检查中间件
  */
-export function withPermission(...requiredPermissions: string[]) {
+export function withPermissions(...requiredPermissions: string[]) {
   return async (
     request: NextRequest,
     handler: (request: NextRequest, context: AgentContext) => Promise<NextResponse>
   ): Promise<NextResponse> => {
     return withAgentAuth(request, async (req, context) => {
-      // 检查是否拥有所有必需权限
-      if (!hasAllPermissions(context.permissions, requiredPermissions)) {
+      const hasAll = requiredPermissions.every((p) => hasPermission(context.permissions, p));
+
+      if (!hasAll) {
         return createErrorResponse(
           'Insufficient permissions',
           'FORBIDDEN',
@@ -80,7 +87,7 @@ export function withAnyPermission(...permissions: string[]) {
   return async (
     request: NextRequest,
     handler: (request: NextRequest, context: AgentContext) => Promise<NextResponse>
-  ): Promise<NextResponse> {
+  ): Promise<NextResponse> => {
     return withAgentAuth(request, async (req, context) => {
       const hasAny = permissions.some((p) => hasPermission(context.permissions, p));
 
@@ -124,19 +131,13 @@ function createErrorResponse(
   status: number,
   requestId: string
 ): NextResponse {
-  const response: AgentApiResponse = {
+  const response: AgentApiResponse<null> = {
     success: false,
     error: {
       code,
       message,
     },
-    meta: {
-      timestamp: new Date().toISOString(),
-      requestId,
-    },
+    requestId,
   };
-
   return NextResponse.json(response, { status });
 }
-
-export { generateRequestId, createErrorResponse };
