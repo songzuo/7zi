@@ -137,7 +137,10 @@ function createErrorResponse(
       code,
       message,
     },
-    requestId,
+    meta: {
+      timestamp: new Date().toISOString(),
+      requestId,
+    },
   };
   return NextResponse.json(response, { status });
 }
