@@ -464,7 +464,7 @@ export const useWalletStore = create<WalletState>()(
             // 将 Map 转为数组存储
             const data = { ...value };
             if (data.state?.wallets instanceof Map) {
-              data.state.wallets = Array.from(data.state.wallets.entries());
+              data.state.wallets = Array.from(data.state.wallets.entries()) as unknown as Array<[string, WalletState]>;
             }
             localStorage.setItem(name, JSON.stringify(data));
           },
