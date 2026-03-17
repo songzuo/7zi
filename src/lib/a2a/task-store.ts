@@ -140,6 +140,7 @@ export class InMemoryTaskStore implements TaskStore {
     // Optionally exclude artifacts
     const resultTasks = paginatedTasks.map(task => {
       if (!options.includeArtifacts) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { artifacts: _, ...rest } = task;
         return rest as Task;
       }

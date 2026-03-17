@@ -585,6 +585,17 @@ export async function updateAgentStatus(id: string, status: AgentStatus): Promis
 }
 
 /**
+ * 更新智能体最后活跃时间
+ */
+export async function updateAgentLastActive(id: string): Promise<void> {
+  const db = await getDatabaseAsync();
+  await initializeAgentTables();
+
+  const stmt = db.prepare('UPDATE agents SET last_active_at = ? WHERE id = ?');
+  stmt.run(new Date().toISOString(), id);
+}
+
+/**
  * 获取智能体统计信息
  */
 export async function getAgentStats(): Promise<{

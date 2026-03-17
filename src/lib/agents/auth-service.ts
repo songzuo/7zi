@@ -13,17 +13,24 @@ import {
   AgentStatus,
   AgentRole,
   AgentProvider,
+  AgentType,
 } from './types';
 import {
   createAgent,
   getAgentById,
+  getAllAgents,
   updateAgentStatus,
-  updateAgentLastActive,
-  createAgentWallet,
   initializeAgentTables,
   validateAgentApiKey,
 } from '../agents/repository';
-import { getJwtSecret } from '../auth';
+import { createWallet } from './wallet-repository';
+
+/**
+ * 获取 JWT 密钥
+ */
+function getJwtSecret(): string {
+  return process.env.JWT_SECRET || process.env.AGENT_ENCRYPTION_SECRET || 'default-jwt-secret-key-change-in-production';
+}
 
 /**
  * 生成 API Key
@@ -61,15 +68,16 @@ export async function registerAgent(request: AgentRegisterRequest): Promise<{ ag
   // 创建智能体
   const agent = await createAgent({
     name: request.name,
+    type: request.type || AgentType.WORKER,
     role: request.role || AgentRole.EXECUTOR,
     provider: request.provider || AgentProvider.MINIMAX,
     apiKey: hashedApiKey,
-    permissions: request.permissions || getDefaultPermissions(request.role),
+    permissions: request.permissions || getDefaultPermissions(request.role || AgentRole.EXECUTOR),
     metadata: request.metadata,
   });
 
   // 创建钱包
-  await createAgentWallet(agent.id);
+  await createWallet(agent.id);
 
   return {
     agent,
@@ -83,31 +91,32 @@ export async function registerAgent(request: AgentRegisterRequest): Promise<{ ag
 export async function authenticateAgent(request: AgentAuthRequest): Promise<{ agent: Agent; token: AgentToken } | null> {
   await initializeAgentTables();
 
-  // 哈希 API Key 进行比对
+  // 查询所有智能体（需要根据 API Key 验证）
+  const allAgents = await getAllAgents();
   const hashedApiKey = hashApiKey(request.apiKey);
-  const agent = await getAgentByApiKey(hashedApiKey);
 
-  if (!agent) {
-    return null;
+  // 查找匹配的智能体（通过验证 API Key）
+  for (const agent of allAgents) {
+    const isValid = await validateAgentApiKey(agent.id, hashedApiKey);
+    if (isValid) {
+      // 检查智能体状态
+      if (agent.status === AgentStatus.INACTIVE || agent.status === AgentStatus.OFFLINE) {
+        return null;
+      }
+
+      // 生成 JWT Token
+      const token = await generateAgentToken(agent);
+
+      // 更新状态为活跃
+      if (agent.status !== AgentStatus.ACTIVE) {
+        await updateAgentStatus(agent.id, AgentStatus.ACTIVE);
+      }
+
+      return { agent, token };
+    }
   }
 
-  // 检查智能体状态
-  if (agent.status === AgentStatus.INACTIVE || agent.status === AgentStatus.OFFLINE) {
-    return null;
-  }
-
-  // 更新最后活跃时间
-  await updateAgentLastActive(agent.id);
-
-  // 生成 JWT Token
-  const token = await generateAgentToken(agent);
-
-  // 更新状态为活跃
-  if (agent.status !== AgentStatus.ACTIVE) {
-    await updateAgentStatus(agent.id, AgentStatus.ACTIVE);
-  }
-
-  return { agent, token };
+  return null;
 }
 
 /**
@@ -117,7 +126,7 @@ export async function generateAgentToken(agent: Agent): Promise<AgentToken> {
   const secret = new TextEncoder().encode(getJwtSecret());
   const expiresIn = 3600; // 1 小时
 
-  const accessToken = await new SignJWT({
+  const token = await new SignJWT({
     sub: agent.id,
     role: agent.role,
     permissions: agent.permissions,
@@ -141,11 +150,19 @@ export async function generateAgentToken(agent: Agent): Promise<AgentToken> {
     .setAudience('7zi-agents')
     .sign(secret);
 
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + expiresIn * 1000);
+  const refreshExpiresAt = new Date(now.getTime() + 86400 * 7 * 1000);
+
   return {
-    accessToken,
+    id: `token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    agentId: agent.id,
+    token,
     refreshToken,
-    expiresIn,
-    tokenType: 'Bearer',
+    expiresAt,
+    refreshExpiresAt,
+    scopes: agent.permissions,
+    createdAt: now,
   };
 }
 

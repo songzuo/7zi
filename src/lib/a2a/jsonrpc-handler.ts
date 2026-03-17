@@ -5,7 +5,6 @@
 import {
   JsonRpcRequest,
   JsonRpcResponse,
-  JsonRpcError,
   Task,
   Message,
   SendMessageRequest,
@@ -143,7 +142,7 @@ export class A2ARequestHandler {
 
     // Track status and artifacts
     let latestTask = task;
-    let latestArtifact: unknown = null;
+    let _latestArtifact: unknown = null;
 
     eventBus.subscribe((event) => {
       if (event.kind === 'task') {
@@ -153,7 +152,7 @@ export class A2ARequestHandler {
         latestTask = { ...latestTask, status: event.status };
       } else if (event.kind === 'artifact-update') {
         this.taskStore.addArtifact(event.taskId, event.artifact);
-        latestArtifact = event.artifact;
+        _latestArtifact = event.artifact;
       }
     });
 

@@ -62,6 +62,7 @@ export interface Agent {
   apiKey?: string; // 加密存储
   webhookUrl?: string;
   status: AgentStatus;
+  role?: AgentRole;
   permissions: string[];
   metadata: Record<string, unknown>;
   createdAt: Date;
@@ -98,6 +99,7 @@ export interface AgentAuthRequest {
  */
 export interface AgentRegisterRequest {
   name: string;
+  type?: AgentType;
   role?: AgentRole;
   provider?: AgentProvider;
   permissions?: string[];
@@ -199,6 +201,7 @@ export interface CreateAgentRequest {
   provider: AgentProvider;
   model?: string;
   webhookUrl?: string;
+  role?: AgentRole;
   permissions?: string[];
   metadata?: Record<string, unknown>;
 }
