@@ -125,6 +125,12 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
   const createConnectionRef = useRef<(() => void) | null>(null);
   const scheduleReconnectRef = useRef<(() => void) | null>(null);
 
+  // Stats ref to avoid stale closure
+  const statsRef = useRef(stats);
+  useEffect(() => {
+    statsRef.current = stats;
+  }, [stats]);
+
   // 更新状态并通知监听器
   const updateState = useCallback((newState: ConnectionState) => {
     setConnectionState(newState);
@@ -167,7 +173,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
   const handleMessage = useCallback((type: string, data: WebSocketMessage) => {
     setLastMessage(data);
     setMessages(prev => [data, ...prev].slice(0, 100));
-    updateStats({ messagesReceived: stats.messagesReceived + 1 });
+    updateStats({ messagesReceived: (statsRef.current.messagesReceived + 1) });
 
     // 调用特定类型的处理器
     const handlers = messageHandlersRef.current.get(type);
@@ -204,7 +210,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
     queue.forEach(message => {
       if (socketRef.current?.connected) {
         socketRef.current.emit(message.type, message);
-        updateStats({ messagesSent: stats.messagesSent + 1 });
+        updateStats({ messagesSent: (statsRef.current.messagesSent + 1) });
       }
     });
   }, [enableOfflineQueue, updateStats]);
@@ -256,9 +262,6 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
       createConnectionRef.current?.();
     }, delay);
   }, [maxReconnectAttempts, reconnectInterval, updateState]);
-
-  // Update ref
-  scheduleReconnectRef.current = scheduleReconnect;
 
   // 创建连接
   const createConnection = useCallback(() => {
@@ -349,8 +352,11 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
     }
   }, [url, token, reconnect, startHeartbeat, stopHeartbeat, processOfflineQueue, registerMessageHandlers, stats, updateStats, updateState, scheduleReconnectRef]);
 
-  // Update ref for createConnection
-  createConnectionRef.current = createConnection;
+  // Update refs in effect
+  useEffect(() => {
+    createConnectionRef.current = createConnection;
+    scheduleReconnectRef.current = scheduleReconnect;
+  }, [createConnection, scheduleReconnect]);
 
   // 断开连接
   const disconnectConnection = useCallback(() => {
@@ -380,7 +386,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
 
     if (socketRef.current?.connected) {
       socketRef.current.emit(type, message);
-      updateStats({ messagesSent: stats.messagesSent + 1 });
+      updateStats({ messagesSent: (statsRef.current.messagesSent + 1) });
     } else if (enableOfflineQueue) {
       // 添加到离线队列
       offlineQueueRef.current.push(message);
@@ -388,7 +394,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
         offlineQueueRef.current = offlineQueueRef.current.slice(-offlineQueueSize);
       }
     }
-  }, [enableOfflineQueue, offlineQueueSize, stats.messagesSent, updateStats]);
+  }, [enableOfflineQueue, offlineQueueSize, updateStats]);
 
   // 订阅频道
   const subscribeToChannels = useCallback((newChannels: string[]) => {
