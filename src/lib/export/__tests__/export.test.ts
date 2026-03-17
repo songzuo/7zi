@@ -14,6 +14,21 @@ import {
   arrayFormatter,
   truncateFormatter,
   sortFields,
+  numberFormatter,
+  currencyFormatter,
+  percentFormatter,
+  enumFormatter,
+  jsonFormatter,
+  linkFormatter,
+  conditionalFormatter,
+  registerTemplate,
+  getTemplate,
+  getAllTemplates,
+  deleteTemplate,
+  exportWithTemplate,
+  exportMultiSheet,
+  createEnhancedFields,
+  getFieldsByGroup,
 } from '../index';
 
 // ============================================================================

@@ -22,7 +22,7 @@ export const required = (message = '此字段为必填项'): ValidationRule => (
 export const email = (message = '请输入有效的邮箱地址'): ValidationRule => ({
   rule: (value: string) => {
     if (!value) return true; // 空值由 required 处理
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
     return emailRegex.test(value);
   },
   message,
@@ -80,8 +80,9 @@ export const url = (message = '请输入有效的 URL'): ValidationRule => ({
   rule: (value: string) => {
     if (!value) return true;
     try {
-      new URL(value);
-      return true;
+      const parsed = new URL(value);
+      // Must have a valid protocol (http, https, ftp, ftps)
+      return ['http:', 'https:', 'ftp:', 'ftps:'].includes(parsed.protocol);
     } catch {
       return false;
     }

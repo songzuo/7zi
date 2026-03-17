@@ -67,6 +67,18 @@ const LOG_LEVEL_PRIORITY: Record<LogLevel, number> = {
 };
 
 // ============================================
+// 缓存的样式前缀（避免重复创建）
+// ============================================
+
+const STYLE_PREFIXES: Record<LogLevel, string> = {
+  debug: '\x1b[36m[DEBUG]\x1b[0m',   // Cyan
+  info: '\x1b[32m[INFO]\x1b[0m',     // Green
+  warn: '\x1b[33m[WARN]\x1b[0m',     // Yellow
+  error: '\x1b[31m[ERROR]\x1b[0m',   // Red
+  fatal: '\x1b[35m[FATAL]\x1b[0m',   // Magenta
+};
+
+// ============================================
 // 默认配置
 // ============================================
 
@@ -230,7 +242,7 @@ class Logger {
   // ============================================
 
   private logToConsole(entry: LogEntry): void {
-    const styledPrefix = this.getStylePrefix(entry.level);
+    const styledPrefix = STYLE_PREFIXES[entry.level];
 
     const logData = entry.data ? { ...entry.data } : {};
     if (entry.context) {
@@ -252,17 +264,6 @@ class Logger {
         console.error(styledPrefix, entry.message, entry.error || '', logData);
         break;
     }
-  }
-
-  private getStylePrefix(level: LogLevel): string {
-    const styles: Record<LogLevel, string> = {
-      debug: '\x1b[36m[DEBUG]\x1b[0m',   // Cyan
-      info: '\x1b[32m[INFO]\x1b[0m',     // Green
-      warn: '\x1b[33m[WARN]\x1b[0m',     // Yellow
-      error: '\x1b[31m[ERROR]\x1b[0m',   // Red
-      fatal: '\x1b[35m[FATAL]\x1b[0m',   // Magenta
-    };
-    return styles[level];
   }
 
   private logToSentry(entry: LogEntry): void {

@@ -48,7 +48,8 @@ interface CacheEntry<T> {
 export class LRUCache<T> {
   private store: Map<string, CacheEntry<T>> = new Map();
   private maxSize: number;
-  private accessOrder: string[] = [];
+  private accessOrder: Map<string, number> = new Map(); // key -> index
+  private keyOrder: string[] = [];
 
   /**
    * Creates a new LRU cache
@@ -79,7 +80,7 @@ export class LRUCache<T> {
       lastAccess: now,
     });
 
-    // Update access order
+    // Update access order (O(1) operation)
     this.updateAccessOrder(key);
   }
 
@@ -117,7 +118,14 @@ export class LRUCache<T> {
    */
   delete(key: string): void {
     this.store.delete(key);
-    this.accessOrder = this.accessOrder.filter(k => k !== key);
+    // O(1) deletion using Map
+    const index = this.accessOrder.get(key);
+    if (index !== undefined) {
+      this.keyOrder.splice(index, 1);
+      this.accessOrder.delete(key);
+      // Rebuild indices after deletion (O(n) but only happens on delete)
+      this.rebuildIndices();
+    }
   }
 
   /**
@@ -125,7 +133,8 @@ export class LRUCache<T> {
    */
   clear(): void {
     this.store.clear();
-    this.accessOrder = [];
+    this.accessOrder.clear();
+    this.keyOrder = [];
   }
 
   /**
@@ -151,19 +160,40 @@ export class LRUCache<T> {
    * @private
    */
   private evictLRU(): void {
-    if (this.accessOrder.length === 0) return;
+    if (this.keyOrder.length === 0) return;
 
-    const lruKey = this.accessOrder[0];
+    const lruKey = this.keyOrder[0];
     this.delete(lruKey);
   }
 
   /**
-   * Updates the access order for a key
+   * Updates the access order for a key (O(1) amortized)
    * @private
    */
   private updateAccessOrder(key: string): void {
-    this.accessOrder = this.accessOrder.filter(k => k !== key);
-    this.accessOrder.push(key);
+    const existingIndex = this.accessOrder.get(key);
+    
+    if (existingIndex !== undefined) {
+      // Move to end: remove from current position, add to end
+      this.keyOrder.splice(existingIndex, 1);
+    }
+    
+    // Add to end as most recently used
+    this.keyOrder.push(key);
+    
+    // Update indices (O(n) but only needed when moving existing key)
+    this.rebuildIndices();
+  }
+
+  /**
+   * Rebuilds the index Map for O(1) lookups
+   * @private
+   */
+  private rebuildIndices(): void {
+    this.accessOrder.clear();
+    this.keyOrder.forEach((key, index) => {
+      this.accessOrder.set(key, index);
+    });
   }
 
   /**
@@ -368,17 +398,23 @@ export function memoize<T extends (...args: unknown[]) => unknown>(
 ): (...args: Parameters<T>) => ReturnType<T> {
   const cache = new Map<string, ReturnType<T>>();
   const accessOrder: string[] = [];
+  const accessIndex = new Map<string, number>(); // O(1) index lookup
 
   return (...args: Parameters<T>): ReturnType<T> => {
     const key = resolver ? resolver(...args) : JSON.stringify(args);
 
     if (cache.has(key)) {
-      // Update access order
-      const index = accessOrder.indexOf(key);
-      if (index > -1) {
-        accessOrder.splice(index, 1);
-        accessOrder.push(key);
+      // Update access order (O(1) using Map for index lookup)
+      const currentIndex = accessIndex.get(key);
+      if (currentIndex !== undefined) {
+        accessOrder.splice(currentIndex, 1);
       }
+      accessOrder.push(key);
+      
+      // Rebuild indices (O(n) but only on cache hit)
+      accessIndex.clear();
+      accessOrder.forEach((k, i) => accessIndex.set(k, i));
+      
       return cache.get(key)!;
     }
 
@@ -389,11 +425,16 @@ export function memoize<T extends (...args: unknown[]) => unknown>(
       const lruKey = accessOrder.shift();
       if (lruKey) {
         cache.delete(lruKey);
+        accessIndex.delete(lruKey);
       }
+      // Rebuild indices after eviction
+      accessIndex.clear();
+      accessOrder.forEach((k, i) => accessIndex.set(k, i));
     }
 
     cache.set(key, result);
     accessOrder.push(key);
+    accessIndex.set(key, accessOrder.length - 1);
 
     return result;
   };

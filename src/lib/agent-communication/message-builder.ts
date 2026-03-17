@@ -8,7 +8,6 @@ import {
   AgentEndpoint,
   MessageType,
   MessagePriority,
-  MessageStatus,
   PROTOCOL_VERSION,
   MessageMetadata,
 } from './types';

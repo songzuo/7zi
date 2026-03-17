@@ -320,12 +320,8 @@ describe('utils - 边界条件测试', () => {
       for (let i = 0; i < 10; i++) {
         memoizedFn(i, i + 1, i + 2);
       }
-<<<<<<< HEAD
       // 10 个不同的参数组合，每个应该执行一次
       expect(callCount).toBe(initialCallCount + 10);
-=======
-      expect(callCount).toBe(101);
->>>>>>> bfa837c (test: enhance test coverage and update architecture docs)
     });
 
     it('custom resolver 返回相同 key', () => {

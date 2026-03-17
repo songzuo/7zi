@@ -40,12 +40,20 @@ function sanitizeInput(input: string): string {
  * Remove dangerous HTML tags
  */
 function stripDangerousTags(input: string): string {
-  return input
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
-    .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
-    .replace(/<embed\b[^>]*>/gi, '')
-    .replace(/<form\b[^<]*(?:(?!<\/form>)<[^<]*)*<\/form>/gi, '')
+  let result = input
+  // Multiple passes to handle nested tags
+  for (let i = 0; i < 3; i++) {
+    result = result
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+      .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
+      .replace(/<embed\b[^>]*>/gi, '')
+      .replace(/<form\b[^<]*(?:(?!<\/form>)<[^<]*)*<\/form>/gi, '')
+      // Also remove self-closing and malformed tags
+      .replace(/<script[^>]*>/gi, '')
+      .replace(/<\/script>/gi, '')
+  }
+  return result
 }
 
 /**
@@ -357,7 +365,8 @@ describe('XSS Protection Tests', () => {
       // textContent would render this as text, not execute it
       // The escaped version simulates what would be safe
       const escaped = escapeHtml(userInput)
-      expect(escaped).toBe('&lt;script&gt;alert(1)&lt;/script&gt;')
+      // Forward slash is escaped as &#x2F; for extra security
+      expect(escaped).toBe('&lt;script&gt;alert(1)&lt;&#x2F;script&gt;')
     })
 
     it('should sanitize user input before DOM insertion', () => {
