@@ -1,7 +1,7 @@
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { Locale, locales } from '@/i18n/config';
 import { Link } from '@/i18n/routing';
-import { ClientProviders, ThemeToggle } from '@/components/ClientProviders';
+import { ThemeToggle } from '@/components/ClientProviders';
 // 性能优化：使用 Lazy Loading 组件
 import { LazyAIChat, LazyGitHubActivity, LazyProjectDashboard } from '@/components/LazyComponents';
 import MobileMenu from '@/components/MobileMenu';
@@ -103,7 +103,7 @@ export default async function HomePage({ params }: { params: Params }) {
   const tFooter = await getTranslations({ locale, namespace: 'footer' });
 
   return (
-    <ClientProviders>
+    <>
       <div className="min-h-screen bg-zinc-50 dark:bg-black transition-colors duration-300">
         {/* SEO Structured Data for Homepage */}
         <StructuredData
@@ -518,6 +518,6 @@ export default async function HomePage({ params }: { params: Params }) {
           </div>
         </footer>
       </div>
-    </ClientProviders>
+    </>
   );
 }

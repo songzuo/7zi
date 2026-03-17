@@ -22,7 +22,7 @@ import {
   createAgentWallet,
   initializeAgentTables,
   validateAgentApiKey,
-} from '../agents/repository';
+} from './repository';
 import { getJwtSecret } from '../auth';
 
 /**

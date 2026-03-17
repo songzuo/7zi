@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, useCallback, useMemo, useSyncExternalStore } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import type { Locale } from '@/i18n/config';
 
 // ============================================================================
@@ -91,12 +91,6 @@ function mergeSettings(stored: Partial<UserSettings> | null): UserSettings {
   };
 }
 
-// localStorage subscription helper
-function subscribeToStorage(callback: () => void) {
-  window.addEventListener('storage', callback);
-  return () => window.removeEventListener('storage', callback);
-}
-
 // ============================================================================
 // Context
 // ============================================================================
@@ -128,12 +122,8 @@ export function SettingsProvider({
   children, 
   defaultSettings: userDefaults 
 }: SettingsProviderProps) {
-  // Track if we're on the client
-  const mounted = useSyncExternalStore(
-    subscribeToStorage,
-    () => true,
-    () => false
-  );
+  // Track if we're on client
+  const [mounted, setMounted] = useState(false);
 
   // Initialize settings from localStorage
   const [settings, setSettings] = useState<UserSettings>(() => {
@@ -143,6 +133,11 @@ export function SettingsProvider({
       ...stored,
     });
   });
+
+  // Mount effect
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Compute isDark as derived state
   const isDark = useMemo(() => {

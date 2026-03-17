@@ -1,7 +1,7 @@
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { Locale, locales } from '@/i18n/config';
 import { Link } from '@/i18n/routing';
-import { ClientProviders, ThemeToggle } from '@/components/ClientProviders';
+import { ThemeToggle } from '@/components/ClientProviders';
 import MobileMenu from '@/components/MobileMenu';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { StructuredData } from '@/components/SEO';
@@ -97,7 +97,7 @@ export default async function AboutPage({ params }: { params: Params }) {
   const tFooter = await getTranslations({ locale, namespace: 'footer' });
 
   return (
-    <ClientProviders>
+    <>
       <div className="min-h-screen bg-zinc-50 dark:bg-black overflow-x-hidden">
         {/* Animated Background Elements */}
         <div className="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
@@ -434,6 +434,6 @@ export default async function AboutPage({ params }: { params: Params }) {
           </div>
         </footer>
       </div>
-    </ClientProviders>
+    </>
   );
 }

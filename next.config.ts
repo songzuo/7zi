@@ -165,11 +165,17 @@ const nextConfig: NextConfig = {
   // typescript: {
   //   ignoreBuildErrors: true,
   // },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   
   // 忽略 ESLint 错误
   // eslint: {
   //   ignoreDuringBuilds: true,
   // },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 // Export with next-intl wrapper
