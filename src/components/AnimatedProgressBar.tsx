@@ -226,6 +226,7 @@ interface WaveProgressProps {
   color?: 'blue' | 'green' | 'red' | 'yellow' | 'purple';
   showValue?: boolean;
   label?: string;
+  duration?: number;
 }
 
 const WAVE_COLORS = {
@@ -243,6 +244,7 @@ export const WaveProgress = memo(function WaveProgress({
   color = 'blue',
   showValue = true,
   label,
+  duration = 800,
 }: WaveProgressProps) {
   const [displayValue, setDisplayValue] = useState(0);
   const percentage = useMemo(
@@ -258,16 +260,16 @@ export const WaveProgress = memo(function WaveProgress({
   });
 
   useEffect(() => {
-    const duration = 800;
+    const durationValue = duration;
     animStateRef.current.startTime = Date.now();
     animStateRef.current.startValue = displayValue;
 
     const animate = () => {
       const animState = animStateRef.current;
       if (animState.startTime === null) return;
-      
+
       const elapsed = Date.now() - animState.startTime;
-      const progress = Math.min(elapsed / duration, 1);
+      const progress = Math.min(elapsed / durationValue, 1);
       const easeOut = 1 - Math.pow(1 - progress, 3);
       const currentValue = animState.startValue + (percentage - animState.startValue) * easeOut;
       
@@ -351,6 +353,7 @@ interface SegmentedProgressProps {
   animated?: boolean;
   showLabels?: boolean;
   labels?: string[];
+  duration?: number;
 }
 
 export const SegmentedProgress = memo(function SegmentedProgress({
