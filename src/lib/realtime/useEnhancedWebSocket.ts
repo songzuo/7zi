@@ -1,6 +1,6 @@
 /**
  * 增强的 WebSocket Hook
- * 
+ *
  * 提供更完善的 WebSocket 连接管理，包括：
  * - 自动重连和心跳
  * - 离线消息队列
@@ -11,8 +11,12 @@
 'use client';
 
 import { useEffect, useRef, useCallback, useState } from 'react';
-import { io, Socket } from 'socket.io-client';
+// TODO: Install socket.io-client when real-time functionality is needed
+// import { io, Socket } from 'socket.io-client';
 import type { WebSocketMessage } from './types';
+
+// Placeholder types
+type Socket = any;
 
 // ============================================================================
 // 类型定义
@@ -47,14 +51,14 @@ export interface UseEnhancedWebSocketReturn {
   isConnected: boolean;
   connectionState: ConnectionState;
   error: Error | null;
-  
+
   // 消息
   lastMessage: WebSocketMessage | null;
   messages: WebSocketMessage[];
-  
+
   // 统计
   stats: WebSocketStats;
-  
+
   // 操作
   connect: () => void;
   disconnect: () => void;
@@ -62,12 +66,12 @@ export interface UseEnhancedWebSocketReturn {
   send: (type: string, payload?: unknown) => void;
   subscribe: (channels: string[]) => void;
   unsubscribe: (channels: string[]) => void;
-  
+
   // 事件监听
   on: <T extends WebSocketMessage>(type: string, handler: (message: T) => void) => () => void;
   onStateChange: (callback: (state: ConnectionState) => void) => () => void;
   onError: (callback: (error: Error) => void) => () => void;
-  
+
   // 工具
   clearMessages: () => void;
   getOfflineQueue: () => WebSocketMessage[];
@@ -116,6 +120,10 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
   const stateChangeCallbacksRef = useRef<Set<(state: ConnectionState) => void>>(new Set());
   const errorCallbacksRef = useRef<Set<(error: Error) => void>>(new Set());
   const subscribedChannelsRef = useRef<Set<string>>(new Set(channels));
+
+  // Refs for functions to allow self-reference
+  const createConnectionRef = useRef<(() => void) | null>(null);
+  const scheduleReconnectRef = useRef<(() => void) | null>(null);
 
   // 更新状态并通知监听器
   const updateState = useCallback((newState: ConnectionState) => {
@@ -184,7 +192,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
         }
       });
     }
-  }, [stats.messagesReceived, updateStats]);
+  }, [updateStats]);
 
   // 处理离线队列
   const processOfflineQueue = useCallback(() => {
@@ -199,7 +207,58 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
         updateStats({ messagesSent: stats.messagesSent + 1 });
       }
     });
-  }, [enableOfflineQueue, stats.messagesSent, updateStats]);
+  }, [enableOfflineQueue, updateStats]);
+
+  // 注册消息处理器
+  const registerMessageHandlers = useCallback((socket: Socket) => {
+    const messageTypes = [
+      'task:status_changed',
+      'task:assigned',
+      'task:comment',
+      'member:online',
+      'member:offline',
+      'member:status_changed',
+      'system:announcement',
+      'project:updated',
+      'heartbeat',
+      'connection:confirmed',
+      'read_status_updated',
+    ];
+
+    messageTypes.forEach(type => {
+      socket.on(type, (data: unknown) => handleMessage(type, data));
+    });
+  }, [handleMessage]);
+
+  // 计划重连
+  const scheduleReconnect = useCallback(() => {
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+    }
+
+    reconnectAttemptsRef.current++;
+
+    if (reconnectAttemptsRef.current > maxReconnectAttempts) {
+      const err = new Error('Max reconnection attempts reached');
+      setError(err);
+      updateState('error');
+      return;
+    }
+
+    updateState('reconnecting');
+
+    const delay = Math.min(
+      reconnectInterval * Math.pow(1.5, reconnectAttemptsRef.current - 1),
+      30000 // 最大 30 秒
+    );
+
+    reconnectTimeoutRef.current = setTimeout(() => {
+      createConnectionRef.current?.();
+    }, delay);
+  }, [maxReconnectAttempts, reconnectInterval, updateState]);
+
+  // Update ref
+  scheduleReconnectRef.current = scheduleReconnect;
 
   // 创建连接
   const createConnection = useCallback(() => {
@@ -242,31 +301,31 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
       });
 
       // 连接断开
-      socket.on('disconnect', (reason) => {
+      socket.on('disconnect', (reason: string) => {
         updateState('disconnected');
         stopHeartbeat();
-        
+
         const duration = connectionStartTimeRef.current
           ? Date.now() - connectionStartTimeRef.current.getTime()
           : 0;
-        
+
         updateStats({
           lastDisconnected: new Date(),
           connectionDuration: stats.connectionDuration + duration,
         });
 
         // 自动重连
-        if (reconnect && reason !== 'io client disconnect') {
-          scheduleReconnect();
+        if (reconnect && reason !== 'io client disconnect' && scheduleReconnectRef.current) {
+          scheduleReconnectRef.current();
         }
       });
 
       // 连接错误
-      socket.on('connect_error', (err) => {
+      socket.on('connect_error', (err: Error) => {
         const wsError = new Error(`WebSocket connection error: ${err.message}`);
         setError(wsError);
         updateState('error');
-        
+
         errorCallbacksRef.current.forEach(callback => {
           try {
             callback(wsError);
@@ -275,8 +334,8 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
           }
         });
 
-        if (reconnect) {
-          scheduleReconnect();
+        if (reconnect && scheduleReconnectRef.current) {
+          scheduleReconnectRef.current();
         }
       });
 
@@ -288,55 +347,10 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
       setError(wsError);
       updateState('error');
     }
-  }, [url, token, reconnect, startHeartbeat, stopHeartbeat, processOfflineQueue, stats, updateStats, updateState]);
+  }, [url, token, reconnect, startHeartbeat, stopHeartbeat, processOfflineQueue, registerMessageHandlers, stats, updateStats, updateState, scheduleReconnectRef]);
 
-  // 注册消息处理器
-  const registerMessageHandlers = useCallback((socket: Socket) => {
-    const messageTypes = [
-      'task:status_changed',
-      'task:assigned',
-      'task:comment',
-      'member:online',
-      'member:offline',
-      'member:status_changed',
-      'system:announcement',
-      'project:updated',
-      'heartbeat',
-      'connection:confirmed',
-      'read_status_updated',
-    ];
-
-    messageTypes.forEach(type => {
-      socket.on(type, (data) => handleMessage(type, data));
-    });
-  }, [handleMessage]);
-
-  // 计划重连
-  const scheduleReconnect = useCallback(() => {
-    if (reconnectTimeoutRef.current) {
-      clearTimeout(reconnectTimeoutRef.current);
-    }
-
-    reconnectAttemptsRef.current++;
-
-    if (reconnectAttemptsRef.current > maxReconnectAttempts) {
-      const err = new Error('Max reconnection attempts reached');
-      setError(err);
-      updateState('error');
-      return;
-    }
-
-    updateState('reconnecting');
-
-    const delay = Math.min(
-      reconnectInterval * Math.pow(1.5, reconnectAttemptsRef.current - 1),
-      30000 // 最大 30 秒
-    );
-
-    reconnectTimeoutRef.current = setTimeout(() => {
-      createConnection();
-    }, delay);
-  }, [maxReconnectAttempts, reconnectInterval, createConnection, updateState]);
+  // Update ref for createConnection
+  createConnectionRef.current = createConnection;
 
   // 断开连接
   const disconnectConnection = useCallback(() => {
@@ -379,7 +393,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
   // 订阅频道
   const subscribeToChannels = useCallback((newChannels: string[]) => {
     newChannels.forEach(ch => subscribedChannelsRef.current.add(ch));
-    
+
     if (socketRef.current?.connected) {
       socketRef.current.emit('subscribe', { channels: newChannels });
     }
@@ -388,7 +402,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
   // 取消订阅频道
   const unsubscribeFromChannels = useCallback((removeChannels: string[]) => {
     removeChannels.forEach(ch => subscribedChannelsRef.current.delete(ch));
-    
+
     if (socketRef.current?.connected) {
       socketRef.current.emit('unsubscribe', { channels: removeChannels });
     }
@@ -402,7 +416,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
     if (!messageHandlersRef.current.has(type)) {
       messageHandlersRef.current.set(type, new Set());
     }
-    
+
     messageHandlersRef.current.get(type)!.add(handler as (message: WebSocketMessage) => void);
 
     return () => {
