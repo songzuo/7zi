@@ -1,9 +1,12 @@
-import { ClientProviders } from './ClientProviders';
+'use client';
 
 interface ProvidersProps {
   children: React.ReactNode;
 }
 
 export function Providers({ children }: ProvidersProps) {
-  return <ClientProviders>{children}</ClientProviders>;
+  // Pass children through without wrapping
+  // ClientProviders and SettingsProvider cause SSR issues
+  // Theme switching is handled separately
+  return <>{children}</>;
 }
