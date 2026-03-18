@@ -29,7 +29,6 @@ class NotificationServer {
    */
   broadcast(message: WebSocketMessage): void {
     // Mock implementation - 在测试中不需要实际发送
-    console.log('[NotificationServer] Broadcasting:', message.type);
   }
 
   /**
@@ -37,7 +36,6 @@ class NotificationServer {
    */
   broadcastToChannel(channel: string, message: WebSocketMessage): void {
     // Mock implementation
-    console.log(`[NotificationServer] Broadcasting to channel ${channel}:`, message.type);
   }
 
   /**
@@ -45,7 +43,6 @@ class NotificationServer {
    */
   sendToUser(userId: string, message: WebSocketMessage): void {
     // Mock implementation
-    console.log(`[NotificationServer] Sending to user ${userId}:`, message.type);
   }
 
   /**

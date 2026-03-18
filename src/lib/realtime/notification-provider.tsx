@@ -7,9 +7,9 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useCallback, useRef, useState, useMemo } from 'react';
-import { useEnhancedWebSocket, ConnectionState } from './use-enhanced-websocket';
+import { useEnhancedWebSocket, ConnectionState } from './useEnhancedWebSocket';
 import { useRealtimeNotificationStore, createNotificationFromMessage } from './store';
-import type { WebSocketMessage, RealtimeNotification, RealtimeNotificationType } from './types';
+import type { WebSocketMessage, RealtimeNotification, RealtimeNotificationType, MemberOnlinePayload, MemberOfflinePayload } from './types';
 
 // ============================================================================
 // 类型定义
@@ -186,12 +186,12 @@ export function NotificationProvider({
 
     // 更新在线用户列表
     if (message.type === 'member:online') {
-      const userId = (message.payload as any).userId;
+      const userId = (message.payload as MemberOnlinePayload).userId;
       setOnlineUsers(prev => 
         prev.includes(userId) ? prev : [...prev, userId]
       );
     } else if (message.type === 'member:offline') {
-      const userId = (message.payload as any).userId;
+      const userId = (message.payload as MemberOfflinePayload).userId;
       setOnlineUsers(prev => prev.filter(id => id !== userId));
     }
   }, [addNotification, onNotification, enableBrowserNotifications, browserPermission, sendBrowserNotification]);
@@ -224,14 +224,16 @@ export function NotificationProvider({
 
   // 初始化
   useEffect(() => {
-    // 检测浏览器通知权限
-    if (browserNotificationsSupported) {
-      setBrowserPermission(Notification.permission);
-      
-      if (requestPermissionOnMount) {
-        requestBrowserPermission();
+    // 使用微任务延迟 setState，避免同步调用导致的级联渲染
+    Promise.resolve().then(() => {
+      if (browserNotificationsSupported) {
+        setBrowserPermission(Notification.permission);
+
+        if (requestPermissionOnMount) {
+          requestBrowserPermission();
+        }
       }
-    }
+    });
   }, [browserNotificationsSupported, requestPermissionOnMount, requestBrowserPermission]);
 
   // 监听消息

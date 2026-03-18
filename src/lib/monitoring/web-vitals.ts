@@ -45,8 +45,6 @@ function reportMetric(metric: Metric) {
       threshold: thresholds[metric.name as keyof typeof thresholds]?.poor,
       route: typeof window !== 'undefined' ? window.location.pathname : 'unknown',
     });
-  } else {
-    console.log(`[Web Vitals] ${metric.name}: ${metric.value} (${metric.rating})`);
   }
 }
 
@@ -150,10 +148,8 @@ export function observePerformance() {
 
   // Observe long tasks
   try {
-    const longTaskObserver = new PerformanceObserver((list) => {
-      for (const entry of list.getEntries()) {
-        console.log('[Performance] Long task:', entry.duration, 'ms');
-      }
+    const longTaskObserver = new PerformanceObserver(() => {
+      // Long task detected
     });
     longTaskObserver.observe({ type: 'longtask', buffered: true });
   } catch {
@@ -162,12 +158,8 @@ export function observePerformance() {
 
   // Observe layout shifts
   try {
-    const layoutShiftObserver = new PerformanceObserver((list) => {
-      for (const entry of list.getEntries()) {
-        if ('value' in entry && (entry as PerformanceEntry & { value: number }).value > 0) {
-          console.log('[Performance] Layout shift:', (entry as PerformanceEntry & { value: number }).value);
-        }
-      }
+    const layoutShiftObserver = new PerformanceObserver(() => {
+      // Layout shift detected
     });
     layoutShiftObserver.observe({ type: 'layout-shift', buffered: true });
   } catch {

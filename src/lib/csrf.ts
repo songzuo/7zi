@@ -43,16 +43,16 @@ export function clearCsrfToken(): void {
 /**
  * 创建带 CSRF Token 的请求头
  */
-export async function createCsrfHeaders(): Promise<HeadersInit> {
+export async function createCsrfHeaders(): Promise<Record<string, string>> {
   const token = await getCsrfToken();
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
-  
+
   if (token) {
     headers['X-CSRF-Token'] = token;
   }
-  
+
   return headers;
 }
 

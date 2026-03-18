@@ -15,8 +15,6 @@ export function testSentryIntegration() {
     return;
   }
 
-  console.log('🧪 Testing Sentry integration...');
-
   try {
     // Test 1: Capture a simple exception
     Sentry.captureException(new Error('Sentry Integration Test Exception'));
@@ -39,8 +37,6 @@ export function testSentryIntegration() {
     setTimeout(() => {
       throw new Error('Sentry Integration Test - Async Error');
     }, 100);
-
-    console.log('✅ Sentry test complete. Check your Sentry dashboard for events.');
   } catch (error) {
     console.error('❌ Sentry test failed:', error);
   }
@@ -65,23 +61,5 @@ export function getSentryStatus() {
  * Log Sentry status to console (development only)
  */
 export function logSentryStatus() {
-  if (process.env.NODE_ENV !== 'development') {
-    return;
-  }
-
-  const status = getSentryStatus();
-
-  console.group('📊 Sentry Configuration Status');
-  console.log('DSN Configured:', status.dsn ? '✅' : '❌');
-  console.log('Environment:', status.environment);
-  console.log('Release:', status.release || 'Not set');
-  console.log('Debug Mode:', status.debug ? '✅' : '❌');
-  console.log('Traces Sample Rate:', status.tracesSampleRate);
-  console.log('Replays Session Sample Rate:', status.replaysSessionSampleRate);
-  console.log('Replays On Error Sample Rate:', status.replaysOnErrorSampleRate);
-  console.groupEnd();
-
-  if (!status.dsn) {
-    console.warn('⚠️ Sentry DSN is not configured. Check your .env.local file.');
-  }
+  // Status logging disabled
 }

@@ -4,6 +4,12 @@
  */
 import { useState, useCallback, useMemo } from 'react';
 import type { ValidationSchema, ValidationErrors, ValidationState, ValidationOptions } from './types';
+import {
+  getRequiredErrorMessage,
+  getMinLengthErrorMessage,
+  getMaxLengthErrorMessage,
+  getPatternErrorMessage,
+} from './helpers';
 
 /**
  * 表单验证 Hook
@@ -40,9 +46,9 @@ export function useFormValidation<T extends Record<string, unknown>>(
       // 必填验证
       if (fieldSchema.required) {
         if (!strValue || strValue.trim() === '') {
-          return typeof fieldSchema.required === 'string' 
-            ? fieldSchema.required 
-            : '此字段为必填项';
+          return typeof fieldSchema.required === 'string'
+            ? fieldSchema.required
+            : getRequiredErrorMessage();
         }
       }
 
@@ -54,21 +60,21 @@ export function useFormValidation<T extends Record<string, unknown>>(
       // 最小长度
       if (fieldSchema.minLength !== undefined) {
         if (strValue.length < fieldSchema.minLength) {
-          return `最少需要 ${fieldSchema.minLength} 个字符`;
+          return getMinLengthErrorMessage(fieldSchema.minLength);
         }
       }
 
       // 最大长度
       if (fieldSchema.maxLength !== undefined) {
         if (strValue.length > fieldSchema.maxLength) {
-          return `最多允许 ${fieldSchema.maxLength} 个字符`;
+          return getMaxLengthErrorMessage(fieldSchema.maxLength);
         }
       }
 
       // 正则验证
       if (fieldSchema.pattern) {
         if (!fieldSchema.pattern.test(strValue)) {
-          return '格式不正确';
+          return getPatternErrorMessage();
         }
       }
 

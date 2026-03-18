@@ -307,39 +307,31 @@ export class ApprovalWorkflowService {
     // 根据审批类型执行不同操作
     switch (request.type) {
       case ApprovalType.PERMISSION_REQUEST:
-        // 授予权限
-        console.log(`Granting permission ${request.requestedPermission} to user ${request.requesterId}`);
-        // 实际应调用权限服务
+        // 授予权限 - 实际应调用权限服务
         return true;
 
       case ApprovalType.ROLE_CHANGE:
-        // 变更角色
-        console.log(`Changing role to ${request.requestedRole} for user ${request.requesterId}`);
-        // 实际应调用用户服务
+        // 变更角色 - 实际应调用用户服务
         return true;
 
       case ApprovalType.DELETE_TASK:
         // 删除任务
-        console.log(`Deleting task: ${request.data.taskId}`);
         return true;
 
       case ApprovalType.DELETE_USER:
         // 删除用户
-        console.log(`Deleting user: ${request.data.targetUserId}`);
         return true;
 
       case ApprovalType.BATCH_OPERATION:
         // 执行批量操作
-        console.log(`Executing batch operation: ${request.data.operation}`);
         return true;
 
       case ApprovalType.EXPORT_DATA:
         // 导出数据
-        console.log(`Exporting data: ${request.data.exportType}`);
         return true;
 
       default:
-        console.log(`Custom action execution for: ${request.type}`);
+        // Custom action execution
         return true;
     }
   }
@@ -351,10 +343,6 @@ export class ApprovalWorkflowService {
     const expired = ApprovalRepository.checkExpired();
     
     // 可以在这里添加通知逻辑
-    for (const request of expired) {
-      console.log(`Approval expired: ${request.id}`);
-    }
-
     return expired;
   }
 }

@@ -35,7 +35,7 @@ import {
 // 测试数据类型
 // ============================================================================
 
-interface TestUser {
+interface TestUser extends Record<string, unknown> {
   id: number;
   name: string;
   email: string;

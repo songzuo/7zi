@@ -316,7 +316,7 @@ export async function deleteAgent(id: string): Promise<boolean> {
   const stmt = db.prepare('DELETE FROM agents WHERE id = ?');
   const result = stmt.run(id);
 
-  return result.changes > 0;
+  return (result.changes ?? 0) > 0;
 }
 
 /**
@@ -463,7 +463,7 @@ export async function revokeAgentToken(token: string): Promise<boolean> {
   const stmt = db.prepare('DELETE FROM agent_tokens WHERE token = ?');
   const result = stmt.run(token);
 
-  return result.changes > 0;
+  return (result.changes ?? 0) > 0;
 }
 
 /**

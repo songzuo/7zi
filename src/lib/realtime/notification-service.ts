@@ -6,7 +6,7 @@
 
 import { notificationServer } from './server';
 import { readStatusStore } from './read-status';
-import type { WebSocketMessage, RealtimeNotification, RealtimeNotificationType } from './types';
+import type { WebSocketMessage, RealtimeNotification, RealtimeNotificationType, NotificationPayload, TaskStatusChangedPayload, TaskAssignedPayload, TaskCommentPayload, MemberOnlinePayload, MemberOfflinePayload, MemberStatusChangedPayload, ProjectUpdatedPayload, SystemAnnouncementPayload } from './types';
 
 // ============================================================================
 // 类型定义
@@ -762,7 +762,7 @@ class NotificationService {
       };
 
       const wsMessage: WebSocketMessage = {
-        type: options.type as any,
+        type: options.type,
         id: event.id,
         timestamp: event.timestamp,
         payload: {
@@ -907,33 +907,33 @@ class NotificationService {
   private getMessageForType(type: string, payload: Record<string, unknown>): string {
     switch (type) {
       case 'task:status_changed': {
-        const p = payload as any;
+        const p = payload as unknown as TaskStatusChangedPayload;
         return `${p.taskTitle} 从 ${p.oldStatus} 变更为 ${p.newStatus}`;
       }
       case 'task:assigned': {
-        const p = payload as any;
+        const p = payload as unknown as TaskAssignedPayload;
         return `${p.assignedBy.name} 将 "${p.taskTitle}" 分配给了 ${p.assignedTo.name}`;
       }
       case 'task:comment': {
-        const p = payload as any;
+        const p = payload as unknown as TaskCommentPayload;
         return `${p.author.name}: ${p.content?.slice(0, 50)}${p.content?.length > 50 ? '...' : ''}`;
       }
       case 'member:online': {
-        const p = payload as any;
+        const p = payload as unknown as MemberOnlinePayload;
         return `${p.userName} 已上线`;
       }
       case 'member:offline': {
-        const p = payload as any;
+        const p = payload as unknown as MemberOfflinePayload;
         return `${p.userName} 已离线`;
       }
       case 'member:status_changed': {
-        const p = payload as any;
+        const p = payload as unknown as MemberStatusChangedPayload;
         return `${p.userName} 状态变更为 ${p.newStatus}`;
       }
       case 'system:announcement':
         return (payload.content as string) || '';
       case 'project:updated': {
-        const p = payload as any;
+        const p = payload as unknown as ProjectUpdatedPayload;
         const action = { created: '创建', updated: '更新', deleted: '删除', archived: '归档', restored: '恢复' };
         return `${p.changedBy.name} ${action[p.changeType] || '更新'}了项目 "${p.projectName}"`;
       }
@@ -965,11 +965,11 @@ class NotificationService {
       case 'task:status_changed':
       case 'task:assigned':
       case 'task:comment':
-        return `/tasks/${(payload as any).taskId}`;
+        return `/tasks/${(payload as unknown as TaskStatusChangedPayload).taskId}`;
       case 'project:updated':
-        return `/projects/${(payload as any).projectId}`;
+        return `/projects/${(payload as unknown as ProjectUpdatedPayload).projectId}`;
       case 'system:announcement':
-        return (payload as any).actionUrl;
+        return (payload as unknown as SystemAnnouncementPayload).actionUrl;
       default:
         return undefined;
     }
@@ -1025,7 +1025,7 @@ class NotificationService {
   destroy(): void {
     this.stopQueueProcessing();
     this.offlineQueue.clear();
-    this.errorLog.clear();
+    this.errorLog = [];
     this.subscriptions.clear();
     this.notificationHistory.clear();
     this.errorCallbacks.clear();

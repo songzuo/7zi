@@ -5,6 +5,7 @@
 
 // 类型导出
 export * from './types';
+export type { Permission } from '../permissions/types';
 
 // 仓库导出
 export { ApprovalRepository } from './repository';
@@ -23,11 +24,13 @@ import {
   ApprovalListQuery,
 } from './types';
 
+import type { Permission } from '../permissions/types';
+
 /**
  * 检查操作是否需要审批
  */
-export function requiresApproval(type: ApprovalType, permission?: string): boolean {
-  return ApprovalWorkflowService.requiresApproval(type, permission as any);
+export function requiresApproval(type: ApprovalType, permission?: Permission): boolean {
+  return ApprovalWorkflowService.requiresApproval(type, permission);
 }
 
 /**

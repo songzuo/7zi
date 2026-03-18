@@ -61,3 +61,67 @@ export interface ChannelSubscription {
   userId: string;
   subscribedAt: Date;
 }
+
+// ============================================================================
+// 通知 Payload 类型
+// ============================================================================
+
+export interface TaskStatusChangedPayload {
+  taskId: string;
+  taskTitle: string;
+  oldStatus: string;
+  newStatus: string;
+}
+
+export interface TaskAssignedPayload {
+  taskId: string;
+  taskTitle: string;
+  assignedBy: { id: string; name: string; avatar?: string };
+  assignedTo: { id: string; name: string; avatar?: string };
+}
+
+export interface TaskCommentPayload {
+  taskId: string;
+  commentId: string;
+  author: { id: string; name: string; avatar?: string };
+  content: string;
+}
+
+export interface MemberOnlinePayload {
+  userId: string;
+  userName: string;
+}
+
+export interface MemberOfflinePayload {
+  userId: string;
+  userName: string;
+}
+
+export interface MemberStatusChangedPayload {
+  userId: string;
+  userName: string;
+  newStatus: string;
+}
+
+export interface SystemAnnouncementPayload {
+  announcementId: string;
+  content: string;
+  actionUrl?: string;
+}
+
+export interface ProjectUpdatedPayload {
+  projectId: string;
+  projectName: string;
+  changeType: 'created' | 'updated' | 'deleted' | 'archived' | 'restored';
+  changedBy: { id: string; name: string; avatar?: string };
+}
+
+export type NotificationPayload =
+  | TaskStatusChangedPayload
+  | TaskAssignedPayload
+  | TaskCommentPayload
+  | MemberOnlinePayload
+  | MemberOfflinePayload
+  | MemberStatusChangedPayload
+  | SystemAnnouncementPayload
+  | ProjectUpdatedPayload;

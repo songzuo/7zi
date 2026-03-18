@@ -13,6 +13,7 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import type { WebSocketMessage } from './types';
+import { generateMessageId } from './useWebSocket';
 
 // ============================================================================
 // 类型定义
@@ -112,6 +113,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
   const heartbeatTimerRef = useRef<NodeJS.Timeout | null>(null);
   const connectionStartTimeRef = useRef<Date | null>(null);
   const offlineQueueRef = useRef<WebSocketMessage[]>([]);
+  const scheduleReconnectRef = useRef<() => void>(() => {});
   const messageHandlersRef = useRef<Map<string, Set<(message: WebSocketMessage) => void>>>(new Map());
   const stateChangeCallbacksRef = useRef<Set<(state: ConnectionState) => void>>(new Set());
   const errorCallbacksRef = useRef<Set<(error: Error) => void>>(new Set());
@@ -201,6 +203,27 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
     });
   }, [enableOfflineQueue, stats.messagesSent, updateStats]);
 
+  // 注册消息处理器
+  const registerMessageHandlers = useCallback((socket: Socket) => {
+    const messageTypes = [
+      'task:status_changed',
+      'task:assigned',
+      'task:comment',
+      'member:online',
+      'member:offline',
+      'member:status_changed',
+      'system:announcement',
+      'project:updated',
+      'heartbeat',
+      'connection:confirmed',
+      'read_status_updated',
+    ];
+
+    messageTypes.forEach(type => {
+      socket.on(type, (data) => handleMessage(type, data));
+    });
+  }, [handleMessage]);
+
   // 创建连接
   const createConnection = useCallback(() => {
     if (socketRef.current?.connected) {
@@ -242,14 +265,14 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
       });
 
       // 连接断开
-      socket.on('disconnect', (reason) => {
+      socket.on('disconnect', (reason: string) => {
         updateState('disconnected');
         stopHeartbeat();
-        
+
         const duration = connectionStartTimeRef.current
           ? Date.now() - connectionStartTimeRef.current.getTime()
           : 0;
-        
+
         updateStats({
           lastDisconnected: new Date(),
           connectionDuration: stats.connectionDuration + duration,
@@ -257,16 +280,16 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
 
         // 自动重连
         if (reconnect && reason !== 'io client disconnect') {
-          scheduleReconnect();
+          scheduleReconnectRef.current();
         }
       });
 
       // 连接错误
-      socket.on('connect_error', (err) => {
+      socket.on('connect_error', (err: Error) => {
         const wsError = new Error(`WebSocket connection error: ${err.message}`);
         setError(wsError);
         updateState('error');
-        
+
         errorCallbacksRef.current.forEach(callback => {
           try {
             callback(wsError);
@@ -288,31 +311,10 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
       setError(wsError);
       updateState('error');
     }
-  }, [url, token, reconnect, startHeartbeat, stopHeartbeat, processOfflineQueue, stats, updateStats, updateState]);
-
-  // 注册消息处理器
-  const registerMessageHandlers = useCallback((socket: Socket) => {
-    const messageTypes = [
-      'task:status_changed',
-      'task:assigned',
-      'task:comment',
-      'member:online',
-      'member:offline',
-      'member:status_changed',
-      'system:announcement',
-      'project:updated',
-      'heartbeat',
-      'connection:confirmed',
-      'read_status_updated',
-    ];
-
-    messageTypes.forEach(type => {
-      socket.on(type, (data) => handleMessage(type, data));
-    });
-  }, [handleMessage]);
+  }, [url, token, reconnect, startHeartbeat, stopHeartbeat, processOfflineQueue, stats, updateStats, updateState, registerMessageHandlers]);
 
   // 计划重连
-  const scheduleReconnect = useCallback(() => {
+  const scheduleReconnect = useCallback((): void => {
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
     }
@@ -338,6 +340,11 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
     }, delay);
   }, [maxReconnectAttempts, reconnectInterval, createConnection, updateState]);
 
+  // 设置 scheduleReconnect ref
+  useEffect(() => {
+    scheduleReconnectRef.current = scheduleReconnect;
+  }, [scheduleReconnect]);
+
   // 断开连接
   const disconnectConnection = useCallback(() => {
     if (reconnectTimeoutRef.current) {
@@ -359,7 +366,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
   const sendMessage = useCallback((type: string, payload?: unknown) => {
     const message: WebSocketMessage = {
       type,
-      id: `${type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: generateMessageId(),
       timestamp: new Date().toISOString(),
       payload,
     };

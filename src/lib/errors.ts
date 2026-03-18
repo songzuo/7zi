@@ -2,7 +2,7 @@
  * 错误处理工具函数
  */
 
-interface AppError extends Error {
+export interface AppError extends Error {
   code?: string;
   statusCode?: number;
   digest?: string;

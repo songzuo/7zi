@@ -28,8 +28,8 @@ describe('validation/index.ts', () => {
 
     it('空值应该返回 true（由 required 处理）', () => {
       expect(validator.rule('')).toBe(true);
-      expect(validator.rule(null as any)).toBe(true);
-      expect(validator.rule(undefined as any)).toBe(true);
+      expect(validator.rule(null as unknown as string)).toBe(true);
+      expect(validator.rule(undefined as unknown as string)).toBe(true);
     });
 
     it('应该支持自定义错误消息', () => {
@@ -61,7 +61,7 @@ describe('validation/index.ts', () => {
 
     it('空值应该返回 true', () => {
       expect(validator.rule('')).toBe(true);
-      expect(validator.rule(null as any)).toBe(true);
+      expect(validator.rule(null as unknown as string)).toBe(true);
     });
 
     it('应该支持自定义错误消息', () => {
@@ -87,15 +87,15 @@ describe('validation/index.ts', () => {
     });
 
     it('应该接受非空值（数字、布尔值等）', () => {
-      expect(validator.rule(0)).toBe(true);
-      expect(validator.rule(false)).toBe(true);
-      expect(validator.rule(true)).toBe(true);
-      expect(validator.rule(123)).toBe(true);
+      expect(validator.rule(0 as unknown as string)).toBe(true);
+      expect(validator.rule(false as unknown as string)).toBe(true);
+      expect(validator.rule(true as unknown as string)).toBe(true);
+      expect(validator.rule(123 as unknown as string)).toBe(true);
     });
 
     it('应该拒绝 null 和 undefined', () => {
-      expect(validator.rule(null)).toBe(false);
-      expect(validator.rule(undefined)).toBe(false);
+      expect(validator.rule(null as unknown as string)).toBe(false);
+      expect(validator.rule(undefined as unknown as string)).toBe(false);
     });
 
     it('应该支持自定义错误消息', () => {
@@ -125,8 +125,8 @@ describe('validation/index.ts', () => {
 
     it('应该处理对象和数组类型', () => {
       const requiredValidator = required();
-      expect(requiredValidator.rule({} as any)).toBe(true);
-      expect(requiredValidator.rule([] as any)).toBe(true);
+      expect(requiredValidator.rule({} as unknown as string)).toBe(true);
+      expect(requiredValidator.rule([] as unknown as string)).toBe(true);
     });
   });
 

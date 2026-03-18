@@ -159,7 +159,7 @@ export function useRenderPerformance(componentName: string): {
   }, [renderTime]);
 
   useEffect(() => {
-    startTime.current = performance.now();
+    startTimeRef.current = performance.now();
   });
 
   const isSlowRender =

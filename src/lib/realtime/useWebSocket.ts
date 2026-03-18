@@ -85,32 +85,13 @@ export function useWebSocket(
   const reconnectAttemptsRef = useRef(0);
   const eventListenersRef = useRef<Map<string, Set<(data: unknown) => void>>>(new Map());
   const onceListenersRef = useRef<Map<string, Set<(data: unknown) => void>>>(new Map());
+  const scheduleReconnectRef = useRef<() => void>(() => {});
 
   // 更新连接状态
   const updateStatus = useCallback((newStatus: WebSocketStatus) => {
     setStatus(newStatus);
     setIsConnected(newStatus === 'open');
   }, []);
-
-  // 计划重连 - 定义在 createConnection 之前
-  const scheduleReconnect = useCallback(() => {
-    if (reconnectTimeoutRef.current) {
-      clearTimeout(reconnectTimeoutRef.current);
-    }
-
-    reconnectAttemptsRef.current++;
-
-    if (reconnectAttemptsRef.current > maxReconnectAttempts) {
-      console.error('[useWebSocket] Max reconnection attempts reached');
-      return;
-    }
-
-    updateStatus('connecting');
-
-    reconnectTimeoutRef.current = setTimeout(() => {
-      createConnection();
-    }, reconnectInterval);
-  }, [maxReconnectAttempts, reconnectInterval, updateStatus]);
 
   // 移除事件监听器 - 定义在 addListener 之前
   const removeListener = useCallback((event: string, handler: (data: unknown) => void) => {
@@ -213,7 +194,7 @@ export function useWebSocket(
 
         // 自动重连
         if (reconnectOnClose && !event.wasClean) {
-          scheduleReconnect();
+          scheduleReconnectRef.current();
         }
       });
 
@@ -223,7 +204,32 @@ export function useWebSocket(
       updateStatus('error');
       options?.onError?.(errorEvent);
     }
-  }, [url, protocols, options, reconnectOnClose, scheduleReconnect, updateStatus]);
+  }, [url, protocols, options, reconnectOnClose, updateStatus]);
+
+  // 计划重连 - 定义在 createConnection 之后
+  const scheduleReconnect = useCallback((): void => {
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+    }
+
+    reconnectAttemptsRef.current++;
+
+    if (reconnectAttemptsRef.current > maxReconnectAttempts) {
+      console.error('[useWebSocket] Max reconnection attempts reached');
+      return;
+    }
+
+    updateStatus('connecting');
+
+    reconnectTimeoutRef.current = setTimeout(() => {
+      createConnection();
+    }, reconnectInterval);
+  }, [maxReconnectAttempts, reconnectInterval, updateStatus, createConnection]);
+
+  // 设置 scheduleReconnect ref
+  useEffect(() => {
+    scheduleReconnectRef.current = scheduleReconnect;
+  }, [scheduleReconnect]);
 
   // 断开连接
   const disconnectConnection = useCallback(() => {
@@ -282,8 +288,9 @@ export function useWebSocket(
 
   // 初始化
   useEffect(() => {
+    // 使用微任务延迟连接，避免在 effect 中同步调用 setState
     if (autoConnect) {
-      createConnection();
+      Promise.resolve().then(() => createConnection());
     }
 
     return () => {
@@ -312,6 +319,14 @@ export function useWebSocket(
 // ============================================================================
 
 /**
+ * 生成唯一的消息 ID
+ * 使用时间戳和随机字符串组合，确保唯一性
+ */
+export function generateMessageId(): string {
+  return `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+}
+
+/**
  * 创建标准 WebSocket 消息
  */
 export function createMessage<T = unknown>(
@@ -320,7 +335,7 @@ export function createMessage<T = unknown>(
 ): WebSocketMessage {
   return {
     type,
-    id: `${type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    id: generateMessageId(),
     timestamp: new Date().toISOString(),
     payload,
   };

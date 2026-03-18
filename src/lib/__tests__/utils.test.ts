@@ -289,7 +289,8 @@ describe('pick', () => {
 
   it('should ignore non-existent keys', () => {
     const obj = { a: 1 };
-    expect(pick(obj, ['a', 'b'])).toEqual({ a: 1 });
+    // Using 'b' from an object that has it, or use type assertion
+    expect(pick(obj, ['a', 'b'] as (keyof typeof obj)[])).toEqual({ a: 1 });
   });
 });
 

@@ -94,8 +94,6 @@ class PerformanceCollector {
     if (process.env.NODE_ENV === 'development') {
       this.initDevTools();
     }
-
-    console.log('[Performance] Monitoring initialized');
   }
 
   /**
@@ -408,15 +406,13 @@ class PerformanceCollector {
     // 通知所有告警回调
     this.alertCallbacks.forEach((cb) => cb(alert));
 
-    // 控制台输出
-    if (ALERT_CONFIG.channels.console.enabled) {
+    // 控制台输出 - 仅输出警告和严重级别的告警
+    if (ALERT_CONFIG.channels.console.enabled && alert.level !== 'info') {
       const levelConfig = ALERT_CONFIG.levels[alert.level];
       if (alert.level === 'critical') {
         console.error(`${levelConfig.emoji} ${alert.message}`, alert);
       } else if (alert.level === 'warning') {
         console.warn(`${levelConfig.emoji} ${alert.message}`, alert);
-      } else {
-        console.log(`${levelConfig.emoji} ${alert.message}`, alert);
       }
     }
 
@@ -526,12 +522,6 @@ class PerformanceCollector {
    * 初始化开发者工具
    */
   private initDevTools() {
-    // 在控制台显示性能摘要
-    console.log(
-      '%c[Performance] Dev mode enabled. Use window.__PERF__ to access metrics.',
-      'color: #36a64f; font-weight: bold;'
-    );
-
     // 暴露全局 API
     (window as Window & { __PERF__?: PerformanceCollector }).__PERF__ = this;
   }

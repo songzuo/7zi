@@ -20,7 +20,7 @@
  * 
  * // Use debounce for search input
  * const search = debounce((query: string) => {
- *   console.log('Searching for:', query);
+ *   // Search logic here
  * }, 300);
  */
 
@@ -57,6 +57,17 @@ export class LRUCache<T> {
    */
   constructor(maxSize: number = 100) {
     this.maxSize = maxSize;
+  }
+
+  /**
+   * Rebuilds the index Map for O(1) lookups
+   * @private
+   */
+  private rebuildIndices(): void {
+    this.accessOrder.clear();
+    this.keyOrder.forEach((key, index) => {
+      this.accessOrder.set(key, index);
+    });
   }
 
   /**
@@ -186,17 +197,6 @@ export class LRUCache<T> {
   }
 
   /**
-   * Rebuilds the index Map for O(1) lookups
-   * @private
-   */
-  private rebuildIndices(): void {
-    this.accessOrder.clear();
-    this.keyOrder.forEach((key, index) => {
-      this.accessOrder.set(key, index);
-    });
-  }
-
-  /**
    * Gets the current number of entries in the cache
    * @returns {number} Cache size
    */
@@ -240,11 +240,10 @@ export function createCache<T>(ttl: number = 5 * 60 * 1000) {
  * debouncedFn.cancel(); // Cancel pending execution
  * debouncedFn.flush(); // Execute immediately
  */
-export function advancedDebounce<T extends (...args: unknown[]) => unknown>(
+export function advancedDebounce<T extends (...args: never[]) => void>(
   func: T,
   wait: number
-): {
-  (...args: Parameters<T>): void;
+): ((...args: Parameters<T>) => void) & {
   cancel: () => void;
   flush: () => void;
   pending: () => boolean;
@@ -252,7 +251,7 @@ export function advancedDebounce<T extends (...args: unknown[]) => unknown>(
   let timeout: NodeJS.Timeout | null = null;
   let lastArgs: Parameters<T> | null = null;
 
-  const debounced = (...args: Parameters<T>) => {
+  const debounced = (...args: Parameters<T>): void => {
     lastArgs = args;
 
     if (timeout) {
@@ -268,7 +267,7 @@ export function advancedDebounce<T extends (...args: unknown[]) => unknown>(
     }, wait);
   };
 
-  debounced.cancel = () => {
+  debounced.cancel = (): void => {
     if (timeout) {
       clearTimeout(timeout);
       timeout = null;
@@ -276,7 +275,7 @@ export function advancedDebounce<T extends (...args: unknown[]) => unknown>(
     lastArgs = null;
   };
 
-  debounced.flush = () => {
+  debounced.flush = (): void => {
     if (timeout) {
       clearTimeout(timeout);
       timeout = null;
@@ -287,25 +286,35 @@ export function advancedDebounce<T extends (...args: unknown[]) => unknown>(
     }
   };
 
-  debounced.pending = () => timeout !== null;
+  debounced.pending = (): boolean => timeout !== null;
 
-  return debounced as any;
+  return debounced as typeof debounced & ((...args: Parameters<T>) => void);
 }
 
 /**
- * Backward-compatible debounce function
+ * Debounce function with cancel and flush capabilities
+ * 
  * @template T - Function type
  * @param {T} func - Function to debounce
  * @param {number} wait - Wait time in milliseconds
- * @returns {Function} Debounced function
- * @deprecated Use advancedDebounce for better functionality
+ * @returns {Object} Debounced function with cancel, flush, and pending methods
+ * 
+ * @example
+ * const debouncedFn = debounce(search, 300);
+ * debouncedFn('query');
+ * debouncedFn.cancel(); // Cancel pending execution
+ * debouncedFn.flush(); // Execute immediately
+ * debouncedFn.pending(); // Check if execution is pending
  */
-export function debounce<T extends (...args: unknown[]) => unknown>(
+export function debounce<T extends (...args: never[]) => void>(
   func: T,
   wait: number
-): (...args: Parameters<T>) => void {
-  const advanced = advancedDebounce(func, wait);
-  return advanced;
+): ((...args: Parameters<T>) => void) & {
+  cancel: () => void;
+  flush: () => void;
+  pending: () => boolean;
+} {
+  return advancedDebounce(func, wait);
 }
 
 /**
@@ -319,11 +328,10 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
  * throttledFn('event');
  * throttledFn.cancel(); // Cancel pending execution
  */
-export function advancedThrottle<T extends (...args: unknown[]) => unknown>(
+export function advancedThrottle<T extends (...args: never[]) => void>(
   func: T,
   limit: number
-): {
-  (...args: Parameters<T>): void;
+): ((...args: Parameters<T>) => void) & {
   cancel: () => void;
   pending: () => boolean;
 } {
@@ -331,7 +339,7 @@ export function advancedThrottle<T extends (...args: unknown[]) => unknown>(
   let timeout: NodeJS.Timeout | null = null;
   let lastArgs: Parameters<T> | null = null;
 
-  const throttled = (...args: Parameters<T>) => {
+  const throttled = (...args: Parameters<T>): void => {
     if (!inThrottle) {
       func(...args);
       inThrottle = true;
@@ -349,7 +357,7 @@ export function advancedThrottle<T extends (...args: unknown[]) => unknown>(
     }
   };
 
-  throttled.cancel = () => {
+  throttled.cancel = (): void => {
     if (timeout) {
       clearTimeout(timeout);
       timeout = null;
@@ -358,25 +366,33 @@ export function advancedThrottle<T extends (...args: unknown[]) => unknown>(
     lastArgs = null;
   };
 
-  throttled.pending = () => inThrottle;
+  throttled.pending = (): boolean => inThrottle;
 
-  return throttled as any;
+  return throttled as typeof throttled & ((...args: Parameters<T>) => void);
 }
 
 /**
- * Backward-compatible throttle function
+ * Throttle function with cancel capability
+ * 
  * @template T - Function type
  * @param {T} func - Function to throttle
  * @param {number} limit - Minimum time between executions in milliseconds
- * @returns {Function} Throttled function
- * @deprecated Use advancedThrottle for better functionality
+ * @returns {Object} Throttled function with cancel and pending methods
+ * 
+ * @example
+ * const throttledFn = throttle(scroll, 100);
+ * throttledFn('event');
+ * throttledFn.cancel(); // Cancel pending execution
+ * throttledFn.pending(); // Check if execution is pending
  */
-export function throttle<T extends (...args: unknown[]) => unknown>(
+export function throttle<T extends (...args: never[]) => void>(
   func: T,
   limit: number
-): (...args: Parameters<T>) => void {
-  const advanced = advancedThrottle(func, limit);
-  return advanced;
+): ((...args: Parameters<T>) => void) & {
+  cancel: () => void;
+  pending: () => boolean;
+} {
+  return advancedThrottle(func, limit);
 }
 
 /**
@@ -400,6 +416,11 @@ export function memoize<T extends (...args: unknown[]) => unknown>(
   const accessOrder: string[] = [];
   const accessIndex = new Map<string, number>(); // O(1) index lookup
 
+  const updateAccessIndex = (): void => {
+    accessIndex.clear();
+    accessOrder.forEach((k, i) => accessIndex.set(k, i));
+  };
+
   return (...args: Parameters<T>): ReturnType<T> => {
     const key = resolver ? resolver(...args) : JSON.stringify(args);
 
@@ -408,12 +429,9 @@ export function memoize<T extends (...args: unknown[]) => unknown>(
       const currentIndex = accessIndex.get(key);
       if (currentIndex !== undefined) {
         accessOrder.splice(currentIndex, 1);
+        accessOrder.push(key);
+        updateAccessIndex();
       }
-      accessOrder.push(key);
-      
-      // Rebuild indices (O(n) but only on cache hit)
-      accessIndex.clear();
-      accessOrder.forEach((k, i) => accessIndex.set(k, i));
       
       return cache.get(key)!;
     }
@@ -426,10 +444,8 @@ export function memoize<T extends (...args: unknown[]) => unknown>(
       if (lruKey) {
         cache.delete(lruKey);
         accessIndex.delete(lruKey);
+        updateAccessIndex();
       }
-      // Rebuild indices after eviction
-      accessIndex.clear();
-      accessOrder.forEach((k, i) => accessIndex.set(k, i));
     }
 
     cache.set(key, result);
@@ -499,10 +515,8 @@ export function deepClone<T>(obj: T, seen: WeakMap<object, unknown> = new WeakMa
   const cloned = {} as T;
   seen.set(obj, cloned);
 
-  for (const key in obj) {
-    if (Object.prototype.hasOwnProperty.call(obj, key)) {
-      (cloned as any)[key] = deepClone((obj as any)[key], seen);
-    }
+  for (const [key, value] of Object.entries(obj)) {
+    (cloned as Record<string, unknown>)[key] = deepClone(value as T, seen);
   }
 
   return cloned;
@@ -691,7 +705,7 @@ export function randomItem<T>(array: T[]): T {
  * unique([1, 2, 2, 3, 3, 3]) // [1, 2, 3]
  */
 export function unique<T>(array: T[]): T[] {
-  return [...new Set(array)];
+  return Array.from(new Set(array));
 }
 
 /**
@@ -731,13 +745,13 @@ export function groupBy<T, K extends string | number>(
  * @example
  * pick({ a: 1, b: 2, c: 3 }, ['a', 'c']) // { a: 1, c: 3 }
  */
-export function pick<T, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
+export function pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
   const result = {} as Pick<T, K>;
-  for (const key of keys) {
+  keys.forEach(key => {
     if (key in obj) {
       result[key] = obj[key];
     }
-  }
+  });
   return result;
 }
 
@@ -753,9 +767,9 @@ export function pick<T, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
  */
 export function omit<T, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> {
   const result = { ...obj };
-  for (const key of keys) {
+  keys.forEach(key => {
     delete result[key];
-  }
+  });
   return result;
 }
 
@@ -842,6 +856,17 @@ export function isNode(): boolean {
 }
 
 /**
+ * Check if a CSS media query matches
+ * @param {string} query - CSS media query string
+ * @returns {boolean} True if the query matches
+ * @private
+ */
+function checkMediaQuery(query: string): boolean {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia(query).matches;
+}
+
+/**
  * Check if an element is in the viewport
  * @param {Element} element - Element to check
  * @param {number} offset - Offset from viewport edges (default: 0)
@@ -882,7 +907,9 @@ export function scrollToElement(element: Element, center: boolean = false): void
  * @param {AddEventListenerOptions} options - Event listener options
  * @returns {Function} Cleanup function
  * @example
- * const cleanup = addEventListener(window, 'resize', () => console.log('resized'));
+ * const cleanup = addEventListener(window, 'resize', () => {
+ *   // Handle resize
+ * });
  * // Later: cleanup()
  */
 export function addEventListener<T extends Event>(
@@ -904,7 +931,9 @@ export function addEventListener<T extends Event>(
  * const button = getElementById<HTMLButtonElement>('myButton');
  */
 export function getElementById<T extends Element>(id: string): T | null {
-  return document.getElementById(id) as T | null;
+  const element = document.getElementById(id);
+  // Type assertion: caller is responsible for ensuring the element matches T
+  return element ? (element as unknown as T) : null;
 }
 
 /**
@@ -915,8 +944,8 @@ export function getElementById<T extends Element>(id: string): T | null {
  * @example
  * const buttons = querySelectorAll<HTMLButtonElement>('button.primary');
  */
-export function querySelectorAll<T extends Element>(selector: string): NodeList<T> {
-  return document.querySelectorAll(selector) as unknown as NodeList<T>;
+export function querySelectorAll<T extends Element>(selector: string): T[] {
+  return Array.from(document.querySelectorAll(selector)) as T[];
 }
 
 /**
@@ -938,13 +967,15 @@ export function querySelector<T extends Element>(selector: string): T | null {
  * @param {number} delay - Debounce delay in milliseconds (default: 100)
  * @returns {Function} Debounced handler
  * @example
- * const handleResize = debounceDOM((e: Event) => console.log(e), 100);
+ * const handleResize = debounceDOM((e: Event) => {
+ *   // Handle resize event
+ * }, 100);
  */
 export function debounceDOM<T extends Event>(
   handler: (event: T) => void,
   delay: number = 100
 ): (event: T) => void {
-  return advancedDebounce(handler, delay) as any;
+  return advancedDebounce(handler, delay) as (event: T) => void;
 }
 
 /**
@@ -954,13 +985,15 @@ export function debounceDOM<T extends Event>(
  * @param {number} limit - Throttle limit in milliseconds (default: 100)
  * @returns {Function} Throttled handler
  * @example
- * const handleScroll = throttleDOM((e: Event) => console.log(e), 100);
+ * const handleScroll = throttleDOM((e: Event) => {
+ *   // Handle scroll event
+ * }, 100);
  */
 export function throttleDOM<T extends Event>(
   handler: (event: T) => void,
   limit: number = 100
 ): (event: T) => void {
-  return advancedThrottle(handler, limit) as any;
+  return advancedThrottle(handler, limit) as (event: T) => void;
 }
 
 /**
@@ -972,7 +1005,9 @@ export function throttleDOM<T extends Event>(
  * @example
  * const cleanup = observeIntersection(
  *   element,
- *   (entries) => console.log(entries)
+ *   (entries) => {
+ *     // Handle intersection changes
+ *   }
  * );
  */
 export function observeIntersection(
@@ -1115,7 +1150,8 @@ export function updateQueryParams(
   if (!isClient()) return;
 
   const url = new URL(window.location.href);
-  Object.entries(params).forEach(([key, value]) => {
+  Object.keys(params).forEach(key => {
+    const value = params[key];
     if (value === undefined || value === null) {
       url.searchParams.delete(key);
     } else {
@@ -1132,8 +1168,7 @@ export function updateQueryParams(
  * @returns {boolean} True if prefers reduced motion
  */
 export function prefersReducedMotion(): boolean {
-  if (typeof window === 'undefined') return false;
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  return checkMediaQuery('(prefers-reduced-motion: reduce)');
 }
 
 /**
@@ -1141,8 +1176,7 @@ export function prefersReducedMotion(): boolean {
  * @returns {boolean} True if prefers dark mode
  */
 export function prefersDarkMode(): boolean {
-  if (typeof window === 'undefined') return false;
-  return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  return checkMediaQuery('(prefers-color-scheme: dark)');
 }
 
 /**
@@ -1150,8 +1184,7 @@ export function prefersDarkMode(): boolean {
  * @returns {boolean} True if prefers light mode
  */
 export function prefersLightMode(): boolean {
-  if (typeof window === 'undefined') return false;
-  return window.matchMedia('(prefers-color-scheme: light)').matches;
+  return checkMediaQuery('(prefers-color-scheme: light)');
 }
 
 /**

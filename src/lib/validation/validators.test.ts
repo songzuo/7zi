@@ -32,10 +32,10 @@ describe('validators', () => {
     it('应该验证非空值', () => {
       const validator = required();
       
-      expect(validator.rule(0)).toBe(true);
-      expect(validator.rule(false)).toBe(true);
-      expect(validator.rule(null)).toBe(false);
-      expect(validator.rule(undefined)).toBe(false);
+      expect(validator.rule(0 as unknown as string)).toBe(true);
+      expect(validator.rule(false as unknown as string)).toBe(true);
+      expect(validator.rule(null as unknown as string)).toBe(false);
+      expect(validator.rule(undefined as unknown as string)).toBe(false);
     });
 
     it('应该返回自定义错误消息', () => {
@@ -68,8 +68,8 @@ describe('validators', () => {
       const validator = email();
       
       expect(validator.rule('')).toBe(true);
-      expect(validator.rule(null)).toBe(true);
-      expect(validator.rule(undefined)).toBe(true);
+      expect(validator.rule(null as unknown as string)).toBe(true);
+      expect(validator.rule(undefined as unknown as string)).toBe(true);
     });
   });
 

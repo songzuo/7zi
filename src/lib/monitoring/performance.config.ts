@@ -460,7 +460,6 @@ export function getMetricRating(
   const thresholds = CORE_WEB_VITALS_THRESHOLDS[metricName as keyof typeof CORE_WEB_VITALS_THRESHOLDS];
   
   if (!thresholds) {
-    console.warn(`Unknown metric: ${metricName}`);
     return 'good';
   }
 

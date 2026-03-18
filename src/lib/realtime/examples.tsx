@@ -8,6 +8,7 @@
 
 import { useState } from 'react';
 import { useWebSocket, createMessage, isMessageType } from './useWebSocket';
+import type { WebSocketMessage } from './types';
 import { useEnhancedWebSocket } from './useEnhancedWebSocket';
 import { notificationService } from './notification-service';
 
@@ -29,27 +30,28 @@ export function BasicWebSocketExample() {
     },
     {
       onOpen: (event) => {
-        console.log('WebSocket connected:', event);
+        // WebSocket connected
       },
       onError: (event) => {
         console.error('WebSocket error:', event);
       },
       onClose: (event) => {
-        console.log('WebSocket closed:', event);
+        // WebSocket closed
       },
     }
   );
 
   // 监听特定类型的消息
   const cleanupTaskUpdate = on('task:status_changed', (data) => {
-    if (isMessageType<{ taskId: string; status: string }>(data, 'task:status_changed')) {
-      console.log('Task updated:', data.payload.taskId, data.payload.status);
+    const msg = data as WebSocketMessage;
+    if (isMessageType<{ taskId: string; status: string }>(msg, 'task:status_changed')) {
+      // Task updated
     }
   });
 
   // 一次性监听
   const cleanupOnce = once('system:announcement', (data) => {
-    console.log('Received system announcement:', data);
+    // Received system announcement
   });
 
   const sendMessage = () => {
@@ -103,13 +105,14 @@ export function RealtimeChatExample() {
 
   // 监听聊天消息
   const cleanup = on('chat:message', (data) => {
-    if (isMessageType<{ user: string; text: string }>(data, 'chat:message')) {
+    const msg = data as WebSocketMessage;
+    if (isMessageType<{ user: string; text: string }>(msg, 'chat:message')) {
       setMessages(prev => [
         ...prev,
         {
-          id: data.id,
-          user: data.payload.user,
-          text: data.payload.text,
+          id: msg.id,
+          user: msg.payload.user,
+          text: msg.payload.text,
         },
       ]);
     }
@@ -187,6 +190,7 @@ export function EnhancedWebSocketExample() {
     send,
     subscribe,
     unsubscribe,
+    on,
     onStateChange,
     onError,
     getOfflineQueue,
@@ -205,7 +209,7 @@ export function EnhancedWebSocketExample() {
 
   // 监听连接状态变化
   const cleanupStateChange = onStateChange((state) => {
-    console.log('Connection state changed:', state);
+    // Connection state changed
   });
 
   // 监听错误
@@ -214,8 +218,8 @@ export function EnhancedWebSocketExample() {
   });
 
   // 监听任务消息
-  const cleanupTaskMessages = on('task:status_changed', (data) => {
-    console.log('Task status changed:', data);
+  const cleanupTaskMessages = on('task:status_changed', (data: unknown) => {
+    // Task status changed
   });
 
   const handleSubscribe = () => {
@@ -235,7 +239,6 @@ export function EnhancedWebSocketExample() {
 
   const handleShowOfflineQueue = () => {
     const queue = getOfflineQueue();
-    console.log('Offline queue:', queue);
     alert(`离线队列中有 ${queue.length} 条消息`);
   };
 
@@ -317,7 +320,7 @@ export function NotificationServiceExample() {
         projectName: '7zi 平台',
         assigneeId: 'user-2',
       });
-      console.log('Task status change notification sent');
+      // Task status change notification sent
     } catch (error) {
       console.error('Failed to send notification:', error);
     }
@@ -339,7 +342,7 @@ export function NotificationServiceExample() {
         priority: 'high',
         dueDate: '2024-12-31',
       });
-      console.log('Task assignment notification sent');
+      // Task assignment notification sent
     } catch (error) {
       console.error('Failed to send notification:', error);
     }
@@ -359,7 +362,7 @@ export function NotificationServiceExample() {
           role: 'admin',
         },
       });
-      console.log('System announcement sent');
+      // System announcement sent
     } catch (error) {
       console.error('Failed to send announcement:', error);
     }
@@ -373,7 +376,6 @@ export function NotificationServiceExample() {
 
   const handleErrorLogs = () => {
     const errors = notificationService.getErrorLog(20);
-    console.log('Error logs:', errors);
     alert(`共有 ${errors.length} 条错误记录`);
   };
 
