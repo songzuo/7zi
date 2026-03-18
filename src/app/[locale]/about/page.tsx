@@ -72,16 +72,6 @@ const timeline = [
   { year: '2025', emoji: '⚡', color: 'from-amber-500 to-orange-600', key: '3' },
 ];
 
-// 合作伙伴 (保留用于未来扩展)
-const _partners = [
-  { name: 'TechCorp', logo: '💻', color: 'from-blue-500 to-cyan-500' },
-  { name: 'InnovateLab', logo: '🔬', color: 'from-purple-500 to-pink-500' },
-  { name: 'DigitalFirst', logo: '🎯', color: 'from-red-500 to-orange-500' },
-  { name: 'CloudNine', logo: '☁️', color: 'from-sky-500 to-blue-600' },
-  { name: 'FutureSoft', logo: '🤖', color: 'from-green-500 to-emerald-600' },
-  { name: 'DataFlow', logo: '📊', color: 'from-indigo-500 to-purple-600' },
-];
-
 export default async function AboutPage({ params }: { params: Params }) {
   const { locale } = await params;
   

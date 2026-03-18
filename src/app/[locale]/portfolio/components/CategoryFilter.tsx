@@ -2,6 +2,7 @@
 
 import { Link } from '@/i18n/routing';
 import { ProjectCategory } from '../data';
+import { memo } from 'react';
 
 interface CategoryFilterProps {
   activeCategory: ProjectCategory | 'all';
@@ -14,18 +15,19 @@ interface CategoryFilterProps {
   };
 }
 
-export default function CategoryFilter({ activeCategory, labels }: CategoryFilterProps) {
-  const categories: { key: ProjectCategory | 'all'; label: string }[] = [
-    { key: 'all', label: labels.all },
-    { key: 'website', label: labels.website },
-    { key: 'app', label: labels.app },
-    { key: 'ai', label: labels.ai },
-    { key: 'design', label: labels.design },
-  ];
+const CATEGORIES: readonly { key: ProjectCategory | 'all'; labelKey: 'all' | 'website' | 'app' | 'ai' | 'design' }[] = [
+  { key: 'all', labelKey: 'all' },
+  { key: 'website', labelKey: 'website' },
+  { key: 'app', labelKey: 'app' },
+  { key: 'ai', labelKey: 'ai' },
+  { key: 'design', labelKey: 'design' },
+] as const;
+
+function CategoryFilter({ activeCategory, labels }: CategoryFilterProps) {
 
   return (
     <div className="flex flex-wrap justify-center gap-3">
-      {categories.map(({ key, label }) => (
+      {CATEGORIES.map(({ key, labelKey }) => (
         <Link
           key={key}
           href={key === 'all' ? '/portfolio' : `/portfolio?category=${key}`}
@@ -35,9 +37,11 @@ export default function CategoryFilter({ activeCategory, labels }: CategoryFilte
               : 'bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700'
           }`}
         >
-          {label}
+          {labels[labelKey]}
         </Link>
       ))}
     </div>
   );
 }
+
+export default memo(CategoryFilter);

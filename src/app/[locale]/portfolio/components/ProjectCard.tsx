@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { Link } from '@/i18n/routing';
 import { Project, ProjectCategory } from '../data';
+import { memo } from 'react';
 
 interface ProjectCardProps {
   project: Project;
@@ -19,7 +20,7 @@ const categoryColors: Record<ProjectCategory, string> = {
   design: 'from-orange-500 to-red-500',
 };
 
-export default function ProjectCard({ project, locale, labels }: ProjectCardProps) {
+function ProjectCard({ project, locale, labels }: ProjectCardProps) {
   const title = locale === 'zh' ? project.titleZh : project.title;
   const description = locale === 'zh' ? project.descriptionZh : project.description;
 
@@ -81,3 +82,5 @@ export default function ProjectCard({ project, locale, labels }: ProjectCardProp
     </Link>
   );
 }
+
+export default memo(ProjectCard);

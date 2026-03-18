@@ -2,6 +2,7 @@
 
 import type { Project } from '../data';
 import ProjectCard from './ProjectCard';
+import { memo } from 'react';
 
 interface PortfolioGridProps {
   projects: Project[];
@@ -15,21 +16,25 @@ interface PortfolioGridProps {
   };
 }
 
-export default function PortfolioGrid({ projects, locale, labels, emptyMessage }: PortfolioGridProps) {
+const EmptyState = memo(({ title, description }: { title: string; description: string }) => (
+  <div className="text-center py-20">
+    <div className="text-6xl mb-4" role="img" aria-label="No projects">
+      📭
+    </div>
+    <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">
+      {title}
+    </h3>
+    <p className="text-zinc-600 dark:text-zinc-400">
+      {description}
+    </p>
+  </div>
+));
+
+EmptyState.displayName = 'EmptyState';
+
+function PortfolioGrid({ projects, locale, labels, emptyMessage }: PortfolioGridProps) {
   if (projects.length === 0 && emptyMessage) {
-    return (
-      <div className="text-center py-20">
-        <div className="text-6xl mb-4" role="img" aria-label="No projects">
-          📭
-        </div>
-        <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">
-          {emptyMessage.title}
-        </h3>
-        <p className="text-zinc-600 dark:text-zinc-400">
-          {emptyMessage.description}
-        </p>
-      </div>
-    );
+    return <EmptyState title={emptyMessage.title} description={emptyMessage.description} />;
   }
 
   return (
@@ -45,3 +50,5 @@ export default function PortfolioGrid({ projects, locale, labels, emptyMessage }
     </div>
   );
 }
+
+export default memo(PortfolioGrid);

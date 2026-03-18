@@ -81,7 +81,6 @@ export default async function PortfolioPage({ params, searchParams }: { params: 
   setRequestLocale(locale);
   
   const tNav = await getTranslations({ locale, namespace: 'nav' });
-  const tPortfolio = await getTranslations({ locale, namespace: 'portfolio' });
 
   // Filter projects by category
   const activeCategory = category || 'all';
