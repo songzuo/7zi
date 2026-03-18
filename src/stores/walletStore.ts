@@ -462,9 +462,10 @@ export const useWalletStore = create<WalletState>()(
           },
           setItem: (name, value) => {
             // 将 Map 转为数组存储
-            const data = { ...value };
-            if (data.state?.wallets instanceof Map) {
-              data.state.wallets = Array.from(data.state.wallets.entries());
+            const data: { state?: { wallets?: Map<string, unknown> } } = value as { state?: { wallets?: Map<string, unknown> } };
+            const wallets = data.state?.wallets;
+            if (wallets instanceof Map) {
+              data.state!.wallets = Array.from(wallets.entries()) as unknown as Map<string, unknown>;
             }
             localStorage.setItem(name, JSON.stringify(data));
           },
