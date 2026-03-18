@@ -25,7 +25,6 @@ export default defineConfig({
         'src/test/**',
         '**/*.d.ts',
         '**/*.config.*',
-        '**/types/**',
       ],
       // 覆盖率阈值
       thresholds: {
@@ -39,7 +38,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      '@': path.resolve(__dirname, './app'),
     },
   },
 })
