@@ -14,16 +14,42 @@ import {
   useMounted,
   useWindowSize,
   useScrollPosition,
-} from '../usePerformance';
+} from './usePerformance';
 
 // 模拟 IntersectionObserver
-class MockIntersectionObserver {
+class MockIntersectionObserver implements IntersectionObserver {
+  readonly root: Element | null = null;
+  readonly rootMargin: string = '';
+  readonly thresholds: ReadonlyArray<number> = [];
+
   constructor(private callback: IntersectionObserverCallback, private options?: IntersectionObserverInit) {}
+
+  takeRecords(): IntersectionObserverEntry[] {
+    return [];
+  }
 
   observe(element: Element) {
     // 立即触发回调模拟元素可见
+    const mockEntry: Partial<IntersectionObserverEntry> = {
+      isIntersecting: true,
+      target: element,
+      boundingClientRect: element.getBoundingClientRect(),
+      intersectionRatio: 1,
+      intersectionRect: element.getBoundingClientRect(),
+      rootBounds: null,
+      time: Date.now(),
+    };
+    const observer = {
+      root: this.root,
+      rootMargin: this.rootMargin,
+      thresholds: this.thresholds,
+      takeRecords: () => [],
+      observe: () => {},
+      unobserve: () => {},
+      disconnect: () => {},
+    } as unknown as IntersectionObserver;
     setTimeout(() => {
-      this.callback([{ isIntersecting: true, target: element }], this);
+      this.callback([mockEntry as IntersectionObserverEntry], observer);
     }, 10);
   }
 

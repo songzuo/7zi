@@ -31,7 +31,10 @@ export const TaskBoardSearch: React.FC<TaskBoardSearchProps> = ({
   defaultStatus = 'open',
   showStats = true,
 }) => {
-  const [filteredIssues, setFilteredIssues] = useState<GitHubIssue[]>([]);
+  const [filteredIssues, setFilteredIssues] = useState<GitHubIssue[]>(() => {
+    if (defaultStatus === 'all') return issues;
+    return issues.filter(issue => issue.state === defaultStatus);
+  });
   const [searchResults, setSearchResults] = useState<{
     total: number;
     filtered: number;
@@ -53,16 +56,6 @@ export const TaskBoardSearch: React.FC<TaskBoardSearchProps> = ({
       return config;
     });
   }, [labelOptions, assigneeOptions]);
-
-  // 设置默认状态过滤器
-  useEffect(() => {
-    // 这里可以初始化默认过滤状态
-    const initialFiltered = issues.filter(issue => {
-      if (defaultStatus === 'all') return true;
-      return issue.state === defaultStatus;
-    });
-    setFilteredIssues(initialFiltered);
-  }, [issues, defaultStatus]);
 
   // 处理搜索过滤结果变化
   const handleResultsChange = (result: { items: GitHubIssue[]; totalResults: number; filteredResults: number }) => {

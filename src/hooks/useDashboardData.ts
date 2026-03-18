@@ -151,17 +151,41 @@ export function useDashboardData(
     setError(null);
 
     try {
-      // 并行获取 Issues 和 Commits
-      const [issuesData, commitsData] = await Promise.all([
-        fetchIssues().catch(err => {
-          console.warn('Issues fetch failed:', err);
-          return [];
-        }),
-        fetchCommits().catch(err => {
-          console.warn('Commits fetch failed:', err);
-          return [];
-        })
+      // 使用 Promise.allSettled 允许两个请求独立完成
+      const [issuesResult, commitsResult] = await Promise.allSettled([
+        fetchIssues(),
+        fetchCommits()
       ]);
+
+      let issuesData: GitHubIssue[] = [];
+      let commitsData: GitHubCommit[] = [];
+      let errorMessage: string | null = null;
+
+      // 处理 Issues 结果
+      if (issuesResult.status === 'rejected') {
+        console.warn('Issues fetch failed:', issuesResult.reason);
+        const err = issuesResult.reason;
+        errorMessage = err instanceof Error ? err.message : '获取 Issues 失败';
+      } else {
+        issuesData = issuesResult.value;
+      }
+
+      // 处理 Commits 结果
+      if (commitsResult.status === 'rejected') {
+        console.warn('Commits fetch failed:', commitsResult.reason);
+        // 只在还没有错误时设置错误信息
+        if (!errorMessage) {
+          const err = commitsResult.reason;
+          errorMessage = err instanceof Error ? err.message : '获取 Commits 失败';
+        }
+      } else {
+        commitsData = commitsResult.value;
+      }
+
+      // 如果有错误，设置错误状态
+      if (errorMessage) {
+        setError(errorMessage);
+      }
 
       // 合并活动
       const mergedActivities = mergeActivities(issuesData, commitsData);

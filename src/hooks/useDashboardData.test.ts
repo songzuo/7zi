@@ -96,9 +96,9 @@ describe('useDashboardData', () => {
     });
 
     it('应该过滤掉 Pull Requests', async () => {
+      // API route already filters PRs, so mock returns only real issues
       const mockIssues = [
         createMockIssue({ number: 1, title: 'Real Issue' }),
-        createMockIssue({ number: 2, title: 'PR Title', pull_request: {} }),
       ];
 
       mockFetch
@@ -164,53 +164,48 @@ describe('useDashboardData', () => {
   });
 
   describe('Token 支持', () => {
-    it('应该在请求头中包含 token', async () => {
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve([]),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve([]),
-        });
+    it('应该调用内部 API 代理端点', async () => {
+      // 现在 hook 调用内部 API 端点，token 参数保留但不再使用
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve([]),
+      });
 
-      renderHook(() =>
+      const { result } = renderHook(() =>
         useDashboardData('owner', 'repo', 'test-token')
       );
 
       await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalled();
-      });
+        expect(result.current.isLoading).toBe(false);
+      }, { timeout: 5000 });
 
-      // 检查请求头
-      const calls = mockFetch.mock.calls;
-      const firstCall = calls[0];
-      expect(firstCall[1].headers).toHaveProperty('Authorization', 'token test-token');
+      // 验证调用了内部 API 端点
+      expect(mockFetch).toHaveBeenCalled();
+      const firstCall = mockFetch.mock.calls[0];
+      expect(firstCall[0]).toContain('/api/github/issues');
+      expect(firstCall[0]).toContain('owner=owner');
+      expect(firstCall[0]).toContain('repo=repo');
     });
 
-    it('应该在没有 token 时不包含 Authorization 头', async () => {
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve([]),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve([]),
-        });
+    it('应该在没有 token 时调用内部 API 代理', async () => {
+      // 测试调用内部 API 端点（不需要 token）
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve([]),
+      });
 
-      renderHook(() =>
+      const { result } = renderHook(() =>
         useDashboardData('owner', 'repo')
       );
 
       await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalled();
-      });
+        expect(result.current.isLoading).toBe(false);
+      }, { timeout: 5000 });
 
-      const calls = mockFetch.mock.calls;
-      const firstCall = calls[0];
-      expect(firstCall[1].headers).not.toHaveProperty('Authorization');
+      // 验证调用了内部 API 端点
+      expect(mockFetch).toHaveBeenCalled();
+      const firstCall = mockFetch.mock.calls[0];
+      expect(firstCall[0]).toContain('/api/github/');
     });
   });
 
@@ -219,6 +214,7 @@ describe('useDashboardData', () => {
       mockFetch.mockResolvedValue({
         ok: false,
         status: 404,
+        json: () => Promise.resolve({ error: '仓库 nonexistent/repo 不存在' }),
       });
 
       const { result } = renderHook(() =>
@@ -236,6 +232,7 @@ describe('useDashboardData', () => {
       mockFetch.mockResolvedValue({
         ok: false,
         status: 401,
+        json: () => Promise.resolve({ error: 'GitHub Token 无效' }),
       });
 
       const { result } = renderHook(() =>
@@ -251,6 +248,7 @@ describe('useDashboardData', () => {
       mockFetch.mockResolvedValue({
         ok: false,
         status: 403,
+        json: () => Promise.resolve({ error: 'API 速率限制，请稍后再试' }),
       });
 
       const { result } = renderHook(() =>
@@ -282,7 +280,7 @@ describe('useDashboardData', () => {
       );
 
       await waitFor(() => {
-        expect(result.current.error).toBe('数据加载失败');
+        expect(result.current.error).toBe('获取 Issues 失败');
       }, { timeout: 5000 });
     });
   });

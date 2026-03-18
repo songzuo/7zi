@@ -4,7 +4,7 @@
 
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import { useBatchSelection } from '../useBatchSelection';
+import { useBatchSelection } from './useBatchSelection';
 
 interface TestItem {
   id: string;
