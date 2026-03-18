@@ -53,7 +53,7 @@ const GLOW_COLORS = {
 
 /**
  * AnimatedProgressBar 组件
- * 
+ *
  * 支持多种动画效果:
  * 1. smooth - 平滑过渡
  * 2. pulse - 脉冲效果
@@ -104,11 +104,11 @@ const AnimatedProgressBar = memo(function AnimatedProgressBar({
       }
       const elapsed = timestamp - animState.startTime;
       const progress = Math.min(elapsed / duration, 1);
-      
+
       // 缓动函数
       const easeOutCubic = 1 - Math.pow(1 - progress, 3);
       const currentValue = animState.startValue + (percentage - animState.startValue) * easeOutCubic;
-      
+
       // 使用 flushSync 模式更新，避免 cascading render 警告
       // 但这里我们用 ref 跟踪，只在动画完成时更新状态
       if (progress < 1) {
@@ -178,8 +178,8 @@ const AnimatedProgressBar = memo(function AnimatedProgressBar({
           )}
           {showPercentage && (
             <span className={`text-sm font-bold transition-all duration-300 ${
-              isComplete 
-                ? 'text-green-500 scale-110' 
+              isComplete
+                ? 'text-green-500 scale-110'
                 : 'text-gray-900 dark:text-white'
             }`}>
               {Math.round(displayValue)}%
@@ -197,14 +197,14 @@ const AnimatedProgressBar = memo(function AnimatedProgressBar({
           {animation === 'glow' && (
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
           )}
-          
+
           {/* 条纹动画 */}
           {(animation === 'striped-animated' || striped) && (
             <div className="absolute inset-0 bg-stripes-animated opacity-50" />
           )}
         </div>
       </div>
-      
+
       {/* 完成动画 */}
       {isComplete && (
         <div className="mt-2 text-center animate-fade-in">
@@ -272,7 +272,7 @@ export const WaveProgress = memo(function WaveProgress({
       const progress = Math.min(elapsed / durationValue, 1);
       const easeOut = 1 - Math.pow(1 - progress, 3);
       const currentValue = animState.startValue + (percentage - animState.startValue) * easeOut;
-      
+
       if (progress < 1) {
         setDisplayValue(currentValue);
         animState.animationFrame = requestAnimationFrame(animate);
@@ -294,7 +294,7 @@ export const WaveProgress = memo(function WaveProgress({
   const waveColor = WAVE_COLORS[color];
 
   return (
-    <div 
+    <div
       className="relative rounded-full overflow-hidden border-4 border-gray-200 dark:border-gray-700"
       style={{ width: size, height: size }}
       role="progressbar"
@@ -305,7 +305,7 @@ export const WaveProgress = memo(function WaveProgress({
       {/* 波浪层 */}
       <div
         className="absolute inset-x-0 bottom-0 transition-all duration-500"
-        style={{ 
+        style={{
           height: `${displayValue}%`,
           backgroundColor: waveColor,
         }}
@@ -323,7 +323,7 @@ export const WaveProgress = memo(function WaveProgress({
           />
         </svg>
       </div>
-      
+
       {/* 数值显示 */}
       {showValue && (
         <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
@@ -364,6 +364,7 @@ export const SegmentedProgress = memo(function SegmentedProgress({
   animated = true,
   showLabels = false,
   labels,
+  duration = 300,
 }: SegmentedProgressProps) {
   const [animatedCurrent, setAnimatedCurrent] = useState(0);
   const animStateRef = useRef({
@@ -374,18 +375,18 @@ export const SegmentedProgress = memo(function SegmentedProgress({
 
   useEffect(() => {
     if (animated) {
-      const duration = 300;
+      const durationValue = duration;
       animStateRef.current.startTime = Date.now();
       animStateRef.current.startValue = animatedCurrent;
 
       const animate = () => {
         const animState = animStateRef.current;
         if (animState.startTime === null) return;
-        
+
         const elapsed = Date.now() - animState.startTime;
-        const progress = Math.min(elapsed / duration, 1);
+        const progress = Math.min(elapsed / durationValue, 1);
         const currentValue = animState.startValue + (current - animState.startValue) * progress;
-        
+
         if (progress < 1) {
           setAnimatedCurrent(currentValue);
           animState.animationFrame = requestAnimationFrame(animate);
@@ -435,7 +436,7 @@ export const SegmentedProgress = memo(function SegmentedProgress({
           );
         })}
       </div>
-      
+
       {showLabels && labels && (
         <div className="flex justify-between mt-2">
           {labels.map((label, index) => (
@@ -468,6 +469,7 @@ interface GradientProgressProps {
   size?: 'sm' | 'md' | 'lg';
   gradientColors?: string[];
   animated?: boolean;
+  duration?: number;
 }
 
 export const GradientProgress = memo(function GradientProgress({
@@ -478,6 +480,7 @@ export const GradientProgress = memo(function GradientProgress({
   size = 'md',
   gradientColors = ['#3b82f6', '#8b5cf6', '#ec4899'],
   animated = true,
+  duration = 600,
 }: GradientProgressProps) {
   const [displayValue, setDisplayValue] = useState(0);
   const percentage = useMemo(
@@ -493,19 +496,19 @@ export const GradientProgress = memo(function GradientProgress({
 
   useEffect(() => {
     if (animated) {
-      const duration = 600;
+      const durationValue = duration;
       animStateRef.current.startTime = Date.now();
       animStateRef.current.startValue = displayValue;
 
       const animate = () => {
         const animState = animStateRef.current;
         if (animState.startTime === null) return;
-        
+
         const elapsed = Date.now() - animState.startTime;
-        const progress = Math.min(elapsed / duration, 1);
+        const progress = Math.min(elapsed / durationValue, 1);
         const easeOut = 1 - Math.pow(1 - progress, 3);
         const currentValue = animState.startValue + (percentage - animState.startValue) * easeOut;
-        
+
         if (progress < 1) {
           setDisplayValue(currentValue);
           animState.animationFrame = requestAnimationFrame(animate);
@@ -620,7 +623,7 @@ export const StepProgress = memo(function StepProgress({
               ) : (
                 index + 1
               )}
-              
+
               {/* 当前步骤脉冲 */}
               {isCurrent && !isCompleted && (
                 <div className={`absolute inset-0 rounded-full ${colorClass} opacity-30 animate-ping`} />

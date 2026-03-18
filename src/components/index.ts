@@ -50,6 +50,10 @@ export {
 // Performance Monitoring
 export { PerformanceMonitor, ResourceTimingMonitor } from './PerformanceMonitor';
 
+// Health Dashboard
+export { HealthDashboard } from './HealthDashboard';
+export type { HealthMetric, HealthDashboardProps } from './HealthDashboard';
+
 // Skeleton Loading Components (Designer Patch v4)
 export { 
   SkeletonText, 

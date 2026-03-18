@@ -190,11 +190,14 @@ export const TeamActivityTracker: React.FC<TeamActivityTrackerProps> = memo(({
 
   // 加载数据
   useEffect(() => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setActivities(generateMockActivities(maxItems));
-      setIsLoading(false);
-    }, 500);
+    // 使用微任务延迟 setState，避免同步调用导致的级联渲染
+    Promise.resolve().then(() => {
+      setIsLoading(true);
+      setTimeout(() => {
+        setActivities(generateMockActivities(maxItems));
+        setIsLoading(false);
+      }, 500);
+    });
   }, [maxItems]);
 
   // 过滤活动

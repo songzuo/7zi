@@ -145,16 +145,28 @@ export const RealtimeDashboard: React.FC<RealtimeDashboardProps> = memo(({
 
   // 初始化和定时更新
   useEffect(() => {
-    setIsLoading(true);
-    
+    let isMounted = true;
+
     // 初始加载
-    updateData();
-    setIsLoading(false);
+    const loadData = async () => {
+      if (isMounted) {
+        setIsLoading(true);
+      }
+      await updateData();
+      if (isMounted) {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
 
     // 定时更新（每 5 秒）
     const interval = setInterval(updateData, 5000);
 
-    return () => clearInterval(interval);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, [updateData]);
 
   if (isLoading) {

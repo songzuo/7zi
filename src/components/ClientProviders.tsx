@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { SettingsProvider } from '@/contexts/SettingsContext';
 import { ThemeToggle } from './ThemeToggle';
 import { AIChat } from './AIChat';

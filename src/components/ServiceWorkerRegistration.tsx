@@ -10,14 +10,12 @@ export function ServiceWorkerRegistration() {
   useEffect(() => {
     // 暂时禁用 Service Worker
     // 等待缓存问题解决后再启用
-    console.log('[SW] Service Worker temporarily disabled for debugging');
     
     // 清除所有 Service Worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then((registrations) => {
         registrations.forEach((registration) => {
           registration.unregister();
-          console.log('[SW] Service Worker unregistered');
         });
       });
     }
@@ -27,7 +25,6 @@ export function ServiceWorkerRegistration() {
       caches.keys().then((cacheNames) => {
         cacheNames.forEach((cacheName) => {
           caches.delete(cacheName);
-          console.log('[SW] Cache cleared:', cacheName);
         });
       });
     }
