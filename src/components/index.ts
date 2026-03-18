@@ -26,10 +26,10 @@ export { ProjectDashboard } from './ProjectDashboard';
 
 // UI Components
 export { Hero3D } from './Hero3D';
-export { LazyImage, ImageGalleryOptimized, SkeletonOptimized, CardSkeletonOptimized } from './LazyImage';
 
-// Optimized Image Components
+// Image Components
 export { OptimizedImage, ResponsiveImage } from './OptimizedImage';
+export type { LazyLoadImageProps as OptimizedImageProps } from './LazyLoadImage';
 
 // Lazy Loading Components
 export {
@@ -113,3 +113,14 @@ export {
   GradientProgress,
   StepProgress,
 } from './AnimatedProgressBar';
+
+// Loading Components
+export { LoadingSpinner } from './LoadingSpinner';
+export type {
+  LoadingVariant,
+  LoadingSize,
+  LoadingColor,
+} from './LoadingSpinner';
+
+export { GlobalLoader, MinimalLoader } from './GlobalLoader';
+export type { LoaderVariant } from './GlobalLoader';

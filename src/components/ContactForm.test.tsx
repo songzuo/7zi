@@ -17,10 +17,10 @@ describe('ContactForm Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Mock fetch CSRF token
-    global.fetch = vi.fn().mockResolvedValue({
+    global.fetch = vi.fn(() => Promise.resolve({
       ok: true,
       json: async () => ({ csrfToken: 'mock-csrf-token' }),
-    }) as any;
+    } as Response));
   });
 
   afterEach(() => {
@@ -205,18 +205,18 @@ describe('ContactForm Component', () => {
 
     it('should handle submission error', async () => {
       // Mock failed submission
-      (global.fetch as any).mockRejectedValueOnce(new Error('Network error'));
-      
+      (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Network error'));
+
       render(<ContactForm />);
-      
+
       // Fill form
       fireEvent.change(screen.getByLabelText(/name/i), { target: { value: 'John Doe' } });
       fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'john@example.com' } });
       fireEvent.change(screen.getByLabelText(/message/i), { target: { value: 'This is a test message' } });
-      
+
       const submitButton = screen.getByRole('button', { name: /send message/i });
       fireEvent.click(submitButton);
-      
+
       await waitFor(() => {
         expect(screen.getByText(/failed to send message/i)).toBeInTheDocument();
       });
@@ -224,11 +224,11 @@ describe('ContactForm Component', () => {
 
     it('should handle API error response', async () => {
       // Mock API error
-      (global.fetch as any).mockResolvedValueOnce({
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
         ok: false,
         status: 400,
         json: async () => ({ error: 'Bad Request' }),
-      });
+      } as Response);
       
       render(<ContactForm />);
       

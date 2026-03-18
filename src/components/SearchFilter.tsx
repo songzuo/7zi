@@ -20,7 +20,7 @@ import { applySearchFilterSort, clearAllFilters, hasActiveFilters } from '@/lib/
 // Props 类型定义
 // ============================================================================
 
-export interface SearchFilterProps<T extends Record<string, unknown>> {
+export interface SearchFilterProps<T extends object> {
   /** 项目列表 */
   items: T[];
   /** 过滤器配置 */
@@ -258,9 +258,9 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({ filter, selectedValues,
 // ============================================================================
 
 interface SortDropdownProps {
-  sorts: SortConfig[];
-  currentSort?: SortConfig;
-  onSortChange: (sort: SortConfig) => void;
+  sorts: SortConfig<unknown>[];
+  currentSort?: SortConfig<unknown>;
+  onSortChange: (sort: SortConfig<unknown>) => void;
 }
 
 const SortDropdown: React.FC<SortDropdownProps> = ({ sorts, currentSort, onSortChange }) => {
@@ -268,7 +268,7 @@ const SortDropdown: React.FC<SortDropdownProps> = ({ sorts, currentSort, onSortC
 
   const handleToggle = () => setIsOpen(!isOpen);
 
-  const handleSortSelect = (sort: SortConfig) => {
+  const handleSortSelect = (sort: SortConfig<unknown>) => {
     // 如果是当前排序，切换方向
     if (currentSort && currentSort.field === sort.field) {
       onSortChange({
@@ -281,7 +281,7 @@ const SortDropdown: React.FC<SortDropdownProps> = ({ sorts, currentSort, onSortC
     setIsOpen(false);
   };
 
-  const getSortLabel = (sort: SortConfig): string => {
+  const getSortLabel = (sort: SortConfig<unknown>): string => {
     const directionIcon = sort.direction === 'asc' ? '↑' : '↓';
     return `${String(sort.field)} ${directionIcon}`;
   };
@@ -349,7 +349,7 @@ const SortDropdown: React.FC<SortDropdownProps> = ({ sorts, currentSort, onSortC
 // 主组件：SearchFilter
 // ============================================================================
 
-export function SearchFilter<T extends Record<string, unknown>>({
+export function SearchFilter<T extends object>({
   items,
   filters = [],
   sorts = [],
@@ -411,9 +411,9 @@ export function SearchFilter<T extends Record<string, unknown>>({
         {/* 排序 */}
         {showSort && sorts.length > 0 && (
           <SortDropdown
-            sorts={sorts}
-            currentSort={currentSort}
-            onSortChange={setCurrentSort}
+            sorts={sorts as SortConfig<unknown>[]}
+            currentSort={currentSort as SortConfig<unknown> | undefined}
+            onSortChange={setCurrentSort as (sort: SortConfig<unknown>) => void}
           />
         )}
 
@@ -463,7 +463,7 @@ export function SearchFilter<T extends Record<string, unknown>>({
             {filters.map(filter => (
               <FilterDropdown
                 key={filter.id}
-                filter={filter}
+                filter={filter as FilterConfig<unknown>}
                 selectedValues={activeFilters[filter.id] || []}
                 onSelectionChange={values => handleFilterChange(filter.id, values)}
               />

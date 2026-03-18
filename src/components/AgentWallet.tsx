@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, memo } from 'react';
 import { useWalletStore, useWallets } from '../stores/walletStore';
 import type { AgentWallet, Transaction } from '../types/wallet';
 import { TRANSACTION_TYPE_CONFIG, TRANSACTION_STATUS_CONFIG } from '../types/wallet';
@@ -19,12 +19,13 @@ interface WalletBalanceProps {
 /**
  * WalletBalance - 钱包余额显示组件
  */
-export const WalletBalance: React.FC<WalletBalanceProps> = ({
+export const WalletBalance: React.FC<WalletBalanceProps> = memo(({
   wallet,
   compact = false,
   showDetails = true,
   className = '',
 }) => {
+  WalletBalance.displayName = 'WalletBalance';
   const config = useWalletStore((state) => state.config);
 
   if (!wallet) {
@@ -102,7 +103,7 @@ export const WalletBalance: React.FC<WalletBalanceProps> = ({
       )}
     </div>
   );
-};
+});
 
 // ============================================================================
 // 交易记录组件
@@ -117,7 +118,7 @@ interface TransactionItemProps {
 /**
  * TransactionItem - 单条交易记录
  */
-export const TransactionItem: React.FC<TransactionItemProps> = ({
+export const TransactionItem: React.FC<TransactionItemProps> = memo(({
   transaction,
   currentWalletId,
   className = '',
@@ -126,7 +127,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
   const typeConfig = TRANSACTION_TYPE_CONFIG[transaction.type];
   const statusConfig = TRANSACTION_STATUS_CONFIG[transaction.status];
 
-  const formatTime = (dateStr: string) => {
+  const formatTime = useCallback((dateStr: string) => {
     const date = new Date(dateStr);
     return date.toLocaleString('zh-CN', {
       month: 'numeric',
@@ -134,7 +135,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
       hour: '2-digit',
       minute: '2-digit',
     });
-  };
+  }, []);
 
   return (
     <div className={`flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-zinc-700/50 rounded-lg transition-colors ${className}`}>
@@ -178,7 +179,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
       </div>
     </div>
   );
-};
+});
 
 interface TransactionListProps {
   walletId?: string;
@@ -248,7 +249,7 @@ export const TransferForm: React.FC<TransferFormProps> = ({
   const fromWallet = wallets.find((w) => w.agentId === fromAgentId);
   const availableWallets = wallets.filter((w) => w.agentId !== fromAgentId);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
@@ -283,7 +284,7 @@ export const TransferForm: React.FC<TransferFormProps> = ({
       setError(result.error ?? '转账失败');
       onComplete?.({ success: false, error: result.error });
     }
-  };
+  }, [fromAgentId, toAgentId, amount, memo, transfer, onComplete]);
 
   if (!fromWallet) {
     return (
@@ -381,19 +382,23 @@ interface WalletSelectorProps {
 /**
  * WalletSelector - 钱包选择器
  */
-export const WalletSelector: React.FC<WalletSelectorProps> = ({
+export const WalletSelector: React.FC<WalletSelectorProps> = memo(({
   selectedId,
   onSelect,
   className = '',
 }) => {
   const wallets = useWallets();
 
+  const handleSelect = useCallback((walletId: string) => {
+    onSelect(walletId);
+  }, [onSelect]);
+
   return (
     <div className={`grid gap-2 ${className}`}>
       {wallets.map((w) => (
         <button
           key={w.agentId}
-          onClick={() => onSelect(w.agentId)}
+          onClick={() => handleSelect(w.agentId)}
           className={`p-3 rounded-lg border-2 text-left transition-all ${
             selectedId === w.agentId
               ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
@@ -414,7 +419,7 @@ export const WalletSelector: React.FC<WalletSelectorProps> = ({
       ))}
     </div>
   );
-};
+});
 
 // ============================================================================
 // 完整钱包面板组件
@@ -443,12 +448,26 @@ export const AgentWalletPanel: React.FC<AgentWalletPanelProps> = ({
 
   const selectedWallet = wallets.find((w) => w.agentId === selectedId);
 
+  const handleTabChange = useCallback((tab: 'balance' | 'transfer' | 'history') => {
+    setActiveTab(tab);
+  }, []);
+
+  const handleWalletSelect = useCallback((walletId: string) => {
+    setSelectedId(walletId);
+  }, []);
+
+  const handleTransferComplete = useCallback((result: { success: boolean; error?: string }) => {
+    if (result.success) {
+      setActiveTab('history');
+    }
+  }, []);
+
   return (
     <div className={`bg-white dark:bg-zinc-800 rounded-xl shadow-lg overflow-hidden ${className}`}>
       {/* 标签栏 */}
       <div className="flex border-b border-gray-200 dark:border-zinc-700">
         <button
-          onClick={() => setActiveTab('balance')}
+          onClick={() => handleTabChange('balance')}
           className={`flex-1 py-3 text-sm font-medium transition-colors ${
             activeTab === 'balance'
               ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
@@ -459,7 +478,7 @@ export const AgentWalletPanel: React.FC<AgentWalletPanelProps> = ({
         </button>
         {showTransfer && (
           <button
-            onClick={() => setActiveTab('transfer')}
+            onClick={() => handleTabChange('transfer')}
             className={`flex-1 py-3 text-sm font-medium transition-colors ${
               activeTab === 'transfer'
                 ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
@@ -471,7 +490,7 @@ export const AgentWalletPanel: React.FC<AgentWalletPanelProps> = ({
         )}
         {showHistory && (
           <button
-            onClick={() => setActiveTab('history')}
+            onClick={() => handleTabChange('history')}
             className={`flex-1 py-3 text-sm font-medium transition-colors ${
               activeTab === 'history'
                 ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
@@ -490,7 +509,7 @@ export const AgentWalletPanel: React.FC<AgentWalletPanelProps> = ({
           <div className="mb-4">
             <WalletSelector
               selectedId={selectedId}
-              onSelect={setSelectedId}
+              onSelect={handleWalletSelect}
             />
           </div>
         )}
@@ -504,11 +523,7 @@ export const AgentWalletPanel: React.FC<AgentWalletPanelProps> = ({
         {activeTab === 'transfer' && selectedId && (
           <TransferForm
             fromAgentId={selectedId}
-            onComplete={(result) => {
-              if (result.success) {
-                setActiveTab('history');
-              }
-            }}
+            onComplete={handleTransferComplete}
           />
         )}
 
