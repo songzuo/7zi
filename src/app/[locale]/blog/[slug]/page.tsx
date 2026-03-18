@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import Link from "next/link";
 
 const baseUrl = "https://7zi.studio";
@@ -134,12 +135,12 @@ const blogPosts = [
   },
 ];
 
-// 生成静态参数
-export function generateStaticParams() {
-  return blogPosts.map((post) => ({
-    slug: post.id,
-  }));
-}
+// 禁用静态生成
+// export function generateStaticParams() {
+//   return blogPosts.map((post) => ({
+//     slug: post.id,
+//   }));
+// }
 
 // 获取文章
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {

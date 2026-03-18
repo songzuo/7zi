@@ -1,3 +1,42 @@
+/**
+ * Root Layout Component
+ *
+ * This is the main layout component for the 7zi Studio application.
+ * It handles internationalization, global state management, and provides
+ * the base structure for all pages.
+ *
+ * @module app/[locale]/layout
+ *
+ * Global Loading System:
+ * The layout wraps the application with GlobalLoadingProvider, which enables
+ * global loading state management throughout the application. This system:
+ * - Provides unified loading indicators across the entire app
+ * - Supports progress tracking (0-100%)
+ * - Prevents UI flickering with minimum display time
+ * - Allows scoped loading states for individual components
+ *
+ * Usage example:
+ * ```tsx
+ * import { useGlobalLoading } from '@/hooks/useGlobalLoading';
+ *
+ * function MyComponent() {
+ *   const { withLoading } = useGlobalLoading();
+ *
+ *   const handleSubmit = async () => {
+ *     const result = await withLoading(
+ *       apiCall(),
+ *       'Submitting...'
+ *     );
+ *   };
+ * }
+ * ```
+ *
+ * @see {@link GlobalLoadingProvider} - Context provider for global loading state
+ * @see {@link useGlobalLoading} - Hook to access global loading state
+ * @see {@link GlobalLoader} - Full-screen loading overlay component
+ * @see docs/LOADING-SYSTEM.md - Complete documentation
+ */
+
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -124,10 +163,10 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   };
 }
 
-// 静态生成所有 locale
-export function generateStaticParams() {
-  return routing.locales.map((locale) => ({ locale }));
-}
+// 禁用静态生成
+// export function generateStaticParams() {
+//   return routing.locales.map((locale) => ({ locale }));
+// }
 
 export default async function RootLayout({
   children,

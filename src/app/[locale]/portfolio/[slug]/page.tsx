@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { Locale, locales } from '@/i18n/config';
 import { Link } from '@/i18n/routing';
@@ -15,14 +16,15 @@ type Params = Promise<{ locale: string; slug: string }>;
 
 const baseUrl = 'https://7zi.studio';
 
-export async function generateStaticParams() {
-  return locales.flatMap(locale => 
-    projects.map(project => ({
-      locale,
-      slug: project.slug,
-    }))
-  );
-}
+// 禁用静态生成，改用动态渲染
+// export async function generateStaticParams() {
+//   return locales.flatMap(locale => 
+//     projects.map(project => ({
+//       locale,
+//       slug: project.slug,
+//     }))
+//   );
+// }
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { locale, slug } = await params;

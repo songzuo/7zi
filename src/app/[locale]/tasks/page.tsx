@@ -5,6 +5,8 @@
  * 显示 GitHub Issues 作为任务看板
  */
 
+export const dynamic = 'force-dynamic';
+
 import { useEffect, useState } from 'react';
 import { TaskBoard } from '@/components/TaskBoard';
 import { LoadingSpinner } from '@/components/LoadingSpinner';

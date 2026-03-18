@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { setRequestLocale } from 'next-intl/server';
 import { Locale, locales } from '@/i18n/config';
 import DashboardClient from './DashboardClient';
