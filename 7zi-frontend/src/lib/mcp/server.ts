@@ -5,6 +5,8 @@
  * 参考: https://modelcontextprotocol.io/specification
  */
 
+import { ToolExecutor } from "@/lib/tools/executor";
+
 export interface MCPRequest {
   jsonrpc: "2.0";
   id: string | number;
@@ -101,6 +103,22 @@ export class MCPServer {
       },
     });
 
+    // 列出文件工具
+    this.registerTool({
+      name: "list_files",
+      description: "List files and directories in a given path",
+      inputSchema: {
+        type: "object",
+        properties: {
+          path: {
+            type: "string",
+            description: "Directory path to list",
+          },
+        },
+        required: ["path"],
+      },
+    });
+
     // 执行命令工具
     this.registerTool({
       name: "exec_command",
@@ -115,6 +133,10 @@ export class MCPServer {
           workdir: {
             type: "string",
             description: "Working directory (optional)",
+          },
+          timeout: {
+            type: "number",
+            description: "Command timeout in milliseconds (optional)",
           },
         },
         required: ["command"],
@@ -233,81 +255,8 @@ export class MCPServer {
    * 执行工具（实际实现）
    */
   private async executeTool(name: string, args: Record<string, unknown>): Promise<ToolResult> {
-    // 注意：实际实现需要通过 OpenClaw API 或 subprocess 调用
-    // 这里是示例实现
-
-    switch (name) {
-      case "read_file":
-        return {
-          content: [
-            {
-              type: "text",
-              text: `[Simulated] Reading file: ${args.path}`,
-            },
-          ],
-        };
-
-      case "write_file":
-        return {
-          content: [
-            {
-              type: "text",
-              text: `[Simulated] Writing to file: ${args.path}`,
-            },
-          ],
-        };
-
-      case "exec_command":
-        return {
-          content: [
-            {
-              type: "text",
-              text: `[Simulated] Executing command: ${args.command}`,
-            },
-          ],
-        };
-
-      case "web_search":
-        return {
-          content: [
-            {
-              type: "text",
-              text: `[Simulated] Searching for: ${args.query}`,
-            },
-          ],
-        };
-
-      case "web_fetch":
-        return {
-          content: [
-            {
-              type: "text",
-              text: `[Simulated] Fetching: ${args.url}`,
-            },
-          ],
-        };
-
-      case "browser_control":
-        return {
-          content: [
-            {
-              type: "text",
-              text: `[Simulated] Browser action: ${args.action}`,
-            },
-          ],
-        };
-
-      default:
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Unknown tool: ${name}`,
-            },
-          ],
-          isError: true,
-        };
-    }
+    // 使用真实的工具执行器
+    return await ToolExecutor.execute(name, args);
   }
 
   /**

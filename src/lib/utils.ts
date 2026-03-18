@@ -28,8 +28,9 @@
  * Cache entry with value, timestamp, and TTL
  * @interface CacheEntry
  * @template T
+ * @deprecated No longer used, LRUCache now stores metadata directly
  */
-interface CacheEntry<T> {
+export interface CacheEntry<T> {
   /** Cached value */
   value: T;
   /** Creation timestamp in milliseconds */
@@ -40,16 +41,9 @@ interface CacheEntry<T> {
   lastAccess: number;
 }
 
-/**
- * LRU Cache with TTL support and size limits
- * @class LRUCache
- * @template T
- */
 export class LRUCache<T> {
-  private store: Map<string, CacheEntry<T>> = new Map();
+  private store: Map<string, { value: T; expiresAt: number; lastAccess: number }> = new Map();
   private maxSize: number;
-  private accessOrder: Map<string, number> = new Map(); // key -> index
-  private keyOrder: string[] = [];
 
   /**
    * Creates a new LRU cache
@@ -60,17 +54,6 @@ export class LRUCache<T> {
   }
 
   /**
-   * Rebuilds the index Map for O(1) lookups
-   * @private
-   */
-  private rebuildIndices(): void {
-    this.accessOrder.clear();
-    this.keyOrder.forEach((key, index) => {
-      this.accessOrder.set(key, index);
-    });
-  }
-
-  /**
    * Stores a value in the cache
    * @param {string} key - Cache key
    * @param {T} value - Value to cache
@@ -78,6 +61,7 @@ export class LRUCache<T> {
    */
   set(key: string, value: T, ttl: number = 5 * 60 * 1000): void {
     const now = Date.now();
+    const expiresAt = now + ttl;
 
     // Remove oldest entry if at capacity
     if (this.store.size >= this.maxSize && !this.store.has(key)) {
@@ -86,13 +70,9 @@ export class LRUCache<T> {
 
     this.store.set(key, {
       value,
-      timestamp: now,
-      ttl,
+      expiresAt,
       lastAccess: now,
     });
-
-    // Update access order (O(1) operation)
-    this.updateAccessOrder(key);
   }
 
   /**
@@ -108,17 +88,17 @@ export class LRUCache<T> {
     }
 
     const now = Date.now();
-    const age = now - entry.timestamp;
 
     // Check if expired
-    if (age > entry.ttl) {
+    if (now > entry.expiresAt) {
       this.delete(key);
       return null;
     }
 
-    // Update last access time
+    // Update last access time (move to end)
     entry.lastAccess = now;
-    this.updateAccessOrder(key);
+    this.store.delete(key);
+    this.store.set(key, entry);
 
     return entry.value;
   }
@@ -129,14 +109,6 @@ export class LRUCache<T> {
    */
   delete(key: string): void {
     this.store.delete(key);
-    // O(1) deletion using Map
-    const index = this.accessOrder.get(key);
-    if (index !== undefined) {
-      this.keyOrder.splice(index, 1);
-      this.accessOrder.delete(key);
-      // Rebuild indices after deletion (O(n) but only happens on delete)
-      this.rebuildIndices();
-    }
   }
 
   /**
@@ -144,8 +116,6 @@ export class LRUCache<T> {
    */
   clear(): void {
     this.store.clear();
-    this.accessOrder.clear();
-    this.keyOrder = [];
   }
 
   /**
@@ -157,8 +127,8 @@ export class LRUCache<T> {
     const entry = this.store.get(key);
     if (!entry) return false;
 
-    const age = Date.now() - entry.timestamp;
-    if (age > entry.ttl) {
+    const now = Date.now();
+    if (now > entry.expiresAt) {
       this.delete(key);
       return false;
     }
@@ -171,29 +141,11 @@ export class LRUCache<T> {
    * @private
    */
   private evictLRU(): void {
-    if (this.keyOrder.length === 0) return;
+    if (this.store.size === 0) return;
 
-    const lruKey = this.keyOrder[0];
+    // Map preserves insertion order, so the first key is the LRU
+    const lruKey = this.store.keys().next().value;
     this.delete(lruKey);
-  }
-
-  /**
-   * Updates the access order for a key (O(1) amortized)
-   * @private
-   */
-  private updateAccessOrder(key: string): void {
-    const existingIndex = this.accessOrder.get(key);
-    
-    if (existingIndex !== undefined) {
-      // Move to end: remove from current position, add to end
-      this.keyOrder.splice(existingIndex, 1);
-    }
-    
-    // Add to end as most recently used
-    this.keyOrder.push(key);
-    
-    // Update indices (O(n) but only needed when moving existing key)
-    this.rebuildIndices();
   }
 
   /**
@@ -229,18 +181,21 @@ export function createCache<T>(ttl: number = 5 * 60 * 1000) {
 }
 
 /**
- * Advanced debounced function with cancel and flush capabilities
+ * Debounce function with cancel and flush capabilities
+ * 
  * @template T - Function type
  * @param {T} func - Function to debounce
  * @param {number} wait - Wait time in milliseconds
- * @returns {Object} Debounced function with additional methods
+ * @returns {Object} Debounced function with cancel, flush, and pending methods
+ * 
  * @example
- * const debouncedFn = advancedDebounce(search, 300);
+ * const debouncedFn = debounce(search, 300);
  * debouncedFn('query');
  * debouncedFn.cancel(); // Cancel pending execution
  * debouncedFn.flush(); // Execute immediately
+ * debouncedFn.pending(); // Check if execution is pending
  */
-export function advancedDebounce<T extends (...args: never[]) => void>(
+export function debounce<T extends (...args: never[]) => void>(
   func: T,
   wait: number
 ): ((...args: Parameters<T>) => void) & {
@@ -292,43 +247,20 @@ export function advancedDebounce<T extends (...args: never[]) => void>(
 }
 
 /**
- * Debounce function with cancel and flush capabilities
+ * Throttle function with cancel capability
  * 
- * @template T - Function type
- * @param {T} func - Function to debounce
- * @param {number} wait - Wait time in milliseconds
- * @returns {Object} Debounced function with cancel, flush, and pending methods
- * 
- * @example
- * const debouncedFn = debounce(search, 300);
- * debouncedFn('query');
- * debouncedFn.cancel(); // Cancel pending execution
- * debouncedFn.flush(); // Execute immediately
- * debouncedFn.pending(); // Check if execution is pending
- */
-export function debounce<T extends (...args: never[]) => void>(
-  func: T,
-  wait: number
-): ((...args: Parameters<T>) => void) & {
-  cancel: () => void;
-  flush: () => void;
-  pending: () => boolean;
-} {
-  return advancedDebounce(func, wait);
-}
-
-/**
- * Advanced throttled function with cancel capability
  * @template T - Function type
  * @param {T} func - Function to throttle
  * @param {number} limit - Minimum time between executions in milliseconds
- * @returns {Object} Throttled function with additional methods
+ * @returns {Object} Throttled function with cancel and pending methods
+ * 
  * @example
- * const throttledFn = advancedThrottle(scroll, 100);
+ * const throttledFn = throttle(scroll, 100);
  * throttledFn('event');
  * throttledFn.cancel(); // Cancel pending execution
+ * throttledFn.pending(); // Check if execution is pending
  */
-export function advancedThrottle<T extends (...args: never[]) => void>(
+export function throttle<T extends (...args: never[]) => void>(
   func: T,
   limit: number
 ): ((...args: Parameters<T>) => void) & {
@@ -369,30 +301,6 @@ export function advancedThrottle<T extends (...args: never[]) => void>(
   throttled.pending = (): boolean => inThrottle;
 
   return throttled as typeof throttled & ((...args: Parameters<T>) => void);
-}
-
-/**
- * Throttle function with cancel capability
- * 
- * @template T - Function type
- * @param {T} func - Function to throttle
- * @param {number} limit - Minimum time between executions in milliseconds
- * @returns {Object} Throttled function with cancel and pending methods
- * 
- * @example
- * const throttledFn = throttle(scroll, 100);
- * throttledFn('event');
- * throttledFn.cancel(); // Cancel pending execution
- * throttledFn.pending(); // Check if execution is pending
- */
-export function throttle<T extends (...args: never[]) => void>(
-  func: T,
-  limit: number
-): ((...args: Parameters<T>) => void) & {
-  cancel: () => void;
-  pending: () => boolean;
-} {
-  return advancedThrottle(func, limit);
 }
 
 /**
@@ -457,7 +365,11 @@ export function memoize<T extends (...args: unknown[]) => unknown>(
 }
 
 /**
- * Deep clone an object, handling circular references
+ * Deep clone an object, handling circular references (iterative implementation)
+ * 
+ * This implementation uses an explicit stack instead of recursion to avoid
+ * stack overflow errors when cloning deeply nested objects.
+ * 
  * @template T - Type of the object to clone
  * @param {T} obj - Object to clone
  * @param {WeakMap} seen - Internal use for circular reference tracking
@@ -483,9 +395,25 @@ export function deepClone<T>(obj: T, seen: WeakMap<object, unknown> = new WeakMa
     return new RegExp(obj.source, obj.flags) as T;
   }
 
+  // Handle circular references
+  if (seen.has(obj)) {
+    return seen.get(obj) as T;
+  }
+
+  // Handle Array
+  if (Array.isArray(obj)) {
+    const cloned = [] as unknown as T;
+    seen.set(obj, cloned);
+    for (let i = 0; i < obj.length; i++) {
+      (cloned as unknown[])[i] = deepClone(obj[i], seen);
+    }
+    return cloned;
+  }
+
   // Handle Map
   if (obj instanceof Map) {
     const cloned = new Map();
+    seen.set(obj, cloned);
     obj.forEach((value, key) => {
       cloned.set(deepClone(key, seen), deepClone(value, seen));
     });
@@ -495,30 +423,21 @@ export function deepClone<T>(obj: T, seen: WeakMap<object, unknown> = new WeakMa
   // Handle Set
   if (obj instanceof Set) {
     const cloned = new Set();
+    seen.set(obj, cloned);
     obj.forEach(value => {
       cloned.add(deepClone(value, seen));
     });
     return cloned as T;
   }
 
-  // Handle Array
-  if (Array.isArray(obj)) {
-    return obj.map(item => deepClone(item, seen)) as T;
-  }
-
-  // Handle circular references
-  if (seen.has(obj)) {
-    return seen.get(obj) as T;
-  }
-
   // Handle plain objects
   const cloned = {} as T;
   seen.set(obj, cloned);
-
-  for (const [key, value] of Object.entries(obj)) {
-    (cloned as Record<string, unknown>)[key] = deepClone(value as T, seen);
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      cloned[key] = deepClone(obj[key], seen);
+    }
   }
-
   return cloned;
 }
 
@@ -564,17 +483,26 @@ export function formatNumber(num: number, separator: string = ','): string {
  */
 export function generateId(prefix: string = ''): string {
   // Use crypto.randomUUID if available (modern browsers/Node.js)
+  // @ts-expect-error - crypto.randomUUID may not be available in older environments
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     return prefix ? `${prefix}-${crypto.randomUUID()}` : crypto.randomUUID();
   }
   
-  // Fallback to manual UUID generation
+  // Fallback to manual UUID generation (same implementation as crypto/index.ts)
   const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
     const r = (Math.random() * 16) | 0;
     const v = c === 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
   return prefix ? `${prefix}-${uuid}` : uuid;
+}
+
+/**
+ * Alias for generateId() - for consistency with crypto module
+ * @returns {string} UUID v4 string
+ */
+export function generateUUID(): string {
+  return generateId();
 }
 
 /**
@@ -975,7 +903,7 @@ export function debounceDOM<T extends Event>(
   handler: (event: T) => void,
   delay: number = 100
 ): (event: T) => void {
-  return advancedDebounce(handler, delay) as (event: T) => void;
+  return debounce(handler, delay) as (event: T) => void;
 }
 
 /**
@@ -993,7 +921,7 @@ export function throttleDOM<T extends Event>(
   handler: (event: T) => void,
   limit: number = 100
 ): (event: T) => void {
-  return advancedThrottle(handler, limit) as (event: T) => void;
+  return throttle(handler, limit) as (event: T) => void;
 }
 
 /**
@@ -1375,6 +1303,40 @@ export function lazyLoadComponent<T>(
 export { formatTimeAgo, formatDate, formatDateTime, isToday, isYesterday } from './date';
 
 /**
+ * Merge Tailwind CSS classes with clsx and deduplication
+ * Optimized single-pass implementation
+ *
+ * @param {...(string | undefined | null | boolean)[]} classes - Class names to merge
+ * @returns {string} Merged and deduplicated class string
+ * @example
+ * cn('foo', 'bar') // 'foo bar'
+ * cn('foo', false && 'bar', 'baz') // 'foo baz'
+ * cn('foo', { bar: true, baz: false }) // 'foo bar'
+ */
+export function cn(...classes: (string | undefined | null | boolean | Record<string, boolean>)[]): string {
+  const seen = new Set<string>();
+
+  for (const cls of classes) {
+    if (!cls) continue;
+
+    if (typeof cls === 'string') {
+      // Single-pass: split and add directly to set
+      for (const part of cls.split(' ').filter(Boolean)) {
+        seen.add(part);
+      }
+    } else if (typeof cls === 'object') {
+      for (const [key, value] of Object.entries(cls)) {
+        if (value) {
+          seen.add(key);
+        }
+      }
+    }
+  }
+
+  return Array.from(seen).join(' ');
+}
+
+/**
  * Validate email address
  * @param {string} email - Email address to validate
  * @returns {boolean} True if valid email format
@@ -1386,7 +1348,7 @@ export function isValidEmail(email: string): boolean {
   if (!email || typeof email !== 'string') {
     return false;
   }
-  
+
   // RFC 5322 compliant email regex
   const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
   return emailRegex.test(email);

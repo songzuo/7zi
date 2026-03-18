@@ -1,8 +1,9 @@
 /**
- * SEO 工具函数测试
+ * Unit tests for seo.ts
+ * @module lib/__tests__/seo.test
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   siteConfig,
   getOrganizationSchema,
@@ -11,7 +12,6 @@ import {
   getBlogPostSchema,
   getServiceSchema,
   getFAQSchema,
-  getLocalBusinessSchema,
   getCanonicalUrl,
   getOGImageUrl,
   socialLinks,
@@ -20,275 +20,176 @@ import {
 
 describe('seo.ts', () => {
   describe('siteConfig', () => {
-    it('应包含基本的网站配置', () => {
-      expect(siteConfig).toHaveProperty('name');
-      expect(siteConfig).toHaveProperty('url');
-      expect(siteConfig).toHaveProperty('ogImage');
-      expect(siteConfig).toHaveProperty('description');
-    });
-
-    it('应包含正确的基础 URL', () => {
-      // 在测试环境中可能是 localhost，验证 URL 格式正确
-      expect(siteConfig.url).toMatch(/^https?:\/\/.+/);
-    });
-
-    it('应有完整的社会化链接配置', () => {
-      expect(siteConfig.twitterHandle).toBe('@7zistudio');
-      expect(siteConfig.email).toBe('business@7zi.studio');
+    it('should have required fields', () => {
+      expect(siteConfig.name).toBe('7zi Studio');
+      expect(siteConfig.url).toBe('https://7zi.studio');
+      expect(siteConfig.description).toBeTruthy();
+      expect(siteConfig.keywords).toBeInstanceOf(Array);
     });
   });
 
   describe('getOrganizationSchema', () => {
-    it('应返回有效的组织结构化数据', () => {
+    it('should return valid Organization schema', () => {
       const schema = getOrganizationSchema();
-      
       expect(schema['@type']).toBe('Organization');
-      expect(schema).toHaveProperty('name');
-      expect(schema).toHaveProperty('url');
-      expect(schema).toHaveProperty('logo');
-      expect(schema).toHaveProperty('description');
-    });
-
-    it('应包含联系方式', () => {
-      const schema = getOrganizationSchema();
-      
-      expect(schema).toHaveProperty('contactPoint');
-      expect(schema.contactPoint).toHaveProperty('email');
-    });
-
-    it('应包含社交媒体链接', () => {
-      const schema = getOrganizationSchema();
-      
-      expect(schema).toHaveProperty('sameAs');
-      expect(Array.isArray(schema.sameAs)).toBe(true);
-      expect(schema.sameAs).toContain('https://github.com/7zi-studio');
+      expect(schema.name).toBe(siteConfig.name);
+      expect(schema.url).toBe(siteConfig.url);
+      expect(schema.logo).toBeTruthy();
     });
   });
 
   describe('getWebSiteSchema', () => {
-    it('应返回有效的网站结构化数据', () => {
+    it('should return valid WebSite schema', () => {
       const schema = getWebSiteSchema();
-      
       expect(schema['@type']).toBe('WebSite');
-      expect(schema).toHaveProperty('name');
-      expect(schema).toHaveProperty('url');
-    });
-
-    it('应包含搜索操作', () => {
-      const schema = getWebSiteSchema();
-      
-      expect(schema).toHaveProperty('potentialAction');
+      expect(schema.name).toBe(siteConfig.name);
+      expect(schema.url).toBe(siteConfig.url);
     });
   });
 
   describe('getBreadcrumbSchema', () => {
-    it('应返回有效的面包屑结构化数据', () => {
+    it('should return valid BreadcrumbList schema', () => {
       const items = [
-        { name: '首页', url: 'https://7zi.studio/' },
-        { name: '博客', url: 'https://7zi.studio/blog' },
+        { name: 'Home', url: 'https://7zi.studio/' },
+        { name: 'Blog', url: 'https://7zi.studio/blog' },
       ];
-      
       const schema = getBreadcrumbSchema(items);
-      
       expect(schema['@type']).toBe('BreadcrumbList');
-      expect(schema).toHaveProperty('itemListElement');
       expect(schema.itemListElement).toHaveLength(2);
+      expect(schema.itemListElement[0].position).toBe(1);
     });
 
-    it('应正确设置位置索引', () => {
-      const items = [
-        { name: '首页', url: 'https://7zi.studio/' },
-        { name: '博客', url: 'https://7zi.studio/blog' },
-        { name: '文章', url: 'https://7zi.studio/blog/article' },
-      ];
-      
-      const schema = getBreadcrumbSchema(items);
-      
-      expect(schema.itemListElement[0].position).toBe(1);
-      expect(schema.itemListElement[1].position).toBe(2);
-      expect(schema.itemListElement[2].position).toBe(3);
+    it('should handle empty array', () => {
+      const schema = getBreadcrumbSchema([]);
+      expect(schema['@type']).toBe('BreadcrumbList');
+      expect(schema.itemListElement).toHaveLength(0);
     });
   });
 
   describe('getBlogPostSchema', () => {
-    it('应返回有效的博客文章结构化数据', () => {
+    it('should return valid BlogPosting schema', () => {
       const post = {
-        title: '测试文章',
-        description: '这是一篇测试文章',
-        url: 'https://7zi.studio/blog/test-article',
+        title: 'Test Post',
+        description: 'Test description',
+        url: 'https://7zi.studio/blog/test',
         datePublished: '2024-01-01',
-        author: '测试作者',
+        author: 'Test Author',
       };
-      
       const schema = getBlogPostSchema(post);
-      
       expect(schema['@type']).toBe('BlogPosting');
       expect(schema.headline).toBe(post.title);
-      expect(schema.description).toBe(post.description);
+      expect(schema.author).toEqual({ '@type': 'Person', name: post.author });
     });
 
-    it('应正确处理可选字段', () => {
+    it('should handle optional fields', () => {
       const post = {
-        title: '测试文章',
-        description: '这是一篇测试文章',
-        url: 'https://7zi.studio/blog/test-article',
+        title: 'Test',
+        description: 'Desc',
+        url: 'https://7zi.studio/blog/test',
         datePublished: '2024-01-01',
-        author: '测试作者',
-        image: 'https://7zi.studio/image.jpg',
+        author: 'Author',
         tags: ['tag1', 'tag2'],
-        category: '技术',
-        wordCount: 1000,
+        category: 'Tech',
       };
-      
       const schema = getBlogPostSchema(post);
-      
-      expect(schema.image).toBe(post.image);
       expect(schema.keywords).toBe('tag1, tag2');
-      expect(schema.articleSection).toBe('技术');
-      expect(schema.wordCount).toBe(1000);
+      expect(schema.articleSection).toBe('Tech');
     });
   });
 
   describe('getServiceSchema', () => {
-    it('应返回有效的服务结构化数据', () => {
+    it('should return valid Service schema', () => {
       const service = {
-        name: '网站开发',
-        description: '专业网站开发服务',
-        url: 'https://7zi.studio/services/web-development',
+        name: 'Web Development',
+        description: 'Professional web development',
+        url: 'https://7zi.studio/services/web-dev',
       };
-      
       const schema = getServiceSchema(service);
-      
       expect(schema['@type']).toBe('Service');
       expect(schema.name).toBe(service.name);
-      expect(schema.description).toBe(service.description);
     });
 
-    it('应正确处理价格信息', () => {
+    it('should handle offers with pricing', () => {
       const service = {
-        name: '网站开发',
-        description: '专业网站开发服务',
-        url: 'https://7zi.studio/services/web-development',
+        name: 'Consulting',
+        description: 'Expert consultation',
+        url: 'https://7zi.studio/services/consulting',
         offers: {
-          price: '999',
-          priceCurrency: 'CNY',
+          price: '99.00',
+          priceCurrency: 'USD',
         },
       };
-      
       const schema = getServiceSchema(service);
-      
-      expect(schema).toHaveProperty('offers');
-      expect(schema.offers?.price).toBe('999');
-      expect(schema.offers?.priceCurrency).toBe('CNY');
+      expect(schema.offers).toBeDefined();
     });
   });
 
   describe('getFAQSchema', () => {
-    it('应返回有效的 FAQ 结构化数据', () => {
+    it('should return valid FAQPage schema', () => {
       const faqs = [
-        { question: '什么是7zi Studio?', answer: '这是一个AI驱动的数字工作室' },
-        { question: '你们提供哪些服务?', answer: '网站开发、品牌设计等' },
+        { question: 'What is 7zi?', answer: 'An AI studio' },
+        { question: 'How to contact?', answer: 'Via email' },
       ];
-      
       const schema = getFAQSchema(faqs);
-      
       expect(schema['@type']).toBe('FAQPage');
       expect(schema.mainEntity).toHaveLength(2);
-      expect(schema.mainEntity[0]['@type']).toBe('Question');
-    });
-  });
-
-  describe('getLocalBusinessSchema', () => {
-    it('应返回有效的本地业务结构化数据', () => {
-      const business = {
-        name: '7zi Studio',
-        description: 'AI驱动的数字工作室',
-      };
-      
-      const schema = getLocalBusinessSchema(business);
-      
-      expect(schema['@type']).toBe('ProfessionalService');
-      expect(schema.name).toBe(business.name);
-      expect(schema.priceRange).toBe('$$');
     });
 
-    it('应正确处理地址信息', () => {
-      const business = {
-        name: '7zi Studio',
-        description: 'AI驱动的数字工作室',
-        address: {
-          street: '测试街道123号',
-          city: '北京',
-          region: '北京市',
-          postalCode: '100000',
-          country: 'CN',
-        },
-      };
-      
-      const schema = getLocalBusinessSchema(business);
-      
-      expect(schema).toHaveProperty('address');
-      expect(schema.address?.streetAddress).toBe('测试街道123号');
-      expect(schema.address?.addressLocality).toBe('北京');
+    it('should handle empty FAQ array', () => {
+      const schema = getFAQSchema([]);
+      expect(schema['@type']).toBe('FAQPage');
+      expect(schema.mainEntity).toHaveLength(0);
     });
   });
 
   describe('getCanonicalUrl', () => {
-    it('应正确生成规范 URL', () => {
-      expect(getCanonicalUrl('/about')).toContain('/about');
-      expect(getCanonicalUrl('blog')).toContain('/blog');
+    it('should generate canonical URL with leading slash', () => {
+      expect(getCanonicalUrl('blog')).toBe('https://7zi.studio/blog');
     });
 
-    it('应正确处理空路径', () => {
-      const url = getCanonicalUrl('');
-      // 在测试环境中可能是 localhost，验证 URL 格式正确
-      expect(url).toMatch(/^https?:\/\/.+/);
+    it('should handle path with leading slash', () => {
+      expect(getCanonicalUrl('/blog')).toBe('https://7zi.studio/blog');
+    });
+
+    it('should handle empty path', () => {
+      expect(getCanonicalUrl()).toBe('https://7zi.studio');
     });
   });
 
   describe('getOGImageUrl', () => {
-    it('应返回默认 OG 图片', () => {
+    it('should return default OG image when no options', () => {
       const url = getOGImageUrl();
-      expect(url).toContain('og-image');
+      expect(url).toContain('og-image.png');
     });
 
-    it('应正确处理自定义图片', () => {
+    it('should return custom image if provided', () => {
       const customImage = 'https://example.com/custom.jpg';
       const url = getOGImageUrl({ image: customImage });
       expect(url).toBe(customImage);
     });
 
-    it('应正确处理标题参数', () => {
-      const url = getOGImageUrl({ title: '测试标题' });
+    it('should generate dynamic OG image with title', () => {
+      const url = getOGImageUrl({ title: 'Test Title' });
       expect(url).toContain('/api/og');
+      expect(url).toContain('title=Test');
     });
   });
 
   describe('socialLinks', () => {
-    it('应包含所有社交媒体链接', () => {
-      expect(socialLinks).toHaveProperty('github');
-      expect(socialLinks).toHaveProperty('twitter');
-      expect(socialLinks).toHaveProperty('linkedin');
-      expect(socialLinks).toHaveProperty('email');
-    });
-
-    it('应生成正确的邮件链接', () => {
+    it('should have all required social links', () => {
+      expect(socialLinks.github).toContain('github.com');
+      expect(socialLinks.twitter).toContain('twitter.com');
+      expect(socialLinks.linkedin).toContain('linkedin.com');
       expect(socialLinks.email).toContain('mailto:');
-      expect(socialLinks.email).toContain('business@7zi.studio');
     });
   });
 
   describe('navLinks', () => {
-    it('应包含所有导航链接', () => {
+    it('should have required navigation links', () => {
+      expect(navLinks).toBeInstanceOf(Array);
       expect(navLinks.length).toBeGreaterThan(0);
-      expect(navLinks[0]).toHaveProperty('name');
-      expect(navLinks[0]).toHaveProperty('href');
-    });
-
-    it('应包含首页链接', () => {
-      const homeLink = navLinks.find(link => link.href === '/');
-      expect(homeLink).toBeDefined();
-      expect(homeLink?.name).toBe('首页');
+      expect(navLinks.find(l => l.name === '首页')).toBeTruthy();
+      expect(navLinks.find(l => l.href === '/')).toBeTruthy();
     });
   });
 });

@@ -134,13 +134,19 @@ export function useWebSocket(
           // 触发事件监听器
           const listeners = eventListenersRef.current.get(data.type);
           if (listeners) {
+            let errorCount = 0;
             listeners.forEach(handler => {
               try {
                 handler(data);
               } catch (err) {
+                errorCount++;
                 console.error(`[useWebSocket] Error in listener for ${data.type}:`, err);
               }
             });
+            // Warn if many listeners failed
+            if (errorCount > 0 && errorCount === listeners.size) {
+              console.warn(`[useWebSocket] All ${listeners.size} listeners for ${data.type} failed`);
+            }
           }
 
           // 触发通配符监听器

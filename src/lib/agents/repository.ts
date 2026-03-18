@@ -67,7 +67,7 @@ function generateSecureToken(): string {
 }
 
 /**
- * 初始化智能体表
+ * 初始化智能体表 - Optimized with better indexes
  */
 export async function initializeAgentTables(): Promise<void> {
   const db = await getDatabaseAsync();
@@ -117,13 +117,25 @@ export async function initializeAgentTables(): Promise<void> {
       FOREIGN KEY (agent_id) REFERENCES agents(id) ON DELETE CASCADE
     );
 
-    -- 索引
+    -- Optimized indexes for better query performance
     CREATE INDEX IF NOT EXISTS idx_agents_status ON agents(status);
     CREATE INDEX IF NOT EXISTS idx_agents_provider ON agents(provider);
+    CREATE INDEX IF NOT EXISTS idx_agents_type ON agents(type);
+    CREATE INDEX IF NOT EXISTS idx_agents_last_active ON agents(last_active_at DESC);
+    
+    -- Composite index for common queries
+    CREATE INDEX IF NOT EXISTS idx_agents_status_provider ON agents(status, provider);
+    
+    -- Token indexes
     CREATE INDEX IF NOT EXISTS idx_agent_tokens_agent_id ON agent_tokens(agent_id);
     CREATE INDEX IF NOT EXISTS idx_agent_tokens_token ON agent_tokens(token);
+    CREATE INDEX IF NOT EXISTS idx_agent_tokens_expires ON agent_tokens(expires_at);
+    
+    -- Data access indexes with composite for common query patterns
     CREATE INDEX IF NOT EXISTS idx_agent_data_access_agent_id ON agent_data_access(agent_id);
-    CREATE INDEX IF NOT EXISTS idx_agent_data_access_timestamp ON agent_data_access(timestamp);
+    CREATE INDEX IF NOT EXISTS idx_agent_data_access_timestamp ON agent_data_access(timestamp DESC);
+    CREATE INDEX IF NOT EXISTS idx_agent_data_access_agent_timestamp ON agent_data_access(agent_id, timestamp DESC);
+    CREATE INDEX IF NOT EXISTS idx_agent_data_access_resource ON agent_data_access(resource_type, resource_id);
   `;
 
   try {
@@ -596,7 +608,7 @@ export async function updateAgentLastActive(id: string): Promise<void> {
 }
 
 /**
- * 获取智能体统计信息
+ * 获取智能体统计信息 - Optimized to avoid N+1 queries
  */
 export async function getAgentStats(): Promise<{
   total: number;
@@ -607,27 +619,57 @@ export async function getAgentStats(): Promise<{
   byProvider: Record<string, number>;
   byType: Record<string, number>;
 }> {
-  const agents = await getAllAgents();
+  const db = await getDatabaseAsync();
+  await initializeAgentTables();
+
+  // Single query for status counts using GROUP BY
+  const statusStmt = db.prepare(`
+    SELECT status, COUNT(*) as count 
+    FROM agents 
+    GROUP BY status
+  `);
+  const statusRows = statusStmt.all() as Array<{ status: string; count: number }>;
+
+  const statusCounts = statusRows.reduce(
+    (acc, { status, count }) => ({ ...acc, [status]: count }),
+    {} as Record<string, number>
+  );
+
+  // Single query for provider distribution
+  const providerStmt = db.prepare(`
+    SELECT provider, COUNT(*) as count 
+    FROM agents 
+    GROUP BY provider
+  `);
+  const providerRows = providerStmt.all() as Array<{ provider: string; count: number }>;
+
+  const byProvider = providerRows.reduce(
+    (acc, { provider, count }) => ({ ...acc, [provider]: count }),
+    {} as Record<string, number>
+  );
+
+  // Single query for type distribution
+  const typeStmt = db.prepare(`
+    SELECT type, COUNT(*) as count 
+    FROM agents 
+    GROUP BY type
+  `);
+  const typeRows = typeStmt.all() as Array<{ type: string; count: number }>;
+
+  const byType = typeRows.reduce(
+    (acc, { type, count }) => ({ ...acc, [type]: count }),
+    {} as Record<string, number>
+  );
+
+  const total = Object.values(statusCounts).reduce((sum, count) => sum + count, 0);
 
   return {
-    total: agents.length,
-    active: agents.filter((a) => a.status === AgentStatus.ACTIVE).length,
-    inactive: agents.filter((a) => a.status === AgentStatus.INACTIVE).length,
-    busy: agents.filter((a) => a.status === AgentStatus.BUSY).length,
-    offline: agents.filter((a) => a.status === AgentStatus.OFFLINE).length,
-    byProvider: agents.reduce(
-      (acc, a) => {
-        acc[a.provider] = (acc[a.provider] || 0) + 1;
-        return acc;
-      },
-      {} as Record<string, number>
-    ),
-    byType: agents.reduce(
-      (acc, a) => {
-        acc[a.type] = (acc[a.type] || 0) + 1;
-        return acc;
-      },
-      {} as Record<string, number>
-    ),
+    total,
+    active: statusCounts[AgentStatus.ACTIVE] || 0,
+    inactive: statusCounts[AgentStatus.INACTIVE] || 0,
+    busy: statusCounts[AgentStatus.BUSY] || 0,
+    offline: statusCounts[AgentStatus.OFFLINE] || 0,
+    byProvider,
+    byType,
   };
 }

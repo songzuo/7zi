@@ -128,7 +128,7 @@ describe('formatDateTime', () => {
 describe('isToday', () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    vi.setSystemTime(new Date('2024-01-15T12:00:00Z'));
+    vi.setSystemTime(new Date(2024, 0, 15, 12, 0, 0));
   });
 
   afterEach(() => {
@@ -136,22 +136,22 @@ describe('isToday', () => {
   });
 
   it('should return true for today', () => {
-    expect(isToday(new Date('2024-01-15T00:00:00Z'))).toBe(true);
-    expect(isToday(new Date('2024-01-15T23:59:59Z'))).toBe(true);
-    expect(isToday(new Date('2024-01-15T12:00:00Z'))).toBe(true);
+    expect(isToday(new Date(2024, 0, 15, 0, 0, 0))).toBe(true);
+    expect(isToday(new Date(2024, 0, 15, 23, 59, 59))).toBe(true);
+    expect(isToday(new Date(2024, 0, 15, 12, 0, 0))).toBe(true);
   });
 
   it('should return false for yesterday', () => {
-    expect(isToday(new Date('2024-01-14T12:00:00Z'))).toBe(false);
+    expect(isToday(new Date(2024, 0, 14, 12, 0, 0))).toBe(false);
   });
 
   it('should return false for tomorrow', () => {
-    expect(isToday(new Date('2024-01-16T12:00:00Z'))).toBe(false);
+    expect(isToday(new Date(2024, 0, 16, 12, 0, 0))).toBe(false);
   });
 
   it('should return false for distant dates', () => {
-    expect(isToday(new Date('2023-12-31T00:00:00Z'))).toBe(false);
-    expect(isToday(new Date('2025-01-01T00:00:00Z'))).toBe(false);
+    expect(isToday(new Date(2023, 11, 31, 0, 0, 0))).toBe(false);
+    expect(isToday(new Date(2025, 0, 1, 0, 0, 0))).toBe(false);
   });
 
   it('should handle string dates', () => {
@@ -160,15 +160,16 @@ describe('isToday', () => {
   });
 
   it('should handle edge cases at midnight', () => {
-    expect(isToday(new Date('2024-01-15T00:00:00.000Z'))).toBe(true);
-    expect(isToday(new Date('2024-01-15T23:59:59.999Z'))).toBe(true);
+    expect(isToday(new Date(2024, 0, 15, 0, 0, 0))).toBe(true);
+    expect(isToday(new Date(2024, 0, 15, 23, 59, 59))).toBe(true);
   });
 });
 
 describe('isYesterday', () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    vi.setSystemTime(new Date('2024-01-15T12:00:00Z'));
+    // Use local time for consistency - Jan 15, 2024 at noon local
+    vi.setSystemTime(new Date(2024, 0, 15, 12, 0, 0));
   });
 
   afterEach(() => {
@@ -176,26 +177,27 @@ describe('isYesterday', () => {
   });
 
   it('should return true for yesterday', () => {
-    expect(isYesterday(new Date('2024-01-14T00:00:00Z'))).toBe(true);
-    expect(isYesterday(new Date('2024-01-14T23:59:59Z'))).toBe(true);
-    expect(isYesterday(new Date('2024-01-14T12:00:00Z'))).toBe(true);
+    // Use local Date constructor to match local timezone logic
+    expect(isYesterday(new Date(2024, 0, 14, 0, 0, 0))).toBe(true);
+    expect(isYesterday(new Date(2024, 0, 14, 23, 59, 59))).toBe(true);
+    expect(isYesterday(new Date(2024, 0, 14, 12, 0, 0))).toBe(true);
   });
 
   it('should return false for today', () => {
-    expect(isYesterday(new Date('2024-01-15T12:00:00Z'))).toBe(false);
+    expect(isYesterday(new Date(2024, 0, 15, 12, 0, 0))).toBe(false);
   });
 
   it('should return false for the day before yesterday', () => {
-    expect(isYesterday(new Date('2024-01-13T12:00:00Z'))).toBe(false);
+    expect(isYesterday(new Date(2024, 0, 13, 12, 0, 0))).toBe(false);
   });
 
   it('should return false for tomorrow', () => {
-    expect(isYesterday(new Date('2024-01-16T12:00:00Z'))).toBe(false);
+    expect(isYesterday(new Date(2024, 0, 16, 12, 0, 0))).toBe(false);
   });
 
   it('should return false for distant dates', () => {
-    expect(isYesterday(new Date('2024-01-01T00:00:00Z'))).toBe(false);
-    expect(isYesterday(new Date('2024-01-31T00:00:00Z'))).toBe(false);
+    expect(isYesterday(new Date(2024, 0, 1, 0, 0, 0))).toBe(false);
+    expect(isYesterday(new Date(2024, 0, 31, 0, 0, 0))).toBe(false);
   });
 
   it('should handle string dates', () => {

@@ -52,6 +52,95 @@ const DEFAULT_CONFIG: McpServerConfig = {
 };
 
 /**
+ * Logger utility for debug output
+ */
+class Logger {
+  constructor(private enabled: boolean) {}
+
+  log(message: string, ...args: unknown[]): void {
+    if (this.enabled) {
+      console.error(`[MCP Server] ${message}`, ...args);
+    }
+  }
+
+  error(message: string, error?: unknown): void {
+    console.error(`[MCP Server] ERROR: ${message}`, error || '');
+  }
+}
+
+/**
+ * Response utility for creating standardized tool responses
+ */
+class ResponseUtil {
+  static success(text: string): { content: Array<{ type: string; text: string }> } {
+    return { content: [{ type: 'text', text }] };
+  }
+
+  static error(message: string, error?: unknown): { 
+    content: Array<{ type: string; text: string }>; 
+    isError: true 
+  } {
+    const errorMessage = error ? `${message}: ${error}` : message;
+    return { 
+      content: [{ type: 'text', text: errorMessage }], 
+      isError: true 
+    };
+  }
+}
+
+/**
+ * Async handler wrapper that standardizes error handling
+ */
+async function wrapHandler<T>(
+  handler: () => Promise<string>
+): Promise<{ content: Array<{ type: string; text: string }>; isError?: boolean }> {
+  try {
+    const result = await handler();
+    return ResponseUtil.success(result);
+  } catch (error) {
+    return ResponseUtil.error('Operation failed', error);
+  }
+}
+
+/**
+ * Lazy-loaded module cache to avoid repeated dynamic imports
+ */
+class ModuleCache {
+  private fs: typeof import('fs/promises') | null = null;
+  private childProcess: typeof import('child_process') | null = null;
+  private os: typeof import('os') | null = null;
+  private globModule: typeof import('glob') | null = null;
+
+  async getFs() {
+    if (!this.fs) {
+      this.fs = await import('fs/promises');
+    }
+    return this.fs;
+  }
+
+  async getChildProcess() {
+    if (!this.childProcess) {
+      this.childProcess = await import('child_process');
+    }
+    return this.childProcess;
+  }
+
+  async getOs() {
+    if (!this.os) {
+      this.os = await import('os');
+    }
+    return this.os;
+  }
+
+  async getGlob() {
+    if (!this.globModule) {
+      this.globModule = await import('glob');
+    }
+    return this.globModule;
+  }
+}
+
+/**
  * 7zi MCP Server class
  * 
  * Exposes 7zi capabilities as MCP tools:
@@ -63,22 +152,25 @@ export class SevenZiMcpServer {
   private server: McpServer;
   private config: McpServerConfig;
   private tools: Map<string, ToolDefinition> = new Map();
+  private logger: Logger;
+  private modules: ModuleCache;
 
   constructor(config: Partial<McpServerConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
+    this.logger = new Logger(this.config.debug || false);
+    this.modules = new ModuleCache();
     
     this.server = new McpServer({
       name: this.config.name,
       version: this.config.version,
     }, {
       capabilities: {
-        tools: {
-          listChanged: true,
-        },
+        tools: {},
       },
     });
 
     this.registerCoreTools();
+    this.logger.log(`Initialized with ${this.tools.size} tools`);
   }
 
   /**
@@ -94,19 +186,12 @@ export class SevenZiMcpServer {
         path: z.string().describe('The path to the file to read'),
         encoding: z.string().optional().default('utf-8').describe('File encoding'),
       }),
-      handler: async (params: { path: string; encoding?: string }) => {
-        try {
-          const fs = await import('fs/promises');
+      handler: async (params) => {
+        return wrapHandler(async () => {
+          const fs = await this.modules.getFs();
           const content = await fs.readFile(params.path, (params.encoding || 'utf-8') as BufferEncoding);
-          return {
-            content: [{ type: 'text', text: content }],
-          };
-        } catch (error) {
-          return {
-            content: [{ type: 'text', text: `Error reading file: ${error}` }],
-            isError: true,
-          };
-        }
+          return content;
+        });
       },
     });
 
@@ -119,19 +204,12 @@ export class SevenZiMcpServer {
         path: z.string().describe('The path to the file to write'),
         content: z.string().describe('The content to write to the file'),
       }),
-      handler: async (params: { path: string; content: string }) => {
-        try {
-          const fs = await import('fs/promises');
+      handler: async (params) => {
+        return wrapHandler(async () => {
+          const fs = await this.modules.getFs();
           await fs.writeFile(params.path, params.content, 'utf-8');
-          return {
-            content: [{ type: 'text', text: `Successfully wrote to ${params.path}` }],
-          };
-        } catch (error) {
-          return {
-            content: [{ type: 'text', text: `Error writing file: ${error}` }],
-            isError: true,
-          };
-        }
+          return `Successfully wrote to ${params.path}`;
+        });
       },
     });
 
@@ -143,23 +221,16 @@ export class SevenZiMcpServer {
       inputSchema: z.object({
         path: z.string().describe('The path to the directory to list'),
       }),
-      handler: async (params: { path: string }) => {
-        try {
-          const fs = await import('fs/promises');
+      handler: async (params) => {
+        return wrapHandler(async () => {
+          const fs = await this.modules.getFs();
           const entries = await fs.readdir(params.path, { withFileTypes: true });
           const result = entries.map(e => ({
             name: e.name,
             type: e.isDirectory() ? 'directory' : e.isFile() ? 'file' : 'other',
           }));
-          return {
-            content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
-          };
-        } catch (error) {
-          return {
-            content: [{ type: 'text', text: `Error listing directory: ${error}` }],
-            isError: true,
-          };
-        }
+          return JSON.stringify(result, null, 2);
+        });
       },
     });
 
@@ -173,35 +244,38 @@ export class SevenZiMcpServer {
         cwd: z.string().optional().describe('Working directory for the command'),
         timeout: z.number().optional().default(30000).describe('Timeout in milliseconds'),
       }),
-      handler: async (params: { command: string; cwd?: string; timeout?: number }) => {
-        try {
-          const { exec } = await import('child_process');
+      handler: async (params) => {
+        return wrapHandler(async () => {
+          const { exec } = await this.modules.getChildProcess();
+          const timeout = params.timeout || 30000;
+          
+          this.logger.log(`Executing command: ${params.command}`);
+          
           const output = await new Promise<string>((resolve, reject) => {
+            const timer = setTimeout(() => {
+              reject(new Error(`Command timed out after ${timeout}ms`));
+            }, timeout);
+
             exec(
               params.command,
               {
                 cwd: params.cwd,
-                timeout: params.timeout || 30000,
+                timeout,
                 maxBuffer: 1024 * 1024 * 10, // 10MB buffer
               },
               (error, stdout, stderr) => {
+                clearTimeout(timer);
                 if (error) {
                   reject(new Error(`${error.message}\nstderr: ${stderr}`));
                 } else {
-                  resolve(stdout || stderr);
+                  resolve(stdout || stderr || '(no output)');
                 }
               }
             );
           });
-          return {
-            content: [{ type: 'text', text: output || '(no output)' }],
-          };
-        } catch (error) {
-          return {
-            content: [{ type: 'text', text: `Error executing command: ${error}` }],
-            isError: true,
-          };
-        }
+          
+          return output;
+        });
       },
     });
 
@@ -214,22 +288,15 @@ export class SevenZiMcpServer {
         path: z.string().describe('The base directory to search in'),
         pattern: z.string().describe('Glob pattern to match files (e.g., "**/*.ts")'),
       }),
-      handler: async (params: { path: string; pattern: string }) => {
-        try {
-          const { glob } = await import('glob');
+      handler: async (params) => {
+        return wrapHandler(async () => {
+          const { glob } = await this.modules.getGlob();
           const files = await glob(params.pattern, {
             cwd: params.path,
             nodir: true,
           });
-          return {
-            content: [{ type: 'text', text: JSON.stringify(files, null, 2) }],
-          };
-        } catch (error) {
-          return {
-            content: [{ type: 'text', text: `Error searching files: ${error}` }],
-            isError: true,
-          };
-        }
+          return JSON.stringify(files, null, 2);
+        });
       },
     });
 
@@ -240,8 +307,8 @@ export class SevenZiMcpServer {
       description: 'Get system information including OS, CPU, memory, etc.',
       inputSchema: z.object({}),
       handler: async () => {
-        try {
-          const os = await import('os');
+        return wrapHandler(async () => {
+          const os = await this.modules.getOs();
           const info = {
             platform: os.platform(),
             arch: os.arch(),
@@ -252,15 +319,8 @@ export class SevenZiMcpServer {
             uptime: `${Math.round(os.uptime() / 3600)} hours`,
             nodeVersion: process.version,
           };
-          return {
-            content: [{ type: 'text', text: JSON.stringify(info, null, 2) }],
-          };
-        } catch (error) {
-          return {
-            content: [{ type: 'text', text: `Error getting system info: ${error}` }],
-            isError: true,
-          };
-        }
+          return JSON.stringify(info, null, 2);
+        });
       },
     });
 
@@ -276,45 +336,42 @@ export class SevenZiMcpServer {
         body: z.string().optional().describe('Request body (for POST/PUT/PATCH)'),
         timeout: z.number().optional().default(30000).describe('Timeout in milliseconds'),
       }),
-      handler: async (params: { 
-        url: string; 
-        method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
-        headers?: Record<string, string>;
-        body?: string;
-        timeout?: number;
-      }) => {
-        try {
-          const response = await fetch(params.url, {
-            method: params.method || 'GET',
-            headers: params.headers as HeadersInit,
-            body: params.body,
-            signal: AbortSignal.timeout(params.timeout || 30000),
-          });
-          const text = await response.text();
+      handler: async (params) => {
+        return wrapHandler(async () => {
+          const timeout = params.timeout || 30000;
+          this.logger.log(`Making ${params.method} request to ${params.url}`);
           
-          // Convert headers to plain object
-          const headerObj: Record<string, string> = {};
-          response.headers.forEach((value, key) => {
-            headerObj[key] = value;
-          });
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), timeout);
           
-          return {
-            content: [{
-              type: 'text',
-              text: JSON.stringify({
-                status: response.status,
-                statusText: response.statusText,
-                headers: headerObj,
-                body: text.substring(0, 10000), // Limit response size
-              }, null, 2),
-            }],
-          };
-        } catch (error) {
-          return {
-            content: [{ type: 'text', text: `Error making HTTP request: ${error}` }],
-            isError: true,
-          };
-        }
+          try {
+            const response = await fetch(params.url, {
+              method: params.method,
+              headers: params.headers as HeadersInit,
+              body: params.body,
+              signal: controller.signal,
+            });
+            
+            clearTimeout(timeoutId);
+            const text = await response.text();
+            
+            // Convert headers to plain object
+            const headerObj: Record<string, string> = {};
+            response.headers.forEach((value, key) => {
+              headerObj[key] = value;
+            });
+            
+            return JSON.stringify({
+              status: response.status,
+              statusText: response.statusText,
+              headers: headerObj,
+              body: text.substring(0, 10000), // Limit response size
+            }, null, 2);
+          } catch (error) {
+            clearTimeout(timeoutId);
+            throw error;
+          }
+        });
       },
     });
   }
@@ -324,9 +381,76 @@ export class SevenZiMcpServer {
    */
   registerTool<T extends z.ZodType>(tool: ToolDefinition<T>): void {
     this.tools.set(tool.name, tool as ToolDefinition);
+    this.logger.log(`Registered tool: ${tool.name}`);
+  }
+
+  /**
+   * Handle a JSON-RPC request (for HTTP transport)
+   */
+  async handleRequest(request: { 
+    jsonrpc?: string; 
+    id?: unknown; 
+    method: string; 
+    params?: Record<string, unknown>;
+  }): Promise<unknown> {
+    const id = request.id || null;
     
-    // Store tool for later use (HTTP transport)
-    // The MCP SDK handles registration internally
+    // Validate JSON-RPC version
+    if (request.jsonrpc !== '2.0') {
+      return {
+        jsonrpc: '2.0',
+        id,
+        error: { code: -32600, message: 'Invalid Request: jsonrpc version must be 2.0' },
+      };
+    }
+
+    try {
+      switch (request.method) {
+        case 'tools/list':
+          return {
+            jsonrpc: '2.0',
+            id,
+            result: {
+              tools: this.getTools().map(t => ({
+                name: t.name,
+                title: t.title,
+                description: t.description,
+                inputSchema: t.inputSchema,
+              })),
+            },
+          };
+
+        case 'tools/call': {
+          const { name, arguments: args } = request.params || {};
+          const tool = this.tools.get(name as string);
+          
+          if (!tool) {
+            return {
+              jsonrpc: '2.0',
+              id,
+              error: { code: -32601, message: `Method not found: ${name}` },
+            };
+          }
+          
+          const result = await tool.handler(args);
+          return { jsonrpc: '2.0', id, result };
+        }
+
+        default:
+          return {
+            jsonrpc: '2.0',
+            id,
+            error: { code: -32601, message: `Method not found: ${request.method}` },
+          };
+      }
+    } catch (error) {
+      this.logger.error('Request handling failed', error);
+      return {
+        jsonrpc: '2.0',
+        id,
+        error: { code: -32603, message: `Internal error: ${error}` },
+      };
+    }
   }
 
   /**
@@ -342,10 +466,7 @@ export class SevenZiMcpServer {
   async startStdio(): Promise<void> {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
-    
-    if (this.config.debug) {
-      console.error(`[MCP Server] Started with ${this.tools.size} tools`);
-    }
+    this.logger.log(`Started with stdio transport, ${this.tools.size} tools available`);
   }
 
   /**
@@ -368,5 +489,8 @@ export function getMcpServer(config?: Partial<McpServerConfig>): SevenZiMcpServe
   }
   return serverInstance;
 }
+
+// Default singleton instance for HTTP transport
+export const mcpServer = getMcpServer();
 
 export default SevenZiMcpServer;

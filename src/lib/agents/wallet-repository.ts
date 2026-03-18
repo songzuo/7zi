@@ -20,7 +20,7 @@ function generateId(prefix: string = 'wallet'): string {
 }
 
 /**
- * 初始化钱包表
+ * 初始化钱包表 - Optimized with better indexes
  */
 export async function initializeWalletTables(): Promise<void> {
   const db = await getDatabaseAsync();
@@ -55,12 +55,19 @@ export async function initializeWalletTables(): Promise<void> {
       FOREIGN KEY (wallet_id) REFERENCES agent_wallets(id) ON DELETE CASCADE
     );
 
-    -- 索引
+    -- Optimized indexes for better query performance
     CREATE INDEX IF NOT EXISTS idx_agent_wallets_agent_id ON agent_wallets(agent_id);
+    
+    -- Transaction indexes
     CREATE INDEX IF NOT EXISTS idx_wallet_transactions_wallet_id ON wallet_transactions(wallet_id);
     CREATE INDEX IF NOT EXISTS idx_wallet_transactions_type ON wallet_transactions(type);
     CREATE INDEX IF NOT EXISTS idx_wallet_transactions_status ON wallet_transactions(status);
-    CREATE INDEX IF NOT EXISTS idx_wallet_transactions_created_at ON wallet_transactions(created_at);
+    CREATE INDEX IF NOT EXISTS idx_wallet_transactions_created_at ON wallet_transactions(created_at DESC);
+    
+    -- Composite indexes for common query patterns
+    CREATE INDEX IF NOT EXISTS idx_wallet_transactions_wallet_status ON wallet_transactions(wallet_id, status);
+    CREATE INDEX IF NOT EXISTS idx_wallet_transactions_wallet_created ON wallet_transactions(wallet_id, created_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_wallet_transactions_type_status ON wallet_transactions(type, status);
   `;
 
   try {
@@ -560,7 +567,7 @@ export async function getTransactions(
 }
 
 /**
- * 获取钱包统计
+ * 获取钱包统计 - Optimized to avoid N+1 queries
  */
 export async function getWalletStats(agentId: string): Promise<{
   balance: number;
@@ -586,25 +593,43 @@ export async function getWalletStats(agentId: string): Promise<{
     };
   }
 
-  const transactions = await getTransactions(agentId);
+  const db = await getDatabaseAsync();
+
+  // Single query for transaction statistics using GROUP BY
+  const stmt = db.prepare(`
+    SELECT type, SUM(amount) as total_amount, COUNT(*) as count
+    FROM wallet_transactions
+    WHERE wallet_id = ? AND status = 'completed'
+    GROUP BY type
+  `);
+  
+  const rows = stmt.all(wallet.id) as Array<{ type: string; total_amount: number; count: number }>;
+  
+  const typeStats = rows.reduce(
+    (acc, { type, total_amount, count }) => ({
+      ...acc,
+      [type]: { total: total_amount, count }
+    }),
+    {} as Record<string, { total: number; count: number }>
+  );
+
+  // Calculate transaction count from all transactions
+  const countStmt = db.prepare(`
+    SELECT COUNT(*) as count
+    FROM wallet_transactions
+    WHERE wallet_id = ?
+  `);
+  const countRow = countStmt.get(wallet.id) as { count: number };
 
   return {
     balance: wallet.balance,
     frozen: wallet.frozenBalance,
     available: wallet.balance - wallet.frozenBalance,
-    totalDeposits: transactions
-      .filter((t) => t.type === TransactionType.DEPOSIT && t.status === TransactionStatus.COMPLETED)
-      .reduce((sum, t) => sum + t.amount, 0),
-    totalWithdrawals: transactions
-      .filter((t) => t.type === TransactionType.WITHDRAW && t.status === TransactionStatus.COMPLETED)
-      .reduce((sum, t) => sum + t.amount, 0),
-    totalConsumed: transactions
-      .filter((t) => t.type === TransactionType.CONSUME && t.status === TransactionStatus.COMPLETED)
-      .reduce((sum, t) => sum + t.amount, 0),
-    totalRewards: transactions
-      .filter((t) => t.type === TransactionType.REWARD && t.status === TransactionStatus.COMPLETED)
-      .reduce((sum, t) => sum + t.amount, 0),
-    transactionCount: transactions.length,
+    totalDeposits: typeStats[TransactionType.DEPOSIT]?.total || 0,
+    totalWithdrawals: typeStats[TransactionType.WITHDRAW]?.total || 0,
+    totalConsumed: typeStats[TransactionType.CONSUME]?.total || 0,
+    totalRewards: typeStats[TransactionType.REWARD]?.total || 0,
+    transactionCount: countRow.count,
   };
 }
 

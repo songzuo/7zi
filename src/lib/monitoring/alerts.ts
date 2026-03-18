@@ -204,7 +204,7 @@ export async function sendAlert(config: AlertConfig): Promise<{
   slack: boolean;
   email: boolean;
 }> {
-  const results = await Promise.allSettled([
+  const [slackResult, emailResult] = await Promise.allSettled([
     sendSlackAlert(config),
     // Only send email for P0 and P1
     config.severity === 'p0' || config.severity === 'p1'
@@ -213,8 +213,8 @@ export async function sendAlert(config: AlertConfig): Promise<{
   ]);
 
   return {
-    slack: results[0].status === 'fulfilled' ? results[0].value : false,
-    email: results[1].status === 'fulfilled' ? results[1].value : false,
+    slack: slackResult.status === 'fulfilled' ? slackResult.value : false,
+    email: emailResult?.status === 'fulfilled' ? emailResult.value : false,
   };
 }
 

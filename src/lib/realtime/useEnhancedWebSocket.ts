@@ -1,9 +1,9 @@
 /**
  * 增强的 WebSocket Hook
- * 
+ *
  * 提供更完善的 WebSocket 连接管理，包括：
  * - 自动重连和心跳
- * - 离线消息队列
+ * - 离线消息队列（支持优先级、去重、智能清理）
  * - 连接状态监控
  * - 错误处理和恢复
  */
@@ -32,6 +32,7 @@ export interface WebSocketConfig {
   heartbeatInterval?: number;
   offlineQueueSize?: number;
   enableOfflineQueue?: boolean;
+  offlineQueuePriorityThreshold?: number; // 0-1，超过此比例时只保留高优先级消息
 }
 
 export interface WebSocketStats {
@@ -41,6 +42,24 @@ export interface WebSocketStats {
   lastConnected: Date | null;
   lastDisconnected: Date | null;
   connectionDuration: number;
+  offlineQueueSize: number;
+  offlineQueueDedupCount: number;
+  offlineQueueDroppedCount: number;
+}
+
+// 消息优先级
+export enum MessagePriority {
+  LOW = 1,
+  NORMAL = 2,
+  HIGH = 3,
+  URGENT = 4,
+}
+
+// 扩展的消息接口，包含优先级
+export interface PrioritizedWebSocketMessage extends WebSocketMessage {
+  priority: MessagePriority;
+  retryCount?: number;
+  maxRetries?: number;
 }
 
 export interface UseEnhancedWebSocketReturn {
@@ -48,31 +67,68 @@ export interface UseEnhancedWebSocketReturn {
   isConnected: boolean;
   connectionState: ConnectionState;
   error: Error | null;
-  
+
   // 消息
   lastMessage: WebSocketMessage | null;
   messages: WebSocketMessage[];
-  
+
   // 统计
   stats: WebSocketStats;
-  
+
   // 操作
   connect: () => void;
   disconnect: () => void;
   reconnect: () => void;
-  send: (type: string, payload?: unknown) => void;
+  send: (type: string, payload?: unknown, priority?: MessagePriority) => void;
   subscribe: (channels: string[]) => void;
   unsubscribe: (channels: string[]) => void;
-  
+
   // 事件监听
   on: <T extends WebSocketMessage>(type: string, handler: (message: T) => void) => () => void;
   onStateChange: (callback: (state: ConnectionState) => void) => () => void;
   onError: (callback: (error: Error) => void) => () => void;
-  
+
   // 工具
   clearMessages: () => void;
-  getOfflineQueue: () => WebSocketMessage[];
+  getOfflineQueue: () => PrioritizedWebSocketMessage[];
 }
+
+// ============================================================================
+// 辅助函数
+// ============================================================================
+
+// 根据消息类型获取默认优先级
+const getMessagePriority = (type: string): MessagePriority => {
+  const highPriorityTypes = [
+    'task:assigned',
+    'task:status_changed',
+    'system:announcement',
+    'connection:confirmed',
+  ];
+
+  const normalPriorityTypes = [
+    'task:comment',
+    'member:online',
+    'member:offline',
+    'member:status_changed',
+    'project:updated',
+  ];
+
+  const lowPriorityTypes = [
+    'heartbeat',
+    'read_status_updated',
+  ];
+
+  if (highPriorityTypes.includes(type)) {
+    return MessagePriority.HIGH;
+  } else if (normalPriorityTypes.includes(type)) {
+    return MessagePriority.NORMAL;
+  } else if (lowPriorityTypes.includes(type)) {
+    return MessagePriority.LOW;
+  }
+
+  return MessagePriority.NORMAL;
+};
 
 // ============================================================================
 // Hook 实现
@@ -90,6 +146,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
     heartbeatInterval = 30000,
     offlineQueueSize = 100,
     enableOfflineQueue = true,
+    offlineQueuePriorityThreshold = 0.8,
   } = config;
 
   // 状态
@@ -104,6 +161,9 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
     lastConnected: null,
     lastDisconnected: null,
     connectionDuration: 0,
+    offlineQueueSize: 0,
+    offlineQueueDedupCount: 0,
+    offlineQueueDroppedCount: 0,
   });
 
   // Refs
@@ -112,7 +172,8 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const heartbeatTimerRef = useRef<NodeJS.Timeout | null>(null);
   const connectionStartTimeRef = useRef<Date | null>(null);
-  const offlineQueueRef = useRef<WebSocketMessage[]>([]);
+  const offlineQueueRef = useRef<PrioritizedWebSocketMessage[]>([]);
+  const offlineMessageIdsRef = useRef<Set<string>>(new Set()); // 用于去重
   const scheduleReconnectRef = useRef<() => void>(() => {});
   const messageHandlersRef = useRef<Map<string, Set<(message: WebSocketMessage) => void>>>(new Map());
   const stateChangeCallbacksRef = useRef<Set<(state: ConnectionState) => void>>(new Set());
@@ -188,19 +249,92 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
     }
   }, [stats.messagesReceived, updateStats]);
 
-  // 处理离线队列
+  // 智能清理离线队列（FIFO + 优先级）
+  const trimOfflineQueue = useCallback(() => {
+    const queue = offlineQueueRef.current;
+    const targetSize = offlineQueueSize;
+
+    if (queue.length <= targetSize) {
+      return;
+    }
+
+    const thresholdReached = queue.length > targetSize * offlineQueuePriorityThreshold;
+
+    if (thresholdReached) {
+      // 队列超过阈值，按优先级排序后保留高优先级消息
+      const sortedQueue = [...queue].sort((a, b) => b.priority - a.priority);
+      const keptMessages = sortedQueue.slice(0, targetSize);
+
+      // 按原始顺序恢复（保持时间顺序）
+      const keptIds = new Set(keptMessages.map(m => m.id));
+      const trimmedQueue = queue.filter(m => keptIds.has(m.id));
+
+      const droppedCount = queue.length - trimmedQueue.length;
+      offlineQueueRef.current = trimmedQueue;
+
+      if (droppedCount > 0) {
+        console.log(`[WebSocket] Dropped ${droppedCount} low priority messages from offline queue`);
+        updateStats({
+          offlineQueueDroppedCount: stats.offlineQueueDroppedCount + droppedCount,
+        });
+      }
+    } else {
+      // 未达到阈值，使用 FIFO 清理
+      const droppedCount = queue.length - targetSize;
+      offlineQueueRef.current = queue.slice(-targetSize);
+
+      if (droppedCount > 0) {
+        console.log(`[WebSocket] Dropped ${droppedCount} old messages from offline queue (FIFO)`);
+        updateStats({
+          offlineQueueDroppedCount: stats.offlineQueueDroppedCount + droppedCount,
+        });
+      }
+    }
+
+    // 同步清理消息ID集合
+    const keptIds = new Set(offlineQueueRef.current.map(m => m.id));
+    offlineMessageIdsRef.current = new Set(
+      [...offlineMessageIdsRef.current].filter(id => keptIds.has(id))
+    );
+
+    updateStats({ offlineQueueSize: offlineQueueRef.current.length });
+  }, [offlineQueueSize, offlineQueuePriorityThreshold, stats, updateStats]);
+
+  // 批量发送离线消息
   const processOfflineQueue = useCallback(() => {
     if (!enableOfflineQueue || offlineQueueRef.current.length === 0) return;
 
     const queue = [...offlineQueueRef.current];
     offlineQueueRef.current = [];
+    offlineMessageIdsRef.current.clear();
 
+    // 统计发送情况
+    let sentCount = 0;
+    let failedCount = 0;
+
+    // 批量发送 - 使用 emit 的批处理能力
     queue.forEach(message => {
-      if (socketRef.current?.connected) {
-        socketRef.current.emit(message.type, message);
-        updateStats({ messagesSent: stats.messagesSent + 1 });
+      try {
+        if (socketRef.current?.connected) {
+          socketRef.current.emit(message.type, message);
+          sentCount++;
+        } else {
+          failedCount++;
+        }
+      } catch (err) {
+        console.error('[WebSocket] Failed to send offline message:', err);
+        failedCount++;
       }
     });
+
+    updateStats({
+      messagesSent: stats.messagesSent + sentCount,
+      offlineQueueSize: 0,
+    });
+
+    if (sentCount > 0) {
+      console.log(`[WebSocket] Processed offline queue: ${sentCount} sent, ${failedCount} failed`);
+    }
   }, [enableOfflineQueue, stats.messagesSent, updateStats]);
 
   // 注册消息处理器
@@ -299,7 +433,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
         });
 
         if (reconnect) {
-          scheduleReconnect();
+          scheduleReconnectRef.current();
         }
       });
 
@@ -362,13 +496,31 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
     updateState('disconnected');
   }, [stopHeartbeat, updateState]);
 
-  // 发送消息
-  const sendMessage = useCallback((type: string, payload?: unknown) => {
-    const message: WebSocketMessage = {
+  // 发送消息（添加优先级支持）
+  const sendMessage = useCallback((
+    type: string,
+    payload?: unknown,
+    priority?: MessagePriority
+  ) => {
+    const messageId = generateMessageId();
+
+    // 检查是否已在离线队列中（去重）
+    if (offlineMessageIdsRef.current.has(messageId)) {
+      console.log(`[WebSocket] Message ${messageId} already in offline queue, skipping`);
+      updateStats({
+        offlineQueueDedupCount: stats.offlineQueueDedupCount + 1,
+      });
+      return;
+    }
+
+    const message: PrioritizedWebSocketMessage = {
       type,
-      id: generateMessageId(),
+      id: messageId,
       timestamp: new Date().toISOString(),
       payload,
+      priority: priority ?? getMessagePriority(type),
+      retryCount: 0,
+      maxRetries: 3,
     };
 
     if (socketRef.current?.connected) {
@@ -377,16 +529,19 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
     } else if (enableOfflineQueue) {
       // 添加到离线队列
       offlineQueueRef.current.push(message);
-      if (offlineQueueRef.current.length > offlineQueueSize) {
-        offlineQueueRef.current = offlineQueueRef.current.slice(-offlineQueueSize);
-      }
+      offlineMessageIdsRef.current.add(messageId);
+
+      // 触发队列清理
+      trimOfflineQueue();
+
+      updateStats({ offlineQueueSize: offlineQueueRef.current.length });
     }
-  }, [enableOfflineQueue, offlineQueueSize, stats.messagesSent, updateStats]);
+  }, [enableOfflineQueue, stats.messagesSent, updateStats, trimOfflineQueue]);
 
   // 订阅频道
   const subscribeToChannels = useCallback((newChannels: string[]) => {
     newChannels.forEach(ch => subscribedChannelsRef.current.add(ch));
-    
+
     if (socketRef.current?.connected) {
       socketRef.current.emit('subscribe', { channels: newChannels });
     }
@@ -395,7 +550,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
   // 取消订阅频道
   const unsubscribeFromChannels = useCallback((removeChannels: string[]) => {
     removeChannels.forEach(ch => subscribedChannelsRef.current.delete(ch));
-    
+
     if (socketRef.current?.connected) {
       socketRef.current.emit('unsubscribe', { channels: removeChannels });
     }
@@ -409,7 +564,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
     if (!messageHandlersRef.current.has(type)) {
       messageHandlersRef.current.set(type, new Set());
     }
-    
+
     messageHandlersRef.current.get(type)!.add(handler as (message: WebSocketMessage) => void);
 
     return () => {

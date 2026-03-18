@@ -70,7 +70,12 @@ export class MessageBuilder {
       if (endpoint.length === 0) {
         throw new Error('Recipient list cannot be empty');
       }
-      this.message.to = typeof endpoint[0] === 'string'
+      // Safely check first element
+      const firstElement = endpoint[0];
+      if (!firstElement) {
+        throw new Error('First recipient cannot be null or undefined');
+      }
+      this.message.to = typeof firstElement === 'string'
         ? (endpoint as string[]).map(id => ({ agentId: id }))
         : endpoint as AgentEndpoint[];
     } else if (typeof endpoint === 'string') {
@@ -607,7 +612,7 @@ export class MessageParser {
       version: String(obj.version),
       messageId: String(obj.messageId),
       timestamp: obj.timestamp ? new Date(obj.timestamp as string) : new Date(),
-      from: this.parseSingleEndpoint(obj.from),
+      from: typeof obj.from === 'string' ? { agentId: String(obj.from) } : this.parseSingleEndpoint(obj.from),
       to: this.parseEndpoint(obj.to),
       type: obj.type as MessageType,
       priority: (obj.priority as MessagePriority) || MessagePriority.NORMAL,

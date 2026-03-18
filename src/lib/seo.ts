@@ -1,6 +1,8 @@
 /**
  * SEO 工具函数
- * 用于生成结构化数据和 meta 信息
+ * @deprecated 推荐使用 seo-metadata.ts，它提供更完整的多语言支持
+ * 
+ * 本模块保留用于向后兼容，提供基本的结构化数据和 meta 信息
  */
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.studio';
@@ -264,3 +266,4 @@ export const navLinks = [
   { name: '博客', href: '/blog' },
   { name: '联系我们', href: '/contact' },
 ];
+

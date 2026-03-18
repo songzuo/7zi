@@ -22,4 +22,15 @@ export * from './notification-service';
 export * from './read-status';
 
 // Store
-export { notificationStore } from './store';
+export { useRealtimeNotificationStore as notificationStore } from './store';
+
+// 重试管理器
+export {
+  RetryManager,
+  retryManager,
+  withRetry,
+  calculateBackoffDelay,
+  type RetryOptions,
+  type RetryState,
+  type RetryEntry,
+} from './retry-manager';
