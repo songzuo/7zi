@@ -1,6 +1,6 @@
 # 7zi-frontend API 文档
 
-> 最后更新: 2026-03-07
+> 最后更新: 2026-03-18
 
 本文档描述了 7zi-frontend 项目的所有 API 端点。
 
@@ -16,6 +16,10 @@
   - [GET /api/health/live](#get-apihealthlive)
   - [GET /api/health/ready](#get-apihealthready)
   - [GET /api/health/detailed](#get-apihealthdetailed)
+- [客户端工具函数库](#客户端工具函数库)
+  - [搜索与过滤工具](#搜索与过滤工具-libsearch-filter)
+  - [WebSocket 重试机制](#websocket-重试机制-librealtimeretry-manager)
+  - [实时通知工具](#实时通知工具-librealtime)
 - [错误处理](#错误处理)
 - [使用示例](#使用示例)
 
@@ -1255,6 +1259,728 @@ if [ "$response" != "200" ]; then
 fi
 
 echo "Health check passed"
+```
+
+---
+
+## 客户端工具函数库
+
+> 本节描述项目中使用的客户端工具函数，包括搜索过滤、实时通信等功能。
+
+---
+
+### 搜索与过滤工具 (`@/lib/search-filter`)
+
+#### `searchItems`
+
+执行文本搜索，支持多字段搜索和相关性评分。
+
+**函数签名**:
+
+```typescript
+function searchItems<T extends object>(
+  items: T[],
+  query: string,
+  config?: SearchConfig
+): SearchResult<T>[]
+```
+
+**参数**:
+
+| 参数 | 类型 | 描述 |
+|------|------|------|
+| `items` | `T[]` | 要搜索的项目列表 |
+| `query` | `string` | 搜索关键词 |
+| `config` | `SearchConfig` | 搜索配置 (可选) |
+
+**SearchConfig 类型**:
+
+```typescript
+interface SearchConfig {
+  target: SearchTarget;
+  caseSensitive?: boolean;
+  exactMatch?: boolean;
+  fields?: string[];
+}
+```
+
+**返回值**:
+
+```typescript
+interface SearchResult<T> {
+  item: T;                    // 匹配的项目
+  matchedFields: string[];    // 匹配的字段列表
+  highlights: {               // 高亮片段
+    field: string;
+    text: string;
+    start: number;
+    end: number;
+  }[];
+  score: number;              // 相关性分数
+}
+```
+
+**示例**:
+
+```typescript
+const users = [
+  { id: 1, name: 'Alice', email: 'alice@example.com' },
+  { id: 2, name: 'Bob', email: 'bob@test.com' }
+];
+
+const results = searchItems(users, 'ali', {
+  fields: ['name', 'email'],
+  caseSensitive: false
+});
+
+// 结果: 包含 Alice 的记录，score > 0
+```
+
+---
+
+#### `highlightSearchTerm`
+
+高亮显示搜索关键词。
+
+**函数签名**:
+
+```typescript
+function highlightSearchTerm(
+  text: string,
+  query: string,
+  caseSensitive?: boolean
+): string
+```
+
+**参数**:
+
+| 参数 | 类型 | 描述 |
+|------|------|------|
+| `text` | `string` | 原始文本 |
+| `query` | `string` | 搜索关键词 |
+| `caseSensitive` | `boolean` | 是否区分大小写 (默认: false) |
+
+**返回值**: 包含 HTML `<mark>` 标签的字符串
+
+**示例**:
+
+```typescript
+const text = "Hello World";
+const query = "world";
+const highlighted = highlightSearchTerm(text, query);
+// 结果: "Hello <mark class='bg-yellow-200 dark:bg-yellow-700 px-0.5 rounded'>World</mark>"
+```
+
+---
+
+#### `applyFilters`
+
+应用过滤条件到项目列表。
+
+**函数签名**:
+
+```typescript
+function applyFilters<T extends object>(
+  items: T[],
+  filters: FilterConfig<T>[],
+  activeFilters: ActiveFilters<T>
+): T[]
+```
+
+**参数**:
+
+| 参数 | 类型 | 描述 |
+|------|------|------|
+| `items` | `T[]` | 要过滤的项目列表 |
+| `filters` | `FilterConfig<T>[]` | 过滤器配置数组 |
+| `activeFilters` | `ActiveFilters<T>` | 活动的过滤器状态 |
+
+**返回值**: 过滤后的项目数组
+
+**示例**:
+
+```typescript
+const tasks = [
+  { id: 1, status: 'open', priority: 'high' },
+  { id: 2, status: 'closed', priority: 'low' }
+];
+
+const filtered = applyFilters(tasks, [
+  {
+    id: 'status',
+    type: 'status',
+    label: '状态',
+    options: [
+      { value: 'open', label: '进行中' },
+      { value: 'closed', label: '已完成' }
+    ]
+  }
+], { status: ['open'] });
+// 结果: 只包含 status='open' 的任务
+```
+
+---
+
+#### `extractFilterOptions`
+
+从项目中提取过滤器选项。
+
+**函数签名**:
+
+```typescript
+function extractFilterOptions<T extends object>(
+  items: T[],
+  field: keyof T
+): FilterOption[]
+```
+
+**参数**:
+
+| 参数 | 类型 | 描述 |
+|------|------|------|
+| `items` | `T[]` | 项目列表 |
+| `field` | `keyof T` | 要提取的字段名 |
+
+**返回值**: 过滤器选项数组，包含值和计数
+
+**示例**:
+
+```typescript
+const tasks = [
+  { status: 'open' },
+  { status: 'open' },
+  { status: 'closed' }
+];
+
+const options = extractFilterOptions(tasks, 'status');
+// 结果: [
+//   { value: 'open', label: 'open', count: 2 },
+//   { value: 'closed', label: 'closed', count: 1 }
+// ]
+```
+
+---
+
+#### `extractLabelOptions`
+
+从 GitHub Issues 中提取标签选项。
+
+**函数签名**:
+
+```typescript
+function extractLabelOptions(
+  issues: Array<{ labels?: Array<{ name: string; color: string }> }>
+): FilterOption[]
+```
+
+**返回值**: 标签过滤器选项数组，按出现次数排序
+
+**示例**:
+
+```typescript
+const issues = [
+  { labels: [{ name: 'bug', color: 'ff0000' }] },
+  { labels: [{ name: 'bug', color: 'ff0000' }, { name: 'feature', color: '00ff00' }] }
+];
+
+const options = extractLabelOptions(issues);
+// 结果: [
+//   { value: 'bug', label: 'bug', color: '#ff0000', count: 2 },
+//   { value: 'feature', label: 'feature', color: '#00ff00', count: 1 }
+// ]
+```
+
+---
+
+#### `extractAssigneeOptions`
+
+从 GitHub Issues 中提取分配者选项。
+
+**函数签名**:
+
+```typescript
+function extractAssigneeOptions(
+  issues: Array<{ assignee?: { login: string; avatar_url: string } | null }>
+): FilterOption[]
+```
+
+**返回值**: 分配者过滤器选项数组
+
+**示例**:
+
+```typescript
+const issues = [
+  { assignee: { login: 'alice', avatar_url: 'https://...' } },
+  { assignee: { login: 'bob', avatar_url: 'https://...' } }
+];
+
+const options = extractAssigneeOptions(issues);
+// 结果: [
+//   { value: 'alice', label: 'alice', icon: 'https://...', count: 1 },
+//   { value: 'bob', label: 'bob', icon: 'https://...', count: 1 }
+// ]
+```
+
+---
+
+#### `applySort`
+
+应用排序到项目列表。
+
+**函数签名**:
+
+```typescript
+function applySort<T extends object>(
+  items: T[],
+  sortConfig: SortConfig<T>
+): T[]
+```
+
+**参数**:
+
+| 参数 | 类型 | 描述 |
+|------|------|------|
+| `items` | `T[]` | 要排序的项目列表 |
+| `sortConfig` | `SortConfig<T>` | 排序配置 |
+
+**SortConfig 类型**:
+
+```typescript
+interface SortConfig<T> {
+  field: keyof T;
+  direction: 'asc' | 'desc';
+  comparator?: (a: T, b: T) => number;
+}
+```
+
+**返回值**: 排序后的项目数组
+
+**示例**:
+
+```typescript
+const tasks = [
+  { id: 3, title: 'Task C' },
+  { id: 1, title: 'Task A' },
+  { id: 2, title: 'Task B' }
+];
+
+const sorted = applySort(tasks, {
+  field: 'id',
+  direction: 'asc'
+});
+// 结果: [{ id: 1 }, { id: 2 }, { id: 3 }]
+```
+
+---
+
+#### `toggleSortDirection`
+
+切换排序方向。
+
+**函数签名**:
+
+```typescript
+function toggleSortDirection(
+  direction: 'asc' | 'desc'
+): 'asc' | 'desc'
+```
+
+**返回值**: 相反的排序方向
+
+**示例**:
+
+```typescript
+toggleSortDirection('asc');  // 返回: 'desc'
+toggleSortDirection('desc'); // 返回: 'asc'
+```
+
+---
+
+#### `applySearchFilterSort`
+
+综合应用搜索、过滤、排序到项目列表。
+
+**函数签名**:
+
+```typescript
+function applySearchFilterSort<T extends object>(
+  items: T[],
+  query: string,
+  filters: FilterConfig<T>[],
+  activeFilters: ActiveFilters<T>,
+  sortConfig?: SortConfig<T>,
+  searchConfig?: SearchConfig
+): SearchFilterResult<T>
+```
+
+**返回值**:
+
+```typescript
+interface SearchFilterResult<T> {
+  items: T[];                       // 最终结果
+  searchResults?: SearchResult<T>[]; // 搜索详情
+  activeFilterCount: number;        // 活动过滤器数量
+  totalResults: number;             // 总结果数
+  filteredResults: number;          // 过滤后的结果数
+}
+```
+
+**示例**:
+
+```typescript
+const result = applySearchFilterSort(
+  allTasks,
+  'bug',
+  filterConfigs,
+  activeFilters,
+  { field: 'priority', direction: 'desc' }
+);
+console.log(`找到 ${result.filteredResults} 个结果`);
+```
+
+---
+
+#### `hasActiveFilters`
+
+检查是否有活动过滤器。
+
+**函数签名**:
+
+```typescript
+function hasActiveFilters(
+  activeFilters: ActiveFilters
+): boolean
+```
+
+**返回值**: 是否有活动的过滤器
+
+**示例**:
+
+```typescript
+const filters = { status: ['open'], priority: [] };
+hasActiveFilters(filters); // true
+
+const emptyFilters = {};
+hasActiveFilters(emptyFilters); // false
+```
+
+---
+
+#### `clearAllFilters`
+
+清除所有过滤器。
+
+**函数签名**:
+
+```typescript
+function clearAllFilters(): ActiveFilters
+```
+
+**返回值**: 空的过滤器状态对象
+
+**示例**:
+
+```typescript
+const newFilters = clearAllFilters();
+// 返回: {}
+```
+
+---
+
+### WebSocket 重试机制 (`@/lib/realtime/retry-manager`)
+
+#### `RetryManager`
+
+WebSocket 消息重试管理器类，提供指数退避策略的消息重试机制。
+
+**构造函数**:
+
+```typescript
+constructor(options?: { maxConcurrentTasks?: number })
+```
+
+**方法**:
+
+##### `execute<T>`
+
+执行带重试的任务。
+
+```typescript
+async execute<T>(
+  id: string,
+  action: () => Promise<T>,
+  options?: RetryOptions
+): Promise<T>
+```
+
+**参数**:
+
+| 参数 | 类型 | 描述 |
+|------|------|------|
+| `id` | `string` | 任务唯一标识 |
+| `action` | `() => Promise<T>` | 要执行的异步操作 |
+| `options` | `RetryOptions` | 重试选项 |
+
+**RetryOptions 类型**:
+
+```typescript
+interface RetryOptions {
+  maxRetries?: number;        // 最大重试次数 (默认: 3)
+  initialDelay?: number;      // 初始延迟 ms (默认: 1000)
+  maxDelay?: number;          // 最大延迟 ms (默认: 30000)
+  backoffFactor?: number;     // 退避因子 (默认: 2)
+  onRetry?: (attempt, error) => void;
+  onSuccess?: () => void;
+  onFailure?: (error) => void;
+}
+```
+
+**返回值**: Promise<T> - 操作结果
+
+**示例**:
+
+```typescript
+const manager = new RetryManager({ maxConcurrentTasks: 10 });
+
+try {
+  const result = await manager.execute(
+    'task-123',
+    async () => {
+      return await fetch('/api/data').then(r => r.json());
+    },
+    {
+      maxRetries: 3,
+      initialDelay: 1000,
+      backoffFactor: 2,
+      onRetry: (attempt, error) => {
+        console.log(`重试 ${attempt}: ${error.message}`);
+      }
+    }
+  );
+  console.log('成功:', result);
+} catch (error) {
+  console.error('失败:', error);
+}
+```
+
+##### `getState`
+
+获取任务状态。
+
+```typescript
+getState(id: string): RetryState | null
+```
+
+**返回值**:
+
+```typescript
+interface RetryState {
+  attempts: number;
+  lastError: Error | null;
+  nextRetryTime: number | null;
+  isRetrying: boolean;
+}
+```
+
+##### `cancel`
+
+取消任务。
+
+```typescript
+cancel(id: string): boolean
+```
+
+**返回值**: 是否成功取消
+
+##### `cancelAll`
+
+取消所有任务。
+
+```typescript
+cancelAll(): void
+```
+
+##### `reset`
+
+重置任务状态。
+
+```typescript
+reset(id: string): boolean
+```
+
+##### `getActiveTaskCount`
+
+获取活跃任务数量。
+
+```typescript
+getActiveTaskCount(): number
+```
+
+---
+
+#### `retryManager`
+
+全局默认重试管理器实例。
+
+**使用示例**:
+
+```typescript
+import { retryManager } from '@/lib/realtime';
+
+// 直接使用全局实例
+const result = await retryManager.execute('send-message', async () => {
+  return await ws.send(message);
+});
+```
+
+---
+
+#### `withRetry`
+
+创建一个简单的重试包装器函数。
+
+**函数签名**:
+
+```typescript
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  options?: RetryOptions
+): Promise<T>
+```
+
+**参数**:
+
+| 参数 | 类型 | 描述 |
+|------|------|------|
+| `fn` | `() => Promise<T>` | 要执行的异步函数 |
+| `options` | `RetryOptions` | 重试选项 |
+
+**返回值**: Promise<T>
+
+**示例**:
+
+```typescript
+import { withRetry } from '@/lib/realtime';
+
+const data = await withRetry(
+  async () => {
+    return await fetch('/api/data').then(r => r.json());
+  },
+  {
+    maxRetries: 3,
+    initialDelay: 1000,
+    backoffFactor: 2
+  }
+);
+```
+
+---
+
+#### `calculateBackoffDelay`
+
+计算指数退避延迟时间。
+
+**函数签名**:
+
+```typescript
+function calculateBackoffDelay(
+  attempt: number,
+  options?: {
+    initialDelay?: number;
+    maxDelay?: number;
+    backoffFactor?: number;
+  }
+): number
+```
+
+**参数**:
+
+| 参数 | 类型 | 描述 |
+|------|------|------|
+| `attempt` | `number` | 当前重试次数 |
+| `options` | `object` | 配置选项 |
+
+**返回值**: 延迟时间（毫秒）
+
+**示例**:
+
+```typescript
+import { calculateBackoffDelay } from '@/lib/realtime';
+
+calculateBackoffDelay(1); // 1000ms
+calculateBackoffDelay(2); // 2000ms (1000 * 2)
+calculateBackoffDelay(3); // 4000ms (1000 * 2^2)
+calculateBackoffDelay(4); // 8000ms (1000 * 2^3)
+```
+
+---
+
+### 实时通知工具 (`@/lib/realtime`)
+
+#### `useWebSocket`
+
+简单的 WebSocket Hook。
+
+**函数签名**:
+
+```typescript
+function useWebSocket(url: string, options?: WebSocketOptions)
+```
+
+**返回值**:
+
+```typescript
+{
+  connectionState: ConnectionState;
+  sendMessage: (message: WebSocketMessage) => void;
+  lastMessage: WebSocketMessage | null;
+  readyState: number;
+  connect: () => void;
+  disconnect: () => void;
+  reconnect: () => void;
+}
+```
+
+**示例**:
+
+```typescript
+const { connectionState, sendMessage, lastMessage } = useWebSocket(
+  'ws://localhost:3000/ws',
+  {
+    onMessage: (message) => console.log('收到消息:', message),
+    onError: (error) => console.error('错误:', error)
+  }
+);
+```
+
+---
+
+#### `useEnhancedWebSocket`
+
+增强版 WebSocket Hook，内置重试机制。
+
+**函数签名**:
+
+```typescript
+function useEnhancedWebSocket(url: string, options?: EnhancedWebSocketOptions)
+```
+
+**返回值**: 与 `useWebSocket` 相同，但增加自动重连和错误恢复功能
+
+**示例**:
+
+```typescript
+const { connectionState, sendMessage } = useEnhancedWebSocket(
+  'ws://localhost:3000/ws',
+  {
+    autoReconnect: true,
+    retryConfig: {
+      maxRetries: 5,
+      initialDelay: 1000,
+      backoffFactor: 2
+    }
+  }
+);
 ```
 
 ---

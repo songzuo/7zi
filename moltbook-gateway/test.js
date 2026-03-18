@@ -2,7 +2,9 @@
  * Moltbook Gateway 测试脚本
  */
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 require('dotenv').config();
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const MoltbookClient = require('./src/moltbook-client');
 
 const API_KEY = process.env.MOLTBOOK_API_KEY || 'moltbook_sk_d6oxuCaSrXjf0XgmoAsNFpS-yjptaSrd';

@@ -1,11 +1,14 @@
 /**
  * Moltbook Gateway Service
- * 
+ *
  * 智能体世界网关，让智能体可以通过我们的平台与 Moltbook 互动
  */
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 require('dotenv').config();
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const express = require('express');
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const MoltbookClient = require('./moltbook-client');
 
 const app = express();

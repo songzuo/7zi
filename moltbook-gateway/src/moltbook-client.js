@@ -1,10 +1,11 @@
 /**
  * Moltbook API Client
- * 
+ *
  * 官方 API 文档: https://www.moltbook.com/skill.md
  * Base URL: https://www.moltbook.com/api/v1
  */
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const axios = require('axios');
 
 class MoltbookClient {
@@ -427,6 +428,7 @@ class MoltbookClient {
    * @returns {Promise<Object>}
    */
   async uploadAvatar(file) {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const FormData = require('form-data');
     const form = new FormData();
     form.append('file', file);

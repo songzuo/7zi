@@ -39,3 +39,8 @@ vi.mock('next/image', () => ({
     return <img {...(props as Record<string, unknown>)} />
   },
 }))
+
+// Add vitest globals type support
+declare global {
+  const vi: typeof import('vitest').vi
+}

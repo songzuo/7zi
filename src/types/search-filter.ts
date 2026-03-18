@@ -26,6 +26,18 @@ export interface SearchConfig {
   exactMatch?: boolean;
   /** 搜索字段（可选，不指定则搜索所有字段） */
   fields?: string[];
+  /** 是否启用模糊匹配（允许拼写错误） */
+  fuzzyMatch?: boolean;
+  /** 模糊匹配的最大编辑距离（0-3，默认1） */
+  fuzzyThreshold?: number;
+  /** 是否启用拼音模糊匹配（仅限中文） */
+  pinyinMatch?: boolean;
+  /** 字段权重（用于相关性评分） */
+  fieldWeights?: Record<string, number>;
+  /** 最低相关性分数阈值（0-1，低于此值的结果将被过滤） */
+  minScore?: number;
+  /** 是否在结果中包含高亮 */
+  includeHighlights?: boolean;
 }
 
 /**
