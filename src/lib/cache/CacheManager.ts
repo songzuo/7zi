@@ -8,6 +8,8 @@
  * - Singleton pattern
  */
 
+import { logger } from '../logger';
+
 interface CacheEntry<T> {
   data: T;
   expiresAt: number;
@@ -155,7 +157,7 @@ export class CacheManager {
     this.cleanupInterval = setInterval(() => {
       const cleaned = this.cleanup();
       if (cleaned > 0) {
-        console.log(`[CacheManager] Cleaned up ${cleaned} expired entries`);
+        logger.debug(`[CacheManager] Cleaned up ${cleaned} expired entries`, { category: 'cache' });
       }
     }, this.cleanupIntervalMs);
   }

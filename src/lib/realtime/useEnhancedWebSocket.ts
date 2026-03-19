@@ -189,7 +189,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
         callback(newState);
       } catch (err) {
         if (process.env.NODE_ENV === 'development') {
-          console.error('[WebSocket] State change callback error:', err);
+          logger.error('[WebSocket] State change callback error', err, { category: 'system' });
         }
       }
     });
@@ -235,7 +235,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
           handler(data);
         } catch (err) {
           if (process.env.NODE_ENV === 'development') {
-            console.error(`[WebSocket] Handler error for ${type}:`, err);
+            logger.error(`[WebSocket] Handler error for ${type}`, err, { category: 'system' });
           }
         }
       });
@@ -249,7 +249,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
           handler(data);
         } catch (err) {
           if (process.env.NODE_ENV === 'development') {
-            console.error('[WebSocket] Wildcard handler error:', err);
+            logger.error('[WebSocket] Wildcard handler error', err, { category: 'system' });
           }
         }
       });
@@ -280,7 +280,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
       offlineQueueRef.current = trimmedQueue;
 
       if (droppedCount > 0 && process.env.NODE_ENV === 'development') {
-        console.log(`[WebSocket] Dropped ${droppedCount} low priority messages from offline queue`);
+        logger.info(`[WebSocket] Dropped ${droppedCount} low priority messages from offline queue`, { category: 'system' });
         updateStats({
           offlineQueueDroppedCount: stats.offlineQueueDroppedCount + droppedCount,
         });
@@ -291,7 +291,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
       offlineQueueRef.current = queue.slice(-targetSize);
 
       if (droppedCount > 0 && process.env.NODE_ENV === 'development') {
-        console.log(`[WebSocket] Dropped ${droppedCount} old messages from offline queue (FIFO)`);
+        logger.info(`[WebSocket] Dropped ${droppedCount} old messages from offline queue (FIFO)`, { category: 'system' });
         updateStats({
           offlineQueueDroppedCount: stats.offlineQueueDroppedCount + droppedCount,
         });
@@ -330,7 +330,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
         }
       } catch (err) {
         if (process.env.NODE_ENV === 'development') {
-          console.error('[WebSocket] Failed to send offline message:', err);
+          logger.error('[WebSocket] Failed to send offline message', err, { category: 'system' });
         }
         failedCount++;
       }
@@ -342,7 +342,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
     });
 
     if (sentCount > 0 && process.env.NODE_ENV === 'development') {
-      console.log(`[WebSocket] Processed offline queue: ${sentCount} sent, ${failedCount} failed`);
+      logger.info(`[WebSocket] Processed offline queue: ${sentCount} sent, ${failedCount} failed`, { category: 'system' });
     }
   }, [enableOfflineQueue, stats.messagesSent, updateStats]);
 
@@ -518,7 +518,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
     // 检查是否已在离线队列中（去重）
     if (offlineMessageIdsRef.current.has(messageId)) {
       if (process.env.NODE_ENV === 'development') {
-        console.log(`[WebSocket] Message ${messageId} already in offline queue, skipping`);
+        logger.info(`[WebSocket] Message ${messageId} already in offline queue, skipping`, { category: 'system' });
       }
       updateStats({
         offlineQueueDedupCount: stats.offlineQueueDedupCount + 1,

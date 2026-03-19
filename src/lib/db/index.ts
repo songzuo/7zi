@@ -48,7 +48,7 @@ function initializeDatabase(): Database.Database {
   const dbPath = process.env.DATABASE_PATH || '/tmp/7zi-database.sqlite';
   
   dbInstance = new Database(dbPath, {
-    verbose: process.env.NODE_ENV === 'development' ? console.log : undefined,
+    verbose: process.env.NODE_ENV === 'development' ? (sql: string) => logger.debug(sql, { category: 'db' }) : undefined,
   });
 
   // Enable performance optimizations
