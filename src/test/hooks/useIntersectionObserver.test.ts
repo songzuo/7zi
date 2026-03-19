@@ -1,6 +1,6 @@
 /**
  * @fileoverview useIntersectionObserver hook tests
- * 
+ *
  * Tests for intersection observer hooks with mocked IntersectionObserver API.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -27,9 +27,9 @@ describe('useIntersectionObserver', () => {
     const MockIntersectionObserver = vi.fn().mockImplementation(
       function(this: IntersectionObserver, callback: (entries: IntersectionObserverEntry[]) => void) {
         observerCallback = callback;
-        this.observe = mockObserve;
-        this.unobserve = mockUnobserve;
-        this.disconnect = mockDisconnect;
+        this.observe = mockObserve as (target: Element) => void;
+        this.unobserve = mockUnobserve as (target: Element) => void;
+        this.disconnect = mockDisconnect as () => void;
         return this;
       }
     );
@@ -263,9 +263,9 @@ describe('useAnimateOnView', () => {
     const MockIntersectionObserver = vi.fn().mockImplementation(
       function(this: IntersectionObserver, callback: (entries: IntersectionObserverEntry[]) => void) {
         observerCallback = callback;
-        this.observe = mockObserve;
-        this.unobserve = mockUnobserve;
-        this.disconnect = vi.fn();
+        this.observe = mockObserve as (target: Element) => void;
+        this.unobserve = mockUnobserve as (target: Element) => void;
+        this.disconnect = vi.fn() as () => void;
         return this;
       }
     );
@@ -409,9 +409,9 @@ describe('useCountUp', () => {
     const MockIntersectionObserver = vi.fn().mockImplementation(
       function(this: IntersectionObserver, callback: (entries: IntersectionObserverEntry[]) => void) {
         observerCallback = callback;
-        this.observe = mockObserve;
-        this.unobserve = vi.fn();
-        this.disconnect = vi.fn();
+        this.observe = mockObserve as (target: Element) => void;
+        this.unobserve = vi.fn() as (target: Element) => void;
+        this.disconnect = vi.fn() as () => void;
         return this;
       }
     );

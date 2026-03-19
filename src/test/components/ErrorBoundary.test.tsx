@@ -16,7 +16,7 @@ describe('ErrorBoundary', () => {
   });
 
   afterEach(() => {
-    process.env.NODE_ENV = originalEnv;
+    Object.defineProperty(process, 'NODE_ENV', { value: originalEnv, writable: true });
     vi.restoreAllMocks();
   });
 

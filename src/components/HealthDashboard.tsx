@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useTheme } from '@/contexts/SettingsContext';
 import { performanceCollector } from '@/lib/monitoring/performance.monitor';
 import { useRealtimeNotificationStore } from '@/lib/realtime/store';
@@ -52,9 +52,10 @@ export function HealthDashboard({
   const [lastActive, setLastActive] = useState<string>(new Date().toISOString());
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
 
-  // Fetch API latency from performance metrics
+  // Single combined useEffect for both data fetching
   useEffect(() => {
-    const fetchApiLatency = () => {
+    const fetchData = () => {
+      // Fetch API latency
       const metrics = performanceCollector.getMetrics();
       const apiMetrics = metrics.get('TTFB');
 
@@ -66,20 +67,8 @@ export function HealthDashboard({
       // Update last active time
       setLastActive(new Date().toISOString());
       setLastUpdate(new Date());
-    };
 
-    // Initial fetch
-    fetchApiLatency();
-
-    // Set up interval
-    const interval = setInterval(fetchApiLatency, refreshInterval);
-
-    return () => clearInterval(interval);
-  }, [refreshInterval]);
-
-  // Fetch memory usage
-  useEffect(() => {
-    const fetchMemoryUsage = () => {
+      // Fetch memory usage
       if (typeof performance !== 'undefined' && 'memory' in performance) {
         const memory = (performance as Performance & {
           memory?: { usedJSHeapSize: number; totalJSHeapSize: number };
@@ -93,16 +82,16 @@ export function HealthDashboard({
     };
 
     // Initial fetch
-    fetchMemoryUsage();
+    fetchData();
 
     // Set up interval
-    const interval = setInterval(fetchMemoryUsage, refreshInterval);
+    const interval = setInterval(fetchData, refreshInterval);
 
     return () => clearInterval(interval);
   }, [refreshInterval]);
 
-  // Calculate health metrics
-  const metrics: HealthMetric[] = [
+  // Calculate health metrics - memoized to prevent recalculation on every render
+  const metrics: HealthMetric[] = useMemo(() => [
     {
       label: 'API Response Time',
       value: `${apiLatency.toFixed(0)}ms`,
@@ -124,7 +113,7 @@ export function HealthDashboard({
       value: formatTimeSince(lastActive),
       status: 'healthy',
     },
-  ];
+  ], [apiLatency, isConnected, memoryUsage, lastActive]);
 
   return (
     <div className={`rounded-xl p-6 ${isDark ? 'bg-zinc-800' : 'bg-white'} shadow-lg ${className}`}>
@@ -164,7 +153,8 @@ interface MetricCardProps {
 }
 
 function MetricCard({ metric, isDark }: MetricCardProps) {
-  const statusConfig = {
+  // Memoize statusConfig to prevent object recreation on every render
+  const statusConfig = useMemo(() => ({
     healthy: {
       color: 'bg-emerald-500',
       bgColor: isDark ? 'bg-emerald-500/10' : 'bg-emerald-50',
@@ -183,7 +173,7 @@ function MetricCard({ metric, isDark }: MetricCardProps) {
       textColor: isDark ? 'text-red-400' : 'text-red-600',
       icon: '✗',
     },
-  };
+  }), [isDark]);
 
   const config = statusConfig[metric.status];
 

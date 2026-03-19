@@ -31,7 +31,7 @@ export function useFetch<T>(
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await fetch(url, {
         headers: {
           'Accept': 'application/json',
@@ -49,7 +49,7 @@ export function useFetch<T>(
     } finally {
       setLoading(false);
     }
-  }, [url]);
+  }, [url]); // Only depend on URL to prevent unnecessary re-creation
 
   useEffect(() => {
     fetchData();

@@ -4,6 +4,7 @@
 
 import { describe, it, expect } from 'vitest';
 import {
+  isEmailJSConfigured,
   getSubjectLabel,
   SUBJECT_MAP,
   type EmailTemplateParams,

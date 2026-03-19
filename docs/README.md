@@ -83,6 +83,15 @@
 - **[MONITORING_SUMMARY.md](./MONITORING_SUMMARY.md)** - 监控总结
 - **[OPERATIONS_MANUAL.md](./OPERATIONS_MANUAL.md)** - 运维手册
 - **[PERMISSIONS.md](./PERMISSIONS.md)** - 权限管理
+- **[CI-CD-SETUP.md](./CI-CD-SETUP.md)** - CI/CD 配置
+- **[BACKUP-POLICY.md](./BACKUP-POLICY.md)** - 备份策略
+- **[CACHE_CONFIG.md](./CACHE_CONFIG.md)** - 缓存配置
+- **[I18N_ARCHITECTURE.md](./I18N_ARCHITECTURE.md)** - 国际化架构
+- **[PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md)** - 项目总结
+- **[SERVERS.md](./SERVERS.md)** - 服务器配置
+- **[SSH-SETUP.md](./SSH-SETUP.md)** - SSH 设置
+- **[SSH-TROUBLESHOOTING.md](./SSH-TROUBLESHOOTING.md)** - SSH 故障排除
+- **[技术栈升级建议报告.md](./技术栈升级建议报告.md)** - 技术栈升级建议
 
 ### 📖 示例与参考
 
@@ -103,8 +112,16 @@
 - **[STATE-MANAGEMENT-ANALYSIS-detailed.md](./state-management-analysis-detailed.md)** - 详细状态管理分析
 - **[UX-ANALYSIS.md](./ux-analysis.md)** - UX 分析
 - **[UI_REVIEW.md](./UI_REVIEW.md)** - UI 审查
+- **[UI-REVIEW-2026-03-07.md](./UI-REVIEW-2026-03-07.md)** - UI/UX 优化审查报告 (2026-03-07)
 - **[PERFORMANCE-OPTIMIZATION-REPORT.md](./PERFORMANCE-OPTIMIZATION-REPORT.md)** - 性能优化报告
+- **[PORTFOLIO_OPTIMIZATION_REPORT.md](./PORTFOLIO_OPTIMIZATION_REPORT.md)** - Portfolio 组件性能优化
 - **[DEPENDENCY-AUDIT.md](./dependency-audit.md)** - 依赖审计
+- **[SECURITY_AUDIT_REPORT.md](./SECURITY_AUDIT_REPORT.md)** - 安全审查报告
+- **[TECH_DEBT.md](./TECH_DEBT.md)** - 技术债务分析
+- **[THEME_PERSISTENCE_IMPLEMENTATION.md](./THEME_PERSISTENCE_IMPLEMENTATION.md)** - 主题持久化实现报告
+- **[VERIFICATION_REPORT.md](./VERIFICATION_REPORT.md)** - 最终验证报告
+- **[TEST_ANALYSIS_REPORT.md](./TEST_ANALYSIS_REPORT.md)** - 测试分析与改进
+- **[TEST_COVERAGE_REPORT.md](./TEST_COVERAGE_REPORT.md)** - 测试覆盖率报告
 
 ### 🎯 专项功能
 

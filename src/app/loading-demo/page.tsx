@@ -10,8 +10,8 @@ import React, { useState } from 'react';
 import {
   LoadingSpinner,
   GlobalLoader,
-  MinimalLoader,
 } from '@/components';
+import type { LoadingVariant, LoadingSize, LoadingColor } from '@/components/LoadingSpinner';
 import {
   useGlobalLoading,
   useScopedLoading,
@@ -83,7 +83,7 @@ function SpinnerVariantsDemo() {
     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
       {['spin', 'pulse', 'bounce', 'dots', 'bars', 'wave'].map((variant) => (
         <div key={variant} className="flex flex-col items-center gap-2 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-          <LoadingSpinner variant={variant as any} size="lg" />
+          <LoadingSpinner variant={variant as LoadingVariant} size="lg" />
           <p className="text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">{variant}</p>
         </div>
       ))}
@@ -99,7 +99,7 @@ function SpinnerSizesDemo() {
     <div className="flex items-end gap-6 justify-center py-4">
       {['xs', 'sm', 'md', 'lg', 'xl'].map((size) => (
         <div key={size} className="flex flex-col items-center gap-1">
-          <LoadingSpinner size={size as any} />
+          <LoadingSpinner size={size as LoadingSize} />
           <p className="text-xs text-gray-600 dark:text-gray-400">{size}</p>
         </div>
       ))}
@@ -115,7 +115,7 @@ function SpinnerColorsDemo() {
     <div className="flex items-center gap-4 justify-center flex-wrap">
       {['primary', 'secondary', 'success', 'warning', 'error', 'info'].map((color) => (
         <div key={color} className="flex flex-col items-center gap-2 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
-          <LoadingSpinner color={color as any} size="md" />
+          <LoadingSpinner color={color as LoadingColor} size="md" />
           <p className="text-xs font-medium text-gray-700 dark:text-gray-300 capitalize">{color}</p>
         </div>
       ))}

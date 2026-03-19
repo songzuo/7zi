@@ -17,6 +17,11 @@ import {
   hasActiveFilters,
   clearAllFilters,
 } from '@/lib/search-filter';
+import type {
+  FilterConfig,
+  ActiveFilters,
+  SortConfig,
+} from '@/types/search-filter';
 
 // ============================================================================
 // Test Data Fixtures
@@ -213,9 +218,9 @@ describe('highlightSearchTerm', () => {
   });
 
   it('should be case-sensitive when configured', () => {
-    const result1 = highlightSearchTerm('Hello World', 'World', true);
-    const result2 = highlightSearchTerm('Hello World', 'world', true);
-    
+    const result1 = highlightSearchTerm('Hello World', 'World', { caseSensitive: true });
+    const result2 = highlightSearchTerm('Hello World', 'world', { caseSensitive: true });
+
     expect(result1).toContain('<mark');
     expect(result2).not.toContain('<mark');
   });
@@ -240,8 +245,8 @@ describe('highlightSearchTerm', () => {
 
 describe('applyFilters', () => {
   it('should return all items with no active filters', () => {
-    const filters: Array<{ id: keyof User; options?: never[] }> = [
-      { id: 'role', options: [] },
+    const filters: FilterConfig<User>[] = [
+      { id: 'role', type: 'status', label: 'Role', options: [] },
     ];
     const activeFilters: Record<string, unknown[]> = {};
 
@@ -251,8 +256,8 @@ describe('applyFilters', () => {
   });
 
   it('should filter by single value', () => {
-    const filters: Array<{ id: keyof User }> = [
-      { id: 'status' },
+    const filters: FilterConfig<User>[] = [
+      { id: 'status', type: 'status', label: 'Status', options: [] },
     ];
     const activeFilters: Record<string, unknown[]> = {
       status: ['online'],
@@ -265,8 +270,8 @@ describe('applyFilters', () => {
   });
 
   it('should filter by multiple values (OR logic)', () => {
-    const filters: Array<{ id: keyof User }> = [
-      { id: 'status' },
+    const filters: FilterConfig<User>[] = [
+      { id: 'status', type: 'status', label: 'Status', options: [] },
     ];
     const activeFilters: Record<string, unknown[]> = {
       status: ['online', 'offline'],
@@ -279,26 +284,29 @@ describe('applyFilters', () => {
   });
 
   it('should apply multiple filters (AND logic)', () => {
-    const filters: Array<{ id: keyof User }> = [
-      { id: 'status' },
-      { id: 'role' },
+    const filters: FilterConfig<User>[] = [
+      { id: 'status', type: 'status', label: 'Status', options: [] },
+      { id: 'role', type: 'status', label: 'Role', options: [] },
     ];
     const activeFilters = {
       status: ['online'],
       role: ['user'],
     };
-    
+
     const results = applyFilters(mockUsers, filters, activeFilters);
-    
+
     expect(results).toHaveLength(1);
     expect(results[0].status).toBe('online');
     expect(results[0].role).toBe('user');
   });
 
   it('should use custom filter function when provided', () => {
-    const filters: Array<{ id: 'nameLength'; customFilter: (item: User, values: unknown[]) => boolean }> = [
+    const filters: FilterConfig<User>[] = [
       {
         id: 'nameLength',
+        type: 'custom',
+        label: 'Name Length',
+        options: [],
         customFilter: (item: User, values: unknown[]) => {
           const minLength = values[0] as number;
           return item.name.length >= minLength;
@@ -315,9 +323,9 @@ describe('applyFilters', () => {
   });
 
   it('should skip disabled filters', () => {
-    const filters: Array<{ id: keyof User; enabled?: boolean }> = [
-      { id: 'status', enabled: false },
-      { id: 'role' },
+    const filters: FilterConfig<User>[] = [
+      { id: 'status', type: 'status', label: 'Status', options: [], enabled: false },
+      { id: 'role', type: 'status', label: 'Role', options: [] },
     ];
     const activeFilters = {
       status: ['offline'],
@@ -332,8 +340,8 @@ describe('applyFilters', () => {
   });
 
   it('should return empty array when no items match', () => {
-    const filters: Array<{ id: keyof User }> = [
-      { id: 'role' },
+    const filters: FilterConfig<User>[] = [
+      { id: 'role', type: 'status', label: 'Role', options: [] },
     ];
     const activeFilters = {
       role: ['nonexistent'],
@@ -384,7 +392,7 @@ describe('extractFilterOptions', () => {
       { id: 2, value: null },
       { id: 3, value: 'b' },
       { id: 4, value: undefined },
-    ] as const;
+    ];
 
     const options = extractFilterOptions(items as { id: number; value: unknown }[], 'value');
 
@@ -420,9 +428,11 @@ describe('extractLabelOptions', () => {
 
   it('should sort by count (descending)', () => {
     const options = extractLabelOptions(mockGitHubIssues);
-    
+
     for (let i = 1; i < options.length; i++) {
-      expect(options[i - 1].count).toBeGreaterThanOrEqual(options[i].count);
+      const prevCount = options[i - 1].count ?? 0;
+      const currCount = options[i].count ?? 0;
+      expect(prevCount).toBeGreaterThanOrEqual(currCount);
     }
   });
 
@@ -430,7 +440,7 @@ describe('extractLabelOptions', () => {
     const issues = [
       { id: 1, labels: [] },
       { id: 2, labels: undefined },
-    ] as const;
+    ];
 
     const options = extractLabelOptions(issues as { id: number; labels?: Array<{ name: string; color: string }> }[]);
 
@@ -475,7 +485,7 @@ describe('extractAssigneeOptions', () => {
     const issues = [
       { id: 1, assignee: null },
       { id: 2, assignee: undefined },
-    ] as const;
+    ];
 
     const options = extractAssigneeOptions(issues as { id: number; assignee: { login: string; avatar_url: string } | null | undefined }[]);
 
@@ -489,8 +499,8 @@ describe('extractAssigneeOptions', () => {
 
 describe('applyFilters Edge Cases', () => {
   it('should handle empty array', () => {
-    const filters: Array<{ id: keyof User }> = [
-      { id: 'status' },
+    const filters: FilterConfig<User>[] = [
+      { id: 'status', type: 'status', label: 'Status', options: [] },
     ];
     const activeFilters: Record<string, unknown[]> = {
       status: ['online'],
@@ -503,13 +513,13 @@ describe('applyFilters Edge Cases', () => {
 
   it('should handle null values in items', () => {
     const itemsWithNulls = [
-      { id: 1, name: 'Alice', status: 'online', role: 'admin' },
-      { id: 2, name: null, status: 'offline', role: 'user' } as unknown as User,
-      { id: 3, name: 'Charlie', status: null, role: 'user' } as unknown as User,
+      { id: 1, name: 'Alice', status: 'online', role: 'admin', email: 'alice@example.com' },
+      { id: 2, name: null, status: 'offline', role: 'user', email: 'bob@example.com' } as unknown as User,
+      { id: 3, name: 'Charlie', status: null, role: 'user', email: 'charlie@example.com' } as unknown as User,
     ];
 
-    const filters: Array<{ id: keyof User }> = [
-      { id: 'role' },
+    const filters: FilterConfig<User>[] = [
+      { id: 'role', type: 'status', label: 'Role', options: [] },
     ];
     const activeFilters = {
       role: ['user'],
@@ -521,9 +531,9 @@ describe('applyFilters Edge Cases', () => {
   });
 
   it('should handle items that do not match any filter', () => {
-    const filters: Array<{ id: keyof User }> = [
-      { id: 'role' },
-      { id: 'status' },
+    const filters: FilterConfig<User>[] = [
+      { id: 'role', type: 'status', label: 'Role', options: [] },
+      { id: 'status', type: 'status', label: 'Status', options: [] },
     ];
     const activeFilters = {
       role: ['admin'],
@@ -537,29 +547,29 @@ describe('applyFilters Edge Cases', () => {
   });
 
   it('should handle null activeFilters', () => {
-    const filters: Array<{ id: keyof User }> = [
-      { id: 'status' },
+    const filters: FilterConfig<User>[] = [
+      { id: 'status', type: 'status', label: 'Status', options: [] },
     ];
 
-    const results = applyFilters(mockUsers, filters, null as any);
+    const results = applyFilters(mockUsers, filters, null as unknown as ActiveFilters<User>);
 
     expect(results).toHaveLength(mockUsers.length);
   });
 
   it('should handle undefined activeFilters', () => {
-    const filters: Array<{ id: keyof User }> = [
-      { id: 'status' },
+    const filters: FilterConfig<User>[] = [
+      { id: 'status', type: 'status', label: 'Status', options: [] },
     ];
 
-    const results = applyFilters(mockUsers, filters, undefined as any);
+    const results = applyFilters(mockUsers, filters, undefined as unknown as ActiveFilters<User>);
 
     expect(results).toHaveLength(mockUsers.length);
   });
 
   it('should handle empty activeFilters values', () => {
-    const filters: Array<{ id: keyof User }> = [
-      { id: 'status' },
-      { id: 'role' },
+    const filters: FilterConfig<User>[] = [
+      { id: 'status', type: 'status', label: 'Status', options: [] },
+      { id: 'role', type: 'status', label: 'Role', options: [] },
     ];
     const activeFilters = {
       status: [],
@@ -617,6 +627,8 @@ describe('applySort Multi-field Sorting', () => {
 
   it('should handle multi-field sorting with custom comparator', () => {
     const results = applySort(mockUsers, {
+      field: 'status' as keyof User,
+      direction: 'asc',
       comparator: (a, b) => {
         // First sort by status, then by name
         if (a.status !== b.status) {
@@ -776,8 +788,8 @@ describe('applySearchFilterSort Integration', () => {
   });
 
   it('should apply filters only', () => {
-    const filters: Array<{ id: keyof User }> = [
-      { id: 'status' },
+    const filters: FilterConfig<User>[] = [
+      { id: 'status', type: 'status', label: 'Status', options: [] },
     ];
     const activeFilters = {
       status: ['online'],
@@ -819,8 +831,8 @@ describe('applySearchFilterSort Integration', () => {
   });
 
   it('should apply search and filters', () => {
-    const filters: Array<{ id: keyof User }> = [
-      { id: 'status' },
+    const filters: FilterConfig<User>[] = [
+      { id: 'status', type: 'status', label: 'Status', options: [] },
     ];
     const activeFilters = {
       status: ['online'],
@@ -860,8 +872,8 @@ describe('applySearchFilterSort Integration', () => {
   });
 
   it('should apply filters and sort', () => {
-    const filters: Array<{ id: keyof User }> = [
-      { id: 'status' },
+    const filters: FilterConfig<User>[] = [
+      { id: 'status', type: 'status', label: 'Status', options: [] },
     ];
     const activeFilters = {
       status: ['online'],
@@ -886,9 +898,9 @@ describe('applySearchFilterSort Integration', () => {
   });
 
   it('should apply search, filters, and sort together', () => {
-    const filters: Array<{ id: keyof User }> = [
-      { id: 'status' },
-      { id: 'role' },
+    const filters: FilterConfig<User>[] = [
+      { id: 'status', type: 'status', label: 'Status', options: [] },
+      { id: 'role', type: 'status', label: 'Role', options: [] },
     ];
     const activeFilters = {
       status: ['online'],
@@ -916,8 +928,8 @@ describe('applySearchFilterSort Integration', () => {
   });
 
   it('should return empty results when no match found', () => {
-    const filters: Array<{ id: keyof User }> = [
-      { id: 'role' },
+    const filters: FilterConfig<User>[] = [
+      { id: 'role', type: 'status', label: 'Role', options: [] },
     ];
     const activeFilters = {
       role: ['nonexistent'],
@@ -950,9 +962,9 @@ describe('applySearchFilterSort Integration', () => {
   });
 
   it('should calculate activeFilterCount correctly with multiple filters', () => {
-    const filters: Array<{ id: keyof User }> = [
-      { id: 'status' },
-      { id: 'role' },
+    const filters: FilterConfig<User>[] = [
+      { id: 'status', type: 'status', label: 'Status', options: [] },
+      { id: 'role', type: 'status', label: 'Role', options: [] },
     ];
     const activeFilters = {
       status: ['online', 'offline'],
@@ -1010,6 +1022,8 @@ describe('applySort', () => {
 
   it('should use custom comparator when provided', () => {
     const results = applySort(mockUsers, {
+      field: 'id' as keyof User,
+      direction: 'asc',
       comparator: (a, b) => a.id - b.id,
     });
 
@@ -1022,10 +1036,10 @@ describe('applySort', () => {
       { value: 'a' },
       { value: 'z' },
       { value: 'm' },
-    ] as const;
+    ];
 
     const results = applySort(items as { value: unknown }[], {
-      field: 'value',
+      field: 'value' as const,
       direction: 'asc',
     });
 
@@ -1059,14 +1073,14 @@ describe('toggleSortDirection', () => {
 
 describe('applySearchFilterSort', () => {
   it('should apply search, filter, and sort together', () => {
-    const filters: Array<{ id: keyof User }> = [
-      { id: 'status' },
+    const filters: FilterConfig<User>[] = [
+      { id: 'status', type: 'status', label: 'Status', options: [] },
     ];
     const activeFilters: Record<string, unknown[]> = {
       status: ['online'],
     };
-    const sortConfig = {
-      field: 'name',
+    const sortConfig: SortConfig<User> = {
+      field: 'name' as keyof User,
       direction: 'asc',
     };
 
@@ -1110,9 +1124,9 @@ describe('applySearchFilterSort', () => {
   });
 
   it('should calculate active filter count', () => {
-    const filters: Array<{ id: keyof User }> = [
-      { id: 'status' },
-      { id: 'role' },
+    const filters: FilterConfig<User>[] = [
+      { id: 'status', type: 'status', label: 'Status', options: [] },
+      { id: 'role', type: 'status', label: 'Role', options: [] },
     ];
     const activeFilters = {
       status: ['online', 'offline'],
@@ -1142,20 +1156,20 @@ describe('applySearchFilterSort', () => {
   });
 
   it('should handle only filters (no search or sort)', () => {
-    const filters = [
-      { id: 'role' as const },
+    const filters: FilterConfig<User>[] = [
+      { id: 'role', type: 'status', label: 'Role', options: [] },
     ];
     const activeFilters = {
       role: ['admin'],
     };
-    
+
     const results = applySearchFilterSort(
       mockUsers,
       '',
       filters,
       activeFilters
     );
-    
+
     expect(results.items).toHaveLength(1);
     expect(results.items[0].role).toBe('admin');
   });
@@ -1194,7 +1208,7 @@ describe('hasActiveFilters', () => {
     const result = hasActiveFilters({
       status: null,
       role: undefined,
-    } as any);
+    } as unknown as ActiveFilters<User>);
     
     expect(result).toBe(false);
   });

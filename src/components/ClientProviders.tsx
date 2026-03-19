@@ -54,8 +54,6 @@
 import React from 'react';
 import { SettingsProvider } from '@/contexts/SettingsContext';
 import { GlobalLoadingProvider } from '@/hooks/useGlobalLoading';
-import { ThemeToggle } from './ThemeToggle';
-import { AIChat } from './AIChat';
 
 interface ClientProvidersProps {
   children: React.ReactNode;
@@ -70,5 +68,3 @@ export function ClientProviders({ children }: ClientProvidersProps) {
     </SettingsProvider>
   );
 }
-
-export { ThemeToggle, AIChat };

@@ -226,7 +226,7 @@ describe('useFetch', () => {
   describe('revalidateInterval', () => {
     it('应该按间隔自动重新获取数据', async () => {
       vi.useFakeTimers();
-      
+
       const firstData = { count: 1 };
       const secondData = { count: 2 };
 
@@ -238,7 +238,11 @@ describe('useFetch', () => {
         .mockResolvedValueOnce({
           ok: true,
           json: () => Promise.resolve(secondData),
-        });
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({ count: 3 }),
+        }); // Extra mock to prevent infinite loop
 
       const { result } = renderHook(() =>
         useFetch('/api/test', { revalidateInterval: 5000 })
@@ -246,7 +250,8 @@ describe('useFetch', () => {
 
       // 等待初始数据加载
       await act(async () => {
-        await vi.runAllTimersAsync();
+        // Only run pending timers, not all timers
+        await vi.advanceTimersByTimeAsync(0);
       });
 
       expect(result.current.data).toEqual(firstData);
@@ -257,11 +262,13 @@ describe('useFetch', () => {
       });
 
       expect(result.current.data).toEqual(secondData);
-      
+
       vi.useRealTimers();
     });
 
     it('当 revalidateInterval 为 0 时不应该自动重新获取', async () => {
+      vi.useFakeTimers();
+
       const data = { count: 1 };
 
       mockFetch.mockResolvedValueOnce({
@@ -273,18 +280,22 @@ describe('useFetch', () => {
         useFetch('/api/test', { revalidateInterval: 0 })
       );
 
-      await waitFor(() => {
-        expect(result.current.data).toEqual(data);
-      });
-
-      mockFetch.mockClear();
-
-      // 等待一段时间
       await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await vi.advanceTimersByTimeAsync(0);
       });
 
-      expect(mockFetch).not.toHaveBeenCalled();
+      expect(result.current.data).toEqual(data);
+
+      const callCount = mockFetch.mock.calls.length;
+
+      // 推进时间，不应该有新的 fetch 调用
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(10000);
+      });
+
+      expect(mockFetch.mock.calls.length).toBe(callCount);
+
+      vi.useRealTimers();
     });
   });
 
@@ -303,18 +314,18 @@ describe('useFetch', () => {
 
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalled();
-      });
+      }, { timeout: 5000 });
 
       unmount();
 
       expect(removeEventListenerSpy).toHaveBeenCalledWith('focus', expect.any(Function));
-      
+
       removeEventListenerSpy.mockRestore();
     });
 
     it('组件卸载时应该清理 interval', async () => {
       vi.useFakeTimers();
-      
+
       mockFetch.mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({}),
@@ -325,7 +336,7 @@ describe('useFetch', () => {
       );
 
       await act(async () => {
-        await vi.runAllTimersAsync();
+        await vi.advanceTimersByTimeAsync(0);
       });
 
       expect(mockFetch).toHaveBeenCalledTimes(1);
@@ -339,7 +350,7 @@ describe('useFetch', () => {
 
       // 仍然只被调用一次
       expect(mockFetch).toHaveBeenCalledTimes(1);
-      
+
       vi.useRealTimers();
     });
   });

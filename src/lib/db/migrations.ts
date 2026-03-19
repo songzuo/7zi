@@ -4,6 +4,7 @@
  */
 
 import { getDatabaseAsync, getDatabaseSize, analyzeDatabase, vacuumDatabase } from './index';
+import { logger } from '../logger';
 
 export interface Migration {
   version: number;
@@ -18,10 +19,10 @@ const MIGRATIONS: Migration[] = [
     name: 'initial_schema',
     up: async () => {
       // This migration is handled by initializeAgentTables and initializeWalletTables
-      console.log('Migration 1: Initial schema (already handled)');
+      logger.debug('Migration 1: Initial schema (already handled)', { category: 'db' });
     },
     down: async () => {
-      console.log('Migration 1 down: Drop tables');
+      logger.debug('Migration 1 down: Drop tables', { category: 'db' });
       const db = await getDatabaseAsync();
       db.exec('DROP TABLE IF EXISTS wallet_transactions');
       db.exec('DROP TABLE IF EXISTS agent_wallets');
@@ -34,7 +35,7 @@ const MIGRATIONS: Migration[] = [
     version: 2,
     name: 'add_composite_indexes',
     up: async () => {
-      console.log('Migration 2: Adding composite indexes for better query performance');
+      logger.info('Migration 2: Adding composite indexes for better query performance', { category: 'db' });
       const db = await getDatabaseAsync();
 
       // Composite indexes for agents table
@@ -55,7 +56,7 @@ const MIGRATIONS: Migration[] = [
       db.exec('CREATE INDEX IF NOT EXISTS idx_wallet_transactions_type_status ON wallet_transactions(type, status)');
     },
     down: async () => {
-      console.log('Migration 2 down: Remove composite indexes');
+      logger.debug('Migration 2 down: Remove composite indexes', { category: 'db' });
       const db = await getDatabaseAsync();
 
       const indexes = [
@@ -131,31 +132,31 @@ export async function migrate(): Promise<void> {
   const latestVersion = MIGRATIONS[MIGRATIONS.length - 1]?.version || 0;
 
   if (currentVersion >= latestVersion) {
-    console.log(`Database is up to date (version ${currentVersion})`);
+    logger.info(`Database is up to date (version ${currentVersion})`, { category: 'db' });
     return;
   }
 
-  console.log(`Migrating from version ${currentVersion} to ${latestVersion}`);
+  logger.info(`Migrating from version ${currentVersion} to ${latestVersion}`, { category: 'db' });
 
   for (const migration of MIGRATIONS) {
     if (migration.version > currentVersion) {
-      console.log(`Running migration ${migration.version}: ${migration.name}`);
+      logger.info(`Running migration ${migration.version}: ${migration.name}`, { category: 'db' });
       try {
         await migration.up();
         await setVersion(migration.version);
-        console.log(`Migration ${migration.version} completed`);
+        logger.info(`Migration ${migration.version} completed`, { category: 'db' });
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        console.error(`Migration ${migration.version} failed:`, errorMessage);
+        logger.error(`Migration ${migration.version} failed`, error, { category: 'db', message: errorMessage });
 
         // Attempt to rollback to preserve database integrity
         try {
-          console.log(`Attempting to rollback migration ${migration.version}`);
+          logger.info(`Attempting to rollback migration ${migration.version}`, { category: 'db' });
           await migration.down();
-          console.log(`Rollback of migration ${migration.version} completed`);
+          logger.info(`Rollback of migration ${migration.version} completed`, { category: 'db' });
         } catch (rollbackError) {
           const rollbackErrorMsg = rollbackError instanceof Error ? rollbackError.message : String(rollbackError);
-          console.error(`Rollback of migration ${migration.version} failed:`, rollbackErrorMsg);
+          logger.error(`Rollback of migration ${migration.version} failed`, rollbackError, { category: 'db', message: rollbackErrorMsg });
           // Create a compound error with both errors
           const compoundError = new Error(
             `Migration ${migration.version} failed: ${errorMessage}. Rollback also failed: ${rollbackErrorMsg}`
@@ -168,7 +169,7 @@ export async function migrate(): Promise<void> {
     }
   }
 
-  console.log('All migrations completed successfully');
+  logger.info('All migrations completed successfully', { category: 'db' });
 }
 
 /**
@@ -181,25 +182,25 @@ export async function rollback(targetVersion: number): Promise<void> {
     throw new Error(`Target version ${targetVersion} is not lower than current version ${currentVersion}`);
   }
 
-  console.log(`Rolling back from version ${currentVersion} to ${targetVersion}`);
+  logger.info(`Rolling back from version ${currentVersion} to ${targetVersion}`, { category: 'db' });
 
   // Run migrations in reverse order
   for (let i = MIGRATIONS.length - 1; i >= 0; i--) {
     const migration = MIGRATIONS[i];
     if (migration.version > targetVersion && migration.version <= currentVersion) {
-      console.log(`Rolling back migration ${migration.version}: ${migration.name}`);
+      logger.info(`Rolling back migration ${migration.version}: ${migration.name}`, { category: 'db' });
       try {
         await migration.down();
-        console.log(`Migration ${migration.version} rolled back`);
+        logger.info(`Migration ${migration.version} rolled back`, { category: 'db' });
       } catch (error) {
-        console.error(`Rollback of migration ${migration.version} failed:`, error);
+        logger.error(`Rollback of migration ${migration.version} failed`, error, { category: 'db' });
         throw error;
       }
     }
   }
 
   await setVersion(targetVersion);
-  console.log('Rollback completed successfully');
+  logger.info('Rollback completed successfully', { category: 'db' });
 }
 
 /**
@@ -321,7 +322,7 @@ export async function optimizeDatabase(): Promise<{
   sizeAfter: ReturnType<typeof getDatabaseSize>;
   cleanupResult: Awaited<ReturnType<typeof cleanupOldData>>;
 }> {
-  console.log('Starting database optimization...');
+  logger.info('Starting database optimization...', { category: 'db' });
 
   const sizeBefore = getDatabaseSize();
 
@@ -329,23 +330,23 @@ export async function optimizeDatabase(): Promise<{
   try {
     await migrate();
   } catch (error) {
-    console.warn('Migration failed, continuing with optimization:', error);
+    logger.warn('Migration failed, continuing with optimization', error, { category: 'db' });
   }
 
   // Clean up old data
   const cleanupResult = await cleanupOldData({ daysToKeep: 90 });
 
   // Vacuum to compact the database
-  console.log('Vacuuming database...');
+  logger.info('Vacuuming database...', { category: 'db' });
   vacuumDatabase();
 
   // Analyze tables to update statistics
-  console.log('Analyzing database...');
+  logger.info('Analyzing database...', { category: 'db' });
   analyzeDatabase();
 
   const sizeAfter = getDatabaseSize();
 
-  console.log('Database optimization completed');
+  logger.info('Database optimization completed', { category: 'db', sizeBefore, sizeAfter });
 
   return {
     vacuumed: true,

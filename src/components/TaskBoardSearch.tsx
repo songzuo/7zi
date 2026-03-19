@@ -5,7 +5,7 @@
  * @description 为 GitHub Issues 任务板提供搜索、过滤、排序功能
  */
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { GitHubIssue } from '@/types';
 import { SearchFilter } from '@/components/SearchFilter';

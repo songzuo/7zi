@@ -139,7 +139,8 @@ export function PerformanceMonitor() {
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-      observerRef.current?.disconnect();
+      const observer = observerRef.current;
+      observer?.disconnect();
     };
   }, []);
 

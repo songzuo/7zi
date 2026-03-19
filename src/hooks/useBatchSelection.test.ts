@@ -6,6 +6,12 @@ import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { useBatchSelection } from './useBatchSelection';
 
+// Helper function to create a React-compatible MouseEvent
+function createReactMouseEvent(type: string, options: MouseEventInit = {}): React.MouseEvent {
+  const domEvent = new MouseEvent(type, options);
+  return domEvent as unknown as React.MouseEvent;
+}
+
 interface TestItem {
   id: string;
   name: string;
@@ -225,8 +231,8 @@ describe('useBatchSelection', () => {
       });
 
       act(() => {
-        const event = new MouseEvent('click', { shiftKey: true });
-        result.current.toggleItem('3', event as any); // Shift+Click 第三个
+        const event = createReactMouseEvent('click', { shiftKey: true });
+        result.current.toggleItem('3', event); // Shift+Click 第三个
       });
 
       // 应该选中 1-3 之间的所有项
@@ -249,8 +255,8 @@ describe('useBatchSelection', () => {
       });
 
       act(() => {
-        const event = new MouseEvent('click', { shiftKey: true });
-        result.current.toggleItem('1', event as any); // Shift+Click 第一个
+        const event = createReactMouseEvent('click', { shiftKey: true });
+        result.current.toggleItem('1', event); // Shift+Click 第一个
       });
 
       // 应该选中 1-3 之间的所有项
@@ -275,8 +281,8 @@ describe('useBatchSelection', () => {
       });
 
       act(() => {
-        const event = new MouseEvent('click', { shiftKey: true });
-        result.current.toggleItem('3', event as any); // Shift+Click 第三个
+        const event = createReactMouseEvent('click', { shiftKey: true });
+        result.current.toggleItem('3', event); // Shift+Click 第三个
       });
 
       // 应该取消选中 1-3
@@ -292,8 +298,8 @@ describe('useBatchSelection', () => {
       );
 
       act(() => {
-        const event = new MouseEvent('click', { shiftKey: true });
-        result.current.toggleItem('3', event as any);
+        const event = createReactMouseEvent('click', { shiftKey: true });
+        result.current.toggleItem('3', event);
       });
 
       expect(result.current.selectedIds.size).toBe(1);

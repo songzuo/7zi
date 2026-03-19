@@ -27,6 +27,8 @@ export type RealtimeNotificationType =
   | 'system_announcement'
   | 'project_updated';
 
+export type NotificationCategory = 'info' | 'warning' | 'error' | 'success';
+
 export interface RealtimeNotification {
   id: string;
   type: RealtimeNotificationType;
@@ -34,11 +36,14 @@ export interface RealtimeNotification {
   message: string;
   timestamp: string;
   priority: 'low' | 'normal' | 'high' | 'urgent';
+  category?: NotificationCategory;
   data?: Record<string, unknown>;
   actionUrl?: string;
   actionText?: string;
   icon?: string;
   read?: boolean;
+  batchId?: string; // 用于批量通知
+  soundEnabled?: boolean;
 }
 
 // ============================================================================

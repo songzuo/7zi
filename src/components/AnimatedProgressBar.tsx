@@ -127,8 +127,9 @@ const AnimatedProgressBar = memo(function AnimatedProgressBar({
     animationRef.current.animationFrame = requestAnimationFrame(animate);
 
     return () => {
-      if (animationRef.current.animationFrame !== null) {
-        cancelAnimationFrame(animationRef.current.animationFrame);
+      const animationFrame = animationRef.current.animationFrame;
+      if (animationFrame !== null) {
+        cancelAnimationFrame(animationFrame);
       }
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -284,8 +285,9 @@ export const WaveProgress = memo(function WaveProgress({
     animStateRef.current.animationFrame = requestAnimationFrame(animate);
 
     return () => {
-      if (animStateRef.current.animationFrame !== null) {
-        cancelAnimationFrame(animStateRef.current.animationFrame);
+      const animationFrame = animStateRef.current.animationFrame;
+      if (animationFrame !== null) {
+        cancelAnimationFrame(animationFrame);
       }
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -398,8 +400,9 @@ export const SegmentedProgress = memo(function SegmentedProgress({
       animStateRef.current.animationFrame = requestAnimationFrame(animate);
 
       return () => {
-        if (animStateRef.current.animationFrame !== null) {
-          cancelAnimationFrame(animStateRef.current.animationFrame);
+        const animationFrame = animStateRef.current.animationFrame;
+        if (animationFrame !== null) {
+          cancelAnimationFrame(animationFrame);
         }
       };
     } else {
@@ -520,8 +523,9 @@ export const GradientProgress = memo(function GradientProgress({
       animStateRef.current.animationFrame = requestAnimationFrame(animate);
 
       return () => {
-        if (animStateRef.current.animationFrame !== null) {
-          cancelAnimationFrame(animStateRef.current.animationFrame);
+        const animationFrame = animStateRef.current.animationFrame;
+        if (animationFrame !== null) {
+          cancelAnimationFrame(animationFrame);
         }
       };
     } else {

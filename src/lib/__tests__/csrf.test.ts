@@ -11,7 +11,8 @@ import {
 } from '../csrf';
 
 // Mock fetch
-global.fetch = vi.fn();
+const fetchMock = vi.fn() as unknown as typeof fetch;
+global.fetch = fetchMock;
 
 describe('csrf.ts - CSRF 工具测试', () => {
   beforeEach(() => {
@@ -27,7 +28,7 @@ describe('csrf.ts - CSRF 工具测试', () => {
   describe('getCsrfToken - 获取 CSRF Token', () => {
     it('应该从服务器获取 CSRF token', async () => {
       const mockToken = 'a1b2c3d4e5f6';
-      (fetch as any).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ csrfToken: mockToken }),
       });
@@ -39,7 +40,7 @@ describe('csrf.ts - CSRF 工具测试', () => {
 
     it('应该使用缓存的 token', async () => {
       const mockToken = 'a1b2c3d4e5f6';
-      (fetch as any).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ csrfToken: mockToken }),
       });
@@ -55,8 +56,9 @@ describe('csrf.ts - CSRF 工具测试', () => {
     });
 
     it('当获取失败时应该返回 null', async () => {
-      (fetch as any).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: false,
+        json: async () => ({}),
       });
 
       const token = await getCsrfToken();
@@ -64,14 +66,14 @@ describe('csrf.ts - CSRF 工具测试', () => {
     });
 
     it('当网络错误时应该返回 null', async () => {
-      (fetch as any).mockRejectedValueOnce(new Error('Network error'));
+      fetchMock.mockRejectedValueOnce(new Error('Network error'));
 
       const token = await getCsrfToken();
       expect(token).toBeNull();
     });
 
     it('当响应无效时应该返回 null', async () => {
-      (fetch as any).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ csrfToken: null }),
       });
@@ -81,7 +83,7 @@ describe('csrf.ts - CSRF 工具测试', () => {
     });
 
     it('当响应缺少 csrfToken 字段时应该返回 undefined', async () => {
-      (fetch as any).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ data: 'something' }),
       });
@@ -93,7 +95,7 @@ describe('csrf.ts - CSRF 工具测试', () => {
     it('应该处理多个并发请求', async () => {
       const mockToken = 'a1b2c3d4e5f6';
       let callCount = 0;
-      (fetch as any).mockImplementation(async () => {
+      fetchMock.mockImplementation(async () => {
         callCount++;
         return {
           ok: true,
@@ -118,7 +120,7 @@ describe('csrf.ts - CSRF 工具测试', () => {
   describe('clearCsrfToken - 清除缓存的 CSRF Token', () => {
     it('应该清除缓存的 token', async () => {
       const mockToken = 'a1b2c3d4e5f6';
-      (fetch as any).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ csrfToken: mockToken }),
       });
@@ -131,7 +133,7 @@ describe('csrf.ts - CSRF 工具测试', () => {
       clearCsrfToken();
 
       // 再次获取应该重新请求
-      (fetch as any).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ csrfToken: 'new-token' }),
       });
@@ -152,7 +154,7 @@ describe('csrf.ts - CSRF 工具测试', () => {
   describe('createCsrfHeaders - 创建带 CSRF Token 的请求头', () => {
     it('应该创建包含 CSRF token 的请求头', async () => {
       const mockToken = 'a1b2c3d4e5f6';
-      (fetch as any).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ csrfToken: mockToken }),
       });
@@ -164,8 +166,9 @@ describe('csrf.ts - CSRF 工具测试', () => {
     });
 
     it('当没有 token 时应该创建基本请求头', async () => {
-      (fetch as any).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: false,
+        json: async () => ({}),
       });
 
       const headers = await createCsrfHeaders();
@@ -176,7 +179,7 @@ describe('csrf.ts - CSRF 工具测试', () => {
 
     it('应该使用缓存的 token', async () => {
       const mockToken = 'a1b2c3d4e5f6';
-      (fetch as any).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ csrfToken: mockToken }),
       });
@@ -193,7 +196,7 @@ describe('csrf.ts - CSRF 工具测试', () => {
 
     it('应该正确设置 Content-Type', async () => {
       const mockToken = 'a1b2c3d4e5f6';
-      (fetch as any).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ csrfToken: mockToken }),
       });
@@ -315,7 +318,7 @@ describe('csrf.ts - CSRF 工具测试', () => {
   describe('综合场景测试', () => {
     it('应该完成完整的 CSRF 流程', async () => {
       const mockToken = 'a1b2c3d4e5f6';
-      (fetch as any).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ csrfToken: mockToken }),
       });
@@ -340,7 +343,7 @@ describe('csrf.ts - CSRF 工具测试', () => {
       const oldToken = 'a1b2c3d4e5f6';
       const newToken = 'f6e5d4c3b2a1';
 
-      (fetch as any).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ csrfToken: oldToken }),
       });
@@ -353,7 +356,7 @@ describe('csrf.ts - CSRF 工具测试', () => {
       clearCsrfToken();
 
       // 获取新 token
-      (fetch as any).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ csrfToken: newToken }),
       });
@@ -368,7 +371,7 @@ describe('csrf.ts - CSRF 工具测试', () => {
 
       // Setup mock to handle multiple calls
       let callCount = 0;
-      (fetch as any).mockImplementation(async () => {
+      fetchMock.mockImplementation(async () => {
         callCount++;
         return {
           ok: true,
@@ -390,7 +393,7 @@ describe('csrf.ts - CSRF 工具测试', () => {
 
     it('应该处理验证失败的场景', async () => {
       const mockToken = 'a1b2c3d4e5f6';
-      (fetch as any).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ csrfToken: mockToken }),
       });
@@ -406,17 +409,17 @@ describe('csrf.ts - CSRF 工具测试', () => {
 
   describe('边界情况测试', () => {
     it('应该处理 undefined token', () => {
-      expect(validateCsrfToken(undefined as any, 'token')).toBe(false);
-      expect(validateCsrfToken('token', undefined as any)).toBe(false);
+      expect(validateCsrfToken(null, 'token')).toBe(false);
+      expect(validateCsrfToken('token', null)).toBe(false);
     });
 
     it('应该处理非字符串 token', () => {
       // The function uses try/catch and should handle errors gracefully
       // Just verify it doesn't throw and returns a boolean
-      const result1 = validateCsrfToken(123 as any, 'token');
-      const result2 = validateCsrfToken('token', 123 as any);
-      const result3 = validateCsrfToken({} as any, 'token');
-      const result4 = validateCsrfToken('token', [] as any);
+      const result1 = validateCsrfToken(123 as unknown as string | null, 'token');
+      const result2 = validateCsrfToken('token', 123 as unknown as string | null);
+      const result3 = validateCsrfToken({} as unknown as string | null, 'token');
+      const result4 = validateCsrfToken('token', [] as unknown as string | null);
 
       expect(typeof result1).toBe('boolean');
       expect(typeof result2).toBe('boolean');
@@ -457,14 +460,14 @@ describe('csrf.ts - CSRF 工具测试', () => {
 
     it('应该处理网络错误后的重新获取', async () => {
       // 第一次失败
-      (fetch as any).mockRejectedValueOnce(new Error('Network error'));
+      fetchMock.mockRejectedValueOnce(new Error('Network error'));
 
       const token1 = await getCsrfToken();
       expect(token1).toBeNull();
 
       // 第二次成功
       const mockToken = 'a1b2c3d4e5f6';
-      (fetch as any).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ csrfToken: mockToken }),
       });
@@ -474,7 +477,7 @@ describe('csrf.ts - CSRF 工具测试', () => {
     });
 
     it('应该处理 JSON 解析错误', async () => {
-      (fetch as any).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => {
           throw new Error('Invalid JSON');
@@ -502,7 +505,7 @@ describe('csrf.ts - CSRF 工具测试', () => {
 
     it('应该能够快速创建请求头', async () => {
       const mockToken = 'a1b2c3d4e5f6';
-      (fetch as any).mockResolvedValueOnce({
+      fetchMock.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ csrfToken: mockToken }),
       });

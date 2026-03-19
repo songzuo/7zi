@@ -3,7 +3,7 @@
  * Tests the GitHub commits API proxy and CSRF token generation
  */
 
-import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest'
+import { describe, it, expect, vi, beforeAll, afterAll, type MockedFunction } from 'vitest'
 import { NextRequest } from 'next/server';
 
 // Mock environment variables
@@ -39,7 +39,7 @@ describe('GitHub API Proxy - Commits Route', () => {
       })
 
       const { GET } = await import('@/app/api/github/commits/route')
-      const request = new Request('http://localhost:3000/api/github/commits')
+      const request = new NextRequest('http://localhost:3000/api/github/commits')
       const response = await GET(request)
       const data = await response.json()
 
@@ -58,7 +58,7 @@ describe('GitHub API Proxy - Commits Route', () => {
       })
 
       const { GET } = await import('@/app/api/github/commits/route')
-      const request = new Request('http://localhost:3000/api/github/commits?owner=custom-owner&repo=custom-repo')
+      const request = new NextRequest('http://localhost:3000/api/github/commits?owner=custom-owner&repo=custom-repo')
       const response = await GET(request)
 
       expect(global.fetch).toHaveBeenCalledWith(
@@ -76,7 +76,7 @@ describe('GitHub API Proxy - Commits Route', () => {
       })
 
       const { GET } = await import('@/app/api/github/commits/route')
-      const request = new Request('http://localhost:3000/api/github/commits?per_page=50')
+      const request = new NextRequest('http://localhost:3000/api/github/commits?per_page=50')
       const response = await GET(request)
 
       expect(global.fetch).toHaveBeenCalledWith(
@@ -95,10 +95,10 @@ describe('GitHub API Proxy - Commits Route', () => {
       })
 
       const { GET } = await import('@/app/api/github/commits/route')
-      const request = new Request('http://localhost:3000/api/github/commits')
+      const request = new NextRequest('http://localhost:3000/api/github/commits')
       await GET(request)
 
-      const fetchCall = (global.fetch as vi.MockedFunction<typeof fetch>).mock.calls[0]
+      const fetchCall = (global.fetch as any).mock.calls[0]
       expect(fetchCall[1]).toHaveProperty('headers')
       expect(fetchCall[1].headers).toHaveProperty('Authorization', 'token test-token-123')
 
@@ -113,10 +113,10 @@ describe('GitHub API Proxy - Commits Route', () => {
       })
 
       const { GET } = await import('@/app/api/github/commits/route')
-      const request = new Request('http://localhost:3000/api/github/commits')
+      const request = new NextRequest('http://localhost:3000/api/github/commits')
       await GET(request)
 
-      const fetchCall = (global.fetch as vi.MockedFunction<typeof fetch>).mock.calls[0]
+      const fetchCall = (global.fetch as any).mock.calls[0]
       expect(fetchCall[1].headers['User-Agent']).toBe('7zi-frontend/1.0')
     })
 
@@ -128,7 +128,7 @@ describe('GitHub API Proxy - Commits Route', () => {
       })
 
       const { GET } = await import('@/app/api/github/commits/route')
-      const request = new Request('http://localhost:3000/api/github/commits')
+      const request = new NextRequest('http://localhost:3000/api/github/commits')
       const response = await GET(request)
 
       expect(response.headers.get('content-type')).toContain('application/json')
@@ -145,7 +145,7 @@ describe('GitHub API Proxy - Commits Route', () => {
       })
 
       const { GET } = await import('@/app/api/github/commits/route')
-      const request = new Request('http://localhost:3000/api/github/commits')
+      const request = new NextRequest('http://localhost:3000/api/github/commits')
       const response = await GET(request)
       const data = await response.json()
 
@@ -163,7 +163,7 @@ describe('GitHub API Proxy - Commits Route', () => {
       })
 
       const { GET } = await import('@/app/api/github/commits/route')
-      const request = new Request('http://localhost:3000/api/github/commits')
+      const request = new NextRequest('http://localhost:3000/api/github/commits')
       const response = await GET(request)
       const data = await response.json()
 
@@ -181,7 +181,7 @@ describe('GitHub API Proxy - Commits Route', () => {
       })
 
       const { GET } = await import('@/app/api/github/commits/route')
-      const request = new Request('http://localhost:3000/api/github/commits')
+      const request = new NextRequest('http://localhost:3000/api/github/commits')
       const response = await GET(request)
       const data = await response.json()
 
@@ -194,7 +194,7 @@ describe('GitHub API Proxy - Commits Route', () => {
       global.fetch = vi.fn().mockRejectedValueOnce(new Error('Network error'))
 
       const { GET } = await import('@/app/api/github/commits/route')
-      const request = new Request('http://localhost:3000/api/github/commits')
+      const request = new NextRequest('http://localhost:3000/api/github/commits')
       const response = await GET(request)
       const data = await response.json()
 
@@ -212,7 +212,7 @@ describe('GitHub API Proxy - Commits Route', () => {
       })
 
       const { GET } = await import('@/app/api/github/commits/route')
-      const request = new Request('http://localhost:3000/api/github/commits')
+      const request = new NextRequest('http://localhost:3000/api/github/commits')
       const response = await GET(request)
       const data = await response.json()
 
@@ -229,7 +229,7 @@ describe('GitHub API Proxy - Commits Route', () => {
       )
 
       const { GET } = await import('@/app/api/github/commits/route')
-      const request = new Request('http://localhost:3000/api/github/commits')
+      const request = new NextRequest('http://localhost:3000/api/github/commits')
       const response = await GET(request)
       const data = await response.json()
 
@@ -248,7 +248,7 @@ describe('GitHub API Proxy - Commits Route', () => {
       })
 
       const { GET } = await import('@/app/api/github/commits/route')
-      const request = new Request('http://localhost:3000/api/github/commits')
+      const request = new NextRequest('http://localhost:3000/api/github/commits')
       const response = await GET(request)
       const data = await response.json()
 
@@ -269,10 +269,10 @@ describe('GitHub API Proxy - Commits Route', () => {
       })
 
       const { GET } = await import('@/app/api/github/commits/route')
-      const request = new Request('http://localhost:3000/api/github/commits')
+      const request = new NextRequest('http://localhost:3000/api/github/commits')
       const response = await GET(request)
 
-      const fetchCall = (global.fetch as vi.MockedFunction<typeof fetch>).mock.calls[0]
+      const fetchCall = (global.fetch as any).mock.calls[0]
       expect(fetchCall[1].headers).not.toHaveProperty('Authorization')
       expect(response.status).toBe(200)
     })
@@ -287,7 +287,7 @@ describe('GitHub API Proxy - Commits Route', () => {
       })
 
       const { GET } = await import('@/app/api/github/commits/route')
-      const request = new Request('http://localhost:3000/api/github/commits')
+      const request = new NextRequest('http://localhost:3000/api/github/commits')
 
       const start = Date.now()
       const response = await GET(request)
@@ -392,7 +392,7 @@ describe('API Routes Integration Tests - Combined', () => {
       json: async () => [],
     })
     const { GET: getCommits } = await import('@/app/api/github/commits/route')
-    const commitsRequest = new Request('http://localhost:3000/api/github/commits')
+    const commitsRequest = new NextRequest('http://localhost:3000/api/github/commits')
     const commitsResponse = await getCommits(commitsRequest)
     expect(commitsResponse.status).toBe(200)
 

@@ -20,6 +20,7 @@ import {
   objectToFormData,
   formDataToObject,
   convertAndValidate,
+  type FieldMapping,
 } from './data-converter';
 
 describe('data-converter', () => {
@@ -225,9 +226,9 @@ describe('data-converter', () => {
 
     it('should apply transform function to renamed fields', () => {
       const obj = { firstName: 'john', lastName: 'doe' };
-      const mappings = [
-        { from: 'firstName', to: 'firstName', transform: (v: string) => v.toUpperCase() },
-        { from: 'lastName', to: 'lastName', transform: (v: string) => v.toUpperCase() },
+      const mappings: FieldMapping[] = [
+        { from: 'firstName', to: 'firstName', transform: (v: unknown) => String(v).toUpperCase() },
+        { from: 'lastName', to: 'lastName', transform: (v: unknown) => String(v).toUpperCase() },
       ];
 
       const result = renameFields(obj, mappings);

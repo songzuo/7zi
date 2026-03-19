@@ -6,7 +6,12 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 const nextConfig: NextConfig = {
   // Docker 部署使用 standalone 输出模式
   output: 'standalone',
-  
+
+  // Turbopack 根目录配置（解决 multiple lockfiles 警告）
+  turbopack: {
+    root: __dirname,
+  },
+
   // 图片优化配置
   images: {
     // 允许的图片域名（用于外部图片优化）

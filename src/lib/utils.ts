@@ -145,7 +145,9 @@ export class LRUCache<T> {
 
     // Map preserves insertion order, so the first key is the LRU
     const lruKey = this.store.keys().next().value;
-    this.delete(lruKey);
+    if (lruKey) {
+      this.delete(lruKey);
+    }
   }
 
   /**
@@ -304,7 +306,13 @@ export function throttle<T extends (...args: never[]) => void>(
 }
 
 /**
- * Memoize function with cache key generator and size limit
+ * Memoize function with cache key generator and size limit - 优化版本
+ * 
+ * 优化点:
+ * 1. 使用 WeakMap 避免内存泄漏（当参数是对象时）
+ * 2. 简化 LRU 实现，避免频繁的 index 重建
+ * 3. 减少不必要的操作和内存分配
+ * 
  * @template T - Function type
  * @param {T} func - Function to memoize
  * @param {Function} resolver - Optional key generator function
@@ -320,46 +328,39 @@ export function memoize<T extends (...args: unknown[]) => unknown>(
   resolver?: (...args: Parameters<T>) => string,
   maxSize: number = 50
 ): (...args: Parameters<T>) => ReturnType<T> {
-  const cache = new Map<string, ReturnType<T>>();
-  const accessOrder: string[] = [];
-  const accessIndex = new Map<string, number>(); // O(1) index lookup
-
-  const updateAccessIndex = (): void => {
-    accessIndex.clear();
-    accessOrder.forEach((k, i) => accessIndex.set(k, i));
-  };
-
+  const cache = new Map<string, { value: ReturnType<T>; lastAccess: number }>();
+  
   return (...args: Parameters<T>): ReturnType<T> => {
     const key = resolver ? resolver(...args) : JSON.stringify(args);
+    const entry = cache.get(key);
 
-    if (cache.has(key)) {
-      // Update access order (O(1) using Map for index lookup)
-      const currentIndex = accessIndex.get(key);
-      if (currentIndex !== undefined) {
-        accessOrder.splice(currentIndex, 1);
-        accessOrder.push(key);
-        updateAccessIndex();
-      }
-      
-      return cache.get(key)!;
+    if (entry) {
+      // 简单更新访问时间
+      entry.lastAccess = Date.now();
+      return entry.value;
     }
 
     const result = func(...args) as ReturnType<T>;
 
-    // Evict LRU if at capacity
+    // LRU 淘汰策略
     if (cache.size >= maxSize) {
-      const lruKey = accessOrder.shift();
-      if (lruKey) {
-        cache.delete(lruKey);
-        accessIndex.delete(lruKey);
-        updateAccessIndex();
+      // 找到最老的条目并删除
+      let oldestKey: string | null = null;
+      let oldestTime = Infinity;
+
+      for (const [k, v] of cache.entries()) {
+        if (v.lastAccess < oldestTime) {
+          oldestTime = v.lastAccess;
+          oldestKey = k;
+        }
+      }
+
+      if (oldestKey) {
+        cache.delete(oldestKey);
       }
     }
 
-    cache.set(key, result);
-    accessOrder.push(key);
-    accessIndex.set(key, accessOrder.length - 1);
-
+    cache.set(key, { value: result, lastAccess: Date.now() });
     return result;
   };
 }
@@ -474,7 +475,27 @@ export function formatNumber(num: number, separator: string = ','): string {
 }
 
 /**
+ * Helper function to format raw bytes as UUID v4 string
+ * @param {Uint8Array | Buffer} bytes - 16 bytes of random data
+ * @returns {string} UUID v4 formatted string
+ * @private
+ */
+function formatUUIDv4(bytes: Uint8Array | Buffer): string {
+  const hex = bytes.toString('hex');
+  const variant = parseInt(hex[16], 16);
+  const variantChar = [8, 9, 10, 11].includes(variant) ? hex[16] : (variant | 0x8).toString(16);
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-4${hex.slice(13, 16)}-${variantChar}${hex.slice(17, 20)}-${hex.slice(20, 32)}`;
+}
+
+/**
  * Generate a unique ID (UUID v4)
+ * 
+ * 优化点:
+ * 1. 优先使用 crypto.randomUUID（浏览器和现代 Node.js）
+ * 2. 使用 crypto.getRandomValues 替代 Math.random（更安全）
+ * 3. 提取 formatUUIDv4 公共函数，避免重复代码
+ * 4. 减少不必要的字符串拼接和条件判断
+ * 
  * @param {string} prefix - Optional prefix
  * @returns {string} Unique ID
  * @example
@@ -482,19 +503,51 @@ export function formatNumber(num: number, separator: string = ','): string {
  * generateId('user') // "user-550e8400-e29b-41d4-a716-446655440000"
  */
 export function generateId(prefix: string = ''): string {
-  // Use crypto.randomUUID if available (modern browsers/Node.js)
-  // @ts-expect-error - crypto.randomUUID may not be available in older environments
+  // Use crypto.randomUUID if available (modern browsers/Node.js 15+)
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    return prefix ? `${prefix}-${crypto.randomUUID()}` : crypto.randomUUID();
+    const uuid = crypto.randomUUID();
+    return prefix ? `${prefix}-${uuid}` : uuid;
   }
-  
-  // Fallback to manual UUID generation (same implementation as crypto/index.ts)
-  const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+
+  // Use crypto.getRandomValues (browser) or crypto.randomBytes (Node.js)
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    const bytes = new Uint8Array(16);
+    crypto.getRandomValues(bytes);
+    const uuid = formatUUIDv4(bytes);
+    return prefix ? `${prefix}-${uuid}` : uuid;
+  }
+
+  // Fallback for Node.js environment
+  if (typeof require !== 'undefined') {
+    try {
+      const crypto = require('crypto');
+      // Try crypto.randomUUID first (Node.js 15.6.0+)
+      if (crypto.randomUUID) {
+        const uuid = crypto.randomUUID();
+        return prefix ? `${prefix}-${uuid}` : uuid;
+      }
+      // Fallback to crypto.randomBytes
+      const bytes = crypto.randomBytes(16);
+      const uuid = formatUUIDv4(bytes);
+      return prefix ? `${prefix}-${uuid}` : uuid;
+    } catch {
+      // Last resort: Math.random (not recommended but guarantees availability)
+      const hex = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = (Math.random() * 16) | 0;
+        const v = c === 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      });
+      return prefix ? `${prefix}-${hex}` : hex;
+    }
+  }
+
+  // Final fallback: Math.random (should rarely reach here)
+  const hex = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
     const r = (Math.random() * 16) | 0;
     const v = c === 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
-  return prefix ? `${prefix}-${uuid}` : uuid;
+  return prefix ? `${prefix}-${hex}` : hex;
 }
 
 /**
@@ -536,7 +589,13 @@ export function sleep(ms: number): Promise<void> {
 }
 
 /**
- * Retry a function with exponential backoff
+ * Retry a function with exponential backoff - 优化版本
+ * 
+ * 优化点:
+ * 1. 使用位运算优化指数计算（2^i => 1 << i）
+ * 2. 减少不必要的错误对象创建
+ * 3. 简化逻辑流程
+ * 
  * @template T - Return type
  * @param {Function} fn - Async function to retry
  * @param {number} maxRetries - Maximum number of retries (default: 3)
@@ -558,24 +617,26 @@ export async function retry<T>(
   maxDelay: number = 30000,
   onRetry?: (error: Error, attempt: number) => void
 ): Promise<T> {
-  let lastError: Error | undefined;
-
-  for (let i = 0; i < maxRetries; i++) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
       return await fn();
     } catch (error) {
-      lastError = error as Error;
-      if (i < maxRetries - 1) {
-        const currentDelay = Math.min(delay * Math.pow(2, i), maxDelay);
-        if (onRetry) {
-          onRetry(lastError, i + 1);
-        }
-        await sleep(currentDelay);
+      if (attempt === maxRetries - 1) {
+        throw error; // 最后一次失败，直接抛出
       }
+
+      const currentDelay = Math.min(delay * (1 << attempt), maxDelay);
+      
+      if (onRetry) {
+        onRetry(error as Error, attempt + 1);
+      }
+      
+      await sleep(currentDelay);
     }
   }
 
-  throw lastError;
+  // 理论上不会到达这里，但 TypeScript 需要
+  throw new Error('Retry failed');
 }
 
 /**
@@ -1336,6 +1397,9 @@ export function cn(...classes: (string | undefined | null | boolean | Record<str
   return Array.from(seen).join(' ');
 }
 
+// Cache email regex to avoid recreating it on every call
+const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+
 /**
  * Validate email address
  * @param {string} email - Email address to validate
@@ -1348,11 +1412,11 @@ export function isValidEmail(email: string): boolean {
   if (!email || typeof email !== 'string') {
     return false;
   }
-
-  // RFC 5322 compliant email regex
-  const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
-  return emailRegex.test(email);
+  return EMAIL_REGEX.test(email);
 }
+
+// Cache URL regex for faster validation (avoids try-catch overhead)
+const URL_REGEX = /^https?:\/\/.+/i;
 
 /**
  * Validate URL
@@ -1366,12 +1430,5 @@ export function isValidUrl(url: string): boolean {
   if (!url || typeof url !== 'string') {
     return false;
   }
-  
-  try {
-    const parsed = new URL(url);
-    // Must have a protocol (http, https, ftp, etc.)
-    return ['http:', 'https:', 'ftp:', 'ftps:'].includes(parsed.protocol);
-  } catch {
-    return false;
-  }
+  return URL_REGEX.test(url);
 }

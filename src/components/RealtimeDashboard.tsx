@@ -11,7 +11,7 @@
  * - 实时统计数据
  */
 
-import React, { useEffect, useState, useCallback, useMemo, memo } from 'react';
+import React, { useEffect, useState, useCallback, memo } from 'react';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 // ============================================================================

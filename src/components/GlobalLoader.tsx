@@ -97,10 +97,18 @@ export const GlobalLoader: React.FC<GlobalLoaderProps> = ({
       const remaining = Math.max(0, minDisplayTime - elapsed);
 
       if (remaining > 0) {
-        const timeout = setTimeout(() => setVisible(false), remaining);
+        const timeout = setTimeout(() => {
+          if (isMountedRef.current) {
+            setVisible(false);
+          }
+        }, remaining);
         return () => clearTimeout(timeout);
       } else {
-        setVisible(false);
+        requestAnimationFrame(() => {
+          if (isMountedRef.current) {
+            setVisible(false);
+          }
+        });
       }
     }
   }, [state.isLoading, visible, startTime, minDisplayTime]);

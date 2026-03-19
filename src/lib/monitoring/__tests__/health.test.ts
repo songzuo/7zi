@@ -22,6 +22,7 @@ describe('Health Monitoring', () => {
     vi.clearAllMocks();
     vi.stubEnv('NODE_ENV', 'test');
     vi.stubEnv('NEXT_PUBLIC_SENTRY_RELEASE', 'v1.0.0');
+    vi.stubEnv('RESEND_API_KEY', 'test-key');
   });
 
   afterEach(() => {
@@ -59,6 +60,9 @@ describe('Health Monitoring', () => {
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         status: 200,
+      } as Response).mockResolvedValueOnce({
+        ok: true,
+        status: 200,
       } as Response);
 
       const health = await detailedHealthCheck();
@@ -66,15 +70,21 @@ describe('Health Monitoring', () => {
       expect(health.status).toBe('ok');
       expect(health.checks).toBeDefined();
       expect(health.checks?.githubApi?.status).toBe('ok');
+      expect(health.checks?.emailService?.status).toBe('ok');
     });
 
     it('should return degraded when some services fail', async () => {
-      vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'));
+      vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+        } as Response);
 
       const health = await detailedHealthCheck();
 
       expect(health.status).toBe('degraded');
       expect(health.checks?.githubApi?.status).toBe('error');
+      expect(health.checks?.emailService?.status).toBe('ok');
     });
 
     it('should return error when all services fail', async () => {
@@ -83,6 +93,8 @@ describe('Health Monitoring', () => {
       const health = await detailedHealthCheck();
 
       expect(health.status).toBe('error');
+      expect(health.checks?.githubApi?.status).toBe('error');
+      expect(health.checks?.emailService?.status).toBe('error');
     });
 
     it('should include latency in check results', async () => {
@@ -90,7 +102,7 @@ describe('Health Monitoring', () => {
         ok: true,
         status: 200,
       };
-      
+
       vi.mocked(fetch).mockResolvedValue(mockResponse as unknown as Response);
 
       const health = await detailedHealthCheck();

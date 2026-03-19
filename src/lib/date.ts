@@ -22,10 +22,10 @@ function getCachedDate(daysOffset: number): Date {
  * @param date - 日期字符串或 Date 对象
  * @returns 格式化后的相对时间字符串
  */
-export function formatTimeAgo(date: Date | string): string {
-  const now = new Date();
+export function formatTimeAgo(date: Date | string, now?: Date): string {
+  const nowDate = now || new Date();
   const then = new Date(date);
-  const diffMs = now.getTime() - then.getTime();
+  const diffMs = nowDate.getTime() - then.getTime();
   const diffMins = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);

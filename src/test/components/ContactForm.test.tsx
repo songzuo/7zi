@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { ContactForm } from '@/components/ContactForm'
 
 // Mock next-intl
@@ -27,6 +27,11 @@ describe('ContactForm', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockFetch.mockReset()
+    // Default mock for CSRF token fetch
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ success: true, data: { csrfToken: 'test-csrf-token' } }),
+    })
   })
 
   it('renders form fields correctly', () => {

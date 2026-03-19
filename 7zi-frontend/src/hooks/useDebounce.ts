@@ -63,10 +63,9 @@ export function useDebounce<T>(
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
   useEffect(() => {
-    // If debouncing is disabled, update immediately
+    // If debouncing is disabled, handle onChange callback only
     if (!enabled) {
-      setDebouncedValue(value);
-      if (onChange) {
+      if (onChange && debouncedValue !== value) {
         onChange(value);
       }
       return;
@@ -122,7 +121,8 @@ export function useDebounce<T>(
     };
   }, [value, delay, enabled, onChange, maxWait, debouncedValue]);
 
-  return debouncedValue;
+  // When disabled, return value directly; otherwise return debounced value
+  return enabled ? debouncedValue : value;
 }
 
 /**
@@ -157,9 +157,9 @@ export function useDebounceWithCancel<T>(
   const [cancelKey, setCancelKey] = useState(0);
 
   useEffect(() => {
+    // If debouncing is disabled, handle onChange callback only
     if (!enabled) {
-      setDebouncedValue(value);
-      if (onChange) {
+      if (onChange && debouncedValue !== value) {
         onChange(value);
       }
       return;
@@ -172,7 +172,7 @@ export function useDebounceWithCancel<T>(
     let timeoutId: NodeJS.Timeout | null = null;
     let maxWaitTimeoutId: NodeJS.Timeout | null = null;
     let isCancelled = false;
-    let localCancelKey = cancelKey;
+    const localCancelKey = cancelKey;
 
     const updateDebouncedValue = () => {
       if (!isCancelled && localCancelKey === cancelKey) {
@@ -216,5 +216,6 @@ export function useDebounceWithCancel<T>(
     setCancelKey(prev => prev + 1);
   };
 
-  return [debouncedValue, cancel];
+  // When disabled, return value directly; otherwise return debounced value
+  return [enabled ? debouncedValue : value, cancel];
 }

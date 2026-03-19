@@ -267,7 +267,7 @@ describe('utils - 边界条件测试', () => {
     it('处理包含循环引用的参数', () => {
       let callCount = 0;
       const fn = (obj: { id: number }) => { callCount++; return obj.id; };
-      const memoizedFn = memoize(fn);
+      const memoizedFn = memoize(fn as (...args: unknown[]) => unknown);
 
       // 第一次调用
       memoizedFn({ id: 1 });
@@ -282,7 +282,7 @@ describe('utils - 边界条件测试', () => {
     it('处理 Symbol 参数', () => {
       let callCount = 0;
       const fn = (sym: symbol) => { callCount++; return sym.toString(); };
-      const memoizedFn = memoize(fn);
+      const memoizedFn = memoize(fn as (...args: unknown[]) => unknown);
 
       const sym = Symbol('test');
       memoizedFn(sym);
@@ -294,7 +294,7 @@ describe('utils - 边界条件测试', () => {
     it('处理函数参数', () => {
       let callCount = 0;
       const fn = (cb: () => number) => { callCount++; return cb(); };
-      const memoizedFn = memoize(fn);
+      const memoizedFn = memoize(fn as (...args: unknown[]) => unknown);
 
       const fn1 = () => 1;
       memoizedFn(fn1);
@@ -307,7 +307,7 @@ describe('utils - 边界条件测试', () => {
     it('处理大量参数组合', () => {
       let callCount = 0;
       const fn = (a: number, b: number, c: number) => { callCount++; return a + b + c; };
-      const memoizedFn = memoize(fn);
+      const memoizedFn = memoize(fn as (...args: unknown[]) => unknown);
 
       // 相同参数组合调用 100 次应该只执行一次
       for (let i = 0; i < 100; i++) {
@@ -327,7 +327,7 @@ describe('utils - 边界条件测试', () => {
     it('custom resolver 返回相同 key', () => {
       let callCount = 0;
       const fn = (obj: { id: number; name: string }) => { callCount++; return obj.name; };
-      const memoizedFn = memoize(fn, (obj) => String(obj.id));
+      const memoizedFn = memoize(fn as (...args: unknown[]) => unknown, (obj: unknown) => String((obj as { id: number }).id));
 
       memoizedFn({ id: 1, name: 'first' });
       memoizedFn({ id: 1, name: 'second' });

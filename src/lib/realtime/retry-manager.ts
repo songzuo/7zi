@@ -57,12 +57,15 @@ export interface RetryEntry<T = unknown> {
 /**
  * 单个重试任务的内部实现
  */
-class RetryTask<T = unknown> {
+export class RetryTask<T = unknown> {
   private options: Required<RetryOptions>;
   private state: RetryState;
   private timer: NodeJS.Timeout | null = null;
-  private resolve: ((value: T) => void) | null = null;
-  private reject: ((error: Error) => void) | null = null;
+  private sleepResolve: (() => void) | null = null;
+  private sleepReject: ((error: Error) => void) | null = null;
+  private cancelled: boolean = false;
+  private cancelError: Error | null = null;
+  private isSleeping: boolean = false;
 
   constructor(options: RetryOptions = {}) {
     this.options = {
@@ -87,6 +90,7 @@ class RetryTask<T = unknown> {
    * 执行重试任务
    */
   async execute(fn: () => Promise<T>): Promise<T> {
+    this.cancelled = false;
     this.state.isRetrying = true;
     this.state.attempts = 0;
     this.state.lastError = null;
@@ -108,18 +112,30 @@ class RetryTask<T = unknown> {
    * 带重试的执行逻辑
    */
   private async executeWithRetry(fn: () => Promise<T>): Promise<T> {
+    if (this.cancelled) {
+      throw new Error('Task cancelled');
+    }
+
     try {
       const result = await fn();
+      // Check if cancelled during action execution
+      if (this.cancelled) {
+        throw new Error('Task cancelled');
+      }
       this.reset();
       return result;
     } catch (error) {
+      if (this.cancelled) {
+        throw new Error('Task cancelled');
+      }
+
       this.state.lastError = error instanceof Error ? error : new Error(String(error));
       this.state.attempts++;
 
       // 触发重试回调
       this.options.onRetry(this.state.attempts, this.state.lastError);
 
-      if (this.state.attempts < this.options.maxRetries) {
+      if (this.state.attempts <= this.options.maxRetries) {
         const delay = this.calculateDelay(this.state.attempts);
         this.state.nextRetryTime = Date.now() + delay;
         await this.sleep(delay);
@@ -142,8 +158,20 @@ class RetryTask<T = unknown> {
    * 延迟函数
    */
   private sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => {
-      this.timer = setTimeout(resolve, ms);
+    return new Promise((resolve, reject) => {
+      this.isSleeping = true;
+      this.sleepResolve = resolve;
+      this.sleepReject = reject;
+      this.timer = setTimeout(() => {
+        if (this.cancelled) {
+          reject(this.cancelError || new Error('Task cancelled'));
+        } else {
+          resolve();
+        }
+        this.isSleeping = false;
+        this.sleepResolve = null;
+        this.sleepReject = null;
+      }, ms);
     });
   }
 
@@ -174,12 +202,31 @@ class RetryTask<T = unknown> {
    * 取消重试
    */
   cancel(): void {
+    // Clear timeout and reject sleep if pending
     if (this.timer) {
       clearTimeout(this.timer);
       this.timer = null;
+      // Only reject if there's actually a pending sleep
+      if (this.isSleeping && this.sleepReject) {
+        this.sleepReject(new Error('Task cancelled'));
+        this.sleepResolve = null;
+        this.sleepReject = null;
+        this.isSleeping = false;
+      }
     }
+    // Always clear the resolve/reject refs
+    this.sleepResolve = null;
+    this.sleepReject = null;
+    this.cancelled = true;
     this.state.isRetrying = false;
     this.state.nextRetryTime = null;
+  }
+
+  /**
+   * Check if task is cancelled
+   */
+  isCancelled(): boolean {
+    return this.cancelled;
   }
 }
 
@@ -190,6 +237,7 @@ class RetryTask<T = unknown> {
 export class RetryManager {
   private tasks: Map<string, RetryTask<unknown>> = new Map();
   private taskMetadata: Map<string, RetryEntry<unknown>> = new Map();
+  private activeTasks: Set<string> = new Set();
   private maxConcurrentTasks: number = 10;
 
   constructor(options?: { maxConcurrentTasks?: number }) {
@@ -216,6 +264,7 @@ export class RetryManager {
 
     const task = new RetryTask<T>(options);
     this.tasks.set(id, task as RetryTask<unknown>);
+    this.activeTasks.add(id);
 
     const entry: RetryEntry<T> = {
       id,
@@ -229,11 +278,11 @@ export class RetryManager {
 
     try {
       const result = await task.execute(action);
-      this.cleanup(id);
       return result;
     } catch (error) {
-      this.cleanup(id);
       throw error;
+    } finally {
+      this.activeTasks.delete(id);
     }
   }
 
@@ -305,6 +354,7 @@ export class RetryManager {
     this.tasks.forEach((task) => task.cancel());
     this.tasks.clear();
     this.taskMetadata.clear();
+    this.activeTasks.clear();
   }
 
   /**
@@ -323,7 +373,7 @@ export class RetryManager {
    * 获取活跃任务数量
    */
   getActiveTaskCount(): number {
-    return this.tasks.size;
+    return this.activeTasks.size;
   }
 
   /**

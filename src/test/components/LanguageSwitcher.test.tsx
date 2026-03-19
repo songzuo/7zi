@@ -4,11 +4,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { LanguageSwitcher, LanguageSwitcherCompact } from '../../components/LanguageSwitcher';
-
-// Mock next-intl
-vi.mock('next-intl', () => ({
-  useLocale: () => 'zh',
-}));
+import { TestWrapper } from '../test-utils';
 
 // Mock i18n routing
 const mockReplace = vi.fn();
@@ -30,7 +26,9 @@ describe('LanguageSwitcher', () => {
   });
 
   it('renders current locale flag and name', () => {
-    render(<LanguageSwitcher />);
+    render(
+      TestWrapper.withIntl(<LanguageSwitcher />, 'zh')
+    );
 
     // Current locale is zh, so should show zh flag and name in the button
     // getAllByText because dropdown also contains the same flag
@@ -42,34 +40,44 @@ describe('LanguageSwitcher', () => {
   });
 
   it('renders dropdown arrow icon', () => {
-    const { container } = render(<LanguageSwitcher />);
+    const { container } = render(
+      TestWrapper.withIntl(<LanguageSwitcher />, 'zh')
+    );
 
     const svg = container.querySelector('svg');
     expect(svg).toBeInTheDocument();
   });
 
   it('renders switch language button', () => {
-    render(<LanguageSwitcher />);
+    render(
+      TestWrapper.withIntl(<LanguageSwitcher />, 'zh')
+    );
 
     const button = screen.getByRole('button', { name: 'Switch language' });
     expect(button).toBeInTheDocument();
   });
 
   it('applies custom className', () => {
-    const { container } = render(<LanguageSwitcher className="custom-class" />);
+    const { container } = render(
+      TestWrapper.withIntl(<LanguageSwitcher className="custom-class" />, 'zh')
+    );
 
     expect(container.firstChild).toHaveClass('custom-class');
   });
 
   it('has hover group for dropdown', () => {
-    const { container } = render(<LanguageSwitcher />);
+    const { container } = render(
+      TestWrapper.withIntl(<LanguageSwitcher />, 'zh')
+    );
 
     const wrapper = container.firstChild;
     expect(wrapper).toHaveClass('group');
   });
 
   it('shows both language options', () => {
-    render(<LanguageSwitcher />);
+    render(
+      TestWrapper.withIntl(<LanguageSwitcher />, 'zh')
+    );
 
     // Both flags should be in the document (button + dropdown)
     const zhFlags = screen.getAllByText('🇨🇳');
@@ -81,7 +89,9 @@ describe('LanguageSwitcher', () => {
   });
 
   it('shows checkmark for current locale', () => {
-    const { container } = render(<LanguageSwitcher />);
+    const { container } = render(
+      TestWrapper.withIntl(<LanguageSwitcher />, 'zh')
+    );
 
     // Find the checkmark SVG (there are two SVGs: arrow and checkmark)
     const svgs = container.querySelectorAll('svg');
@@ -89,12 +99,27 @@ describe('LanguageSwitcher', () => {
   });
 
   it('has correct button styling', () => {
-    render(<LanguageSwitcher />);
+    render(
+      TestWrapper.withIntl(<LanguageSwitcher />, 'zh')
+    );
 
     const button = screen.getByRole('button', { name: 'Switch language' });
     expect(button).toHaveClass('flex');
     expect(button).toHaveClass('items-center');
     expect(button).toHaveClass('gap-2');
+  });
+
+  it('renders correctly with English locale', () => {
+    render(
+      TestWrapper.withIntl(<LanguageSwitcher />, 'en')
+    );
+
+    // When locale is en, should show US flag and English
+    const usFlags = screen.getAllByText('🇺🇸');
+    const enTexts = screen.getAllByText('English');
+    
+    expect(usFlags.length).toBeGreaterThan(0);
+    expect(enTexts.length).toBeGreaterThan(0);
   });
 });
 
@@ -104,41 +129,62 @@ describe('LanguageSwitcherCompact', () => {
   });
 
   it('renders current locale flag', () => {
-    render(<LanguageSwitcherCompact />);
+    render(
+      TestWrapper.withIntl(<LanguageSwitcherCompact />, 'zh')
+    );
 
     // When current locale is zh, shows US flag (toggle target)
     expect(screen.getByText('🇺🇸')).toBeInTheDocument();
   });
 
   it('renders as a button', () => {
-    render(<LanguageSwitcherCompact />);
+    render(
+      TestWrapper.withIntl(<LanguageSwitcherCompact />, 'zh')
+    );
 
     const button = screen.getByRole('button');
     expect(button).toBeInTheDocument();
   });
 
-  it('has correct aria-label', () => {
-    render(<LanguageSwitcherCompact />);
+  it('has correct aria-label for zh locale', () => {
+    render(
+      TestWrapper.withIntl(<LanguageSwitcherCompact />, 'zh')
+    );
 
     const button = screen.getByRole('button');
     expect(button).toHaveAttribute('aria-label', 'Switch to English');
   });
 
+  it('has correct aria-label for en locale', () => {
+    render(
+      TestWrapper.withIntl(<LanguageSwitcherCompact />, 'en')
+    );
+
+    const button = screen.getByRole('button');
+    expect(button).toHaveAttribute('aria-label', 'Switch to 中文');
+  });
+
   it('has correct title attribute', () => {
-    render(<LanguageSwitcherCompact />);
+    render(
+      TestWrapper.withIntl(<LanguageSwitcherCompact />, 'zh')
+    );
 
     const button = screen.getByRole('button');
     expect(button).toHaveAttribute('title', 'Switch to English');
   });
 
   it('applies custom className', () => {
-    const { container } = render(<LanguageSwitcherCompact className="custom-class" />);
+    const { container } = render(
+      TestWrapper.withIntl(<LanguageSwitcherCompact className="custom-class" />, 'zh')
+    );
 
     expect(container.firstChild).toHaveClass('custom-class');
   });
 
   it('has correct button styling', () => {
-    render(<LanguageSwitcherCompact />);
+    render(
+      TestWrapper.withIntl(<LanguageSwitcherCompact />, 'zh')
+    );
 
     const button = screen.getByRole('button');
     expect(button).toHaveClass('w-10');
@@ -146,8 +192,10 @@ describe('LanguageSwitcherCompact', () => {
     expect(button).toHaveClass('rounded-lg');
   });
 
-  it('calls router.replace when clicked', () => {
-    render(<LanguageSwitcherCompact />);
+  it('calls router.replace when clicked from zh to en', () => {
+    render(
+      TestWrapper.withIntl(<LanguageSwitcherCompact />, 'zh')
+    );
 
     const button = screen.getByRole('button');
     fireEvent.click(button);
@@ -155,8 +203,21 @@ describe('LanguageSwitcherCompact', () => {
     expect(mockReplace).toHaveBeenCalledWith('/test-path', { locale: 'en' });
   });
 
+  it('calls router.replace when clicked from en to zh', () => {
+    render(
+      TestWrapper.withIntl(<LanguageSwitcherCompact />, 'en')
+    );
+
+    const button = screen.getByRole('button');
+    fireEvent.click(button);
+
+    expect(mockReplace).toHaveBeenCalledWith('/test-path', { locale: 'zh' });
+  });
+
   it('is a square button', () => {
-    render(<LanguageSwitcherCompact />);
+    render(
+      TestWrapper.withIntl(<LanguageSwitcherCompact />, 'zh')
+    );
 
     const button = screen.getByRole('button');
     expect(button).toHaveClass('w-10');

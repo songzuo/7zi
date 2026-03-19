@@ -6,6 +6,19 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { GET } from '../status/route';
 
+interface StatusIncident {
+  id: string;
+  title: string;
+  status: string;
+  [key: string]: unknown;
+}
+
+interface StatusMaintenanceItem {
+  id: string;
+  title: string;
+  [key: string]: unknown;
+}
+
 describe('/api/status', () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -18,7 +31,8 @@ describe('/api/status', () => {
 
   describe('GET request', () => {
     it('should return status data with correct structure', async () => {
-      const response = await GET();
+      const request = new Request('http://localhost/api/status');
+      const response = await GET(request);
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -31,14 +45,16 @@ describe('/api/status', () => {
     });
 
     it('should return operational status', async () => {
-      const response = await GET();
+      const request = new Request('http://localhost/api/status');
+      const response = await GET(request);
       const data = await response.json();
 
       expect(data.status).toBe('operational');
     });
 
     it('should return lastUpdated timestamp', async () => {
-      const response = await GET();
+      const request = new Request('http://localhost/api/status');
+      const response = await GET(request);
       const data = await response.json();
 
       expect(data.lastUpdated).toBe('2026-03-18T08:00:00.000Z');
@@ -46,7 +62,7 @@ describe('/api/status', () => {
 
     describe('services', () => {
       it('should return list of services', async () => {
-        const response = await GET();
+        const response = await GET(request);
         const data = await response.json();
 
         expect(Array.isArray(data.services)).toBe(true);
@@ -54,7 +70,7 @@ describe('/api/status', () => {
       });
 
       it('should include Website service', async () => {
-        const response = await GET();
+        const response = await GET(request);
         const data = await response.json();
 
         const website = data.services.find((s: { name: string }) => s.name === 'Website');
@@ -65,7 +81,7 @@ describe('/api/status', () => {
       });
 
       it('should include API service', async () => {
-        const response = await GET();
+        const response = await GET(request);
         const data = await response.json();
 
         const api = data.services.find((s: { name: string }) => s.name === 'API');
@@ -76,7 +92,7 @@ describe('/api/status', () => {
       });
 
       it('should include CDN service', async () => {
-        const response = await GET();
+        const response = await GET(request);
         const data = await response.json();
 
         const cdn = data.services.find((s: { name: string }) => s.name === 'CDN');
@@ -85,7 +101,7 @@ describe('/api/status', () => {
       });
 
       it('should have valid uptime percentages', async () => {
-        const response = await GET();
+        const response = await GET(request);
         const data = await response.json();
 
         data.services.forEach((service: { uptime: number }) => {
@@ -95,7 +111,7 @@ describe('/api/status', () => {
       });
 
       it('should have valid response times in milliseconds', async () => {
-        const response = await GET();
+        const response = await GET(request);
         const data = await response.json();
 
         data.services.forEach((service: { responseTime: number }) => {
@@ -107,7 +123,7 @@ describe('/api/status', () => {
 
     describe('metrics', () => {
       it('should return 24-hour metrics', async () => {
-        const response = await GET();
+        const response = await GET(request);
         const data = await response.json();
 
         expect(data.metrics).toHaveProperty('requests');
@@ -117,7 +133,7 @@ describe('/api/status', () => {
       });
 
       it('should have positive request count', async () => {
-        const response = await GET();
+        const response = await GET(request);
         const data = await response.json();
 
         expect(data.metrics.requests).toBeGreaterThan(0);
@@ -125,7 +141,7 @@ describe('/api/status', () => {
       });
 
       it('should have error count', async () => {
-        const response = await GET();
+        const response = await GET(request);
         const data = await response.json();
 
         expect(data.metrics.errors).toBeGreaterThanOrEqual(0);
@@ -133,7 +149,7 @@ describe('/api/status', () => {
       });
 
       it('should have valid response time metrics', async () => {
-        const response = await GET();
+        const response = await GET(request);
         const data = await response.json();
 
         expect(data.metrics.avgResponseTime).toBeGreaterThan(0);
@@ -141,7 +157,7 @@ describe('/api/status', () => {
       });
 
       it('should calculate error rate under threshold', async () => {
-        const response = await GET();
+        const response = await GET(request);
         const data = await response.json();
 
         const errorRate = data.metrics.errors / data.metrics.requests;
@@ -151,19 +167,19 @@ describe('/api/status', () => {
 
     describe('incidents', () => {
       it('should return incidents array', async () => {
-        const response = await GET();
+        const response = await GET(request);
         const data = await response.json();
 
         expect(Array.isArray(data.incidents)).toBe(true);
       });
 
       it('should handle empty incidents array', async () => {
-        const response = await GET();
+        const response = await GET(request);
         const data = await response.json();
 
         // Should not throw error even if empty
         expect(() => {
-          data.incidents.forEach((incident: any) => {
+          data.incidents.forEach((incident: StatusIncident) => {
             expect(incident).toHaveProperty('id');
             expect(incident).toHaveProperty('title');
             expect(incident).toHaveProperty('status');
@@ -174,19 +190,19 @@ describe('/api/status', () => {
 
     describe('maintenance', () => {
       it('should return maintenance array', async () => {
-        const response = await GET();
+        const response = await GET(request);
         const data = await response.json();
 
         expect(Array.isArray(data.maintenance)).toBe(true);
       });
 
       it('should handle empty maintenance array', async () => {
-        const response = await GET();
+        const response = await GET(request);
         const data = await response.json();
 
         // Should not throw error even if empty
         expect(() => {
-          data.maintenance.forEach((item: any) => {
+          data.maintenance.forEach((item: StatusMaintenanceItem) => {
             expect(item).toHaveProperty('id');
             expect(item).toHaveProperty('title');
             expect(item).toHaveProperty('startTime');
@@ -198,13 +214,13 @@ describe('/api/status', () => {
 
   describe('response headers', () => {
     it('should return JSON content type', async () => {
-      const response = await GET();
+      const response = await GET(request);
 
       expect(response.headers.get('content-type')).toContain('application/json');
     });
 
     it('should include CORS headers if configured', async () => {
-      const response = await GET();
+      const response = await GET(request);
 
       // CORS may not be implemented yet, so this is informational
       const corsHeader = response.headers.get('access-control-allow-origin');
@@ -226,8 +242,8 @@ describe('/api/status', () => {
     });
 
     it('should return consistent data structure', async () => {
-      const response1 = await GET();
-      const response2 = await GET();
+      const response1 = await GET(request);
+      const response2 = await GET(request);
 
       const data1 = await response1.json();
       const data2 = await response2.json();
@@ -239,7 +255,7 @@ describe('/api/status', () => {
 
   describe('status enum validation', () => {
     it('should only return valid status values', async () => {
-      const response = await GET();
+      const response = await GET(request);
       const data = await response.json();
 
       const validStatuses = ['operational', 'degraded', 'outage'];

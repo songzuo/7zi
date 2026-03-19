@@ -3,6 +3,8 @@
  * POST /api/a2a/jsonrpc
  *
  * Handles JSON-RPC 2.0 requests for the A2A protocol
+ *
+ * @refactored - Added request validation and improved error handling
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -10,7 +12,15 @@ import { A2ARequestHandler, createRequestHandler } from '@/lib/a2a/jsonrpc-handl
 import { getTaskStore } from '@/lib/a2a/task-store';
 import { createSevenZiExecutor } from '@/lib/a2a/executor';
 import { getAgentCard, getExtendedAgentCard } from '@/lib/a2a/agent-card';
-import { JsonRpcRequest } from '@/lib/a2a/types';
+import { JsonRpcRequest, JsonRpcResponse } from '@/lib/a2a/types';
+import {
+  jsonRpcRequestSchema,
+  jsonRpcBatchRequestSchema,
+  validateBody,
+  formatValidationErrors,
+} from '@/lib/api/validation';
+import { createValidationError, createErrorResponse, ErrorType } from '@/lib/api/error-handler';
+import { logger } from '@/lib/logger';
 
 // Initialize handler (singleton pattern)
 let handler: A2ARequestHandler | null = null;
@@ -28,39 +38,10 @@ function getHandler(): A2ARequestHandler {
   return handler;
 }
 
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-
-    // Handle batch requests
-    if (Array.isArray(body)) {
-      const responses = await Promise.all(
-        body.map(req => processRequest(req))
-      );
-      return NextResponse.json(responses);
-    }
-
-    // Single request
-    const response = await processRequest(body);
-    return NextResponse.json(response);
-
-  } catch (error) {
-    console.error('A2A JSON-RPC Error:', error);
-    return NextResponse.json(
-      {
-        jsonrpc: '2.0',
-        error: {
-          code: -32700,
-          message: 'Parse error',
-        },
-        id: null,
-      },
-      { status: 400 }
-    );
-  }
-}
-
-async function processRequest(body: unknown) {
+/**
+ * Process a single JSON-RPC request
+ */
+async function processSingleRequest(body: unknown): Promise<JsonRpcResponse> {
   const handler = getHandler();
 
   // Validate request structure
@@ -76,17 +57,175 @@ async function processRequest(body: unknown) {
   }
 
   const request = body as JsonRpcRequest;
+
+  // Validate against JSON-RPC schema
+  const validation = validateBody(request, jsonRpcRequestSchema);
+
+  if (!validation.success) {
+    const errors = formatValidationErrors(validation.errors);
+    return {
+      jsonrpc: '2.0',
+      error: {
+        code: -32600,
+        message: 'Invalid request format',
+        data: errors,
+      },
+      id: request.id ?? null,
+    };
+  }
+
+  // Process the request
   return handler.handleRequest(request);
 }
 
-// CORS headers for cross-origin requests
+/**
+ * Process a batch of JSON-RPC requests
+ */
+async function processBatchRequest(body: unknown): Promise<JsonRpcResponse[]> {
+  const handler = getHandler();
+
+  // Validate batch request
+  const validation = validateBody(body, jsonRpcBatchRequestSchema);
+
+  if (!validation.success) {
+    return [{
+      jsonrpc: '2.0',
+      error: {
+        code: -32600,
+        message: 'Invalid batch request format',
+      },
+      id: null,
+    }];
+  }
+
+  const requests = body as JsonRpcRequest[];
+
+  // Process all requests in parallel
+  return Promise.all(
+    requests.map(request => processSingleRequest(request))
+  );
+}
+
+/**
+ * POST /api/a2a/jsonrpc
+ * Handle JSON-RPC requests (single or batch)
+ */
+export async function POST(request: NextRequest) {
+  try {
+    // Parse request body
+    const body = await request.json();
+
+    // Handle empty request
+    if (body === null || body === undefined) {
+      return NextResponse.json(
+        {
+          jsonrpc: '2.0',
+          error: {
+            code: -32600,
+            message: 'Invalid request',
+          },
+          id: null,
+        },
+        { status: 400 }
+      );
+    }
+
+    // Handle batch requests
+    if (Array.isArray(body)) {
+      // Empty batch is invalid
+      if (body.length === 0) {
+        return NextResponse.json(
+          {
+            jsonrpc: '2.0',
+            error: {
+              code: -32600,
+              message: 'Invalid request - empty batch',
+            },
+            id: null,
+          },
+          { status: 400 }
+        );
+      }
+
+      const responses = await processBatchRequest(body);
+      return NextResponse.json(responses);
+    }
+
+    // Handle single request
+    const response = await processSingleRequest(body);
+
+    // Determine appropriate status code
+    const statusCode = response.error ? determineErrorStatusCode(response.error.code) : 200;
+
+    return NextResponse.json(response, { status: statusCode });
+
+  } catch (error) {
+    logger.error('A2A JSON-RPC error', error);
+
+    // Check for JSON parse errors
+    if (error instanceof SyntaxError) {
+      return NextResponse.json(
+        {
+          jsonrpc: '2.0',
+          error: {
+            code: -32700,
+            message: 'Parse error',
+          },
+          id: null,
+        },
+        { status: 400 }
+      );
+    }
+
+    // Generic error response
+    return NextResponse.json(
+      {
+        jsonrpc: '2.0',
+        error: {
+          code: -32603,
+          message: 'Internal error',
+          data: process.env.NODE_ENV === 'development'
+            ? { message: error instanceof Error ? error.message : String(error) }
+            : undefined,
+        },
+        id: null,
+      },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * Determine HTTP status code based on JSON-RPC error code
+ */
+function determineErrorStatusCode(jsonRpcCode: number): number {
+  // JSON-RPC error codes: https://www.jsonrpc.org/specification#error_object
+  switch (jsonRpcCode) {
+    case -32700: // Parse error
+    case -32600: // Invalid request
+    case -32602: // Invalid params
+      return 400;
+
+    case -32601: // Method not found
+      return 404;
+
+    case -32603: // Internal error
+    default:
+      return 500;
+  }
+}
+
+/**
+ * CORS headers for cross-origin requests
+ */
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 204,
     headers: {
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_SITE_URL || '*',
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Max-Age': '86400', // 24 hours
     },
   });
 }

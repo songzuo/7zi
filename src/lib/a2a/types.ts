@@ -205,6 +205,9 @@ export interface JsonRpcError {
   data?: unknown;
 }
 
+// Batch response type
+export type JsonRpcBatchResponse = JsonRpcResponse[];
+
 // Error Codes
 export const A2AErrorCodes = {
   // JSON-RPC Standard Errors

@@ -5,7 +5,7 @@
  */
 
 import { create } from 'zustand';
-import type { RealtimeNotification } from './types';
+import type { RealtimeNotification, NotificationCategory } from './types';
 
 // ============================================================================
 // Store 定义
@@ -94,6 +94,24 @@ export const useRealtimeNotificationStore = create<NotificationStore>((set, get)
 // ============================================================================
 
 /**
+ * 根据消息类型推断通知分类
+ */
+function inferCategoryFromType(messageType: string): NotificationCategory {
+  const categoryMap: Record<string, NotificationCategory> = {
+    'task:status_changed': 'info',
+    'task:assigned': 'success',
+    'task:comment': 'info',
+    'member:online': 'info',
+    'member:offline': 'info',
+    'member:status_changed': 'info',
+    'system:announcement': 'warning',
+    'project:updated': 'info',
+  };
+
+  return categoryMap[messageType] || 'info';
+}
+
+/**
  * 从 WebSocket 消息创建通知
  */
 export function createNotificationFromMessage(
@@ -111,9 +129,11 @@ export function createNotificationFromMessage(
     read: false,
     timestamp: (msg.timestamp as string) || new Date().toISOString(),
     priority: (payload.priority as RealtimeNotification['priority']) || 'normal',
+    category: (payload.category as RealtimeNotification['category']) || inferCategoryFromType(type),
     icon: (payload.icon as string) || getDefaultIcon(type),
     actionUrl: payload.actionUrl as string | undefined,
     actionText: payload.actionText as string | undefined,
+    soundEnabled: (payload.soundEnabled as boolean) ?? true,
     data: payload,
   };
 }

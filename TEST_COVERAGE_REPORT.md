@@ -1,152 +1,119 @@
-# Test Coverage Report - 7zi-Project
+# 7zi-Project 测试覆盖率报告
 
-## Summary
+## 测试文件位置
 
-Successfully created comprehensive tests for core utility modules in the 7zi-project.
+### 单元测试 (Vitest)
+- `src/test/` - 主测试目录 (47个测试文件)
+- `src/lib/__tests__/` - 库函数测试
+- `src/components/__tests__/` - 组件测试
+- `src/hooks/` - Hooks 测试
+- `src/app/api/*/__tests__/` - API 路由测试
 
-## New Test Files Created
+### E2E 测试 (Playwright)
+- `e2e/` - 端到端测试目录
 
-### 1. `/src/lib/validation/data-converter.test.ts`
-- **70 test cases** covering all functions in `data-converter.ts`
-- **Test Coverage:**
-  - `cleanString` - 5 tests
-  - `cleanNumber` - 4 tests
-  - `cleanBoolean` - 4 tests
-  - `cleanArray` - 4 tests
-  - `cleanObject` - 6 tests
-  - `renameFields` - 3 tests
-  - `flattenObject` - 4 tests
-  - `unflattenObject` - 3 tests
-  - `convertToType` - 7 tests
-  - `queryStringToObj` - 5 tests
-  - `objToQueryString` - 4 tests
-  - `objectToPairs/pairsToObject` - 3 tests
-  - `objectToFormData/formDataToObject` - 4 tests
-  - `convertAndValidate` - 5 tests
-  - **Edge cases** - 4 tests
+## 测试统计
 
-**Status:** ✅ All 70 tests passing
+- **总测试文件数**: 119+
+- **测试文件失败**: 76
+- **测试文件通过**: 43
+- **总测试用例**: 3130
+- **失败测试**: 668
+- **通过测试**: 2462
 
-### 2. `/src/lib/validation/helpers.test.ts`
-- **40 test cases** covering all helper functions in `helpers.ts`
-- **Test Coverage:**
-  - Error message generators (required, min/max length, range, pattern, email, phone, URL, numeric, integer, confirm password)
-  - Edge cases and special scenarios
-  - Localization support
-  - Message consistency
-  - Message format validation
+## 模块覆盖情况
 
-**Status:** ✅ All 40 tests passing
+### ✅ 已测试模块 (有测试文件)
 
-## Existing Test Coverage
+| 模块 | 测试文件数 | 状态 |
+|------|-----------|------|
+| lib/utils | 1 | 4个失败, 85个通过 |
+| lib/realtime | 4 | 大部分通过 |
+| lib/validation | 6+ | 通过 |
+| hooks | 7+ | 通过 |
+| components/ui | 5 | 通过 |
+| components/NotificationCenter | 3 | 通过 |
+| lib/db | 3 | 通过 |
+| lib/auth | 1 | - |
+| lib/cache | 1 | - |
+| lib/agents | 2 | - |
+| lib/a2a | 2 | - |
+| lib/approval | 2 | - |
+| lib/monitoring | 1 | - |
 
-The following modules already had comprehensive tests:
+### ❌ 未测试模块 (无测试文件)
 
-### Agent Communication Module
-- `/src/lib/agent-communication/__tests__/message-builder.test.ts` - 39,995 bytes
-- `/src/lib/agent-communication/__tests__/types.test.ts` - 16,468 bytes
+| 模块 | 说明 |
+|------|------|
+| app/[locale]/about | 页面未测试 |
+| app/[locale]/blog | 页面未测试 |
+| app/[locale]/contact | 页面未测试 |
+| app/[locale]/dashboard | 页面未测试 |
+| app/[locale]/portfolio | 页面未测试 |
+| app/[locale]/tasks | 页面未测试 |
+| app/[locale]/team | 页面未测试 |
+| app/api/auth/* | 认证API未测试 |
+| app/api/github/* | GitHub API未测试 |
+| app/api/database/* | 数据库API未测试 |
+| app/api/performance/* | 性能API未测试 |
+| app/api/a2a/* | A2A API未测试 |
+| i18n | 国际化模块未测试 |
+| data | 数据模块未测试 |
+| contexts | React Contexts未测试 |
+| components/form | 表单组件未测试 |
+| components/errors | 错误组件未测试 |
+| components/shared | 共享组件未测试 |
+| components/optimized | 优化组件未测试 |
+| components/UserSettings | 用户设置组件未测试 |
+| lib/api | API 客户端未测试 |
+| lib/crypto | 加密模块未测试 |
+| lib/export | 导出模块未测试 |
+| lib/mcp | MCP 模块未测试 |
+| lib/middleware | 中间件未测试 |
+| lib/offline | 离线功能未测试 |
+| lib/permissions | 权限模块未测试 |
 
-### Validation Module
-- `/src/lib/validation/__tests__/form-validator.test.ts` - Comprehensive form validation tests
-- `/src/lib/validation/__tests__/index.test.ts` - Validation index tests
-- `/src/lib/validation/validators.test.ts` - Individual validator tests
+## 测试框架
 
-### Other Well-Tested Modules
-- `/src/lib/__tests__/date.test.ts` - Date utility tests
-- `/src/lib/__tests__/search-filter.test.ts` - 1,157+ lines of search/filter tests
-- `/src/lib/__tests__/utils.test.ts` - 735+ lines of utility tests
+- **单元测试**: Vitest v4.1.0
+- **E2E测试**: Playwright v1.58.2
+- **测试环境**: jsdom
+- **配置**: vitest.config.ts
 
-## Test Results
+## 已知问题
 
-### New Tests
-```bash
-✓ src/lib/validation/data-converter.test.ts (70 tests)
-✓ src/lib/validation/helpers.test.ts (40 tests)
-```
+1. **测试失败**:
+   - `utils.test.ts`: 4个测试失败 (matchMedia 模拟问题, LRU缓存问题)
+   - `useWebSocket.test.ts`: 部分重连测试失败
+   - 76个测试文件整体存在失败
 
-### Test Execution Time
-- data-converter.test.ts: ~41ms
-- helpers.test.ts: ~25ms
+2. **未配置项**:
+   - 测试覆盖率阈值: lines 50%, functions 50%, branches 40%, statements 50%
+   - setupFiles 注释掉了 (`src/test/setup.tsx`)
 
-## Test Framework Configuration
+3. **E2E测试**: 存在但未执行
 
-Using **Vitest** v4.1.0 with:
-- Environment: jsdom
-- Global test functions: enabled
-- Setup file: `src/test/setup.tsx`
-- Timeout: 10,000ms
-- Retry: 1
-- Coverage provider: v8
+## 建议
 
-## Modules Analyzed
+1. 优先添加测试:
+   - 页面路由 (app/[locale]/*)
+   - API 路由 (app/api/*)
+   - 核心业务逻辑 (auth, permissions, export)
 
-### ✅ Have Tests (Comprehensive)
-- `data-converter.ts` - Now covered (new tests)
-- `helpers.ts` - Now covered (new tests)
-- `agent-communication/message-builder.ts` - Existing tests
-- `agent-communication/types.ts` - Existing tests
-- `validators.ts` - Existing tests
-- `form-validator.ts` - Existing tests
-- `date.ts` - Existing tests
-- `search-filter.ts` - Existing tests (2 versions)
-- `utils.ts` - Existing tests (2 versions)
-- `csrf.ts` - Existing tests
-- `errors.ts` - Existing tests
-- `emailjs.ts` - Existing tests
+2. 修复现有失败测试:
+   - 模拟 window.matchMedia
+   - 修复 LRU 缓存测试
+   - 修复 WebSocket 重连测试
 
-### 📋 Core Functions in data-converter.ts (Now Tested)
-- String cleaning (trimming, null handling)
-- Number cleaning (parsing, clamping, default values)
-- Boolean cleaning (type conversion)
-- Array cleaning (filtering, deduplication)
-- Object cleaning (deep cleaning, type conversion)
-- Field renaming and mapping
-- Object flattening/unflattening
-- Type conversion utilities
-- Query string parsing/formatting
-- FormData conversion
-
-### 📋 Core Functions in helpers.ts (Now Tested)
-- All error message generators (11 functions)
-- Support for custom messages
-- Edge case handling for all message types
-- Localization support (Chinese language)
-
-## Recommendations
-
-1. **Run All Tests Regularly:**
+3. 运行 E2E 测试:
    ```bash
-   npm run test:run
+   npm run test:e2e
    ```
 
-2. **Check Coverage:**
+4. 增加覆盖率:
    ```bash
    npm run test:coverage
    ```
 
-3. **Focus Areas for Additional Tests:**
-   - Edge case scenarios in existing modules
-   - Integration tests across modules
-   - Performance tests for large datasets
-
-4. **CI/CD Integration:**
-   - Ensure all tests pass before deployment
-   - Consider coverage thresholds in CI pipeline
-
-## Test Quality Metrics
-
-- **Total new tests:** 110
-- **Pass rate:** 100%
-- **Execution time:** <100ms total
-- **Coverage type:** Unit tests
-- **Test patterns:** Arrange-Act-Assert (AAA)
-
-## Conclusion
-
-The 7zi-project now has comprehensive test coverage for:
-- ✅ Search-filter module
-- ✅ Agent communication module
-- ✅ Data processing utilities (data-converter)
-- ✅ Validation helpers
-
-All tests pass successfully and follow best practices for vitest testing framework.
+---
+生成时间: 2026-03-19

@@ -3,7 +3,7 @@
  * @module lib/__tests__/utils.test
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Import all functions to test
 import {
@@ -744,8 +744,8 @@ describe('isValidUrl', () => {
     expect(isValidUrl('https://example.com:8080')).toBe(true);
     expect(isValidUrl('http://localhost:3000')).toBe(true);
     expect(isValidUrl('https://example.com/path#section')).toBe(true);
-    expect(isValidUrl('ftp://example.com')).toBe(true);
-    expect(isValidUrl('ftps://example.com')).toBe(true);
+    expect(isValidUrl('ftp://example.com')).toBe(false); // ftp is not allowed (only http/https)
+    expect(isValidUrl('ftps://example.com')).toBe(false); // ftps is not allowed
   });
 
   it('should reject invalid URLs', () => {
@@ -753,7 +753,7 @@ describe('isValidUrl', () => {
     expect(isValidUrl('not-a-url')).toBe(false);
     expect(isValidUrl('example.com')).toBe(false); // Missing protocol
     expect(isValidUrl('www.example.com')).toBe(false); // Missing protocol
-    expect(isValidUrl('ftp://example.com')).toBe(true); // ftp is valid
+    expect(isValidUrl('ftp://example.com')).toBe(false); // ftp is not allowed
     expect(isValidUrl('file://example.com')).toBe(false); // file protocol not allowed
     expect(isValidUrl('javascript:void(0)')).toBe(false); // javascript protocol not allowed
     expect(isValidUrl('data:text/plain,hello')).toBe(false); // data protocol not allowed

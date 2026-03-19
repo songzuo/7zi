@@ -101,7 +101,8 @@ describe('/api/health/live', () => {
 
   describe('error scenarios', () => {
     it('should not throw unhandled exceptions', async () => {
-      await expect(GET()).resolves.toBeDefined();
+      const response = await GET();
+      expect(response).toBeDefined();
     });
 
     it('should always return a Response object', async () => {

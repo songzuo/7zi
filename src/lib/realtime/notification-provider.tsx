@@ -9,6 +9,7 @@
 import React, { createContext, useContext, useEffect, useCallback, useRef, useState, useMemo } from 'react';
 import { useEnhancedWebSocket, ConnectionState } from './useEnhancedWebSocket';
 import { useRealtimeNotificationStore, createNotificationFromMessage } from './store';
+import { useNotificationPreferences, useNotificationBatching } from './notification-hooks';
 import type { WebSocketMessage, RealtimeNotification, RealtimeNotificationType, MemberOnlinePayload, MemberOfflinePayload } from './types';
 
 // ============================================================================
@@ -45,6 +46,15 @@ interface NotificationContextValue {
   // 统计
   onlineUsers: string[];
   isUserOnline: (userId: string) => boolean;
+  
+  // 新功能：声音通知
+  soundEnabled: boolean;
+  toggleSound: () => void;
+  playNotificationSound: () => void;
+  
+  // 新功能：批量通知
+  batchEnabled: boolean;
+  toggleBatching: () => void;
 }
 
 const NotificationContext = createContext<NotificationContextValue | null>(null);
@@ -62,11 +72,16 @@ interface NotificationProviderProps {
   enableBrowserNotifications?: boolean;
   requestPermissionOnMount?: boolean;
   
+  // 新功能配置
+  enableSound?: boolean;
+  enableBatching?: boolean;
+  
   // 事件回调
   onConnect?: () => void;
   onDisconnect?: () => void;
   onError?: (error: Error) => void;
   onNotification?: (notification: RealtimeNotification) => void;
+  onBatchNotifications?: (notifications: RealtimeNotification[]) => void;
 }
 
 // ============================================================================
@@ -81,10 +96,13 @@ export function NotificationProvider({
   autoConnect = true,
   enableBrowserNotifications = true,
   requestPermissionOnMount = false,
+  enableSound = false,
+  enableBatching = true,
   onConnect,
   onDisconnect,
   onError,
   onNotification,
+  onBatchNotifications,
 }: NotificationProviderProps) {
   // Store
   const {
@@ -98,11 +116,30 @@ export function NotificationProvider({
     setConnected,
   } = useRealtimeNotificationStore();
 
+  // 新功能：通知偏好设置
+  const {
+    preferences,
+    shouldShowNotification,
+    shouldPlaySound,
+    shouldShowBrowserNotification,
+    playNotificationSound,
+    updatePreference,
+  } = useNotificationPreferences();
+
+  // 新功能：批量通知
+  const { addToBatch, flushBatch, batchSize } = useNotificationBatching();
+
   // 浏览器通知权限
   const [browserPermission, setBrowserPermission] = useState<NotificationPermission | 'unsupported'>('unsupported');
   
   // 在线用户
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
+
+  // 新功能：声音通知状态
+  const [soundEnabled, setSoundEnabled] = useState(enableSound);
+
+  // 新功能：批量通知状态
+  const [batchEnabled, setBatchEnabled] = useState(enableBatching);
 
   // WebSocket 连接
   const {
@@ -170,18 +207,110 @@ export function NotificationProvider({
     }
   }, [browserNotificationsSupported, browserPermission, markAsRead]);
 
-  // 处理 WebSocket 消息
-  const handleMessage = useCallback((message: WebSocketMessage) => {
-    // 创建通知
-    const notification = createNotificationFromMessage(message);
+  // 切换声音通知
+  const toggleSound = useCallback(() => {
+    setSoundEnabled(prev => {
+      const newValue = !prev;
+      updatePreference('soundEnabled', newValue);
+      return newValue;
+    });
+  }, [updatePreference]);
+
+  // 切换批量通知
+  const toggleBatching = useCallback(() => {
+    setBatchEnabled(prev => !prev);
+  }, []);
+
+  // 处理单个通知
+  const handleNotification = useCallback((notification: RealtimeNotification) => {
+    // 检查是否应该显示此通知
+    if (!shouldShowNotification(notification)) {
+      return;
+    }
+
+    // 播放声音
+    if (shouldPlaySound(notification)) {
+      playNotificationSound();
+    }
+
+    // 发送浏览器通知
+    if (shouldShowBrowserNotification(notification)) {
+      sendBrowserNotification(notification);
+    }
+
+    // 添加到通知列表
     addNotification(notification);
 
     // 回调
     onNotification?.(notification);
+  }, [
+    shouldShowNotification,
+    shouldPlaySound,
+    shouldShowBrowserNotification,
+    playNotificationSound,
+    sendBrowserNotification,
+    addNotification,
+    onNotification,
+  ]);
 
-    // 浏览器通知
-    if (enableBrowserNotifications && browserPermission === 'granted') {
-      sendBrowserNotification(notification);
+  // 处理批量通知
+  const handleBatchNotifications = useCallback((notifications: RealtimeNotification[]) => {
+    // 过滤出应该显示的通知
+    const filtered = notifications.filter(n => shouldShowNotification(n));
+
+    if (filtered.length === 0) {
+      return;
+    }
+
+    // 播放声音（只播放一次）
+    if (filtered.some(n => shouldPlaySound(n))) {
+      playNotificationSound();
+    }
+
+    // 发送浏览器通知（批量摘要）
+    if (filtered.some(n => shouldShowBrowserNotification(n))) {
+      const browserNotif = new Notification(`批量通知 (${filtered.length})`, {
+        body: `您有 ${filtered.length} 条新通知`,
+        icon: '/favicon.ico',
+        tag: `batch-${Date.now()}`,
+      });
+
+      browserNotif.onclick = () => {
+        window.focus();
+        browserNotif.close();
+        // 标记所有通知为已读
+        filtered.forEach(n => markAsRead(n.id));
+      };
+
+      setTimeout(() => browserNotif.close(), 5000);
+    }
+
+    // 添加所有通知到列表
+    filtered.forEach(n => addNotification(n));
+
+    // 回调
+    onBatchNotifications?.(filtered);
+  }, [
+    shouldShowNotification,
+    shouldPlaySound,
+    shouldShowBrowserNotification,
+    playNotificationSound,
+    addNotification,
+    markAsRead,
+    onBatchNotifications,
+  ]);
+
+  // 处理 WebSocket 消息
+  const handleMessage = useCallback((message: WebSocketMessage) => {
+    // 创建通知
+    const notification = createNotificationFromMessage(message);
+
+    // 如果启用了批量通知
+    if (batchEnabled) {
+      addToBatch(notification, handleBatchNotifications, preferences.batchDelay);
+    } else {
+      // 直接处理单个通知
+      handleNotification(notification);
     }
 
     // 更新在线用户列表
@@ -194,7 +323,13 @@ export function NotificationProvider({
       const userId = (message.payload as MemberOfflinePayload).userId;
       setOnlineUsers(prev => prev.filter(id => id !== userId));
     }
-  }, [addNotification, onNotification, enableBrowserNotifications, browserPermission, sendBrowserNotification]);
+  }, [
+    batchEnabled,
+    addToBatch,
+    handleBatchNotifications,
+    handleNotification,
+    preferences.batchDelay,
+  ]);
 
   // 检查用户是否在线
   const isUserOnline = useCallback((userId: string): boolean => {
@@ -300,6 +435,11 @@ export function NotificationProvider({
     disconnect,
     onlineUsers,
     isUserOnline,
+    soundEnabled,
+    toggleSound,
+    playNotificationSound,
+    batchEnabled,
+    toggleBatching,
   }), [
     notifications,
     unreadCount,
@@ -317,6 +457,11 @@ export function NotificationProvider({
     disconnect,
     onlineUsers,
     isUserOnline,
+    soundEnabled,
+    toggleSound,
+    playNotificationSound,
+    batchEnabled,
+    toggleBatching,
   ]);
 
   return (

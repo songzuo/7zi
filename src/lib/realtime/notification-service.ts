@@ -6,7 +6,7 @@
 
 import { notificationServer } from './server';
 import { readStatusStore } from './read-status';
-import type { WebSocketMessage, RealtimeNotification, RealtimeNotificationType, NotificationPayload, TaskStatusChangedPayload, TaskAssignedPayload, TaskCommentPayload, MemberOnlinePayload, MemberOfflinePayload, MemberStatusChangedPayload, ProjectUpdatedPayload, SystemAnnouncementPayload } from './types';
+import type { WebSocketMessage, RealtimeNotificationType, TaskStatusChangedPayload, TaskAssignedPayload, TaskCommentPayload, MemberOnlinePayload, MemberOfflinePayload, MemberStatusChangedPayload, ProjectUpdatedPayload, SystemAnnouncementPayload } from './types';
 
 // ============================================================================
 // 类型定义
@@ -136,7 +136,7 @@ class NotificationService {
               // 重试发送通知
               await this.sendNotificationToUser(entry.notification, userId);
               processed.push(entry.notification.id);
-            } catch (error) {
+            } catch {
               // 记录错误并增加重试次数
               entry.attempts++;
               entry.lastAttempt = Date.now();
@@ -1014,7 +1014,8 @@ class NotificationService {
     }
   }
 
-  private addToHistory(type: RealtimeNotificationType, event: NotificationEvent): void {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private addToHistory(_type: RealtimeNotificationType, _event: NotificationEvent): void {
     // 这里可以添加到数据库或持久化存储
     // 目前只在内存中保存
   }

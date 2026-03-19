@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, memo } from 'react';
+import React, { useState, useCallback, memo, useMemo } from 'react';
 import { useWalletStore, useWallets } from '../stores/walletStore';
 import type { AgentWallet, Transaction } from '../types/wallet';
 import { TRANSACTION_TYPE_CONFIG, TRANSACTION_STATUS_CONFIG } from '../types/wallet';
@@ -19,13 +19,12 @@ interface WalletBalanceProps {
 /**
  * WalletBalance - 钱包余额显示组件
  */
-export const WalletBalance: React.FC<WalletBalanceProps> = memo(({
+export const WalletBalance = memo(function WalletBalance({
   wallet,
   compact = false,
   showDetails = true,
   className = '',
-}) => {
-  WalletBalance.displayName = 'WalletBalance';
+}: WalletBalanceProps) {
   const config = useWalletStore((state) => state.config);
 
   if (!wallet) {
@@ -103,6 +102,12 @@ export const WalletBalance: React.FC<WalletBalanceProps> = memo(({
       )}
     </div>
   );
+}, (prevProps, nextProps) => {
+  return prevProps.wallet?.id === nextProps.wallet?.id &&
+         prevProps.wallet?.balance === nextProps.wallet?.balance &&
+         prevProps.wallet?.status === nextProps.wallet?.status &&
+         prevProps.compact === nextProps.compact &&
+         prevProps.showDetails === nextProps.showDetails;
 });
 
 // ============================================================================
@@ -118,11 +123,11 @@ interface TransactionItemProps {
 /**
  * TransactionItem - 单条交易记录
  */
-export const TransactionItem: React.FC<TransactionItemProps> = memo(({
+export const TransactionItem = memo(function TransactionItem({
   transaction,
   currentWalletId,
   className = '',
-}) => {
+}: TransactionItemProps) {
   const isOutgoing = transaction.fromWalletId === currentWalletId;
   const typeConfig = TRANSACTION_TYPE_CONFIG[transaction.type];
   const statusConfig = TRANSACTION_STATUS_CONFIG[transaction.status];
@@ -179,6 +184,10 @@ export const TransactionItem: React.FC<TransactionItemProps> = memo(({
       </div>
     </div>
   );
+}, (prevProps, nextProps) => {
+  return prevProps.transaction.id === nextProps.transaction.id &&
+         prevProps.transaction.status === nextProps.transaction.status &&
+         prevProps.currentWalletId === nextProps.currentWalletId;
 });
 
 interface TransactionListProps {
@@ -232,11 +241,11 @@ interface TransferFormProps {
 /**
  * TransferForm - 转账表单组件
  */
-export const TransferForm: React.FC<TransferFormProps> = ({
+export const TransferForm = memo(function TransferForm({
   fromAgentId,
   onComplete,
   className = '',
-}) => {
+}: TransferFormProps) {
   const wallets = useWallets();
   const { transfer, config } = useWalletStore();
 
@@ -247,7 +256,10 @@ export const TransferForm: React.FC<TransferFormProps> = ({
   const [error, setError] = useState('');
 
   const fromWallet = wallets.find((w) => w.agentId === fromAgentId);
-  const availableWallets = wallets.filter((w) => w.agentId !== fromAgentId);
+  const availableWallets = useMemo(() => 
+    wallets.filter((w) => w.agentId !== fromAgentId),
+    [wallets, fromAgentId]
+  );
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -367,7 +379,9 @@ export const TransferForm: React.FC<TransferFormProps> = ({
       </button>
     </form>
   );
-};
+}, (prevProps, nextProps) => {
+  return prevProps.fromAgentId === nextProps.fromAgentId;
+});
 
 // ============================================================================
 // 钱包选择器组件
@@ -382,11 +396,11 @@ interface WalletSelectorProps {
 /**
  * WalletSelector - 钱包选择器
  */
-export const WalletSelector: React.FC<WalletSelectorProps> = memo(({
+export const WalletSelector: React.FC<WalletSelectorProps> = memo(function WalletSelector({
   selectedId,
   onSelect,
   className = '',
-}) => {
+}) {
   const wallets = useWallets();
 
   const handleSelect = useCallback((walletId: string) => {
@@ -419,6 +433,8 @@ export const WalletSelector: React.FC<WalletSelectorProps> = memo(({
       ))}
     </div>
   );
+}, (prevProps, nextProps) => {
+  return prevProps.selectedId === nextProps.selectedId;
 });
 
 // ============================================================================

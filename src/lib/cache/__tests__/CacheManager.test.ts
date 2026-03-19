@@ -425,6 +425,7 @@ describe('CacheManager Integration Tests', () => {
 
   it('should handle real-world caching scenario', async () => {
     // Simulate fetching user data from API
+    type User = { id: number; name: string; email: string };
     const fetchUser = vi.fn().mockResolvedValue({
       id: 1,
       name: 'John Doe',
@@ -432,7 +433,7 @@ describe('CacheManager Integration Tests', () => {
     });
 
     // First call - should fetch (this counts as 1 miss from the internal get() call)
-    const user1 = await cache.getOrSet('user:1', fetchUser, CachePresets.MEDIUM);
+    const user1 = await cache.getOrSet<User>('user:1', fetchUser, CachePresets.MEDIUM);
     expect(fetchUser).toHaveBeenCalledTimes(1);
     expect(user1.name).toBe('John Doe');
 

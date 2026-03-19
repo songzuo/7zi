@@ -205,7 +205,7 @@ describe('types.ts - AgentMessageEnvelope', () => {
 
     expect(message.messageId).toBe('msg-123');
     expect(message.from.agentId).toBe('agent-1');
-    expect(message.to.agentId).toBe('agent-2');
+    expect((Array.isArray(message.to) ? message.to[0] : message.to).agentId).toBe('agent-2');
     expect(message.type).toBe(MessageType.TASK_ASSIGN);
   });
 

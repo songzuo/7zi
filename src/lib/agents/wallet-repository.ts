@@ -4,6 +4,8 @@
  */
 
 import { getDatabaseAsync } from '../db';
+import { buildWhereQuery } from '../db/query-builder';
+import { generateId as generateIdUtil } from '../utils';
 import {
   AgentWallet,
   WalletTransaction,
@@ -11,13 +13,6 @@ import {
   TransactionStatus,
   WalletOperationRequest,
 } from './types';
-
-/**
- * 生成唯一ID
- */
-function generateId(prefix: string = 'wallet'): string {
-  return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-}
 
 /**
  * 初始化钱包表 - Optimized with better indexes
@@ -86,7 +81,7 @@ export async function createWallet(agentId: string, currency: string = 'CNY'): P
   const db = await getDatabaseAsync();
   await initializeWalletTables();
 
-  const id = generateId('wallet');
+  const id = generateIdUtil('wallet');
   const now = new Date().toISOString();
 
   const stmt = db.prepare(`
@@ -164,7 +159,7 @@ export async function getWalletBalance(agentId: string): Promise<{ balance: numb
 /**
  * 创建交易记录
  */
-async function createTransaction(
+export async function createTransaction(
   walletId: string,
   type: TransactionType,
   amount: number,
@@ -180,7 +175,7 @@ async function createTransaction(
   const db = await getDatabaseAsync();
   await initializeWalletTables();
 
-  const id = generateId('tx');
+  const id = generateIdUtil('tx');
   const now = new Date();
 
   const stmt = db.prepare(`
@@ -237,7 +232,7 @@ async function updateWalletBalance(walletId: string, delta: number): Promise<voi
 /**
  * 更新交易状态
  */
-async function updateTransactionStatus(
+export async function updateTransactionStatus(
   transactionId: string,
   status: TransactionStatus,
   completedAt?: Date
@@ -510,7 +505,13 @@ export async function unfreezeBalance(agentId: string, amount: number): Promise<
 }
 
 /**
- * 获取交易记录
+ * 获取交易记录 - 优化索引查询和分页
+ *
+ * 优化点:
+ * 1. 使用 buildWhereQuery 统一查询构建逻辑
+ * 2. 利用复合索引 (wallet_id, created_at DESC)
+ * 3. 减少不必要的字符串拼接
+ * 4. 保持向后兼容性
  */
 export async function getTransactions(
   agentId: string,
@@ -529,36 +530,54 @@ export async function getTransactions(
   const wallet = await getWalletByAgentId(agentId);
   if (!wallet) return [];
 
-  let sql = 'SELECT * FROM wallet_transactions WHERE wallet_id = ?';
-  const params: (string | number)[] = [wallet.id];
-
-  if (options?.type) {
-    sql += ' AND type = ?';
-    params.push(options.type);
-  }
-  if (options?.status) {
-    sql += ' AND status = ?';
-    params.push(options.status);
-  }
+  // 构建过滤器 - 按照索引顺序添加条件
+  const filters: Record<string, unknown> = { wallet_id: wallet.id };
+  if (options?.status) filters.status = options.status;
+  if (options?.type) filters.type = options.type;
   if (options?.startDate) {
-    sql += ' AND created_at >= ?';
+    // For date ranges, we need to use custom conditions - use where clause builder
+    const conditions: string[] = ['wallet_id = ?'];
+    const params: (string | number)[] = [wallet.id];
+    
+    if (options.status) {
+      conditions.push('status = ?');
+      params.push(options.status);
+    }
+    if (options.type) {
+      conditions.push('type = ?');
+      params.push(options.type);
+    }
+    conditions.push('created_at >= ?');
     params.push(options.startDate.toISOString());
-  }
-  if (options?.endDate) {
-    sql += ' AND created_at <= ?';
-    params.push(options.endDate.toISOString());
+    
+    if (options.endDate) {
+      conditions.push('created_at <= ?');
+      params.push(options.endDate.toISOString());
+    }
+    
+    let sql = `SELECT * FROM wallet_transactions WHERE ${conditions.join(' AND ')} ORDER BY created_at DESC`;
+    
+    if (options.limit) {
+      sql += ' LIMIT ?';
+      params.push(options.limit);
+      if (options.offset) {
+        sql += ' OFFSET ?';
+        params.push(options.offset);
+      }
+    }
+    
+    const stmt = db.prepare(sql);
+    const rows = stmt.all(...params) as Record<string, unknown>[];
+    return rows.map(mapRowToTransaction);
   }
 
-  sql += ' ORDER BY created_at DESC';
-
-  if (options?.limit) {
-    sql += ' LIMIT ?';
-    params.push(options.limit);
-  }
-  if (options?.offset) {
-    sql += ' OFFSET ?';
-    params.push(options.offset);
-  }
+  // For simple queries without date ranges, use buildWhereQuery
+  const { sql, params } = buildWhereQuery('wallet_transactions', filters, {
+    orderBy: 'created_at',
+    sortOrder: 'DESC',
+    limit: options?.limit,
+    offset: options?.offset,
+  });
 
   const stmt = db.prepare(sql);
   const rows = stmt.all(...params) as Record<string, unknown>[];

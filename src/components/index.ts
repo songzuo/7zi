@@ -1,5 +1,5 @@
 // Client Providers
-export { ClientProviders, ThemeToggle, AIChat } from './ClientProviders';
+export { ClientProviders } from './ClientProviders';
 
 // Theme (backward compatible - now delegates to SettingsContext)
 export { ThemeProvider, useTheme } from './ThemeProvider';
@@ -26,6 +26,53 @@ export { ProjectDashboard } from './ProjectDashboard';
 
 // UI Components
 export { Hero3D } from './Hero3D';
+
+// New UI Components
+export {
+  Button,
+  ButtonGroup,
+  IconButton,
+  Modal,
+  ConfirmDialog,
+  Tabs,
+  TabsList,
+  TabTrigger,
+  TabContent,
+  TabPanel,
+  ResponsiveTabs,
+  ToastProvider,
+  ToastButton,
+  useToast,
+  useToastActions,
+  Tooltip,
+  SimpleTooltip,
+  withTooltip,
+  InfoTooltip,
+} from './ui';
+export type {
+  ButtonProps,
+  ButtonGroupProps,
+  IconButtonProps,
+  ButtonVariant,
+  ButtonSize,
+  ModalProps,
+  ConfirmDialogProps,
+  ModalSize,
+  TabsProps,
+  TabsListProps,
+  TabTriggerProps,
+  TabContentProps,
+  ToastProviderProps,
+  ToastItem,
+  ToastButtonProps,
+  ToastVariant,
+  ToastPosition,
+  TooltipProps,
+  SimpleTooltipProps,
+  InfoTooltipProps,
+  TooltipPosition,
+  TooltipSize,
+} from './ui';
 
 // Image Components
 export { OptimizedImage, ResponsiveImage } from './OptimizedImage';

@@ -9,6 +9,7 @@ import {
   optimizeDatabase as runOptimizeDatabase,
   getDatabaseHealth as runGetDatabaseHealth,
 } from './migrations';
+import { logger } from '../logger';
 
 // Connection pool for better performance
 let dbInstance: Database.Database | null = null;
@@ -30,6 +31,7 @@ export interface DatabaseConnection {
   query: (sql: string, params?: unknown[]) => unknown;
   exec: (sql: string, params?: unknown[]) => DatabaseResult;
   prepare: (sql: string) => DatabaseStatement;
+  pragma: (name: string, options?: { simple: boolean }) => unknown;
   getConnection?: () => unknown;
   batch: (statements: Array<{ sql: string; params?: unknown[] }>) => DatabaseResult[];
 }
@@ -74,7 +76,7 @@ export async function getDatabaseAsync(): Promise<DatabaseConnection> {
 export function getDatabase(): DatabaseConnection {
   const db = initializeDatabase();
 
-  return {
+  const baseConnection = {
     query: (sql: string, params?: unknown[]) => {
       try {
         if (sql.trim().toLowerCase().startsWith('select')) {
@@ -93,12 +95,7 @@ export function getDatabase(): DatabaseConnection {
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        console.error('[Database Query Error]', {
-          sql,
-          params,
-          error: errorMessage,
-          timestamp: new Date().toISOString()
-        });
+        logger.error('[Database Query Error]', error, { category: 'db', sql, params, error: errorMessage, timestamp: new Date().toISOString() });
         throw error;
       }
     },
@@ -114,12 +111,7 @@ export function getDatabase(): DatabaseConnection {
         };
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        console.error('[Database Exec Error]', {
-          sql,
-          params,
-          error: errorMessage,
-          timestamp: new Date().toISOString()
-        });
+        logger.error('[Database Exec Error]', error, { category: 'db', sql, params, error: errorMessage, timestamp: new Date().toISOString() });
         // Create a more informative error
         const enhancedError = new Error(`Database exec failed: ${errorMessage}`);
         enhancedError.name = 'DatabaseExecError';
@@ -140,12 +132,7 @@ export function getDatabase(): DatabaseConnection {
             };
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
-            console.error('[Database Prepare.Run Error]', {
-              sql,
-              params,
-              error: errorMessage,
-              timestamp: new Date().toISOString()
-            });
+            logger.error('[Database Prepare.Run Error]', error, { category: 'db', sql, params, error: errorMessage, timestamp: new Date().toISOString() });
             const enhancedError = new Error(`Database prepare.run failed: ${errorMessage}`);
             enhancedError.name = 'DatabasePrepareRunError';
             throw enhancedError;
@@ -156,12 +143,7 @@ export function getDatabase(): DatabaseConnection {
             return stmt.get(...params) as Record<string, unknown> | null;
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
-            console.error('[Database Prepare.Get Error]', {
-              sql,
-              params,
-              error: errorMessage,
-              timestamp: new Date().toISOString()
-            });
+            logger.error('[Database Prepare.Get Error]', error, { category: 'db', sql, params, error: errorMessage, timestamp: new Date().toISOString() });
             const enhancedError = new Error(`Database prepare.get failed: ${errorMessage}`);
             enhancedError.name = 'DatabasePrepareGetError';
             throw enhancedError;
@@ -174,18 +156,17 @@ export function getDatabase(): DatabaseConnection {
             return Array.isArray(result) ? result as Record<string, unknown>[] : [];
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
-            console.error('[Database Prepare.All Error]', {
-              sql,
-              params,
-              error: errorMessage,
-              timestamp: new Date().toISOString()
-            });
+            logger.error('[Database Prepare.All Error]', error, { category: 'db', sql, params, error: errorMessage, timestamp: new Date().toISOString() });
             const enhancedError = new Error(`Database prepare.all failed: ${errorMessage}`);
             enhancedError.name = 'DatabasePrepareAllError';
             throw enhancedError;
           }
         },
       };
+    },
+    
+    pragma: (name: string, options?: { simple: boolean }) => {
+      return db.pragma(name, options);
     },
     
     getConnection: () => db,
@@ -208,17 +189,26 @@ export function getDatabase(): DatabaseConnection {
         return results;
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        console.error('[Database Batch Error]', {
-          statementCount: statements.length,
-          error: errorMessage,
-          timestamp: new Date().toISOString()
-        });
+        logger.error('[Database Batch Error]', error, { category: 'db', statementCount: statements.length, error: errorMessage, timestamp: new Date().toISOString() });
         const enhancedError = new Error(`Database batch failed: ${errorMessage}`);
         enhancedError.name = 'DatabaseBatchError';
         throw enhancedError;
       }
     },
   };
+
+  // Wrap with performance logging if enabled
+  if (process.env.ENABLE_DB_PERFORMANCE_LOGGING === 'true' || process.env.NODE_ENV === 'development') {
+    try {
+      const { withPerformanceLogging } = require('@/lib/middleware/db-performance');
+      return withPerformanceLogging(baseConnection);
+    } catch {
+      // Performance logging module not available, return base connection
+      return baseConnection;
+    }
+  }
+
+  return baseConnection;
 }
 
 /**
@@ -316,6 +306,9 @@ export async function getDatabaseHealth(): Promise<ReturnType<typeof runGetDatab
   return runGetDatabaseHealth();
 }
 
+// Export batch operations for convenience
+export * from './batch-operations';
+
 export default {
   getDatabase,
   getDatabaseAsync,
@@ -324,4 +317,7 @@ export default {
   vacuumDatabase,
   analyzeDatabase,
   getDatabaseSize,
+  migrate,
+  optimizeDatabase,
+  getDatabaseHealth,
 };

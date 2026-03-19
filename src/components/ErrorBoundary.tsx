@@ -170,6 +170,7 @@ export function ErrorBoundary({
   }, [handleGoHome]);
 
   // 刷新页面（备用功能，未来可能使用）
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _handleRefresh = useCallback(() => {
     window.location.reload();
   }, []);

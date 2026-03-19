@@ -14,6 +14,7 @@ import { useEffect, useRef, useCallback, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import type { WebSocketMessage } from './types';
 import { generateMessageId } from './useWebSocket';
+import { logger } from '../logger';
 
 // ============================================================================
 // 类型定义
@@ -187,7 +188,9 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
       try {
         callback(newState);
       } catch (err) {
-        console.error('[WebSocket] State change callback error:', err);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('[WebSocket] State change callback error:', err);
+        }
       }
     });
   }, []);
@@ -231,7 +234,9 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
         try {
           handler(data);
         } catch (err) {
-          console.error(`[WebSocket] Handler error for ${type}:`, err);
+          if (process.env.NODE_ENV === 'development') {
+            console.error(`[WebSocket] Handler error for ${type}:`, err);
+          }
         }
       });
     }
@@ -243,7 +248,9 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
         try {
           handler(data);
         } catch (err) {
-          console.error('[WebSocket] Wildcard handler error:', err);
+          if (process.env.NODE_ENV === 'development') {
+            console.error('[WebSocket] Wildcard handler error:', err);
+          }
         }
       });
     }
@@ -272,7 +279,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
       const droppedCount = queue.length - trimmedQueue.length;
       offlineQueueRef.current = trimmedQueue;
 
-      if (droppedCount > 0) {
+      if (droppedCount > 0 && process.env.NODE_ENV === 'development') {
         console.log(`[WebSocket] Dropped ${droppedCount} low priority messages from offline queue`);
         updateStats({
           offlineQueueDroppedCount: stats.offlineQueueDroppedCount + droppedCount,
@@ -283,7 +290,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
       const droppedCount = queue.length - targetSize;
       offlineQueueRef.current = queue.slice(-targetSize);
 
-      if (droppedCount > 0) {
+      if (droppedCount > 0 && process.env.NODE_ENV === 'development') {
         console.log(`[WebSocket] Dropped ${droppedCount} old messages from offline queue (FIFO)`);
         updateStats({
           offlineQueueDroppedCount: stats.offlineQueueDroppedCount + droppedCount,
@@ -322,7 +329,9 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
           failedCount++;
         }
       } catch (err) {
-        console.error('[WebSocket] Failed to send offline message:', err);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('[WebSocket] Failed to send offline message:', err);
+        }
         failedCount++;
       }
     });
@@ -332,7 +341,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
       offlineQueueSize: 0,
     });
 
-    if (sentCount > 0) {
+    if (sentCount > 0 && process.env.NODE_ENV === 'development') {
       console.log(`[WebSocket] Processed offline queue: ${sentCount} sent, ${failedCount} failed`);
     }
   }, [enableOfflineQueue, stats.messagesSent, updateStats]);
@@ -428,7 +437,9 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
           try {
             callback(wsError);
           } catch (e) {
-            console.error('[WebSocket] Error callback error:', e);
+            if (process.env.NODE_ENV === 'development') {
+              console.error('[WebSocket] Error callback error:', e);
+            }
           }
         });
 
@@ -506,7 +517,9 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
 
     // 检查是否已在离线队列中（去重）
     if (offlineMessageIdsRef.current.has(messageId)) {
-      console.log(`[WebSocket] Message ${messageId} already in offline queue, skipping`);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[WebSocket] Message ${messageId} already in offline queue, skipping`);
+      }
       updateStats({
         offlineQueueDedupCount: stats.offlineQueueDedupCount + 1,
       });

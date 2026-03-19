@@ -300,7 +300,7 @@ describe('ContactForm Component', () => {
   describe('Loading State', () => {
     it('should show loading state during submission', async () => {
       // Mock slow response
-      (global.fetch as any).mockImplementationOnce(
+      (global.fetch as ReturnType<typeof vi.fn>).mockImplementationOnce(
         () => new Promise(resolve => setTimeout(() => resolve({
           ok: true,
           json: async () => ({}),
@@ -326,7 +326,7 @@ describe('ContactForm Component', () => {
 
     it('should disable submit button during submission', async () => {
       // Mock slow response
-      (global.fetch as any).mockImplementationOnce(
+      (global.fetch as ReturnType<typeof vi.fn>).mockImplementationOnce(
         () => new Promise(resolve => setTimeout(() => resolve({
           ok: true,
           json: async () => ({}),

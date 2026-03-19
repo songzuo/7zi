@@ -2,14 +2,14 @@ export const dynamic = 'force-dynamic';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { Locale, locales } from '@/i18n/config';
 import { Link } from '@/i18n/routing';
-import { ClientProviders, ThemeToggle } from '@/components/ClientProviders';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import MobileMenu from '@/components/MobileMenu';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { StructuredData } from '@/components/SEO';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { getProjectBySlug, getRelatedProjects, projects } from '../data';
+import { getProjectBySlug, getRelatedProjects } from '../data';
 import ProjectCard from '../components/ProjectCard';
 
 type Params = Promise<{ locale: string; slug: string }>;
@@ -91,7 +91,6 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
   const relatedProjects = getRelatedProjects(slug, project.category, 3);
 
   return (
-    <ClientProviders>
       <div className="min-h-screen bg-zinc-50 dark:bg-black">
         {/* Navigation */}
         <nav className="fixed top-0 left-0 right-0 z-40 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg border-b border-zinc-200 dark:border-zinc-800" aria-label="Main navigation">
@@ -377,6 +376,5 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
           }}
         />
       </div>
-    </ClientProviders>
   );
 }

@@ -163,11 +163,11 @@ describe('errors.ts - 错误处理测试', () => {
     });
 
     it('应该拒绝非 Error 类型', () => {
-      expect(isNetworkError('network error' as any)).toBe(false);
-      expect(isNetworkError(null as any)).toBe(false);
-      expect(isNetworkError(undefined as any)).toBe(false);
-      expect(isNetworkError(404 as any)).toBe(false);
-      expect(isNetworkError({ message: 'network error' } as any)).toBe(false);
+      expect(isNetworkError('network error' as unknown)).toBe(false);
+      expect(isNetworkError(null as unknown)).toBe(false);
+      expect(isNetworkError(undefined as unknown)).toBe(false);
+      expect(isNetworkError(404 as unknown)).toBe(false);
+      expect(isNetworkError({ message: 'network error' } as unknown)).toBe(false);
     });
 
     it('应该处理混合大小写的网络关键词', () => {
@@ -316,7 +316,7 @@ describe('errors.ts - 错误处理测试', () => {
     });
 
     it('应该处理数字类型代码', () => {
-      expect(getUserFriendlyMessage('404' as any)).toBe('发生未知错误，请稍后重试');
+      expect(getUserFriendlyMessage('404' as unknown as string)).toBe('发生未知错误，请稍后重试');
     });
   });
 
@@ -398,7 +398,7 @@ describe('errors.ts - 错误处理测试', () => {
     it('应该正确处理非 Error 类型', () => {
       expect(formatErrorMessage('字符串错误')).toBe('字符串错误');
       expect(getErrorCode(null)).toBe(ErrorCodes.UNKNOWN);
-      expect(isNetworkError({} as any)).toBe(false);
+      expect(isNetworkError({} as unknown)).toBe(false);
     });
 
     it('应该处理带有多个信息的复杂错误', () => {

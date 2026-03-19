@@ -172,6 +172,7 @@ export class SevenZiExecutor implements AgentExecutor {
     eventBus.finished();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async cancelTask(_taskId: string, _eventBus: ExecutionEventBus): Promise<void> {
     this.cancelledTasks.add(_taskId);
   }

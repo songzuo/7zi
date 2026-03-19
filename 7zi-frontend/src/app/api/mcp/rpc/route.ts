@@ -2,7 +2,241 @@
  * MCP JSON-RPC 2.0 API Route
  *
  * 处理 MCP (Model Context Protocol) JSON-RPC 请求
- * POST /api/mcp/rpc
+ *
+ * @openapi
+ * /api/mcp/rpc:
+ *   get:
+ *     summary: Get MCP Server information
+ *     description: Returns information about the MCP Server including version, protocol, and available methods.
+ *     tags:
+ *       - MCP
+ *     responses:
+ *       200:
+ *         description: MCP Server information
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 name:
+ *                   type: string
+ *                   example: OpenClaw MCP Server
+ *                 version:
+ *                   type: string
+ *                   example: 1.0.0
+ *                 protocol:
+ *                   type: string
+ *                   example: Model Context Protocol (MCP)
+ *                 specification:
+ *                   type: string
+ *                   format: uri
+ *                 endpoints:
+ *                   type: object
+ *                   properties:
+ *                     rpc:
+ *                       type: string
+ *                       example: /api/mcp/rpc
+ *                 methods:
+ *                   type: object
+ *                   additionalProperties:
+ *                     type: string
+ *                   example:
+ *                     tools/list: List available tools
+ *                     tools/call: Execute a tool
+ *   post:
+ *     summary: Process MCP JSON-RPC 2.0 request
+ *     description: Processes JSON-RPC 2.0 requests for the Model Context Protocol.
+ *     tags:
+ *       - MCP
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             oneOf:
+ *               - $ref: '#/components/schemas/MCPRequest'
+ *               - type: array
+ *                 items:
+ *                   $ref: '#/components/schemas/MCPRequest'
+ *           examples:
+ *             listTools:
+ *               summary: List available tools
+ *               value:
+ *                 jsonrpc: 2.0
+ *                 id: 1
+ *                 method: tools/list
+ *             callTool:
+ *               summary: Call a tool
+ *               value:
+ *                 jsonrpc: 2.0
+ *                 id: 2
+ *                 method: tools/call
+ *                 params:
+ *                   name: read_file
+ *                   arguments:
+ *                     path: /path/to/file.txt
+ *     responses:
+ *       200:
+ *         description: JSON-RPC response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               oneOf:
+ *                 - $ref: '#/components/schemas/MCPResponse'
+ *                 - type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/MCPResponse'
+ *       400:
+ *         description: Invalid request (parse error, invalid format)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/MCPError'
+ *       404:
+ *         description: Method not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/MCPError'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/MCPError'
+ *   options:
+ *     summary: CORS preflight request
+ *     description: Handles CORS preflight requests for cross-origin access.
+ *     tags:
+ *       - MCP
+ *     responses:
+ *       204:
+ *         description: CORS headers returned
+ *
+ * @openapi components:
+ *   schemas:
+ *     MCPRequest:
+ *       type: object
+ *       required:
+ *         - jsonrpc
+ *         - id
+ *         - method
+ *       properties:
+ *         jsonrpc:
+ *           type: string
+ *           enum: ["2.0"]
+ *           description: JSON-RPC version
+ *         id:
+ *           type: string
+ *           description: Request identifier
+ *         method:
+ *           type: string
+ *           description: Method name to invoke
+ *           enum: [tools/list, tools/call]
+ *         params:
+ *           type: object
+ *           description: Method parameters
+ *           properties:
+ *             name:
+ *               type: string
+ *               description: Tool name (for tools/call)
+ *             arguments:
+ *               type: object
+ *               description: Tool arguments (for tools/call)
+ *     MCPResponse:
+ *       type: object
+ *       required:
+ *         - jsonrpc
+ *         - id
+ *       properties:
+ *         jsonrpc:
+ *           type: string
+ *           enum: ["2.0"]
+ *         id:
+ *           type: string
+ *         result:
+ *           type: object
+ *           description: Result data
+ *           properties:
+ *             tools:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/ToolDefinition'
+ *             content:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   type:
+ *                     type: string
+ *                     enum: [text, image, resource]
+ *                   text:
+ *                     type: string
+ *                   data:
+ *                     type: string
+ *                   mimeType:
+ *                     type: string
+ *             isError:
+ *               type: boolean
+ *     MCPError:
+ *       type: object
+ *       required:
+ *         - jsonrpc
+ *         - id
+ *         - error
+ *       properties:
+ *         jsonrpc:
+ *           type: string
+ *           enum: ["2.0"]
+ *         id:
+ *           type: string
+ *           nullable: true
+ *         error:
+ *           type: object
+ *           required:
+ *             - code
+ *             - message
+ *           properties:
+ *             code:
+ *               type: integer
+ *               description: JSON-RPC error code
+ *               enum: [-32700, -32600, -32601, -32602, -32603]
+ *             message:
+ *               type: string
+ *               description: Error message
+ *             data:
+ *               type: object
+ *               description: Additional error data
+ *     ToolDefinition:
+ *       type: object
+ *       required:
+ *         - name
+ *         - description
+ *         - inputSchema
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: Tool name
+ *           example: read_file
+ *         description:
+ *           type: string
+ *           description: Tool description
+ *           example: Read the contents of a file
+ *         inputSchema:
+ *           type: object
+ *           required:
+ *             - type
+ *           properties:
+ *             type:
+ *               type: string
+ *               enum: ["object"]
+ *             properties:
+ *               type: object
+ *               additionalProperties: true
+ *             required:
+ *               type: array
+ *               items:
+ *                 type: string
  */
 
 import { NextRequest, NextResponse } from "next/server";

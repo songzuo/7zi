@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent, useEffect } from "react";
+import { useState, FormEvent, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 
 interface FormData {
@@ -132,30 +132,33 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    
+
     // 清除对应字段的错误
     if (errors[name as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
-  const subjectOptions = locale === 'zh' 
-    ? [
-        { value: '', label: '选择咨询主题' },
-        { value: 'project', label: '项目咨询' },
-        { value: 'cooperation', label: '商务合作' },
-        { value: 'support', label: '技术支持' },
-        { value: 'careers', label: '加入我们' },
-        { value: 'other', label: '其他' },
-      ]
-    : [
-        { value: '', label: 'Select a topic' },
-        { value: 'project', label: 'Project Inquiry' },
-        { value: 'cooperation', label: 'Business Cooperation' },
-        { value: 'support', label: 'Technical Support' },
-        { value: 'careers', label: 'Join Us' },
-        { value: 'other', label: 'Other' },
-      ];
+  // Memoize subjectOptions to prevent unnecessary recalculations
+  const subjectOptions = useMemo(() => (
+    locale === 'zh'
+      ? [
+          { value: '', label: '选择咨询主题' },
+          { value: 'project', label: '项目咨询' },
+          { value: 'cooperation', label: '商务合作' },
+          { value: 'support', label: '技术支持' },
+          { value: 'careers', label: '加入我们' },
+          { value: 'other', label: '其他' },
+        ]
+      : [
+          { value: '', label: 'Select a topic' },
+          { value: 'project', label: 'Project Inquiry' },
+          { value: 'cooperation', label: 'Business Cooperation' },
+          { value: 'support', label: 'Technical Support' },
+          { value: 'careers', label: 'Join Us' },
+          { value: 'other', label: 'Other' },
+        ]
+  ), [locale]);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">

@@ -132,7 +132,7 @@ describe('utils', () => {
     it('caches results for same arguments', () => {
       let callCount = 0;
       const fn = (x: number) => { callCount++; return x * 2; };
-      const memoizedFn = memoize(fn);
+      const memoizedFn = memoize(fn as (...args: unknown[]) => unknown);
 
       expect(memoizedFn(5)).toBe(10);
       expect(memoizedFn(5)).toBe(10);
@@ -142,7 +142,7 @@ describe('utils', () => {
     it('calls function for different arguments', () => {
       let callCount = 0;
       const fn = (x: number) => { callCount++; return x * 2; };
-      const memoizedFn = memoize(fn);
+      const memoizedFn = memoize(fn as (...args: unknown[]) => unknown);
 
       expect(memoizedFn(5)).toBe(10);
       expect(memoizedFn(10)).toBe(20);
@@ -152,7 +152,7 @@ describe('utils', () => {
     it('uses custom resolver when provided', () => {
       let callCount = 0;
       const fn = (obj: { id: number }) => { callCount++; return obj.id * 2; };
-      const memoizedFn = memoize(fn, (obj) => String(obj.id));
+      const memoizedFn = memoize(fn as (...args: unknown[]) => unknown, (obj: unknown) => String((obj as { id: number }).id));
 
       expect(memoizedFn({ id: 5 })).toBe(10);
       expect(memoizedFn({ id: 5 })).toBe(10);

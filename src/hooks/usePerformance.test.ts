@@ -57,7 +57,7 @@ class MockIntersectionObserver implements IntersectionObserver {
   disconnect() {}
 }
 
-global.IntersectionObserver = MockIntersectionObserver as any;
+global.IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver;
 
 describe('useInView', () => {
   beforeEach(() => {

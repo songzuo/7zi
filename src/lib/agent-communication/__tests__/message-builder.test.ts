@@ -13,7 +13,27 @@ import {
   MessagePriority,
   AgentMessageEnvelope,
   AgentEndpoint,
+  TaskPayload,
+  CollaborationPayload,
+  DataPayload,
+  NotificationPayload,
+  HeartbeatPayload,
+  CapabilityPayload,
+  MeetingPayload,
+  VotePayload,
 } from '../types';
+
+// Helper types for testing
+type MessagePayload =
+  | TaskPayload
+  | CollaborationPayload
+  | DataPayload
+  | NotificationPayload
+  | HeartbeatPayload
+  | CapabilityPayload
+  | MeetingPayload
+  | VotePayload
+  | Record<string, unknown>;
 
 describe('MessageBuilder - Basic Construction', () => {
   it('should create a new message builder', () => {
@@ -35,7 +55,7 @@ describe('MessageBuilder - Basic Construction', () => {
     expect(message.timestamp).toBeInstanceOf(Date);
     expect(message.priority).toBe(MessagePriority.NORMAL);
     expect(message.from.agentId).toBe('agent-1');
-    expect(message.to.agentId).toBe('agent-2');
+    expect((Array.isArray(message.to) ? message.to[0] : message.to).agentId).toBe('agent-2');
     expect(message.type).toBe(MessageType.TASK_ASSIGN);
   });
 
@@ -100,7 +120,7 @@ describe('MessageBuilder - Fluent API', () => {
       .build();
 
     expect(message.from.agentId).toBe('agent-1');
-    expect(message.to.agentId).toBe('agent-2');
+    expect((Array.isArray(message.to) ? message.to[0] : message.to).agentId).toBe('agent-2');
     expect(message.priority).toBe(MessagePriority.HIGH);
     expect(message.correlationId).toBe('corr-123');
     expect(message.replyTo).toBe('agent-reply');
@@ -172,7 +192,7 @@ describe('MessageBuilder - From and To Methods', () => {
       .payload({})
       .build();
 
-    expect(message.to.agentId).toBe('agent-2');
+    expect((Array.isArray(message.to) ? message.to[0] : message.to).agentId).toBe('agent-2');
   });
 
   it('should set to as AgentEndpoint', () => {
@@ -189,8 +209,8 @@ describe('MessageBuilder - From and To Methods', () => {
       .payload({})
       .build();
 
-    expect(message.to.agentId).toBe('agent-2');
-    expect(message.to.role).toBe('manager');
+    expect((Array.isArray(message.to) ? message.to[0] : message.to).agentId).toBe('agent-2');
+    expect((Array.isArray(message.to) ? message.to[0] : message.to).role).toBe('manager');
   });
 
   it('should set to as array of strings', () => {
@@ -452,9 +472,9 @@ describe('Message - Task Messages', () => {
     );
 
     expect(message.from.agentId).toBe('agent-1');
-    expect(message.to.agentId).toBe('agent-2');
+    expect((Array.isArray(message.to) ? message.to[0] : message.to).agentId).toBe('agent-2');
     expect(message.type).toBe(MessageType.TASK_ASSIGN);
-    expect((message.payload as any).taskId).toBe('task-123');
+    expect((message.payload as TaskPayload).taskId).toBe('task-123');
   });
 
   it('should set default priority for task', () => {
@@ -469,7 +489,7 @@ describe('Message - Task Messages', () => {
       }
     );
 
-    expect((message.payload as any).priority).toBe('medium');
+    expect((message.payload as TaskPayload).priority).toBe('medium');
   });
 
   it('should create task complete message', () => {
@@ -481,16 +501,16 @@ describe('Message - Task Messages', () => {
     );
 
     expect(message.type).toBe(MessageType.TASK_COMPLETE);
-    expect((message.payload as any).taskId).toBe('task-123');
-    expect((message.payload as any).result).toEqual({ result: 'success' });
+    expect((message.payload as TaskPayload & { result: unknown }).taskId).toBe('task-123');
+    expect((message.payload as TaskPayload & { result: unknown }).result).toEqual({ result: 'success' });
   });
 
   it('should create task complete message without result', () => {
     const message = Message.taskComplete('agent-1', 'agent-2', 'task-123');
 
-    expect((message.payload as any).taskId).toBe('task-123');
-    expect((message.payload as any).result).toBeUndefined();
-    expect((message.payload as any).completedAt).toBeDefined();
+    expect((message.payload as TaskPayload & { completedAt?: Date }).taskId).toBe('task-123');
+    expect((message.payload as TaskPayload & { result?: unknown }).result).toBeUndefined();
+    expect((message.payload as TaskPayload & { completedAt?: Date }).completedAt).toBeDefined();
   });
 });
 
@@ -509,8 +529,8 @@ describe('Message - Collaboration Messages', () => {
     );
 
     expect(message.type).toBe(MessageType.COLLAB_REQUEST);
-    expect((message.payload as any).collaborationId).toBe('collab-123');
-    expect((message.payload as any).type).toBe('sync');
+    expect((message.payload as CollaborationPayload).collaborationId).toBe('collab-123');
+    expect((message.payload as CollaborationPayload).type).toBe('sync');
   });
 });
 
@@ -528,8 +548,8 @@ describe('Message - Data Messages', () => {
     );
 
     expect(message.type).toBe(MessageType.DATA_REQUEST);
-    expect((message.payload as any).dataType).toBe('user');
-    expect((message.payload as any).action).toBe('query');
+    expect((message.payload as DataPayload).dataType).toBe('user');
+    expect((message.payload as DataPayload).action).toBe('query');
   });
 
   it('should create data response message', () => {
@@ -543,7 +563,7 @@ describe('Message - Data Messages', () => {
 
     expect(message.type).toBe(MessageType.DATA_RESPONSE);
     expect(message.correlationId).toBe('corr-123');
-    expect((message.payload as any).data).toEqual(data);
+    expect((message.payload as DataPayload).data).toEqual(data);
   });
 });
 
@@ -560,7 +580,7 @@ describe('Message - Notification Messages', () => {
     );
 
     expect(message.type).toBe(MessageType.NOTIFY_INFO);
-    expect((message.payload as any).title).toBe('Info');
+    expect((message.payload as NotificationPayload).title).toBe('Info');
   });
 
   it('should create warning notification', () => {
@@ -622,9 +642,9 @@ describe('Message - Notification Messages', () => {
       }
     );
 
-    expect((message.payload as any).action).toBeDefined();
-    expect((message.payload as any).action?.label).toBe('Take Action');
-    expect((message.payload as any).persistent).toBe(true);
+    expect((message.payload as NotificationPayload).action).toBeDefined();
+    expect((message.payload as NotificationPayload).action?.label).toBe('Take Action');
+    expect((message.payload as NotificationPayload).persistent).toBe(true);
   });
 
   it('should create notification to multiple recipients', () => {
@@ -657,17 +677,17 @@ describe('Message - Heartbeat Messages', () => {
     );
 
     expect(message.type).toBe(MessageType.HEARTBEAT);
-    expect((message.payload as any).status).toBe('active');
-    expect((message.payload as any).load).toBe(75);
-    expect((message.payload as any).metrics?.cpu).toBe(80);
+    expect((message.payload as HeartbeatPayload).status).toBe('active');
+    expect((message.payload as HeartbeatPayload).load).toBe(75);
+    expect((message.payload as HeartbeatPayload).metrics?.cpu).toBe(80);
   });
 
   it('should create heartbeat message without metrics', () => {
     const message = Message.heartbeat('agent-1', 'idle');
 
     expect(message.type).toBe(MessageType.HEARTBEAT);
-    expect((message.payload as any).status).toBe('idle');
-    expect((message.payload as any).metrics).toBeUndefined();
+    expect((message.payload as HeartbeatPayload).status).toBe('idle');
+    expect((message.payload as HeartbeatPayload).metrics).toBeUndefined();
   });
 
   it('should create heartbeat ack message', () => {
@@ -675,7 +695,7 @@ describe('Message - Heartbeat Messages', () => {
 
     expect(message.type).toBe(MessageType.HEARTBEAT_ACK);
     expect(message.correlationId).toBe('corr-123');
-    expect((message.payload as any).timestamp).toBeDefined();
+    expect((message.payload as HeartbeatPayload & { timestamp: Date }).timestamp).toBeDefined();
   });
 });
 
@@ -684,7 +704,7 @@ describe('Message - Capability Messages', () => {
     const message = Message.capabilityQuery('agent-1', 'agent-2');
 
     expect(message.type).toBe(MessageType.CAPABILITY_QUERY);
-    expect((message.payload as any)).toEqual({});
+    expect(message.payload).toEqual({});
   });
 
   it('should create capability response message', () => {
@@ -702,7 +722,7 @@ describe('Message - Capability Messages', () => {
 
     expect(message.type).toBe(MessageType.CAPABILITY_RESPONSE);
     expect(message.correlationId).toBe('corr-123');
-    expect((message.payload as any).capabilities).toHaveLength(2);
+    expect((message.payload as CapabilityPayload).capabilities).toHaveLength(2);
   });
 });
 
@@ -724,9 +744,9 @@ describe('Message - Meeting Messages', () => {
     );
 
     expect(message.type).toBe(MessageType.MEETING_INVITE);
-    expect((message.payload as any).meetingId).toBe('meeting-123');
-    expect((message.payload as any).participants).toHaveLength(3);
-    expect((message.payload as any).agenda).toContain('Review progress');
+    expect((message.payload as MeetingPayload).meetingId).toBe('meeting-123');
+    expect((message.payload as MeetingPayload).participants).toHaveLength(3);
+    expect((message.payload as MeetingPayload).agenda).toContain('Review progress');
   });
 
   it('should create meeting invite to multiple recipients', () => {
@@ -767,18 +787,18 @@ describe('Message - Vote Messages', () => {
     );
 
     expect(message.type).toBe(MessageType.VOTE_START);
-    expect((message.payload as any).voteId).toBe('vote-123');
-    expect((message.payload as any).options).toHaveLength(2);
-    expect((message.payload as any).anonymous).toBe(true);
+    expect((message.payload as VotePayload).voteId).toBe('vote-123');
+    expect((message.payload as VotePayload & { options: Array<{ id: string; label: string }> }).options).toHaveLength(2);
+    expect((message.payload as VotePayload).anonymous).toBe(true);
   });
 
   it('should create vote cast message', () => {
     const message = Message.voteCast('agent-1', 'agent-2', 'vote-123', 'opt-1');
 
     expect(message.type).toBe(MessageType.VOTE_CAST);
-    expect((message.payload as any).voteId).toBe('vote-123');
-    expect((message.payload as any).optionId).toBe('opt-1');
-    expect((message.payload as any).votedAt).toBeDefined();
+    expect((message.payload as VotePayload).voteId).toBe('vote-123');
+    expect((message.payload as VotePayload & { optionId?: string }).optionId).toBe('opt-1');
+    expect((message.payload as VotePayload & { votedAt?: Date }).votedAt).toBeDefined();
   });
 });
 
@@ -864,7 +884,7 @@ describe('MessageParser - Parse JSON', () => {
 
     expect(message.messageId).toBe('msg-123');
     expect(message.from.agentId).toBe('agent-1');
-    expect(message.to.agentId).toBe('agent-2');
+    expect((Array.isArray(message.to) ? message.to[0] : message.to).agentId).toBe('agent-2');
   });
 
   it('should throw error for invalid JSON', () => {
@@ -998,7 +1018,7 @@ describe('MessageParser - Parse Object', () => {
     });
 
     expect(message.from.agentId).toBe('agent-1');
-    expect(message.to.agentId).toBe('agent-2');
+    expect((Array.isArray(message.to) ? message.to[0] : message.to).agentId).toBe('agent-2');
   });
 
   it('should parse message with array of string endpoints', () => {
@@ -1060,7 +1080,7 @@ describe('MessageParser - Parse Object', () => {
         version: '1.0.0',
         messageId: 'msg-123',
         from: { agentId: 'agent-1' },
-        to: null as any,
+        to: null as unknown as AgentEndpoint,
         type: MessageType.TASK_ASSIGN,
         payload: {},
       });
@@ -1073,7 +1093,7 @@ describe('MessageParser - Parse Object', () => {
         version: '1.0.0',
         messageId: 'msg-123',
         from: { agentId: 'agent-1' },
-        to: undefined as any,
+        to: undefined as unknown as AgentEndpoint,
         type: MessageType.TASK_ASSIGN,
         payload: {},
       });
@@ -1085,7 +1105,7 @@ describe('MessageParser - Parse Object', () => {
       MessageParser.parseObject({
         version: '1.0.0',
         messageId: 'msg-123',
-        from: 123 as any,
+        from: 123 as unknown as AgentEndpoint,
         to: { agentId: 'agent-2' },
         type: MessageType.TASK_ASSIGN,
         payload: {},
@@ -1099,7 +1119,7 @@ describe('MessageParser - Parse Object', () => {
         version: '1.0.0',
         messageId: 'msg-123',
         from: { agentId: 'agent-1' },
-        to: [{ agentId: 'agent-2' }, 123 as any],
+        to: [{ agentId: 'agent-2' }, 123 as unknown as AgentEndpoint],
         type: MessageType.TASK_ASSIGN,
         payload: {},
       });
@@ -1281,7 +1301,7 @@ describe('MessageParser - Validate', () => {
       messageId: 'msg-123',
       timestamp: new Date(),
       from: { agentId: 'agent-1' },
-      to: undefined,
+      to: undefined as unknown as AgentEndpoint,
       type: MessageType.TASK_ASSIGN,
       priority: MessagePriority.NORMAL,
       payload: { data: 'test' },
@@ -1336,7 +1356,7 @@ describe('MessageParser - Validate', () => {
       timestamp: new Date(),
       from: { agentId: 'agent-1' },
       to: { agentId: 'agent-2' },
-      type: undefined,
+      type: undefined as unknown as MessageType,
       priority: MessagePriority.NORMAL,
       payload: { data: 'test' },
     } as AgentMessageEnvelope;
@@ -1390,8 +1410,8 @@ describe('MessageParser - Validate', () => {
       messageId: '',
       timestamp: new Date(),
       from: { agentId: '' },
-      to: undefined,
-      type: undefined,
+      to: undefined as unknown as AgentEndpoint,
+      type: undefined as unknown as MessageType,
       priority: MessagePriority.NORMAL,
       ttl: -1,
       payload: { data: 'test' },

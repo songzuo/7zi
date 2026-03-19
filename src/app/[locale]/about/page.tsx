@@ -13,7 +13,7 @@ import MobileMenu from '@/components/MobileMenu';
 
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
-import { ThemeToggle } from '@/components/ClientProviders';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 import { StructuredData } from '@/components/SEO';
 

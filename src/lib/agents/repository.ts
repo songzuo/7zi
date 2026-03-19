@@ -4,6 +4,8 @@
  */
 
 import { getDatabaseAsync } from '../db';
+import { buildWhereQuery } from '../db/query-builder';
+import { generateId as generateIdUtil } from '../utils';
 import {
   Agent,
   AgentStatus,
@@ -50,13 +52,6 @@ function getEncryptionSecret(): string {
     return secret.padEnd(32, '0');
   }
   return secret;
-}
-
-/**
- * 生成唯一ID
- */
-function generateId(prefix: string = 'agent'): string {
-  return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 }
 
 /**
@@ -154,7 +149,7 @@ export async function createAgent(data: CreateAgentRequest & { apiKey?: string }
   const db = await getDatabaseAsync();
   await initializeAgentTables();
 
-  const id = generateId('agent');
+  const id = generateIdUtil('agent');
   const now = new Date().toISOString();
 
   // 加密 API Key
@@ -213,38 +208,37 @@ export async function getAgentById(id: string): Promise<Agent | null> {
 }
 
 /**
- * 获取所有智能体
+ * 获取所有智能体 - 优化索引查询
+ *
+ * 优化点:
+ * 1. 使用 buildWhereQuery 统一查询构建逻辑
+ * 2. 避免不必要的字符串拼接
+ * 3. 利用已有的复合索引
+ * 4. 保持向后兼容性
  */
 export async function getAllAgents(options?: {
   status?: AgentStatus;
   type?: AgentType;
   provider?: AgentProvider;
+  limit?: number;
+  offset?: number;
 }): Promise<Agent[]> {
   const db = await getDatabaseAsync();
   await initializeAgentTables();
 
-  let sql = 'SELECT * FROM agents';
-  const conditions: string[] = [];
-  const params: string[] = [];
+  // 构建过滤器 - 按照索引顺序添加条件（status, provider, type 有复合索引）
+  const filters: Record<string, unknown> = {};
+  if (options?.status) filters.status = options.status;
+  if (options?.provider) filters.provider = options.provider;
+  if (options?.type) filters.type = options.type;
 
-  if (options?.status) {
-    conditions.push('status = ?');
-    params.push(options.status);
-  }
-  if (options?.type) {
-    conditions.push('type = ?');
-    params.push(options.type);
-  }
-  if (options?.provider) {
-    conditions.push('provider = ?');
-    params.push(options.provider);
-  }
-
-  if (conditions.length > 0) {
-    sql += ' WHERE ' + conditions.join(' AND ');
-  }
-
-  sql += ' ORDER BY created_at DESC';
+  // 使用 query-builder 构建查询
+  const { sql, params } = buildWhereQuery('agents', filters, {
+    orderBy: 'created_at',
+    sortOrder: 'DESC',
+    limit: options?.limit,
+    offset: options?.offset,
+  });
 
   const stmt = db.prepare(sql);
   const rows = stmt.all(...params) as Record<string, unknown>[];
@@ -366,7 +360,7 @@ export async function createAgentToken(
   const db = await getDatabaseAsync();
   await initializeAgentTables();
 
-  const id = generateId('token');
+  const id = generateIdUtil('token');
   const now = new Date();
   const expiresAt = new Date(now.getTime() + expiresInDays * 24 * 60 * 60 * 1000);
   const refreshExpiresAt = new Date(now.getTime() + (expiresInDays * 2) * 24 * 60 * 60 * 1000);
@@ -491,7 +485,7 @@ export async function logDataAccess(
   const db = await getDatabaseAsync();
   await initializeAgentTables();
 
-  const id = generateId('access');
+  const id = generateIdUtil('access');
   const now = new Date();
 
   const stmt = db.prepare(`

@@ -5,32 +5,25 @@
 
 // 类型导出
 export * from './types';
-export type { Permission } from '../permissions/types';
 
-// 仓库导出
-export { ApprovalRepository } from './repository';
+// 权限类型导入
+import { Permission } from '../permissions/types';
 
 // 工作流服务导出
 export { ApprovalWorkflowService } from './workflow';
 
 // 便捷函数
 import { ApprovalWorkflowService } from './workflow';
-import { ApprovalRepository } from './repository';
 import {
   ApprovalRequest,
-  ApprovalStatus,
   ApprovalType,
-  CreateApprovalRequest,
-  ApprovalListQuery,
 } from './types';
-
-import type { Permission } from '../permissions/types';
 
 /**
  * 检查操作是否需要审批
  */
-export function requiresApproval(type: ApprovalType, permission?: Permission): boolean {
-  return ApprovalWorkflowService.requiresApproval(type, permission);
+export function requiresApproval(type: ApprovalType, _permission?: Permission): boolean {
+  return ApprovalWorkflowService.requiresApproval(type);
 }
 
 /**

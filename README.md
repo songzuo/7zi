@@ -3,11 +3,12 @@
 > **11 位 AI 成员 · 24/7 自主工作 · 实时协作**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.0.2-blue.svg)](https://github.com/songzuo/7zi)
+[![Version](https://img.shields.io/badge/version-1.0.3-blue.svg)](https://github.com/songzuo/7zi)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/songzuo/7zi)
-[![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.0-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19-blue?logo=react)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
 
 ---
 
@@ -37,8 +38,17 @@
 | 跨平台消息同步 | 🟡 进行中 | Q2 2026 |
 | AI 记忆优化 | 🟢 测试中 | 2026-03 |
 
-### 最新进展 (2026-03-06)
+### 最新进展 (2026-03-19)
 
+- ✅ **2026-03-19**: 完善项目文档系统 - 新增 API.md 完整 API 参考文档
+- ✅ **2026-03-19**: 更新文档配置和项目报告
+- ✅ **2026-03-19**: 增强核心库 - MCP 服务器、代理系统、实时通信和优化
+- ✅ **2026-03-19**: 新增 lib 模块 (db, permissions, tools) 及完整测试套件
+- ✅ **2026-03-19**: 改进页面布局、加载状态和数据库集成
+- ✅ **2026-03-19**: 优化 hooks 和 TaskBoardSearch 性能
+- ✅ **2026-03-19**: 更新 i18n 和 stores
+- ✅ **2026-03-19**: 改进组合和页面功能
+- ✅ **2026-03-19**: 新增 emailjs, seo, search-filter 测试套件
 - ✅ **2026-03-06**: 新增 NotificationToast 通知组件 + useNotifications Hook
 - ✅ **2026-03-06**: 测试系统完善 - 400+ 测试用例全部通过
 - ✅ **2026-03-06**: 代码质量提升 - ESLint 警告全部清理
@@ -171,12 +181,12 @@
 
 | 技术 | 版本 | 用途 |
 |------|------|------|
-| **Next.js** | 14.1.0 | React 全栈框架 (App Router) |
-| **TypeScript** | 5.3.3 | 类型安全 |
-| **Tailwind CSS** | 3.4.1 | 原子化 CSS |
-| **React** | 18.2.0 | UI 库 |
-| **Framer Motion** | 最新 | 动画效果 |
+| **Next.js** | 16.1.7 | React 全栈框架 (App Router) |
+| **React** | 19.2.4 | UI 库 |
+| **TypeScript** | 5.x | 类型安全 |
+| **Tailwind CSS** | 4.x | 原子化 CSS |
 | **Socket.IO Client** | 4.8.3 | WebSocket 通信 |
+| **Framer Motion** | 最新 | 动画效果 |
 
 ### 后端技术
 
@@ -185,8 +195,8 @@
 | **Node.js** | 22.x LTS | 运行时环境 |
 | **OpenClaw** | 最新 | AI 代理框架 |
 | **Socket.IO** | 4.8.3 | 实时通信 |
-| **bcryptjs** | 3.0.3 | 密码加密 |
-| **jose** | 6.2.0 | JWT 认证 |
+| **better-sqlite3** | 11.10.0 | 数据库 |
+| **jose** | 6.2.1 | JWT 认证 |
 
 ### AI 模型提供商
 
@@ -201,9 +211,10 @@
 
 | 工具 | 版本 | 用途 |
 |------|------|------|
-| **Vitest** | 4.0.18 | 单元测试框架 |
+| **Vitest** | 4.1.0 | 单元测试框架 |
 | **Testing Library** | 16.x | 组件测试 |
 | **JSDOM** | 28.x | 浏览器环境模拟 |
+| **Playwright** | 1.58.2 | E2E 测试 |
 
 ## 🧪 测试覆盖率
 
@@ -628,7 +639,7 @@ docker-compose ps
 
 ```bash
 # 安装依赖
-cd app && pnpm install
+pnpm install
 
 # 运行开发服务器
 pnpm dev
@@ -643,7 +654,7 @@ pnpm lint
 pnpm type-check
 ```
 
-详细贡献指南请参考 [CONTRIBUTING.md](./app/CONTRIBUTING.md)
+详细贡献指南请参考 [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ---
 

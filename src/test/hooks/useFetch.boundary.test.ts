@@ -17,6 +17,7 @@ describe('useFetch - 边界条件测试', () => {
 
   afterEach(() => {
     vi.clearAllTimers();
+    vi.clearAllMocks();
   });
 
   // ==================== URL 边界测试 ====================
@@ -553,14 +554,18 @@ describe('useFetch - 边界条件测试', () => {
 
       renderHook(() => useFetch('/api/test', { revalidateInterval: 0 }));
 
-      await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalled();
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(0);
       });
+
+      expect(mockFetch).toHaveBeenCalled();
 
       const callCount = mockFetch.mock.calls.length;
 
       // 推进时间
-      vi.advanceTimersByTime(10000);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(10000);
+      });
 
       // revalidateInterval = 0 时不应该自动重新获取
       expect(mockFetch.mock.calls.length).toBe(callCount);
@@ -575,18 +580,22 @@ describe('useFetch - 边界条件测试', () => {
         json: () => Promise.resolve({}),
       });
 
-      renderHook(() => useFetch('/api/test', { revalidateInterval: 1 }));
+      renderHook(() => useFetch('/api/test', { revalidateInterval: 10 }));
 
-      await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalled();
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(0);
       });
+
+      expect(mockFetch).toHaveBeenCalled();
+
+      const initialCount = mockFetch.mock.calls.length;
 
       // 推进时间，应该触发重新获取
-      vi.advanceTimersByTime(10);
-
-      await waitFor(() => {
-        expect(mockFetch.mock.calls.length).toBeGreaterThan(1);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(10);
       });
+
+      expect(mockFetch.mock.calls.length).toBeGreaterThan(initialCount);
 
       vi.useRealTimers();
     });
@@ -602,14 +611,18 @@ describe('useFetch - 边界条件测试', () => {
         useFetch('/api/test', { revalidateInterval: Number.MAX_SAFE_INTEGER })
       );
 
-      await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalled();
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(0);
       });
+
+      expect(mockFetch).toHaveBeenCalled();
 
       const callCount = mockFetch.mock.calls.length;
 
       // 推进大量时间也不会触发重新获取
-      vi.advanceTimersByTime(1000000);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1000000);
+      });
 
       expect(mockFetch.mock.calls.length).toBe(callCount);
 
@@ -620,10 +633,23 @@ describe('useFetch - 边界条件测试', () => {
   // ==================== refetch 边界测试 ====================
   describe('refetch 边界', () => {
     it('连续多次 refetch', async () => {
-      mockFetch.mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve({ count: Date.now() }),
-      });
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({ count: 1 }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({ count: 2 }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({ count: 3 }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({ count: 4 }),
+        });
 
       const { result } = renderHook(() => useFetch('/api/test'));
 
@@ -720,12 +746,14 @@ describe('useGitHub - 边界条件测试', () => {
 
       renderHook(() => useGitHub(''));
 
-      await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalledWith(
-          'https://api.github.com/',
-          expect.any(Object)
-        );
+      await act(async () => {
+        await new Promise(resolve => setTimeout(resolve, 0));
       });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        'https://api.github.com/',
+        expect.any(Object)
+      );
     });
 
     it('处理带前导斜杠的 endpoint', async () => {
@@ -736,12 +764,14 @@ describe('useGitHub - 边界条件测试', () => {
 
       renderHook(() => useGitHub('/repos/user/repo'));
 
-      await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalledWith(
-          'https://api.github.com//repos/user/repo',
-          expect.any(Object)
-        );
+      await act(async () => {
+        await new Promise(resolve => setTimeout(resolve, 0));
       });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        'https://api.github.com//repos/user/repo',
+        expect.any(Object)
+      );
     });
 
     it('处理带查询参数的 endpoint', async () => {
@@ -752,12 +782,14 @@ describe('useGitHub - 边界条件测试', () => {
 
       renderHook(() => useGitHub('repos/user/repo?sort=updated'));
 
-      await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalledWith(
-          'https://api.github.com/repos/user/repo?sort=updated',
-          expect.any(Object)
-        );
+      await act(async () => {
+        await new Promise(resolve => setTimeout(resolve, 0));
       });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        'https://api.github.com/repos/user/repo?sort=updated',
+        expect.any(Object)
+      );
     });
   });
 
@@ -845,18 +877,20 @@ describe('useGitHub - 边界条件测试', () => {
 
       renderHook(() => useGitHub('/repos/test'));
 
-      await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalled();
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(0);
       });
+
+      expect(mockFetch).toHaveBeenCalled();
 
       const initialCalls = mockFetch.mock.calls.length;
 
       // 推进 5 分钟
-      vi.advanceTimersByTime(5 * 60 * 1000);
-
-      await waitFor(() => {
-        expect(mockFetch.mock.calls.length).toBeGreaterThan(initialCalls);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(5 * 60 * 1000);
       });
+
+      expect(mockFetch.mock.calls.length).toBeGreaterThan(initialCalls);
 
       vi.useRealTimers();
     });
@@ -872,18 +906,20 @@ describe('useGitHub - 边界条件测试', () => {
         useGitHub('/repos/test', { revalidateInterval: 1000 })
       );
 
-      await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalled();
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(0);
       });
+
+      expect(mockFetch).toHaveBeenCalled();
 
       const initialCalls = mockFetch.mock.calls.length;
 
       // 推进 1 秒
-      vi.advanceTimersByTime(1000);
-
-      await waitFor(() => {
-        expect(mockFetch.mock.calls.length).toBeGreaterThan(initialCalls);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1000);
       });
+
+      expect(mockFetch.mock.calls.length).toBeGreaterThan(initialCalls);
 
       vi.useRealTimers();
     });

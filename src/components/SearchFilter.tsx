@@ -9,7 +9,6 @@ import React, { useState, useCallback, useMemo } from 'react';
 import Image from 'next/image';
 import type {
   FilterConfig,
-  FilterOption,
   SortConfig,
   ActiveFilters,
   SearchFilterResult,
@@ -35,8 +34,8 @@ export interface SearchFilterProps<T extends object> {
   showFilterCount?: boolean;
   /** 搜索占位符 */
   searchPlaceholder?: string;
-  /** 过滤器占位符 */
-  filterPlaceholder?: string;
+  /** 过滤器占位符 (保留用于未来扩展) */
+  _filterPlaceholder?: string;
   /** 是否折叠过滤器 */
   collapsible?: boolean;
   /** 默认展开过滤器 */
@@ -121,11 +120,6 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({ filter, selectedValues,
     onSelectionChange([]);
     setIsOpen(false);
   };
-
-  const selectedLabels = filter.options
-    .filter(opt => selectedValues.includes(opt.value))
-    .map(opt => opt.label)
-    .join(', ');
 
   return (
     <div className="relative">
@@ -357,7 +351,7 @@ export function SearchFilter<T extends object>({
   showSort = true,
   showFilterCount = true,
   searchPlaceholder = '搜索...',
-  filterPlaceholder = '选择过滤器...',
+  _filterPlaceholder = '选择过滤器...',
   collapsible = false,
   defaultExpanded = true,
   className = '',
