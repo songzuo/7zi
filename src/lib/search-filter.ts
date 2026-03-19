@@ -13,60 +13,17 @@ import type {
   ActiveFilters,
   SearchFilterResult,
 } from '@/types/search-filter';
+import { LRUCache } from '@/lib/cache/lru-cache';
 
 // ============================================================================
 // 缓存工具
 // ============================================================================
 
 /**
- * 缓存的最大条目数
- */
-const MAX_CACHE_SIZE = 100;
-
-/**
- * 通用缓存管理器（使用 LRU 策略）
- */
-class LRUCache<T> {
-  private cache: Map<string, { value: T; timestamp: number }> = new Map();
-
-  get(key: string): T | null {
-    const entry = this.cache.get(key);
-    if (!entry) return null;
-
-    // 更新访问时间（移到最后）
-    this.cache.delete(key);
-    this.cache.set(key, entry);
-    return entry.value as T;
-  }
-
-  set(key: string, value: T): void {
-    // 如果已存在，先删除
-    if (this.cache.has(key)) {
-      this.cache.delete(key);
-    } else if (this.cache.size >= MAX_CACHE_SIZE) {
-      // 删除最老的条目
-      const oldestKey = this.cache.keys().next().value;
-      if (oldestKey !== undefined) {
-        this.cache.delete(oldestKey);
-      }
-    }
-    this.cache.set(key, { value, timestamp: Date.now() });
-  }
-
-  clear(): void {
-    this.cache.clear();
-  }
-
-  get size(): number {
-    return this.cache.size;
-  }
-}
-
-/**
  * 统一缓存实例（使用泛型存储不同类型）
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const unifiedCache = new LRUCache<any>();
+const unifiedCache = new LRUCache<any>(100);
 
 /**
  * 生成搜索缓存键
