@@ -154,16 +154,8 @@ const nextConfig: NextConfig = {
         },
       ],
     },
-    {
-      // 静态资源缓存
-      source: '/_next/static/:path*',
-      headers: [
-        {
-          key: 'Cache-Control',
-          value: 'public, max-age=31536000, immutable',
-        },
-      ],
-    },
+    // 注意：已移除 /_next/static/:path* 的自定义 Cache-Control
+    // Next.js 会自动处理静态资源的缓存，自定义配置可能导致问题
   ],
   
   // 忽略 TypeScript 错误
