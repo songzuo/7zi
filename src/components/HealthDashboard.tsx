@@ -54,7 +54,7 @@ export function HealthDashboard({
 
   // Single combined useEffect for both data fetching
   useEffect(() => {
-    const fetchData = () => {
+    const fetchData = useCallback(() => {
       // Fetch API latency
       const metrics = performanceCollector.getMetrics();
       const apiMetrics = metrics.get('TTFB');
@@ -79,7 +79,7 @@ export function HealthDashboard({
           setMemoryUsage(usedMB);
         }
       }
-    };
+    }, []);
 
     // Initial fetch
     fetchData();
@@ -269,7 +269,7 @@ function OverallStatus({ metrics, isDark }: OverallStatusProps) {
 /**
  * Format time since a given timestamp
  */
-function formatTimeSince(timestamp: string): string {
+const formatTimeSince = useCallback((timestamp: string): string => {
   const now = new Date();
   const then = new Date(timestamp);
   const diffMs = now.getTime() - then.getTime();
@@ -287,7 +287,7 @@ function formatTimeSince(timestamp: string): string {
   } else {
     return `${diffDays}d ago`;
   }
-}
+}, []);
 
 // ============================================================================
 // Export Types

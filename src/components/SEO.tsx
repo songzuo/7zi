@@ -4,6 +4,7 @@
  */
 
 import Script from 'next/script';
+import { useMemo } from 'react';
 import { generateOrganizationSchema, generateWebSiteSchema, generateBreadcrumbSchema, generateFAQSchema } from '@/lib/seo-metadata';
 
 interface SEOProps {
@@ -15,58 +16,59 @@ interface SEOProps {
 }
 
 // JSON-LD 结构化数据组件
-export function StructuredData({ 
+export function StructuredData({
   locale = 'zh',
   schemas = ['website', 'organization'],
   customSchemas = [],
   breadcrumbs,
   faqs,
 }: SEOProps) {
-  const schemaList: Array<Record<string, unknown>> = [];
+  // Memoize schemaList to prevent recreation on every render
+  const schemaList = useMemo(() => {
+    const list: Array<Record<string, unknown>> = [];
 
-  // 添加默认 schemas
-  if (schemas.includes('website')) {
-    schemaList.push(generateWebSiteSchema(locale));
-  }
-  
-  if (schemas.includes('organization')) {
-    schemaList.push(generateOrganizationSchema(locale));
-  }
+    // 添加默认 schemas
+    if (schemas.includes('website')) {
+      list.push(generateWebSiteSchema(locale));
+    }
 
-  if (schemas.includes('breadcrumb') && breadcrumbs && breadcrumbs.length > 0) {
-    schemaList.push(generateBreadcrumbSchema(breadcrumbs, locale));
-  }
+    if (schemas.includes('organization')) {
+      list.push(generateOrganizationSchema(locale));
+    }
 
-  if (schemas.includes('faq') && faqs && faqs.length > 0) {
-    schemaList.push(generateFAQSchema(faqs, locale));
-  }
+    if (schemas.includes('breadcrumb') && breadcrumbs && breadcrumbs.length > 0) {
+      list.push(generateBreadcrumbSchema(breadcrumbs, locale));
+    }
 
-  // 添加自定义 schemas
-  schemaList.push(...customSchemas);
+    if (schemas.includes('faq') && faqs && faqs.length > 0) {
+      list.push(generateFAQSchema(faqs, locale));
+    }
 
-  // 如果只有一个 schema，直接输出
-  if (schemaList.length === 1) {
-    return (
-      <Script
-        id="structured-data"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(schemaList[0]),
-        }}
-      />
-    );
-  }
+    // 添加自定义 schemas
+    list.push(...customSchemas);
 
-  // 多个 schemas 使用 @graph
+    return list;
+  }, [locale, schemas, breadcrumbs, faqs, customSchemas]);
+
+  // Memoize schema JSON string to prevent recreation
+  const schemaJson = useMemo(() => {
+    if (schemaList.length === 1) {
+      return JSON.stringify(schemaList[0]);
+    }
+
+    // 多个 schemas 使用 @graph
+    return JSON.stringify({
+      '@context': 'https://schema.org',
+      '@graph': schemaList,
+    });
+  }, [schemaList]);
+
   return (
     <Script
       id="structured-data"
       type="application/ld+json"
       dangerouslySetInnerHTML={{
-        __html: JSON.stringify({
-          '@context': 'https://schema.org',
-          '@graph': schemaList,
-        }),
+        __html: schemaJson,
       }}
     />
   );
@@ -100,8 +102,9 @@ export function ArticleSchema({
   wordCount,
 }: ArticleSchemaProps) {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.studio';
-  
-  const schema = {
+
+  // Memoize schema object to prevent recreation on every render
+  const schema = useMemo(() => ({
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
     headline: title,
@@ -130,14 +133,17 @@ export function ArticleSchema({
     articleSection: category,
     keywords: tags?.join(', '),
     wordCount,
-  };
+  }), [title, description, url, datePublished, dateModified, author, image, tags, category, wordCount, baseUrl]);
+
+  // Memoize schema JSON string
+  const schemaJson = useMemo(() => JSON.stringify(schema), [schema]);
 
   return (
     <Script
       id="article-schema"
       type="application/ld+json"
       dangerouslySetInnerHTML={{
-        __html: JSON.stringify(schema),
+        __html: schemaJson,
       }}
     />
   );
@@ -164,8 +170,9 @@ export function ServiceSchema({
   locale = 'zh',
 }: ServiceSchemaProps) {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.studio';
-  
-  const schema = {
+
+  // Memoize schema object to prevent recreation on every render
+  const schema = useMemo(() => ({
     '@context': 'https://schema.org',
     '@type': 'Service',
     name: locale === 'zh' ? name : (nameEn || name),
@@ -180,14 +187,17 @@ export function ServiceSchema({
       '@type': 'Country',
       name: locale === 'zh' ? 'China' : 'Worldwide',
     },
-  };
+  }), [name, nameEn, description, descriptionEn, url, provider, locale, baseUrl]);
+
+  // Memoize schema JSON string
+  const schemaJson = useMemo(() => JSON.stringify(schema), [schema]);
 
   return (
     <Script
       id="service-schema"
       type="application/ld+json"
       dangerouslySetInnerHTML={{
-        __html: JSON.stringify(schema),
+        __html: schemaJson,
       }}
     />
   );
@@ -214,34 +224,42 @@ export function ProductSchema({
   availability = 'InStock',
 }: ProductSchemaProps) {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.studio';
-  
-  const schema: Record<string, unknown> = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    name,
-    description,
-    brand: {
-      '@type': 'Brand',
-      name: brand,
-    },
-    image: image || `${baseUrl}/og-image.png`,
-  };
 
-  if (price) {
-    schema.offers = {
-      '@type': 'Offer',
-      price,
-      priceCurrency,
-      availability: `https://schema.org/${availability}`,
+  // Memoize schema object to prevent recreation on every render
+  const schema = useMemo(() => {
+    const baseSchema: Record<string, unknown> = {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name,
+      description,
+      brand: {
+        '@type': 'Brand',
+        name: brand,
+      },
+      image: image || `${baseUrl}/og-image.png`,
     };
-  }
+
+    if (price) {
+      baseSchema.offers = {
+        '@type': 'Offer',
+        price,
+        priceCurrency,
+        availability: `https://schema.org/${availability}`,
+      };
+    }
+
+    return baseSchema;
+  }, [name, description, image, brand, price, priceCurrency, availability, baseUrl]);
+
+  // Memoize schema JSON string
+  const schemaJson = useMemo(() => JSON.stringify(schema), [schema]);
 
   return (
     <Script
       id="product-schema"
       type="application/ld+json"
       dangerouslySetInnerHTML={{
-        __html: JSON.stringify(schema),
+        __html: schemaJson,
       }}
     />
   );
@@ -261,6 +279,9 @@ interface BreadcrumbsProps {
 
 export function Breadcrumbs({ items, locale = 'zh' }: BreadcrumbsProps) {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.studio';
+
+  // Memoize baseUrl to prevent string recreation on every render
+  const baseUrlMemo = useMemo(() => baseUrl, [baseUrl]);
   
   return (
     <nav aria-label="Breadcrumb" className="text-sm">
@@ -295,12 +316,17 @@ interface CanonicalUrlProps {
 
 export function CanonicalUrl({ path, locale = 'zh' }: CanonicalUrlProps) {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.studio';
-  const cleanPath = path.startsWith('/') ? path : `/${path}`;
-  
+
+  // Memoize canonical URL to prevent string recreation on every render
+  const canonicalUrl = useMemo(() => {
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    return `${baseUrl}/${locale}${cleanPath}`;
+  }, [baseUrl, locale, path]);
+
   return (
     <link
       rel="canonical"
-      href={`${baseUrl}/${locale}${cleanPath}`}
+      href={canonicalUrl}
     />
   );
 }
@@ -312,15 +338,20 @@ interface HreflangLinksProps {
 
 export function HreflangLinks({ path }: HreflangLinksProps) {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.studio';
-  const cleanPath = path.startsWith('/') ? path : `/${path}`;
-  
-  return (
-    <>
-      <link rel="alternate" hrefLang="zh-CN" href={`${baseUrl}/zh${cleanPath}`} />
-      <link rel="alternate" hrefLang="en-US" href={`${baseUrl}/en${cleanPath}`} />
-      <link rel="alternate" hrefLang="x-default" href={`${baseUrl}/zh${cleanPath}`} />
-    </>
-  );
+
+  // Memoize cleanPath to prevent string recreation
+  const cleanPath = useMemo(() => {
+    return path.startsWith('/') ? path : `/${path}`;
+  }, [path]);
+
+  // Memoize hreflang URLs to prevent array recreation
+  const hreflangLinks = useMemo(() => [
+    <link key="zh-CN" rel="alternate" hrefLang="zh-CN" href={`${baseUrl}/zh${cleanPath}`} />,
+    <link key="en-US" rel="alternate" hrefLang="en-US" href={`${baseUrl}/en${cleanPath}`} />,
+    <link key="x-default" rel="alternate" hrefLang="x-default" href={`${baseUrl}/zh${cleanPath}`} />,
+  ], [baseUrl, cleanPath]);
+
+  return <>{hreflangLinks}</>;
 }
 
 export default StructuredData;

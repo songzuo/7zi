@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent, useEffect, useMemo } from "react";
+import { useState, FormEvent, useEffect, useMemo, useCallback } from "react";
 import { useTranslations } from "next-intl";
 
 interface FormData {
@@ -54,7 +54,7 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
     fetchCsrfToken();
   }, []);
 
-  const validateForm = (): boolean => {
+  const validateForm = useCallback((): boolean => {
     const newErrors: FormErrors = {};
 
     if (!formData.name.trim()) {
@@ -75,9 +75,9 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
+  }, [formData.name, formData.email, formData.message, locale]);
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = useCallback(async (e: FormEvent) => {
     e.preventDefault();
     
     if (!validateForm()) {
@@ -112,22 +112,16 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
 
       // 成功处理
       setSubmitStatus("success");
-      setFormData({
-        name: "",
-        email: "",
-        company: "",
-        subject: "",
-        message: "",
-      });
+      setFormData(emptyFormData);
     } catch (error) {
       console.error("Form submission error:", error);
       setSubmitStatus("error");
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [validateForm, formData, locale, csrfToken, emptyFormData]);
 
-  const handleChange = (
+  const handleChange = useCallback((
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
@@ -137,7 +131,7 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
     if (errors[name as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
-  };
+  }, [errors]);
 
   // Memoize subjectOptions to prevent unnecessary recalculations
   const subjectOptions = useMemo(() => (
@@ -159,6 +153,15 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
           { value: 'other', label: 'Other' },
         ]
   ), [locale]);
+
+  // Memoize empty form data for reset
+  const emptyFormData = useMemo(() => ({
+    name: "",
+    email: "",
+    company: "",
+    subject: "",
+    message: "",
+  }), []);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
