@@ -2,6 +2,7 @@
  * A2A JSON-RPC Handler - Implements JSON-RPC 2.0 protocol for A2A
  */
 
+import { logger } from '@/lib/logger';
 import {
   JsonRpcRequest,
   JsonRpcResponse,
@@ -97,7 +98,7 @@ export class A2ARequestHandler {
       return this.createSuccess(request.id, result);
 
     } catch (error) {
-      console.error('A2A Request Handler Error:', error);
+      logger.error('A2A Request Handler Error:', error);
       return this.createError(
         request.id,
         A2AErrorCodes.INTERNAL_ERROR,

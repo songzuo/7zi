@@ -8,6 +8,7 @@
 'use client';
 
 import { useEffect, useRef, useCallback, useState } from 'react';
+import { logger } from '@/lib/logger';
 import type { WebSocketMessage } from './types';
 
 // ============================================================================
@@ -140,12 +141,12 @@ export function useWebSocket(
                 handler(data);
               } catch (err) {
                 errorCount++;
-                console.error(`[useWebSocket] Error in listener for ${data.type}:`, err);
+                logger.error(`[useWebSocket] Error in listener for ${data.type}:`, err);
               }
             });
             // Warn if many listeners failed
             if (errorCount > 0 && errorCount === listeners.size) {
-              console.warn(`[useWebSocket] All ${listeners.size} listeners for ${data.type} failed`);
+              logger.warn(`[useWebSocket] All ${listeners.size} listeners for ${data.type} failed`);
             }
           }
 
@@ -156,7 +157,7 @@ export function useWebSocket(
               try {
                 handler(data);
               } catch (err) {
-                console.error('[useWebSocket] Error in wildcard listener:', err);
+                logger.error('[useWebSocket] Error in wildcard listener:', err);
               }
             });
           }
@@ -168,14 +169,14 @@ export function useWebSocket(
               try {
                 handler(data);
               } catch (err) {
-                console.error(`[useWebSocket] Error in once handler for ${data.type}:`, err);
+                logger.error(`[useWebSocket] Error in once handler for ${data.type}:`, err);
               }
             });
             onceListenersRef.current.delete(data.type);
           }
 
         } catch (err) {
-          console.error('[useWebSocket] Failed to parse message:', err);
+          logger.error('[useWebSocket] Failed to parse message:', err);
           // 将原始数据作为字符串处理
           options?.onMessage?.({
             type: 'raw',
@@ -221,7 +222,7 @@ export function useWebSocket(
     reconnectAttemptsRef.current++;
 
     if (reconnectAttemptsRef.current > maxReconnectAttempts) {
-      console.error('[useWebSocket] Max reconnection attempts reached');
+      logger.error('[useWebSocket] Max reconnection attempts reached');
       return;
     }
 
@@ -258,10 +259,10 @@ export function useWebSocket(
       try {
         wsRef.current.send(JSON.stringify(data));
       } catch (err) {
-        console.error('[useWebSocket] Failed to send message:', err);
+        logger.error('[useWebSocket] Failed to send message:', err);
       }
     } else {
-      console.warn('[useWebSocket] WebSocket is not connected. Message not sent:', data);
+      logger.warn('[useWebSocket] WebSocket is not connected. Message not sent:', data);
     }
   }, []);
 

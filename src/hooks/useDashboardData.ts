@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
+import { logger } from '@/lib/logger';
 
 export interface GitHubIssue {
   number: number;
@@ -79,7 +80,7 @@ export function useDashboardData(
       setIssues(data);
       return data;
     } catch (err) {
-      console.error('Failed to fetch issues:', err);
+      logger.error('Failed to fetch issues:', err);
       throw err;
     }
   }, [owner, repo]);
@@ -101,7 +102,7 @@ export function useDashboardData(
       setCommits(data);
       return data;
     } catch (err) {
-      console.error('Failed to fetch commits:', err);
+      logger.error('Failed to fetch commits:', err);
       throw err;
     }
   }, [owner, repo]);

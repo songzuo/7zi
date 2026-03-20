@@ -9,6 +9,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
+import { logger } from '@/lib/logger';
 
 // ============================================================================
 // Types
@@ -137,30 +138,30 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
 
     // Connection handlers
     socket.on('connect', () => {
-      console.log('[WebRTC] Socket connected');
+      logger.info('[WebRTC] Socket connected');
       setIsConnected(true);
     });
 
     socket.on('disconnect', (reason) => {
-      console.log('[WebRTC] Socket disconnected:', reason);
+      logger.info('[WebRTC] Socket disconnected:', reason);
       setIsConnected(false);
     });
 
     socket.on('connect_error', (error) => {
-      console.error('[WebRTC] Socket connection error:', error);
+      logger.error('[WebRTC] Socket connection error:', error);
       onError?.(new Error(`Socket connection error: ${error.message}`));
     });
 
     // Meeting room handlers
     socket.on('room-joined', (data: { roomId: string; participants: MeetingParticipant[] }) => {
-      console.log('[WebRTC] Joined room:', data.roomId);
+      logger.info('[WebRTC] Joined room:', data.roomId);
       const newParticipants = new Map<string, MeetingParticipant>();
       data.participants.forEach((p) => newParticipants.set(p.id, p));
       setParticipants(newParticipants);
     });
 
     socket.on('participant-joined', (participant: MeetingParticipant) => {
-      console.log('[WebRTC] Participant joined:', participant.name);
+      logger.info('[WebRTC] Participant joined:', participant.name);
       setParticipants((prev) => {
         const next = new Map(prev);
         next.set(participant.id, participant);
@@ -170,7 +171,7 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
     });
 
     socket.on('participant-left', (data: { participantId: string }) => {
-      console.log('[WebRTC] Participant left:', data.participantId);
+      logger.info('[WebRTC] Participant left:', data.participantId);
       setParticipants((prev) => {
         const next = new Map(prev);
         next.delete(data.participantId);
@@ -184,22 +185,22 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
 
     // Signaling handlers
     socket.on('offer', async (data: { sdp: RTCSessionDescriptionInit; senderId: string }) => {
-      console.log('[WebRTC] Received offer from:', data.senderId);
+      logger.info('[WebRTC] Received offer from:', data.senderId);
       await handleOffer(data);
     });
 
     socket.on('answer', async (data: { sdp: RTCSessionDescriptionInit; senderId: string }) => {
-      console.log('[WebRTC] Received answer from:', data.senderId);
+      logger.info('[WebRTC] Received answer from:', data.senderId);
       await handleAnswer(data);
     });
 
     socket.on('ice-candidate', async (data: { candidate: RTCIceCandidateInit; senderId: string }) => {
-      console.log('[WebRTC] Received ICE candidate from:', data.senderId);
+      logger.info('[WebRTC] Received ICE candidate from:', data.senderId);
       await handleIceCandidate(data);
     });
 
     socket.on('participant-muted', (data: { participantId: string; muted: boolean }) => {
-      console.log('[WebRTC] Participant mute state changed:', data);
+      logger.info('[WebRTC] Participant mute state changed:', data);
       setParticipants((prev) => {
         const next = new Map(prev);
         const participant = next.get(data.participantId);
@@ -221,7 +222,7 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
       localStreamRef.current = stream;
       return stream;
     } catch (error) {
-      console.error('[WebRTC] Error getting local stream:', error);
+      logger.error('[WebRTC] Error getting local stream:', error);
       onError?.(error instanceof Error ? error : new Error('Failed to get audio stream'));
       throw error;
     }
@@ -234,7 +235,7 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
     peerId: string,
     isInitiator: boolean = false
   ): Promise<RTCPeerConnection> => {
-    console.log('[WebRTC] Creating peer connection for:', peerId, 'Initiator:', isInitiator);
+    logger.info('[WebRTC] Creating peer connection for:', peerId, 'Initiator:', isInitiator);
 
     const pc = new RTCPeerConnection(RTC_CONFIG);
     peerConnectionsRef.current.set(peerId, pc);
@@ -258,7 +259,7 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
     };
 
     pc.oniceconnectionstatechange = () => {
-      console.log('[WebRTC] ICE connection state for', peerId, ':', pc.iceConnectionState);
+      logger.info('[WebRTC] ICE connection state for', peerId, ':', pc.iceConnectionState);
       if (pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'failed') {
         cleanupPeerConnection(peerId);
       }
@@ -266,7 +267,7 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
 
     // Handle remote stream
     pc.ontrack = (event) => {
-      console.log('[WebRTC] Received remote stream from:', peerId);
+      logger.info('[WebRTC] Received remote stream from:', peerId);
       const remoteStream = event.streams[0];
       setRemoteStreams((prev) => {
         const next = new Map(prev);
@@ -303,7 +304,7 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
           });
         }
       } catch (error) {
-        console.error('[WebRTC] Error creating offer:', error);
+        logger.error('[WebRTC] Error creating offer:', error);
         onError?.(error instanceof Error ? error : new Error('Failed to create offer'));
       }
     }
@@ -349,7 +350,7 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
         });
       }
     } catch (error) {
-      console.error('[WebRTC] Error handling offer:', error);
+      logger.error('[WebRTC] Error handling offer:', error);
       onError?.(error instanceof Error ? error : new Error('Failed to handle offer'));
     }
   }, [userId, createPeerConnection, onError]);
@@ -362,15 +363,15 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
     const pc = peerConnectionsRef.current.get(senderId);
 
     if (!pc) {
-      console.warn('[WebRTC] Received answer for unknown peer:', senderId);
+      logger.warn('[WebRTC] Received answer for unknown peer:', senderId);
       return;
     }
 
     try {
       await pc.setRemoteDescription(new RTCSessionDescription(sdp));
-      console.log('[WebRTC] Set remote description for:', senderId);
+      logger.info('[WebRTC] Set remote description for:', senderId);
     } catch (error) {
-      console.error('[WebRTC] Error handling answer:', error);
+      logger.error('[WebRTC] Error handling answer:', error);
       onError?.(error instanceof Error ? error : new Error('Failed to handle answer'));
     }
   }, [onError]);
@@ -383,15 +384,15 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
     const pc = peerConnectionsRef.current.get(senderId);
 
     if (!pc) {
-      console.warn('[WebRTC] Received ICE candidate for unknown peer:', senderId);
+      logger.warn('[WebRTC] Received ICE candidate for unknown peer:', senderId);
       return;
     }
 
     try {
       await pc.addIceCandidate(new RTCIceCandidate(candidate));
-      console.log('[WebRTC] Added ICE candidate from:', senderId);
+      logger.info('[WebRTC] Added ICE candidate from:', senderId);
     } catch (error) {
-      console.error('[WebRTC] Error adding ICE candidate:', error);
+      logger.error('[WebRTC] Error adding ICE candidate:', error);
       onError?.(error instanceof Error ? error : new Error('Failed to add ICE candidate'));
     }
   }, [onError]);
@@ -400,7 +401,7 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
    * Clean up peer connection
    */
   const cleanupPeerConnection = useCallback((peerId: string) => {
-    console.log('[WebRTC] Cleaning up peer connection for:', peerId);
+    logger.info('[WebRTC] Cleaning up peer connection for:', peerId);
 
     const pc = peerConnectionsRef.current.get(peerId);
     if (pc) {
@@ -458,7 +459,7 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
         });
       }
     } catch (error) {
-      console.error('[WebRTC] Error joining meeting:', error);
+      logger.error('[WebRTC] Error joining meeting:', error);
       onError?.(error instanceof Error ? error : new Error('Failed to join meeting'));
       setIsConnecting(false);
     } finally {
@@ -470,7 +471,7 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
    * Leave meeting room
    */
   const leaveMeeting = useCallback(async () => {
-    console.log('[WebRTC] Leaving meeting');
+    logger.info('[WebRTC] Leaving meeting');
     isCleanupRef.current = true;
 
     // Leave room
@@ -567,7 +568,6 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
     if (!audioElement) {
       audioElement = document.createElement('audio');
       audioElement.autoplay = true;
-      audioElement.playsInline = true;
       audioElement.style.display = 'none';
       document.body.appendChild(audioElement);
       audioElementsRef.current.set(peerId, audioElement);

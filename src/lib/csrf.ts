@@ -4,6 +4,8 @@
  * 用于表单提交时的 CSRF 验证
  */
 
+import { logger } from './logger';
+
 let cachedCsrfToken: string | null = null;
 
 /**
@@ -19,15 +21,15 @@ export async function getCsrfToken(): Promise<string | null> {
   try {
     const response = await fetch('/api/csrf-token');
     if (!response.ok) {
-      console.error('Failed to fetch CSRF token');
+      logger.error('Failed to fetch CSRF token');
       return null;
     }
-    
+
     const data = await response.json();
     cachedCsrfToken = data.csrfToken;
     return cachedCsrfToken;
   } catch (error) {
-    console.error('Error fetching CSRF token:', error);
+    logger.error('Error fetching CSRF token:', error);
     return null;
   }
 }
