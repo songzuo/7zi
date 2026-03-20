@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getDatabaseAsync } from '@/lib/db';
+import { getDatabaseAsync, getDatabaseStats } from '@/lib/db';
 import { getDatabaseHealth, type DatabaseHealthResult as DatabaseHealth } from '@/lib/db/migrations';
 import { generatePerformanceReport, type PerformanceReport } from '@/lib/db/performance-analyzer';
 import { getCacheStats } from '@/lib/db/cache';
@@ -26,10 +26,13 @@ export async function GET() {
   try {
     const db = await getDatabaseAsync();
 
-    // 检查数据库连接
+    // 检查数据库连接 - 使用 getDatabaseStats 来获取真实连接状态
+    const stats = getDatabaseStats();
     const connectionHealth = {
       connected: db !== null,
-      isOpen: (db as { open?: boolean })?.open ?? false,
+      isOpen: stats.isOpen,
+      isMemoryDatabase: stats.isMemoryDatabase,
+      connectionCount: stats.connectionCount,
     };
 
     if (!connectionHealth.connected || !connectionHealth.isOpen) {

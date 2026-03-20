@@ -35,6 +35,10 @@ describe('LoadingSpinner (Enhanced)', () => {
 
     it('should render with default props', async () => {
       render(<LoadingSpinner />);
+      // Trigger any pending timers/RAF updates
+      await act(async () => {
+        vi.runOnlyPendingTimers();
+      });
       // RAF executes immediately, so state updates sync
       await waitFor(() => {
         expect(screen.getByRole('status')).toBeInTheDocument();

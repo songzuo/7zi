@@ -363,7 +363,7 @@ class MockEventSource extends EventTarget {
 declare global {
   var EventSource: typeof EventSource;
 }
-globalThis.EventSource = MockEventSource as typeof EventSource;
+(globalThis as unknown as { EventSource: typeof EventSource }).EventSource = MockEventSource as unknown as typeof EventSource;
 
 // ============================================================================
 // MOCK THE DATABASE MODULE

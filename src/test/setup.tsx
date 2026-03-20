@@ -86,7 +86,8 @@ vi.mock('better-sqlite3', () => {
     return createMockDatabase.call(this)
   } as unknown as { new(): ReturnType<typeof createMockDatabase> }
 
-  MockDatabase.prototype = createMockDatabase().prototype
+  // Create proper prototype from the mock object
+  MockDatabase.prototype = Object.create(createMockDatabase())
 
   return {
     default: MockDatabase,
@@ -135,13 +136,4 @@ declare global {
       mockImplementation: (fn: (...args: unknown[]) => unknown) => MockInstance<T>;
     }
   }
-}
-
-// Extend global fetch with mock methods
-declare global {
-  const fetch: typeof globalThis.fetch & {
-    mockResolvedValueOnce: (value: Response) => void;
-    mockRejectedValueOnce: (reason: unknown) => void;
-    mockImplementation: (fn: (...args: unknown[]) => unknown) => void;
-  };
 }

@@ -8,8 +8,6 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { useToast } from '@/components/ui/use-toast';
 import { useWebRTCMeeting, MeetingParticipant, UseWebRTCMeetingOptions } from '@/hooks/useWebRTCMeeting';
 import { Mic, MicOff, Phone, Users, Settings, Copy, Check } from 'lucide-react';
 
@@ -406,12 +404,8 @@ export default function MeetingRoom({
 
   const handleError = (error: Error) => {
     console.error('Meeting error:', error);
-    const { toast } = useToast();
-    toast({
-      variant: 'destructive',
-      title: 'Meeting Error',
-      description: error.message || 'An error occurred',
-    });
+    // TODO: Show error toast - need to implement with existing Toast component
+    alert(`Meeting error: ${error.message || 'An error occurred'}`);
   };
 
   const {

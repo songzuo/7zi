@@ -76,6 +76,7 @@ export class MultimodalService {
       type: name as 'volcengine' | 'bailian' | 'minimax',
       config: {},
       status: 'active',
+      capabilities: [],
     }));
   }
 

@@ -7,11 +7,12 @@
  * DELETE /api/performance/clear - 清除性能数据
  */
 
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { apiPerformanceCollector, getApiPerformanceReport } from '@/lib/middleware/api-performance';
 import { logger } from '@/lib/logger';
 import { createErrorResponse, ErrorType } from '@/lib/api/error-handler';
 import { createSuccessResponse } from '@/lib/api/utils';
+import { withAdmin, RBACUserContext } from '@/lib/auth/middleware-rbac';
 
 /**
  * GET /api/performance/report
@@ -49,34 +50,16 @@ export async function GET(request: NextRequest) {
  * DELETE /api/performance/clear
  * 清除性能数据
  */
-export async function DELETE(request: NextRequest) {
+async function DELETEHandler(
+  request: NextRequest,
+  context: RBACUserContext
+) {
   try {
-    // 在生产环境中，应该添加认证检查
-    if (process.env.NODE_ENV === 'production') {
-      // Verify admin authorization
-      const authHeader = request.headers.get('authorization');
-      const adminSecret = process.env.ADMIN_SECRET;
-
-      if (!authHeader || !adminSecret) {
-        return createErrorResponse(
-          new Error('Unauthorized: Missing authentication'),
-          401
-        );
-      }
-
-      const token = authHeader.replace('Bearer ', '');
-      if (token !== adminSecret) {
-        logger.warn('[Performance API] Unauthorized attempt to clear performance data');
-        return createErrorResponse(
-          new Error('Forbidden: Invalid credentials'),
-          403
-        );
-      }
-    }
-
     apiPerformanceCollector.clear();
 
-    logger.info('[Performance API] Performance data cleared');
+    logger.info('[Performance API] Performance data cleared', {
+      userId: context.userId,
+    });
 
     return createSuccessResponse({
       message: 'Performance data cleared successfully',
@@ -88,4 +71,8 @@ export async function DELETE(request: NextRequest) {
 
     return createErrorResponse(new Error('Failed to clear performance data'));
   }
+}
+
+export async function DELETE(request: NextRequest) {
+  return withAdmin(request, DELETEHandler);
 }
