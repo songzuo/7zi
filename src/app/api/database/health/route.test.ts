@@ -9,6 +9,7 @@ import { GET } from '../health/route';
 // Mock database functions
 vi.mock('@/lib/db', () => ({
   getDatabaseAsync: vi.fn(),
+  getDatabaseStats: vi.fn(),
 }));
 
 // Mock migration functions
@@ -47,7 +48,7 @@ vi.mock('@/lib/logger', () => ({
   },
 }));
 
-import { getDatabaseAsync } from '@/lib/db';
+import { getDatabaseAsync, getDatabaseStats } from '@/lib/db';
 import { getDatabaseHealth } from '@/lib/db/migrations';
 import { generatePerformanceReport } from '@/lib/db/performance-analyzer';
 import { getCacheStats } from '@/lib/db/cache';
@@ -60,6 +61,11 @@ describe('/api/database/health', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     (getDatabaseAsync as any).mockResolvedValue(mockDb);
+    (getDatabaseStats as any).mockReturnValue({
+      isOpen: true,
+      connectionCount: 1,
+      isMemoryDatabase: false,
+    });
     (getDatabaseHealth as any).mockResolvedValue({
       size: { sizeInMB: 10, fragmentationPercent: 5 },
       migrationVersion: 1,
@@ -397,6 +403,11 @@ describe('/api/database/health', () => {
   describe('error handling', () => {
     it('should return service unavailable when database not connected', async () => {
       (getDatabaseAsync as any).mockResolvedValue(null);
+      (getDatabaseStats as any).mockReturnValue({
+        isOpen: false,
+        connectionCount: 0,
+        isMemoryDatabase: false,
+      });
 
       const response = await GET();
       const data = await response.json();
@@ -409,6 +420,11 @@ describe('/api/database/health', () => {
 
     it('should return service unavailable when database not open', async () => {
       (getDatabaseAsync as any).mockResolvedValue({ open: false });
+      (getDatabaseStats as any).mockReturnValue({
+        isOpen: false,
+        connectionCount: 1,
+        isMemoryDatabase: false,
+      });
 
       const response = await GET();
       const data = await response.json();
