@@ -1950,3 +1950,540 @@ img {
     animation: none !important;
   }
 }
+
+/* ============================================
+   RTL (Right-to-Left) LANGUAGE SUPPORT
+   ============================================ */
+
+/* RTL 方向性 */
+[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+}
+
+/* RTL 间距和布局调整 */
+[dir="rtl"] .mr-2,
+[dir="rtl"] .ml-2 {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+
+[dir="rtl"] .ml-auto {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+[dir="rtl"] .flex-row {
+  flex-direction: row-reverse;
+}
+
+/* RTL 边框 */
+[dir="rtl"] .border-l,
+[dir="rtl"] .border-r {
+  border-left-color: transparent;
+  border-right-color: var(--border);
+}
+
+[dir="rtl"] .border-l-2 {
+  border-left-width: 0;
+  border-right-width: 2px;
+}
+
+[dir="rtl"] .border-r-2 {
+  border-right-width: 0;
+  border-left-width: 2px;
+}
+
+/* RTL 图标镜像 */
+[dir="rtl"] svg {
+  transform: scaleX(-1);
+}
+
+/* RTL 例外：不需要镜像的图标 */
+[dir="rtl"] .no-rtl-mirror svg,
+[dir="rtl"] .no-rtl-mirror {
+  transform: none;
+}
+
+/* RTL 滚动条 */
+[dir="rtl"] ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+[dir="rtl"] ::-webkit-scrollbar-track {
+  background: var(--muted);
+}
+
+[dir="rtl"] ::-webkit-scrollbar-thumb {
+  background: var(--muted-foreground);
+  border-radius: 4px;
+}
+
+[dir="rtl"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground);
+}
+
+/* RTL 特定布局调整 */
+[dir="rtl"] .flex-row-reverse {
+  flex-direction: row;
+}
+
+[dir="rtl"] .flex-col-reverse {
+  flex-direction: column;
+}
+
+/* RTL 文本对齐覆盖 */
+[dir="rtl"] .text-left {
+  text-align: right;
+}
+
+[dir="rtl"] .text-right {
+  text-align: left;
+}
+
+[dir="rtl"] .text-start {
+  text-align: end;
+}
+
+[dir="rtl"] .text-end {
+  text-align: start;
+}
+
+/* RTL 定位调整 */
+[dir="rtl"] .left-0 {
+  left: auto;
+  right: 0;
+}
+
+[dir="rtl"] .right-0 {
+  right: auto;
+  left: 0;
+}
+
+[dir="rtl"] .top-right {
+  top: 0;
+  right: auto;
+  left: 0;
+}
+
+[dir="rtl"] .top-left {
+  top: 0;
+  left: auto;
+  right: 0;
+}
+
+/* RTL 响应式布局 */
+@media (min-width: 768px) {
+  [dir="rtl"] .md\:mr-4 {
+    margin-right: 0;
+    margin-left: 1rem;
+  }
+
+  [dir="rtl"] .md\:ml-4 {
+    margin-left: 0;
+    margin-right: 1rem;
+  }
+}
+
+/* RTL 暗色模式支持 */
+.dark[dir="rtl"] ::-webkit-scrollbar-track {
+  background: var(--zinc-800);
+}
+
+.dark[dir="rtl"] ::-webkit-scrollbar-thumb {
+  background: var(--zinc-600);
+}
+
+.dark[dir="rtl"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--zinc-400);
+}
+
+/* ============================================
+   MOBILE RESPONSIVE UTILITIES
+   ============================================ */
+
+/* Touch-friendly active states */
+.touch-active {
+  position: relative;
+  overflow: hidden;
+}
+
+.touch-active::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.05);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.touch-active:active::after {
+  opacity: 1;
+}
+
+/* Safe area insets for notched phones */
+@supports (padding: max(0px)) {
+  .safe-area-top {
+    padding-top: max(0px, env(safe-area-inset-top));
+  }
+
+  .safe-area-bottom {
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
+  }
+
+  .safe-area-left {
+    padding-left: max(0px, env(safe-area-inset-left));
+  }
+
+  .safe-area-right {
+    padding-right: max(0px, env(safe-area-inset-right));
+  }
+}
+
+/* Scrollbar hiding for clean mobile look */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Optimized text rendering on mobile */
+@media (max-width: 640px) {
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeSpeed;
+  }
+}
+
+/* Prevent text size adjustment on orientation change */
+body {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Disable tap highlight color */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+/* Prevent overscroll bounce on iOS */
+html {
+  overscroll-behavior-y: none;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Focus visible for keyboard navigation */
+*:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Hide focus on touch devices */
+@media (hover: none) {
+  *:focus-visible {
+    outline: none;
+  }
+}
+
+/* Loading skeleton animation */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--secondary) 25%,
+    var(--muted) 50%,
+    var(--secondary) 75%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+}
+
+/* Responsive spacing utilities */
+.p-safe-top {
+  padding-top: max(1rem, env(safe-area-inset-top));
+}
+
+.p-safe-bottom {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+.mt-safe-top {
+  margin-top: max(1rem, env(safe-area-inset-top));
+}
+
+.mb-safe-bottom {
+  margin-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+/* Mobile-first typography scale */
+@media (max-width: 375px) {
+  .text-responsive-h1 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+
+  .text-responsive-h2 {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+
+  .text-responsive-body {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+}
+
+@media (min-width: 376px) and (max-width: 414px) {
+  .text-responsive-h1 {
+    font-size: 1.75rem;
+    line-height: 2.25rem;
+  }
+
+  .text-responsive-h2 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+
+  .text-responsive-body {
+    font-size: 0.9375rem;
+    line-height: 1.375rem;
+  }
+}
+
+/* Improved touch targets on mobile */
+@media (max-width: 640px) {
+  button,
+  a,
+  input,
+  select,
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  button:has([aria-label]),
+  a:has([aria-label]) {
+    min-height: 48px;
+    min-width: 48px;
+  }
+}
+
+/* Card hover effects - reduced on mobile */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+@media (hover: hover) {
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.card-hover:active {
+  transform: scale(0.98);
+}
+
+/* Responsive grid gaps */
+.gap-responsive {
+  gap: 0.5rem;
+}
+
+@media (min-width: 415px) {
+  .gap-responsive {
+    gap: 0.75rem;
+  }
+}
+
+@media (min-width: 641px) {
+  .gap-responsive {
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 1025px) {
+  .gap-responsive {
+    gap: 1.5rem;
+  }
+}
+
+/* Sticky positioning with safe area */
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  padding-top: max(0px, env(safe-area-inset-top));
+}
+
+.sticky-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 40;
+  padding-bottom: max(0px, env(safe-area-inset-bottom));
+}
+
+/* Bottom navigation indicator */
+.bottom-nav-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 5px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 100px 100px 0 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .bottom-nav-indicator {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* Input field styling improvements */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea,
+select {
+  font-size: 16px; /* Prevents iOS zoom */
+  padding: 12px 16px;
+}
+
+@media (min-width: 641px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  textarea,
+  select {
+    font-size: 14px;
+    padding: 10px 14px;
+  }
+}
+
+/* Pull to refresh support (optional) */
+@supports (-webkit-overflow-scrolling: touch) {
+  .overscroll-contain {
+    overscroll-behavior-y: contain;
+  }
+
+  .overscroll-none {
+    overscroll-behavior: none;
+  }
+}
+
+/* Modal backdrop for mobile */
+.modal-backdrop-mobile {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 50;
+}
+
+/* Responsive modal */
+.modal-responsive {
+  max-height: 90vh;
+  max-width: 90vw;
+  margin: auto;
+}
+
+@media (min-width: 641px) {
+  .modal-responsive {
+    max-height: 85vh;
+    max-width: 85vw;
+  }
+}
+
+@media (min-width: 1025px) {
+  .modal-responsive {
+    max-height: 80vh;
+    max-width: 800px;
+  }
+}
+
+/* Mobile swipe indicator */
+.swipe-indicator {
+  width: 40px;
+  height: 5px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 100px;
+  margin: 8px auto;
+}
+
+@media (prefers-color-scheme: dark) {
+  .swipe-indicator {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Tab bar active indicator */
+.tab-active-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--primary);
+  border-radius: 1px;
+}
+
+/* Notification badge */
+.notification-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: var(--destructive);
+  color: var(--destructive-foreground);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+  border-radius: 9px;
+  border: 2px solid var(--background);
+}
+
+/* Responsive divider */
+.divider-responsive {
+  border-top: 1px solid var(--border);
+  margin: 1rem 0;
+}
+
+@media (min-width: 641px) {
+  .divider-responsive {
+    margin: 1.5rem 0;
+  }
+}
+
+/* End of Mobile Responsive Utilities */

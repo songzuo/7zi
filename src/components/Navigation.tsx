@@ -3,41 +3,42 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { SettingsButton } from './SettingsButton';
 import { LanguageSwitcherCompact } from './LanguageSwitcher';
 import { ThemeToggle } from './ThemeToggle';
 
 interface NavItem {
   href: string;
-  label: string;
   icon: string;
+  labelKey: string;
 }
 
 const NAV_ITEMS: NavItem[] = [
   {
     href: '/',
-    label: '首页',
-    icon: '🏠'
+    icon: '🏠',
+    labelKey: 'home'
   },
   {
     href: '/dashboard',
-    label: '实时看板',
-    icon: '📊'
+    icon: '📊',
+    labelKey: 'dashboard'
   },
   {
     href: '/subagents',
-    label: '子代理',
-    icon: '🤖'
+    icon: '🤖',
+    labelKey: 'subagents'
   },
   {
     href: '/tasks',
-    label: '任务',
-    icon: '📋'
+    icon: '📋',
+    labelKey: 'tasks'
   },
   {
     href: '/memory',
-    label: '记忆',
-    icon: '🧠'
+    icon: '🧠',
+    labelKey: 'memory'
   }
 ];
 
@@ -45,8 +46,9 @@ export const Navigation: React.FC = () => {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const prevPathnameRef = React.useRef(pathname);
+  const t = useTranslations('nav');
 
-  // 路由变化时关闭菜单 - 使用 useLayoutEffect 避免级联渲染
+  // Route change: close menu - use useLayoutEffect to avoid cascading renders
   React.useLayoutEffect(() => {
     if (prevPathnameRef.current !== pathname) {
       prevPathnameRef.current = pathname;
@@ -54,7 +56,7 @@ export const Navigation: React.FC = () => {
     }
   }, [pathname]);
 
-  // 防止背景滚动
+  // Prevent background scroll when menu is open
   useEffect(() => {
     if (isMobileMenuOpen) {
       const scrollY = window.scrollY;
@@ -70,7 +72,7 @@ export const Navigation: React.FC = () => {
         window.scrollTo(0, parseInt(scrollY || '0') * -1);
       }
     }
-    
+
     return () => {
       document.body.style.position = '';
       document.body.style.top = '';
@@ -78,14 +80,14 @@ export const Navigation: React.FC = () => {
     };
   }, [isMobileMenuOpen]);
 
-  // ESC 键关闭菜单
+  // ESC key to close menu
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isMobileMenuOpen) {
         setIsMobileMenuOpen(false);
       }
     };
-    
+
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isMobileMenuOpen]);
@@ -99,21 +101,23 @@ export const Navigation: React.FC = () => {
   }, []);
 
   const getNavLinkClasses = (itemHref: string) => {
-    const isActive = pathname === itemHref;
+    const isActive = pathname === itemHref || pathname?.startsWith(`${itemHref}/`);
     return `
-      px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300
+      px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300
       flex items-center gap-2 relative overflow-hidden
+      min-h-[44px] min-w-[44px]  /* Touch-friendly minimum sizes */
       ${
         isActive
-          ? 'bg-[var(--nav-active-bg)] text-[var(--nav-active-text)] shadow-sm ring-1 ring-[var(--primary)]'
-          : 'text-[var(--nav-text)] hover:bg-[var(--secondary)] hover:text-[var(--nav-text-hover)]'
+          ? 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400 shadow-sm ring-1 ring-cyan-500 dark:ring-cyan-400'
+          : 'text-gray-600 dark:text-zinc-400 hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-gray-900 dark:hover:text-zinc-100'
       }
       hover:scale-105 active:scale-95
+      touch-active
     `;
   };
 
   const getMobileNavLinkClasses = (itemHref: string) => {
-    const isActive = pathname === itemHref;
+    const isActive = pathname === itemHref || pathname?.startsWith(`${itemHref}/`);
     return `
       flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-200
       min-h-[56px] w-full text-left relative overflow-hidden
@@ -123,6 +127,7 @@ export const Navigation: React.FC = () => {
           : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 active:bg-zinc-200 dark:active:bg-zinc-700'
       }
       hover:translate-x-1 active:scale-[0.98]
+      touch-active
     `;
   };
 
@@ -130,55 +135,66 @@ export const Navigation: React.FC = () => {
     <nav className="bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-700 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 touch-active rounded-lg p-1">
-            <span className="text-2xl">🤖</span>
-            <span className="font-bold text-gray-900 dark:text-white hidden sm:inline">AI 团队</span>
+          {/* Logo - Large touch target */}
+          <Link
+            href="/"
+            className="flex items-center gap-2 touch-active rounded-lg p-2 min-h-[44px] min-w-[44px] active:scale-95 transition-transform"
+          >
+            <span className="text-2xl" aria-hidden="true">🤖</span>
+            <span className="font-bold text-gray-900 dark:text-white hidden sm:inline">
+              AI 团队
+            </span>
           </Link>
 
-          {/* 导航链接 - Desktop */}
+          {/* Navigation Links - Desktop Only */}
           <div className="hidden md:flex items-center gap-1">
             {NAV_ITEMS.map(item => (
               <Link
                 key={item.href}
                 href={item.href}
                 className={getNavLinkClasses(item.href)}
+                aria-label={t(item.labelKey)}
+                aria-current={pathname === item.href ? 'page' : undefined}
               >
-                <span>{item.icon}</span>
-                <span>{item.label}</span>
+                <span aria-hidden="true">{item.icon}</span>
+                <span>{t(item.labelKey)}</span>
               </Link>
             ))}
           </div>
 
-          {/* 右侧操作区 + 汉堡菜单 */}
+          {/* Right Actions + Hamburger Menu */}
           <div className="flex items-center gap-2">
             <ThemeToggle />
             <LanguageSwitcherCompact className="hidden sm:flex" />
             <SettingsButton compact className="hidden sm:flex" />
-            
-            {/* 移动端汉堡菜单按钮 - 优化触摸目标 */}
+
+            {/* Mobile Hamburger Menu Button - Optimized Touch Target */}
             <button
               onClick={toggleMenu}
-              className="md:hidden p-3 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-xl transition-colors min-w-[48px] min-h-[48px] flex items-center justify-center touch-active"
-              aria-label={isMobileMenuOpen ? '关闭菜单' : '打开菜单'}
+              className="md:hidden p-3 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-xl transition-colors min-w-[48px] min-h-[48px] flex items-center justify-center touch-active active:scale-95"
+              aria-label={isMobileMenuOpen ? t('mobileMenu.close') : t('mobileMenu.open')}
               aria-expanded={isMobileMenuOpen}
               aria-controls="mobile-menu"
+              aria-haspopup="true"
             >
               <div className="w-6 h-6 flex flex-col justify-center items-center gap-1.5">
                 <span
                   className={`w-5 h-0.5 bg-current rounded-full transition-all duration-300 ease-out ${
                     isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''
                   }`}
+                  aria-hidden="true"
                 />
                 <span
                   className={`w-5 h-0.5 bg-current rounded-full transition-all duration-300 ease-out ${
                     isMobileMenuOpen ? 'opacity-0 scale-0' : ''
                   }`}
+                  aria-hidden="true"
                 />
                 <span
                   className={`w-5 h-0.5 bg-current rounded-full transition-all duration-300 ease-out ${
                     isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''
                   }`}
+                  aria-hidden="true"
                 />
               </div>
             </button>
@@ -186,7 +202,7 @@ export const Navigation: React.FC = () => {
         </div>
       </div>
 
-      {/* 移动端菜单 - 全屏滑入式 */}
+      {/* Mobile Slide-Out Menu - Full Screen */}
       <div
         id="mobile-menu"
         className={`fixed inset-0 z-50 md:hidden transition-all duration-300 ease-out ${
@@ -198,14 +214,14 @@ export const Navigation: React.FC = () => {
         aria-modal="true"
         aria-label="导航菜单"
       >
-        {/* 背景遮罩 */}
+        {/* Backdrop */}
         <div
           className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
           onClick={closeMenu}
           aria-hidden="true"
         />
 
-        {/* 菜单面板 */}
+        {/* Menu Panel */}
         <div
           className={`absolute top-0 right-0 h-full w-[min(280px,85vw)] bg-white dark:bg-zinc-900 shadow-2xl transform transition-transform duration-300 ease-out flex flex-col ${
             isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
@@ -215,35 +231,43 @@ export const Navigation: React.FC = () => {
             paddingTop: 'max(0px, env(safe-area-inset-top))',
           }}
         >
-          {/* 头部 */}
+          {/* Header */}
           <div className="p-6 border-b border-zinc-200 dark:border-zinc-700 flex-shrink-0">
             <Link
               href="/"
-              className="text-2xl font-bold text-zinc-900 dark:text-white touch-active inline-block py-2 rounded-lg"
+              className="text-2xl font-bold text-zinc-900 dark:text-white touch-active inline-block py-2 rounded-lg min-h-[44px]"
               onClick={closeMenu}
             >
               🤖 <span className="text-cyan-500">AI 团队</span>
             </Link>
           </div>
 
-          {/* 导航项 - 可滚动区域 */}
-          <nav className="flex-1 overflow-y-auto p-4 overscroll-contain">
+          {/* Navigation Items - Scrollable Area */}
+          <nav className="flex-1 overflow-y-auto p-4 overscroll-contain" aria-label="主导航">
             <ul className="space-y-1" role="menu">
               {NAV_ITEMS.map((item, index) => (
-                <li key={item.href} role="menuitem">
+                <li key={item.href} role="none">
                   <Link
                     href={item.href}
                     className={getMobileNavLinkClasses(item.href)}
                     onClick={closeMenu}
+                    role="menuitem"
                     tabIndex={isMobileMenuOpen ? 0 : -1}
                     style={{
                       animationDelay: isMobileMenuOpen ? `${index * 30}ms` : '0ms',
                     }}
                   >
-                    <span className="text-2xl" aria-hidden="true">{item.icon}</span>
-                    <span className="font-medium text-base">{item.label}</span>
+                    <span className="text-2xl flex-shrink-0" aria-hidden="true">
+                      {item.icon}
+                    </span>
+                    <span className="font-medium text-base">
+                      {t(item.labelKey)}
+                    </span>
                     {pathname === item.href && (
-                      <span className="ml-auto w-2 h-2 bg-cyan-500 rounded-full flex-shrink-0" aria-label="当前页面" />
+                      <span
+                        className="ml-auto w-2 h-2 bg-cyan-500 rounded-full flex-shrink-0"
+                        aria-label="当前页面"
+                      />
                     )}
                   </Link>
                 </li>
@@ -251,15 +275,19 @@ export const Navigation: React.FC = () => {
             </ul>
           </nav>
 
-          {/* 底部设置区 */}
+          {/* Bottom Settings Area */}
           <div className="p-4 border-t border-zinc-200 dark:border-zinc-700 flex-shrink-0 space-y-3">
-            <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800">
-              <span className="text-sm text-zinc-600 dark:text-zinc-400">主题</span>
-              <ThemeToggle />
-            </div>
-            <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800">
-              <span className="text-sm text-zinc-600 dark:text-zinc-400">语言</span>
+            <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 min-h-[56px]">
+              <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                {t('language')}
+              </span>
               <LanguageSwitcherCompact />
+            </div>
+            <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 min-h-[56px]">
+              <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                {t('theme')}
+              </span>
+              <ThemeToggle />
             </div>
           </div>
         </div>
