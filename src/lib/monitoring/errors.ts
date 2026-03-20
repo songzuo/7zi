@@ -39,7 +39,7 @@ export enum ErrorSeverity {
 /**
  * Custom error class with metadata
  */
-export class AppError extends Error {
+export class TrackedError extends Error {
   public readonly category: ErrorCategory;
   public readonly severity: ErrorSeverity;
   public readonly metadata: Record<string, unknown>;
@@ -56,7 +56,7 @@ export class AppError extends Error {
   }) {
     super(options.message);
 
-    this.name = 'AppError';
+    this.name = 'TrackedError';
     this.category = options.category ?? ErrorCategory.APPLICATION;
     this.severity = options.severity ?? ErrorSeverity.ERROR;
     this.metadata = options.metadata ?? {};
@@ -65,7 +65,7 @@ export class AppError extends Error {
 
     // Maintain proper stack trace
     if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, AppError);
+      Error.captureStackTrace(this, TrackedError);
     }
   }
 }
@@ -74,7 +74,7 @@ export class AppError extends Error {
  * Capture error with context
  */
 export function captureError(
-  error: Error | AppError | unknown,
+  error: Error | TrackedError | unknown,
   options?: {
     category?: ErrorCategory;
     severity?: ErrorSeverity;
@@ -89,7 +89,7 @@ export function captureError(
 ) {
   // Determine error details
   const isError = error instanceof Error;
-  const isAppError = error instanceof AppError;
+  const isTrackedError = error instanceof TrackedError;
 
   // Build Sentry context
   Sentry.withScope((scope) => {
@@ -101,8 +101,8 @@ export function captureError(
     }
 
     // Set category and severity
-    const category = options?.category ?? (isAppError ? error.category : ErrorCategory.APPLICATION);
-    const severity = options?.severity ?? (isAppError ? error.severity : ErrorSeverity.ERROR);
+    const category = options?.category ?? (isTrackedError ? error.category : ErrorCategory.APPLICATION);
+    const severity = options?.severity ?? (isTrackedError ? error.severity : ErrorSeverity.ERROR);
 
     scope.setTag('category', category);
     scope.setLevel(severity);
@@ -119,15 +119,15 @@ export function captureError(
       });
     }
 
-    // Add AppError metadata
-    if (isAppError) {
+    // Add TrackedError metadata
+    if (isTrackedError) {
       Object.entries(error.metadata).forEach(([key, value]) => {
         scope.setExtra(key, value);
       });
     }
 
     // Add fingerprint for grouping
-    if (isAppError) {
+    if (isTrackedError) {
       scope.setFingerprint([error.category, error.message]);
     }
 

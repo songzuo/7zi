@@ -3,6 +3,8 @@
  * @description 定义消息、团队成员等核心类型
  */
 
+import type { TeamMember, MemberStatus } from '@/types/members';
+
 /**
  * 聊天消息类型
  */
@@ -19,28 +21,8 @@ export interface Message {
   memberId?: string;
 }
 
-/**
- * 团队成员状态
- */
-export type MemberStatus = 'online' | 'busy' | 'offline';
-
-/**
- * 团队成员类型
- */
-export interface TeamMember {
-  /** 成员唯一标识 */
-  id: string;
-  /** 成员名称 */
-  name: string;
-  /** 成员角色 */
-  role: string;
-  /** 成员表情符号 */
-  emoji: string;
-  /** 在线状态 */
-  status: MemberStatus;
-  /** 专业领域 */
-  specialty: string;
-}
+// 重新导出统一类型，保持向后兼容
+export type { TeamMember, MemberStatus };
 
 /**
  * 聊天组件 Props

@@ -11,6 +11,7 @@
  * - 支持多工作表导出
  */
 
+import { logger } from '../logger';
 import * as XLSX from 'xlsx';
 
 // ============================================================================
@@ -498,7 +499,7 @@ export function exportData<T extends Record<string, unknown>>(
  */
 export function downloadExport(result: ExportResult): void {
   if (!result.success || !result.blob || !result.filename) {
-    console.error('导出失败:', result.error);
+    logger.error('导出失败', result.error);
     return;
   }
 
@@ -718,9 +719,8 @@ export function conditionalFormatter<T>(
 // 导出模板管理
 // ============================================================================
 
-/** 模板存储（使用 any 存储不同类型的模板） */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const templateStore = new Map<string, ExportTemplate<any>>();
+/** 模板存储（使用 Record<string, unknown> 存储不同类型的模板） */
+const templateStore = new Map<string, ExportTemplate>();
 
 /**
  * 注册导出模板
@@ -732,7 +732,7 @@ export function registerTemplate<T extends Record<string, unknown>>(
     ...template,
     createdAt: template.createdAt || new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-  });
+  } as ExportTemplate);
 }
 
 /**

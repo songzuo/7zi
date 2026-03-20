@@ -220,7 +220,7 @@ export class FormValidator<T extends Record<string, unknown>> {
   /**
    * 添加字段验证规则
    */
-  addField<K extends keyof T>(field: K, config: FieldValidationConfig<any>): this {
+  addField<K extends keyof T>(field: K, config: FieldValidationConfig<unknown>): this {
     this.fields.set(field as keyof T, config);
     return this;
   }
@@ -458,7 +458,7 @@ export function validateValue<T>(
   label: string = '此字段'
 ): string[] {
   const validator = new FormValidator<{ value: T }>();
-  validator.addField('value', { rules, label });
+  validator.addField('value', { rules: rules as ValidationRule<unknown>[], label });
   return validator.validateField('value', value);
 }
 

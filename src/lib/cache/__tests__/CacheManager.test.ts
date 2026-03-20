@@ -476,7 +476,7 @@ describe('CacheManager Integration Tests', () => {
     cache.set('user:123:notifications', [{ id: 1 }], CachePresets.REALTIME);
 
     expect(cache.get<{ name: string }>('user:123:profile')).toBeDefined();
-    expect(cache.get<any[]>('user:123:notifications')).toBeDefined();
+    expect(cache.get<Record<string, unknown>[]>('user:123:notifications')).toBeDefined();
   });
 
   it('should track cache efficiency over time', async () => {

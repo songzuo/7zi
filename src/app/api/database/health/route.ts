@@ -1,9 +1,23 @@
 import { NextResponse } from 'next/server';
 import { getDatabaseAsync } from '@/lib/db';
-import { getDatabaseHealth } from '@/lib/db/migrations';
-import { generatePerformanceReport } from '@/lib/db/performance-analyzer';
+import { getDatabaseHealth, type DatabaseHealthResult as DatabaseHealth } from '@/lib/db/migrations';
+import { generatePerformanceReport, type PerformanceReport } from '@/lib/db/performance-analyzer';
 import { getCacheStats } from '@/lib/db/cache';
 import { logger } from '@/lib/logger';
+import { createSuccessResponse } from '@/lib/api/utils';
+import { createErrorResponse } from '@/lib/api/error-handler';
+
+/**
+ * Cache stats from getCacheStats()
+ */
+interface CacheStats {
+  hits: number;
+  misses: number;
+  hitRate: number;
+  entries: number;
+  totalSize: number;
+  evictions: number;
+}
 
 /**
  * GET /api/database/health - 获取数据库健康状态
@@ -15,7 +29,7 @@ export async function GET() {
     // 检查数据库连接
     const connectionHealth = {
       connected: db !== null,
-      isOpen: (db as any)?.open ?? false,
+      isOpen: (db as { open?: boolean })?.open ?? false,
     };
 
     if (!connectionHealth.connected || !connectionHealth.isOpen) {
@@ -23,7 +37,11 @@ export async function GET() {
         {
           success: false,
           health: 'unhealthy',
-          error: 'Database connection failed',
+          error: {
+            type: 'SERVICE_UNAVAILABLE',
+            message: 'Database connection failed',
+            timestamp: new Date().toISOString(),
+          },
         },
         { status: 503 }
       );
@@ -52,11 +70,9 @@ export async function GET() {
     // 生成建议
     const recommendations = generateRecommendations(dbHealth, perfReport, cacheStats, healthScore);
 
-    return NextResponse.json({
-      success: true,
+    return createSuccessResponse({
       health: healthStatus,
       healthScore: Number(healthScore.toFixed(2)),
-      timestamp: new Date().toISOString(),
       connection: connectionHealth,
       database: {
         size: dbHealth.size,
@@ -89,15 +105,7 @@ export async function GET() {
     });
   } catch (error) {
     logger.error('Failed to check database health', error);
-    return NextResponse.json(
-      {
-        success: false,
-        health: 'unhealthy',
-        error: 'Failed to check database health',
-        message: error instanceof Error ? error.message : String(error),
-      },
-      { status: 500 }
-    );
+    return createErrorResponse(error instanceof Error ? error : new Error('Failed to check database health'));
   }
 }
 
@@ -105,9 +113,9 @@ export async function GET() {
  * 计算健康分数 (0-100)
  */
 function calculateHealthScore(
-  dbHealth: any,
-  perfReport: any,
-  cacheStats: any
+  dbHealth: DatabaseHealth,
+  perfReport: PerformanceReport,
+  cacheStats: CacheStats
 ): number {
   let score = 100;
 
@@ -141,10 +149,12 @@ function calculateHealthScore(
   }
 
   // 检查碎片率
-  const fragmentation = dbHealth.size?.fragmentationPercent || 0;
-  if (fragmentation > 20) {
+  const fragmentationPercent = dbHealth.size
+    ? (dbHealth.size.freePages / dbHealth.size.pageCount) * 100
+    : 0;
+  if (fragmentationPercent > 20) {
     score -= 15;
-  } else if (fragmentation > 10) {
+  } else if (fragmentationPercent > 10) {
     score -= 5;
   }
 
@@ -165,9 +175,9 @@ function calculateHealthScore(
  * 生成建议
  */
 function generateRecommendations(
-  dbHealth: any,
-  perfReport: any,
-  cacheStats: any,
+  dbHealth: DatabaseHealth,
+  perfReport: PerformanceReport,
+  cacheStats: CacheStats,
   healthScore: number
 ): string[] {
   const recommendations: string[] = [];
@@ -191,9 +201,7 @@ function generateRecommendations(
   if (perfReport.missingIndexes.length > 0) {
     recommendations.push(`发现 ${perfReport.missingIndexes.length} 个缺失的索引`);
     for (const idx of perfReport.missingIndexes.slice(0, 3)) {
-      if (idx.priority === 'high') {
-        recommendations.push(`  - 高优先级: ${idx.suggestedIndex}`);
-      }
+      recommendations.push(`  - 表 ${idx.table}: ${idx.reason} (${idx.columns.join(', ')})`);
     }
   }
 
@@ -204,9 +212,11 @@ function generateRecommendations(
   }
 
   // 碎片率
-  const fragmentation = dbHealth.size?.fragmentationPercent || 0;
-  if (fragmentation > 10) {
-    recommendations.push(`数据库碎片率较高 (${fragmentation.toFixed(1)}%)，建议运行 VACUUM`);
+  const fragmentationPercent = dbHealth.size
+    ? (dbHealth.size.freePages / dbHealth.size.pageCount) * 100
+    : 0;
+  if (fragmentationPercent > 10) {
+    recommendations.push(`数据库碎片率较高 (${fragmentationPercent.toFixed(1)}%)，建议运行 VACUUM`);
   }
 
   // 缓存

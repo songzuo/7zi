@@ -1,0 +1,32 @@
+diff --git a/src/app/api/performance/report/route.ts b/src/app/api/performance/report/route.ts
+index 1234567..abcdefg 100644
+--- a/src/app/api/performance/report/route.ts
++++ b/src/app/api/performance/report/route.ts
+@@ -51,8 +51,20 @@ export async function DELETE(request: NextRequest) {
+   try {
+     // 在生产环境中，应该添加认证检查
+     if (process.env.NODE_ENV === 'production') {
+-      // TODO: 添加管理员认证
+-      logger.warn('[Performance API] Clear performance data in production without auth');
++      // Verify admin authorization
++      const authHeader = request.headers.get('authorization');
++      const adminSecret = process.env.ADMIN_SECRET;
+
++      if (!authHeader || !adminSecret) {
++        return createErrorResponse(
++          new Error('Unauthorized: Missing authentication'),
++          401
++        );
++      }
+
++      const token = authHeader.replace('Bearer ', '');
++      if (token !== adminSecret) {
++        logger.warn('[Performance API] Unauthorized attempt to clear performance data');
++        return createErrorResponse(
++          new Error('Forbidden: Invalid credentials'),
++          403
++        );
++      }
+     }
+
+     apiPerformanceCollector.clear();

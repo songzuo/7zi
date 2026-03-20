@@ -4,6 +4,9 @@
  */
 
 import { NextResponse } from 'next/server';
+import { createErrorResponse } from '@/lib/api/error-handler';
+import { logger } from '@/lib/logger';
+import { createSuccessResponse } from '@/lib/api/utils';
 
 interface HealthStatus {
   status: 'healthy' | 'unhealthy';
@@ -21,10 +24,10 @@ export async function GET() {
     // 内存使用情况
     const memUsage = process.memoryUsage();
     const memLimit = 512 * 1024 * 1024; // 512MB 限制
-    
+
     // 检查内存是否健康
     const memoryHealthy = memUsage.heapUsed < memLimit * 0.9; // 90% 阈值
-    
+
     const healthStatus: HealthStatus = {
       status: memoryHealthy ? 'healthy' : 'unhealthy',
       timestamp: new Date().toISOString(),
@@ -44,17 +47,17 @@ export async function GET() {
     };
 
     const statusCode = healthStatus.status === 'healthy' ? 200 : 503;
-    
-    return NextResponse.json(healthStatus, { status: statusCode });
-  } catch {
-    return NextResponse.json(
-      {
-        status: 'unhealthy',
-        timestamp: new Date().toISOString(),
-        error: 'Health check failed',
-      },
-      { status: 503 }
-    );
+
+    // For health check endpoints, we keep the simple format for kubernetes compatibility
+    // But wrap it in the success format
+    return NextResponse.json({
+      success: healthStatus.status === 'healthy',
+      data: healthStatus,
+      timestamp: new Date().toISOString(),
+    }, { status: statusCode });
+  } catch (error) {
+    logger.error('Health check failed', error);
+    return createErrorResponse(error instanceof Error ? error : new Error('Health check failed'));
   }
 }
 

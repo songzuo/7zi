@@ -69,7 +69,7 @@ export {
 // 错误追踪
 // ============================================
 export {
-  AppError,
+  TrackedError,
   ErrorCategory,
   ErrorSeverity,
   captureError,
@@ -116,3 +116,15 @@ export {
   type UsePerformanceMonitorOptions,
   type UsePerformanceMonitorReturn,
 } from './use-performance';
+
+// ============================================
+// Prometheus Metrics Exporter
+// ============================================
+export {
+  PrometheusExporter,
+  prometheusExporter,
+  exportPrometheusMetrics,
+  type Metric,
+  type HistogramMetric,
+  type MetricType,
+} from './prometheus';

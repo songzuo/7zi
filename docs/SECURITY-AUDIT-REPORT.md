@@ -2,7 +2,7 @@
 
 **审计日期**: 2026-03-07  
 **审计人**: 架构师  
-**项目**: 7zi-frontend (Next.js 16.1.6)
+**项目**: 7zi-frontend (Next.js 16.1.7)
 
 ---
 
@@ -138,7 +138,7 @@ import DOMPurify from 'dompurify';
 
 ```typescript
 // 使用 Next.js 内置的 CSRF 保护或中间件
-// src/middleware.ts 添加 CSRF 验证
+// src/proxy.ts 添加 CSRF 验证
 import { csrf } from './lib/csrf';
 
 export async function middleware(request: NextRequest) {

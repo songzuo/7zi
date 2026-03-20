@@ -1,13 +1,13 @@
 /**
  * @fileoverview Dashboard 状态管理 Store
  * @description 使用 Zustand 实现的 Dashboard 数据状态管理
- * 
+ *
  * 功能:
  * - AI 成员状态管理
  * - GitHub Issues 数据
  * - 活动日志
  * - 自动刷新和数据缓存
- * 
+ *
  * @example
  * // 在组件中使用
  * const stats = useDashboardStats();
@@ -17,43 +17,15 @@
 
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
+import type { UnifiedTeamMember } from '@/types/members';
+import type { GitHubIssue, GitHubCommit } from '@/types/common';
 
 // ============================================================================
 // 类型定义
 // ============================================================================
 
-export interface AIMember {
-  id: string;
-  name: string;
-  role: string;
-  emoji: string;
-  avatar: string;
-  status: 'idle' | 'working' | 'busy' | 'offline';
-  provider: string;
-  currentTask?: string;
-  completedTasks: number;
-}
-
-export interface GitHubIssue {
-  number: number;
-  title: string;
-  state: 'open' | 'closed';
-  labels: Array<{ name: string; color: string }>;
-  assignee?: { login: string; avatar_url: string } | null;
-  created_at: string;
-  updated_at: string;
-  html_url: string;
-}
-
-export interface GitHubCommit {
-  sha: string;
-  commit: {
-    message: string;
-    author: { name: string; date: string };
-  };
-  html_url: string;
-  author?: { avatar_url: string } | null;
-}
+// 重新导出统一类型，保持向后兼容
+export type AIMember = UnifiedTeamMember;
 
 export interface ActivityItem {
   id: string;
@@ -77,25 +49,25 @@ export interface DashboardStats {
 
 interface DashboardState {
   // 数据
-  members: AIMember[];
+  members: UnifiedTeamMember[];
   issues: GitHubIssue[];
   activities: ActivityItem[];
-  
+
   // 加载状态
   isLoading: boolean;
   error: string | null;
   lastUpdated: Date | null;
-  
+
   // 配置
   owner: string;
   repo: string;
   token: string | null;
   refreshInterval: number;
-  
+
   // 操作
   setConfig: (owner: string, repo: string, token?: string) => void;
   fetchAllData: () => Promise<void>;
-  updateMemberStatus: (memberId: string, status: AIMember['status']) => void;
+  updateMemberStatus: (memberId: string, status: UnifiedTeamMember['status']) => void;
   updateMemberTask: (memberId: string, task: string | undefined) => void;
   refreshData: () => Promise<void>;
   clearError: () => void;
@@ -105,7 +77,7 @@ interface DashboardState {
 // 常量
 // ============================================================================
 
-const AI_MEMBERS: AIMember[] = [
+const AI_MEMBERS: UnifiedTeamMember[] = [
   {
     id: 'agent-world-expert',
     name: '智能体世界专家',

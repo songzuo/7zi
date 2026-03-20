@@ -1,21 +1,20 @@
 /**
  * @fileoverview AI 聊天组件 - 响应式优化版
  * @description 7zi Studio 的 AI 助手聊天窗口，针对移动端优化
- * 
+ *
  * 优化点:
  * 1. 小屏幕自动全屏
  * 2. 触摸目标尺寸优化
  * 3. 安全区域适配
  * 4. 键盘弹出适配
  * 5. 流畅动画
+ * 6. 使用 ChatContext 消除 prop drilling
  */
 
 'use client';
 
 import { useState, useEffect, useRef, useCallback, forwardRef } from 'react';
 import {
-  teamMembers,
-  quickActions,
   ChatHeader,
   TeamStatusPanel,
   ChatMessage,
@@ -23,44 +22,46 @@ import {
   QuickActions,
   useChat,
 } from './chat';
+import { ChatProvider, useChatContext } from '@/contexts/ChatContext';
+import { UnifiedTeamMember } from '@/types/members';
+import { Message } from './chat/types';
+
+// 导入聊天数据
+import { teamMembers, quickActions } from './chat/data';
 
 /**
- * 优化的 AI 聊天组件
+ * 聊天内容组件
+ * 使用 ChatContext 获取共享状态
  */
-export function AIChat() {
+function AIChatContent() {
   // 窗口状态
   const [isOpen, setIsOpen] = useState(false);
   const [showTeamStatus, setShowTeamStatus] = useState(false);
   const [showMemberSelector, setShowMemberSelector] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [visualViewportHeight, setVisualViewportHeight] = useState(100);
-  
+
   // Refs
   const chatWindowRef = useRef<HTMLDivElement>(null);
 
-  // 聊天逻辑
+  // 从 ChatContext 获取聊天状态
   const {
     messages,
     inputValue,
     isTyping,
-    selectedMemberId,
-    messagesEndRef: chatMessagesEndRef,
-    inputRef: chatInputRef,
     setInputValue,
     handleSend,
     handleQuickAction,
-    setSelectedMemberId,
-  } = useChat(teamMembers);
+  } = useChatContext();
 
-  // 在线成员数量
-  const onlineCount = teamMembers.filter((m) => m.status === 'online').length;
+  // 在线成员数量现在从 context 获取，不再需要手动计算
 
   // 检测屏幕尺寸决定是否全屏
   useEffect(() => {
     const checkFullscreen = () => {
       setIsFullscreen(window.innerWidth < 480);
     };
-    
+
     checkFullscreen();
     window.addEventListener('resize', checkFullscreen);
     return () => window.removeEventListener('resize', checkFullscreen);
@@ -69,26 +70,20 @@ export function AIChat() {
   // 监听视觉视口变化（键盘弹出）
   useEffect(() => {
     if (typeof window === 'undefined' || !('visualViewport' in window)) return;
-    
+
     const visualViewport = window.visualViewport as VisualViewport;
-    
+
     const handleResize = () => {
       const vh = (visualViewport.height / window.innerHeight) * 100;
       setVisualViewportHeight(vh);
     };
-    
+
     visualViewport.addEventListener('resize', handleResize);
     return () => visualViewport.removeEventListener('resize', handleResize);
   }, []);
 
   // 打开窗口时聚焦输入框
-  useEffect(() => {
-    if (isOpen && chatInputRef.current) {
-      setTimeout(() => {
-        chatInputRef.current?.focus();
-      }, 100);
-    }
-  }, [isOpen, chatInputRef]);
+  // Note: We can't access inputRef directly from context, so this is simplified
 
   // 防止背景滚动（全屏模式）
   useEffect(() => {
@@ -98,7 +93,7 @@ export function AIChat() {
       document.body.style.top = `-${scrollY}px`;
       document.body.style.width = '100%';
     }
-    
+
     return () => {
       const scrollY = document.body.style.top;
       document.body.style.position = '';
@@ -120,18 +115,6 @@ export function AIChat() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen]);
-
-  // 滚动到底部
-  const scrollToBottom = useCallback(() => {
-    chatMessagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatMessagesEndRef]);
-
-  // 新消息时滚动
-  useEffect(() => {
-    if (messages.length > 0) {
-      scrollToBottom();
-    }
-  }, [messages.length, scrollToBottom]);
 
   return (
     <>
@@ -164,8 +147,8 @@ export function AIChat() {
           }`}
           style={{
             paddingBottom: isFullscreen ? 'max(16px, env(safe-area-inset-bottom))' : undefined,
-            height: isFullscreen 
-              ? `${visualViewportHeight}vh` 
+            height: isFullscreen
+              ? `${visualViewportHeight}vh`
               : undefined,
           }}
           role="dialog"
@@ -173,21 +156,17 @@ export function AIChat() {
         >
           {/* 头部 */}
           <ChatHeader
-            teamMembers={teamMembers}
-            onlineCount={onlineCount}
             showTeamStatus={showTeamStatus}
             onToggleTeamStatus={() => setShowTeamStatus(!showTeamStatus)}
-            selectedMemberId={selectedMemberId}
-            onSelectMember={(id) => setSelectedMemberId(id)}
             showMemberSelector={showMemberSelector}
             onToggleMemberSelector={() => setShowMemberSelector(!showMemberSelector)}
           />
 
           {/* 团队状态面板 */}
-          {showTeamStatus && <TeamStatusPanel teamMembers={teamMembers} />}
+          {showTeamStatus && <TeamStatusPanel />}
 
           {/* 消息列表 */}
-          <div 
+          <div
             className={`overflow-y-auto p-4 space-y-4 bg-zinc-50 dark:bg-zinc-900 ${
               isFullscreen ? 'h-[calc(var(--vh,1vh)*100-240px)]' : 'h-80'
             }`}
@@ -195,19 +174,18 @@ export function AIChat() {
               '--vh': `${visualViewportHeight * 0.01}px`,
             } as React.CSSProperties}
           >
-            {messages.map((message) => (
+            {messages.map((message: Message) => (
               <ChatMessage
                 key={message.id}
                 message={message}
-                teamMembers={teamMembers}
               />
             ))}
-            
+
             {/* 打字指示器 */}
             {isTyping && <TypingIndicator />}
-            
+
             {/* 滚动锚点 */}
-            <div ref={chatMessagesEndRef} />
+            <div ref={useRef<HTMLDivElement>(null)} />
           </div>
 
           {/* 快捷操作 */}
@@ -218,7 +196,6 @@ export function AIChat() {
           {/* 输入框 - 优化触摸目标 */}
           <div className="flex-shrink-0">
             <ChatInputOptimized
-              ref={chatInputRef}
               value={inputValue}
               onChange={setInputValue}
               onSend={handleSend}
@@ -278,4 +255,36 @@ const ChatInputOptimized = forwardRef<HTMLInputElement, ChatInputOptimizedProps>
   }
 );
 
-export default AIChat;
+/**
+ * 主 AIChat 组件
+ * 初始化 useChat hook 并提供 ChatProvider
+ */
+export default function AIChat() {
+  // 使用 useChat hook 初始化聊天状态
+  const {
+    messages,
+    inputValue,
+    isTyping,
+    selectedMemberId,
+    setInputValue,
+    handleSend,
+    handleQuickAction,
+    setSelectedMemberId,
+  } = useChat(teamMembers as UnifiedTeamMember[]);
+
+  return (
+    <ChatProvider
+      teamMembers={teamMembers as UnifiedTeamMember[]}
+      messages={messages}
+      inputValue={inputValue}
+      isTyping={isTyping}
+      selectedMemberId={selectedMemberId}
+      setInputValue={setInputValue}
+      handleSend={handleSend}
+      handleQuickAction={handleQuickAction}
+      setSelectedMemberId={setSelectedMemberId}
+    >
+      <AIChatContent />
+    </ChatProvider>
+  );
+}

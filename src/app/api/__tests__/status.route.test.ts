@@ -20,6 +20,8 @@ interface StatusMaintenanceItem {
 }
 
 describe('/api/status', () => {
+  const request = new Request('http://localhost/api/status');
+
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-03-18T08:00:00.000Z'));
@@ -31,49 +33,47 @@ describe('/api/status', () => {
 
   describe('GET request', () => {
     it('should return status data with correct structure', async () => {
-      const request = new Request('http://localhost/api/status');
       const response = await GET(request);
-      const data = await response.json();
+      const json = await response.json();
 
       expect(response.status).toBe(200);
-      expect(data).toHaveProperty('status');
-      expect(data).toHaveProperty('lastUpdated');
-      expect(data).toHaveProperty('services');
-      expect(data).toHaveProperty('metrics');
-      expect(data).toHaveProperty('incidents');
-      expect(data).toHaveProperty('maintenance');
+      expect(json.success).toBe(true);
+      expect(json.data).toHaveProperty('status');
+      expect(json.data).toHaveProperty('lastUpdated');
+      expect(json.data).toHaveProperty('services');
+      expect(json.data).toHaveProperty('metrics');
+      expect(json.data).toHaveProperty('incidents');
+      expect(json.data).toHaveProperty('maintenance');
     });
 
     it('should return operational status', async () => {
-      const request = new Request('http://localhost/api/status');
       const response = await GET(request);
-      const data = await response.json();
+      const json = await response.json();
 
-      expect(data.status).toBe('operational');
+      expect(json.data.status).toBe('operational');
     });
 
     it('should return lastUpdated timestamp', async () => {
-      const request = new Request('http://localhost/api/status');
       const response = await GET(request);
-      const data = await response.json();
+      const json = await response.json();
 
-      expect(data.lastUpdated).toBe('2026-03-18T08:00:00.000Z');
+      expect(json.data.lastUpdated).toBe('2026-03-18T08:00:00.000Z');
     });
 
     describe('services', () => {
       it('should return list of services', async () => {
         const response = await GET(request);
-        const data = await response.json();
+        const json = await response.json();
 
-        expect(Array.isArray(data.services)).toBe(true);
-        expect(data.services.length).toBeGreaterThan(0);
+        expect(Array.isArray(json.data.services)).toBe(true);
+        expect(json.data.services.length).toBeGreaterThan(0);
       });
 
       it('should include Website service', async () => {
         const response = await GET(request);
-        const data = await response.json();
+        const json = await response.json();
 
-        const website = data.services.find((s: { name: string }) => s.name === 'Website');
+        const website = json.data.services.find((s: { name: string }) => s.name === 'Website');
         expect(website).toBeDefined();
         expect(website.status).toBe('operational');
         expect(website).toHaveProperty('uptime');
@@ -82,9 +82,9 @@ describe('/api/status', () => {
 
       it('should include API service', async () => {
         const response = await GET(request);
-        const data = await response.json();
+        const json = await response.json();
 
-        const api = data.services.find((s: { name: string }) => s.name === 'API');
+        const api = json.data.services.find((s: { name: string }) => s.name === 'API');
         expect(api).toBeDefined();
         expect(api.status).toBe('operational');
         expect(api.uptime).toBeGreaterThan(90);
@@ -93,18 +93,18 @@ describe('/api/status', () => {
 
       it('should include CDN service', async () => {
         const response = await GET(request);
-        const data = await response.json();
+        const json = await response.json();
 
-        const cdn = data.services.find((s: { name: string }) => s.name === 'CDN');
+        const cdn = json.data.services.find((s: { name: string }) => s.name === 'CDN');
         expect(cdn).toBeDefined();
         expect(cdn.status).toBe('operational');
       });
 
       it('should have valid uptime percentages', async () => {
         const response = await GET(request);
-        const data = await response.json();
+        const json = await response.json();
 
-        data.services.forEach((service: { uptime: number }) => {
+        json.data.services.forEach((service: { uptime: number }) => {
           expect(service.uptime).toBeGreaterThanOrEqual(0);
           expect(service.uptime).toBeLessThanOrEqual(100);
         });
@@ -112,9 +112,9 @@ describe('/api/status', () => {
 
       it('should have valid response times in milliseconds', async () => {
         const response = await GET(request);
-        const data = await response.json();
+        const json = await response.json();
 
-        data.services.forEach((service: { responseTime: number }) => {
+        json.data.services.forEach((service: { responseTime: number }) => {
           expect(service.responseTime).toBeGreaterThan(0);
           expect(service.responseTime).toBeLessThan(5000); // 5 seconds max
         });
@@ -124,43 +124,43 @@ describe('/api/status', () => {
     describe('metrics', () => {
       it('should return 24-hour metrics', async () => {
         const response = await GET(request);
-        const data = await response.json();
+        const json = await response.json();
 
-        expect(data.metrics).toHaveProperty('requests');
-        expect(data.metrics).toHaveProperty('errors');
-        expect(data.metrics).toHaveProperty('avgResponseTime');
-        expect(data.metrics).toHaveProperty('p95ResponseTime');
+        expect(json.data.metrics).toHaveProperty('requests');
+        expect(json.data.metrics).toHaveProperty('errors');
+        expect(json.data.metrics).toHaveProperty('avgResponseTime');
+        expect(json.data.metrics).toHaveProperty('p95ResponseTime');
       });
 
       it('should have positive request count', async () => {
         const response = await GET(request);
-        const data = await response.json();
+        const json = await response.json();
 
-        expect(data.metrics.requests).toBeGreaterThan(0);
-        expect(typeof data.metrics.requests).toBe('number');
+        expect(json.data.metrics.requests).toBeGreaterThan(0);
+        expect(typeof json.data.metrics.requests).toBe('number');
       });
 
       it('should have error count', async () => {
         const response = await GET(request);
-        const data = await response.json();
+        const json = await response.json();
 
-        expect(data.metrics.errors).toBeGreaterThanOrEqual(0);
-        expect(typeof data.metrics.errors).toBe('number');
+        expect(json.data.metrics.errors).toBeGreaterThanOrEqual(0);
+        expect(typeof json.data.metrics.errors).toBe('number');
       });
 
       it('should have valid response time metrics', async () => {
         const response = await GET(request);
-        const data = await response.json();
+        const json = await response.json();
 
-        expect(data.metrics.avgResponseTime).toBeGreaterThan(0);
-        expect(data.metrics.p95ResponseTime).toBeGreaterThan(data.metrics.avgResponseTime);
+        expect(json.data.metrics.avgResponseTime).toBeGreaterThan(0);
+        expect(json.data.metrics.p95ResponseTime).toBeGreaterThan(json.data.metrics.avgResponseTime);
       });
 
       it('should calculate error rate under threshold', async () => {
         const response = await GET(request);
-        const data = await response.json();
+        const json = await response.json();
 
-        const errorRate = data.metrics.errors / data.metrics.requests;
+        const errorRate = json.data.metrics.errors / json.data.metrics.requests;
         expect(errorRate).toBeLessThan(0.01); // Less than 1% error rate
       });
     });
@@ -168,18 +168,18 @@ describe('/api/status', () => {
     describe('incidents', () => {
       it('should return incidents array', async () => {
         const response = await GET(request);
-        const data = await response.json();
+        const json = await response.json();
 
-        expect(Array.isArray(data.incidents)).toBe(true);
+        expect(Array.isArray(json.data.incidents)).toBe(true);
       });
 
       it('should handle empty incidents array', async () => {
         const response = await GET(request);
-        const data = await response.json();
+        const json = await response.json();
 
         // Should not throw error even if empty
         expect(() => {
-          data.incidents.forEach((incident: StatusIncident) => {
+          json.data.incidents.forEach((incident: StatusIncident) => {
             expect(incident).toHaveProperty('id');
             expect(incident).toHaveProperty('title');
             expect(incident).toHaveProperty('status');
@@ -191,18 +191,18 @@ describe('/api/status', () => {
     describe('maintenance', () => {
       it('should return maintenance array', async () => {
         const response = await GET(request);
-        const data = await response.json();
+        const json = await response.json();
 
-        expect(Array.isArray(data.maintenance)).toBe(true);
+        expect(Array.isArray(json.data.maintenance)).toBe(true);
       });
 
       it('should handle empty maintenance array', async () => {
         const response = await GET(request);
-        const data = await response.json();
+        const json = await response.json();
 
         // Should not throw error even if empty
         expect(() => {
-          data.maintenance.forEach((item: StatusMaintenanceItem) => {
+          json.data.maintenance.forEach((item: StatusMaintenanceItem) => {
             expect(item).toHaveProperty('id');
             expect(item).toHaveProperty('title');
             expect(item).toHaveProperty('startTime');
@@ -233,9 +233,9 @@ describe('/api/status', () => {
   describe('edge cases', () => {
     it('should handle multiple rapid requests', async () => {
       const responses = await Promise.all([
-        GET(),
-        GET(),
-        GET(),
+        GET(request),
+        GET(request),
+        GET(request),
       ]);
 
       expect(responses.every(r => r.status === 200)).toBe(true);
@@ -245,23 +245,23 @@ describe('/api/status', () => {
       const response1 = await GET(request);
       const response2 = await GET(request);
 
-      const data1 = await response1.json();
-      const data2 = await response2.json();
+      const json1 = await response1.json();
+      const json2 = await response2.json();
 
-      expect(Object.keys(data1)).toEqual(Object.keys(data2));
-      expect(data1.services).toHaveLength(data2.services.length);
+      expect(Object.keys(json1.data)).toEqual(Object.keys(json2.data));
+      expect(json1.data.services).toHaveLength(json2.data.services.length);
     });
   });
 
   describe('status enum validation', () => {
     it('should only return valid status values', async () => {
       const response = await GET(request);
-      const data = await response.json();
+      const json = await response.json();
 
       const validStatuses = ['operational', 'degraded', 'outage'];
-      expect(validStatuses).toContain(data.status);
+      expect(validStatuses).toContain(json.data.status);
 
-      data.services.forEach((service: { status: string }) => {
+      json.data.services.forEach((service: { status: string }) => {
         expect(validStatuses).toContain(service.status);
       });
     });

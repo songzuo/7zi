@@ -2,21 +2,14 @@
 
 import React, { memo } from 'react';
 import Image from 'next/image';
+import type { UnifiedTeamMember, MemberStatus } from '@/types/members';
+import { MEMBER_STATUS_CONFIG } from '@/types/members';
 
-export interface AIMember {
-  id: string;
-  name: string;
-  role: string;
-  emoji: string;
-  avatar: string;
-  status: 'idle' | 'working' | 'busy' | 'offline';
-  provider: string;
-  currentTask?: string;
-  completedTasks: number;
-}
+// 重新导出统一类型，保持向后兼容
+export type AIMember = UnifiedTeamMember;
 
 interface MemberCardProps {
-  member: AIMember;
+  member: UnifiedTeamMember;
   compact?: boolean;
   /** 选择模式 */
   isSelectionMode?: boolean;
@@ -25,7 +18,7 @@ interface MemberCardProps {
   /** 选择回调 */
   onSelect?: (memberId: string, event?: React.MouseEvent) => void;
   /** 点击回调（非选择模式） */
-  onClick?: (member: AIMember) => void;
+  onClick?: (member: UnifiedTeamMember) => void;
 }
 
 /**
@@ -40,31 +33,42 @@ const MemberCardBase: React.FC<MemberCardProps> = ({
   onSelect,
   onClick,
 }) => {
-  const statusColors = {
+  // 类型守卫，确保 status 是有效的 MemberStatus
+  const status: MemberStatus = (
+    ['online', 'working', 'busy', 'idle', 'offline'].includes(member.status)
+      ? member.status
+      : 'offline'
+  ) as MemberStatus;
+
+  // 使用统一的 MEMBER_STATUS_CONFIG
+  const statusColors: Record<MemberStatus, string> = {
     working: 'bg-green-500',
     busy: 'bg-yellow-500',
     idle: 'bg-gray-400',
-    offline: 'bg-gray-300'
+    offline: 'bg-gray-300',
+    online: 'bg-green-500'
   };
 
-  const statusBgColors = {
+  const statusBgColors: Record<MemberStatus, string> = {
     working: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
     busy: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300',
     idle: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300',
-    offline: 'bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-400'
+    offline: 'bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-400',
+    online: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
   };
 
-  const statusLabels = {
+  const statusLabels: Record<MemberStatus, string> = {
     working: '工作中',
     busy: '忙碌',
     idle: '空闲',
-    offline: '离线'
+    offline: '离线',
+    online: '在线'
   };
 
   // 处理点击事件
   const handleClick = (e: React.MouseEvent) => {
     if (isSelectionMode && onSelect) {
-      onSelect(member.id, e);
+      onSelect(String(member.id), e);
     } else if (onClick) {
       onClick(member);
     }
@@ -118,7 +122,7 @@ const MemberCardBase: React.FC<MemberCardProps> = ({
           {renderCheckbox()}
           <div className="relative flex-shrink-0">
             <Image
-              src={member.avatar}
+              src={member.avatar || '/default-avatar.png'}
               alt={member.name}
               width={40}
               height={40}
@@ -130,7 +134,7 @@ const MemberCardBase: React.FC<MemberCardProps> = ({
               unoptimized
             />
             <div
-              className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white dark:border-zinc-800 ${statusColors[member.status]}`}
+              className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white dark:border-zinc-800 ${statusColors[status]}`}
             />
           </div>
           <div className="flex-1 min-w-0">
@@ -175,7 +179,7 @@ const MemberCardBase: React.FC<MemberCardProps> = ({
         {renderCheckbox()}
         <div className="relative flex-shrink-0">
           <Image
-            src={member.avatar}
+            src={member.avatar || '/default-avatar.png'}
             alt={member.name}
             width={48}
             height={48}
@@ -195,8 +199,8 @@ const MemberCardBase: React.FC<MemberCardProps> = ({
             <h4 className="text-base font-semibold text-gray-900 dark:text-white">
               {member.emoji} {member.name}
             </h4>
-            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${statusBgColors[member.status]}`}>
-              {statusLabels[member.status]}
+            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${statusBgColors[status]}`}>
+              {statusLabels[status]}
             </span>
           </div>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">{member.role}</p>

@@ -8,8 +8,20 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { useToast } from '@/components/ui/use-toast';
 import { useWebRTCMeeting, MeetingParticipant, UseWebRTCMeetingOptions } from '@/hooks/useWebRTCMeeting';
 import { Mic, MicOff, Phone, Users, Settings, Copy, Check } from 'lucide-react';
+
+// ============================================================================
+// Global Type Extensions
+// ============================================================================
+
+declare global {
+  interface Window {
+    webkitAudioContext?: typeof AudioContext;
+  }
+}
 
 // ============================================================================
 // Types
@@ -27,6 +39,12 @@ interface MeetingRoomProps {
 interface AudioLevel {
   participantId: string;
   level: number;
+}
+
+interface AudioSettings {
+  echoCancellation: boolean;
+  noiseSuppression: boolean;
+  autoGainControl: boolean;
 }
 
 // ============================================================================
@@ -69,7 +87,7 @@ const styles = {
   micButtonEnabled: 'bg-blue-600 hover:bg-blue-700 text-white',
   micButtonDisabled: 'bg-slate-700 hover:bg-slate-600 text-white',
   iconButton: 'bg-slate-700 hover:bg-slate-600 text-white',
-  leaveButton: 'bg-red-600 hover:bg-red-700 text-white',
+  leaveButtonControl: 'bg-red-600 hover:bg-red-700 text-white',
   settingsPanel: 'absolute bottom-24 left-1/2 transform -translate-x-1/2 bg-slate-800 rounded-lg p-4 shadow-xl border border-slate-700',
   settingsTitle: 'text-white font-semibold mb-3',
   settingRow: 'flex items-center justify-between mb-2',
@@ -248,7 +266,7 @@ function AudioLevelMonitor({
     // Initialize AudioContext on user interaction
     const initAudioContext = () => {
       if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+        audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
       }
     };
 
@@ -317,8 +335,8 @@ function SettingsPanel({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  settings: { echoCancellation: boolean; noiseSuppression: boolean; autoGainControl: boolean };
-  onSettingsChange: (settings: typeof settings) => void;
+  settings: AudioSettings;
+  onSettingsChange: (settings: AudioSettings) => void;
 }) {
   if (!isOpen) return null;
 
@@ -380,7 +398,7 @@ export default function MeetingRoom({
   const [audioLevels, setAudioLevels] = useState<Map<string, number>>(new Map());
   const [showSidebar, setShowSidebar] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
-  const [audioSettings, setAudioSettings] = useState({
+  const [audioSettings, setAudioSettings] = useState<AudioSettings>({
     echoCancellation: true,
     noiseSuppression: true,
     autoGainControl: true,
@@ -388,7 +406,12 @@ export default function MeetingRoom({
 
   const handleError = (error: Error) => {
     console.error('Meeting error:', error);
-    // TODO: Show error toast
+    const { toast } = useToast();
+    toast({
+      variant: 'destructive',
+      title: 'Meeting Error',
+      description: error.message || 'An error occurred',
+    });
   };
 
   const {
@@ -483,7 +506,7 @@ export default function MeetingRoom({
                 <ParticipantCard
                   key={participant.id}
                   participant={participant}
-                  isSpeaking={audioLevels.get(participant.id) ?? 0 > 30}
+                  isSpeaking={(audioLevels.get(participant.id) ?? 0) > 30}
                   audioLevel={audioLevels.get(participant.id) ?? 0}
                 />
               ))}
@@ -532,7 +555,7 @@ export default function MeetingRoom({
         </button>
 
         <button
-          className={`${styles.controlButton} ${styles.leaveButton}`}
+          className={`${styles.controlButton} ${styles.leaveButtonControl}`}
           onClick={handleLeave}
           disabled={isConnecting}
           title="Leave meeting"

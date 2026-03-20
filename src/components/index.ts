@@ -18,7 +18,7 @@ export { SettingsPanel, SettingsPanelCompact } from './SettingsPanel';
 export { SettingsButton } from './SettingsButton';
 
 // AI & Chat
-export { AIChat as AIChatComponent } from './AIChat';
+export { default as AIChatComponent } from './AIChat';
 
 // Data Display
 export { GitHubActivity } from './GitHubActivity';

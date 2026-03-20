@@ -4,3 +4,4 @@
 export * from './common';
 export * from './wallet';
 export * from './search-filter';
+export * from './members';

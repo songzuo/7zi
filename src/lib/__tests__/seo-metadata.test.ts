@@ -341,12 +341,12 @@ describe('seo-metadata.ts', () => {
         { type: 'website', data: null },
         { type: 'organization', data: null },
       ];
-      
+
       const result = generatePageSchemas(schemas, 'zh');
-      
+
       expect(result).toHaveLength(2);
-      expect(result[0] as any['@type']).toBe('WebSite');
-      expect(result[1] as any['@type']).toBe('Organization');
+      expect((result[0] as { '@type': string })['@type']).toBe('WebSite');
+      expect((result[1] as { '@type': string })['@type']).toBe('Organization');
     });
   });
 

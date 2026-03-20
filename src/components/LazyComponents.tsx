@@ -87,7 +87,7 @@ export function LazyViewportWrapper({
  * 这是一个较大的组件，包含多个子组件
  */
 export const LazyAIChat = dynamic(
-  () => import('./AIChat').then((mod) => ({ default: mod.AIChat })),
+  () => import('./AIChat').then((mod) => ({ default: mod.default })),
   {
     ssr: false, // 客户端渲染，不需要 SSR
     loading: () => null, // 聊天按钮不需要 loading

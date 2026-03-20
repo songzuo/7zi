@@ -9,7 +9,7 @@
  * - 批量操作回调
  */
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 
 export interface UseBatchSelectionOptions<T> {
   /** 可选项目列表 */
@@ -70,6 +70,15 @@ export function useBatchSelection<T>({
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [lastSelectedId, setLastSelectedId] = useState<string | null>(null);
+  const [firstSelectedId, setFirstSelectedId] = useState<string | null>(null);
+
+  // Use a ref to track firstSelectedId to avoid stale closure issues
+  const firstSelectedIdRef = useRef<string | null>(null);
+
+  // Sync ref with state
+  useEffect(() => {
+    firstSelectedIdRef.current = firstSelectedId;
+  }, [firstSelectedId]);
 
   // 获取选中的项目列表
   const selectedItems = useMemo(() => {
@@ -109,6 +118,7 @@ export function useBatchSelection<T>({
     setIsSelectionMode(false);
     setSelectedIds(new Set());
     setLastSelectedId(null);
+    setFirstSelectedId(null);
     notifyChange(new Set());
   }, [notifyChange]);
 
@@ -116,31 +126,38 @@ export function useBatchSelection<T>({
   const toggleItem = useCallback(
     (itemId: string, event?: React.MouseEvent) => {
       // Shift+Click 范围选择
-      if (event?.shiftKey && lastSelectedId && lastSelectedId !== itemId) {
+      if (event?.shiftKey && firstSelectedIdRef.current && firstSelectedIdRef.current !== itemId) {
         const itemIds = items.map(getItemId);
-        const lastIndex = itemIds.indexOf(lastSelectedId);
+        const firstIndex = itemIds.indexOf(firstSelectedIdRef.current);
         const currentIndex = itemIds.indexOf(itemId);
 
-        if (lastIndex !== -1 && currentIndex !== -1) {
-          const start = Math.min(lastIndex, currentIndex);
-          const end = Math.max(lastIndex, currentIndex);
+        if (firstIndex !== -1 && currentIndex !== -1) {
+          const start = Math.min(firstIndex, currentIndex);
+          const end = Math.max(firstIndex, currentIndex);
           const rangeIds = itemIds.slice(start, end + 1);
 
           setSelectedIds((prev) => {
             const newIds = new Set(prev);
-            const isCurrentlySelected = prev.has(itemId);
+            // 检查范围内的所有项是否都已选中
+            const allInRangeSelected = rangeIds.every(id => prev.has(id));
 
-            rangeIds.forEach((id) => {
-              if (isCurrentlySelected) {
-                newIds.delete(id);
-              } else {
-                // 检查最大选择数
-                if (!maxSelections || newIds.size < maxSelections) {
-                  newIds.add(id);
-                }
+            // 如果范围内所有项都已选中，取消选中；否则，选中范围
+            if (allInRangeSelected) {
+              rangeIds.forEach((id) => newIds.delete(id));
+            } else {
+              // 检查最大选择数
+              if (!maxSelections || prev.size + (rangeIds.length - rangeIds.filter(id => prev.has(id)).length) <= maxSelections) {
+                rangeIds.forEach((id) => newIds.add(id));
               }
-            });
+            }
 
+            // 如果取消选中范围且 firstSelectedId 在范围内，重置它
+            if (allInRangeSelected && rangeIds.includes(firstSelectedIdRef.current!)) {
+              setFirstSelectedId(null);
+              firstSelectedIdRef.current = null;
+            }
+
+            setLastSelectedId(itemId);
             notifyChange(newIds);
             return newIds;
           });
@@ -155,10 +172,20 @@ export function useBatchSelection<T>({
 
         if (newIds.has(itemId)) {
           newIds.delete(itemId);
+          // 如果删除的是第一个选中的项目，需要更新 firstSelectedId
+          if (itemId === firstSelectedIdRef.current) {
+            setFirstSelectedId(null);
+            firstSelectedIdRef.current = null;
+          }
         } else {
           // 检查最大选择数
           if (!maxSelections || newIds.size < maxSelections) {
             newIds.add(itemId);
+            // 如果这是第一个选中的项目，记录它
+            if (!firstSelectedIdRef.current) {
+              setFirstSelectedId(itemId);
+              firstSelectedIdRef.current = itemId;
+            }
           }
         }
 
@@ -167,7 +194,7 @@ export function useBatchSelection<T>({
         return newIds;
       });
     },
-    [items, getItemId, lastSelectedId, maxSelections, notifyChange]
+    [items, getItemId, maxSelections, notifyChange]
   );
 
   const selectItem = useCallback(
@@ -180,6 +207,10 @@ export function useBatchSelection<T>({
         const newIds = new Set(prev);
         newIds.add(itemId);
         setLastSelectedId(itemId);
+
+        // Update firstSelectedId based on the actual previous state
+        setFirstSelectedId((prevFirst) => prevFirst || itemId);
+
         notifyChange(newIds);
         return newIds;
       });
@@ -210,12 +241,14 @@ export function useBatchSelection<T>({
       allIds.add(getItemId(item));
     });
 
+    setFirstSelectedId(items.length > 0 ? getItemId(items[0]) : null);
     setSelectedIds(allIds);
     notifyChange(allIds);
   }, [items, getItemId, maxSelections, notifyChange]);
 
   // 取消全选
   const deselectAll = useCallback(() => {
+    setFirstSelectedId(null);
     setSelectedIds(new Set());
     notifyChange(new Set());
   }, [notifyChange]);
@@ -240,6 +273,7 @@ export function useBatchSelection<T>({
     setSelectedIds(new Set());
     setIsSelectionMode(false);
     setLastSelectedId(null);
+    setFirstSelectedId(null);
     notifyChange(new Set());
   }, [notifyChange]);
 

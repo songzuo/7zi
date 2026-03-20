@@ -34,7 +34,25 @@ Thumbs.db
 
 # Test coverage
 coverage/
+*.json
 
 # Cache
 .cache/
 .vite/
+
+# Backups and archives
+backups/
+archive/
+*_backup/
+app-backup/
+
+# Test and build artifacts
+test-*.db
+*-log.txt
+test-output*.txt
+vitest*.json
+coverage-*.json
+
+# Temporary files
+*.tmp
+*.temp

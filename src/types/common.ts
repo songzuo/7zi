@@ -52,10 +52,11 @@ export interface ActivityItem {
 }
 
 // ============================================================================
-// 成员状态类型
+// 成员状态类型（从 members.ts 导入并重新导出）
 // ============================================================================
 
-export type MemberStatus = 'online' | 'working' | 'busy' | 'idle' | 'offline';
+import type { MemberStatus } from './members';
+export type { MemberStatus } from './members';
 
 export interface StatusConfig {
   color: string;

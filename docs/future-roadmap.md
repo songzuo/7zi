@@ -13,8 +13,8 @@
 
 | 领域 | 技术 | 版本 | 演进潜力 | 备注 |
 |------|------|------|----------|------|
-| **框架** | Next.js | 16.1.6 | ⭐⭐⭐⭐⭐ | 最新稳定版，支持 Turbopack |
-| **UI 库** | React | 19.2.3 | ⭐⭐⭐⭐⭐ | 支持 Server Components |
+| **框架** | Next.js | 16.1.7 | ⭐⭐⭐⭐⭐ | 最新稳定版，支持 Turbopack |
+| **UI 库** | React | 19.2.4 | ⭐⭐⭐⭐⭐ | 支持 Server Components |
 | **类型** | TypeScript | 5.x | ⭐⭐⭐⭐⭐ | strict 模式 |
 | **样式** | Tailwind CSS | 4.x | ⭐⭐⭐⭐ | 原子化 CSS |
 | **状态** | Zustand | 5.0.11 | ⭐⭐⭐⭐ | 轻量级，迁移中 |

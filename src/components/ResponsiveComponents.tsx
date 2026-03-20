@@ -79,7 +79,7 @@ export const ResponsiveGrid: React.FC<ResponsiveGridProps> = ({
         if (isValidElement(child)) {
           return cloneElement(child, {
             key: child.key || index,
-            ...child.props
+            ...(child.props as object)
           });
         }
         return child;
@@ -184,7 +184,7 @@ interface ResponsiveTextProps {
   children: ReactNode;
   variant?: 'h1' | 'h2' | 'h3' | 'h4' | 'body' | 'small';
   className?: string;
-  as?: keyof JSX.IntrinsicElements;
+  as?: React.ElementType;
 }
 
 export const ResponsiveText: React.FC<ResponsiveTextProps> = ({

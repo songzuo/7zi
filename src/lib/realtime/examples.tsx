@@ -10,7 +10,7 @@ import { useState } from 'react';
 import { useWebSocket, createMessage, isMessageType } from './useWebSocket';
 import type { WebSocketMessage } from './types';
 import { useEnhancedWebSocket } from './useEnhancedWebSocket';
-import { notificationService } from './notification-service';
+import { notificationService, OfflineQueueEntry } from './notification-service';
 
 // ============================================================================
 // useWebSocket 示例
@@ -302,7 +302,7 @@ export function EnhancedWebSocketExample() {
  * 通知服务使用示例
  */
 export function NotificationServiceExample() {
-  const [offlineQueue, setOfflineQueue] = useState<any[]>([]);
+  const [offlineQueue, setOfflineQueue] = useState<OfflineQueueEntry[]>([]);
 
   const handleTaskStatusChange = async () => {
     try {

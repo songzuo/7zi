@@ -5,21 +5,21 @@
 
 'use client';
 
-import { TeamMember } from './types';
-
-interface TeamStatusPanelProps {
-  teamMembers: TeamMember[];
-}
+import { useChatMembers } from '@/contexts/ChatContext';
+import { UnifiedTeamMember } from '@/types/members';
 
 /**
  * 获取状态对应的颜色类名
  */
-function getStatusColor(status: TeamMember['status']): string {
+function getStatusColor(status: UnifiedTeamMember['status']): string {
   switch (status) {
     case 'online':
+    case 'working':
       return 'bg-green-500';
     case 'busy':
       return 'bg-yellow-500';
+    case 'idle':
+      return 'bg-zinc-400';
     case 'offline':
       return 'bg-zinc-400';
   }
@@ -27,9 +27,12 @@ function getStatusColor(status: TeamMember['status']): string {
 
 /**
  * 团队状态面板组件
- * @param teamMembers - 团队成员列表
+ * 不再接收 teamMembers prop，从 context 中获取
  */
-export function TeamStatusPanel({ teamMembers }: TeamStatusPanelProps) {
+export function TeamStatusPanel() {
+  // 从 context 获取团队成员数据
+  const { teamMembers } = useChatMembers();
+
   return (
     <div className="max-h-40 overflow-y-auto bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800 p-3">
       <div className="grid grid-cols-3 gap-2">

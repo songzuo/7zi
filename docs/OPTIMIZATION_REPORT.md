@@ -1,7 +1,7 @@
 # 7zi-frontend Next.js 优化报告
 
 **生成时间**: 2026-03-06  
-**Next.js 版本**: 16.1.6  
+**Next.js 版本**: 16.1.7  
 **审查人**: 架构师
 
 ---
@@ -337,7 +337,7 @@ export const preloadSettings = () => import('./SettingsPanel');
 ### 当前中间件
 
 ```typescript
-// src/middleware.ts
+// src/proxy.ts
 import createMiddleware from 'next-intl/middleware';
 import { routing } from './i18n/routing';
 

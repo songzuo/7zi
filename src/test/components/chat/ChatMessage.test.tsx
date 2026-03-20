@@ -26,14 +26,14 @@ describe('ChatMessage', () => {
   describe('user messages', () => {
     it('renders user message correctly', () => {
       const message = createMockMessage({ role: 'user' })
-      render(<ChatMessage message={message} teamMembers={mockTeamMembers} />)
+      render(<ChatMessage message={message} />)
       
       expect(screen.getByText('测试消息')).toBeInTheDocument()
     })
 
     it('aligns user message to the right', () => {
       const message = createMockMessage({ role: 'user' })
-      const { container } = render(<ChatMessage message={message} teamMembers={mockTeamMembers} />)
+      const { container } = render(<ChatMessage message={message} />)
       
       const wrapper = container.firstChild as HTMLElement
       expect(wrapper.className).toContain('justify-end')
@@ -44,7 +44,7 @@ describe('ChatMessage', () => {
         role: 'user',
         timestamp: new Date('2024-01-15T10:30:00')
       })
-      render(<ChatMessage message={message} teamMembers={mockTeamMembers} />)
+      render(<ChatMessage message={message} />)
       
       expect(screen.getByText(/10:30/)).toBeInTheDocument()
     })
@@ -53,14 +53,14 @@ describe('ChatMessage', () => {
   describe('assistant messages', () => {
     it('renders assistant message correctly', () => {
       const message = createMockMessage({ role: 'assistant' })
-      render(<ChatMessage message={message} teamMembers={mockTeamMembers} />)
+      render(<ChatMessage message={message}  />)
       
       expect(screen.getByText('测试消息')).toBeInTheDocument()
     })
 
     it('aligns assistant message to the left', () => {
       const message = createMockMessage({ role: 'assistant' })
-      const { container } = render(<ChatMessage message={message} teamMembers={mockTeamMembers} />)
+      const { container } = render(<ChatMessage message={message}  />)
       
       const wrapper = container.firstChild as HTMLElement
       expect(wrapper.className).toContain('justify-start')
@@ -71,7 +71,7 @@ describe('ChatMessage', () => {
         role: 'assistant',
         memberId: 'member-1'
       })
-      render(<ChatMessage message={message} teamMembers={mockTeamMembers} />)
+      render(<ChatMessage message={message}  />)
       
       expect(screen.getByText('🤖 测试AI')).toBeInTheDocument()
     })
@@ -81,14 +81,14 @@ describe('ChatMessage', () => {
         role: 'assistant',
         memberId: 'non-existent'
       })
-      render(<ChatMessage message={message} teamMembers={mockTeamMembers} />)
+      render(<ChatMessage message={message}  />)
       
       expect(screen.queryByText('🤖 测试AI')).not.toBeInTheDocument()
     })
 
     it('does not show member info when memberId is not provided', () => {
       const message = createMockMessage({ role: 'assistant' })
-      render(<ChatMessage message={message} teamMembers={mockTeamMembers} />)
+      render(<ChatMessage message={message}  />)
       
       expect(screen.queryByText('🤖 测试AI')).not.toBeInTheDocument()
     })
@@ -97,7 +97,7 @@ describe('ChatMessage', () => {
   describe('message content', () => {
     it('preserves whitespace in message content', () => {
       const message = createMockMessage({ content: 'line1\nline2\nline3' })
-      const { container } = render(<ChatMessage message={message} teamMembers={mockTeamMembers} />)
+      const { container } = render(<ChatMessage message={message}  />)
       
       const contentElement = container.querySelector('.whitespace-pre-wrap')
       expect(contentElement).toBeInTheDocument()

@@ -143,7 +143,7 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
     });
 
     socket.on('disconnect', (reason) => {
-      logger.info('[WebRTC] Socket disconnected:', reason);
+      logger.info('[WebRTC] Socket disconnected:', { reason });
       setIsConnected(false);
     });
 
@@ -154,14 +154,14 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
 
     // Meeting room handlers
     socket.on('room-joined', (data: { roomId: string; participants: MeetingParticipant[] }) => {
-      logger.info('[WebRTC] Joined room:', data.roomId);
+      logger.info('[WebRTC] Joined room', { roomId: data.roomId, participants: data.participants });
       const newParticipants = new Map<string, MeetingParticipant>();
       data.participants.forEach((p) => newParticipants.set(p.id, p));
       setParticipants(newParticipants);
     });
 
     socket.on('participant-joined', (participant: MeetingParticipant) => {
-      logger.info('[WebRTC] Participant joined:', participant.name);
+      logger.info('[WebRTC] Participant joined', { name: participant.name });
       setParticipants((prev) => {
         const next = new Map(prev);
         next.set(participant.id, participant);
@@ -171,7 +171,7 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
     });
 
     socket.on('participant-left', (data: { participantId: string }) => {
-      logger.info('[WebRTC] Participant left:', data.participantId);
+      logger.info('[WebRTC] Participant left', { participantId: data.participantId });
       setParticipants((prev) => {
         const next = new Map(prev);
         next.delete(data.participantId);
@@ -185,22 +185,22 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
 
     // Signaling handlers
     socket.on('offer', async (data: { sdp: RTCSessionDescriptionInit; senderId: string }) => {
-      logger.info('[WebRTC] Received offer from:', data.senderId);
+      logger.info('[WebRTC] Received offer', { senderId: data.senderId });
       await handleOffer(data);
     });
 
     socket.on('answer', async (data: { sdp: RTCSessionDescriptionInit; senderId: string }) => {
-      logger.info('[WebRTC] Received answer from:', data.senderId);
+      logger.info('[WebRTC] Received answer', { senderId: data.senderId });
       await handleAnswer(data);
     });
 
     socket.on('ice-candidate', async (data: { candidate: RTCIceCandidateInit; senderId: string }) => {
-      logger.info('[WebRTC] Received ICE candidate from:', data.senderId);
+      logger.info('[WebRTC] Received ICE candidate', { senderId: data.senderId });
       await handleIceCandidate(data);
     });
 
     socket.on('participant-muted', (data: { participantId: string; muted: boolean }) => {
-      logger.info('[WebRTC] Participant mute state changed:', data);
+      logger.info('[WebRTC] Participant mute state changed', { data });
       setParticipants((prev) => {
         const next = new Map(prev);
         const participant = next.get(data.participantId);
@@ -235,7 +235,7 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
     peerId: string,
     isInitiator: boolean = false
   ): Promise<RTCPeerConnection> => {
-    logger.info('[WebRTC] Creating peer connection for:', peerId, 'Initiator:', isInitiator);
+    logger.info('[WebRTC] Creating peer connection', { peerId, isInitiator });
 
     const pc = new RTCPeerConnection(RTC_CONFIG);
     peerConnectionsRef.current.set(peerId, pc);
@@ -259,7 +259,7 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
     };
 
     pc.oniceconnectionstatechange = () => {
-      logger.info('[WebRTC] ICE connection state for', peerId, ':', pc.iceConnectionState);
+      logger.info('[WebRTC] ICE connection state', { peerId, state: pc.iceConnectionState });
       if (pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'failed') {
         cleanupPeerConnection(peerId);
       }
@@ -267,7 +267,7 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
 
     // Handle remote stream
     pc.ontrack = (event) => {
-      logger.info('[WebRTC] Received remote stream from:', peerId);
+      logger.info('[WebRTC] Received remote stream', { peerId });
       const remoteStream = event.streams[0];
       setRemoteStreams((prev) => {
         const next = new Map(prev);
@@ -363,13 +363,13 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
     const pc = peerConnectionsRef.current.get(senderId);
 
     if (!pc) {
-      logger.warn('[WebRTC] Received answer for unknown peer:', senderId);
+      logger.warn('[WebRTC] Received answer for unknown peer', { senderId });
       return;
     }
 
     try {
       await pc.setRemoteDescription(new RTCSessionDescription(sdp));
-      logger.info('[WebRTC] Set remote description for:', senderId);
+      logger.info('[WebRTC] Set remote description', { senderId });
     } catch (error) {
       logger.error('[WebRTC] Error handling answer:', error);
       onError?.(error instanceof Error ? error : new Error('Failed to handle answer'));
@@ -384,13 +384,13 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
     const pc = peerConnectionsRef.current.get(senderId);
 
     if (!pc) {
-      logger.warn('[WebRTC] Received ICE candidate for unknown peer:', senderId);
+      logger.warn('[WebRTC] Received ICE candidate for unknown peer', { senderId });
       return;
     }
 
     try {
       await pc.addIceCandidate(new RTCIceCandidate(candidate));
-      logger.info('[WebRTC] Added ICE candidate from:', senderId);
+      logger.info('[WebRTC] Added ICE candidate', { senderId });
     } catch (error) {
       logger.error('[WebRTC] Error adding ICE candidate:', error);
       onError?.(error instanceof Error ? error : new Error('Failed to add ICE candidate'));
@@ -401,7 +401,7 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
    * Clean up peer connection
    */
   const cleanupPeerConnection = useCallback((peerId: string) => {
-    logger.info('[WebRTC] Cleaning up peer connection for:', peerId);
+    logger.info('[WebRTC] Cleaning up peer connection', { peerId });
 
     const pc = peerConnectionsRef.current.get(peerId);
     if (pc) {
@@ -471,7 +471,7 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
    * Leave meeting room
    */
   const leaveMeeting = useCallback(async () => {
-    logger.info('[WebRTC] Leaving meeting');
+    logger.info('[WebRTC] Leaving meeting', {});
     isCleanupRef.current = true;
 
     // Leave room

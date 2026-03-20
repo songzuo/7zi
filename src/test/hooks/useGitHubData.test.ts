@@ -10,7 +10,7 @@ const fetchMock = vi.fn() as MockedFunction<typeof fetch>;
 global.fetch = fetchMock;
 
 // Helper to create mock Response
-function createMockResponse(data: any, ok: boolean = true, status: number = 200, statusText: string = 'OK') {
+function createMockResponse(data: unknown, ok: boolean = true, status: number = 200, statusText: string = 'OK') {
   return {
     ok,
     status,

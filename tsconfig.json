@@ -31,5 +31,5 @@
     ".next/dev/types/**/*.ts",
     "src/vitest.d.ts"
   ],
-  "exclude": ["node_modules", "_nested-app-backup"]
+  "exclude": ["node_modules", "_nested-app-backup", ".next"]
 }

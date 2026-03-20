@@ -3,6 +3,7 @@
  * 统一的 GitHub API 请求处理，减少重复代码
  */
 
+import { logger } from '../logger';
 import { NextResponse } from 'next/server';
 
 const GITHUB_API_BASE = 'https://api.github.com';
@@ -111,7 +112,7 @@ export async function fetchFromGitHub(
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error('GitHub API error:', error);
+    logger.error('GitHub API error (fetchFromGitHub)', error);
     return NextResponse.json(
       { error: '服务器内部错误' },
       { status: 500 }
@@ -170,7 +171,7 @@ export async function fetchGitHubIssue(issueNumber: number, options: GitHubAPIOp
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error('GitHub API error:', error);
+    logger.error('GitHub API error (fetchGitHubIssueDetail)', error);
     return NextResponse.json(
       { error: '服务器内部错误' },
       { status: 500 }

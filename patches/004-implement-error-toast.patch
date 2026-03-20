@@ -1,0 +1,26 @@
+diff --git a/src/components/meeting/MeetingRoom.tsx b/src/components/meeting/MeetingRoom.tsx
+index 1234567..abcdefg 100644
+--- a/src/components/meeting/MeetingRoom.tsx
++++ b/src/components/meeting/MeetingRoom.tsx
+@@ -1,5 +1,6 @@
+ import React, { useState, useEffect, useRef } from 'react';
+ import { useTranslations } from 'next-intl';
++import { useToast } from '@/components/ui/use-toast';
+ import type { MeetingRoomProps } from './types';
+
+ /**
+@@ -402,7 +403,10 @@ export function MeetingRoom({ meetingId, isHost = false }: MeetingRoomProps) {
+   });
+
+   const handleError = (error: Error) => {
+     console.error('Meeting error:', error);
+-    // TODO: Show error toast
++    const { toast } = useToast();
++    toast({
++      variant: 'destructive',
++      title: t('meeting.error.title', { defaultValue: 'Meeting Error' }),
++      description: error.message || t('meeting.error.unknown', { defaultValue: 'An error occurred' }),
++    });
+   };
+
+   const {

@@ -330,7 +330,7 @@ export async function optimizeDatabase(): Promise<{
   try {
     await migrate();
   } catch (error) {
-    logger.warn('Migration failed, continuing with optimization', error, { category: 'db' });
+    logger.warn('Migration failed, continuing with optimization', { error, category: 'db' });
   }
 
   // Clean up old data
@@ -360,14 +360,16 @@ export async function optimizeDatabase(): Promise<{
 /**
  * Get database health report
  */
-export async function getDatabaseHealth(): Promise<{
+export type DatabaseHealthResult = {
   size: ReturnType<typeof getDatabaseSize>;
   migrationVersion: number;
   latestMigration: number;
   needsMigration: boolean;
   slowQueryAnalysis: Awaited<ReturnType<typeof analyzeSlowQueries>>;
   recommendations: string[];
-}> {
+};
+
+export async function getDatabaseHealth(): Promise<DatabaseHealthResult> {
   const size = getDatabaseSize();
   const migrationVersion = await getCurrentVersion();
   const latestMigration = MIGRATIONS[MIGRATIONS.length - 1]?.version || 0;

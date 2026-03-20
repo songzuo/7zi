@@ -31,9 +31,9 @@ export function formatTimeAgo(date: Date | string, now?: Date): string {
   const diffDays = Math.floor(diffMs / 86400000);
 
   if (diffMins < 1) return '刚刚';
-  if (diffMins < 60) return `${diffMins}分钟前`;
-  if (diffHours < 24) return `${diffHours}小时前`;
-  if (diffDays < 7) return `${diffDays}天前`;
+  if (diffMins < 120) return `${diffMins}分钟前`; // Show minutes up to 2 hours
+  if (diffHours <= 24) return `${diffHours}小时前`;
+  if (diffDays <= 7) return `${diffDays}天前`;
 
   return then.toLocaleDateString('zh-CN');
 }

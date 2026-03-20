@@ -2,6 +2,7 @@
  * @vitest-environment jsdom
  */
 
+// @ts-ignore - Mock type compatibility issues
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   getCsrfToken,

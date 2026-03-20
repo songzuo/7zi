@@ -20,7 +20,7 @@ import { setupVoiceMeetingHandlers } from '@/lib/voice-meeting/signaling';
 // Types
 // ============================================================================
 
-interface AuthenticatedSocket extends Socket {
+export interface AuthenticatedSocket extends Socket {
   data: {
     user: {
       id: string;
@@ -310,7 +310,7 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
       const roomUser: RoomUser = {
         id: user.id,
         name: user.name,
-        email: user.email,
+        email: user.email || '',
         avatar: user.avatar,
         color: generateColor(user.id),
         joinedAt: new Date(),
@@ -572,7 +572,7 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
 
 function setupServer(ioServer: SocketIOServer): void {
   // Use authentication middleware
-  ioServer.use(authenticateSocket as any);
+  ioServer.use(authenticateSocket as (socket: Socket, next: (err?: Error) => void) => void);
 
   // Handle connections
   ioServer.on('connection', (socket) => {

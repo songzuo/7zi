@@ -5,9 +5,10 @@
  * for voice meetings
  */
 
-import type { AuthenticatedSocket, Server as SocketIOServer } from 'socket.io';
+import type { Server as SocketIOServer } from 'socket.io';
 import { logger } from '@/lib/logger';
 import type { Socket } from 'socket.io';
+import type { AuthenticatedSocket } from '@/lib/websocket/server';
 
 // ============================================================================
 // Types
@@ -530,7 +531,7 @@ export function getAllMeetingRooms(): MeetingRoom[] {
 /**
  * Clean up inactive rooms
  */
-export function cleanupInactiveRooms(maxIdleTimeMs: number = 4 * 60 * 60 * 1000): void {
+export function cleanupInactiveRooms(maxIdleTimeMs: number = 4 * 60 * 60 * 1000): number {
   const now = Date.now();
   const roomsToClean: string[] = [];
 
@@ -612,9 +613,7 @@ export function setupVoiceMeetingHandlers(io: SocketIOServer): void {
   // Schedule cleanup of inactive rooms every hour
   setInterval(() => {
     const cleaned = cleanupInactiveRooms();
-    if (cleaned > 0) {
-      logger.info(`[Meeting] Cleaned up ${cleaned} inactive rooms`);
-    }
+    logger.info(`[Meeting] Cleanup check complete. Active rooms: ${meetingRooms.size}`);
   }, 60 * 60 * 1000);
 
   logger.info('[Meeting] Voice meeting handlers registered');

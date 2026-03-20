@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import { SocialLinks } from "./SocialLinks";
 
@@ -28,7 +29,8 @@ const contactInfo = [
 ];
 
 export function Footer() {
-  const currentYear = new Date().getFullYear();
+  // Memoize currentYear to prevent recalculation on every render
+  const currentYear = useMemo(() => new Date().getFullYear(), []);
 
   return (
     <footer className="bg-zinc-900 dark:bg-black text-zinc-300 dark:text-zinc-400">

@@ -567,7 +567,7 @@ export async function getTransactions(
     }
     
     const stmt = db.prepare(sql);
-    const rows = stmt.all(...params) as Record<string, unknown>[];
+    const rows = stmt.all(...params) as unknown as Record<string, unknown>[];
     return rows.map(mapRowToTransaction);
   }
 
@@ -580,7 +580,7 @@ export async function getTransactions(
   });
 
   const stmt = db.prepare(sql);
-  const rows = stmt.all(...params) as Record<string, unknown>[];
+  const rows = stmt.all(...params) as unknown as Record<string, unknown>[];
 
   return rows.map(mapRowToTransaction);
 }

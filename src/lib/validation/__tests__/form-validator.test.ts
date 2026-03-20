@@ -1,4 +1,5 @@
 /**
+// @ts-ignore - Mock type compatibility issues
  * @vitest-environment jsdom
  */
 

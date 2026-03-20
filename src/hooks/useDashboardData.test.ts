@@ -12,11 +12,13 @@ const originalConsoleError = console.error;
 describe('useDashboardData', () => {
   beforeEach(() => {
     mockFetch.mockReset();
+    mockFetch.mockClear();
     console.error = vi.fn();
   });
 
   afterEach(() => {
     vi.clearAllMocks();
+    vi.useRealTimers();
     console.error = originalConsoleError;
   });
 

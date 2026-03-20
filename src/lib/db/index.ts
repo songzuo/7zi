@@ -29,11 +29,13 @@ export interface DatabaseStatement {
 
 export interface DatabaseConnection {
   query: (sql: string, params?: unknown[]) => unknown;
+  queryRows: (sql: string, params?: unknown[]) => Record<string, unknown>[];
   exec: (sql: string, params?: unknown[]) => DatabaseResult;
   prepare: (sql: string) => DatabaseStatement;
   pragma: (name: string, options?: { simple: boolean }) => unknown;
   getConnection?: () => unknown;
-  batch: (statements: Array<{ sql: string; params?: unknown[] }>) => DatabaseResult[];
+  batch: (statements: Array<{ sql: string; params?: unknown[] }>) => Promise<DatabaseResult[]>;
+  paginate?: (sql: string, pagination: unknown, params?: unknown[]) => Promise<unknown>;
 }
 
 /**
@@ -46,9 +48,18 @@ function initializeDatabase(): Database.Database {
   }
 
   const dbPath = process.env.DATABASE_PATH || '/tmp/7zi-database.sqlite';
-  
+
+  // better-sqlite3 verbose callback type: (message?: unknown, ...additionalArgs: unknown[]) => void
+  const verboseCallback = process.env.NODE_ENV === 'development'
+    ? ((sql: unknown, ..._args: unknown[]) => {
+        if (typeof sql === 'string') {
+          logger.debug(sql, { category: 'db' });
+        }
+      }) as ((message?: unknown, ...additionalArgs: unknown[]) => void)
+    : undefined;
+
   dbInstance = new Database(dbPath, {
-    verbose: process.env.NODE_ENV === 'development' ? (sql: string) => logger.debug(sql, { category: 'db' }) : undefined,
+    verbose: verboseCallback,
   });
 
   // Enable performance optimizations
@@ -96,6 +107,18 @@ export function getDatabase(): DatabaseConnection {
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         logger.error('[Database Query Error]', error, { category: 'db', sql, params, error: errorMessage, timestamp: new Date().toISOString() });
+        throw error;
+      }
+    },
+
+    queryRows: (sql: string, params?: unknown[]) => {
+      try {
+        const stmt = db.prepare(sql);
+        const result = params ? stmt.all(...params) : stmt.all();
+        return Array.isArray(result) ? result as Record<string, unknown>[] : [];
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        logger.error('[Database QueryRows Error]', error, { category: 'db', sql, params, error: errorMessage, timestamp: new Date().toISOString() });
         throw error;
       }
     },
@@ -204,11 +227,11 @@ export function getDatabase(): DatabaseConnection {
       return withPerformanceLogging(baseConnection);
     } catch {
       // Performance logging module not available, return base connection
-      return baseConnection;
+      return baseConnection as unknown as DatabaseConnection;
     }
   }
 
-  return baseConnection;
+  return baseConnection as unknown as DatabaseConnection;
 }
 
 /**

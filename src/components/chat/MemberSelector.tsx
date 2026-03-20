@@ -22,8 +22,12 @@ function getStatusColor(status: TeamMember['status']): string {
   switch (status) {
     case 'online':
       return 'bg-green-400';
+    case 'working':
+      return 'bg-green-400';
     case 'busy':
       return 'bg-yellow-400';
+    case 'idle':
+      return 'bg-zinc-400';
     case 'offline':
       return 'bg-zinc-400';
   }
@@ -86,11 +90,11 @@ export function MemberSelector({
             <button
               key={member.id}
               onClick={() => {
-                onSelect(member.id);
+                onSelect(String(member.id));
                 onToggle();
               }}
               className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-colors flex items-center gap-2 ${
-                selectedMemberId === member.id ? 'bg-white/30 text-white' : 'text-white/80 hover:bg-white/20'
+                selectedMemberId === String(member.id) ? 'bg-white/30 text-white' : 'text-white/80 hover:bg-white/20'
               }`}
             >
               <span>{member.emoji}</span>

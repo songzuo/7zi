@@ -262,7 +262,7 @@ export function useWebSocket(
         logger.error('[useWebSocket] Failed to send message:', err);
       }
     } else {
-      logger.warn('[useWebSocket] WebSocket is not connected. Message not sent:', data);
+      logger.warn('[useWebSocket] WebSocket is not connected. Message not sent:', { data: String(data) });
     }
   }, []);
 

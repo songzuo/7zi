@@ -1,3 +1,7 @@
+/**
+ * @vitest-environment jsdom
+ */
+
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { useGitHubData, getMockCommits, getMockStats, getMockIssues } from './useGitHubData';
@@ -11,12 +15,15 @@ const originalConsoleWarn = console.warn;
 
 describe('useGitHubData', () => {
   beforeEach(() => {
+    vi.useFakeTimers();
     mockFetch.mockReset();
+    mockFetch.mockClear();
     console.warn = vi.fn();
   });
 
   afterEach(() => {
     vi.clearAllMocks();
+    vi.useRealTimers();
     console.warn = originalConsoleWarn;
   });
 
@@ -234,110 +241,114 @@ describe('useGitHubData', () => {
     it('应该按指定间隔自动刷新数据', async () => {
       vi.useFakeTimers();
 
-      const mockIssues1 = [createMockIssue({ number: 1 })];
-      const mockIssues2 = [createMockIssue({ number: 2 })];
+      try {
+        const mockIssues1 = [createMockIssue({ number: 1 })];
+        const mockIssues2 = [createMockIssue({ number: 2 })];
 
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve(mockIssues1),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve([]),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve(createMockRepoStats()),
-        })
-        // 第二次刷新
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve(mockIssues2),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve([]),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve(createMockRepoStats()),
+        mockFetch
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve(mockIssues1),
+          })
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve([]),
+          })
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve(createMockRepoStats()),
+          })
+          // 第二次刷新
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve(mockIssues2),
+          })
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve([]),
+          })
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve(createMockRepoStats()),
+          });
+
+        const { result } = renderHook(() =>
+          useGitHubData({
+            owner: 'owner',
+            repo: 'repo',
+            refreshInterval: 60000, // 1 minute
+          })
+        );
+
+        // 等待初始加载
+        await act(async () => {
+          await vi.runAllTimersAsync();
         });
 
-      const { result } = renderHook(() =>
-        useGitHubData({
-          owner: 'owner',
-          repo: 'repo',
-          refreshInterval: 60000, // 1 minute
-        })
-      );
+        expect(result.current.issues).toHaveLength(1);
+        expect(result.current.issues[0].number).toBe(1);
 
-      // 等待初始加载
-      await act(async () => {
-        await vi.runAllTimersAsync();
-      });
+        // 快进时间
+        await act(async () => {
+          await vi.advanceTimersByTimeAsync(60000);
+        });
 
-      expect(result.current.issues).toHaveLength(1);
-      expect(result.current.issues[0].number).toBe(1);
+        // 等待第二次请求完成
+        await act(async () => {
+          await vi.runAllTimersAsync();
+        });
 
-      // 快进时间
-      await act(async () => {
-        await vi.advanceTimersByTimeAsync(60000);
-      });
-
-      // 等待第二次请求完成
-      await act(async () => {
-        await vi.runAllTimersAsync();
-      });
-
-      expect(result.current.issues[0].number).toBe(2);
-
-      vi.useRealTimers();
+        expect(result.current.issues[0].number).toBe(2);
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     it('当 refreshInterval 为 0 时不应该自动刷新', async () => {
       vi.useFakeTimers();
 
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve([]),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve([]),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve(createMockRepoStats()),
+      try {
+        mockFetch
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve([]),
+          })
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve([]),
+          })
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve(createMockRepoStats()),
+          });
+
+        renderHook(() =>
+          useGitHubData({
+            owner: 'owner',
+            repo: 'repo',
+            refreshInterval: 0,
+          })
+        );
+
+        // 等待初始加载
+        await act(async () => {
+          await vi.runAllTimersAsync();
         });
 
-      renderHook(() =>
-        useGitHubData({
-          owner: 'owner',
-          repo: 'repo',
-          refreshInterval: 0,
-        })
-      );
+        // 初始调用 3 次
+        expect(mockFetch).toHaveBeenCalledTimes(3);
 
-      // 等待初始加载
-      await act(async () => {
-        await vi.runAllTimersAsync();
-      });
+        mockFetch.mockClear();
 
-      // 初始调用 3 次
-      expect(mockFetch).toHaveBeenCalledTimes(3);
+        // 快进时间，确保不再调用
+        await act(async () => {
+          await vi.advanceTimersByTimeAsync(60000);
+        });
 
-      mockFetch.mockClear();
-
-      // 快进时间，确保不再调用
-      await act(async () => {
-        await vi.advanceTimersByTimeAsync(60000);
-      });
-
-      expect(mockFetch).not.toHaveBeenCalled();
-
-      vi.useRealTimers();
+        expect(mockFetch).not.toHaveBeenCalled();
+      } finally {
+        vi.useRealTimers();
+      }
     });
   });
 
@@ -345,57 +356,59 @@ describe('useGitHubData', () => {
     it('应该能够手动刷新数据', async () => {
       vi.useFakeTimers();
 
-      const mockIssues1 = [createMockIssue({ number: 1 })];
-      const mockIssues2 = [createMockIssue({ number: 2 })];
+      try {
+        const mockIssues1 = [createMockIssue({ number: 1 })];
+        const mockIssues2 = [createMockIssue({ number: 2 })];
 
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve(mockIssues1),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve([]),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve(createMockRepoStats()),
-        })
-        // 第二次刷新
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve(mockIssues2),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve([]),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve(createMockRepoStats()),
+        mockFetch
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve(mockIssues1),
+          })
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve([]),
+          })
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve(createMockRepoStats()),
+          })
+          // 第二次刷新
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve(mockIssues2),
+          })
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve([]),
+          })
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve(createMockRepoStats()),
+          });
+
+        const { result } = renderHook(() =>
+          useGitHubData({ owner: 'owner', repo: 'repo' })
+        );
+
+        // 等待初始加载
+        await act(async () => {
+          await vi.runAllTimersAsync();
         });
 
-      const { result } = renderHook(() =>
-        useGitHubData({ owner: 'owner', repo: 'repo' })
-      );
+        expect(result.current.issues).toHaveLength(1);
+        expect(result.current.issues[0].number).toBe(1);
 
-      // 等待初始加载
-      await act(async () => {
-        await vi.runAllTimersAsync();
-      });
+        // 手动刷新
+        await act(async () => {
+          await result.current.refresh();
+          await vi.runAllTimersAsync();
+        });
 
-      expect(result.current.issues).toHaveLength(1);
-      expect(result.current.issues[0].number).toBe(1);
-
-      // 手动刷新
-      await act(async () => {
-        await result.current.refresh();
-        await vi.runAllTimersAsync();
-      });
-
-      expect(result.current.issues[0].number).toBe(2);
-
-      vi.useRealTimers();
+        expect(result.current.issues[0].number).toBe(2);
+      } finally {
+        vi.useRealTimers();
+      }
     });
   });
 
@@ -403,88 +416,92 @@ describe('useGitHubData', () => {
     it('应该正确合并活动', async () => {
       vi.useFakeTimers();
 
-      const now = Date.now();
-      const mockIssues = [
-        createMockIssue({
-          number: 1,
-          title: 'Issue 1',
-          updated_at: new Date(now).toISOString(),
-        }),
-      ];
+      try {
+        const now = Date.now();
+        const mockIssues = [
+          createMockIssue({
+            number: 1,
+            title: 'Issue 1',
+            updated_at: new Date(now).toISOString(),
+          }),
+        ];
 
-      const mockCommits = [
-        createMockCommit({
-          sha: 'abc123',
-          commit: {
-            message: 'Commit 1',
-            author: { name: 'Dev', date: new Date(now - 1000).toISOString() },
-          },
-        }),
-      ];
+        const mockCommits = [
+          createMockCommit({
+            sha: 'abc123',
+            commit: {
+              message: 'Commit 1',
+              author: { name: 'Dev', date: new Date(now - 1000).toISOString() },
+            },
+          }),
+        ];
 
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve(mockIssues),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve(mockCommits),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve(createMockRepoStats()),
+        mockFetch
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve(mockIssues),
+          })
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve(mockCommits),
+          })
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve(createMockRepoStats()),
+          });
+
+        const { result } = renderHook(() =>
+          useGitHubData({ owner: 'owner', repo: 'repo' })
+        );
+
+        await act(async () => {
+          await vi.runAllTimersAsync();
         });
 
-      const { result } = renderHook(() =>
-        useGitHubData({ owner: 'owner', repo: 'repo' })
-      );
-
-      await act(async () => {
-        await vi.runAllTimersAsync();
-      });
-
-      expect(result.current.activities.length).toBe(2);
-
-      vi.useRealTimers();
+        expect(result.current.activities.length).toBe(2);
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     it('应该限制活动数量为 20 条', async () => {
       vi.useFakeTimers();
 
-      const mockIssues = Array.from({ length: 15 }, (_, i) =>
-        createMockIssue({ number: i + 1 })
-      );
-      const mockCommits = Array.from({ length: 15 }, (_, i) =>
-        createMockCommit({ sha: `sha${i}` })
-      );
+      try {
+        const mockIssues = Array.from({ length: 15 }, (_, i) =>
+          createMockIssue({ number: i + 1 })
+        );
+        const mockCommits = Array.from({ length: 15 }, (_, i) =>
+          createMockCommit({ sha: `sha${i}` })
+        );
 
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve(mockIssues),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve(mockCommits),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve(createMockRepoStats()),
+        mockFetch
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve(mockIssues),
+          })
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve(mockCommits),
+          })
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve(createMockRepoStats()),
+          });
+
+        const { result } = renderHook(() =>
+          useGitHubData({ owner: 'owner', repo: 'repo' })
+        );
+
+        await act(async () => {
+          await vi.runAllTimersAsync();
         });
 
-      const { result } = renderHook(() =>
-        useGitHubData({ owner: 'owner', repo: 'repo' })
-      );
-
-      await act(async () => {
-        await vi.runAllTimersAsync();
-      });
-
-      expect(result.current.isLoading).toBe(false);
-      expect(result.current.activities.length).toBeLessThanOrEqual(20);
-
-      vi.useRealTimers();
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.activities.length).toBeLessThanOrEqual(20);
+      } finally {
+        vi.useRealTimers();
+      }
     });
   });
 
@@ -492,37 +509,39 @@ describe('useGitHubData', () => {
     it('应该过滤掉 Pull Requests', async () => {
       vi.useFakeTimers();
 
-      const mockIssues = [
-        createMockIssue({ number: 1, title: 'Real Issue' }),
-        createMockIssue({ number: 2, title: 'PR', pull_request: {} }),
-      ];
+      try {
+        const mockIssues = [
+          createMockIssue({ number: 1, title: 'Real Issue' }),
+          createMockIssue({ number: 2, title: 'PR', pull_request: {} }),
+        ];
 
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve(mockIssues),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve([]),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve(createMockRepoStats()),
+        mockFetch
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve(mockIssues),
+          })
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve([]),
+          })
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve(createMockRepoStats()),
+          });
+
+        const { result } = renderHook(() =>
+          useGitHubData({ owner: 'owner', repo: 'repo' })
+        );
+
+        await act(async () => {
+          await vi.runAllTimersAsync();
         });
 
-      const { result } = renderHook(() =>
-        useGitHubData({ owner: 'owner', repo: 'repo' })
-      );
-
-      await act(async () => {
-        await vi.runAllTimersAsync();
-      });
-
-      expect(result.current.issues).toHaveLength(1);
-      expect(result.current.issues[0].title).toBe('Real Issue');
-
-      vi.useRealTimers();
+        expect(result.current.issues).toHaveLength(1);
+        expect(result.current.issues[0].title).toBe('Real Issue');
+      } finally {
+        vi.useRealTimers();
+      }
     });
   });
 
@@ -530,46 +549,48 @@ describe('useGitHubData', () => {
     it('组件卸载时应该清理 interval', async () => {
       vi.useFakeTimers();
 
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve([]),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve([]),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: () => Promise.resolve(createMockRepoStats()),
+      try {
+        mockFetch
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve([]),
+          })
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve([]),
+          })
+          .mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.resolve(createMockRepoStats()),
+          });
+
+        const { unmount } = renderHook(() =>
+          useGitHubData({
+            owner: 'owner',
+            repo: 'repo',
+            refreshInterval: 1000,
+          })
+        );
+
+        await act(async () => {
+          await vi.runAllTimersAsync();
         });
 
-      const { unmount } = renderHook(() =>
-        useGitHubData({
-          owner: 'owner',
-          repo: 'repo',
-          refreshInterval: 1000,
-        })
-      );
+        expect(mockFetch).toHaveBeenCalledTimes(3);
 
-      await act(async () => {
-        await vi.runAllTimersAsync();
-      });
+        unmount();
 
-      expect(mockFetch).toHaveBeenCalledTimes(3);
+        mockFetch.mockClear();
 
-      unmount();
+        // 快进时间，确保不再调用
+        await act(async () => {
+          await vi.advanceTimersByTimeAsync(5000);
+        });
 
-      mockFetch.mockClear();
-
-      // 快进时间，确保不再调用
-      await act(async () => {
-        await vi.advanceTimersByTimeAsync(5000);
-      });
-
-      expect(mockFetch).not.toHaveBeenCalled();
-
-      vi.useRealTimers();
+        expect(mockFetch).not.toHaveBeenCalled();
+      } finally {
+        vi.useRealTimers();
+      }
     });
   });
 });

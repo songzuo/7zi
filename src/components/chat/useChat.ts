@@ -8,6 +8,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Message, TeamMember } from './types';
 import { initialMessage } from './data';
+import { UnifiedTeamMember } from '@/types/members';
 
 /**
  * 生成 AI 回复内容
@@ -18,7 +19,7 @@ import { initialMessage } from './data';
 function generateResponse(
   userMessage: string,
   selectedMemberId: string,
-  teamMembers: TeamMember[]
+  teamMembers: UnifiedTeamMember[]
 ): string {
   const lowerMessage = userMessage.toLowerCase();
   const member = selectedMemberId
@@ -105,8 +106,9 @@ function generateResponse(
 /**
  * 聊天 Hook
  * @description 管理聊天状态和消息处理逻辑
+ * @param teamMembers - 团队成员列表（使用 UnifiedTeamMember 类型）
  */
-export function useChat(teamMembers: TeamMember[]) {
+export function useChat(teamMembers: UnifiedTeamMember[]) {
   const [messages, setMessages] = useState<Message[]>([initialMessage]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);

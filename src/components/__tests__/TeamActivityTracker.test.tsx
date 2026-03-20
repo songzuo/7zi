@@ -97,7 +97,12 @@ describe('TeamActivityTracker', () => {
       // 等待数据加载完成
       await screen.findByText(/最近活动/, {}, { timeout: 5000 });
 
-      const filterButton = screen.getByText(/过滤/);
+      // 获取主过滤按钮（第一个包含"过滤"文本的按钮）
+      const filterButton = screen.getAllByText(/过滤/).find(btn =>
+        btn.textContent === '🔍 过滤' ||
+        btn.classList.contains('px-3') ||
+        btn.classList.contains('rounded-lg')
+      ) || screen.getAllByText(/过滤/)[0];
       fireEvent.click(filterButton);
 
       // 等待过滤面板出现
@@ -113,10 +118,15 @@ describe('TeamActivityTracker', () => {
       ) || commitButtons[0];
       fireEvent.click(filterPanelCommitButton);
 
-      // 应该显示过滤计数
+      // 应该显示过滤计数 - 再次获取主过滤按钮
       await waitFor(() => {
-        const filterButton = screen.getByRole('button', { name: /过滤/ });
-        expect(filterButton.textContent).toMatch(/[1-9]/);
+        const filterButtons = screen.getAllByText(/过滤/);
+        const mainFilterButton = filterButtons.find(btn =>
+          btn.textContent === '🔍 过滤' ||
+          btn.classList.contains('px-3') ||
+          btn.classList.contains('rounded-lg')
+        ) || filterButtons[0];
+        expect(mainFilterButton.textContent).toMatch(/[1-9]/);
       }, { timeout: 5000 });
     });
 

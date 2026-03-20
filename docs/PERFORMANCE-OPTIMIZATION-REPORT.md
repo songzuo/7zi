@@ -12,8 +12,8 @@
 
 | 技术 | 版本 | 说明 |
 |------|------|------|
-| Next.js | 16.1.6 | App Router, standalone 输出 |
-| React | 19.2.3 | 最新版本 |
+| Next.js | 16.1.7 | App Router, standalone 输出 |
+| React | 19.2.4 | 最新版本 |
 | TypeScript | 5.x | 严格模式 |
 | Tailwind CSS | 4.x | 原子化 CSS |
 | next-intl | 4.8.3 | 国际化 |

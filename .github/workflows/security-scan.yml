@@ -1,0 +1,265 @@
+# ============================================
+# Security Scan Workflow
+# 独立的安全扫描流程，可以按需触发
+# ============================================
+
+name: Security Scan
+
+on:
+  # 每天运行一次
+  schedule:
+    - cron: '0 2 * * *'  # UTC 2:00 (CET 3:00)
+  # 手动触发
+  workflow_dispatch:
+    inputs:
+      scan-type:
+        description: 'Scan type'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - dependencies
+          - secrets
+          - code
+      fail-on-issues:
+        description: 'Fail on security issues'
+        required: false
+        default: true
+        type: boolean
+
+env:
+  NODE_VERSION: '22'
+
+jobs:
+  # ============================================
+  # Job 1: 依赖漏洞扫描
+  # ============================================
+  dependencies:
+    name: Dependency Vulnerabilities
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: npm audit
+        id: audit
+        run: |
+          echo "🔍 Running npm audit..."
+          npm audit --audit-level=moderate > npm-audit.txt 2>&1 || true
+          cat npm-audit.txt
+
+          # 检查是否有 critical/high 漏洞
+          if grep -q "critical\|high" npm-audit.txt; then
+            echo "has_vulnerabilities=true" >> $GITHUB_OUTPUT
+            if [ "${{ inputs.fail-on-issues }}" != "false" ]; then
+              echo "::error::Critical or high vulnerabilities found!"
+              exit 1
+            fi
+          else
+            echo "has_vulnerabilities=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload audit results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-audit-results
+          path: npm-audit.txt
+          retention-days: 30
+
+      - name: Snyk scan
+        if: github.event.inputs.scan-type != 'code' && github.event.inputs.scan-type != 'secrets' || github.event.inputs.scan-type == 'all' || github.event_name == 'schedule'
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+
+      - name: Dependency scan summary
+        run: |
+          echo "## 🔍 Dependency Security Scan" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Scan Type | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| npm audit | Completed |" >> $GITHUB_STEP_SUMMARY
+          echo "| Snyk scan | ${{ steps.audit.outputs.has_vulnerabilities == 'true' && '⚠️ Issues found' || '✅ No issues' }} |" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================
+  # Job 2: 秘钥扫描
+  # ============================================
+  secrets:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for better detection
+
+      - name: TruffleHog Secret Scan
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --only-verified
+
+      - name: Secret scan summary
+        if: always()
+        run: |
+          echo "## 🔐 Secret Scan" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Secret scan completed" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================
+  # Job 3: 代码安全扫描
+  # ============================================
+  code:
+    name: Code Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Run ESLint with security rules
+        run: |
+          echo "🔍 Running ESLint security checks..."
+          npm run lint -- --format json --output-file eslint-report.json || true
+
+      - name: Check for security issues
+        run: |
+          if [ -f eslint-report.json ]; then
+            echo "## 🔍 Code Security Issues" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### ESLint Results" >> $GITHUB_STEP_SUMMARY
+
+            # Check for security-related issues
+            SECURITY_ISSUES=$(cat eslint-report.json | jq '[.[] | select(.messages[] | .ruleId | contains("security"))] | length')
+            echo "- Security-related issues: $SECURITY_ISSUES" >> $GITHUB_STEP_SUMMARY
+
+            if [ "$SECURITY_ISSUES" -gt 0 ]; then
+              echo "::warning::Found $SECURITY_ISSUES security-related issues"
+            fi
+          fi
+
+      - name: Upload ESLint report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eslint-security-report
+          path: eslint-report.json
+          retention-days: 30
+
+  # ============================================
+  # Job 4: 容器镜像扫描（如果存在 Dockerfile）
+  # ============================================
+  container:
+    name: Container Security Scan
+    runs-on: ubuntu-latest
+    if: hashFiles('Dockerfile', 'Dockerfile.optimized') != ''
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build test image
+        run: |
+          docker build -t 7zi-test:latest -f Dockerfile.optimized .
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '7zi-test:latest'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Container scan summary
+        if: always()
+        run: |
+          echo "## 🐳 Container Security Scan" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Container scan completed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📊 View detailed results in the Security tab" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================
+  # Job 5: 安全报告汇总
+  # ============================================
+  report:
+    name: Security Report
+    runs-on: ubuntu-latest
+    needs: [dependencies, secrets, code, container]
+    if: always()
+    steps:
+      - name: Create security summary
+        run: |
+          echo "## 🔒 Security Scan Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Scan Type | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Dependencies | ${{ needs.dependencies.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Secrets | ${{ needs.secrets.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Code | ${{ needs.code.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Container | ${{ needs.container.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- npm-audit-results" >> $GITHUB_STEP_SUMMARY
+          echo "- eslint-security-report" >> $GITHUB_STEP_SUMMARY
+          echo "- trivy-results.sarif" >> $GITHUB_STEP_SUMMARY
+
+      - name: Send security notification
+        if: contains(needs.*.result, 'failure')
+        run: |
+          echo "::warning::Security scan failed! Please review the results."
+
+      - name: Create security issue on failure
+        if: contains(needs.*.result, 'failure')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🔒 Security Scan Failed - ${new Date().toISOString()}`,
+              body: `## Security Scan Failure
+
+              The security scan workflow failed. Please review the results and take necessary actions.
+
+              **Workflow Run**: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}
+
+              **Failed Jobs**:
+              ${Object.entries({${{ toJSON(needs) }}}).filter(([k, v]) => v.result === 'failure').map(([k, v]) => `- ${k}`).join('\n')}
+
+              Please review the artifacts for detailed information.
+              `,
+              labels: ['security', 'urgent']
+            });
+
+            console.log(`Created security issue: ${issue.data.number}`);

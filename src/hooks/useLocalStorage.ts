@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { logger } from '@/lib/logger';
 
 interface UseLocalStorageOptions<T> {
   serialize?: (value: T) => string;
@@ -26,25 +27,28 @@ export function useLocalStorage<T>(
       const item = window.localStorage.getItem(key);
       return item ? deserialize(item) : initialValue;
     } catch (error) {
-      console.warn(`Error reading localStorage key "${key}":`, error);
+      logger.warn(`Error reading localStorage key "${key}"`, { error: String(error) });
       return initialValue;
     }
   });
 
   const setValue = useCallback(
     (value: T | ((prev: T) => T)) => {
-      try {
-        const valueToStore = value instanceof Function ? value(storedValue) : value;
-        setStoredValue(valueToStore);
-        
+      setStoredValue((currentValue) => {
+        const valueToStore = value instanceof Function ? value(currentValue) : value;
+
         if (typeof window !== 'undefined') {
-          window.localStorage.setItem(key, serialize(valueToStore));
+          try {
+            window.localStorage.setItem(key, serialize(valueToStore));
+          } catch (error) {
+            logger.warn(`Error setting localStorage key "${key}"`, { error: String(error) });
+          }
         }
-      } catch (error) {
-        console.warn(`Error setting localStorage key "${key}":`, error);
-      }
+
+        return valueToStore;
+      });
     },
-    [key, serialize, storedValue]
+    [key, serialize]
   );
 
   return [storedValue, setValue];

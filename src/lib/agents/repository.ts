@@ -241,7 +241,7 @@ export async function getAllAgents(options?: {
   });
 
   const stmt = db.prepare(sql);
-  const rows = stmt.all(...params) as Record<string, unknown>[];
+  const rows = stmt.all(...params) as unknown as Record<string, unknown>[];
 
   return rows.map(mapRowToAgent);
 }
@@ -549,7 +549,7 @@ export async function getAgentDataAccessLog(
   }
 
   const stmt = db.prepare(sql);
-  const rows = stmt.all(...params) as Record<string, unknown>[];
+  const rows = stmt.all(...params) as unknown as Record<string, unknown>[];
 
   return rows.map((row) => ({
     id: row.id as string,

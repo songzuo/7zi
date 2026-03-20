@@ -48,6 +48,38 @@ export const Navigation: React.FC = () => {
   const prevPathnameRef = React.useRef(pathname);
   const t = useTranslations('nav');
 
+  // Memoize class name generators to prevent function recreation on every render
+  const getNavLinkClasses = useCallback((itemHref: string) => {
+    const isActive = pathname === itemHref || pathname?.startsWith(`${itemHref}/`);
+    return `
+      px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300
+      flex items-center gap-2 relative overflow-hidden
+      min-h-[44px] min-w-[44px]  /* Touch-friendly minimum sizes */
+      ${
+        isActive
+          ? 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400 shadow-sm ring-1 ring-cyan-500 dark:ring-cyan-400'
+          : 'text-gray-600 dark:text-zinc-400 hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-gray-900 dark:hover:text-zinc-100'
+      }
+      hover:scale-105 active:scale-95
+      touch-active
+    `;
+  }, [pathname]);
+
+  const getMobileNavLinkClasses = useCallback((itemHref: string) => {
+    const isActive = pathname === itemHref || pathname?.startsWith(`${itemHref}/`);
+    return `
+      flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-200
+      min-h-[56px] w-full text-left relative overflow-hidden
+      ${
+        isActive
+          ? 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400'
+          : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 active:bg-zinc-200 dark:active:bg-zinc-700'
+      }
+      hover:translate-x-1 active:scale-[0.98]
+      touch-active
+    `;
+  }, [pathname]);
+
   // Route change: close menu - use useLayoutEffect to avoid cascading renders
   React.useLayoutEffect(() => {
     if (prevPathnameRef.current !== pathname) {
@@ -99,37 +131,6 @@ export const Navigation: React.FC = () => {
   const closeMenu = useCallback(() => {
     setIsMobileMenuOpen(false);
   }, []);
-
-  const getNavLinkClasses = (itemHref: string) => {
-    const isActive = pathname === itemHref || pathname?.startsWith(`${itemHref}/`);
-    return `
-      px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300
-      flex items-center gap-2 relative overflow-hidden
-      min-h-[44px] min-w-[44px]  /* Touch-friendly minimum sizes */
-      ${
-        isActive
-          ? 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400 shadow-sm ring-1 ring-cyan-500 dark:ring-cyan-400'
-          : 'text-gray-600 dark:text-zinc-400 hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-gray-900 dark:hover:text-zinc-100'
-      }
-      hover:scale-105 active:scale-95
-      touch-active
-    `;
-  };
-
-  const getMobileNavLinkClasses = (itemHref: string) => {
-    const isActive = pathname === itemHref || pathname?.startsWith(`${itemHref}/`);
-    return `
-      flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-200
-      min-h-[56px] w-full text-left relative overflow-hidden
-      ${
-        isActive
-          ? 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400'
-          : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 active:bg-zinc-200 dark:active:bg-zinc-700'
-      }
-      hover:translate-x-1 active:scale-[0.98]
-      touch-active
-    `;
-  };
 
   return (
     <nav className="bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-700 sticky top-0 z-50">

@@ -8,7 +8,7 @@
 
 ## 📐 架构概览
 
-7zi Studio 采用 **现代化全栈架构**，结合 Next.js 14 App Router、微服务设计和 AI 代理系统，并集成了 A2A Protocol 标准和全局加载状态管理。
+7zi Studio 采用 **现代化全栈架构**，结合 Next.js 16.1.7 App Router、微服务设计和 AI 代理系统，并集成了 A2A Protocol 标准和全局加载状态管理。
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -22,7 +22,7 @@
 ┌─────────────────────────────────────────────────────────────────┐
 │                     表现层 (Presentation Layer)                  │
 │  ┌─────────────────────────────────────────────────────────┐    │
-│  │              Next.js 14 App Router (Frontend)            │    │
+│  │              Next.js 16.1.7 App Router (Frontend)            │    │
 │  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐ │    │
 │  │  │ Dashboard│  │  AI Chat │  │  Settings│  │   API    │ │    │
 │  │  │  Page    │  │   Page   │  │   Page   │  │  Routes  │ │    │
@@ -156,10 +156,10 @@ const response = await handler.handleRequest({
 
 ---
 
-### 3. Next.js 14 App Router
+### 3. Next.js 16.1.7 App Router
 
 **技术栈:**
-- React 18
+- React 19.2.4
 - TypeScript 5.0
 - Tailwind CSS 3.0
 - Server Components

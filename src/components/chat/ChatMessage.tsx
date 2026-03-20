@@ -5,23 +5,24 @@
 
 'use client';
 
-import { Message, TeamMember } from './types';
+import { Message } from './types';
+import { useChatMembers } from '@/contexts/ChatContext';
 
 interface ChatMessageProps {
   message: Message;
-  teamMembers: TeamMember[];
 }
 
 /**
  * 聊天消息组件
+ * 不再接收 teamMembers prop，从 context 中获取
  * @param message - 消息数据
- * @param teamMembers - 团队成员列表（用于显示发送者信息）
  */
-export function ChatMessage({ message, teamMembers }: ChatMessageProps) {
+export function ChatMessage({ message }: ChatMessageProps) {
   const isUser = message.role === 'user';
-  const member = message.memberId 
-    ? teamMembers.find(m => m.id === message.memberId) 
-    : null;
+
+  // 从 context 获取团队成员数据并查找发送者
+  const { getMemberById } = useChatMembers();
+  const member = message.memberId ? getMemberById(message.memberId) : null;
 
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
@@ -38,10 +39,10 @@ export function ChatMessage({ message, teamMembers }: ChatMessageProps) {
             {member.emoji} {member.name}
           </div>
         )}
-        
+
         {/* 消息内容 */}
         <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-        
+
         {/* 时间戳 */}
         <span
           className={`text-[10px] mt-1 block ${

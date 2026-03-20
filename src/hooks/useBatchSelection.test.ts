@@ -3,7 +3,7 @@
  */
 
 import { renderHook, act } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useBatchSelection } from './useBatchSelection';
 
 // Helper function to create a React-compatible MouseEvent
@@ -18,6 +18,15 @@ interface TestItem {
 }
 
 describe('useBatchSelection', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.useRealTimers();
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+    vi.useRealTimers();
+  });
   const mockItems: TestItem[] = [
     { id: '1', name: 'Item 1' },
     { id: '2', name: 'Item 2' },

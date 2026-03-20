@@ -3,7 +3,7 @@
 **审查日期**: 2026-03-06  
 **审查人**: 架构师 (AI 子代理)  
 **项目版本**: 0.1.0  
-**技术栈**: Next.js 16.1.6 + React 19.2.3 + TypeScript 5
+**技术栈**: Next.js 16.1.7 + React 19.2.4 + TypeScript 5
 
 ---
 
@@ -17,8 +17,8 @@
 ### 1.2 技术栈选型
 | 技术 | 版本 | 评价 |
 |------|------|------|
-| Next.js | 16.1.6 | ✅ 最新稳定版，支持 App Router |
-| React | 19.2.3 | ✅ 最新版本，支持 Server Components |
+| Next.js | 16.1.7 | ✅ 最新稳定版，支持 App Router |
+| React | 19.2.4 | ✅ 最新版本，支持 Server Components |
 | TypeScript | 5.x | ✅ 类型安全，strict 模式 |
 | Tailwind CSS | 4.x | ✅ 原子化 CSS，高效开发 |
 | next-intl | 4.8.3 | ✅ 国际化解决方案 |

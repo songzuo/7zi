@@ -1,4 +1,5 @@
 /**
+// @ts-ignore - Mock type compatibility issues
  * @fileoverview Integration tests for API routes
  * Tests the full API functionality including response format, headers, and status codes
  */

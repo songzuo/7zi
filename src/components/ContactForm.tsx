@@ -75,11 +75,20 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [formData.name, formData.email, formData.message, locale]);
+  }, [formData, locale]);
+
+  // Empty form data object for reset
+  const emptyFormData: FormData = {
+    name: "",
+    email: "",
+    company: "",
+    subject: "",
+    message: "",
+  };
 
   const handleSubmit = useCallback(async (e: FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -92,7 +101,7 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
       const headers: HeadersInit = {
         "Content-Type": "application/json",
       };
-      
+
       // 添加 CSRF Token 到请求头
       if (csrfToken) {
         headers["X-CSRF-Token"] = csrfToken;
@@ -119,7 +128,7 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
     } finally {
       setIsSubmitting(false);
     }
-  }, [validateForm, formData, locale, csrfToken, emptyFormData]);
+  }, [validateForm, formData, locale, csrfToken]);
 
   const handleChange = useCallback((
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -127,11 +136,13 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // 清除对应字段的错误
-    if (errors[name as keyof FormErrors]) {
-      setErrors((prev) => ({ ...prev, [name]: undefined }));
-    }
-  }, [errors]);
+    // Clear error for this field if it exists
+    setErrors((prev) => {
+      if (!prev[name as keyof FormErrors]) return prev;
+      const { [name as keyof FormErrors]: removed, ...rest } = prev;
+      return rest;
+    });
+  }, []);
 
   // Memoize subjectOptions to prevent unnecessary recalculations
   const subjectOptions = useMemo(() => (
@@ -153,15 +164,6 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
           { value: 'other', label: 'Other' },
         ]
   ), [locale]);
-
-  // Memoize empty form data for reset
-  const emptyFormData = useMemo(() => ({
-    name: "",
-    email: "",
-    company: "",
-    subject: "",
-    message: "",
-  }), []);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">

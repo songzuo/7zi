@@ -3,6 +3,7 @@
  * Agent Middleware - 验证智能体身份和权限
  */
 
+import { logger } from '../logger';
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAgentToken, hasPermission, hasAllPermissions } from '@/lib/agents/auth-service';
 import { updateAgentLastActive } from '@/lib/agents/repository';
@@ -45,7 +46,7 @@ export async function withAgentAuth(
     // 执行处理器
     return handler(request, context);
   } catch (error) {
-    console.error('Agent auth error:', error);
+    logger.error('Agent auth error', error);
     return createErrorResponse(
       error instanceof Error ? error.message : 'Internal server error',
       'INTERNAL_ERROR',

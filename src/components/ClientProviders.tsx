@@ -51,15 +51,21 @@
  * @see docs/LOADING-SYSTEM.md - Complete documentation
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { SettingsProvider } from '@/contexts/SettingsContext';
 import { GlobalLoadingProvider } from '@/hooks/useGlobalLoading';
+import { setupBrowserErrorHandlers } from '@/lib/global-error-handlers';
 
 interface ClientProvidersProps {
   children: React.ReactNode;
 }
 
 export function ClientProviders({ children }: ClientProvidersProps) {
+  // Initialize browser error handlers on mount
+  useEffect(() => {
+    setupBrowserErrorHandlers();
+  }, []);
+
   return (
     <SettingsProvider>
       <GlobalLoadingProvider>

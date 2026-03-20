@@ -34,6 +34,8 @@ const SkeletonBase: React.FC<SkeletonBaseProps> = memo(({
 
 SkeletonBase.displayName = 'SkeletonBase';
 
+export { SkeletonBase };
+
 // ============================================================================
 // 文本骨架
 // ============================================================================

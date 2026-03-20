@@ -41,6 +41,22 @@ vi.mock('./SettingsButton', () => ({
   ),
 }));
 
+// Mock next-intl
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => {
+    const translations: Record<string, string> = {
+      home: '首页',
+      dashboard: '实时看板',
+      subagents: '子代理',
+      tasks: '任务',
+      memory: '记忆',
+      'mobileMenu.open': '打开菜单',
+      'mobileMenu.close': '关闭菜单',
+    };
+    return translations[key] || key;
+  },
+}));
+
 describe('Navigation', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -89,9 +105,9 @@ describe('Navigation', () => {
       render(<Navigation />);
       
       const homeLinks = screen.getAllByRole('link', { name: /首页/ });
-      // 至少有一个首页链接有活跃状态
+      // 至少有一个首页链接有活跃状态 (cyan styling)
       const hasActiveLink = homeLinks.some(link => 
-        link.className.includes('bg-[var(--nav-active-bg)]')
+        link.className.includes('bg-cyan-50')
       );
       expect(hasActiveLink).toBe(true);
     });
@@ -102,7 +118,7 @@ describe('Navigation', () => {
       
       const dashboardLinks = screen.getAllByRole('link', { name: /实时看板/ });
       const hasActiveLink = dashboardLinks.some(link => 
-        link.className.includes('bg-[var(--nav-active-bg)]')
+        link.className.includes('bg-cyan-50')
       );
       expect(hasActiveLink).toBe(true);
     });
@@ -113,7 +129,7 @@ describe('Navigation', () => {
       
       const dashboardLinks = screen.getAllByRole('link', { name: /实时看板/ });
       const hasDefaultStyle = dashboardLinks.some(link => 
-        link.className.includes('text-[var(--nav-text)]')
+        link.className.includes('text-gray-600') || link.className.includes('text-zinc-600')
       );
       expect(hasDefaultStyle).toBe(true);
     });

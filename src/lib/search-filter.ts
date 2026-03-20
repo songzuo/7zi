@@ -20,10 +20,10 @@ import { LRUCache } from '@/lib/cache/lru-cache';
 // ============================================================================
 
 /**
- * 统一缓存实例（使用泛型存储不同类型）
+ * Unified cache instance (using generic storage)
+ * We use unknown instead of any for better type safety
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const unifiedCache = new LRUCache<any>(100);
+const unifiedCache = new LRUCache<unknown>(100);
 
 /**
  * 生成搜索缓存键
@@ -310,7 +310,7 @@ export function searchItems<T extends object>(
 
   // 检查缓存
   const cacheKey = generateSearchKey(items, query, config);
-  const cached = unifiedCache.get(cacheKey);
+  const cached = unifiedCache.get(cacheKey) as SearchResult<T>[] | undefined;
   if (cached) {
     return cached;
   }
@@ -593,7 +593,7 @@ export function extractFilterOptions<T extends object>(
 
   // 检查缓存
   const cacheKey = `options-${String(field)}-${items.length}`;
-  const cached = unifiedCache.get(cacheKey);
+  const cached = unifiedCache.get(cacheKey) as FilterOption[] | undefined;
   if (cached) {
     return cached;
   }
@@ -622,7 +622,7 @@ export function extractLabelOptions(issues: Array<{ labels?: Array<{ name: strin
 
   // 检查缓存
   const cacheKey = `labels-${issues.length}`;
-  const cached = unifiedCache.get(cacheKey);
+  const cached = unifiedCache.get(cacheKey) as FilterOption[] | undefined;
   if (cached) {
     return cached;
   }
@@ -656,7 +656,7 @@ export function extractAssigneeOptions(
 
   // 检查缓存
   const cacheKey = `assignees-${issues.length}`;
-  const cached = unifiedCache.get(cacheKey);
+  const cached = unifiedCache.get(cacheKey) as FilterOption[] | undefined;
   if (cached) {
     return cached;
   }
@@ -703,7 +703,7 @@ export function applySort<T extends object>(
 
   // 检查缓存（仅对默认排序）
   const cacheKey = generateSortKey(items, sortConfig);
-  const cached = unifiedCache.get(cacheKey);
+  const cached = unifiedCache.get(cacheKey) as T[] | undefined;
   if (cached) {
     return cached;
   }

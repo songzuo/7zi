@@ -258,7 +258,13 @@ class ConnectionPoolManager {
 
     try {
       const db = new Database(this.config.databasePath, {
-        verbose: process.env.NODE_ENV === 'development' ? (sql: string) => logger.debug(sql, { category: 'db' }) : undefined,
+        verbose: process.env.NODE_ENV === 'development'
+          ? ((msg?: unknown, ...args: unknown[]) => {
+              if (typeof msg === 'string') {
+                logger.debug(msg, { category: 'db', additionalArgs: args });
+              }
+            })
+          : undefined,
       });
 
       // Apply performance optimizations
@@ -271,7 +277,7 @@ class ConnectionPoolManager {
       db.pragma('mmap_size = 30000000000');
 
       // Set connection timeout
-      db.busyTimeout(this.config.connectionTimeout);
+      db.pragma(`busy_timeout = ${this.config.connectionTimeout}`);
 
       const connection: PooledConnection = {
         id,

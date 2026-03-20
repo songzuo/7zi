@@ -1,28 +1,31 @@
 /**
  * 7zi Project Utility Functions
- * 
+ *
  * A comprehensive collection of utility functions for common programming tasks,
  * including caching, debouncing, throttling, data manipulation, DOM helpers,
  * and environment detection.
- * 
+ *
  * @module lib/utils
  * @version 1.0.0
  * @author 7zi Team
  * @license MIT
- * 
+ *
  * @example
  * // Import specific functions
  * import { debounce, deepClone, generateId } from '@/lib/utils';
- * 
+ *
  * @example
  * // Import all utilities
  * import * as Utils from '@/lib/utils';
- * 
+ *
  * // Use debounce for search input
  * const search = debounce((query: string) => {
  *   // Search logic here
  * }, 300);
  */
+
+import { logger } from './logger';
+import { debounce, throttle } from './utils/async';
 
 /**
  * Cache entry with value, timestamp, and TTL
@@ -41,438 +44,21 @@ export interface CacheEntry<T> {
   lastAccess: number;
 }
 
-export class LRUCache<T> {
-  private store: Map<string, { value: T; expiresAt: number; lastAccess: number }> = new Map();
-  private maxSize: number;
+// Re-export from dedicated cache module for better code organization
+// @deprecated Import from @/lib/cache/lru-cache directly instead
+export { LRUCache, createCache } from './cache/lru-cache';
 
-  /**
-   * Creates a new LRU cache
-   * @param {number} maxSize - Maximum number of entries (default: 100)
-   */
-  constructor(maxSize: number = 100) {
-    this.maxSize = maxSize;
-  }
+// Re-export from dedicated async module for better code organization
+// @deprecated Import from @/lib/utils/async directly instead
+export { debounce, throttle, memoize, sleep, retry } from './utils/async';
 
-  /**
-   * Stores a value in the cache
-   * @param {string} key - Cache key
-   * @param {T} value - Value to cache
-   * @param {number} ttl - Time-to-live in milliseconds (default: 5 minutes)
-   */
-  set(key: string, value: T, ttl: number = 5 * 60 * 1000): void {
-    const now = Date.now();
-    const expiresAt = now + ttl;
+// Re-export from dedicated clone module for better code organization
+// @deprecated Import from @/lib/utils/clone directly instead
+export { deepClone } from './utils/clone';
 
-    // Remove oldest entry if at capacity
-    if (this.store.size >= this.maxSize && !this.store.has(key)) {
-      this.evictLRU();
-    }
-
-    this.store.set(key, {
-      value,
-      expiresAt,
-      lastAccess: now,
-    });
-  }
-
-  /**
-   * Retrieves a value from the cache
-   * @param {string} key - Cache key
-   * @returns {T | null} Cached value or null if not found/expired
-   */
-  get(key: string): T | null {
-    const entry = this.store.get(key);
-
-    if (!entry) {
-      return null;
-    }
-
-    const now = Date.now();
-
-    // Check if expired
-    if (now > entry.expiresAt) {
-      this.delete(key);
-      return null;
-    }
-
-    // Update last access time (move to end)
-    entry.lastAccess = now;
-    this.store.delete(key);
-    this.store.set(key, entry);
-
-    return entry.value;
-  }
-
-  /**
-   * Deletes a specific entry from the cache
-   * @param {string} key - Cache key
-   */
-  delete(key: string): void {
-    this.store.delete(key);
-  }
-
-  /**
-   * Clears all entries from the cache
-   */
-  clear(): void {
-    this.store.clear();
-  }
-
-  /**
-   * Checks if a key exists and is not expired
-   * @param {string} key - Cache key
-   * @returns {boolean} True if key exists and is valid
-   */
-  has(key: string): boolean {
-    const entry = this.store.get(key);
-    if (!entry) return false;
-
-    const now = Date.now();
-    if (now > entry.expiresAt) {
-      this.delete(key);
-      return false;
-    }
-
-    return true;
-  }
-
-  /**
-   * Removes the least recently used entry
-   * @private
-   */
-  private evictLRU(): void {
-    if (this.store.size === 0) return;
-
-    // Map preserves insertion order, so the first key is the LRU
-    const lruKey = this.store.keys().next().value;
-    if (lruKey) {
-      this.delete(lruKey);
-    }
-  }
-
-  /**
-   * Gets the current number of entries in the cache
-   * @returns {number} Cache size
-   */
-  get size(): number {
-    return this.store.size;
-  }
-}
-
-// Global LRU cache instance
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const globalCache = new LRUCache<any>(200);
-
-/**
- * Creates a cache with a specific TTL
- * @template T
- * @param {number} ttl - Time-to-live in milliseconds (default: 5 minutes)
- * @returns {Object} Cache interface with set, get, delete, has methods
- */
-export function createCache<T>(ttl: number = 5 * 60 * 1000) {
-  return {
-    set: (key: string, value: T) => globalCache.set(key, value, ttl),
-    get: (key: string) => globalCache.get(key) as T | null,
-    delete: (key: string) => globalCache.delete(key),
-    has: (key: string) => globalCache.has(key),
-    clear: () => globalCache.clear(),
-    get size(): number {
-      return globalCache.size;
-    },
-  };
-}
-
-/**
- * Debounce function with cancel and flush capabilities
- * 
- * @template T - Function type
- * @param {T} func - Function to debounce
- * @param {number} wait - Wait time in milliseconds
- * @returns {Object} Debounced function with cancel, flush, and pending methods
- * 
- * @example
- * const debouncedFn = debounce(search, 300);
- * debouncedFn('query');
- * debouncedFn.cancel(); // Cancel pending execution
- * debouncedFn.flush(); // Execute immediately
- * debouncedFn.pending(); // Check if execution is pending
- */
-export function debounce<T extends (...args: never[]) => void>(
-  func: T,
-  wait: number
-): ((...args: Parameters<T>) => void) & {
-  cancel: () => void;
-  flush: () => void;
-  pending: () => boolean;
-} {
-  let timeout: NodeJS.Timeout | null = null;
-  let lastArgs: Parameters<T> | null = null;
-
-  const debounced = (...args: Parameters<T>): void => {
-    lastArgs = args;
-
-    if (timeout) {
-      clearTimeout(timeout);
-    }
-
-    timeout = setTimeout(() => {
-      if (lastArgs) {
-        func(...lastArgs);
-      }
-      timeout = null;
-      lastArgs = null;
-    }, wait);
-  };
-
-  debounced.cancel = (): void => {
-    if (timeout) {
-      clearTimeout(timeout);
-      timeout = null;
-    }
-    lastArgs = null;
-  };
-
-  debounced.flush = (): void => {
-    if (timeout) {
-      clearTimeout(timeout);
-      timeout = null;
-    }
-    if (lastArgs) {
-      func(...lastArgs);
-      lastArgs = null;
-    }
-  };
-
-  debounced.pending = (): boolean => timeout !== null;
-
-  return debounced as typeof debounced & ((...args: Parameters<T>) => void);
-}
-
-/**
- * Throttle function with cancel capability
- * 
- * @template T - Function type
- * @param {T} func - Function to throttle
- * @param {number} limit - Minimum time between executions in milliseconds
- * @returns {Object} Throttled function with cancel and pending methods
- * 
- * @example
- * const throttledFn = throttle(scroll, 100);
- * throttledFn('event');
- * throttledFn.cancel(); // Cancel pending execution
- * throttledFn.pending(); // Check if execution is pending
- */
-export function throttle<T extends (...args: never[]) => void>(
-  func: T,
-  limit: number
-): ((...args: Parameters<T>) => void) & {
-  cancel: () => void;
-  pending: () => boolean;
-} {
-  let inThrottle: boolean = false;
-  let timeout: NodeJS.Timeout | null = null;
-  let lastArgs: Parameters<T> | null = null;
-
-  const throttled = (...args: Parameters<T>): void => {
-    if (!inThrottle) {
-      func(...args);
-      inThrottle = true;
-      lastArgs = null;
-
-      setTimeout(() => {
-        inThrottle = false;
-        if (lastArgs) {
-          func(...lastArgs);
-          lastArgs = null;
-        }
-      }, limit);
-    } else {
-      lastArgs = args;
-    }
-  };
-
-  throttled.cancel = (): void => {
-    if (timeout) {
-      clearTimeout(timeout);
-      timeout = null;
-    }
-    inThrottle = false;
-    lastArgs = null;
-  };
-
-  throttled.pending = (): boolean => inThrottle;
-
-  return throttled as typeof throttled & ((...args: Parameters<T>) => void);
-}
-
-/**
- * Memoize function with cache key generator and size limit - 优化版本
- * 
- * 优化点:
- * 1. 使用 WeakMap 避免内存泄漏（当参数是对象时）
- * 2. 简化 LRU 实现，避免频繁的 index 重建
- * 3. 减少不必要的操作和内存分配
- * 
- * @template T - Function type
- * @param {T} func - Function to memoize
- * @param {Function} resolver - Optional key generator function
- * @param {number} maxSize - Maximum cache size (default: 50)
- * @returns {Function} Memoized function
- * @example
- * const expensiveCalc = memoize((n: number) => {
- *   return Array(n).fill(0).reduce((a, b, i) => a + i, 0);
- * }, undefined, 100);
- */
-export function memoize<T extends (...args: unknown[]) => unknown>(
-  func: T,
-  resolver?: (...args: Parameters<T>) => string,
-  maxSize: number = 50
-): (...args: Parameters<T>) => ReturnType<T> {
-  const cache = new Map<string, { value: ReturnType<T>; lastAccess: number }>();
-  
-  return (...args: Parameters<T>): ReturnType<T> => {
-    const key = resolver ? resolver(...args) : JSON.stringify(args);
-    const entry = cache.get(key);
-
-    if (entry) {
-      // 简单更新访问时间
-      entry.lastAccess = Date.now();
-      return entry.value;
-    }
-
-    const result = func(...args) as ReturnType<T>;
-
-    // LRU 淘汰策略
-    if (cache.size >= maxSize) {
-      // 找到最老的条目并删除
-      let oldestKey: string | null = null;
-      let oldestTime = Infinity;
-
-      for (const [k, v] of cache.entries()) {
-        if (v.lastAccess < oldestTime) {
-          oldestTime = v.lastAccess;
-          oldestKey = k;
-        }
-      }
-
-      if (oldestKey) {
-        cache.delete(oldestKey);
-      }
-    }
-
-    cache.set(key, { value: result, lastAccess: Date.now() });
-    return result;
-  };
-}
-
-/**
- * Deep clone an object, handling circular references (iterative implementation)
- * 
- * This implementation uses an explicit stack instead of recursion to avoid
- * stack overflow errors when cloning deeply nested objects.
- * 
- * @template T - Type of the object to clone
- * @param {T} obj - Object to clone
- * @param {WeakMap} seen - Internal use for circular reference tracking
- * @returns {T} Deep cloned object
- * @example
- * const original = { a: 1, b: { c: 2 } };
- * const cloned = deepClone(original);
- * cloned.b.c = 3; // Does not affect original
- */
-export function deepClone<T>(obj: T, seen: WeakMap<object, unknown> = new WeakMap()): T {
-  // Handle primitives, null, and undefined
-  if (obj === null || typeof obj !== 'object') {
-    return obj;
-  }
-
-  // Handle Date
-  if (obj instanceof Date) {
-    return new Date(obj.getTime()) as T;
-  }
-
-  // Handle RegExp
-  if (obj instanceof RegExp) {
-    return new RegExp(obj.source, obj.flags) as T;
-  }
-
-  // Handle circular references
-  if (seen.has(obj)) {
-    return seen.get(obj) as T;
-  }
-
-  // Handle Array
-  if (Array.isArray(obj)) {
-    const cloned = [] as unknown as T;
-    seen.set(obj, cloned);
-    for (let i = 0; i < obj.length; i++) {
-      (cloned as unknown[])[i] = deepClone(obj[i], seen);
-    }
-    return cloned;
-  }
-
-  // Handle Map
-  if (obj instanceof Map) {
-    const cloned = new Map();
-    seen.set(obj, cloned);
-    obj.forEach((value, key) => {
-      cloned.set(deepClone(key, seen), deepClone(value, seen));
-    });
-    return cloned as T;
-  }
-
-  // Handle Set
-  if (obj instanceof Set) {
-    const cloned = new Set();
-    seen.set(obj, cloned);
-    obj.forEach(value => {
-      cloned.add(deepClone(value, seen));
-    });
-    return cloned as T;
-  }
-
-  // Handle plain objects
-  const cloned = {} as T;
-  seen.set(obj, cloned);
-  for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      cloned[key] = deepClone(obj[key], seen);
-    }
-  }
-  return cloned;
-}
-
-/**
- * Format file size in human-readable format
- * @param {number} bytes - Size in bytes
- * @param {number} decimals - Number of decimal places (default: 1)
- * @returns {string} Formatted file size
- * @example
- * formatFileSize(1024) // "1.0 KB"
- * formatFileSize(1048576) // "1.0 MB"
- */
-export function formatFileSize(bytes: number, decimals: number = 1): string {
-  if (bytes === 0) return '0 B';
-
-  const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
-  const k = 1024;
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(decimals))} ${units[i]}`;
-}
-
-/**
- * Format number with thousands separator
- * @param {number} num - Number to format
- * @param {string} separator - Thousands separator (default: ",")
- * @returns {string} Formatted number
- * @example
- * formatNumber(1000000) // "1,000,000"
- * formatNumber(1000000, ".") // "1.000.000"
- */
-export function formatNumber(num: number, separator: string = ','): string {
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, separator);
-}
+// Re-export from dedicated format module for better code organization
+// @deprecated Import from @/lib/utils/format directly instead
+export { formatFileSize, formatNumber } from './utils/format';
 
 /**
  * Helper function to format raw bytes as UUID v4 string
@@ -577,240 +163,13 @@ export function isEmpty(value: unknown): boolean {
   return false;
 }
 
-/**
- * Sleep for a specified duration
- * @param {number} ms - Duration in milliseconds
- * @returns {Promise<void>} Promise that resolves after duration
- * @example
- * await sleep(1000); // Sleep for 1 second
- */
-export function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+// Re-export from dedicated array module for better code organization
+// @deprecated Import from @/lib/utils/array directly instead
+export { batch, shuffle, randomItem, unique, groupBy, pick, omit } from './utils/array';
 
-/**
- * Retry a function with exponential backoff - 优化版本
- * 
- * 优化点:
- * 1. 使用位运算优化指数计算（2^i => 1 << i）
- * 2. 减少不必要的错误对象创建
- * 3. 简化逻辑流程
- * 
- * @template T - Return type
- * @param {Function} fn - Async function to retry
- * @param {number} maxRetries - Maximum number of retries (default: 3)
- * @param {number} delay - Initial delay in milliseconds (default: 1000)
- * @param {number} maxDelay - Maximum delay cap in milliseconds (default: 30000)
- * @param {Function} onRetry - Optional callback on each retry
- * @returns {Promise<T>} Function result
- * @example
- * const data = await retry(
- *   () => fetchData(),
- *   3,
- *   1000
- * );
- */
-export async function retry<T>(
-  fn: () => Promise<T>,
-  maxRetries: number = 3,
-  delay: number = 1000,
-  maxDelay: number = 30000,
-  onRetry?: (error: Error, attempt: number) => void
-): Promise<T> {
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    try {
-      return await fn();
-    } catch (error) {
-      if (attempt === maxRetries - 1) {
-        throw error; // 最后一次失败，直接抛出
-      }
-
-      const currentDelay = Math.min(delay * (1 << attempt), maxDelay);
-      
-      if (onRetry) {
-        onRetry(error as Error, attempt + 1);
-      }
-      
-      await sleep(currentDelay);
-    }
-  }
-
-  // 理论上不会到达这里，但 TypeScript 需要
-  throw new Error('Retry failed');
-}
-
-/**
- * Batch array into chunks of specified size
- * @template T - Array item type
- * @param {Array<T>} array - Array to batch
- * @param {number} size - Chunk size
- * @returns {Array<Array<T>>} Batched arrays
- * @example
- * batch([1, 2, 3, 4, 5], 2) // [[1, 2], [3, 4], [5]]
- */
-export function batch<T>(array: T[], size: number): T[][] {
-  const batches: T[][] = [];
-  for (let i = 0; i < array.length; i += size) {
-    batches.push(array.slice(i, i + size));
-  }
-  return batches;
-}
-
-/**
- * Shuffle array in place
- * @template T - Array item type
- * @param {Array<T>} array - Array to shuffle
- * @returns {Array<T>} Shuffled array
- * @example
- * shuffle([1, 2, 3, 4, 5]) // [3, 1, 5, 2, 4] (random order)
- */
-export function shuffle<T>(array: T[]): T[] {
-  const arr = [...array];
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
-
-/**
- * Get a random item from array
- * @template T - Array item type
- * @param {Array<T>} array - Array to pick from
- * @returns {T} Random item
- * @example
- * randomItem([1, 2, 3]) // 2 (random)
- */
-export function randomItem<T>(array: T[]): T {
-  return array[Math.floor(Math.random() * array.length)];
-}
-
-/**
- * Remove duplicates from array
- * @template T - Array item type
- * @param {Array<T>} array - Array to deduplicate
- * @returns {Array<T>} Array without duplicates
- * @example
- * unique([1, 2, 2, 3, 3, 3]) // [1, 2, 3]
- */
-export function unique<T>(array: T[]): T[] {
-  return Array.from(new Set(array));
-}
-
-/**
- * Group array items by a key function
- * @template T - Array item type
- * @template K - Key type
- * @param {Array<T>} array - Array to group
- * @param {Function} keyFn - Function to extract grouping key
- * @returns {Map<K, Array<T>>} Grouped items
- * @example
- * groupBy(
- *   [{ id: 1, type: 'a' }, { id: 2, type: 'b' }, { id: 3, type: 'a' }],
- *   item => item.type
- * ) // Map { 'a' => [{ id: 1 }, { id: 3 }], 'b' => [{ id: 2 }] }
- */
-export function groupBy<T, K extends string | number>(
-  array: T[],
-  keyFn: (item: T) => K
-): Map<K, T[]> {
-  const groups = new Map<K, T[]>();
-  for (const item of array) {
-    const key = keyFn(item);
-    const group = groups.get(key) || [];
-    group.push(item);
-    groups.set(key, group);
-  }
-  return groups;
-}
-
-/**
- * Pick specified keys from an object
- * @template T - Object type
- * @template K - Key type
- * @param {T} obj - Source object
- * @param {Array<K>} keys - Keys to pick
- * @returns {Pick<T, K>} Object with only specified keys
- * @example
- * pick({ a: 1, b: 2, c: 3 }, ['a', 'c']) // { a: 1, c: 3 }
- */
-export function pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
-  const result = {} as Pick<T, K>;
-  keys.forEach(key => {
-    if (key in obj) {
-      result[key] = obj[key];
-    }
-  });
-  return result;
-}
-
-/**
- * Omit specified keys from an object
- * @template T - Object type
- * @template K - Key type
- * @param {T} obj - Source object
- * @param {Array<K>} keys - Keys to omit
- * @returns {Omit<T, K>} Object without specified keys
- * @example
- * omit({ a: 1, b: 2, c: 3 }, ['b']) // { a: 1, c: 3 }
- */
-export function omit<T, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> {
-  const result = { ...obj };
-  keys.forEach(key => {
-    delete result[key];
-  });
-  return result;
-}
-
-/**
- * Clamp a number between min and max values
- * @param {number} value - Value to clamp
- * @param {number} min - Minimum value
- * @param {number} max - Maximum value
- * @returns {number} Clamped value
- * @example
- * clamp(5, 0, 10) // 5
- * clamp(-5, 0, 10) // 0
- * clamp(15, 0, 10) // 10
- */
-export function clamp(value: number, min: number, max: number): number {
-  return Math.min(Math.max(value, min), max);
-}
-
-/**
- * Map a value from one range to another
- * @param {number} value - Value to map
- * @param {number} inMin - Input range minimum
- * @param {number} inMax - Input range maximum
- * @param {number} outMin - Output range minimum
- * @param {number} outMax - Output range maximum
- * @returns {number} Mapped value
- * @example
- * mapRange(5, 0, 10, 0, 100) // 50
- * mapRange(0.5, 0, 1, 0, 360) // 180
- */
-export function mapRange(
-  value: number,
-  inMin: number,
-  inMax: number,
-  outMin: number,
-  outMax: number
-): number {
-  return ((value - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
-}
-
-/**
- * Linear interpolation between two values
- * @param {number} start - Start value
- * @param {number} end - End value
- * @param {number} t - Interpolation factor (0-1)
- * @returns {number} Interpolated value
- * @example
- * lerp(0, 100, 0.5) // 50
- */
-export function lerp(start: number, end: number, t: number): number {
-  return start + (end - start) * t;
-}
+// Re-export from dedicated math module for better code organization
+// @deprecated Import from @/lib/utils/math directly instead
+export { clamp, mapRange, lerp } from './utils/math';
 
 /**
  * Check if code is running on the client side
@@ -1065,7 +424,7 @@ export async function copyToClipboard(text: string): Promise<boolean> {
       document.body.removeChild(textArea);
     }
   } catch (error) {
-    console.error('Failed to copy to clipboard:', error);
+    logger.error('Failed to copy to clipboard', error);
     return false;
   }
 }
@@ -1085,7 +444,7 @@ export async function readFromClipboard(): Promise<string | null> {
     }
     return null;
   } catch (error) {
-    console.error('Failed to read from clipboard:', error);
+    logger.error('Failed to read from clipboard', error);
     return null;
   }
 }

@@ -5,41 +5,32 @@
 
 'use client';
 
-import { TeamMember } from './types';
+import { useChatMembers } from '@/contexts/ChatContext';
 import { MemberSelector } from './MemberSelector';
 
 interface ChatHeaderProps {
-  teamMembers: TeamMember[];
-  onlineCount: number;
   showTeamStatus: boolean;
   onToggleTeamStatus: () => void;
-  selectedMemberId: string;
-  onSelectMember: (memberId: string) => void;
   showMemberSelector: boolean;
   onToggleMemberSelector: () => void;
 }
 
 /**
  * 聊天头部组件
- * @param teamMembers - 团队成员列表
- * @param onlineCount - 在线成员数量
  * @param showTeamStatus - 是否显示团队状态
  * @param onToggleTeamStatus - 切换团队状态显示的回调
- * @param selectedMemberId - 选中的成员ID
- * @param onSelectMember - 选择成员的回调
  * @param showMemberSelector - 是否显示成员选择器
  * @param onToggleMemberSelector - 切换成员选择器显示的回调
  */
 export function ChatHeader({
-  teamMembers,
-  onlineCount,
   showTeamStatus,
   onToggleTeamStatus,
-  selectedMemberId,
-  onSelectMember,
   showMemberSelector,
   onToggleMemberSelector,
 }: ChatHeaderProps) {
+  // 从 context 获取团队成员数据
+  const { teamMembers, onlineCount } = useChatMembers();
+
   return (
     <div className="bg-gradient-to-r from-cyan-500 to-purple-600 p-4 relative">
       {/* 标题栏 */}
@@ -67,8 +58,8 @@ export function ChatHeader({
       {/* 成员选择器 */}
       <MemberSelector
         teamMembers={teamMembers}
-        selectedMemberId={selectedMemberId}
-        onSelect={onSelectMember}
+        selectedMemberId=""
+        onSelect={() => {}}
         isOpen={showMemberSelector}
         onToggle={onToggleMemberSelector}
       />

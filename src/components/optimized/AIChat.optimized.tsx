@@ -173,18 +173,14 @@ export function AIChatOptimized() {
         >
           {/* 头部 */}
           <ChatHeader
-            teamMembers={teamMembers}
-            onlineCount={onlineCount}
             showTeamStatus={showTeamStatus}
             onToggleTeamStatus={() => setShowTeamStatus(!showTeamStatus)}
-            selectedMemberId={selectedMemberId}
-            onSelectMember={(id) => setSelectedMemberId(id)}
             showMemberSelector={showMemberSelector}
             onToggleMemberSelector={() => setShowMemberSelector(!showMemberSelector)}
           />
 
           {/* 团队状态面板 */}
-          {showTeamStatus && <TeamStatusPanel teamMembers={teamMembers} />}
+          {showTeamStatus && <TeamStatusPanel />}
 
           {/* 消息列表 */}
           <div 
@@ -199,7 +195,6 @@ export function AIChatOptimized() {
               <ChatMessage
                 key={message.id}
                 message={message}
-                teamMembers={teamMembers}
               />
             ))}
             

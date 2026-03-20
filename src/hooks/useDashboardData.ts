@@ -164,7 +164,7 @@ export function useDashboardData(
 
       // 处理 Issues 结果
       if (issuesResult.status === 'rejected') {
-        console.warn('Issues fetch failed:', issuesResult.reason);
+        logger.warn('Issues fetch failed', issuesResult.reason);
         const err = issuesResult.reason;
         errorMessage = err instanceof Error ? err.message : '获取 Issues 失败';
       } else {
@@ -173,7 +173,7 @@ export function useDashboardData(
 
       // 处理 Commits 结果
       if (commitsResult.status === 'rejected') {
-        console.warn('Commits fetch failed:', commitsResult.reason);
+        logger.warn('Commits fetch failed', commitsResult.reason);
         // 只在还没有错误时设置错误信息
         if (!errorMessage) {
           const err = commitsResult.reason;
