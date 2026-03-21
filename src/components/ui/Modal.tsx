@@ -11,6 +11,7 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from './Button';
+import { useTranslations } from 'next-intl';
 
 /**
  * Modal size presets
@@ -60,29 +61,33 @@ const SIZE_CONFIG: Record<ModalSize, string> = {
 };
 
 /**
- * Close icon component
+ * Close icon component with i18n
  */
-const CloseIcon: React.FC<{ onClick: () => void }> = ({ onClick }) => (
-  <button
-    onClick={onClick}
-    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-    aria-label="Close modal"
-  >
-    <svg
-      className="w-5 h-5 text-gray-500 dark:text-gray-400"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
+const CloseIcon: React.FC<{ onClick: () => void }> = ({ onClick }) => {
+  const t = useTranslations('ui.modal');
+
+  return (
+    <button
+      onClick={onClick}
+      className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+      aria-label={t('close')}
     >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M6 18L18 6M6 6l12 12"
-      />
-    </svg>
-  </button>
-);
+      <svg
+        className="w-5 h-5 text-gray-500 dark:text-gray-400"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M6 18L18 6M6 6l12 12"
+        />
+      </svg>
+    </button>
+  );
+};
 
 /**
  * Main Modal component
@@ -220,14 +225,14 @@ export const Modal: React.FC<ModalProps> = ({
 };
 
 /**
- * Confirm Dialog - A specialized modal for confirmations
+ * Confirm Dialog - A specialized modal for confirmations with i18n
  */
 export interface ConfirmDialogProps extends Omit<ModalProps, 'children' | 'footer'> {
   /** Confirmation message */
   message: string;
-  /** Confirm button text (default: 'Confirm') */
+  /** Confirm button text (default: translated 'confirm') */
   confirmText?: string;
-  /** Cancel button text (default: 'Cancel') */
+  /** Cancel button text (default: translated 'cancel') */
   cancelText?: string;
   /** Confirm button variant (default: 'danger') */
   confirmVariant?: 'primary' | 'danger';
@@ -236,25 +241,28 @@ export interface ConfirmDialogProps extends Omit<ModalProps, 'children' | 'foote
 }
 
 export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
-  title = 'Confirm',
+  title,
   message,
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
+  confirmText,
+  cancelText,
   confirmVariant = 'danger',
   onConfirm,
   onClose,
   ...modalProps
 }) => {
+  const t = useTranslations('ui');
+  const tModal = useTranslations('ui.modal');
+
   return (
     <Modal
       {...modalProps}
-      title={title}
+      title={title || tModal('confirmTitle')}
       onClose={onClose}
       size="sm"
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>
-            {cancelText}
+            {cancelText || t('button.cancel')}
           </Button>
           <Button
             variant={confirmVariant}
@@ -263,13 +271,12 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
               onClose();
             }}
           >
-            {confirmText}
+            {confirmText || t('button.confirm')}
           </Button>
         </>
       }
-      {...modalProps}
     >
-      <p className="text-gray-700 dark:text-gray-300">{message}</p>
+      <p className="text-gray-700 dark:text-gray-300">{message || tModal('confirmMessage')}</p>
     </Modal>
   );
 };

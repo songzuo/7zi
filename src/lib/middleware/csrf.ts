@@ -354,7 +354,7 @@ export async function validateRequestCsrf(
   request: Request,
   useSignedTokens: boolean = true
 ): Promise<boolean> {
-  const req = request as any; // Type assertion for NextRequest methods
+  const req = request as NextRequest; // @ts-expect-error - NextRequest methods access
 
   // Extract header token
   const headerToken = req.headers?.get('x-csrf-token') ||

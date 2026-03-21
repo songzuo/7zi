@@ -241,7 +241,6 @@ export function performanceMeasure(
     // 获取测量结果
     const measure = performance.getEntriesByName(name, 'measure')[0];
     if (measure) {
-      console.log(`[Performance] ${name}: ${measure.duration.toFixed(2)}ms`);
     }
   } catch (error) {
     console.warn('[Performance] Measure failed:', name, error);

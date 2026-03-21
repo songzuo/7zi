@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
       const permissions = await getAllPermissions();
 
-      let data = permissions;
+      let data: Permission[] | Record<string, Permission[]> = permissions;
 
       // 按资源类型分组
       if (groupBy === 'resource') {

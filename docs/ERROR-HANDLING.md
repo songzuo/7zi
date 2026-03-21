@@ -1,635 +1,393 @@
-# 错误处理指南
+# Error Handling System Documentation
 
-**最后更新**: 2026-03-06  
-**难度**: ⭐⭐ 中等  
-**时间**: 10-15 分钟阅读
+## Overview
 
----
+The 7zi Project now has a comprehensive error handling system with user-friendly error pages and internationalization support.
 
-## 🎯 概述
+## Features
 
-7zi Studio 采用多层错误处理策略，确保应用稳定性和良好的用户体验。本文档介绍错误处理的架构、使用方法和最佳实践。
+- ✅ **Custom Error Boundary Components** - React error boundaries for catching and handling errors
+- ✅ **404 Not Found Page** - Friendly page for non-existent routes
+- ✅ **500 Server Error Page** - Server error handling with recovery options
+- ✅ **401 Unauthorized Page** - Authentication required page
+- ✅ **403 Forbidden Page** - Access denied page
+- ✅ **Global Error Handling** - Root-level error boundary for app-wide errors
+- ✅ **Internationalization (i18n)** - Full support for English and Chinese
+- ✅ **Consistent Branding** - All pages match the 7zi Studio design system
+- ✅ **User-Friendly Messages** - Clear error explanations and solutions
+- ✅ **Recovery Actions** - Retry, go home, go back, and contact support options
 
----
-
-## 📋 目录
-
-- [错误处理架构](#错误处理架构)
-- [ErrorBoundary 组件](#errorboundary-组件)
-- [error-reporter API](#error-reporter-api)
-- [错误上报流程](#错误上报流程)
-- [Sentry 集成](#sentry-集成)
-- [最佳实践](#最佳实践)
-- [常见问题](#常见问题)
-
----
-
-## 🏗️ 错误处理架构
-
-### 多层错误捕获
+## File Structure
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    全局错误处理器                          │
-│  (window.onerror / unhandledrejection)                  │
-├─────────────────────────────────────────────────────────┤
-│                  根级 ErrorBoundary                       │
-│  (app/error.tsx - 捕获整个应用错误)                       │
-├─────────────────────────────────────────────────────────┤
-│                页面级 ErrorBoundary                       │
-│  (dashboard/error.tsx, tasks/error.tsx, etc.)           │
-├─────────────────────────────────────────────────────────┤
-│                组件级 ErrorBoundary                       │
-│  (包装关键组件，提供细粒度错误隔离)                        │
-├─────────────────────────────────────────────────────────┤
-│                    业务逻辑层                             │
-│  (try/catch + reportApiError/reportNetworkError)        │
-└─────────────────────────────────────────────────────────┘
+src/
+├── app/
+│   ├── global-error.tsx          # Root-level error boundary
+│   ├── not-found.tsx              # Root 404 (fallback)
+│   └── [locale]/
+│       ├── not-found.tsx          # Localized 404 page
+│       ├── error.tsx              # Localized error page
+│       └── error-enhanced.tsx     # Enhanced 500 error page
+├── components/
+│   ├── ErrorBoundary.tsx          # Main error boundary component
+│   ├── ErrorDisplay.tsx           # Error display UI component
+│   └── errors/
+│       ├── index.tsx              # Error page factory
+│       ├── UnauthorizedPage.tsx   # 401 page
+│       └── ForbiddenPage.tsx      # 403 page
+└── i18n/
+    └── messages/
+        ├── en.json                # English error messages
+        └── zh.json                # Chinese error messages
 ```
 
-### 错误类型分类
+## Error Pages
 
-| 类型 | 说明 | 分类标识 |
-|------|------|----------|
-| React 渲染错误 | 组件渲染时抛出的错误 | `react-error` |
-| JavaScript 错误 | 未捕获的 JS 异常 | `js-error` |
-| API 错误 | API 请求失败 | `api-error` |
-| 网络错误 | 网络连接问题 | `network-error` |
-| 资源加载错误 | 静态资源加载失败 | `resource-error` |
+### 1. 404 Not Found Page
 
----
+**Location:** `src/app/[locale]/not-found.tsx`
 
-## 🛡️ ErrorBoundary 组件
+**Features:**
+- Large 404 number with gradient effect
+- Friendly error message
+- Quick links to common pages
+- Return to home and contact support buttons
+- Full i18n support
 
-### 基本使用
+**Usage:** Automatically triggered when a route doesn't exist.
 
+### 2. 500 Server Error Page
+
+**Location:** `src/app/[locale]/error.tsx` → `src/app/[locale]/error-enhanced.tsx`
+
+**Features:**
+- Large 500 number with gradient
+- Error digest/code display
+- Retry button with loading state
+- Return to home button
+- Recovery success state
+- Full i18n support
+
+**Usage:** Automatically triggered when a server error occurs.
+
+### 3. 401 Unauthorized Page
+
+**Location:** `src/components/errors/UnauthorizedPage.tsx`
+
+**Features:**
+- Large 401 number with gradient
+- Login button
+- Return to home button
+- Contact support option
+- Full i18n support
+
+**Usage:** Use when user authentication is required.
+
+**Example:**
 ```tsx
-import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { UnauthorizedPage } from '@/components/errors';
 
-// 最基本的使用
-<ErrorBoundary>
-  <MyComponent />
-</ErrorBoundary>
-
-// 带名称标识（推荐）
-<ErrorBoundary name="Dashboard">
-  <Dashboard />
-</ErrorBoundary>
-
-// 自定义错误界面
-<ErrorBoundary fallback={<div>出错了</div>}>
-  <MyComponent />
-</ErrorBoundary>
-```
-
-### 完整 Props
-
-```tsx
-interface ErrorBoundaryProps {
-  /** 子组件 */
-  children: ReactNode;
-  
-  /** 自定义错误界面 */
-  fallback?: ReactNode;
-  
-  /** 错误回调 */
-  onError?: (error: Error, errorInfo: ErrorInfo) => void;
-  
-  /** 错误边界名称（用于日志标识） */
-  name?: string;
-  
-  /** 是否显示详细错误信息（开发模式自动开启） */
-  showDetails?: boolean;
-  
-  /** 自定义重试处理 */
-  onRetry?: () => void;
-  
-  /** 最大重试次数（默认 3） */
-  maxRetries?: number;
+// In your page component
+if (!isAuthenticated) {
+  return <UnauthorizedPage />;
 }
 ```
 
-### 使用示例
+### 4. 403 Forbidden Page
 
-#### 1. 页面级错误边界
+**Location:** `src/components/errors/ForbiddenPage.tsx`
 
+**Features:**
+- Large 403 number with gradient
+- Clear explanation of access denial
+- Possible reasons list
+- Return to home button
+- Contact support option
+- Full i18n support
+
+**Usage:** Use when user lacks permissions.
+
+**Example:**
 ```tsx
-// app/dashboard/page.tsx
+import { ForbiddenPage } from '@/components/errors';
+
+// In your page component
+if (!hasPermission) {
+  return <ForbiddenPage />;
+}
+```
+
+### 5. Global Error Boundary
+
+**Location:** `src/app/global-error.tsx`
+
+**Features:**
+- Root-level error handling
+- App-wide error recovery
+- Development error details
+- Clean UI matching brand
+
+**Usage:** Automatically catches any unhandled errors in the app.
+
+## Error Boundary Components
+
+### ErrorDisplay Component
+
+**Location:** `src/components/ErrorDisplay.tsx`
+
+**Purpose:** Reusable error display UI with multiple variants.
+
+**Variants:**
+- `default` - Full-featured error page
+- `compact` - Inline error message
+- `fullscreen` - Full-screen modal
+
+**Error Types:**
+- `generic` - General error
+- `network` - Network connection error
+- `not-found` - 404 error
+- `unauthorized` - 401 error
+- `forbidden` - 403 error
+- `server` - 500 error
+
+**Props:**
+```tsx
+interface ErrorDisplayProps {
+  title?: string;              // Error title
+  message?: string;            // Error message
+  showReset?: boolean;         // Show retry button
+  onReset?: () => void;        // Retry callback
+  errorDigest?: string;         // Error code
+  variant?: ErrorVariant;      // Display variant
+  errorType?: ErrorType;       // Error type
+  showHomeButton?: boolean;    // Show home button
+  showBackButton?: boolean;    // Show back button
+  showRefreshButton?: boolean; // Show refresh button
+  showCopyError?: boolean;     // Show copy error button
+  onGoHome?: () => void;       // Home button callback
+  onGoBack?: () => void;       // Back button callback
+}
+```
+
+**Usage Example:**
+```tsx
+import { ErrorDisplay } from '@/components/ErrorDisplay';
+
+<ErrorDisplay
+  title="Something went wrong"
+  message="Unable to load your data"
+  errorType="network"
+  showReset={true}
+  onReset={retryFunction}
+  showHomeButton={true}
+/>
+```
+
+### ErrorBoundary Component
+
+**Location:** `src/components/ErrorBoundary.tsx`
+
+**Purpose:** React error boundary for Next.js pages.
+
+**Features:**
+- Automatic error type detection
+- Sentry integration for error tracking
+- Retry counting
+- Smart error recovery
+
+**Usage Example:**
+```tsx
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
-export default function DashboardPage() {
+// In error.tsx
+export default function Error({ error, reset }: ErrorProps) {
   return (
-    <ErrorBoundary 
-      name="DashboardPage"
-      maxRetries={3}
-      onRetry={() => {
-        // 可选：重试时刷新数据
-        console.log('Retrying dashboard...');
-      }}
-    >
-      <Dashboard />
-    </ErrorBoundary>
+    <ErrorBoundary
+      error={error}
+      reset={reset}
+      title="Page load failed"
+      showReset={true}
+      showHomeButton={true}
+    />
   );
 }
 ```
 
-#### 2. 组件级错误边界
+### Page Error Factory
 
+**Location:** `src/components/errors/index.tsx`
+
+**Purpose:** Create reusable page-level error boundaries.
+
+**Usage:**
 ```tsx
-// 包装关键组件
-<ErrorBoundary 
-  name="MemberCard"
-  showDetails={process.env.NODE_ENV === 'development'}
->
-  <MemberCard member={member} />
-</ErrorBoundary>
+import { createPageErrorBoundary } from '@/components/errors';
 
-// 使用 fallback 提供降级 UI
-<ErrorBoundary 
-  name="Charts"
-  fallback={<div className="text-gray-500">图表加载失败</div>}
->
-  <Charts data={data} />
-</ErrorBoundary>
-```
+// Create a custom error boundary
+const MyPageError = createPageErrorBoundary('My Page Error');
 
-#### 3. 使用高阶组件
-
-```tsx
-import { withErrorBoundary } from '@/components/ErrorBoundary';
-
-// 自动包装组件
-const SafeDashboard = withErrorBoundary(Dashboard, {
-  name: 'SafeDashboard',
-  maxRetries: 3,
-});
-
-export default SafeDashboard;
-```
-
-### 错误分类
-
-ErrorBoundary 会自动分类错误并提供相应的 UI：
-
-```tsx
-enum ErrorType {
-  NETWORK = 'NETWORK_ERROR',   // 网络错误 - 显示"网络连接问题"
-  RENDER = 'RENDER_ERROR',     // 渲染错误 - 显示"页面加载出错"
-  ASYNC = 'ASYNC_ERROR',       // 异步错误
-  UNKNOWN = 'UNKNOWN_ERROR',   // 未知错误
+// Use in error.tsx
+export default function Error({ error, reset }: ErrorProps) {
+  return <MyPageError error={error} reset={reset} />;
 }
 ```
 
----
+## Internationalization
 
-## 📡 error-reporter API
+All error messages are localized in `src/i18n/messages/`:
 
-### 核心函数
-
-#### reportError()
-
-上报任意错误：
-
-```tsx
-import { reportError } from '@/lib/error-reporter';
-
-// 基本使用
-await reportError(new Error('Something went wrong'));
-
-// 带分类
-await reportError(error, 'api-error');
-
-// 带元数据
-await reportError(error, 'custom', {
-  component: 'Dashboard',
-  action: 'fetchData',
-  userId: '123',
-});
-```
-
-#### reportApiError()
-
-上报 API 错误：
-
-```tsx
-import { reportApiError } from '@/lib/error-reporter';
-
-try {
-  const response = await fetch('/api/data');
-  if (!response.ok) {
-    await reportApiError('/api/data', response.status, 'Failed to fetch');
+### English (en.json)
+```json
+{
+  "errors": {
+    "notFound": {
+      "title": "Page Not Found",
+      "description": "The page you're looking for doesn't exist or has been removed.",
+      "solution": "Check the URL for typos or use the navigation to find what you need.",
+      "backHome": "Back to Home",
+      "contactSupport": "Contact Support",
+      "suggestions": {
+        "title": "You might be looking for:",
+        "home": "Home",
+        "about": "About Us",
+        "team": "Team",
+        "blog": "Blog"
+      }
+    },
+    "serverError": { ... },
+    "unauthorized": { ... },
+    "forbidden": { ... },
+    "networkError": { ... },
+    "general": { ... }
   }
-} catch (error) {
-  await reportApiError('/api/data', 0, error.message);
 }
 ```
 
-#### reportNetworkError()
-
-上报网络错误：
-
-```tsx
-import { reportNetworkError } from '@/lib/error-reporter';
-
-try {
-  await fetch('https://external-api.com/data');
-} catch (error) {
-  await reportNetworkError('https://external-api.com/data', error);
+### Chinese (zh.json)
+```json
+{
+  "errors": {
+    "notFound": {
+      "title": "页面未找到",
+      "description": "您访问的页面不存在或已被移除。",
+      "solution": "请检查 URL 是否正确，或使用导航菜单查找您需要的内容。",
+      "backHome": "返回首页",
+      "contactSupport": "联系我们",
+      "suggestions": {
+        "title": "您可能在寻找：",
+        "home": "首页",
+        "about": "关于我们",
+        "team": "团队成员",
+        "blog": "博客文章"
+      }
+    },
+    "serverError": { ... },
+    "unauthorized": { ... },
+    "forbidden": { ... },
+    "networkError": { ... },
+    "general": { ... }
+  }
 }
 ```
 
-### Sentry 集成函数
+## Testing
 
-#### 用户上下文
+### Test Utility
 
-```tsx
-import { 
-  setSentryUser, 
-  clearSentryUser 
-} from '@/lib/error-reporter';
-
-// 用户登录时
-setSentryUser({
-  id: 'user-123',
-  email: 'user@example.com',
-  username: 'john_doe',
-});
-
-// 用户登出时
-clearSentryUser();
-```
-
-#### 自定义上下文
-
-```tsx
-import { 
-  setSentryContext, 
-  setSentryTag,
-  setSentryExtra 
-} from '@/lib/error-reporter';
-
-// 设置上下文
-setSentryContext('subscription', {
-  plan: 'pro',
-  expiresAt: '2024-12-31',
-});
-
-// 设置标签（用于分组）
-setSentryTag('feature', 'dashboard');
-setSentryTag('version', '2.0.0');
-
-// 设置额外数据
-setSentryExtra('debug_info', { requestId: 'abc-123' });
-```
-
-#### 面包屑（Breadcrumbs）
-
-```tsx
-import { addSentryBreadcrumb } from '@/lib/error-reporter';
-
-// 跟踪用户操作
-addSentryBreadcrumb('User clicked submit button', 'ui');
-addSentryBreadcrumb('API request started', 'http', 'info');
-addSentryBreadcrumb('Payment processed', 'transaction', 'info');
-```
-
-### 全局错误处理器
-
-```tsx
-import { setupGlobalErrorHandler } from '@/lib/error-reporter';
-
-// 在应用入口调用一次
-setupGlobalErrorHandler();
-```
-
-这会自动捕获：
-- `unhandledrejection` - 未处理的 Promise 拒绝
-- `window.onerror` - 全局 JavaScript 错误
-- 资源加载错误（使用事件捕获）
-
----
-
-## 🔄 错误上报流程
-
-### 上报路径
-
-```
-┌─────────────────┐
-│   错误发生       │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│ ErrorBoundary   │  ← React 组件错误
-│ 或              │
-│ reportError()   │  ← 手动上报
-└────────┬────────┘
-         │
-         ├──────────────┐
-         │              │
-         ▼              ▼
-┌─────────────────┐  ┌─────────────────┐
-│ Sentry          │  │ /api/errors     │
-│ (SaaS 监控)     │  │ (本地存储)      │
-└─────────────────┘  └─────────────────┘
-```
-
-### 错误负载格式
-
-```typescript
-interface ErrorReportPayload {
-  type: ErrorCategory;        // 错误类型
-  message: string;            // 错误消息
-  stack?: string;             // 堆栈信息
-  url?: string;               // 发生页面
-  timestamp?: string;         // 时间戳
-  userAgent?: string;         // 浏览器信息
-  metadata?: Record<string, unknown>;  // 自定义元数据
-}
-```
-
-### 上报机制
-
-1. **优先使用 sendBeacon** - 保证页面关闭时也能上报
-2. **降级使用 fetch** - 兼容性更好
-3. **keepalive: true** - 确保请求完成
-
-```typescript
-// 优先使用 sendBeacon
-if (window.navigator.sendBeacon) {
-  const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
-  return window.navigator.sendBeacon('/api/errors', blob);
-}
-
-// 降级使用 fetch
-await fetch('/api/errors', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify(payload),
-  keepalive: true,
-});
-```
-
----
-
-## 🔍 Sentry 集成
-
-### 配置
+A test page is available at `/test-error` to verify all error pages:
 
 ```bash
-# .env.local
-NEXT_PUBLIC_SENTRY_DSN=https://xxx@sentry.io/xxx
-SENTRY_AUTH_TOKEN=xxx
+# Test different error scenarios
+/test-error?type=not-found      # 404 page
+/test-error?type=server        # 500 page
+/test-error?type=unauthorized  # 401 page
+/test-error?type=forbidden     # 403 page
+/test-error?type=network       # Network error
 ```
 
-### 初始化（已在项目中配置）
+### Manual Testing
 
-```typescript
-// sentry.client.config.ts
-import * as Sentry from '@sentry/nextjs';
+1. **404 Page:** Visit any non-existent route (e.g., `/this-does-not-exist`)
+2. **500 Page:** Trigger an error in a page component
+3. **401/403 Pages:** Import and use the components conditionally
 
-Sentry.init({
-  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-  tracesSampleRate: 0.1,
-  environment: process.env.NODE_ENV,
-});
+### Automated Testing
+
+Test files are located in `src/components/__tests__/`:
+- `ErrorBoundary.test.tsx` - Error boundary tests
+- `NetworkErrorBoundary.test.tsx` - Network error tests
+
+## Styling and Branding
+
+All error pages follow the 7zi Studio design system:
+
+- **Colors:** Cyan, Purple, Pink gradient
+- **Typography:** Geist Sans font family
+- **Icons:** Custom SVG icons for each error type
+- **Dark Mode:** Full dark mode support
+- **Responsive:** Mobile-friendly design
+- **Animations:** Subtle hover effects and transitions
+
+## Best Practices
+
+1. **Always provide context:** Include error codes/digests for debugging
+2. **Offer recovery:** Give users ways to fix the problem (retry, go home)
+3. **Be helpful:** Explain what happened and what to do next
+4. **Stay consistent:** Use the same design language across all error pages
+5. **Track errors:** Log errors to Sentry or similar service for monitoring
+6. **Test thoroughly:** Verify all error states and recovery paths
+
+## Error Handling Flow
+
+```
+Error Occurs
+    ↓
+Error Boundary Catches It
+    ↓
+Error Type Detected (network, 404, 401, 403, 500, generic)
+    ↓
+Appropriate Error Page Displayed
+    ↓
+User Takes Action (retry, go home, contact support)
+    ↓
+Recovery or Navigation
 ```
 
-### 最佳实践
+## Integration with Sentry
 
-#### 1. 设置用户上下文
-
-```typescript
-// 用户登录后
-setSentryUser({
-  id: user.id,
-  email: user.email,
-  username: user.name,
-});
-```
-
-#### 2. 添加有意义的标签
-
-```typescript
-setSentryTag('page', 'dashboard');
-setSentryTag('feature', 'member-management');
-```
-
-#### 3. 使用面包屑跟踪用户路径
-
-```typescript
-addSentryBreadcrumb('User opened member list', 'navigation');
-addSentryBreadcrumb('User filtered by status: active', 'filter');
-addSentryBreadcrumb('User clicked member card', 'ui');
-```
-
-#### 4. 添加上下文信息
-
-```typescript
-setSentryContext('task', {
-  id: task.id,
-  status: task.status,
-  assignee: task.assignee,
-});
-```
-
----
-
-## ✅ 最佳实践
-
-### 1. 分层使用 ErrorBoundary
+The `ErrorBoundary` component automatically logs errors to Sentry:
 
 ```tsx
-// ❌ 不好：没有错误边界
-<Dashboard />
-
-// ✅ 好：页面级错误边界
-<ErrorBoundary name="DashboardPage">
-  <Dashboard />
-</ErrorBoundary>
-
-// ✅ 更好：分层错误边界
-<ErrorBoundary name="DashboardPage">
-  <Header />
-  <ErrorBoundary name="DashboardContent" fallback={<LoadingError />}>
-    <DashboardContent />
-  </ErrorBoundary>
-  <Footer />
-</ErrorBoundary>
-```
-
-### 2. 提供有意义的错误上下文
-
-```tsx
-// ❌ 不好
-reportError(error);
-
-// ✅ 好
-reportError(error, 'api-error', {
-  endpoint: '/api/tasks',
-  method: 'POST',
-  payload: { taskId: '123' },
-});
-```
-
-### 3. 错误恢复策略
-
-```tsx
-<ErrorBoundary 
-  name="DataList"
-  maxRetries={3}
-  onRetry={() => {
-    // 重试时刷新数据
-    queryClient.invalidateQueries(['tasks']);
-  }}
-  onError={(error) => {
-    // 记录错误到分析平台
-    analytics.track('error_boundary_triggered', {
-      boundary: 'DataList',
-      error: error.message,
-    });
-  }}
->
-  <DataList />
-</ErrorBoundary>
-```
-
-### 4. 优雅降级
-
-```tsx
-// 关键功能 - 显示完整错误界面
-<ErrorBoundary name="PaymentForm">
-  <PaymentForm />
-</ErrorBoundary>
-
-// 非关键功能 - 降级显示
-<ErrorBoundary 
-  name="Recommendations"
-  fallback={<div>推荐内容暂时不可用</div>}
->
-  <Recommendations />
-</ErrorBoundary>
-```
-
-### 5. API 错误处理
-
-```tsx
-async function fetchTasks() {
-  try {
-    const response = await fetch('/api/tasks');
-    
-    if (!response.ok) {
-      await reportApiError('/api/tasks', response.status, response.statusText);
-      throw new Error(`API Error: ${response.status}`);
-    }
-    
-    return response.json();
-  } catch (error) {
-    if (error instanceof TypeError) {
-      // 网络错误
-      await reportNetworkError('/api/tasks', error);
-    }
-    throw error;
-  }
-}
-```
-
----
-
-## ❓ 常见问题
-
-### Q: ErrorBoundary 捕获不到错误？
-
-**A:** ErrorBoundary 只捕获渲染错误，不捕获：
-- 事件处理器中的错误
-- 异步代码（setTimeout, Promise）
-- 服务端渲染错误
-
-解决方案：
-
-```tsx
-// 事件处理器
-<button onClick={() => {
-  try {
-    doSomething();
-  } catch (error) {
-    reportError(error);
-  }
-}}>
-  Click
-</button>
-
-// 异步代码
 useEffect(() => {
-  async function fetchData() {
-    try {
-      const data = await fetch('/api/data');
-    } catch (error) {
-      reportError(error);
-    }
-  }
-  fetchData();
-}, []);
+  Sentry.withScope((scope) => {
+    scope.setTag('error_type', errorType);
+    scope.setTag('retry_count', retryCount);
+    scope.setExtra('digest', error.digest);
+    scope.setExtra('url', window.location.href);
+    Sentry.captureException(error);
+  });
+}, [error, errorType, retryCount]);
 ```
 
-### Q: 如何测试 ErrorBoundary？
+## Future Enhancements
 
-**A:** 参考 `app/__tests__/ErrorBoundary.test.tsx`：
+Potential improvements:
+- Error rate limiting for users
+- Custom error pages for specific routes
+- Error recovery suggestions based on error type
+- Offline support with service workers
+- Error analytics dashboard
+- A/B testing for error page copy
 
-```tsx
-const ThrowError = ({ error }) => {
-  if (error) throw error;
-  return <div>Normal</div>;
-};
+## Support
 
-it('catches errors', () => {
-  render(
-    <ErrorBoundary>
-      <ThrowError error={new Error('Test')} />
-    </ErrorBoundary>
-  );
-  
-  expect(screen.getByText('页面加载出错')).toBeDefined();
-});
-```
-
-### Q: 生产环境看不到错误详情？
-
-**A:** 这是预期行为。生产环境默认隐藏错误详情：
-- 安全考虑：避免泄露敏感信息
-- 用户体验：显示友好错误界面
-
-开发时可以强制显示：
-
-```tsx
-<ErrorBoundary showDetails={true}>
-  <MyComponent />
-</ErrorBoundary>
-```
-
-### Q: 如何禁用 Sentry？
-
-**A:** 不设置 `NEXT_PUBLIC_SENTRY_DSN` 环境变量即可。
+For issues or questions about the error handling system:
+- Check this documentation
+- Review the component source code
+- Test using the `/test-error` page
+- Contact the development team
 
 ---
 
-## 📚 相关文档
-
-- [API 参考](./API-REFERENCE.md) - 完整 API 文档
-- [组件参考](./COMPONENTS.md) - 组件 Props 和用法
-- [开发指南](./DEVELOPMENT.md) - 开发环境配置
-- [测试指南](./TESTING.md) - 测试最佳实践
-
----
-
-## 📞 获取帮助
-
-遇到问题？
-
-- **查看文档**: [docs/INDEX.md](./INDEX.md)
-- **提交 Issue**: https://github.com/songzuo/7zi/issues
-- **邮件支持**: support@7zi.com
-
----
-
-*文档由 7zi Studio AI 团队维护 🤖*
+**Last Updated:** March 21, 2026
+**Version:** 1.0.0

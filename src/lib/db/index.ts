@@ -331,6 +331,8 @@ export async function getDatabaseHealth(): Promise<ReturnType<typeof runGetDatab
 
 // Export batch operations for convenience
 export * from './batch-operations';
+// Export query optimizations
+export * from './query-optimizations';
 
 export default {
   getDatabase,

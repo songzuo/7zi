@@ -459,10 +459,6 @@ export function initWebVitalsMonitoring(config: WebVitalsConfig = {}) {
 
     // 标记初始化完成
     measureTiming('web-vitals-init', 'web-vitals-init');
-    
-    if (verbose) {
-      console.log('[WebVitals] Initialized with config:', config);
-    }
   }).catch((error) => {
     console.error('[WebVitals] Failed to load web-vitals library:', error);
   });

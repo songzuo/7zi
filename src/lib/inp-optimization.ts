@@ -143,7 +143,7 @@ export function cancelIdleTask(handle: number) {
  * });
  * ```
  */
-export function debounce<T extends any[]>(
+export function debounce<T extends unknown[]>(
   func: (...args: T) => void,
   wait: number
 ): (...args: T) => void {

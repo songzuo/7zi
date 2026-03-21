@@ -61,21 +61,6 @@ export async function POST(request: NextRequest) {
       metadata,
     });
 
-    // 记录到控制台（开发环境）
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[Web Vitals API] Received metrics:', {
-        count: metrics.length,
-        route: metrics[0]?.route,
-        deviceType: metadata.deviceType,
-        connectionType: metadata.connectionType,
-        metrics: metrics.map(m => ({
-          name: m.name,
-          value: m.value,
-          rating: m.rating,
-        })),
-      });
-    }
-
     // 在生产环境中，这里可以：
     // 1. 存储到数据库（PostgreSQL, MongoDB, etc.）
     // 2. 发送到分析服务（Google Analytics, Plausible, etc.）

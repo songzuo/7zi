@@ -92,6 +92,19 @@ export interface TaskCommentPayload {
   content: string;
 }
 
+export interface TaskDeletedPayload {
+  taskId: string;
+  taskTitle: string;
+  deletedBy: { id: string; name: string; avatar?: string };
+}
+
+export interface TaskUpdatedPayload {
+  taskId: string;
+  taskTitle: string;
+  updatedBy: { id: string; name: string; avatar?: string };
+  changes: Record<string, { old: unknown; new: unknown }>;
+}
+
 export interface MemberOnlinePayload {
   userId: string;
   userName: string;
@@ -125,6 +138,8 @@ export type NotificationPayload =
   | TaskStatusChangedPayload
   | TaskAssignedPayload
   | TaskCommentPayload
+  | TaskDeletedPayload
+  | TaskUpdatedPayload
   | MemberOnlinePayload
   | MemberOfflinePayload
   | MemberStatusChangedPayload

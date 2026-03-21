@@ -65,6 +65,34 @@ export interface ErrorResponse {
 }
 
 /**
+ * Success response interface
+ * This is the standard format for all API success responses
+ */
+export interface SuccessResponse<T = unknown> {
+  success: true;
+  data: T;
+  timestamp: string;
+}
+
+/**
+ * Create standardized success response
+ * This is the recommended way to create success responses in API routes
+ */
+export function createSuccessResponse<T = unknown>(
+  data: T,
+  status: number = 200
+): NextResponse<SuccessResponse<T>> {
+  return NextResponse.json(
+    {
+      success: true,
+      data,
+      timestamp: new Date().toISOString(),
+    },
+    { status }
+  );
+}
+
+/**
  * Create standardized error response
  * This is the recommended way to create error responses in API routes
  */
@@ -206,6 +234,16 @@ export function createBadRequestError(
   details?: Record<string, unknown>
 ): NextResponse<ErrorResponse> {
   const error = new ApiError(ErrorType.BAD_REQUEST, message, 400, details);
+  return createErrorResponse(error);
+}
+
+/**
+ * Create missing token error response (401)
+ */
+export function createMissingTokenError(
+  message: string = 'Authentication token is missing'
+): NextResponse<ErrorResponse> {
+  const error = new ApiError(ErrorType.MISSING_TOKEN, message, 401);
   return createErrorResponse(error);
 }
 

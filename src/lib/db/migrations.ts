@@ -155,6 +155,55 @@ const MIGRATIONS: Migration[] = [
       db.exec('DROP INDEX IF EXISTS idx_audit_logs_action_created');
     },
   },
+  {
+    version: 6,
+    name: 'add_feedback_ratings_indexes',
+    up: async () => {
+      logger.info('Migration 6: Adding feedback and ratings performance indexes', { category: 'db' });
+      const db = await getDatabaseAsync();
+
+      // Composite indexes for feedbacks table
+      db.exec('CREATE INDEX IF NOT EXISTS idx_feedbacks_status_created ON feedbacks(status, created_at DESC)');
+      db.exec('CREATE INDEX IF NOT EXISTS idx_feedbacks_type_rating ON feedbacks(type, rating)');
+      db.exec('CREATE INDEX IF NOT EXISTS idx_feedbacks_priority_rating ON feedbacks(priority, rating)');
+      db.exec('CREATE INDEX IF NOT EXISTS idx_feedbacks_user_rating ON feedbacks(user_id, rating)');
+      db.exec('CREATE INDEX IF NOT EXISTS idx_feedbacks_created_user ON feedbacks(created_at DESC, user_id)');
+
+      // Composite indexes for ratings table
+      db.exec('CREATE INDEX IF NOT EXISTS idx_ratings_target_type_id ON ratings(target_type, target_id)');
+      db.exec('CREATE INDEX IF NOT EXISTS idx_ratings_user_target ON ratings(user_id, target_type, target_id)');
+      db.exec('CREATE INDEX IF NOT EXISTS idx_ratings_rating_created ON ratings(rating DESC, created_at DESC)');
+      db.exec('CREATE INDEX IF NOT EXISTS idx_ratings_target_status ON ratings(target_type, status)');
+
+      // Composite index for helpful_votes
+      db.exec('CREATE INDEX IF NOT EXISTS idx_helpful_votes_rating_user ON helpful_votes(rating_id, user_id)');
+      db.exec('CREATE INDEX IF NOT EXISTS idx_helpful_votes_rating_helpful ON helpful_votes(rating_id, is_helpful)');
+
+      logger.info('Migration 6: Added 11 feedback/ratings indexes', { category: 'db' });
+    },
+    down: async () => {
+      logger.debug('Migration 6 down: Remove feedback and ratings indexes', { category: 'db' });
+      const db = await getDatabaseAsync();
+
+      const indexes = [
+        'idx_feedbacks_status_created',
+        'idx_feedbacks_type_rating',
+        'idx_feedbacks_priority_rating',
+        'idx_feedbacks_user_rating',
+        'idx_feedbacks_created_user',
+        'idx_ratings_target_type_id',
+        'idx_ratings_user_target',
+        'idx_ratings_rating_created',
+        'idx_ratings_target_status',
+        'idx_helpful_votes_rating_user',
+        'idx_helpful_votes_rating_helpful',
+      ];
+
+      for (const index of indexes) {
+        db.exec(`DROP INDEX IF EXISTS ${index}`);
+      }
+    },
+  },
 ];
 
 /**

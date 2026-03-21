@@ -1,21 +1,10 @@
 'use client';
 
-import * as Sentry from '@sentry/nextjs';
-import { Button } from '@/components/ui/Button';
+import { useEffect } from 'react';
 
 /**
- * Global Error Boundary
- * 捕获整个应用程序中的未捕获错误
- * 这个组件只在根布局发生错误时显示
- *
- * @see https://nextjs.org/docs/app/building-your-application/routing/error-handling#global-errorjs
- *
- * 特性：
- * - 统一的错误展示样式
- * - 自动错误类型分析
- * - Sentry 错误上报
- * - 友好的错误消息
- * - 多种恢复选项
+ * 根级别错误处理组件
+ * 捕获整个应用的错误
  */
 export default function GlobalError({
   error,
@@ -24,88 +13,23 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  // 错误上报到 Sentry
-  React.useEffect(() => {
-    Sentry.captureException(error);
+  useEffect(() => {
+    // 记录错误到控制台
+    console.error('🚨 Global Error Boundary 捕获到错误:', error);
+
+    // 这里可以添加错误上报逻辑
+    // 例如发送到 Sentry 或其他错误监控服务
   }, [error]);
-
-  // 分析错误类型
-  const getErrorType = (err: Error): string => {
-    const message = err.message.toLowerCase();
-
-    if (message.includes('network') || message.includes('fetch')) {
-      return 'network';
-    }
-    if (message.includes('not found') || message.includes('404')) {
-      return 'not-found';
-    }
-    if (message.includes('unauthorized') || message.includes('401')) {
-      return 'unauthorized';
-    }
-    if (message.includes('forbidden') || message.includes('403')) {
-      return 'forbidden';
-    }
-    return 'generic';
-  };
-
-  const errorType = getErrorType(error);
-  const titleMap: Record<string, string> = {
-    network: '网络连接失败',
-    'not-found': '页面不存在',
-    unauthorized: '需要登录',
-    forbidden: '没有权限',
-    generic: '应用程序错误',
-  };
-
-  const messageMap: Record<string, string> = {
-    network: '请检查您的网络连接，然后重试',
-    'not-found': '您访问的页面不存在或已被移除',
-    unauthorized: '请登录后继续访问此页面',
-    forbidden: '您没有权限访问此页面',
-    generic: '发生了意外错误，请稍后重试',
-  };
-
-  const title = titleMap[errorType] || '应用程序错误';
-  const message = messageMap[errorType] || '发生了意外错误，请稍后重试';
-
-  const handleReset = () => {
-    // 尝试恢复
-    reset();
-  };
-
-  const handleGoHome = () => {
-    window.location.href = '/';
-  };
-
-  const handleReload = () => {
-    window.location.reload();
-  };
-
-  const handleCopyError = () => {
-    const errorText = [
-      `Error: ${error.message}`,
-      `Digest: ${error.digest || 'N/A'}`,
-      `Type: ${errorType}`,
-      `Timestamp: ${new Date().toISOString()}`,
-      `Stack: ${error.stack || 'No stack trace'}`,
-    ].join('\n\n');
-
-    navigator.clipboard.writeText(errorText).then(() => {
-      alert('错误信息已复制到剪贴板');
-    }).catch(() => {
-      console.error('复制失败');
-    });
-  };
 
   return (
     <html>
       <body>
-        <div className="flex min-h-screen items-center justify-center bg-background px-4">
-          <div className="max-w-md w-full text-center space-y-6">
-            {/* 错误图标 */}
-            <div className="mx-auto w-16 h-16 flex items-center justify-center">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-zinc-950 dark:to-zinc-900 px-4">
+          <div className="max-w-lg w-full text-center">
+            {/* Error Icon */}
+            <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-red-100 to-orange-100 dark:from-red-900/30 dark:to-orange-900/30 rounded-full flex items-center justify-center animate-pulse">
               <svg
-                className="w-full h-full text-destructive"
+                className="w-12 h-12 text-red-500"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -119,61 +43,65 @@ export default function GlobalError({
               </svg>
             </div>
 
-            {/* 错误标题 */}
-            <h1 className="text-2xl font-bold text-foreground">{title}</h1>
+            {/* Title */}
+            <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-3">
+              出现了一些问题
+            </h1>
 
-            {/* 错误消息 */}
-            <p className="text-muted-foreground">{message}</p>
+            {/* Message */}
+            <p className="text-zinc-600 dark:text-zinc-400 mb-6">
+              抱歉，应用程序遇到了意外错误。
+              <br />
+              我们已经记录了此问题，请稍后重试。
+            </p>
 
-            {/* 操作按钮 */}
+            {/* Error Code */}
+            {error.digest && (
+              <p className="text-sm text-zinc-400 dark:text-zinc-500 mb-6 font-mono">
+                错误码: {error.digest.slice(0, 8)}
+              </p>
+            )}
+
+            {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button onClick={handleReset} variant="primary" className="flex-1">
-                尝试恢复
-              </Button>
-              <Button onClick={handleReload} variant="outline" className="flex-1">
-                刷新页面
-              </Button>
-              <Button onClick={handleGoHome} variant="ghost" className="flex-1">
+              <button
+                onClick={reset}
+                className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-full font-semibold hover:shadow-lg hover:shadow-cyan-500/25 transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                重新加载
+              </button>
+              <button
+                onClick={() => (window.location.href = '/')}
+                className="px-6 py-3 border-2 border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-full font-semibold hover:border-cyan-500 hover:text-cyan-500 transition-all flex items-center justify-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
                 返回首页
-              </Button>
+              </button>
             </div>
 
-            {/* 错误详情 */}
-            <details className="text-left bg-muted/50 rounded-lg p-4">
-              <summary className="cursor-pointer text-sm font-medium text-muted-foreground mb-2">
-                错误详情
-              </summary>
-              <div className="space-y-2 text-xs">
-                <div>
-                  <span className="font-semibold">错误信息:</span>
-                  <p className="font-mono mt-1">{error.message}</p>
+            {/* Development Info */}
+            {process.env.NODE_ENV === 'development' && (
+              <details className="mt-8 text-left">
+                <summary className="cursor-pointer text-sm text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 mb-2">
+                  显示错误详情（仅开发环境）
+                </summary>
+                <div className="p-4 bg-zinc-100 dark:bg-zinc-800 rounded-lg overflow-x-auto">
+                  <pre className="text-xs text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap">
+                    {error.message}
+                    {'\n\n'}
+                    {error.stack}
+                  </pre>
                 </div>
-                {error.digest && (
-                  <div>
-                    <span className="font-semibold">错误摘要:</span>
-                    <p className="font-mono mt-1">{error.digest}</p>
-                  </div>
-                )}
-                <div>
-                  <span className="font-semibold">错误类型:</span>
-                  <p className="mt-1">{errorType}</p>
-                </div>
-                <Button
-                  onClick={handleCopyError}
-                  variant="outline"
-                  size="sm"
-                  className="mt-2"
-                >
-                  复制错误信息
-                </Button>
-              </div>
-            </details>
+              </details>
+            )}
           </div>
         </div>
       </body>
     </html>
   );
 }
-
-// 导入 React 以使用 useEffect
-import React from 'react';

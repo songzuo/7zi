@@ -134,7 +134,7 @@ export const SheetJS = dynamic<{ children?: React.ReactNode }>(
 /**
  * 预加载 Chunk
  */
-export function preloadChunk<T = any>(importFn: () => Promise<T>): void {
+export function preloadChunk<T = unknown>(importFn: () => Promise<T>): void {
   if (typeof window !== 'undefined') {
     importFn().catch(console.error);
   }

@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { withPermissions, withRole, withAnyRole } from '@/lib/permissions';
+import { withPermissions, withRole, withAnyRole } from '@/lib/permissions/middleware';
 import { Permission, Role } from '@/lib/permissions/types';
 import { UserRole } from '@/lib/auth/types';
 import { getAllUsers, updateUser } from '@/lib/auth/repository';

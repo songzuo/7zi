@@ -1,3 +1,3 @@
 'use client';
 
-export { LocaleError as default } from '@/components/errors';
+export { default } from './error-enhanced';

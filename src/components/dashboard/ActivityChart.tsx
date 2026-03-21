@@ -67,12 +67,26 @@ const colors = {
 // 自定义 Tooltip
 // ============================================================================
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+/**
+ * Custom tooltip props
+ */
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    name: string;
+    value: number;
+    color: string;
+    dataKey?: string;
+  }>;
+  label?: string;
+}
+
+const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-gray-200 dark:border-zinc-700 p-3">
         <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{label}</p>
-        {payload.map((entry: any, index: number) => (
+        {payload.map((entry, index: number) => (
           <p key={index} className="text-sm flex items-center gap-2" style={{ color: entry.color }}>
             <span className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
             {entry.name}: {entry.value.toLocaleString()}

@@ -49,7 +49,7 @@ import { Analytics } from '@/components/Analytics';
 import { Footer } from '@/components/Footer';
 import { Navigation } from '@/components/Navigation';
 import { StructuredData } from '@/components/SEO';
-import { PerformanceOptimizer } from '@/components/PerformanceOptimizer';
+import PerformanceOptimizer from '@/components/PerformanceOptimizer';
 import type { Metadata } from 'next';
 import '@/app/globals.css';
 

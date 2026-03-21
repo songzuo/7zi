@@ -27,8 +27,26 @@ vi.mock('../logger', () => ({
   },
 }));
 
+/**
+ * Mock statement interface
+ */
+interface MockStatement {
+  run: ReturnType<typeof vi.fn>;
+  get: ReturnType<typeof vi.fn>;
+  all: ReturnType<typeof vi.fn>;
+}
+
+/**
+ * Mock database interface
+ */
+interface MockDatabase {
+  exec: ReturnType<typeof vi.fn>;
+  query: ReturnType<typeof vi.fn>;
+  prepare: ReturnType<typeof vi.fn>;
+}
+
 describe('user-preferences', () => {
-  let mockDb: any;
+  let mockDb: MockDatabase;
 
   beforeEach(() => {
     // Reset all mocks
@@ -353,8 +371,8 @@ describe('user-preferences', () => {
         email_notifications: false,
       });
 
-      const values = mockDb.exec.mock.calls[0][1];
-      const notifIndex = values.findIndex((v: any) => v === 1 || v === 0);
+      const values = mockDb.exec.mock.calls[0][1] as unknown[];
+      const notifIndex = values.findIndex((v) => v === 1 || v === 0);
       expect(notifIndex).toBeGreaterThan(-1);
     });
 

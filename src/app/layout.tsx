@@ -70,7 +70,7 @@ export const metadata: Metadata = {
     shortcut: "/favicon-16x16.png",
     apple: "/apple-touch-icon.png",
   },
-  manifest: "/site.webmanifest",
+  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -80,6 +80,17 @@ export const metadata: Metadata = {
     email: false,
     address: false,
     telephone: false,
+  },
+  // PWA specific meta tags
+  other: {
+    'apple-mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-status-bar-style': 'default',
+    'apple-mobile-web-app-title': '7zi Studio',
+    'mobile-web-app-capable': 'yes',
+    'application-name': '7zi Studio',
+    'msapplication-TileColor': '#06b6d4',
+    'msapplication-config': '/browserconfig.xml',
+    'theme-color': '#06b6d4',
   },
   alternates: {
     canonical: baseUrl,
@@ -94,6 +105,36 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" suppressHydrationWarning>
       <head>
+        {/* PWA Meta Tags for iOS */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="7zi Studio" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="application-name" content="7zi Studio" />
+        <meta name="theme-color" content="#06b6d4" />
+        <meta name="msapplication-TileColor" content="#06b6d4" />
+        <link rel="apple-touch-startup-image" href="/apple-touch-startup-image.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+        {/* Apple Touch Icons for different devices */}
+        <link rel="apple-touch-icon" sizes="152x152" href="/icon-152.png" />
+        <link rel="apple-touch-icon" sizes="144x144" href="/icon-144.png" />
+        <link rel="apple-touch-icon" sizes="120x120" href="/icon-120.png" />
+
+        {/* Favicon */}
+        <link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/icon-16.png" />
+        <link rel="shortcut icon" href="/favicon.ico" />
+
+        {/* Manifest */}
+        <link rel="manifest" href="/manifest.json" />
+
+        {/* Theme Script - Prevents Flash of Unstyled Content (FOUC) */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){'use strict';const THEME_KEY='7zi-user-settings';function getTheme(){try{const stored=localStorage.getItem(THEME_KEY);if(stored){const settings=JSON.parse(stored);return settings.theme||'system';}}catch(e){console.error('Failed to read theme from localStorage:',e);}return'system';}function getEffectiveTheme(theme){if(theme==='system'){return window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}return theme;}function applyTheme(theme){const root=document.documentElement;root.classList.remove('light','dark');root.classList.add(theme);root.style.colorScheme=theme;root.style.visibility='visible';}const theme=getTheme();const effectiveTheme=getEffectiveTheme(theme);applyTheme(effectiveTheme);if(typeof window!=='undefined'){(window).__THEME__={stored:theme,effective:effectiveTheme};}})();`,
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

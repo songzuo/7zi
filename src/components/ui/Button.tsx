@@ -2,6 +2,7 @@
  * Button Component
  *
  * A flexible, responsive button component with multiple variants, sizes, and states.
+ * Supports internationalization via optional textKey prop.
  *
  * @module components/ui/Button
  */
@@ -10,6 +11,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 /**
  * Button variant types
@@ -41,6 +43,10 @@ export interface ButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonE
   iconPosition?: 'left' | 'right';
   /** Button content */
   children: React.ReactNode;
+  /** Translation key for i18n (optional, overrides children if provided) */
+  textKey?: string;
+  /** Translation namespace (optional, defaults to 'ui.button') */
+  namespace?: string;
 }
 
 /**
@@ -93,7 +99,7 @@ const LoadingSpinner: React.FC = () => (
 );
 
 /**
- * Main Button component
+ * Main Button component with i18n support
  */
 export const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
@@ -105,9 +111,17 @@ export const Button: React.FC<ButtonProps> = ({
   iconPosition = 'left',
   className,
   children,
+  textKey,
+  namespace = 'ui.button',
   ...props
 }) => {
   const isDisabled = disabled || loading;
+  const t = useTranslations(namespace);
+  const tLoading = useTranslations('loading');
+
+  // Use translation if textKey is provided, otherwise use children
+  const displayText = textKey ? t(textKey as keyof typeof t) : children;
+  const loadingText = tLoading('default');
 
   return (
     <button
@@ -118,16 +132,16 @@ export const Button: React.FC<ButtonProps> = ({
         'transition-all duration-200',
         'disabled:opacity-50 disabled:cursor-not-allowed',
         'active:scale-95',
-        
+
         // Variant styles
         VARIANT_CONFIG[variant],
-        
+
         // Size styles
         SIZE_CONFIG[size],
-        
+
         // Full width
         fullWidth && 'w-full',
-        
+
         // Custom classes
         className
       )}
@@ -138,10 +152,10 @@ export const Button: React.FC<ButtonProps> = ({
       {icon && iconPosition === 'left' && !loading && (
         <span className="mr-2">{icon}</span>
       )}
-      {typeof children === 'string' ? (
-        <span>{children}</span>
+      {typeof displayText === 'string' ? (
+        <span>{loading ? loadingText : displayText}</span>
       ) : (
-        children
+        displayText
       )}
       {icon && iconPosition === 'right' && !loading && (
         <span className="ml-2">{icon}</span>

@@ -318,9 +318,91 @@ export function resetGlobalIndexManager(): void {
 // ============================================================================
 
 /**
+ * GitHub issue interface
+ */
+interface GitHubIssue {
+  id?: number | string;
+  number?: number;
+  title: string;
+  body?: string;
+  description?: string;
+  state: 'open' | 'closed';
+  assignee?: {
+    login: string;
+  };
+  labels?: Array<{
+    name: string;
+    color?: string;
+  }>;
+  created_at?: string;
+  updated_at?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Project input interface
+ */
+interface ProjectInput {
+  id?: string | number;
+  _id?: string;
+  name?: string;
+  title?: string;
+  description?: string;
+  status?: string;
+  owner?: {
+    login: string;
+  };
+  ownerId?: string;
+  members?: Array<{
+    login: string;
+    id?: string | number;
+  }>;
+  createdAt?: string;
+  created_at?: string;
+  updatedAt?: string;
+  updated_at?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * User input interface
+ */
+interface UserInput {
+  id?: string | number;
+  _id?: string;
+  login?: string;
+  username?: string;
+  name?: string;
+  displayName?: string;
+  avatar_url?: string;
+  avatarUrl?: string;
+  role?: string;
+  email?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Agent input interface
+ */
+interface AgentInput {
+  id?: string | number;
+  _id?: string;
+  name?: string;
+  title?: string;
+  description?: string;
+  status?: string;
+  type?: string;
+  agentType?: string;
+  capabilities?: string[];
+  lastActive?: string;
+  last_active?: string;
+  [key: string]: unknown;
+}
+
+/**
  * Convert GitHub issue to task entity
  */
-export function convertIssueToTaskEntity(issue: any): TaskEntity {
+export function convertIssueToTaskEntity(issue: GitHubIssue): TaskEntity {
   return {
     id: String(issue.id || issue.number),
     type: 'task',
@@ -330,7 +412,7 @@ export function convertIssueToTaskEntity(issue: any): TaskEntity {
     status: issue.state === 'open' ? 'open' : 'closed',
     priority: determinePriority(issue),
     assignee: issue.assignee?.login,
-    labels: issue.labels?.map((label: any) => ({
+    labels: issue.labels?.map((label) => ({
       name: label.name,
       color: label.color,
     })) || [],
@@ -342,7 +424,7 @@ export function convertIssueToTaskEntity(issue: any): TaskEntity {
 /**
  * Convert project data to project entity
  */
-export function convertToProjectEntity(project: any): ProjectEntity {
+export function convertToProjectEntity(project: ProjectInput): ProjectEntity {
   return {
     id: project.id || String(project._id),
     type: 'project',
@@ -351,7 +433,7 @@ export function convertToProjectEntity(project: any): ProjectEntity {
     description: project.description,
     status: project.status || 'active',
     owner: project.owner?.login || project.ownerId,
-    members: project.members?.map((m: any) => m.login || m.id) || [],
+    members: project.members?.map((m) => m.login || m.id) || [],
     createdAt: project.createdAt || project.created_at,
     updatedAt: project.updatedAt || project.updated_at,
   };
@@ -360,7 +442,7 @@ export function convertToProjectEntity(project: any): ProjectEntity {
 /**
  * Convert user data to member entity
  */
-export function convertToMemberEntity(user: any): MemberEntity {
+export function convertToMemberEntity(user: UserInput): MemberEntity {
   return {
     id: user.id || String(user._id),
     type: 'member',
@@ -376,7 +458,7 @@ export function convertToMemberEntity(user: any): MemberEntity {
 /**
  * Convert agent data to agent entity
  */
-export function convertToAgentEntity(agent: any): AgentEntity {
+export function convertToAgentEntity(agent: AgentInput): AgentEntity {
   return {
     id: agent.id || String(agent._id),
     type: 'agent',
@@ -393,12 +475,12 @@ export function convertToAgentEntity(agent: any): AgentEntity {
 /**
  * Determine task priority from labels
  */
-function determinePriority(issue: any): 'high' | 'medium' | 'low' {
+function determinePriority(issue: GitHubIssue): 'high' | 'medium' | 'low' {
   if (!issue.labels || issue.labels.length === 0) {
     return 'medium';
   }
 
-  const priorityLabels = issue.labels.map((l: any) => l.name.toLowerCase());
+  const priorityLabels = issue.labels.map((l) => l.name.toLowerCase());
 
   if (priorityLabels.some((l: string) => l.includes('critical') || l.includes('high'))) {
     return 'high';

@@ -56,6 +56,7 @@ import { SettingsProvider } from '@/contexts/SettingsContext';
 import { GlobalLoadingProvider } from '@/hooks/useGlobalLoading';
 import { setupBrowserErrorHandlers } from '@/lib/global-error-handlers';
 import { initWebVitalsMonitoring } from '@/lib/monitoring/web-vitals';
+import initPerformanceMonitoring from '@/lib/monitoring/performance-metrics';
 
 interface ClientProvidersProps {
   children: React.ReactNode;
@@ -73,6 +74,9 @@ export function ClientProviders({ children }: ClientProvidersProps) {
       sampleRate: 1.0, // 100% sampling in production
       debug: process.env.NODE_ENV === 'development',
     });
+
+    // Initialize enhanced performance monitoring
+    initPerformanceMonitoring();
   }, []);
 
   return (

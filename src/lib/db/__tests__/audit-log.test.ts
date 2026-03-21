@@ -33,8 +33,26 @@ vi.mock('../../logger', () => ({
   },
 }));
 
+/**
+ * Mock statement interface
+ */
+interface MockStatement {
+  run: ReturnType<typeof vi.fn>;
+  get: ReturnType<typeof vi.fn>;
+  all: ReturnType<typeof vi.fn>;
+}
+
+/**
+ * Mock database interface
+ */
+interface MockDatabase {
+  exec: ReturnType<typeof vi.fn>;
+  prepare: ReturnType<typeof vi.fn>;
+  query: ReturnType<typeof vi.fn>;
+}
+
 describe('audit-log', () => {
-  let mockDb: any;
+  let mockDb: MockDatabase;
 
   beforeEach(() => {
     // Reset all mocks
@@ -737,7 +755,7 @@ describe('audit-log', () => {
       const { logger } = await import('../../logger');
       // Logger.info is called by initializeAuditLogsTable, but not by cleanup
       const cleanupLogCalls = logger.info.mock.calls.filter(
-        (call: any[]) => call[0] === 'Old audit logs cleaned up'
+        (call: unknown[]) => call[0] === 'Old audit logs cleaned up'
       );
       expect(cleanupLogCalls).toHaveLength(0);
     });

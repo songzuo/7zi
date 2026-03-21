@@ -325,9 +325,6 @@ export function markLCPElement(element: HTMLElement) {
       const lcpEntry = entries[entries.length - 1] as LCPPerformanceEntry;
 
       if (lcpEntry) {
-        console.log('[LCP] Largest Contentful Paint:', lcpEntry);
-        console.log('[LCP] Element:', lcpEntry.element);
-
         // 测量从元素加载到 LCP 的时间
         performance.measure(
           'lcp-element-to-paint',

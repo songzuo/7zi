@@ -13,7 +13,7 @@
 
 'use client';
 
-import { useState, useEffect, useRef, useCallback, forwardRef } from 'react';
+import { useState, useEffect, useRef, forwardRef } from 'react';
 import {
   ChatHeader,
   TeamStatusPanel,

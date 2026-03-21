@@ -122,7 +122,6 @@ class PreloadManager {
       this.preloaded.add(componentName);
       
       if (debug) {
-        console.log(`[ThreeJS Preload] Preloaded: ${componentName}`);
       }
     } catch (error) {
       console.error(`[ThreeJS Preload] Failed to preload ${componentName}:`, error);

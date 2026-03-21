@@ -52,7 +52,22 @@ export interface RevenueChartProps {
 // 自定义 Tooltip
 // ============================================================================
 
-const CustomTooltip = ({ active, payload, label, locale }: any) => {
+/**
+ * Custom tooltip props
+ */
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    name: string;
+    value: number;
+    color: string;
+    dataKey?: string;
+  }>;
+  label?: string;
+  locale?: string;
+}
+
+const CustomTooltip = ({ active, payload, label, locale }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     const formatCurrency = (value: number) => {
       return locale === 'zh'
@@ -63,7 +78,7 @@ const CustomTooltip = ({ active, payload, label, locale }: any) => {
     return (
       <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-gray-200 dark:border-zinc-700 p-3">
         <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{label}</p>
-        {payload.map((entry: any, index: number) => (
+        {payload.map((entry, index: number) => (
           <p key={index} className="text-sm" style={{ color: entry.color }}>
             {entry.name}: {formatCurrency(entry.value)}
           </p>

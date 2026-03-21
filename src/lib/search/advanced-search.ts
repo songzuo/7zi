@@ -41,7 +41,7 @@ export interface SearchIndex<T> {
 // Constants
 // ============================================================================
 
-const DEFAULT_FUSE_OPTIONS: Fuse.IFuseOptions<any> = {
+const DEFAULT_FUSE_OPTIONS: Fuse.IFuseOptions<Record<string, unknown>> = {
   threshold: 0.3,
   distance: 100,
   minMatchCharLength: 2,
@@ -81,7 +81,7 @@ export class AdvancedSearchManager<T extends Record<string, unknown>> {
   createIndex(
     id: string,
     items: T[],
-    options?: Partial<Fuse.IFuseOptions<any>>
+    options?: Partial<Fuse.IFuseOptions<T>>
   ): void {
     const fuseOptions = { ...DEFAULT_FUSE_OPTIONS, ...options };
     const fuse = new Fuse(items, fuseOptions);
@@ -521,7 +521,7 @@ export class AdvancedSearchManager<T extends Record<string, unknown>> {
 // Global search manager instance
 // ============================================================================
 
-let globalSearchManager: AdvancedSearchManager<any> | null = null;
+let globalSearchManager: AdvancedSearchManager<Record<string, unknown>> | null = null;
 
 /**
  * Get or create the global search manager instance

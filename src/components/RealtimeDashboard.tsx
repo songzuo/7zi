@@ -152,16 +152,24 @@ export const RealtimeDashboard: React.FC<RealtimeDashboardProps> = memo(({
       if (isMounted) {
         setIsLoading(true);
       }
-      await updateData();
-      if (isMounted) {
-        setIsLoading(false);
+      try {
+        await updateData();
+      } catch (error) {
+        console.error('Failed to load RealtimeDashboard data:', error);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
+    // Start initial load immediately without awaiting in useEffect
     loadData();
 
     // 定时更新（每 5 秒）
-    const interval = setInterval(updateData, 5000);
+    const interval = setInterval(() => {
+      updateData().catch(err => console.error('Failed to update data:', err));
+    }, 5000);
 
     return () => {
       isMounted = false;

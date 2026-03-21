@@ -2,6 +2,7 @@
  * Toast Notification Component
  *
  * A toast notification system with multiple variants and positions.
+ * Supports internationalization via optional translation keys.
  *
  * @module components/ui/Toast
  */
@@ -10,6 +11,7 @@
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 /**
  * Toast variant types
@@ -22,13 +24,15 @@ export type ToastVariant = 'success' | 'error' | 'warning' | 'info';
 export type ToastPosition = 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
 
 /**
- * Toast item interface
+ * Toast item interface with i18n support
  */
 export interface ToastItem {
   id: string;
   variant: ToastVariant;
   title: string;
   message?: string;
+  titleKey?: string;
+  messageKey?: string;
   duration?: number;
   closable?: boolean;
 }
@@ -185,10 +189,15 @@ const VARIANT_CONFIG: Record<ToastVariant, { icon: string; bg: string; border: s
 };
 
 /**
- * Toast component
+ * Toast component with i18n support
  */
 const Toast: React.FC<ToastProps> = ({ toast, onClose }) => {
   const { icon, bg, border } = VARIANT_CONFIG[toast.variant];
+  const t = useTranslations('ui.toast');
+
+  // Use translation keys if provided, otherwise use the title/message directly
+  const displayTitle = toast.titleKey ? t(toast.titleKey as keyof typeof t) : toast.title;
+  const displayMessage = toast.messageKey ? t(toast.messageKey as keyof typeof t) : toast.message;
 
   return (
     <div
@@ -208,11 +217,11 @@ const Toast: React.FC<ToastProps> = ({ toast, onClose }) => {
         {/* Content */}
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-gray-900 dark:text-white">
-            {toast.title}
+            {displayTitle}
           </p>
-          {toast.message && (
+          {displayMessage && (
             <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-              {toast.message}
+              {displayMessage}
             </p>
           )}
         </div>
@@ -222,7 +231,7 @@ const Toast: React.FC<ToastProps> = ({ toast, onClose }) => {
           <button
             onClick={onClose}
             className="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
-            aria-label="Close toast"
+            aria-label={t('success')}
           >
             <svg
               className="w-4 h-4"

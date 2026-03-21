@@ -34,7 +34,8 @@ describe('API Routes Integration Tests', () => {
     it('should return operational status with correct structure', async () => {
       const { GET } = await import('@/app/api/status/route')
       const response = await GET(createMockRequest('http://localhost:3000/api/status'))
-      const data = await response.json()
+      const json = await response.json()
+      const data = json.data
 
       expect(response.status).toBe(200)
       expect(data).toHaveProperty('status')
@@ -48,7 +49,8 @@ describe('API Routes Integration Tests', () => {
     it('should return valid status values', async () => {
       const { GET } = await import('@/app/api/status/route')
       const response = await GET(createMockRequest('http://localhost:3000/api/status'))
-      const data = await response.json()
+      const json = await response.json()
+      const data = json.data
 
       expect(['operational', 'degraded', 'outage']).toContain(data.status)
     })
@@ -56,7 +58,8 @@ describe('API Routes Integration Tests', () => {
     it('should have services with required fields', async () => {
       const { GET } = await import('@/app/api/status/route')
       const response = await GET(createMockRequest('http://localhost:3000/api/status'))
-      const data = await response.json()
+      const json = await response.json()
+      const data = json.data
 
       expect(Array.isArray(data.services)).toBe(true)
       expect(data.services.length).toBeGreaterThan(0)
@@ -74,7 +77,8 @@ describe('API Routes Integration Tests', () => {
     it('should have metrics with required fields', async () => {
       const { GET } = await import('@/app/api/status/route')
       const response = await GET(createMockRequest('http://localhost:3000/api/status'))
-      const data = await response.json()
+      const json = await response.json()
+      const data = json.data
 
       expect(data.metrics).toHaveProperty('requests')
       expect(data.metrics).toHaveProperty('errors')
@@ -85,7 +89,8 @@ describe('API Routes Integration Tests', () => {
     it('should have incidents and maintenance as arrays', async () => {
       const { GET } = await import('@/app/api/status/route')
       const response = await GET(createMockRequest('http://localhost:3000/api/status'))
-      const data = await response.json()
+      const json = await response.json()
+      const data = json.data
 
       expect(Array.isArray(data.incidents)).toBe(true)
       expect(Array.isArray(data.maintenance)).toBe(true)
@@ -101,7 +106,8 @@ describe('API Routes Integration Tests', () => {
     it('should return ISO timestamp for lastUpdated', async () => {
       const { GET } = await import('@/app/api/status/route')
       const response = await GET(createMockRequest('http://localhost:3000/api/status'))
-      const data = await response.json()
+      const json = await response.json()
+      const data = json.data
 
       const timestamp = new Date(data.lastUpdated)
       expect(timestamp.toISOString()).toBe(data.lastUpdated)
@@ -114,43 +120,48 @@ describe('API Routes Integration Tests', () => {
       const response = await GET()
       const data = await response.json()
 
-      expect(data).toHaveProperty('status')
-      expect(['healthy', 'unhealthy']).toContain(data.status)
-      expect(data).toHaveProperty('timestamp')
-      expect(data).toHaveProperty('uptime')
-      expect(data).toHaveProperty('version')
-      expect(data).toHaveProperty('checks')
+      // Health returns { success: true, data: { status, timestamp, uptime, ... } }
+      const healthData = data.data || data;
+      expect(healthData).toHaveProperty('status')
+      expect(['healthy', 'unhealthy']).toContain(healthData.status)
+      expect(healthData).toHaveProperty('timestamp')
+      expect(healthData).toHaveProperty('uptime')
+      expect(healthData).toHaveProperty('version')
+      expect(healthData).toHaveProperty('checks')
     })
 
     it('should include memory check', async () => {
       const { GET } = await import('@/app/api/health/route')
       const response = await GET()
       const data = await response.json()
+      const healthData = data.data || data;
 
-      expect(data.checks).toHaveProperty('memory')
-      expect(data.checks.memory).toHaveProperty('status')
-      expect(data.checks.memory).toHaveProperty('used')
-      expect(data.checks.memory).toHaveProperty('limit')
-      expect(typeof data.checks.memory.used).toBe('number')
-      expect(typeof data.checks.memory.limit).toBe('number')
+      expect(healthData.checks).toHaveProperty('memory')
+      expect(healthData.checks.memory).toHaveProperty('status')
+      expect(healthData.checks.memory).toHaveProperty('used')
+      expect(healthData.checks.memory).toHaveProperty('limit')
+      expect(typeof healthData.checks.memory.used).toBe('number')
+      expect(typeof healthData.checks.memory.limit).toBe('number')
     })
 
     it('should include node check', async () => {
       const { GET } = await import('@/app/api/health/route')
       const response = await GET()
       const data = await response.json()
+      const healthData = data.data || data;
 
-      expect(data.checks).toHaveProperty('node')
-      expect(data.checks.node).toHaveProperty('status')
-      expect(data.checks.node).toHaveProperty('version')
+      expect(healthData.checks).toHaveProperty('node')
+      expect(healthData.checks.node).toHaveProperty('status')
+      expect(healthData.checks.node).toHaveProperty('version')
     })
 
     it('should return correct status code based on health', async () => {
       const { GET } = await import('@/app/api/health/route')
       const response = await GET()
       const data = await response.json()
+      const healthData = data.data || data;
 
-      if (data.status === 'healthy') {
+      if (healthData.status === 'healthy') {
         expect(response.status).toBe(200)
       } else {
         expect(response.status).toBe(503)
@@ -161,9 +172,10 @@ describe('API Routes Integration Tests', () => {
       const { GET } = await import('@/app/api/health/route')
       const response = await GET()
       const data = await response.json()
+      const healthData = data.data || data;
 
-      expect(typeof data.uptime).toBe('number')
-      expect(data.uptime).toBeGreaterThanOrEqual(0)
+      expect(typeof healthData.uptime).toBe('number')
+      expect(healthData.uptime).toBeGreaterThanOrEqual(0)
     })
   })
 

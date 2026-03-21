@@ -1,17 +1,64 @@
 {
+  "$schema": "https://json.schemastore.org/web-manifest-combined.json",
   "name": "7zi Studio - AI 驱动的创新数字工作室",
   "short_name": "7zi Studio",
   "description": "由 11 位 AI 代理组成的创新数字工作室，提供网站开发、品牌设计、营销推广等全方位数字化服务",
-  "start_url": "/",
+  "start_url": "/?utm_source=pwa",
+  "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "background_color": "#ffffff",
   "theme_color": "#06b6d4",
-  "orientation": "portrait-primary",
+  "orientation": "any",
+  "dir": "ltr",
+  "lang": "zh-CN",
+  "categories": ["business", "technology", "productivity", "design"],
+  "screenshots": [
+    {
+      "src": "/screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "7zi Studio 主界面 - 桌面视图"
+    },
+    {
+      "src": "/screenshot-narrow.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "7zi Studio 主界面 - 移动视图"
+    }
+  ],
   "icons": [
     {
-      "src": "/favicon.ico",
-      "sizes": "any",
-      "type": "image/x-icon"
+      "src": "/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/icon-192.png",
@@ -20,13 +67,80 @@
       "purpose": "any maskable"
     },
     {
+      "src": "/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
       "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "/maskable-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
-  "categories": ["business", "technology", "productivity"],
-  "lang": "zh-CN",
-  "dir": "ltr"
+  "shortcuts": [
+    {
+      "name": "项目列表",
+      "short_name": "项目",
+      "description": "快速访问项目列表",
+      "url": "/projects?utm_source=pwa_shortcut",
+      "icons": [
+        {
+          "src": "/shortcut-projects.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "AI 代理",
+      "short_name": "代理",
+      "description": "查看 AI 代理团队",
+      "url": "/agents?utm_source=pwa_shortcut",
+      "icons": [
+        {
+          "src": "/shortcut-agents.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "创建项目",
+      "short_name": "新建",
+      "description": "创建新项目",
+      "url": "/projects/new?utm_source=pwa_shortcut",
+      "icons": [
+        {
+          "src": "/shortcut-new.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "protocol_handlers": [],
+  "file_handlers": [],
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
 }

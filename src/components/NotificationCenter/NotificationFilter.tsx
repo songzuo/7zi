@@ -1,0 +1,118 @@
+/**
+ * Notification Filter Component
+ * Filter notifications by type and priority
+ */
+
+'use client';
+
+import React from 'react';
+import { NotificationType, NotificationPriority } from '@/types/notifications';
+
+// ============================================================================
+// Types
+// ============================================================================
+
+interface NotificationFilterProps {
+  filter: { type?: NotificationType; priority?: NotificationPriority };
+  onChange: (filter: { type?: NotificationType; priority?: NotificationPriority }) => void;
+}
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+const NOTIFICATION_TYPE_LABELS: Record<NotificationType, string> = {
+  [NotificationType.TASK_ASSIGNED]: '任务分配',
+  [NotificationType.TASK_UPDATED]: '任务更新',
+  [NotificationType.TASK_COMPLETED]: '任务完成',
+  [NotificationType.TASK_OVERDUE]: '任务逾期',
+  [NotificationType.MEETING_REMINDER]: '会议提醒',
+  [NotificationType.MEETING_STARTED]: '会议开始',
+  [NotificationType.MEETING_CANCELED]: '会议取消',
+  [NotificationType.SYSTEM_ANNOUNCEMENT]: '系统公告',
+  [NotificationType.USER_MENTION]: '@提及',
+  [NotificationType.PROJECT_UPDATE]: '项目更新',
+  [NotificationType.REPORT_READY]: '报告就绪',
+};
+
+const PRIORITY_LABELS: Record<NotificationPriority, string> = {
+  [NotificationPriority.URGENT]: '紧急',
+  [NotificationPriority.HIGH]: '重要',
+  [NotificationPriority.NORMAL]: '普通',
+  [NotificationPriority.LOW]: '低',
+};
+
+// ============================================================================
+// Component
+// ============================================================================
+
+export const NotificationFilter: React.FC<NotificationFilterProps> = ({
+  filter,
+  onChange,
+}) => {
+  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    onChange({
+      ...filter,
+      type: value === 'all' ? undefined : (value as NotificationType),
+    });
+  };
+
+  const handlePriorityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    onChange({
+      ...filter,
+      priority: value === 'all' ? undefined : (value as NotificationPriority),
+    });
+  };
+
+  const handleClear = () => {
+    onChange({});
+  };
+
+  const hasActiveFilters = filter.type !== undefined || filter.priority !== undefined;
+
+  return (
+    <div className="flex items-center gap-2">
+      {/* Type Filter */}
+      <select
+        value={filter.type || 'all'}
+        onChange={handleTypeChange}
+        className="px-2 py-1 text-xs bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        <option value="all">所有类型</option>
+        {Object.values(NotificationType).map((type) => (
+          <option key={type} value={type}>
+            {NOTIFICATION_TYPE_LABELS[type]}
+          </option>
+        ))}
+      </select>
+
+      {/* Priority Filter */}
+      <select
+        value={filter.priority || 'all'}
+        onChange={handlePriorityChange}
+        className="px-2 py-1 text-xs bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        <option value="all">所有优先级</option>
+        {Object.values(NotificationPriority).map((priority) => (
+          <option key={priority} value={priority}>
+            {PRIORITY_LABELS[priority]}
+          </option>
+        ))}
+      </select>
+
+      {/* Clear Filter */}
+      {hasActiveFilters && (
+        <button
+          onClick={handleClear}
+          className="px-2 py-1 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300 transition-colors"
+        >
+          清除筛选
+        </button>
+      )}
+    </div>
+  );
+};
+
+export default NotificationFilter;

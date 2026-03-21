@@ -152,7 +152,8 @@ describe('Permission System', () => {
     it('should follow consistent naming pattern', () => {
       const permissions = Object.values(Permission);
       permissions.forEach(permission => {
-        expect(permission).toMatch(/^[a-z]+:[a-z]+$/);
+        // Permissions can have 2 or 3 parts: resource:action or resource:subresource:action
+        expect(permission).toMatch(/^[a-z]+(:[a-z]+){1,2}$/);
       });
     });
   });

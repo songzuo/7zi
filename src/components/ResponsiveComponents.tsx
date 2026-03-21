@@ -202,7 +202,7 @@ export const ResponsiveText: React.FC<ResponsiveTextProps> = ({
     small: 'text-xs sm:text-sm md:text-base'
   };
 
-  const Tag = as as React.ElementType<React.HTMLAttributes<HTMLElement>>;
+  const Tag = as as React.ElementType<React.HTMLAttributes<HTMLElement> & { children?: ReactNode }>;
 
   return (
     <Tag className={`${variants[variant]} ${className}`}>

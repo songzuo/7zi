@@ -3,7 +3,7 @@
 /**
  * Performance Optimizer Component
  * 客户端性能优化组件 - 初始化所有性能监控和优化
- * 
+ *
  * 功能：
  * - 初始化 Web Vitals 监控
  * - 执行 LCP 优化
@@ -13,12 +13,13 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { 
-  initWebVitalsMonitoring, 
-  optimizeLCP, 
+import type { ReactNode } from 'react';
+import {
+  initWebVitalsMonitoring,
+  optimizeLCP,
   optimizeFID_INP,
   markTiming,
-  measureTiming 
+  measureTiming
 } from '@/lib/monitoring/web-vitals';
 
 interface PerformanceOptimizerProps {
@@ -34,7 +35,7 @@ interface PerformanceOptimizerProps {
 
 /**
  * 性能优化组件
- * 
+ *
  * 使用方法:
  * ```tsx
  * // 在 layout.tsx 中
@@ -49,7 +50,7 @@ export function PerformanceOptimizer({
   preloadCritical = true,
   reportUrl,
   sampleRate = 1.0,
-}: PerformanceOptimizerProps) {
+}: PerformanceOptimizerProps): ReactNode {
   const initialized = useRef(false);
 
   useEffect(() => {
@@ -91,7 +92,7 @@ export function PerformanceOptimizer({
       console.log('[PerformanceOptimizer] Initialized', {
         timestamp: new Date().toISOString(),
         userAgent: navigator.userAgent,
-        connection: (navigator as any).connection?.effectiveType || 'unknown',
+        connection: (navigator as any).connection?.effectiveType || 'unknown', // Network Information API
       });
     }
 
@@ -105,12 +106,19 @@ export function PerformanceOptimizer({
 }
 
 /**
+ * 性能日志输出辅助函数
+ */
+function logPerformance(data: Record<string, unknown>) {
+  console.log('[PerformanceOptimizer]', data);
+}
+
+/**
  * 注册调试监听器
  */
 function registerDebugListeners() {
   // 监听长任务
   window.addEventListener('longtask', ((event: CustomEvent) => {
-    console.log('[Performance] Long task detected:', {
+    console.log('[PerformanceOptimizer] Long task detected', {
       duration: event.detail.duration,
       startTime: event.detail.startTime,
     });
@@ -118,7 +126,7 @@ function registerDebugListeners() {
 
   // 监听布局偏移
   window.addEventListener('layoutshift', ((event: CustomEvent) => {
-    console.log('[Performance] Layout shift:', {
+    console.log('[PerformanceOptimizer] Layout shift detected', {
       value: event.detail.value,
       hadRecentInput: event.detail.hadRecentInput,
     });
@@ -127,15 +135,15 @@ function registerDebugListeners() {
   // 监听页面可见性变化
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') {
-      console.log('[Performance] Page hidden - sending pending data...');
       // 可以在这里发送待发送的性能数据
     }
   });
 
   // 监听网络状态变化
   if ('connection' in navigator) {
-    (navigator as any).connection?.addEventListener('change', () => {
-      console.log('[Performance] Connection changed:', {
+    (navigator as any).connection?.addEventListener('change', () => { // @ts-expect-error - Network Information API
+      logPerformance({
+        type: 'network-change',
         effectiveType: (navigator as any).connection?.effectiveType,
         downlink: (navigator as any).connection?.downlink,
       });
@@ -257,9 +265,9 @@ export function useResourceTiming(resourceUrl: string) {
 
     // 检查资源是否已经加载
     const resource = document.querySelector(`script[src="${resourceUrl}"], link[href="${resourceUrl}"]`);
-    
+
     if (resource) {
-      if ((resource as any).complete) {
+      if ((resource as any).complete) { // @ts-expect-error - Resource loading state
         handleLoad();
       } else {
         resource.addEventListener('load', handleLoad);

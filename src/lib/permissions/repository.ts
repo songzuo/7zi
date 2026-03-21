@@ -498,7 +498,7 @@ export async function updateRole(
 /**
  * Delete custom role (only non-system roles)
  */
-export async function deleteRole(role: Role): Promise<boolean> {
+export async function deleteRole(role: string): Promise<boolean> {
   const db = await getDatabaseAsync();
   await initializeRbacTables();
 
