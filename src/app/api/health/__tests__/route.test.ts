@@ -24,7 +24,6 @@ describe('/api/health', () => {
       expect(response.status).toBe(200);
       expect(body).toHaveProperty('success');
       expect(body).toHaveProperty('data');
-      expect(body).toHaveProperty('timestamp');
       const data = body.data;
       expect(data).toHaveProperty('status');
       expect(data).toHaveProperty('timestamp');

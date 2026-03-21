@@ -9,7 +9,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useEnhancedWebSocket } from './useEnhancedWebSocket';
-import notificationService from './notification-service';
+import { notificationService } from './notification-service';
 import type { RealtimeNotification, RealtimeNotificationType } from './types';
 import { logger } from '../logger';
 
@@ -262,8 +262,8 @@ export function useRealtimeNotifications(
 
     // Listen for task status changes
     const cleanupTaskStatus = on('task:status_changed', (data) => {
-      // @ts-ignore - Type assertion for task status payload
-      const { taskId, taskTitle, oldStatus, newStatus } = data;
+      const payload = data.payload as { taskId: string; taskTitle: string; oldStatus: string; newStatus: string };
+      const { taskId, taskTitle, oldStatus, newStatus } = payload;
       const notification: RealtimeNotification = {
         id: `task:${taskId}:${Date.now()}`,
         type: 'task_status_changed',
@@ -272,7 +272,7 @@ export function useRealtimeNotifications(
         timestamp: new Date().toISOString(),
         priority: newStatus === 'completed' ? 'normal' : 'high',
         category: 'info',
-        data,
+        data: data.payload as Record<string, unknown>,
         actionUrl: `/tasks/${taskId}`,
         actionText: 'View Task',
       };
@@ -282,16 +282,18 @@ export function useRealtimeNotifications(
 
     // Listen for task assignments
     const cleanupTaskAssignment = on('task:assigned', (data) => {
+      const payload = data.payload as { taskId: string; taskTitle: string; priority?: string };
+      const { taskId, taskTitle } = payload;
       const notification: RealtimeNotification = {
-        id: `assignment:${data.taskId}:${Date.now()}`,
+        id: `assignment:${taskId}:${Date.now()}`,
         type: 'task_assigned',
         title: 'Task Assigned',
-        message: `You have been assigned to task: ${data.taskTitle}`,
+        message: `You have been assigned to task: ${taskTitle}`,
         timestamp: new Date().toISOString(),
-        priority: data.priority === 'urgent' ? 'urgent' : 'high',
+        priority: payload.priority === 'urgent' ? 'urgent' : 'high',
         category: 'info',
-        data,
-        actionUrl: `/tasks/${data.taskId}`,
+        data: data.payload as Record<string, unknown>,
+        actionUrl: `/tasks/${taskId}`,
         actionText: 'View Task',
       };
 
@@ -300,8 +302,8 @@ export function useRealtimeNotifications(
 
     // Listen for task comments
     const cleanupTaskComment = on('task:comment', (data) => {
-      // @ts-ignore - Type assertion for task comment payload
-      const { taskId, commentId, author, content } = data;
+      const payload = data.payload as { taskId: string; commentId: string; author: { name: string }; content: string };
+      const { taskId, commentId, author, content } = payload;
       const notification: RealtimeNotification = {
         id: `comment:${taskId}:${commentId}:${Date.now()}`,
         type: 'task_comment',
@@ -310,7 +312,7 @@ export function useRealtimeNotifications(
         timestamp: new Date().toISOString(),
         priority: 'normal',
         category: 'info',
-        data,
+        data: data.payload as Record<string, unknown>,
         actionUrl: `/tasks/${taskId}#comment-${commentId}`,
         actionText: 'View Comment',
       };
@@ -320,8 +322,8 @@ export function useRealtimeNotifications(
 
     // Listen for member status changes
     const cleanupMemberStatus = on('member:status_changed', (data) => {
-      // @ts-ignore - Type assertion for member status payload
-      const { userId, userName, newStatus } = data;
+      const payload = data.payload as { userId: string; userName: string; newStatus: string };
+      const { userId, userName, newStatus } = payload;
       const notification: RealtimeNotification = {
         id: `member:${userId}:${Date.now()}`,
         type: 'member_status_changed',
@@ -330,7 +332,7 @@ export function useRealtimeNotifications(
         timestamp: new Date().toISOString(),
         priority: 'low',
         category: 'info',
-        data,
+        data: data.payload as Record<string, unknown>,
       };
 
       addNotification(notification);
@@ -338,8 +340,8 @@ export function useRealtimeNotifications(
 
     // Listen for system announcements
     const cleanupSystemAnnouncement = on('system:announcement', (data) => {
-      // @ts-ignore - Type assertion for system announcement payload
-      const { id: dataId, content, actionUrl } = data;
+      const payload = data.payload as { id: string; content: string; actionUrl?: string };
+      const { id: dataId, content, actionUrl } = payload;
       const notification: RealtimeNotification = {
         id: `system:${dataId}:${Date.now()}`,
         type: 'system_announcement',
@@ -348,7 +350,7 @@ export function useRealtimeNotifications(
         timestamp: new Date().toISOString(),
         priority: 'urgent',
         category: 'warning',
-        data,
+        data: data.payload as Record<string, unknown>,
         actionUrl: actionUrl,
         actionText: 'Learn More',
       };
@@ -358,18 +360,18 @@ export function useRealtimeNotifications(
 
     // Listen for project updates
     const cleanupProjectUpdate = on('project:updated', (data) => {
-      // @ts-ignore - Type assertion for project update payload
-      const { projectId, projectName, changeType } = data;
+      const payload = data.payload as { projectId: string; projectName: string; changeType: string };
+      const { projectId, projectName, changeType } = payload;
       const notification: RealtimeNotification = {
         id: `project:${projectId}:${Date.now()}`,
         type: 'project_updated',
         title: 'Project Updated',
         message: `Project "${projectName}" was ${changeType}`,
         timestamp: new Date().toISOString(),
-        priority: data.changeType === 'deleted' ? 'urgent' : 'normal',
-        category: data.changeType === 'deleted' ? 'error' : 'info',
-        data,
-        actionUrl: `/projects/${data.projectId}`,
+        priority: changeType === 'deleted' ? 'urgent' : 'normal',
+        category: changeType === 'deleted' ? 'error' : 'info',
+        data: data.payload as Record<string, unknown>,
+        actionUrl: `/projects/${projectId}`,
         actionText: 'View Project',
       };
 
@@ -385,7 +387,7 @@ export function useRealtimeNotifications(
         const history = notificationService.getNotificationHistory(userId, 20);
         setNotifications(history);
         notificationsRef.current = history;
-        setUnreadCount(history.filter(n => !n.read).length);
+        setUnreadCount(history.filter((n: any) => !n.read).length);
       } catch (err) {
         logger.error('Failed to load initial notifications', { error: err });
         setError(err as Error);

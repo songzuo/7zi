@@ -31,3 +31,6 @@ export type {
   CollaborationState,
   CollaborationActions,
 } from './useCollaboration';
+
+// Export comprehensive type system
+export * from './types';

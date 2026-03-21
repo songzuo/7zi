@@ -361,12 +361,17 @@ export async function POST(request: NextRequest) {
         action: AuditAction.USER_CREATED,
         entity_type: 'user',
         entity_id: user.id,
+        resource_type: 'user',
+        resource_id: user.id,
         details: {
           email: user.email,
           name: user.name,
           role: user.role,
         },
+        ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || null,
+        user_agent: request.headers.get('user-agent') || null,
         status: AuditStatus.SUCCESS,
+        error_message: null,
       });
     } catch (auditError) {
       logger.error('Failed to create audit log', { error: auditError });
