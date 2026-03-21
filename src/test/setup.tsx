@@ -4,10 +4,12 @@ import { afterEach, vi, beforeEach } from 'vitest';
 
 // Polyfill ReadableStream for jsdom environment (Node.js 18+)
 if (typeof ReadableStream === 'undefined') {
+  const { ReadableStream, WritableStream, TransformStream } = require('node:stream/web');
   // @ts-ignore - Polyfilling global
-  const { ReadableStream, WritableStream, TransformStream } = await import('node:stream/web');
   global.ReadableStream = ReadableStream as any;
+  // @ts-ignore - Polyfilling global
   global.WritableStream = WritableStream as any;
+  // @ts-ignore - Polyfilling global
   global.TransformStream = TransformStream as any;
 }
 
