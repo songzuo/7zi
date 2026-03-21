@@ -247,7 +247,7 @@ export async function setLocalStorageItem(page: Page, key: string, value: string
 export async function mockApiResponse(
   page: Page,
   url: string,
-  response: any,
+  response: Record<string, unknown> | unknown[],
   status: number = 200
 ): Promise<void> {
   await page.route(url, async (route) => {
@@ -266,13 +266,13 @@ export async function waitForNetworkResponse(
   page: Page,
   url: string,
   timeout: number = 30000
-): Promise<any> {
+): Promise<Record<string, unknown> | unknown[]> {
   const [response] = await Promise.all([
     page.waitForResponse((res) => res.url().includes(url), { timeout }),
     // Page action that triggers the request
   ]);
 
-  return await response.json();
+  return await response.json() as Record<string, unknown> | unknown[];
 }
 
 /**

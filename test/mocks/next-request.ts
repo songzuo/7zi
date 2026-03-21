@@ -10,7 +10,7 @@ import { URL } from 'url';
 interface MockRequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   headers?: Record<string, string>;
-  body?: any;
+  body?: Record<string, unknown> | unknown[] | string | null;
   cookies?: Record<string, string>;
 }
 
@@ -27,7 +27,7 @@ export function createMockNextRequest(
 ): NextRequest {
   const parsedUrl = new URL(url, 'http://localhost');
 
-  const request: any = {
+  const request: Record<string, unknown> = {
     url,
     nextUrl: {
       pathname: parsedUrl.pathname,
@@ -51,7 +51,7 @@ export function createMockNextRequest(
 
   // Add cookies mock
   if (options.cookies) {
-    request.cookies = {
+    (request as Record<string, unknown>).cookies = {
       get: (name: string) => ({ value: options.cookies![name] }),
       set: vi.fn(),
       delete: vi.fn(),
@@ -60,7 +60,7 @@ export function createMockNextRequest(
     };
   }
 
-  return request as NextRequest;
+  return request as unknown as NextRequest;
 }
 
 /**

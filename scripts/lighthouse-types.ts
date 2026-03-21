@@ -10,6 +10,53 @@
 export type LighthouseScore = number;
 
 /**
+ * Lighthouse audit details (varies by audit type)
+ * Common detail types used by Lighthouse
+ */
+export type LighthouseAuditDetails =
+  | TableDetails
+  | DebugData
+  | OpportunitiesDetails
+  | DiagnosticsDetails
+  | null;
+
+/**
+ * Table details (for most audits)
+ */
+export interface TableDetails {
+  type: 'table';
+  headings: Array<{ key: string; valueType: string; label: string }>;
+  items: Array<Record<string, unknown>>;
+}
+
+/**
+ * Debug data details
+ */
+export interface DebugData {
+  type: 'debugdata';
+  items: Array<Record<string, unknown>>;
+}
+
+/**
+ * Opportunities details
+ */
+export interface OpportunitiesDetails {
+  type: 'opportunity';
+  headings: Array<{ key: string; valueType: string; label: string }>;
+  items: Array<Record<string, unknown>>;
+  overallSavingsMs: number;
+}
+
+/**
+ * Diagnostics details
+ */
+export interface DiagnosticsDetails {
+  type: 'diagnostic';
+  headings: Array<{ key: string; valueType: string; label: string }>;
+  items: Array<Record<string, unknown>>;
+}
+
+/**
  * Lighthouse audit entry
  */
 export interface LighthouseAudit {
@@ -19,7 +66,7 @@ export interface LighthouseAudit {
   score: LighthouseScore | null;
   displayValue?: string;
   numericValue?: number;
-  details?: any;
+  details?: LighthouseAuditDetails;
 }
 
 /**
