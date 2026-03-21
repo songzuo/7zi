@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback, memo } from 'react';
 import { Download, Upload, FileJson, FileSpreadsheet, Loader2, AlertCircle, CheckCircle2, Database } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -64,7 +64,7 @@ interface ImportResult {
   warnings?: string[];
 }
 
-export function DataExportImport() {
+export const DataExportImport = memo(function DataExportImport() {
   const [activeTab, setActiveTab] = useState<'export' | 'import'>('export');
   const [selectedTables, setSelectedTables] = useState<string[]>([]);
   const [selectedFormat, setSelectedFormat] = useState<'json' | 'csv'>('json');
@@ -551,4 +551,4 @@ export function DataExportImport() {
       )}
     </div>
   );
-}
+});

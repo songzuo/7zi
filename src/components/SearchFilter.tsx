@@ -343,7 +343,7 @@ const SortDropdown: React.FC<SortDropdownProps> = ({ sorts, currentSort, onSortC
 // 主组件：SearchFilter
 // ============================================================================
 
-export function SearchFilter<T extends object>({
+export const SearchFilter = memo(function SearchFilter<T extends object>({
   items,
   filters = [],
   sorts = [],
@@ -483,4 +483,4 @@ export function SearchFilter<T extends object>({
       )}
     </div>
   );
-}
+});

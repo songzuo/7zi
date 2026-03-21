@@ -1,7 +1,7 @@
 /**
  * Web Vitals Reporting API
  * 接收并存储 Core Web Vitals 性能指标
- * 
+ *
  * 功能：
  * - 接收客户端上报的 Web Vitals 数据
  * - 验证数据格式
@@ -9,8 +9,10 @@
  * - 转发到分析平台（Sentry, Google Analytics, etc.）
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import * as Sentry from '@sentry/nextjs';
+import { createSuccessResponse, createErrorResponse, createValidationError } from '@/lib/api/error-handler';
+import { logger } from '@/lib/logger';
 
 // ============================================
 // 类型定义
@@ -128,7 +130,7 @@ function sendToSentry(metrics: WebVitalMetric[]) {
         });
       }
     } catch (error) {
-      console.error('[Web Vitals] Failed to send to Sentry:', error);
+      logger.error('[Web Vitals] Failed to send to Sentry:', error instanceof Error ? error : new Error(String(error)), { category: 'web-vitals' });
     }
   });
 }
@@ -177,27 +179,18 @@ export async function POST(request: NextRequest) {
 
     // 验证数据
     if (!body.metrics || !Array.isArray(body.metrics)) {
-      return NextResponse.json(
-        { error: 'Invalid metrics data' },
-        { status: 400 }
-      );
+      return createValidationError('Invalid metrics data');
     }
 
     if (!body.metadata || !body.metadata.url) {
-      return NextResponse.json(
-        { error: 'Invalid metadata' },
-        { status: 400 }
-      );
+      return createValidationError('Invalid metadata');
     }
 
     // 验证每个指标
     const validMetrics = body.metrics.filter(validateMetric);
 
     if (validMetrics.length === 0) {
-      return NextResponse.json(
-        { error: 'No valid metrics' },
-        { status: 400 }
-      );
+      return createValidationError('No valid metrics');
     }
 
     // 添加元数据
@@ -229,20 +222,16 @@ export async function POST(request: NextRequest) {
     // });
 
     // 返回成功响应
-    return NextResponse.json({
-      success: true,
+    return createSuccessResponse({
       received: enrichedMetrics.length,
       score: performanceScore,
       timestamp: Date.now(),
     });
 
   } catch (error) {
-    console.error('[Web Vitals API] Error:', error);
+    logger.error('[Web Vitals API] Error:', error instanceof Error ? error : new Error(String(error)), { category: 'web-vitals' });
 
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return createErrorResponse(error instanceof Error ? error : new Error('Internal server error'));
   }
 }
 
@@ -267,21 +256,15 @@ export async function GET(request: NextRequest) {
     //   _count: true,
     // });
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        message: 'Database integration pending',
-        route,
-        hours,
-      },
+    return createSuccessResponse({
+      message: 'Database integration pending',
+      route,
+      hours,
     });
 
   } catch (error) {
-    console.error('[Web Vitals API] GET Error:', error);
+    logger.error('[Web Vitals API] GET Error:', error instanceof Error ? error : new Error(String(error)), { category: 'web-vitals' });
 
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return createErrorResponse(error instanceof Error ? error : new Error('Internal server error'));
   }
 }

@@ -1,9 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
-
 /**
  * Web Vitals API Endpoint
  * Receives and logs Core Web Vitals metrics from the client
  */
+
+import { NextRequest } from 'next/server';
+import { createSuccessResponse, createErrorResponse, createValidationError } from '@/lib/api/error-handler';
+import { logger } from '@/lib/logger';
 
 interface Metric {
   id: string;
@@ -48,10 +50,7 @@ export async function POST(request: NextRequest) {
 
     // 验证数据
     if (!Array.isArray(metrics) || metrics.length === 0) {
-      return NextResponse.json(
-        { error: 'Invalid metrics data' },
-        { status: 400 }
-      );
+      return createValidationError('Invalid metrics data');
     }
 
     // 存储指标
@@ -78,23 +77,14 @@ export async function POST(request: NextRequest) {
     //   });
     // }
 
-    return NextResponse.json({
-      success: true,
+    return createSuccessResponse({
       received: metrics.length,
       timestamp: Date.now(),
     });
   } catch (error) {
-    console.error('[Web Vitals API] Error processing request:', error);
+    logger.error('[Web Vitals API] Error processing request:', error instanceof Error ? error : new Error(String(error)), { category: 'vitals' });
 
-    return NextResponse.json(
-      {
-        error: 'Failed to process metrics',
-        details: process.env.NODE_ENV === 'development'
-          ? String(error)
-          : undefined,
-      },
-      { status: 500 }
-    );
+    return createErrorResponse(new Error('Failed to process metrics'));
   }
 }
 
@@ -138,8 +128,7 @@ export async function GET(request: NextRequest) {
   const allMetrics = filtered.flatMap(entry => entry.metrics);
   const stats = calculateStats(allMetrics);
 
-  return NextResponse.json({
-    success: true,
+  return createSuccessResponse({
     data: paginated,
     pagination: {
       total: filtered.length,
@@ -210,8 +199,7 @@ export async function DELETE(request: NextRequest) {
       vitalsStore.splice(0, cutoffIndex);
     }
 
-    return NextResponse.json({
-      success: true,
+    return createSuccessResponse({
       deleted: initialLength - vitalsStore.length,
       remaining: vitalsStore.length,
     });
@@ -220,8 +208,7 @@ export async function DELETE(request: NextRequest) {
     const initialLength = vitalsStore.length;
     vitalsStore.length = 0;
 
-    return NextResponse.json({
-      success: true,
+    return createSuccessResponse({
       deleted: initialLength,
       remaining: 0,
     });

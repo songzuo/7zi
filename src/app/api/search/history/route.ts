@@ -3,9 +3,11 @@
  * @description API endpoint for search history management
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getGlobalHistoryManager } from '@/lib/search/history-manager';
 import type { SearchHistoryEntry } from '@/lib/search/types';
+import { createSuccessResponse, createErrorResponse, createValidationError } from '@/lib/api/error-handler';
+import { logger } from '@/lib/logger';
 
 /**
  * GET /api/search/history - Get search history
@@ -53,22 +55,16 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({
+    return createSuccessResponse({
       entries,
       type,
       limit,
       total: entries.length,
     });
   } catch (error) {
-    console.error('History API error:', error);
+    logger.error('History API error:', error instanceof Error ? error : new Error(String(error)), { category: 'search' });
 
-    return NextResponse.json(
-      {
-        error: 'Failed to get history',
-        message: error instanceof Error ? error.message : 'Unknown error',
-      },
-      { status: 500 }
-    );
+    return createErrorResponse(error instanceof Error ? error : new Error('Failed to get history'));
   }
 }
 
@@ -81,13 +77,7 @@ export async function POST(request: NextRequest) {
     const { query, resultCount, target } = body;
 
     if (!query || typeof query !== 'string') {
-      return NextResponse.json(
-        {
-          error: 'Invalid request',
-          message: 'query is required and must be a string',
-        },
-        { status: 400 }
-      );
+      return createValidationError('query is required and must be a string');
     }
 
     const historyManager = getGlobalHistoryManager();
@@ -98,8 +88,7 @@ export async function POST(request: NextRequest) {
       target: target || 'all',
     });
 
-    return NextResponse.json({
-      success: true,
+    return createSuccessResponse({
       message: 'Search added to history',
       entry: {
         query,
@@ -108,15 +97,9 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Add history API error:', error);
+    logger.error('Add history API error:', error instanceof Error ? error : new Error(String(error)), { category: 'search' });
 
-    return NextResponse.json(
-      {
-        error: 'Failed to add to history',
-        message: error instanceof Error ? error.message : 'Unknown error',
-      },
-      { status: 500 }
-    );
+    return createErrorResponse(new Error('Failed to add to history'));
   }
 }
 
@@ -134,28 +117,20 @@ export async function DELETE(request: NextRequest) {
       // Remove specific entry
       historyManager.remove(query);
 
-      return NextResponse.json({
-        success: true,
+      return createSuccessResponse({
         message: `Search "${query}" removed from history`,
       });
     } else {
       // Clear all history
       historyManager.clear();
 
-      return NextResponse.json({
-        success: true,
+      return createSuccessResponse({
         message: 'Search history cleared',
       });
     }
   } catch (error) {
-    console.error('Clear history API error:', error);
+    logger.error('Clear history API error:', error instanceof Error ? error : new Error(String(error)), { category: 'search' });
 
-    return NextResponse.json(
-      {
-        error: 'Failed to clear history',
-        message: error instanceof Error ? error.message : 'Unknown error',
-      },
-      { status: 500 }
-    );
+    return createErrorResponse(new Error('Failed to clear history'));
   }
 }

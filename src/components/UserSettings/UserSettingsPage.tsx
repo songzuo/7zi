@@ -71,7 +71,7 @@ interface UserSettingsPageProps {
   className?: string;
 }
 
-export function UserSettingsPage({ className = '' }: UserSettingsPageProps) {
+export const UserSettingsPage = memo(function UserSettingsPage({ className = '' }: UserSettingsPageProps) {
   const { theme, setTheme } = useTheme();
   const { setNotifications: setAppNotifications } = useSettings();
 
@@ -648,6 +648,6 @@ export function UserSettingsPage({ className = '' }: UserSettingsPageProps) {
       </div>
     </div>
   );
-}
+});
 
 export default UserSettingsPage;
