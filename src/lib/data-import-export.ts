@@ -12,6 +12,7 @@
 
 import { getDatabaseAsync } from './db';
 import { logger } from './logger';
+import { memoize } from './utils/async';
 
 export type ExportFormat = 'csv' | 'json';
 export type ImportFormat = 'csv' | 'json';
@@ -75,29 +76,33 @@ const SUPPORTED_TABLES = [
 
 /**
  * Get column definitions for a table
+ * Memoized to avoid repeated database queries for the same table
  */
-export async function getTableSchema(tableName: string): Promise<Record<string, string>> {
-  const db = await getDatabaseAsync();
-  const columns = db.queryRows(`
-    PRAGMA table_info(${tableName})
-  `);
+export const getTableSchema = memoize(
+  async (tableName: string): Promise<Record<string, string>> => {
+    const db = await getDatabaseAsync();
+    const columns = db.queryRows(`
+      PRAGMA table_info(${tableName})
+    `);
 
-  const schema: Record<string, string> = {};
-  for (const col of columns) {
-    const name = col.name as string;
-    const type = col.type as string;
-    const notnull = col.notnull as number;
-    const pk = col.pk as number;
+    const schema: Record<string, string> = {};
+    for (const col of columns) {
+      const name = col.name as string;
+      const type = col.type as string;
+      const notnull = col.notnull as number;
+      const pk = col.pk as number;
 
-    let typeStr = type || 'TEXT';
-    if (notnull) typeStr += ' NOT NULL';
-    if (pk) typeStr += ' PRIMARY KEY';
+      let typeStr = type || 'TEXT';
+      if (notnull) typeStr += ' NOT NULL';
+      if (pk) typeStr += ' PRIMARY KEY';
 
-    schema[name] = typeStr;
-  }
+      schema[name] = typeStr;
+    }
 
-  return schema;
-}
+    return schema;
+  },
+  { keyPrefix: 'table-schema', ttl: 10 * 60 * 1000 } // Cache for 10 minutes
+);
 
 /**
  * Get all table names

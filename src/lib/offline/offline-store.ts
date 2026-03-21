@@ -369,10 +369,18 @@ export async function getNetworkStatus(): Promise<NetworkStatus | null> {
 // ============================================================================
 
 /**
- * 生成唯一 ID
+ * 生成离线操作唯一 ID (时间戳 + 随机数)
+ * 注意：这不是 UUID，仅供离线操作追踪使用
+ */
+export function generateOfflineId(): string {
+  return `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+}
+
+/**
+ * @deprecated Use generateOfflineId() instead for clarity
  */
 export function generateId(): string {
-  return `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  return generateOfflineId();
 }
 
 /**
