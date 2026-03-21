@@ -39,6 +39,20 @@ import { Permission, Role } from '@/lib/permissions/types';
 import { ReactNode } from 'react';
 
 // ============================================================================
+// Test Types
+// ============================================================================
+
+interface MockUser {
+  id: string;
+  email: string;
+  name: string;
+  role: Role;
+  roles: Role[];
+  permissions: Permission[] | string[];
+  customPermissions?: string[];
+}
+
+// ============================================================================
 // Test Data
 // ============================================================================
 
@@ -116,8 +130,8 @@ const wrapper = ({
   return <PermissionProvider>{children}</PermissionProvider>;
 };
 
-const mockFetchSuccess = (user: any) => {
-  (global.fetch as any).mockResolvedValueOnce({
+const mockFetchSuccess = (user: MockUser) => {
+  (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
     ok: true,
     json: async () => ({
       success: true,
@@ -127,7 +141,7 @@ const mockFetchSuccess = (user: any) => {
 };
 
 const mockFetchFailure = () => {
-  (global.fetch as any).mockResolvedValueOnce({
+  (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
     ok: false,
     status: 401,
     json: async () => ({
@@ -138,7 +152,7 @@ const mockFetchFailure = () => {
 };
 
 const mockFetchError = () => {
-  (global.fetch as any).mockRejectedValueOnce(new Error('Network error'));
+  (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Network error'));
 };
 
 // ============================================================================
@@ -480,11 +494,11 @@ describe('withPermission HOC', () => {
 
   it('should show loading while fetching permissions', async () => {
     // Don't mock fetch immediately to simulate loading
-    let resolveFetch: (value: any) => void;
-    const fetchPromise = new Promise((resolve) => {
+    let resolveFetch: (value: Response) => void;
+    const fetchPromise = new Promise<Response>((resolve) => {
       resolveFetch = resolve;
     });
-    (global.fetch as any).mockReturnValue(fetchPromise);
+    (global.fetch as ReturnType<typeof vi.fn>).mockReturnValue(fetchPromise);
 
     const TestComponent = () => <div>Protected Content</div>;
     const ProtectedComponent = withPermission(Permission.USER_DELETE)(TestComponent);

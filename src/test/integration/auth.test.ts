@@ -50,13 +50,13 @@ vi.mock('@/lib/auth/repository', async (importOriginal) => {
     ...actual,
     hashPassword: actual.hashPassword,
     verifyPassword: actual.verifyPassword,
-    getUserByEmail: vi.fn((email: string) => {
+    getUserByEmail: vi.fn(async (email: string) => {
       return testUsers.find((u: User) => u.email === email) || null
     }),
-    getUserById: vi.fn((id: string) => {
+    getUserById: vi.fn(async (id: string) => {
       return testUsers.find((u: User) => u.id === id) || null
     }),
-    createUser: vi.fn((data: Record<string, unknown>) => {
+    createUser: vi.fn(async (data: Record<string, unknown>) => {
       const hashedPassword = actual.hashPassword(data.password as string)
       const user: User = {
         id: `user-${testUsers.length + 1}`,
@@ -74,7 +74,7 @@ vi.mock('@/lib/auth/repository', async (importOriginal) => {
       testUsers.push(user)
       return user
     }),
-    updateUser: vi.fn((id: string, data: Record<string, unknown>) => {
+    updateUser: vi.fn(async (id: string, data: Record<string, unknown>) => {
       const index = testUsers.findIndex((u: User) => u.id === id)
       if (index !== -1) {
         testUsers[index] = { ...testUsers[index], ...data, updatedAt: new Date() }
@@ -82,7 +82,7 @@ vi.mock('@/lib/auth/repository', async (importOriginal) => {
       }
       return null
     }),
-    createUserToken: vi.fn((_userId: string, expiresInHours: number) => {
+    createUserToken: vi.fn(async (_userId: string, expiresInHours: number) => {
       const now = new Date()
       return {
         id: `token-${Date.now()}`,
@@ -94,19 +94,21 @@ vi.mock('@/lib/auth/repository', async (importOriginal) => {
         createdAt: now,
       }
     }),
-    validateUserToken: vi.fn((token: string) => {
+    validateUserToken: vi.fn(async (token: string) => {
       return {
         user: testUsers[0] || null,
         token: {
           id: 'token-1',
           userId: 'user-1',
           token,
+          refreshToken: 'refresh-token-123',
           expiresAt: new Date(Date.now() + 3600000),
+          refreshExpiresAt: new Date(Date.now() + 259200000),
           createdAt: new Date(),
         },
       }
     }),
-    refreshUserToken: vi.fn((_refreshToken: string) => {
+    refreshUserToken: vi.fn(async (_refreshToken: string) => {
       const now = new Date()
       return {
         id: `token-${Date.now()}`,
@@ -121,16 +123,19 @@ vi.mock('@/lib/auth/repository', async (importOriginal) => {
     revokeUserToken: vi.fn(() => {}),
     revokeAllUserTokens: vi.fn(() => {}),
     updateLastLogin: vi.fn(() => {}),
-    createPasswordResetToken: vi.fn(() => 'reset-token-123'),
-    validatePasswordResetToken: vi.fn(() => testUsers[0] ? { ...testUsers[0] } : null),
-    deletePasswordResetToken: vi.fn(() => {}),
-    getUserByRefreshToken: vi.fn(() => testUsers[0] ? {
+    createPasswordResetToken: vi.fn(async () => 'reset-token-123'),
+    validatePasswordResetToken: vi.fn(async () => testUsers[0] ? { ...testUsers[0] } : null),
+    deletePasswordResetToken: vi.fn(async () => {}),
+    getUserByRefreshToken: vi.fn(async (_refreshToken: string) => testUsers[0] ? {
       user: { ...testUsers[0] },
       token: {
         id: 'token-1',
         userId: 'user-1',
+        token: 'access-token-123',
         refreshToken: 'refresh-token-123',
+        expiresAt: new Date(Date.now() + 3600000),
         refreshExpiresAt: new Date(Date.now() + 259200000),
+        createdAt: new Date(),
       },
     } : null),
   }

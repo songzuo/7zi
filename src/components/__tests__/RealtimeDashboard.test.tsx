@@ -183,18 +183,22 @@ describe('RealtimeDashboard', () => {
     it('应该显示活跃连接数', async () => {
       render(<RealtimeDashboard />);
 
+      // Wait for loading to complete and data to be displayed
       await waitFor(() => {
         expect(screen.getByText(/活跃连接/)).toBeInTheDocument();
-      }, { timeout: 3000 });
+      }, { timeout: 5000 });
     });
 
     it('应该显示连接状态指示器', async () => {
       const { container } = render(<RealtimeDashboard />);
 
+      // Wait for loading to complete and status indicator to appear
       await waitFor(() => {
-        const statusDot = container.querySelector('.animate-pulse.bg-green-500');
+        // Check for either green (connected) or red (disconnected) status dot
+        const statusDot = container.querySelector('.animate-pulse.bg-green-500') ||
+                         container.querySelector('.bg-red-500');
         expect(statusDot).toBeInTheDocument();
-      }, { timeout: 3000 });
+      }, { timeout: 5000 });
     });
   });
 

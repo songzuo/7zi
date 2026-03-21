@@ -6,6 +6,8 @@ import { getCacheStats } from '@/lib/db/cache';
 import { logger } from '@/lib/logger';
 import { createSuccessResponse } from '@/lib/api/utils';
 import { createErrorResponse } from '@/lib/api/error-handler';
+import { withRateLimit } from '@/lib/middleware/rate-limit';
+import { withCors } from '@/middleware/cors';
 
 /**
  * Cache stats from getCacheStats()
@@ -22,7 +24,7 @@ interface CacheStats {
 /**
  * GET /api/database/health - 获取数据库健康状态
  */
-export async function GET() {
+async function GETHandler() {
   try {
     const db = await getDatabaseAsync();
 
@@ -111,6 +113,10 @@ export async function GET() {
     return createErrorResponse(error instanceof Error ? error : new Error('Failed to check database health'));
   }
 }
+
+export const GET = withCors(
+  withRateLimit(GETHandler, { windowMs: 60000, maxRequests: 50 })
+);
 
 /**
  * 计算健康分数 (0-100)

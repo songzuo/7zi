@@ -1,369 +1,507 @@
-# Error Handling System
+# Error Handling & Loading States - Complete Guide
 
 ## Overview
 
-The 7zi-project has a comprehensive error handling system that includes:
+7zi-project implements a comprehensive error handling and loading state system to ensure excellent user experience and robust error recovery.
 
-1. **API Error Handling** - Consistent error responses across all API routes
-2. **Client-Side Error Boundaries** - Graceful UI error handling
-3. **Global Error Handlers** - Capture unhandled errors and rejections
-4. **Error Tracking** - Sentry integration for production error monitoring
-5. **Error Utilities** - Helper functions for creating standardized errors
+## Table of Contents
 
-## Error Response Format
+1. [Error Handling Architecture](#error-handling-architecture)
+2. [Loading State System](#loading-state-system)
+3. [Components Reference](#components-reference)
+4. [Usage Examples](#usage-examples)
+5. [Best Practices](#best-practices)
 
-All API routes should return errors in this consistent format:
+---
 
+## Error Handling Architecture
+
+### Three-Level Error Boundaries
+
+```
+App Root
+  ├── Global Error Boundary (app/global-error.tsx)
+  ├── Layout Error Boundary (app/[locale]/error.tsx)
+  └── Page Error Boundaries (app/[locale]/*/error.tsx)
+      ├── DashboardError
+      ├── BlogError
+      ├── TeamError
+      ├── ContactError
+      ├── AboutError
+      ├── PortfolioError
+      ├── TasksError
+      └── SettingsError
+```
+
+### Error Type Classification
+
+| Error Type | Icon Color | Use Case |
+|------------|------------|----------|
+| `generic` | Red | Unknown/unclassified errors |
+| `network` | Orange | Network connection failures |
+| `not-found` | Blue | 404 - Page not found |
+| `unauthorized` | Amber | 401 - Authentication required |
+| `forbidden` | Amber | 403 - Permission denied |
+| `server` | Purple | 5xx - Server errors |
+
+### Error Monitoring (Sentry Integration)
+
+All errors are automatically reported to Sentry with:
+
+- Error type tags
+- User context
+- Request metadata
+- Component stack traces
+- Retry count information
+
+---
+
+## Loading State System
+
+### Loading Components
+
+1. **LoadingSpinner** (`components/LoadingSpinner.tsx`)
+   - 6 variants: spin, pulse, bounce, dots, bars, wave
+   - 5 sizes: xs, sm, md, lg, xl
+   - 7 colors: primary, secondary, success, warning, error, info, current
+
+2. **Skeleton Components** (`components/Skeleton.tsx`)
+   - Text, Avatar, Card, List, Table, StatCard, Nav, Page
+   - Optimized for perceived performance
+
+3. **Page Loading Templates** (`components/PageLoadingTemplate.tsx`)
+   - PageLoading - Full page with nav and content
+   - CardGridLoading - Card grid layouts
+   - TableLoading - Data tables
+   - ListLoading - Item lists
+   - DashboardLoading - Dashboard widgets
+   - TasksLoading - Task boards
+
+### Loading State Coverage
+
+✅ Pages with loading.tsx:
+- `/[locale]/dashboard` → DashboardLoading
+- `/[locale]/tasks` → TasksLoading
+- `/[locale]/blog` → CardGridLoading
+- `/[locale]/portfolio` → CardGridLoading
+- `/[locale]/about` → PageLoading
+- `/[locale]/contact` → PageLoading
+
+---
+
+## Components Reference
+
+### ErrorBoundary
+
+**Location:** `components/ErrorBoundary.tsx`
+
+**Features:**
+- Automatic error type analysis
+- Smart retry mechanism with counting
+- Sentry integration
+- Friendly error messages
+- Multiple recovery options (reset, home, back, refresh, copy)
+
+**Props:**
 ```typescript
-{
-  success: false,
-  error: {
-    type: ErrorType,           // Error type enum (e.g., VALIDATION_ERROR, NOT_FOUND)
-    message: string,            // Human-readable error message
-    details?: Record<string, unknown>,  // Additional error details (optional)
-    timestamp: string           // ISO 8601 timestamp
-  }
+interface ErrorBoundaryProps {
+  error: Error & { digest?: string };
+  reset: () => void;
+  title?: string;
+  showReset?: boolean;
+  showHomeButton?: boolean;
+  showBackButton?: boolean;
+  showRefreshButton?: boolean;
+  showCopyError?: boolean;
+  variant?: 'default' | 'compact' | 'fullscreen';
 }
 ```
 
-## Error Types
-
-```typescript
-enum ErrorType {
-  VALIDATION = 'VALIDATION_ERROR',
-  NOT_FOUND = 'NOT_FOUND',
-  UNAUTHORIZED = 'UNAUTHORIZED',
-  FORBIDDEN = 'FORBIDDEN',
-  RATE_LIMIT = 'RATE_LIMIT_EXCEEDED',
-  INTERNAL = 'INTERNAL_ERROR',
-  BAD_REQUEST = 'BAD_REQUEST',
-  SERVICE_UNAVAILABLE = 'SERVICE_UNAVAILABLE',
-  REGISTRATION_FAILED = 'REGISTRATION_FAILED',
-  WEAK_PASSWORD = 'WEAK_PASSWORD',
-  MISSING_TOKEN = 'MISSING_TOKEN',
+**Usage:**
+```tsx
+export default function PageError({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  return (
+    <ErrorBoundary
+      error={error}
+      reset={reset}
+      title="Page load failed"
+      variant="default"
+      showReset
+      showHomeButton
+    />
+  );
 }
 ```
 
-## API Error Handler Usage
+### ErrorDisplay
 
-### Creating Error Responses
+**Location:** `components/ErrorDisplay.tsx`
 
-```typescript
-import {
-  createErrorResponse,
-  createValidationError,
-  createNotFoundError,
-  createUnauthorizedError,
-  createForbiddenError,
-  createRateLimitError,
-  createServiceUnavailableError,
-} from '@/lib/api/error-handler';
+**Features:**
+- Three display variants (default, compact, fullscreen)
+- Error type-specific icons and colors
+- Interactive retry mechanism
+- Copy error to clipboard
+- Responsive design
 
-// Validation error (400)
-return createValidationError('Email and password are required');
+### NetworkErrorBoundary
 
-// Not found error (404)
-return createNotFoundError('User not found');
+**Location:** `components/NetworkErrorBoundary.tsx`
 
-// Unauthorized error (401)
-return createUnauthorizedError('Invalid credentials');
+**Features:**
+- Network status monitoring
+- Automatic reconnection detection
+- Manual retry capability
+- Offline/online state tracking
 
-// Forbidden error (403)
-return createForbiddenError('Access denied');
-
-// Rate limit error (429)
-return createRateLimitError('Too many requests');
-
-// Service unavailable error (503)
-return createServiceUnavailableError('Maintenance in progress');
-
-// Generic error response
-return createErrorResponse(error);
+**Usage:**
+```tsx
+<NetworkErrorBoundary pingUrl="/api/health" onRetry={() => refetch()}>
+  <YourComponent />
+</NetworkErrorBoundary>
 ```
 
-### Using Error Middleware
+### ErrorBoundaryWrapper
 
-```typescript
-import { withApiErrorMiddleware } from '@/lib/api/error-middleware';
+**Location:** `components/ErrorBoundaryWrapper.tsx`
 
-export const GET = withApiErrorMiddleware(async (request: NextRequest) => {
-  // Your handler logic
-  return createSuccessResponse(data);
-}, {
-  tags: { route: '/api/users' }
+**Features:**
+- Class component boundary for React trees
+- Custom fallback support
+- HOC: `withErrorBoundary`
+- Sentry integration with component stack
+
+**Usage:**
+```tsx
+// Direct usage
+<ErrorBoundaryWrapper title="Component failed" showReset>
+  <SomeComponent />
+</ErrorBoundaryWrapper>
+
+// HOC usage
+const SafeComponent = withErrorBoundary(MyComponent, {
+  title: 'Load failed',
+  showReset: true,
 });
 ```
 
-### Manual Error Handling Pattern
+### RetryBoundary
 
-```typescript
-export async function POST(request: NextRequest) {
-  try {
-    // Your logic here
-    return createSuccessResponse(data);
-  } catch (error) {
-    logger.error('API error', error);
-    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
-  }
-}
+**Location:** `components/RetryBoundary.tsx`
+
+**Features:**
+- Configurable max retries
+- Exponential backoff strategy
+- Error type analysis
+- Retry count tracking
+- HOC: `withRetry`
+
+**Usage:**
+```tsx
+<RetryBoundary maxRetries={3} retryDelay={2000}>
+  <SomeComponentThatMightFail />
+</RetryBoundary>
+
+// HOC usage
+const SafeComponent = withRetry(MyComponent, {
+  maxRetries: 3,
+  retryDelay: 2000,
+});
 ```
 
-## Error Boundaries
+---
 
-The app uses Next.js error boundaries for route-level error handling:
+## Usage Examples
 
-```typescript
-// src/app/[locale]/error.tsx
+### Page-Level Error Handling
+
+```tsx
+// app/[locale]/dashboard/error.tsx
 'use client';
-export { LocaleError as default } from '@/components/errors';
 
-// src/components/errors/index.tsx
-export const HomeError = createPageErrorBoundary('首页加载失败');
-export const DashboardError = createPageErrorBoundary('控制面板加载失败');
-// ... more error boundaries
-```
+export { DashboardError as default } from '@/components/errors';
 
-## Global Error Handlers
+// Or custom:
+'use client';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
-Global error handlers capture unhandled promise rejections and uncaught exceptions:
-
-```typescript
-// Setup global error handlers (call during app initialization)
-import { setupGlobalErrorHandlers, setupBrowserErrorHandlers } from '@/lib/global-error-handlers';
-
-// Server-side
-setupGlobalErrorHandlers();
-
-// Client-side (in a useEffect in your root layout or providers)
-useEffect(() => {
-  setupBrowserErrorHandlers();
-}, []);
-```
-
-## Error Tracking with Sentry
-
-### Server-Side Error Tracking
-
-```typescript
-import { captureError } from '@/lib/monitoring/errors';
-
-captureError(error, {
-  category: ErrorCategory.API,
-  severity: ErrorSeverity.ERROR,
-  tags: {
-    route: '/api/users',
-    method: 'POST',
-  },
-  extra: {
-    userId: user.id,
-    requestId: request.id,
-  },
-});
-```
-
-### Client-Side Error Tracking
-
-Sentry is configured in `sentry.client.config.ts` and automatically captures:
-- React errors
-- Unhandled promise rejections
-- Uncaught exceptions
-- Browser errors
-
-### Error Categories
-
-```typescript
-enum ErrorCategory {
-  APPLICATION = 'application',
-  API = 'api',
-  NETWORK = 'network',
-  VALIDATION = 'validation',
-  USER_INPUT = 'user_input',
-  PERMISSION = 'permission',
-  INFRASTRUCTURE = 'infrastructure',
-  EXTERNAL_SERVICE = 'external_service',
-  THIRD_PARTY = 'third_party',
+export default function DashboardError({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  return (
+    <ErrorBoundary
+      error={error}
+      reset={reset}
+      title="Dashboard failed to load"
+    />
+  );
 }
 ```
 
-## HTTP Status Codes
+### Loading States
 
-| Status Code | Error Type | Description |
-|-------------|-----------|-------------|
-| 200 | - | Success |
-| 201 | - | Created |
-| 400 | VALIDATION_ERROR, BAD_REQUEST, REGISTRATION_FAILED, WEAK_PASSWORD | Client error |
-| 401 | UNAUTHORIZED, MISSING_TOKEN | Authentication required |
-| 403 | FORBIDDEN | Access denied |
-| 404 | NOT_FOUND | Resource not found |
-| 429 | RATE_LIMIT_EXCEEDED | Too many requests |
-| 500 | INTERNAL_ERROR | Server error |
-| 503 | SERVICE_UNAVAILABLE | Service unavailable |
+```tsx
+// app/[locale]/dashboard/loading.tsx
+import { DashboardLoading } from '@/components/PageLoadingTemplate';
+
+export default function DashboardPageLoading() {
+  return <DashboardLoading />;
+}
+```
+
+### Component-Level Error Boundary
+
+```tsx
+'use client';
+import { ErrorBoundaryWrapper } from '@/components/ErrorBoundaryWrapper';
+
+function MyComponent() {
+  return (
+    <ErrorBoundaryWrapper
+      title="Widget failed"
+      variant="compact"
+      showReset
+      onError={(error) => console.error('Widget error:', error)}
+    >
+      <SomeWidget />
+    </ErrorBoundaryWrapper>
+  );
+}
+```
+
+### Network Error Handling
+
+```tsx
+'use client';
+import { NetworkErrorBoundary } from '@/components/NetworkErrorBoundary';
+
+function DataFetchingComponent() {
+  const { data, error, refetch } = useQuery('data', fetchData);
+
+  return (
+    <NetworkErrorBoundary
+      onRetry={refetch}
+      pingUrl="/api/health"
+    >
+      {error ? <div>{error.message}</div> : <div>{data}</div>}
+    </NetworkErrorBoundary>
+  );
+}
+```
+
+### Retry Logic for Async Operations
+
+```tsx
+'use client';
+import { RetryBoundary } from '@/components/RetryBoundary';
+
+function UnstableComponent() {
+  return (
+    <RetryBoundary
+      maxRetries={3}
+      retryDelay={1000}
+      onError={(error, retryCount) => {
+        console.log(`Attempt ${retryCount} failed:`, error);
+      }}
+      onSuccess={() => {
+        console.log('Success after retries!');
+      }}
+    >
+      <DataFetchingWidget />
+    </RetryBoundary>
+  );
+}
+```
+
+---
 
 ## Best Practices
 
-### 1. Always Use Consistent Error Format
+### 1. Always Provide Loading States
 
-✅ **Good:**
-```typescript
-return createValidationError('Invalid email format');
-```
-
-❌ **Bad:**
-```typescript
-return NextResponse.json({ error: 'Invalid email' }, { status: 400 });
-```
-
-### 2. Wrap Handlers in Error Middleware
-
-✅ **Good:**
-```typescript
-export const GET = withApiErrorMiddleware(async (request) => {
-  return createSuccessResponse(data);
-});
-```
-
-❌ **Bad:**
-```typescript
-export async function GET(request) {
-  try {
-    return createSuccessResponse(data);
-  } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+✅ **Do:**
+```tsx
+// app/[locale]/page/loading.tsx
+import { CardGridLoading } from '@/components/PageLoadingTemplate';
+export default function PageLoading() {
+  return <CardGridLoading />;
 }
 ```
 
-### 3. Log Errors with Context
+❌ **Don't:**
+- Leave users staring at blank screens
+- Use generic spinners for complex pages
+- Ignore skeleton screens for better perceived performance
+
+### 2. Error Boundary Hierarchy
+
+```
+✅ Correct hierarchy:
+Global (root) → Layout → Page → Component
+
+❌ Avoid:
+- Multiple error boundaries at same level
+- Error boundaries without reset mechanism
+- Missing error boundaries for async operations
+```
+
+### 3. Error Message Guidelines
 
 ✅ **Good:**
-```typescript
-logger.error('User login failed', error, {
-  category: 'auth',
-  userId: user.id,
-  email: user.email,
-});
-```
+- "网络连接失败，请检查您的网络设置" (Clear, actionable)
+- "页面不存在或已被移除" (Specific)
+- "服务器暂时无法处理请求，请稍后重试" (Reassuring)
 
 ❌ **Bad:**
-```typescript
-console.error(error);
-```
+- "Error: 404" (Too technical)
+- "Something went wrong" (Too vague)
+- "undefined" (No information)
 
-### 4. Capture Errors to Sentry
+### 4. Loading State Selection
 
-✅ **Good:**
-```typescript
-captureError(error, {
-  category: ErrorCategory.API,
-  severity: ErrorSeverity.ERROR,
-  tags: { route: '/api/users' },
-});
-```
+| Scenario | Recommended Component |
+|----------|---------------------|
+| Dashboard widgets | `DashboardLoading` |
+| Card grids (blog, portfolio) | `CardGridLoading` |
+| Data tables | `TableLoading` |
+| Simple pages | `PageLoading` |
+| Inline loading | `LoadingSpinner` (compact) |
 
-❌ **Bad:**
-```typescript
-throw error; // Only Sentry will catch if it's unhandled
-```
+### 5. Retry Strategy
 
-### 5. Provide User-Friendly Messages
+- **Network errors**: 3 retries with exponential backoff (1s, 2s, 4s)
+- **Server errors (5xx)**: 2 retries with 2s delay
+- **Client errors (4xx)**: No retries (user action required)
+- **Unknown errors**: 1 retry with immediate attempt
 
-✅ **Good:**
-```typescript
-return createUnauthorizedError('您需要登录才能访问此资源');
-```
+### 6. Error Recovery Options
 
-❌ **Bad:**
-```typescript
-return createUnauthorizedError('Unauthorized access denied');
-```
+Always provide at least 2 recovery options:
+1. **Primary**: Retry/Reset (when applicable)
+2. **Secondary**: Navigate home or back
+3. **Optional**: Refresh page, copy error, contact support
 
-## Error Flow
+---
+
+## File Structure
 
 ```
-Request → API Route → Error Occurs
-                    ↓
-            Error Handler
-                    ↓
-        ┌───────────┴───────────┐
-        ↓                       ↓
-    Logger              Sentry Capture
-        ↓                       ↓
-    Log File              Sentry Dashboard
-        ↓
-  Error Response
-        ↓
-    Client
+src/
+├── components/
+│   ├── ErrorBoundary.tsx           # Main error boundary for Next.js
+│   ├── ErrorBoundaryWrapper.tsx    # Class component boundary
+│   ├── ErrorDisplay.tsx            # Error UI component
+│   ├── NetworkErrorBoundary.tsx    # Network-specific boundary
+│   ├── RetryBoundary.tsx           # Retry mechanism with backoff
+│   ├── LoadingSpinner.tsx          # Loading indicators
+│   ├── PageLoadingTemplate.tsx     # Page skeleton templates
+│   ├── Skeleton.tsx                # Skeleton components
+│   └── errors/
+│       └── index.tsx               # Page error factory
+├── lib/
+│   ├── errors.ts                   # Error utilities
+│   └── monitoring/
+│       └── errors.ts               # Sentry integration
+└── app/
+    ├── error.tsx                   # Root error boundary
+    ├── global-error.tsx            # Global error boundary
+    └── [locale]/
+        ├── error.tsx               # Locale error boundary
+        ├── dashboard/
+        │   ├── page.tsx
+        │   ├── error.tsx           # ✅
+        │   └── loading.tsx         # ✅
+        ├── blog/
+        │   ├── page.tsx
+        │   ├── error.tsx           # ✅
+        │   └── loading.tsx         # ✅ NEW
+        ├── portfolio/
+        │   ├── page.tsx
+        │   ├── error.tsx           # ✅ NEW
+        │   └── loading.tsx         # ✅ NEW
+        ├── team/
+        │   ├── page.tsx
+        │   └── error.tsx           # ✅
+        ├── about/
+        │   ├── page.tsx
+        │   ├── error.tsx           # ✅
+        │   └── loading.tsx         # ✅ NEW
+        ├── contact/
+        │   ├── page.tsx
+        │   ├── error.tsx           # ✅
+        │   └── loading.tsx         # ✅ NEW
+        ├── tasks/
+        │   ├── page.tsx
+        │   ├── error.tsx           # ✅ NEW
+        │   └── loading.tsx         # ✅
+        └── settings/
+            ├── page.tsx
+            └── error.tsx           # ✅ NEW
 ```
 
-## Migration Guide
+---
 
-### Migrating Inconsistent Error Handlers
+## Testing
 
-If you find API routes not using the standard error handler:
+Run the test suite:
 
-**Before:**
-```typescript
-export async function GET(request) {
-  try {
-    const data = await getData();
-    return NextResponse.json(data);
-  } catch (error) {
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch data' },
-      { status: 500 }
-    );
-  }
-}
+```bash
+# Run error boundary tests
+npm test src/components/__tests__/ErrorBoundary.test.tsx
+npm test src/components/__tests__/NetworkErrorBoundary.test.tsx
+
+# Test loading states manually
+# Visit each page and verify loading states appear
 ```
 
-**After:**
-```typescript
-export const GET = withApiErrorMiddleware(async (request) => {
-  const data = await getData();
-  return createSuccessResponse(data);
-}, {
-  tags: { route: '/api/data' }
-});
+---
+
+## Monitoring
+
+Check Sentry for error patterns:
+
+```bash
+# View error statistics
+# https://sentry.io/organizations/your-org/issues/
+
+# Look for:
+# - Most common error types
+# - Error frequency by route
+# - User impact (affected sessions)
+# - Recovery success rates
 ```
 
-Or with manual handling:
-```typescript
-export async function GET(request) {
-  try {
-    const data = await getData();
-    return createSuccessResponse(data);
-  } catch (error) {
-    logger.error('Failed to fetch data', error);
-    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
-  }
-}
-```
+---
 
-## Testing Error Handlers
+## Future Improvements
 
-```typescript
-// Example test
-it('should return validation error for invalid input', async () => {
-  const response = await POST(request);
-  expect(response.status).toBe(400);
-  const data = await response.json();
-  expect(data.success).toBe(false);
-  expect(data.error.type).toBe(ErrorType.VALIDATION_ERROR);
-});
-```
+- [ ] Add error rate limiting to prevent spam
+- [ ] Implement offline-first caching strategies
+- [ ] Add user feedback mechanism for errors
+- [ ] Create error recovery analytics dashboard
+- [ ] Add A/B testing for error recovery UI
+- [ ] Implement progressive loading for large datasets
 
-## Files
+---
 
-- `src/lib/api/error-handler.ts` - API error handler utilities
-- `src/lib/api/error-middleware.ts` - API error middleware
-- `src/lib/errors.ts` - General error utilities
-- `src/lib/monitoring/errors.ts` - Error tracking and Sentry integration
-- `src/lib/global-error-handlers.ts` - Global error handlers
-- `src/components/errors/index.tsx` - Error boundary components
-- `src/components/ErrorBoundary.tsx` - Main error boundary component
+## Support
 
-## Related Documentation
+For issues or questions:
+1. Check this documentation
+2. Review component TypeScript definitions
+3. Examine existing implementations in the codebase
+4. Contact: support@7zi.studio
 
-- [API Quick Reference](./API_QUICK_REFERENCE.ts)
-- [API Structure](./API_STRUCTURE_DIAGRAM.ts)
-- [API Logger](../src/lib/api/api-logger.ts)
+---
+
+**Last Updated:** 2024-03-21

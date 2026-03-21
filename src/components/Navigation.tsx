@@ -143,7 +143,7 @@ export const Navigation: React.FC = () => {
           >
             <span className="text-2xl" aria-hidden="true">🤖</span>
             <span className="font-bold text-gray-900 dark:text-white hidden sm:inline">
-              AI 团队
+              {t('siteNameShort')}
             </span>
           </Link>
 
@@ -239,7 +239,7 @@ export const Navigation: React.FC = () => {
               className="text-2xl font-bold text-zinc-900 dark:text-white touch-active inline-block py-2 rounded-lg min-h-[44px]"
               onClick={closeMenu}
             >
-              🤖 <span className="text-cyan-500">AI 团队</span>
+              🤖 <span className="text-cyan-500">{t('siteNameShort')}</span>
             </Link>
           </div>
 

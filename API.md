@@ -4,6 +4,13 @@ Complete API documentation for the 7zi AI Team Management Platform.
 
 ---
 
+**Last Updated:** 2026-03-21
+**Version:** v1.0.6
+**Reviewer:** AI Documentation Agent
+**Total Endpoints:** 28+
+
+---
+
 ## 🔐 Authentication APIs
 
 ### Login
@@ -1132,6 +1139,421 @@ Upload and transcribe audio files with various options.
 - `415` - Unsupported audio format
 - `503` - Transcription service unavailable
 - `504` - Transcription timeout
+
+---
+
+### Image Processing
+
+**Endpoint:** `POST /api/multimodal/image`
+
+Upload and process images with optional compression and provider selection.
+
+**Request Body:** `multipart/form-data`
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `image` | File | Yes | Image file to process |
+| `provider` | string | No | Specific provider to use |
+| `maxSize` | number | No | Maximum file size in bytes (default: 10MB) |
+| `compress` | boolean | No | Whether to compress the image (default: false) |
+| `quality` | number | No | Compression quality 0.0-1.0 (default: 0.8) |
+
+**Supported Image Types:**
+- image/jpeg, image/jpg
+- image/png
+- image/webp
+- image/gif
+- image/svg+xml
+
+**Max File Size:** 10MB (configurable)
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "width": 1920,
+    "height": 1080,
+    "format": "jpeg",
+    "size": 524288,
+    "analyzed": true
+  },
+  "metadata": {
+    "originalSize": 1048576,
+    "processedSize": 524288,
+    "compressionRatio": 0.5,
+    "filename": "image.jpg",
+    "type": "image/jpeg",
+    "provider": "default",
+    "processingTime": "1.234"
+  },
+  "timestamp": "2026-03-21T12:00:00.000Z"
+}
+```
+
+**Errors:**
+- `400` - Invalid request or image validation failed
+- `413` - Image file too large
+- `415` - Unsupported image format
+- `503` - Image processing service unavailable
+
+---
+
+### Get Image Providers
+
+**Endpoint:** `GET /api/multimodal/image`
+
+Get list of available image processing providers with health status.
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "providers": [
+      {
+        "name": "default",
+        "capabilities": ["image", "processing"],
+        "healthy": true,
+        "status": "operational"
+      }
+    ],
+    "total": 1,
+    "operational": 1
+  },
+  "timestamp": "2026-03-21T12:00:00.000Z"
+}
+```
+
+**Errors:**
+- `500` - Failed to list image processing providers
+
+---
+
+## 📊 Stream APIs
+
+### Analytics Stream (SSE) - Authenticated
+
+**Endpoint:** `GET /api/stream/analytics`
+
+Real-time analytics metrics using Server-Sent Events (SSE). **Requires authentication.**
+
+**Headers:**
+```
+Accept: text/event-stream
+Authorization: Bearer <token>
+```
+
+**Response (200 OK):**
+SSE stream with real-time performance metrics:
+
+```
+id: client-uuid
+event: connected
+data: {"type":"metrics","timestamp":"2026-03-21T12:00:00.000Z","data":[...]}
+
+event: metrics
+data: {"type":"metrics","timestamp":"2026-03-21T12:00:05.000Z","data":[
+  {"name":"CPU 使用率","value":55,"unit":"%","trend":"up","change":3.2},
+  {"name":"内存使用","value":72,"unit":"%","trend":"stable","change":0},
+  {"name":"响应时间","value":125,"unit":"ms","trend":"down","change":-5}
+]}
+
+: keep-alive
+```
+
+**Metrics Provided:**
+- CPU 使用率 (CPU Usage %)
+- 内存使用 (Memory Usage %)
+- 响应时间 (Response Time ms)
+- 任务完成率 (Task Completion Rate %)
+
+**Update Frequency:**
+- Metrics data: Every 5 seconds
+- Keep-alive: Every 15 seconds
+
+**Errors:**
+- `400` - Invalid SSE connection request
+- `401` - Authentication required
+- `403` - Insufficient permissions
+
+---
+
+## 👥 User Management APIs (RBAC)
+
+### List Users
+
+**Endpoint:** `GET /api/users`
+
+List all users. Requires `user:read` permission.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "user_123",
+      "email": "user@example.com",
+      "name": "John Doe",
+      "role": "MEMBER",
+      "status": "active",
+      "createdAt": "2026-03-01T00:00:00.000Z"
+    }
+  ],
+  "meta": {
+    "count": 1,
+    "timestamp": "2026-03-21T12:00:00.000Z"
+  }
+}
+```
+
+**Errors:**
+- `401` - Unauthorized
+- `403` - Insufficient permissions
+- `500` - Internal server error
+
+---
+
+### Create User
+
+**Endpoint:** `POST /api/users`
+
+Create a new user. Requires `user:create` permission.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com",
+  "password": "SecurePass123",
+  "name": "John Doe"
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "user_456",
+    "email": "user@example.com",
+    "name": "John Doe",
+    "role": "MEMBER",
+    "createdAt": "2026-03-21T12:00:00.000Z"
+  },
+  "meta": {
+    "timestamp": "2026-03-21T12:00:00.000Z"
+  }
+}
+```
+
+**Errors:**
+- `400` - Validation error (missing required fields)
+- `401` - Unauthorized
+- `403` - Insufficient permissions
+- `500` - Internal server error
+
+---
+
+### Update User
+
+**Endpoint:** `PATCH /api/users?id={userId}`
+
+Update user information. Requires `user:update` permission.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+**Query Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `id` | string | Yes | User ID to update |
+
+**Request Body:**
+```json
+{
+  "name": "Jane Doe",
+  "avatar": "https://example.com/avatar.jpg",
+  "roles": ["MEMBER", "MODERATOR"],
+  "status": "active"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "user_123",
+    "email": "user@example.com",
+    "name": "Jane Doe",
+    "avatar": "https://example.com/avatar.jpg",
+    "role": "MEMBER",
+    "status": "active",
+    "roles": ["MEMBER", "MODERATOR"]
+  },
+  "meta": {
+    "timestamp": "2026-03-21T12:00:00.000Z"
+  }
+}
+```
+
+**Errors:**
+- `400` - Validation error (user ID required)
+- `401` - Unauthorized
+- `403` - Insufficient permissions
+- `404` - User not found
+- `500` - Internal server error
+
+---
+
+### Delete User
+
+**Endpoint:** `DELETE /api/users?id={userId}`
+
+Delete a user. Requires **ADMIN role** (not just permission).
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Query Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `id` | string | Yes | User ID to delete |
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "user_123"
+  },
+  "meta": {
+    "timestamp": "2026-03-21T12:00:00.000Z"
+  }
+}
+```
+
+**Errors:**
+- `400` - Validation error (user ID required)
+- `401` - Unauthorized
+- `403` - Insufficient permissions (requires ADMIN role)
+- `404` - User not found
+- `500` - Internal server error
+
+---
+
+### Get All Roles
+
+**Endpoint:** `GET /api/users/roles`
+
+List all roles with user counts. Requires `user:manage_role` permission OR MANAGER/ADMIN role.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "role": "ADMIN",
+      "count": 2
+    },
+    {
+      "role": "MANAGER",
+      "count": 5
+    },
+    {
+      "role": "MEMBER",
+      "count": 42
+    }
+  ],
+  "meta": {
+    "count": 3,
+    "timestamp": "2026-03-21T12:00:00.000Z"
+  }
+}
+```
+
+**Errors:**
+- `401` - Unauthorized
+- `403` - Insufficient permissions
+- `500` - Internal server error
+
+---
+
+## 🔧 Example API Route
+
+### Example with Monitoring
+
+**Endpoint:** `GET /api/example`
+
+Demonstrates the recommended pattern for API routes with monitoring and error handling.
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "1",
+      "name": "Engineering"
+    },
+    {
+      "id": "2",
+      "name": "Design"
+    },
+    {
+      "id": "3",
+      "name": "Product"
+    }
+  ]
+}
+```
+
+**Endpoint:** `POST /api/example`
+
+Create a new resource with monitoring.
+
+**Request Body:**
+```json
+{
+  "name": "Marketing"
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "abc-123",
+    "name": "Marketing",
+    "createdAt": "2026-03-21T12:00:00.000Z"
+  }
+}
+```
+
+**Note:** This is a demonstration endpoint showing proper API patterns with monitoring, logging, and error handling.
 
 ---
 

@@ -6,6 +6,8 @@
  * - API 性能追踪
  * - 监控包装器
  * - 速率限制
+ * - CSRF 保护
+ * - CORS 配置
  * - 数据库性能
  */
 
@@ -43,8 +45,35 @@ export {
 export {
   withRateLimit,
   getRateLimitStats,
+  performPeriodicCleanup,
+  startPeriodicCleanup,
+  stopPeriodicCleanup,
 } from './rate-limit';
 export type { RateLimitEntry, RateLimitConfig } from './rate-limit';
+
+// ============================================
+// CSRF Protection
+// ============================================
+export {
+  withCsrfProtection,
+  createCsrfMiddleware,
+  createCsrfErrorResponse,
+  validateRequestCsrf,
+  generateCsrfToken,
+  type CsrfProtectionConfig,
+} from './csrf';
+
+// ============================================
+// CORS Configuration
+// ============================================
+export {
+  withCors,
+  createCorsMiddleware,
+  corsPolicies,
+  createCorsErrorResponse,
+  getEnvironmentOrigins,
+  type CorsConfig,
+} from '@/middleware/cors';
 
 // ============================================
 // Database Performance

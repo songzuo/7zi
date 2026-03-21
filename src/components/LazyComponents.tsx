@@ -10,11 +10,13 @@
  * 3. 按需加载非首屏组件
  * 4. 视口检测懒加载
  * 5. 预加载关键组件
+ * 6. 添加 User Timing API 标记
  */
 
 import dynamic from 'next/dynamic';
 import { LoadingSpinner } from './LoadingSpinner';
 import { useEffect, useState, useRef, ComponentType } from 'react';
+import { measureAsync } from '@/lib/performance-optimization';
 
 // Loading 占位组件
 const LoadingPlaceholder = () => (
@@ -85,9 +87,10 @@ export function LazyViewportWrapper({
 /**
  * AI 聊天组件 - 仅在用户交互时加载
  * 这是一个较大的组件，包含多个子组件
+ * 🚀 优化：使用 measureAsync 追踪加载时间
  */
 export const LazyAIChat = dynamic(
-  () => import('./AIChat').then((mod) => ({ default: mod.default })),
+  () => measureAsync('ai-chat-load', () => import('./AIChat').then((mod) => ({ default: mod.default }))),
   {
     ssr: false, // 客户端渲染，不需要 SSR
     loading: () => null, // 聊天按钮不需要 loading
@@ -97,9 +100,10 @@ export const LazyAIChat = dynamic(
 /**
  * 项目看板组件 - 滚动到视口时加载
  * 包含多个数据展示和交互逻辑
+ * 🚀 优化：使用 measureAsync 追踪加载时间
  */
 export const LazyProjectDashboard = dynamic(
-  () => import('./ProjectDashboard').then((mod) => ({ default: mod.ProjectDashboard })),
+  () => measureAsync('project-dashboard-load', () => import('./ProjectDashboard').then((mod) => ({ default: mod.ProjectDashboard }))),
   {
     ssr: true,
     loading: () => <SkeletonPlaceholder height={400} />,
@@ -109,9 +113,10 @@ export const LazyProjectDashboard = dynamic(
 /**
  * GitHub 活动组件 - 滚动到视口时加载
  * 需要 API 调用，适合延迟加载
+ * 🚀 优化：使用 measureAsync 追踪加载时间
  */
 export const LazyGitHubActivity = dynamic(
-  () => import('./GitHubActivity').then((mod) => ({ default: mod.GitHubActivity })),
+  () => measureAsync('github-activity-load', () => import('./GitHubActivity').then((mod) => ({ default: mod.GitHubActivity }))),
   {
     ssr: true,
     loading: () => <SkeletonPlaceholder height={300} />,
@@ -121,14 +126,38 @@ export const LazyGitHubActivity = dynamic(
 /**
  * Hero 3D 组件 - 包含复杂的动画和鼠标交互
  * 仅在桌面端且用户交互时加载
+ * 🚀 优化：使用 measureAsync 追踪加载时间
  */
 export const LazyHero3D = dynamic(
-  () => import('./Hero3D').then((mod) => ({ default: mod.Hero3D })),
+  () => measureAsync('hero-3d-load', () => import('./Hero3D').then((mod) => ({ default: mod.Hero3D }))),
   {
     ssr: true,
     loading: () => (
       <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner size="xl" />
+      </div>
+    ),
+  }
+);
+
+/**
+ * 知识图谱 3D 场景组件 - 包含 Three.js 和 React Three Fiber
+ * 🚀 优化：独立异步加载，减少主包体积 (982KB)
+ * 🚀 优化：使用 measureAsync 追踪加载时间
+ */
+export const LazyKnowledgeLatticeScene = dynamic(
+  () => measureAsync(
+    'knowledge-lattice-3d-load',
+    () => import('./knowledge-lattice/KnowledgeLatticeScene').then((mod) => ({ default: mod.default }))
+  ),
+  {
+    ssr: false,  // Three.js 不需要 SSR
+    loading: () => (
+      <div className="flex items-center justify-center min-h-[600px] bg-zinc-100 dark:bg-zinc-900 animate-pulse rounded-2xl">
+        <div className="text-center">
+          <div className="inline-block w-12 h-12 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mb-4" />
+          <p className="text-zinc-500 dark:text-zinc-400">Loading 3D Scene...</p>
+        </div>
       </div>
     ),
   }

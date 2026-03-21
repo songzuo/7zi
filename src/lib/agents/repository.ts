@@ -121,6 +121,7 @@ export async function initializeAgentTables(): Promise<void> {
     CREATE INDEX IF NOT EXISTS idx_agents_provider ON agents(provider);
     CREATE INDEX IF NOT EXISTS idx_agents_type ON agents(type);
     CREATE INDEX IF NOT EXISTS idx_agents_last_active ON agents(last_active_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_agents_api_key ON agents(api_key);  -- OPTIMIZED: Index for API key authentication
     
     -- Composite index for common queries
     CREATE INDEX IF NOT EXISTS idx_agents_status_provider ON agents(status, provider);
@@ -569,7 +570,7 @@ export async function getAgentDataAccessLog(
 /**
  * 映射数据库行到 Agent 对象
  */
-function mapRowToAgent(row: Record<string, unknown>): Agent {
+export function mapRowToAgent(row: Record<string, unknown>): Agent {
   return {
     id: row.id as string,
     name: row.name as string,

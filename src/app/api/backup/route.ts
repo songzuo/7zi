@@ -11,6 +11,7 @@ import { getDatabase } from '@/lib/db';
 import { getDatabaseSize } from '@/lib/db';
 import { logger } from '@/lib/logger';
 import { withRateLimit } from '@/lib/middleware/rate-limit';
+import { withCors } from '@/middleware/cors';
 import { createErrorResponse, createServiceUnavailableError, ErrorType } from '@/lib/api/error-handler';
 import { createSuccessResponse } from '@/lib/api/utils';
 import fs from 'fs/promises';
@@ -129,7 +130,7 @@ async function createBackup(): Promise<BackupMetadata> {
 
   const tables = Array.isArray(tablesResult) ? tablesResult.map((t: TableName) => t.name) : [];
 
-  // Export all tables
+  // Export all tables - OPTIMIZED: Removed redundant COUNT queries
   const backupData: BackupData = {};
   const recordCounts: Record<string, number> = {};
 
@@ -137,10 +138,8 @@ async function createBackup(): Promise<BackupMetadata> {
     const tableData = await db.query(`SELECT * FROM ${table}`);
     backupData[table] = Array.isArray(tableData) ? tableData : [];
 
-    const countResult = await db.query(`SELECT COUNT(*) as count FROM ${table}`);
-    recordCounts[table] = Array.isArray(countResult) && countResult[0]
-      ? (countResult[0] as CountResult).count
-      : 0;
+    // Use array length instead of separate COUNT query (optimization)
+    recordCounts[table] = Array.isArray(tableData) ? tableData.length : 0;
   }
 
   // Create backup metadata
@@ -241,9 +240,13 @@ async function createBackupHandler(request: NextRequest) {
 /**
  * GET handler for listing backups
  */
-export const GET = withRateLimit(listBackupsHandler, { windowMs: 60000, maxRequests: 60 });
+export const GET = withCors(
+  withRateLimit(listBackupsHandler, { windowMs: 60000, maxRequests: 60 })
+);
 
 /**
  * POST handler for creating backups
  */
-export const POST = withRateLimit(createBackupHandler, { windowMs: 60000, maxRequests: 10 });
+export const POST = withCors(
+  withRateLimit(createBackupHandler, { windowMs: 60000, maxRequests: 10 })
+);

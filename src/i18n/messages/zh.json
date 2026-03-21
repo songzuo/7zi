@@ -354,6 +354,7 @@
       "title": "发送消息",
       "name": "姓名",
       "email": "邮箱",
+      "company": "公司（可选）",
       "subject": "主题",
       "message": "消息",
       "submit": "发送",
@@ -480,5 +481,24 @@
       "retry": "重试",
       "backHome": "返回首页"
     }
-  }
+  },
+  "time": {
+    "justNow": "刚刚",
+    "minutesAgo": "{count} 分钟前",
+    "hoursAgo": "{count} 小时前",
+    "daysAgo": "{count} 天前",
+    "weeksAgo": "{count} 周前",
+    "monthsAgo": "{count} 个月前",
+    "yearsAgo": "{count} 年前"
+  },
+  "mobileMenu": {
+    "open": "打开菜单",
+    "close": "关闭菜单",
+    "language": "语言",
+    "theme": "主题"
+  },
+  "subagents": "子代理",
+  "memory": "记忆库",
+  "tasks": "任务"
+}
 }

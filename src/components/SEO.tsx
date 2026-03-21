@@ -1,6 +1,9 @@
 /**
  * SEO 组件 - 支持多语言的 SEO 优化
  * 包含 JSON-LD 结构化数据
+ *
+ * 注意：Next.js 16 自动为 <Script> 组件添加 CSP nonce
+ * 不需要手动传递 nonce 属性
  */
 
 import Script from 'next/script';
@@ -66,6 +69,7 @@ export function StructuredData({
   return (
     <Script
       id="structured-data"
+      strategy="afterInteractive"
       type="application/ld+json"
       dangerouslySetInnerHTML={{
         __html: schemaJson,
@@ -257,6 +261,7 @@ export function ProductSchema({
   return (
     <Script
       id="product-schema"
+      strategy="afterInteractive"
       type="application/ld+json"
       dangerouslySetInnerHTML={{
         __html: schemaJson,

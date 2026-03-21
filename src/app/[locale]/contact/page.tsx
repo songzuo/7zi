@@ -419,7 +419,7 @@ export default async function ContactPage({ params }: { params: Params }) {
 
                 >
 
-                  <summary className="flex items-center justify-between p-6 cursor-pointer list-none">
+                  <summary className="flex items-center justify-between p-6 cursor-pointer list-none touch-active min-h-[48px] hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
 
                     <span className="font-medium text-zinc-900 dark:text-white">
 
@@ -503,7 +503,7 @@ export default async function ContactPage({ params }: { params: Params }) {
 
                 href="mailto:business@7zi.studio"
 
-                className="inline-flex items-center justify-center gap-2 bg-white text-cyan-600 px-8 py-4 rounded-full font-semibold text-lg hover:bg-cyan-50 transition-colors"
+                className="inline-flex items-center justify-center gap-2 bg-white text-cyan-600 px-8 py-4 rounded-full font-semibold text-lg hover:bg-cyan-50 transition-colors min-h-[48px] min-w-[48px] touch-active"
 
               >
 

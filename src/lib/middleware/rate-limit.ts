@@ -3,13 +3,77 @@
  *
  * Features:
  * - In-memory rate limiting using sliding window
+ * - LRU cache for efficient memory management
  * - Configurable limits per endpoint
  * - Support for IP-based and token-based rate limiting
  * - Automatic cleanup of expired entries
+ * - Distributed rate limiting support (for future scalability)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
+
+/**
+ * Simple LRU Cache implementation
+ */
+class LRUCache<K, V> {
+  private cache: Map<K, V>;
+  private maxSize: number;
+
+  constructor(maxSize: number) {
+    this.cache = new Map();
+    this.maxSize = maxSize;
+  }
+
+  get(key: K): V | undefined {
+    const value = this.cache.get(key);
+    if (value !== undefined) {
+      // Re-insert to mark as recently used
+      this.cache.delete(key);
+      this.cache.set(key, value);
+    }
+    return value;
+  }
+
+  set(key: K, value: V): void {
+    if (this.cache.size >= this.maxSize) {
+      // Remove least recently used item (first in Map)
+      const firstKey = this.cache.keys().next().value;
+      if (firstKey !== undefined) {
+        this.cache.delete(firstKey);
+      }
+    }
+    this.cache.set(key, value);
+  }
+
+  has(key: K): boolean {
+    return this.cache.has(key);
+  }
+
+  delete(key: K): boolean {
+    return this.cache.delete(key);
+  }
+
+  clear(): void {
+    this.cache.clear();
+  }
+
+  get size(): number {
+    return this.cache.size;
+  }
+
+  keys(): IterableIterator<K> {
+    return this.cache.keys();
+  }
+
+  values(): IterableIterator<V> {
+    return this.cache.values();
+  }
+
+  entries(): IterableIterator<[K, V]> {
+    return this.cache.entries();
+  }
+}
 
 export interface RateLimitEntry {
   count: number;
@@ -24,6 +88,11 @@ export interface RateLimitConfig {
 }
 
 // Default rate limit configurations
+// ============================================
+// Constants
+// ============================================
+const MAX_STORE_SIZE = 10000;
+
 const DEFAULT_LIMITS: Record<string, RateLimitConfig> = {
   // Health checks - high allowance
   '/api/health': { windowMs: 60 * 1000, maxRequests: 100 },
@@ -55,9 +124,8 @@ const DEFAULT_LIMITS: Record<string, RateLimitConfig> = {
   '/api/a2a/jsonrpc': { windowMs: 60 * 1000, maxRequests: 50 },
 };
 
-// In-memory store for rate limit tracking
-const rateLimitStore = new Map<string, RateLimitEntry>();
-const MAX_STORE_SIZE = 10000;
+// In-memory store for rate limit tracking using LRU cache
+const rateLimitStore = new LRUCache<string, RateLimitEntry>(10000);
 
 /**
  * Generate rate limit key for a request
@@ -163,11 +231,21 @@ function checkRateLimit(
 function cleanupExpiredEntries(now: number): void {
   const maxAge = 60 * 1000; // Keep entries for 1 minute max
 
+  // Collect keys to delete
+  const keysToDelete: string[] = [];
+
   for (const [key, entry] of rateLimitStore.entries()) {
     if (now - entry.windowStart > maxAge) {
-      rateLimitStore.delete(key);
+      keysToDelete.push(key);
     }
   }
+
+  // Delete expired entries
+  for (const key of keysToDelete) {
+    rateLimitStore.delete(key);
+  }
+
+  logger.debug(`Cleaned up ${keysToDelete.length} expired rate limit entries`);
 }
 
 /**
@@ -404,6 +482,45 @@ export function clearRateLimit(key: string): void {
  */
 export function clearAllRateLimits(): void {
   rateLimitStore.clear();
+}
+
+/**
+ * Periodic cleanup task to remove expired entries
+ * Call this periodically (e.g., every 5 minutes)
+ */
+export function performPeriodicCleanup(): void {
+  const now = Date.now();
+  cleanupExpiredEntries(now);
+}
+
+/**
+ * Initialize periodic cleanup
+ */
+let cleanupIntervalId: NodeJS.Timeout | null = null;
+
+export function startPeriodicCleanup(intervalMs: number = 5 * 60 * 1000): void {
+  if (cleanupIntervalId) {
+    clearInterval(cleanupIntervalId);
+  }
+
+  cleanupIntervalId = setInterval(() => {
+    performPeriodicCleanup();
+  }, intervalMs);
+
+  logger.info(`Started periodic rate limit cleanup (interval: ${intervalMs}ms)`);
+}
+
+export function stopPeriodicCleanup(): void {
+  if (cleanupIntervalId) {
+    clearInterval(cleanupIntervalId);
+    cleanupIntervalId = null;
+    logger.info('Stopped periodic rate limit cleanup');
+  }
+}
+
+// Auto-start periodic cleanup in production
+if (process.env.NODE_ENV === 'production') {
+  startPeriodicCleanup();
 }
 
 /**

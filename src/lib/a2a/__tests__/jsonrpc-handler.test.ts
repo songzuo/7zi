@@ -18,6 +18,7 @@ import type {
   CancelTaskRequest,
   A2AErrorCodes,
   StreamEvent,
+  JsonRpcError,
 } from '../types';
 
 describe('A2ARequestHandler', () => {
@@ -66,11 +67,10 @@ describe('A2ARequestHandler', () => {
 
       it('should return error for invalid JSON-RPC version', async () => {
         const request: JsonRpcRequest = {
-          jsonrpc: '2.0',
+          jsonrpc: '1.0',
           id: '1',
           method: 'agent/getCard',
-        } as any;
-        (request as any).jsonrpc = '1.0';
+        };
 
         const response = await handler.handleRequest(request);
 
@@ -116,8 +116,9 @@ describe('A2ARequestHandler', () => {
 
         expect('result' in response).toBe(true);
         if ('result' in response) {
-          expect((response.result as any).kind).toBe('task');
-          expect((response.result as any).id).toBeDefined();
+          const result = response.result as { kind: string; id: string };
+          expect(result.kind).toBe('task');
+          expect(result.id).toBeDefined();
         }
       });
 
@@ -164,7 +165,8 @@ describe('A2ARequestHandler', () => {
         expect('result' in response).toBe(true);
         if ('result' in response) {
           // In blocking mode, should return completed task
-          expect((response.result as any).status.state).toBe('completed');
+          const result = response.result as { status: { state: string } };
+          expect(result.status.state).toBe('completed');
         }
       });
     });
@@ -188,7 +190,8 @@ describe('A2ARequestHandler', () => {
 
         expect('result' in response).toBe(true);
         if ('result' in response) {
-          expect((response.result as any).kind).toBe('task');
+          const result = response.result as { kind: string };
+          expect(result.kind).toBe('task');
         }
       });
     });
@@ -210,7 +213,8 @@ describe('A2ARequestHandler', () => {
 
         expect('result' in response).toBe(true);
         if ('result' in response) {
-          expect((response.result as any).id).toBe(task.id);
+          const result = response.result as { id: string };
+          expect(result.id).toBe(task.id);
         }
       });
 
@@ -283,8 +287,9 @@ describe('A2ARequestHandler', () => {
 
         expect('result' in response).toBe(true);
         if ('result' in response) {
-          expect((response.result as any).history).toHaveLength(1);
-          expect((response.result as any).history[0].messageId).toBe('msg-2');
+          const result = response.result as { history: Array<{ messageId: string }> };
+          expect(result.history).toHaveLength(1);
+          expect(result.history[0].messageId).toBe('msg-2');
         }
       });
     });
@@ -308,8 +313,9 @@ describe('A2ARequestHandler', () => {
 
         expect('result' in response).toBe(true);
         if ('result' in response) {
-          expect((response.result as any).tasks).toHaveLength(3);
-          expect((response.result as any).totalSize).toBe(3);
+          const result = response.result as { tasks: unknown[]; totalSize: number };
+          expect(result.tasks).toHaveLength(3);
+          expect(result.totalSize).toBe(3);
         }
       });
 
@@ -327,7 +333,8 @@ describe('A2ARequestHandler', () => {
 
         expect('result' in response).toBe(true);
         if ('result' in response) {
-          expect((response.result as any).tasks).toHaveLength(2);
+          const result = response.result as { tasks: unknown[] };
+          expect(result.tasks).toHaveLength(2);
         }
       });
 
@@ -351,7 +358,8 @@ describe('A2ARequestHandler', () => {
 
         expect('result' in response).toBe(true);
         if ('result' in response) {
-          expect((response.result as any).tasks).toHaveLength(1);
+          const result = response.result as { tasks: unknown[] };
+          expect(result.tasks).toHaveLength(1);
         }
       });
 
@@ -369,8 +377,9 @@ describe('A2ARequestHandler', () => {
 
         expect('result' in response).toBe(true);
         if ('result' in response) {
-          expect((response.result as any).tasks).toHaveLength(2);
-          expect((response.result as any).nextPageToken).toBeTruthy();
+          const result = response.result as { tasks: unknown[]; nextPageToken: string };
+          expect(result.tasks).toHaveLength(2);
+          expect(result.nextPageToken).toBeTruthy();
         }
       });
     });
@@ -396,7 +405,8 @@ describe('A2ARequestHandler', () => {
 
         expect('result' in response).toBe(true);
         if ('result' in response) {
-          expect((response.result as any).status.state).toBe('canceled');
+          const result = response.result as { status: { state: string } };
+          expect(result.status.state).toBe('canceled');
         }
       });
 
@@ -593,7 +603,7 @@ describe('A2ARequestHandler', () => {
       }, 50);
 
       // Try to get events with a timeout
-      const timeout = setTimeout(() => generator.return(), 200);
+      const timeout = setTimeout(() => generator.return(undefined), 200);
 
       for await (const event of generator) {
         events.push(event);

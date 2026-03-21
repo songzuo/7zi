@@ -230,7 +230,7 @@ describe('array', () => {
 
     it('should not include keys that do not exist', () => {
       const obj = { a: 1, b: 2 };
-      const result = pick(obj, ['a', 'c', 'd']);
+      const result = pick(obj, ['a', 'c', 'd'] as any);
 
       expect(result).toEqual({ a: 1 });
     });
@@ -273,14 +273,14 @@ describe('array', () => {
     });
 
     it('should handle empty object', () => {
-      const result = omit({}, ['a', 'b']);
+      const result = omit({} as any, ['a', 'b']);
 
       expect(result).toEqual({});
     });
 
     it('should handle keys that do not exist', () => {
       const obj = { a: 1, b: 2 };
-      const result = omit(obj, ['c', 'd']);
+      const result = omit(obj, ['c', 'd'] as any);
 
       expect(result).toEqual(obj);
     });

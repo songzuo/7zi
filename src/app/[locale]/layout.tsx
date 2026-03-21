@@ -49,6 +49,7 @@ import { Analytics } from '@/components/Analytics';
 import { Footer } from '@/components/Footer';
 import { Navigation } from '@/components/Navigation';
 import { StructuredData } from '@/components/SEO';
+import { PerformanceOptimizer } from '@/components/PerformanceOptimizer';
 import type { Metadata } from 'next';
 import '@/app/globals.css';
 
@@ -195,6 +196,18 @@ export default async function RootLayout({
         <link rel="alternate" hrefLang="en-US" href={`${baseUrl}/en`} />
         <link rel="alternate" hrefLang="x-default" href={`${baseUrl}/zh`} />
         
+        {/* DNS 预获取 - 加速外部资源连接 */}
+        <link rel="dns-prefetch" href="//github.com" />
+        <link rel="dns-prefetch" href="//avatars.githubusercontent.com" />
+        
+        {/* 预连接 - 提前建立网络连接 */}
+        <link rel="preconnect" href="https://github.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://avatars.githubusercontent.com" crossOrigin="anonymous" />
+        
+        {/* 资源预加载提示 - LCP 优化 */}
+        <link rel="preload" href="/og-image.png" as="image" fetchPriority="high" />
+        <link rel="preload" href="/favicon.ico" as="image" />
+        
         {/* 结构化数据 */}
         <StructuredData 
           locale={locale as 'zh' | 'en'}
@@ -204,6 +217,13 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiassed`}
       >
+        {/* Performance Optimization - Initialize Web Vitals monitoring & optimizations */}
+        <PerformanceOptimizer
+          debug={process.env.NODE_ENV === 'development'}
+          preloadCritical={true}
+          sampleRate={1.0}
+        />
+        
         <Navigation />
         <Analytics />
         <NextIntlClientProvider messages={messages}>

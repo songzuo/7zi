@@ -29,6 +29,7 @@ import {
 import ToggleSwitch from './ToggleSwitch';
 import SectionCard from './SectionCard';
 import AvatarUpload from './AvatarUpload';
+import { NotificationPreferences as NewNotificationPreferences } from '@/components/settings/NotificationPreferences';
 
 // ============================================================================
 // Navigation Items
@@ -510,69 +511,7 @@ export function UserSettingsPage({ className = '' }: UserSettingsPageProps) {
 
             {/* Notifications Section */}
             <section id="notifications" className={`${activeSection !== 'notifications' ? 'hidden lg:block' : ''}`}>
-              <SectionCard title="通知偏好" icon="🔔">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between py-3">
-                    <div>
-                      <h4 className="font-medium text-zinc-900 dark:text-white">邮件通知</h4>
-                      <p className="text-sm text-zinc-500 dark:text-zinc-400">接收重要更新和提醒邮件</p>
-                    </div>
-                    <ToggleSwitch
-                      checked={notifications.emailNotifications}
-                      onChange={() => handleNotificationChange('emailNotifications')}
-                      label="邮件通知"
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between py-3 border-t border-zinc-200 dark:border-zinc-700">
-                    <div>
-                      <h4 className="font-medium text-zinc-900 dark:text-white">推送通知</h4>
-                      <p className="text-sm text-zinc-500 dark:text-zinc-400">浏览器推送通知</p>
-                    </div>
-                    <ToggleSwitch
-                      checked={notifications.pushNotifications}
-                      onChange={() => handleNotificationChange('pushNotifications')}
-                      label="推送通知"
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between py-3 border-t border-zinc-200 dark:border-zinc-700">
-                    <div>
-                      <h4 className="font-medium text-zinc-900 dark:text-white">营销邮件</h4>
-                      <p className="text-sm text-zinc-500 dark:text-zinc-400">接收产品更新和优惠信息</p>
-                    </div>
-                    <ToggleSwitch
-                      checked={notifications.marketingEmails}
-                      onChange={() => handleNotificationChange('marketingEmails')}
-                      label="营销邮件"
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between py-3 border-t border-zinc-200 dark:border-zinc-700">
-                    <div>
-                      <h4 className="font-medium text-zinc-900 dark:text-white">每周摘要</h4>
-                      <p className="text-sm text-zinc-500 dark:text-zinc-400">每周活动汇总邮件</p>
-                    </div>
-                    <ToggleSwitch
-                      checked={notifications.weeklyDigest}
-                      onChange={() => handleNotificationChange('weeklyDigest')}
-                      label="每周摘要"
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between py-3 border-t border-zinc-200 dark:border-zinc-700">
-                    <div>
-                      <h4 className="font-medium text-zinc-900 dark:text-white">@提及通知</h4>
-                      <p className="text-sm text-zinc-500 dark:text-zinc-400">当有人@您时收到通知</p>
-                    </div>
-                    <ToggleSwitch
-                      checked={notifications.mentionNotifications}
-                      onChange={() => handleNotificationChange('mentionNotifications')}
-                      label="@提及通知"
-                    />
-                  </div>
-                </div>
-              </SectionCard>
+              <NewNotificationPreferences userId={profile.email || 'demo-user'} />
             </section>
 
             {/* Privacy Section */}

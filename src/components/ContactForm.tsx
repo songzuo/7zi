@@ -63,8 +63,8 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
 
     if (!formData.email.trim()) {
       newErrors.email = locale === 'zh' ? "请输入您的邮箱" : "Please enter your email";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = locale === 'zh' ? "请输入有效的邮箱地址" : "Please enter a valid email address";
+    } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.email)) {
+      newErrors.email = locale === 'zh' ? "邮箱格式不正确" : "Invalid email format";
     }
 
     if (!formData.message.trim()) {
@@ -223,7 +223,7 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
           htmlFor="company"
           className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
         >
-          {locale === 'zh' ? '公司（可选）' : 'Company (Optional)'}
+          {t('company')}
         </label>
         <input
           type="text"

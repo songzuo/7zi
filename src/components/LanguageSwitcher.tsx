@@ -4,6 +4,7 @@ import React from 'react';
 import { useRouter, usePathname } from '@/i18n/routing';
 import { useLocale } from 'next-intl';
 import { locales, type Locale } from '@/i18n/config';
+import { useUserPreferences } from '@/lib/user-preferences';
 
 const languageNames: Record<Locale, { name: string; flag: string }> = {
   zh: { name: '中文', flag: '🇨🇳' },
@@ -18,13 +19,11 @@ export function LanguageSwitcher({ className = '' }: LanguageSwitcherProps) {
   const router = useRouter();
   const pathname = usePathname();
   const currentLocale = useLocale() as Locale;
+  const { updateLocale } = useUserPreferences();
 
   const switchLocale = (newLocale: Locale) => {
-    // 使用 router.replace 切换语言，保持当前路径
-    router.replace(
-      pathname,
-      { locale: newLocale }
-    );
+    // Save preference and navigate
+    updateLocale(newLocale);
   };
 
   return (
@@ -46,7 +45,7 @@ export function LanguageSwitcher({ className = '' }: LanguageSwitcherProps) {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
-      
+
       {/* Dropdown */}
       <div className="absolute right-0 top-full mt-2 py-2 w-40 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
         {locales.map((locale) => (
@@ -76,13 +75,11 @@ export function LanguageSwitcherCompact({ className = '' }: LanguageSwitcherProp
   const router = useRouter();
   const pathname = usePathname();
   const currentLocale = useLocale() as Locale;
+  const { updateLocale } = useUserPreferences();
 
   const toggleLocale = () => {
     const newLocale = currentLocale === 'zh' ? 'en' : 'zh';
-    router.replace(
-      pathname,
-      { locale: newLocale }
-    );
+    updateLocale(newLocale);
   };
 
   return (

@@ -333,37 +333,25 @@ export async function getWalletWithRecentTransactions(
 }
 
 /**
- * 获取多个钱包 - 优化N+1查询
+ * 获取多个钱包 - OPTIMIZED: Batch query first, then apply cache
  */
 export async function getWalletsByAgentIds(agentIds: string[]): Promise<Map<string, AgentWallet>> {
   if (agentIds.length === 0) return new Map();
 
-  // 尝试从缓存获取
   const wallets = new Map<string, AgentWallet>();
-  const uncachedIds: string[] = [];
 
-  for (const agentId of agentIds) {
-    const cachedWallet = await getWalletByAgentId(agentId);
-    if (cachedWallet) {
-      wallets.set(agentId, cachedWallet);
-    } else {
-      uncachedIds.push(agentId);
-    }
+  // First, try batch query for all IDs (better than N individual queries)
+  const db = await getDatabaseAsync();
+  const placeholders = agentIds.map(() => '?').join(',');
+  const stmt = db.prepare(`SELECT * FROM agent_wallets WHERE agent_id IN (${placeholders})`);
+  const rows = stmt.all(...agentIds) as unknown as Record<string, unknown>[];
+
+  for (const row of rows) {
+    const wallet = mapRowToWallet(row);
+    wallets.set(wallet.agentId, wallet);
   }
 
-  // 批量查询未缓存的钱包
-  if (uncachedIds.length > 0) {
-    const db = await getDatabaseAsync();
-    const placeholders = uncachedIds.map(() => '?').join(',');
-    const stmt = db.prepare(`SELECT * FROM agent_wallets WHERE agent_id IN (${placeholders})`);
-    const rows = stmt.all(...uncachedIds) as unknown as Record<string, unknown>[];
-
-    for (const row of rows) {
-      const wallet = mapRowToWallet(row);
-      wallets.set(wallet.agentId, wallet);
-    }
-  }
-
+  // Note: Cache layer can be applied on top if needed using memoization
   return wallets;
 }
 

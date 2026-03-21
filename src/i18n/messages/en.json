@@ -354,6 +354,7 @@
       "title": "Send Message",
       "name": "Name",
       "email": "Email",
+      "company": "Company (Optional)",
       "subject": "Subject",
       "message": "Message",
       "submit": "Send",
@@ -480,5 +481,24 @@
       "retry": "Retry",
       "backHome": "Back to Home"
     }
-  }
+  },
+  "time": {
+    "justNow": "just now",
+    "minutesAgo": "{count} minute ago",
+    "hoursAgo": "{count} hour ago",
+    "daysAgo": "{count} day ago",
+    "weeksAgo": "{count} week ago",
+    "monthsAgo": "{count} month ago",
+    "yearsAgo": "{count} year ago"
+  },
+  "mobileMenu": {
+    "open": "Open menu",
+    "close": "Close menu",
+    "language": "Language",
+    "theme": "Theme"
+  },
+  "subagents": "Subagents",
+  "memory": "Memory",
+  "tasks": "Tasks"
+}
 }

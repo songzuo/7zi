@@ -189,6 +189,11 @@ export class InMemoryTaskStore implements TaskStore {
    * Cleanup old completed/failed/canceled tasks
    */
   cleanupOldTasks(maxAgeMs: number = 24 * 60 * 60 * 1000): number {
+    // Don't clean any tasks if maxAge is negative
+    if (maxAgeMs < 0) {
+      return 0;
+    }
+
     const now = Date.now();
     let cleaned = 0;
 
@@ -196,7 +201,8 @@ export class InMemoryTaskStore implements TaskStore {
       const terminalStates: TaskState[] = ['completed', 'failed', 'canceled', 'rejected'];
       if (terminalStates.includes(task.status.state)) {
         const taskAge = now - new Date(task.status.timestamp).getTime();
-        if (taskAge > maxAgeMs) {
+        // Use >= for maxAge of 0 (clean all), use > otherwise (strictly older than)
+        if (maxAgeMs === 0 ? taskAge >= 0 : taskAge > maxAgeMs) {
           this.deleteTask(taskId);
           cleaned++;
         }

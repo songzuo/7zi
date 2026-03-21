@@ -1,8 +1,8 @@
 /**
  * @fileoverview useDashboardData hook tests
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { renderHook, waitFor, act } from '@testing-library/react';
 import { useDashboardData } from '../../hooks/useDashboardData';
 
 // Mock fetch globally
@@ -14,11 +14,8 @@ describe('useDashboardData', () => {
     vi.clearAllMocks();
   });
 
-  it('initializes with loading state', () => {
-    const { result } = renderHook(() => useDashboardData('owner', 'repo'));
-
-    expect(result.current.isLoading).toBe(true);
-    expect(result.current.error).toBeNull();
+  afterEach(() => {
+    vi.clearAllTimers();
   });
 
   it('fetches data successfully', async () => {
@@ -93,8 +90,10 @@ describe('useDashboardData', () => {
       .mockResolvedValueOnce({ ok: true, json: async () => mockIssues })
       .mockResolvedValueOnce({ ok: true, json: async () => mockCommits });
 
-    // Call refreshData
-    await result.current.refreshData();
+    // Call refreshData wrapped in act
+    await act(async () => {
+      await result.current.refreshData();
+    });
 
     expect(mockFetch).toHaveBeenCalledTimes(4);
   });

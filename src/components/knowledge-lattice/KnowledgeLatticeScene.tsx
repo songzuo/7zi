@@ -2,8 +2,8 @@
 
 import { Suspense, useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Text } from '@react-three/drei';
-import * as THREE from 'three';
+import { OrbitControls, Text, Line } from '@react-three/drei';
+import { Vector3 } from 'three';
 
 interface NodeData {
   id: string;
@@ -50,24 +50,11 @@ function Node({ position, title, category }: { position: [number, number, number
 
 function Edge({ start, end }: { start: [number, number, number]; end: [number, number, number] }) {
   const points = useMemo(() => {
-    return [new THREE.Vector3(...start), new THREE.Vector3(...end)];
+    return [new Vector3(...start), new Vector3(...end)];
   }, [start, end]);
 
-  const positions = new Float32Array(points.flatMap(p => [p.x, p.y, p.z]));
-
   return (
-    <line>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={points.length}
-          array={positions}
-          itemSize={3}
-          args={[positions, 3]}
-        />
-      </bufferGeometry>
-      <lineBasicMaterial color="#6b7280" opacity={0.5} transparent />
-    </line>
+    <Line points={points} color="#6b7280" opacity={0.5} transparent />
   );
 }
 

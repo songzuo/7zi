@@ -7,7 +7,7 @@ import { MultimodalService } from '../multimodal-service';
 import type { ImageUploadOptions, AudioTranscriptionOptions } from '../types';
 
 // Mock providers
-vi.mock('../volcengine-provider', () => ({
+vi.mock('../volcengine-provider', (vi) => ({
   VolcengineProvider: vi.fn().mockImplementation(() => ({
     recognizeImage: vi.fn(),
     transcribeAudio: vi.fn(),
@@ -15,7 +15,7 @@ vi.mock('../volcengine-provider', () => ({
   })),
 }));
 
-vi.mock('../bailian-provider', () => ({
+vi.mock('../bailian-provider', (vi) => ({
   BailianProvider: vi.fn().mockImplementation(() => ({
     recognizeImage: vi.fn(),
     transcribeAudio: vi.fn(),

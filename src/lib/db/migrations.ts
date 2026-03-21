@@ -4,6 +4,8 @@
  */
 
 import { getDatabaseAsync, getDatabaseSize, analyzeDatabase, vacuumDatabase } from './index';
+import { initializeUserPreferencesTable } from './user-preferences';
+import { initializeAuditLogsTable } from './audit-log';
 import { logger } from '../logger';
 
 export interface Migration {
@@ -93,8 +95,9 @@ const MIGRATIONS: Migration[] = [
 
       // Critical indexes for wallet currency queries
       db.exec('CREATE INDEX IF NOT EXISTS idx_agent_wallets_currency ON agent_wallets(currency)');
+      db.exec('CREATE INDEX IF NOT EXISTS idx_wallet_transactions_currency_status ON wallet_transactions(currency, status)');
 
-      logger.info('Migration 3: Added 5 critical indexes', { category: 'db' });
+      logger.info('Migration 3: Added 6 critical indexes', { category: 'db' });
     },
     down: async () => {
       logger.debug('Migration 3 down: Remove critical indexes', { category: 'db' });
@@ -106,11 +109,50 @@ const MIGRATIONS: Migration[] = [
         'idx_roles_name',
         'idx_roles_is_system',
         'idx_agent_wallets_currency',
+        'idx_wallet_transactions_currency_status',
       ];
 
       for (const index of indexes) {
         db.exec(`DROP INDEX IF EXISTS ${index}`);
       }
+    },
+  },
+  {
+    version: 4,
+    name: 'add_user_preferences',
+    up: async () => {
+      logger.info('Migration 4: Adding user preferences table', { category: 'db' });
+      await initializeUserPreferencesTable();
+      logger.info('Migration 4: User preferences table created', { category: 'db' });
+    },
+    down: async () => {
+      logger.debug('Migration 4 down: Remove user preferences table', { category: 'db' });
+      const db = await getDatabaseAsync();
+      db.exec('DROP TABLE IF EXISTS user_preferences');
+      db.exec('DROP INDEX IF EXISTS idx_user_preferences_locale');
+      db.exec('DROP INDEX IF EXISTS idx_user_preferences_theme');
+    },
+  },
+  {
+    version: 5,
+    name: 'add_audit_logs',
+    up: async () => {
+      logger.info('Migration 5: Adding audit logs table', { category: 'db' });
+      await initializeAuditLogsTable();
+      logger.info('Migration 5: Audit logs table created', { category: 'db' });
+    },
+    down: async () => {
+      logger.debug('Migration 5 down: Remove audit logs table', { category: 'db' });
+      const db = await getDatabaseAsync();
+      db.exec('DROP TABLE IF EXISTS audit_logs');
+      db.exec('DROP INDEX IF EXISTS idx_audit_logs_user_id');
+      db.exec('DROP INDEX IF EXISTS idx_audit_logs_action');
+      db.exec('DROP INDEX IF EXISTS idx_audit_logs_entity');
+      db.exec('DROP INDEX IF EXISTS idx_audit_logs_resource');
+      db.exec('DROP INDEX IF EXISTS idx_audit_logs_status');
+      db.exec('DROP INDEX IF EXISTS idx_audit_logs_created_at');
+      db.exec('DROP INDEX IF EXISTS idx_audit_logs_user_created');
+      db.exec('DROP INDEX IF EXISTS idx_audit_logs_action_created');
     },
   },
 ];

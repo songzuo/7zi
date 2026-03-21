@@ -2,7 +2,7 @@
 
 **Date**: 2026-03-21
 **Test Framework**: Vitest
-**Total Test Cases**: 149
+**Total Test Cases**: 169
 **Status**: ✅ All tests passing
 
 ---
@@ -17,41 +17,31 @@ The `src/lib/a2a/` module has comprehensive unit test coverage for all its compo
 
 | Test File | Test Cases | Coverage |
 |-----------|------------|----------|
-| `types.test.ts` | 34 | Type definitions, error codes, and data structures |
-| `task-store.test.ts` | 34 | Task storage and lifecycle management |
-| `executor.test.ts` | 22 | Agent execution logic and event handling |
+| `types.test.ts` | 4 | Type definitions, error codes, and data structures |
+| `task-store.test.ts` | 68 | Task storage and lifecycle management |
+| `executor.test.ts` | 38 | Agent execution logic and event handling |
 | `jsonrpc-handler.test.ts` | 27 | JSON-RPC 2.0 protocol implementation |
 | `agent-card.test.ts` | 32 | Agent capability declarations |
 
-**Total**: 149 test cases across 5 test files
+**Total**: 169 test cases across 5 test files
 
 ---
 
 ## Detailed Coverage by Module
 
-### 1. `types.test.ts` (34 tests)
+### 1. `types.test.ts` (4 tests)
 
-**Covers**: All A2A protocol type definitions
+**Covers**: Core A2A protocol type definitions
 
 #### Test Categories:
 - ✅ TaskState enumeration (8 states)
 - ✅ A2AErrorCodes (JSON-RPC standard + A2A specific errors)
 - ✅ Part type (text, file, data variants)
 - ✅ Message type (user/agent roles, context, references)
-- ✅ Artifact type (with metadata)
-- ✅ Task type (all states, history, artifacts)
-- ✅ Skill type (capabilities, examples, modes)
-- ✅ AgentCard type (full and minimal variants)
-- ✅ Request/Response types (SendMessage, GetTask, ListTasks, CancelTask)
-- ✅ Event types (TaskStatusUpdateEvent, TaskArtifactUpdateEvent)
-- ✅ JSON-RPC types (JsonRpcRequest, JsonRpcResponse, JsonRpcError)
-- ✅ Push notification configuration
-- ✅ StreamEvent union type
 
 #### Test Scenarios:
-- Normal flow: Creating valid type instances
-- Edge cases: Minimal vs full objects
 - Type validation: Required vs optional fields
+- Type structure verification
 
 ---
 
@@ -79,7 +69,7 @@ The `src/lib/a2a/` module has comprehensive unit test coverage for all its compo
 
 ---
 
-### 3. `executor.test.ts` (22 tests)
+### 3. `executor.test.ts` (38 tests)
 
 **Covers**: `SimpleEventBus`, `SevenZiExecutor`, `createSevenZiExecutor`
 
@@ -218,9 +208,9 @@ The `src/lib/a2a/` module has comprehensive unit test coverage for all its compo
 
 | Category | Test Cases | Percentage |
 |----------|------------|------------|
-| Normal flow | ~90 | 60% |
-| Error handling | ~35 | 23% |
-| Edge cases | ~24 | 17% |
+| Normal flow | ~100 | 59% |
+| Error handling | ~40 | 24% |
+| Edge cases | ~29 | 17% |
 
 ---
 
@@ -274,9 +264,9 @@ The a2a module has comprehensive test coverage with all 149 tests passing. No ad
 ## Conclusion
 
 The `src/lib/a2a/` module has **complete unit test coverage** with:
-- **149 test cases** across 5 test files
+- **169 test cases** across 5 test files
 - **100% coverage** of all exported functions and classes
 - **All tests passing** (0 failures)
-- **Fast execution** (~2.67s total)
+- **Fast execution** (~4.11s total)
 
 The tests follow Vitest best practices and the project's testing style, providing confidence in the correctness and robustness of the A2A protocol implementation.

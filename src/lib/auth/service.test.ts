@@ -32,6 +32,7 @@ import {
   validatePasswordResetToken,
   deletePasswordResetToken,
 } from './repository';
+import { UserRole, UserStatus } from './types';
 import { logger } from '@/lib/logger';
 
 // ============================================================================
@@ -68,22 +69,28 @@ vi.mock('@/lib/logger', () => ({
 // Test Data
 // ============================================================================
 
-const mockUser = {
+const mockUser: import('./types').User = {
   id: 'user1',
   email: 'test@example.com',
   password: 'hashedPassword',
   name: 'Test User',
-  role: 'member',
-  status: 'active',
+  role: UserRole.MEMBER,
+  roles: [],
+  status: UserStatus.ACTIVE,
+  permissions: [],
+  metadata: {},
   createdAt: new Date(),
   updatedAt: new Date(),
 };
 
 const mockToken = {
+  id: 'token1',
+  userId: 'user1',
   token: 'jwt-token',
   refreshToken: 'refresh-token',
   expiresAt: new Date(Date.now() + 3600000),
   refreshExpiresAt: new Date(Date.now() + 604800000),
+  createdAt: new Date(),
 };
 
 // ============================================================================
@@ -111,10 +118,12 @@ describe('Auth Service - Login', () => {
     });
 
     expect(result.success).toBe(true);
-    expect(result.user).toBeDefined();
-    expect(result.user?.email).toBe('test@example.com');
-    expect(result.token).toBeDefined();
-    expect(result.refreshToken).toBeDefined();
+    if (result.success) {
+      expect(result.user).toBeDefined();
+      expect(result.user?.email).toBe('test@example.com');
+      expect(result.token).toBeDefined();
+      expect(result.refreshToken).toBeDefined();
+    }
     expect(getUserByEmail).toHaveBeenCalledWith('test@example.com');
     expect(updateLastLogin).toHaveBeenCalledWith('user1');
   });
@@ -128,7 +137,9 @@ describe('Auth Service - Login', () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe('Invalid email or password');
+    if (!result.success) {
+      expect(result.error).toBe('Invalid email or password');
+    }
   });
 
   it('should fail with invalid password', async () => {
@@ -140,11 +151,13 @@ describe('Auth Service - Login', () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe('Invalid email or password');
+    if (!result.success) {
+      expect(result.error).toBe('Invalid email or password');
+    }
   });
 
   it('should fail with inactive user', async () => {
-    const inactiveUser = { ...mockUser, status: 'inactive' as const };
+    const inactiveUser = { ...mockUser, status: UserStatus.INACTIVE };
     vi.mocked(getUserByEmail).mockResolvedValue(inactiveUser);
 
     const result = await loginUser({
@@ -153,7 +166,9 @@ describe('Auth Service - Login', () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe('Account is not active');
+    if (!result.success) {
+      expect(result.error).toBe('Account is not active');
+    }
   });
 
   it('should handle login errors', async () => {
@@ -165,7 +180,9 @@ describe('Auth Service - Login', () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe('Login failed');
+    if (!result.success) {
+      expect(result.error).toBe('Login failed');
+    }
     expect(logger.error).toHaveBeenCalledWith(
       'Login failed',
       expect.any(Error),
@@ -219,7 +236,7 @@ describe('Auth Service - Registration', () => {
       email: 'newuser@example.com',
       password: 'StrongP@ss1',
       name: 'New User',
-      role: 'member',
+      role: UserRole.MEMBER,
     });
 
     expect(result.success).toBe(true);
@@ -230,7 +247,7 @@ describe('Auth Service - Registration', () => {
       email: 'newuser@example.com',
       password: 'StrongP@ss1',
       name: 'New User',
-      role: 'member',
+      role: UserRole.MEMBER,
     });
   });
 
@@ -241,7 +258,7 @@ describe('Auth Service - Registration', () => {
       email: 'test@example.com',
       password: 'StrongP@ss1',
       name: 'New User',
-      role: 'member',
+      role: UserRole.MEMBER,
     });
 
     expect(result.success).toBe(false);
@@ -255,7 +272,7 @@ describe('Auth Service - Registration', () => {
       email: 'newuser@example.com',
       password: 'short',
       name: 'New User',
-      role: 'member',
+      role: UserRole.MEMBER,
     });
 
     expect(result.success).toBe(false);
@@ -269,7 +286,7 @@ describe('Auth Service - Registration', () => {
       email: 'newuser@example.com',
       password: 'nouppercase1',
       name: 'New User',
-      role: 'member',
+      role: UserRole.MEMBER,
     });
 
     expect(result.success).toBe(false);
@@ -283,7 +300,7 @@ describe('Auth Service - Registration', () => {
       email: 'newuser@example.com',
       password: 'NOLOWER1',
       name: 'New User',
-      role: 'member',
+      role: UserRole.MEMBER,
     });
 
     expect(result.success).toBe(false);
@@ -297,7 +314,7 @@ describe('Auth Service - Registration', () => {
       email: 'newuser@example.com',
       password: 'NoNumbers',
       name: 'New User',
-      role: 'member',
+      role: UserRole.MEMBER,
     });
 
     expect(result.success).toBe(false);
@@ -311,11 +328,14 @@ describe('Auth Service - Registration', () => {
       email: 'newuser@example.com',
       password: 'StrongP@ss1',
       name: 'New User',
-      role: 'member',
+      role: UserRole.MEMBER,
     });
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe('Registration failed');
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error).toBe('Registration failed');
+    }
     expect(logger.error).toHaveBeenCalledWith(
       'Registration failed',
       expect.any(Error),
@@ -326,7 +346,7 @@ describe('Auth Service - Registration', () => {
 
 describe('Auth Service - Logout', () => {
   it('should logout successfully', async () => {
-    vi.mocked(revokeUserToken).mockResolvedValue(undefined);
+    vi.mocked(revokeUserToken).mockResolvedValue(true);
 
     const result = await logoutUser('valid-token');
 
@@ -340,7 +360,9 @@ describe('Auth Service - Logout', () => {
     const result = await logoutUser('valid-token');
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe('Logout failed');
+    if (!result.success) {
+      expect(result.error).toBe('Logout failed');
+    }
     expect(logger.error).toHaveBeenCalledWith(
       'Logout failed',
       expect.any(Error),
@@ -373,15 +395,19 @@ describe('Auth Service - Refresh Token', () => {
     });
 
     expect(result.success).toBe(true);
-    expect(result.token).toBeDefined();
-    expect(result.refreshToken).toBeDefined();
+    if (result.success) {
+      expect(result.token).toBeDefined();
+      expect(result.refreshToken).toBeDefined();
+    }
   });
 
   it('should fail with missing refresh token', async () => {
-    const result = await refreshToken({});
+    const result = await refreshToken({ refreshToken: '' });
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe('REFRESH_TOKEN_REQUIRED');
+    if (!result.success) {
+      expect(result.error).toBe('REFRESH_TOKEN_REQUIRED');
+    }
   });
 
   it('should fail with invalid refresh token', async () => {
@@ -392,12 +418,14 @@ describe('Auth Service - Refresh Token', () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe('INVALID_REFRESH_TOKEN');
+    if (!result.success) {
+      expect(result.error).toBe('INVALID_REFRESH_TOKEN');
+    }
   });
 
   it('should fail with inactive user', async () => {
     const tempResult = {
-      user: { ...mockUser, status: 'inactive' as const },
+      user: { ...mockUser, status: UserStatus.INACTIVE },
       token: { refreshToken: 'valid-token', refreshExpiresAt: new Date(Date.now() + 604800000) },
     };
 
@@ -408,7 +436,9 @@ describe('Auth Service - Refresh Token', () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe('USER_INACTIVE');
+    if (!result.success) {
+      expect(result.error).toBe('USER_INACTIVE');
+    }
   });
 
   it('should fail with expired refresh token', async () => {
@@ -424,14 +454,16 @@ describe('Auth Service - Refresh Token', () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe('REFRESH_TOKEN_EXPIRED');
+    if (!result.success) {
+      expect(result.error).toBe('REFRESH_TOKEN_EXPIRED');
+    }
   });
 });
 
 describe('Auth Service - Password Change', () => {
   it('should change password successfully', async () => {
     vi.mocked(getUserById).mockResolvedValue(mockUser);
-    vi.mocked(updateUser).mockResolvedValue(undefined);
+    vi.mocked(updateUser).mockResolvedValue(mockUser);
     vi.mocked(revokeAllUserTokens).mockResolvedValue(undefined);
 
     const result = await changePassword('user1', 'correctPassword', 'NewP@ss1');
@@ -491,7 +523,7 @@ describe('Auth Service - Password Reset', () => {
 
   it('should reset password successfully with valid token', async () => {
     vi.mocked(validatePasswordResetToken).mockResolvedValue(mockUser);
-    vi.mocked(updateUser).mockResolvedValue(undefined);
+    vi.mocked(updateUser).mockResolvedValue(mockUser);
     vi.mocked(deletePasswordResetToken).mockResolvedValue(undefined);
     vi.mocked(revokeAllUserTokens).mockResolvedValue(undefined);
 

@@ -465,7 +465,7 @@ export default async function HomePage({ params }: { params: Params }) {
 
                 href="/about"
 
-                className="group relative inline-flex items-center justify-center gap-2 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-6 sm:px-8 py-4 rounded-full font-semibold text-lg overflow-hidden hover:shadow-xl hover:shadow-cyan-500/25 hover:-translate-y-1 transition-all duration-300"
+                className="group relative inline-flex items-center justify-center gap-2 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-6 sm:px-8 py-4 rounded-full font-semibold text-lg overflow-hidden hover:shadow-xl hover:shadow-cyan-500/25 hover:-translate-y-1 transition-all duration-300 min-h-[48px] min-w-[48px] touch-active"
 
               >
 

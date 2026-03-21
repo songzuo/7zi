@@ -22,8 +22,10 @@ import {
   updateAgentStatus,
   initializeAgentTables,
   validateAgentApiKey,
+  mapRowToAgent,
 } from '../agents/repository';
 import { createWallet } from './wallet-repository';
+import { getDatabaseAsync } from '../db';
 
 /**
  * 获取 JWT 密钥
@@ -91,37 +93,48 @@ export async function registerAgent(request: AgentRegisterRequest): Promise<{ ag
 }
 
 /**
- * 智能体认证
+ * 智能体认证 - OPTIMIZED: Single query instead of N+1
  */
 export async function authenticateAgent(request: AgentAuthRequest): Promise<{ agent: Agent; token: AgentToken } | null> {
+  const db = await getDatabaseAsync();
   await initializeAgentTables();
 
-  // 查询所有智能体（需要根据 API Key 验证）
-  const allAgents = await getAllAgents();
   const hashedApiKey = hashApiKey(request.apiKey);
 
-  // 查找匹配的智能体（通过验证 API Key）
-  for (const agent of allAgents) {
-    const isValid = await validateAgentApiKey(agent.id, hashedApiKey);
-    if (isValid) {
-      // 检查智能体状态
-      if (agent.status === AgentStatus.INACTIVE || agent.status === AgentStatus.OFFLINE) {
-        return null;
-      }
+  // Single query with index lookup - avoids N+1 problem
+  const stmt = db.prepare(`
+    SELECT * FROM agents
+    WHERE api_key = ? AND status IN (?, ?, ?, ?)
+  `);
 
-      // 生成 JWT Token
-      const token = await generateAgentToken(agent);
+  const row = stmt.get(
+    hashedApiKey,
+    AgentStatus.ACTIVE,
+    AgentStatus.BUSY,
+    AgentStatus.INACTIVE,
+    AgentStatus.OFFLINE
+  ) as Record<string, unknown> | undefined;
 
-      // 更新状态为活跃
-      if (agent.status !== AgentStatus.ACTIVE) {
-        await updateAgentStatus(agent.id, AgentStatus.ACTIVE);
-      }
-
-      return { agent, token };
-    }
+  if (!row) {
+    return null;
   }
 
-  return null;
+  const agent = mapRowToAgent(row);
+
+  // Check if agent is inactive or offline
+  if (agent.status === AgentStatus.INACTIVE || agent.status === AgentStatus.OFFLINE) {
+    return null;
+  }
+
+  // Generate JWT Token
+  const token = await generateAgentToken(agent);
+
+  // Update status to active
+  if (agent.status !== AgentStatus.ACTIVE) {
+    await updateAgentStatus(agent.id, AgentStatus.ACTIVE);
+  }
+
+  return { agent, token };
 }
 
 /**

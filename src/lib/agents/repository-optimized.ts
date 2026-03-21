@@ -280,38 +280,18 @@ export async function getAllAgents(options?: {
 }
 
 /**
- * 批量获取智能体 - 优化N+1查询
+ * 批量获取智能体 - OPTIMIZED: Batch query first, then apply cache
  */
 export async function getAgentsByIds(ids: string[]): Promise<Agent[]> {
   if (ids.length === 0) return [];
 
-  // 尝试从缓存获取
-  const cached = new Map<string, Agent | null>();
-  const uncachedIds: string[] = [];
+  // Single batch query with IN clause - avoids N individual queries
+  const db = await getDatabaseAsync();
+  const placeholders = ids.map(() => '?').join(',');
+  const stmt = db.prepare(`SELECT * FROM agents WHERE id IN (${placeholders})`);
+  const rows = stmt.all(...ids) as unknown as Record<string, unknown>[];
 
-  for (const id of ids) {
-    const cachedAgent = await getAgentById(id);
-    if (cachedAgent) {
-      cached.set(id, cachedAgent);
-    } else {
-      uncachedIds.push(id);
-    }
-  }
-
-  // 批量查询未缓存的智能体
-  if (uncachedIds.length > 0) {
-    const db = await getDatabaseAsync();
-    const placeholders = uncachedIds.map(() => '?').join(',');
-    const stmt = db.prepare(`SELECT * FROM agents WHERE id IN (${placeholders})`);
-    const rows = stmt.all(...uncachedIds) as unknown as Record<string, unknown>[];
-
-    for (const row of rows) {
-      const agent = mapRowToAgent(row);
-      cached.set(agent.id, agent);
-    }
-  }
-
-  return Array.from(cached.values()).filter((a): a is Agent => a !== null);
+  return rows.map(mapRowToAgent);
 }
 
 /**

@@ -130,7 +130,7 @@ export function ErrorBoundary({
 
     // 开发环境同时输出到控制台
     if (process.env.NODE_ENV === 'development') {
-      console.group('🚨 Error Boundary 捕获到错误');
+      console.error('🚨 Error Boundary 捕获到错误');
       console.error('错误类型:', errorType);
       console.error('错误信息:', error.message);
       console.error('错误堆栈:', error.stack);
@@ -138,7 +138,6 @@ export function ErrorBoundary({
         console.error('错误摘要:', error.digest);
       }
       console.error('重试次数:', retryCount);
-      console.groupEnd();
     }
   }, [error, errorType, retryCount, hasRecovered]);
 

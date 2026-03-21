@@ -21,6 +21,15 @@ describe('v3 Migration - Critical Indexes', () => {
     it('should run v3 migration and create all critical indexes', async () => {
       const db = await getDatabaseAsync();
 
+      // Initialize migrations table
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS migrations (
+          key TEXT PRIMARY KEY,
+          value TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+      `);
+
       // Create necessary tables for v3 migration
       db.exec(`
         CREATE TABLE IF NOT EXISTS agents (
@@ -113,6 +122,15 @@ describe('v3 Migration - Critical Indexes', () => {
     it('should create all v3 critical indexes', async () => {
       const db = await getDatabaseAsync();
 
+      // Initialize migrations table
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS migrations (
+          key TEXT PRIMARY KEY,
+          value TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+      `);
+
       // Create necessary tables for v3 migration
       db.exec(`
         CREATE TABLE IF NOT EXISTS agents (
@@ -202,6 +220,15 @@ describe('v3 Migration - Critical Indexes', () => {
 
     it('should preserve v2 indexes after v3 migration', async () => {
       const db = await getDatabaseAsync();
+
+      // Initialize migrations table
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS migrations (
+          key TEXT PRIMARY KEY,
+          value TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+      `);
 
       // Create necessary tables
       db.exec(`

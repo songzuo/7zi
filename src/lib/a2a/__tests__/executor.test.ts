@@ -399,4 +399,487 @@ describe('SevenZiExecutor', () => {
       expect(executor).toBeInstanceOf(SevenZiExecutor);
     });
   });
+
+  describe('error handling', () => {
+    it('should handle empty message text', async () => {
+      const context: RequestContext = {
+        taskId: 'task-1',
+        contextId: 'ctx-1',
+        userMessage: {
+          kind: 'message',
+          messageId: 'msg-1',
+          role: 'user',
+          parts: [{ kind: 'text', text: '' }],
+          createdAt: new Date().toISOString(),
+        },
+      };
+
+      await executor.execute(context, eventBus);
+
+      const events = eventBus.getEvents();
+      const artifactUpdate = events.find(e => e.kind === 'artifact-update');
+
+      expect(artifactUpdate).toBeDefined();
+      if (artifactUpdate && 'artifact' in artifactUpdate) {
+        expect(artifactUpdate.artifact.parts[0].text).toContain('');
+      }
+    });
+
+    it('should handle messages with non-text parts', async () => {
+      const context: RequestContext = {
+        taskId: 'task-1',
+        contextId: 'ctx-1',
+        userMessage: {
+          kind: 'message',
+          messageId: 'msg-1',
+          role: 'user',
+          parts: [
+            { kind: 'file', file: { name: 'test.txt', mimeType: 'text/plain' } },
+          ],
+          createdAt: new Date().toISOString(),
+        },
+      };
+
+      await executor.execute(context, eventBus);
+
+      const events = eventBus.getEvents();
+      const statusUpdate = events.find(e => e.kind === 'status-update' && e.status.state === 'completed');
+
+      expect(statusUpdate).toBeDefined();
+    });
+
+    it('should handle messages with undefined text parts', async () => {
+      const context: RequestContext = {
+        taskId: 'task-1',
+        contextId: 'ctx-1',
+        userMessage: {
+          kind: 'message',
+          messageId: 'msg-1',
+          role: 'user',
+          parts: [
+            { kind: 'text' as const },
+            { kind: 'text', text: undefined },
+          ],
+          createdAt: new Date().toISOString(),
+        },
+      };
+
+      await executor.execute(context, eventBus);
+
+      const events = eventBus.getEvents();
+      const statusUpdate = events.find(e => e.kind === 'status-update' && e.status.state === 'completed');
+
+      expect(statusUpdate).toBeDefined();
+    });
+
+    it('should handle missing text content gracefully', async () => {
+      const context: RequestContext = {
+        taskId: 'task-1',
+        contextId: 'ctx-1',
+        userMessage: {
+          kind: 'message',
+          messageId: 'msg-1',
+          role: 'user',
+          parts: [],
+          createdAt: new Date().toISOString(),
+        },
+      };
+
+      await executor.execute(context, eventBus);
+
+      const events = eventBus.getEvents();
+      const statusUpdate = events.find(e => e.kind === 'status-update' && e.status.state === 'completed');
+
+      expect(statusUpdate).toBeDefined();
+    });
+  });
+
+  describe('edge cases', () => {
+    it('should handle very long messages', async () => {
+      const longText = 'A'.repeat(10000);
+      const context: RequestContext = {
+        taskId: 'task-1',
+        contextId: 'ctx-1',
+        userMessage: {
+          kind: 'message',
+          messageId: 'msg-1',
+          role: 'user',
+          parts: [{ kind: 'text', text: longText }],
+          createdAt: new Date().toISOString(),
+        },
+      };
+
+      await executor.execute(context, eventBus);
+
+      const events = eventBus.getEvents();
+      const artifactUpdate = events.find(e => e.kind === 'artifact-update');
+
+      expect(artifactUpdate).toBeDefined();
+      if (artifactUpdate && 'artifact' in artifactUpdate) {
+        expect(artifactUpdate.artifact.parts[0].text).toContain(longText.substring(0, 50));
+      }
+    });
+
+    it('should handle special characters in messages', async () => {
+      const specialText = 'Hello \n\r\t <script>alert("xss")</script> 🚀';
+      const context: RequestContext = {
+        taskId: 'task-1',
+        contextId: 'ctx-1',
+        userMessage: {
+          kind: 'message',
+          messageId: 'msg-1',
+          role: 'user',
+          parts: [{ kind: 'text', text: specialText }],
+          createdAt: new Date().toISOString(),
+        },
+      };
+
+      await executor.execute(context, eventBus);
+
+      const events = eventBus.getEvents();
+      const artifactUpdate = events.find(e => e.kind === 'artifact-update');
+
+      expect(artifactUpdate).toBeDefined();
+    });
+
+    it('should handle messages with metadata', async () => {
+      const context: RequestContext = {
+        taskId: 'task-1',
+        contextId: 'ctx-1',
+        userMessage: {
+          kind: 'message',
+          messageId: 'msg-1',
+          role: 'user',
+          parts: [{ kind: 'text', text: 'Hello' }],
+          createdAt: new Date().toISOString(),
+        },
+        metadata: {
+          userId: 'user-123',
+          sessionId: 'session-456',
+          customField: 'custom-value',
+        },
+      };
+
+      await executor.execute(context, eventBus);
+
+      const events = eventBus.getEvents();
+      const task = events[0] as Task;
+
+      expect(task.id).toBe('task-1');
+    });
+  });
+
+  describe('state transitions', () => {
+    it('should transition through all states: submitted -> working -> completed', async () => {
+      const context: RequestContext = {
+        taskId: 'task-1',
+        contextId: 'ctx-1',
+        userMessage: {
+          kind: 'message',
+          messageId: 'msg-1',
+          role: 'user',
+          parts: [{ kind: 'text', text: 'Hello' }],
+          createdAt: new Date().toISOString(),
+        },
+      };
+
+      await executor.execute(context, eventBus);
+
+      const events = eventBus.getEvents();
+      const statusUpdates = events.filter(e => e.kind === 'status-update') as TaskStatusUpdateEvent[];
+
+      expect(statusUpdates.length).toBeGreaterThanOrEqual(2);
+
+      const states = statusUpdates.map(s => s.status.state);
+      // The initial 'submitted' state is set when creating the task (Task object)
+      // Status-update events are published for 'working' and 'completed' states
+      expect(states).toContain('working');
+      expect(states).toContain('completed');
+    });
+
+    it('should transition to canceled state when canceled', async () => {
+      const context: RequestContext = {
+        taskId: 'task-1',
+        contextId: 'ctx-1',
+        userMessage: {
+          kind: 'message',
+          messageId: 'msg-1',
+          role: 'user',
+          parts: [{ kind: 'text', text: 'Hello' }],
+          createdAt: new Date().toISOString(),
+        },
+      };
+
+      await executor.cancelTask('task-1', eventBus);
+      await executor.execute(context, eventBus);
+
+      const events = eventBus.getEvents();
+      const statusUpdates = events.filter(e => e.kind === 'status-update') as TaskStatusUpdateEvent[];
+      const canceledStatus = statusUpdates.find(s => s.status.state === 'canceled');
+
+      expect(canceledStatus).toBeDefined();
+      expect(canceledStatus?.final).toBe(true);
+    });
+
+    it('should transition to failed state on error', async () => {
+      const context: RequestContext = {
+        taskId: 'task-1',
+        contextId: 'ctx-1',
+        userMessage: {
+          kind: 'message',
+          messageId: 'msg-1',
+          role: 'user',
+          parts: [{ kind: 'text', text: 'Hello' }],
+          createdAt: new Date().toISOString(),
+        },
+      };
+
+      // Force an error
+      const originalPublish = eventBus.publish.bind(eventBus);
+      let publishCount = 0;
+      eventBus.publish = vi.fn((event) => {
+        publishCount++;
+        // Throw on the first artifact-update
+        if (event.kind === 'artifact-update' && publishCount < 5) {
+          throw new Error('Simulated processing error');
+        }
+        originalPublish(event);
+      });
+
+      await executor.execute(context, eventBus);
+
+      const events = eventBus.getEvents();
+      const statusUpdates = events.filter(e => e.kind === 'status-update') as TaskStatusUpdateEvent[];
+      const failedStatus = statusUpdates.find(s => s.status.state === 'failed');
+
+      expect(failedStatus).toBeDefined();
+      expect(failedStatus?.status.message).toContain('Simulated processing error');
+      expect(failedStatus?.final).toBe(true);
+    });
+
+    it('should ensure final state is always terminal', async () => {
+      const context: RequestContext = {
+        taskId: 'task-1',
+        contextId: 'ctx-1',
+        userMessage: {
+          kind: 'message',
+          messageId: 'msg-1',
+          role: 'user',
+          parts: [{ kind: 'text', text: 'Hello' }],
+          createdAt: new Date().toISOString(),
+        },
+      };
+
+      await executor.execute(context, eventBus);
+
+      const events = eventBus.getEvents();
+      const statusUpdates = events.filter(e => e.kind === 'status-update') as TaskStatusUpdateEvent[];
+      const lastStatusUpdate = statusUpdates[statusUpdates.length - 1];
+
+      expect(lastStatusUpdate?.final).toBe(true);
+      expect(['completed', 'failed', 'canceled', 'rejected']).toContain(lastStatusUpdate?.status.state);
+    });
+  });
+
+  describe('concurrency', () => {
+    it('should handle multiple tasks concurrently', async () => {
+      const context1: RequestContext = {
+        taskId: 'task-1',
+        contextId: 'ctx-1',
+        userMessage: {
+          kind: 'message',
+          messageId: 'msg-1',
+          role: 'user',
+          parts: [{ kind: 'text', text: 'Hello 1' }],
+          createdAt: new Date().toISOString(),
+        },
+      };
+
+      const context2: RequestContext = {
+        taskId: 'task-2',
+        contextId: 'ctx-2',
+        userMessage: {
+          kind: 'message',
+          messageId: 'msg-2',
+          role: 'user',
+          parts: [{ kind: 'text', text: 'Hello 2' }],
+          createdAt: new Date().toISOString(),
+        },
+      };
+
+      const eventBus1 = new SimpleEventBus();
+      const eventBus2 = new SimpleEventBus();
+
+      await Promise.all([
+        executor.execute(context1, eventBus1),
+        executor.execute(context2, eventBus2),
+      ]);
+
+      const events1 = eventBus1.getEvents();
+      const events2 = eventBus2.getEvents();
+
+      expect(events1.length).toBeGreaterThan(0);
+      expect(events2.length).toBeGreaterThan(0);
+
+      const task1 = events1[0] as Task;
+      const task2 = events2[0] as Task;
+
+      expect(task1.id).toBe('task-1');
+      expect(task2.id).toBe('task-2');
+    });
+
+    it('should handle cancellation of one task while another is running', async () => {
+      const context1: RequestContext = {
+        taskId: 'task-1',
+        contextId: 'ctx-1',
+        userMessage: {
+          kind: 'message',
+          messageId: 'msg-1',
+          role: 'user',
+          parts: [{ kind: 'text', text: 'Hello 1' }],
+          createdAt: new Date().toISOString(),
+        },
+      };
+
+      const context2: RequestContext = {
+        taskId: 'task-2',
+        contextId: 'ctx-2',
+        userMessage: {
+          kind: 'message',
+          messageId: 'msg-2',
+          role: 'user',
+          parts: [{ kind: 'text', text: 'Hello 2' }],
+          createdAt: new Date().toISOString(),
+        },
+      };
+
+      const eventBus1 = new SimpleEventBus();
+      const eventBus2 = new SimpleEventBus();
+
+      const promise1 = executor.execute(context1, eventBus1);
+      const promise2 = executor.execute(context2, eventBus2);
+
+      // Cancel task-1 while both are running
+      await executor.cancelTask('task-1', eventBus1);
+
+      await Promise.all([promise1, promise2]);
+
+      const events1 = eventBus1.getEvents();
+      const events2 = eventBus2.getEvents();
+
+      const statusUpdates1 = events1.filter(e => e.kind === 'status-update');
+      const statusUpdates2 = events2.filter(e => e.kind === 'status-update');
+
+      const canceled1 = statusUpdates1.find(s => s.status.state === 'canceled');
+      const completed2 = statusUpdates2.find(s => s.status.state === 'completed');
+
+      expect(canceled1).toBeDefined();
+      expect(completed2).toBeDefined();
+    });
+  });
+
+  describe('cancelTask', () => {
+    it('should handle cancellation of already completed task', async () => {
+      const context: RequestContext = {
+        taskId: 'task-1',
+        contextId: 'ctx-1',
+        userMessage: {
+          kind: 'message',
+          messageId: 'msg-1',
+          role: 'user',
+          parts: [{ kind: 'text', text: 'Hello' }],
+          createdAt: new Date().toISOString(),
+        },
+      };
+
+      // Execute and complete the task first
+      await executor.execute(context, eventBus);
+
+      // Now try to cancel it
+      const newEventBus = new SimpleEventBus();
+      await executor.cancelTask('task-1', newEventBus);
+
+      const newContext: RequestContext = {
+        taskId: 'task-1',
+        contextId: 'ctx-1',
+        userMessage: {
+          kind: 'message',
+          messageId: 'msg-2',
+          role: 'user',
+          parts: [{ kind: 'text', text: 'Hello again' }],
+          createdAt: new Date().toISOString(),
+        },
+      };
+
+      await executor.execute(newContext, newEventBus);
+
+      // Should be canceled
+      const events = newEventBus.getEvents();
+      const canceled = events.find(e => e.kind === 'status-update' && e.status.state === 'canceled');
+
+      expect(canceled).toBeDefined();
+    });
+
+    it('should handle multiple cancellation attempts', async () => {
+      await executor.cancelTask('task-1', eventBus);
+      await executor.cancelTask('task-1', eventBus);
+      await executor.cancelTask('task-1', eventBus);
+
+      const context: RequestContext = {
+        taskId: 'task-1',
+        contextId: 'ctx-1',
+        userMessage: {
+          kind: 'message',
+          messageId: 'msg-1',
+          role: 'user',
+          parts: [{ kind: 'text', text: 'Hello' }],
+          createdAt: new Date().toISOString(),
+        },
+      };
+
+      await executor.execute(context, eventBus);
+
+      const events = eventBus.getEvents();
+      const canceled = events.find(e => e.kind === 'status-update' && e.status.state === 'canceled');
+
+      expect(canceled).toBeDefined();
+    });
+  });
+
+  describe('timeout scenarios', () => {
+    it('should handle execution timeout', async () => {
+      const slowExecutor = new SevenZiExecutor();
+
+      // Override processMessage to simulate timeout
+      const originalProcess = slowExecutor['processMessage'];
+      slowExecutor['processMessage'] = async () => {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return originalProcess.call(slowExecutor, 'Hello', {} as RequestContext);
+      };
+
+      const context: RequestContext = {
+        taskId: 'task-1',
+        contextId: 'ctx-1',
+        userMessage: {
+          kind: 'message',
+          messageId: 'msg-1',
+          role: 'user',
+          parts: [{ kind: 'text', text: 'Hello' }],
+          createdAt: new Date().toISOString(),
+        },
+      };
+
+      // Set a timeout for the execution
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Execution timeout')), 500);
+      });
+
+      await expect(
+        Promise.race([
+          slowExecutor.execute(context, eventBus),
+          timeoutPromise,
+        ])
+      ).rejects.toThrow('Execution timeout');
+    }, 10000);
+  });
 });

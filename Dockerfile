@@ -1,5 +1,5 @@
 # ============================================
-# 7zi-frontend Dockerfile (Optimized)
+# 7zi-frontend Dockerfile (优化版)
 # 多阶段构建 + Alpine + 生产优化
 # ============================================
 
@@ -17,8 +17,9 @@ RUN apk add --no-cache libc6-compat
 # 先复制依赖描述文件（利用 Docker 缓存层）
 COPY package.json package-lock.json* ./
 
-# 安装所有依赖（包括 devDependencies，构建需要）
-RUN npm ci --legacy-peer-deps && npm cache clean --force
+# 仅安装生产依赖（构建阶段再安装 devDependencies）
+# --legacy-peer-deps: 忽略 peer dependency 警告
+RUN npm ci --only=production --legacy-peer-deps && npm cache clean --force
 
 # ============================================
 # Stage 2: Builder (构建阶段)
@@ -27,8 +28,14 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# 从 deps 阶段复制 node_modules
+# 从 deps 阶段复制生产依赖
 COPY --from=deps /app/node_modules ./node_modules
+
+# 复制依赖描述文件（用于安装 devDependencies）
+COPY package.json package-lock.json* ./
+
+# 安装 devDependencies（构建需要）
+RUN npm ci --legacy-peer-deps && npm cache clean --force
 
 # 复制源代码
 COPY . .
@@ -38,11 +45,12 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
 # 构建应用（standalone 模式）
+# standalone 模式会生成自包含的服务器，无需 node_modules
 RUN npm run build
 
 # ============================================
 # Stage 3: Runner (运行阶段 - 最小化镜像)
-# 使用 node:22-alpine 或 distroless
+# 使用 node:22-alpine + 非 root 用户
 # ============================================
 FROM node:22-alpine AS runner
 
@@ -55,14 +63,21 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 # 安全：创建非 root 用户
+# GID 和 UID 应与构建阶段一致
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
+# 安装运行时依赖（SQLite 需要的库）
+RUN apk add --no-cache sqlite
+
 # 复制构建产物（standalone 模式）
-# standalone 模式会生成自包含的服务器
-COPY --from=builder /app/public ./public
+# standalone 模式会生成自包含的服务器，包含所有必需的 node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# 创建数据目录（SQLite 数据库）
+RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
 
 # 切换到非 root 用户
 USER nextjs

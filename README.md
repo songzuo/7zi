@@ -3,7 +3,7 @@
 > **11 位 AI 成员 · 24/7 自主工作 · 实时协作**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.0.5-blue.svg)](https://github.com/songzuo/7zi)
+[![Version](https://img.shields.io/badge/version-1.0.6-blue.svg)](https://github.com/songzuo/7zi)
 [![CI Status](https://github.com/songzuo/7zi/workflows/CI%20-%20Pull%20Request%20Checks/badge.svg)](https://github.com/songzuo/7zi/actions/workflows/ci-pr.yml)
 [![Deploy Status](https://github.com/songzuo/7zi/workflows/Deploy%20-%20Main%20Branch/badge.svg)](https://github.com/songzuo/7zi/actions/workflows/deploy-main.yml)
 [![Next.js](https://img.shields.io/badge/Next.js-16.1.7-black?logo=next.js)](https://nextjs.org/)
@@ -55,8 +55,10 @@
 
 | 指标 | 状态 |
 |------|------|
-| **版本** | v1.0.5 |
-| **测试文件数** | 197+ ✅ |
+| **版本** | v1.0.6 |
+| **测试文件数** | 490+ ✅ |
+| **API 端点数** | 28+ ✅ |
+| **TypeScript 编译** | 0 错误 ✅ |
 | **ESLint** | 0 警告 ✅ |
 | **TypeScript 编译** | 通过 ✅ |
 | **构建状态** | 成功 ✅ |

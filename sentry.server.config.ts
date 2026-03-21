@@ -5,12 +5,17 @@
 
 import * as Sentry from '@sentry/nextjs';
 
+// Determine environment
+const isProduction = process.env.NODE_ENV === 'production';
+
 Sentry.init({
   // DSN from environment
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
 
-  // Performance monitoring
-  tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE ?? 0.1),
+  // Performance monitoring - 优化采样率
+  // 生产环境使用较低的采样率，开发环境使用较高采样率用于调试
+  tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE ?? (isProduction ? 0.1 : 1.0)),
+  profilesSampleRate: Number(process.env.SENTRY_PROFILES_SAMPLE_RATE ?? (isProduction ? 0.05 : 1.0)),
 
   // Environment
   environment: process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT ?? process.env.NODE_ENV,

@@ -55,15 +55,24 @@ import React, { useEffect } from 'react';
 import { SettingsProvider } from '@/contexts/SettingsContext';
 import { GlobalLoadingProvider } from '@/hooks/useGlobalLoading';
 import { setupBrowserErrorHandlers } from '@/lib/global-error-handlers';
+import { initWebVitalsMonitoring } from '@/lib/monitoring/web-vitals';
 
 interface ClientProvidersProps {
   children: React.ReactNode;
 }
 
 export function ClientProviders({ children }: ClientProvidersProps) {
-  // Initialize browser error handlers on mount
+  // Initialize browser error handlers and Web Vitals on mount
   useEffect(() => {
     setupBrowserErrorHandlers();
+
+    // Initialize Web Vitals monitoring
+    initWebVitalsMonitoring({
+      enableSentry: true,
+      enableConsole: process.env.NODE_ENV === 'development',
+      sampleRate: 1.0, // 100% sampling in production
+      debug: process.env.NODE_ENV === 'development',
+    });
   }, []);
 
   return (

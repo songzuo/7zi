@@ -12,6 +12,38 @@ export interface DatabaseHealth {
   needsMigration: boolean;
 }
 
+export interface DatabaseResult {
+  changes: number;
+  lastInsertRowid?: number;
+}
+
+export interface DatabaseStatement {
+  run: (...params: unknown[]) => DatabaseResult;
+  get: (...params: unknown[]) => Record<string, unknown> | null;
+  all: (...params: unknown[]) => Record<string, unknown>[];
+}
+
+export interface DatabaseConnection {
+  query: (sql: string, params?: unknown[]) => unknown;
+  queryRows: (sql: string, params?: unknown[]) => Record<string, unknown>[];
+  exec: (sql: string, params?: unknown[]) => DatabaseResult;
+  prepare: (sql: string) => DatabaseStatement;
+  pragma: (name: string, options?: { simple: boolean }) => unknown;
+  getConnection?: () => unknown;
+  batch: (statements: Array<{ sql: string; params?: unknown[] }>) => Promise<DatabaseResult[]>;
+  paginate?: (sql: string, pagination: { page: number; limit: number }, params?: unknown[]) => Promise<{
+    items: Record<string, unknown>[];
+    meta: {
+      currentPage: number;
+      perPage: number;
+      total: number;
+      totalPages: number;
+      hasNext: boolean;
+      hasPrevious: boolean;
+    };
+  }>;
+}
+
 export interface PerformanceReport {
   timestamp: string;
   slowQueries: SlowQuery[];

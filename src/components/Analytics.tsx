@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
+import { initWebVitalsMonitoring } from "@/lib/monitoring/web-vitals";
+import { initPerformanceOptimizations } from "@/lib/performance-optimization";
+import { initLCPOptimizations } from "@/lib/lcp-optimization";
+import { initINPOptimizations } from "@/lib/inp-optimization";
 
 // Type for gtag function
 type GtagFunction = (...args: unknown[]) => void;
@@ -20,10 +24,16 @@ declare global {
  * - Umami Analytics
  * - Plausible Analytics
  * - 百度统计
+ * - Web Vitals Performance Monitoring
+ * - 性能优化初始化
+ * - LCP 优化
+ * - INP 优化
  * 
  * 使用方法:
  * 1. 在 .env.local 中配置相应的 ID
  * 2. 组件会自动注入统计代码
+ * 3. Web Vitals 会自动初始化并上报到 /api/web-vitals
+ * 4. 性能优化会自动初始化
  * 
  * 环境变量:
  * - NEXT_PUBLIC_GA_ID: Google Analytics Measurement ID
@@ -97,6 +107,18 @@ export function Analytics() {
       `;
       document.head.appendChild(script);
     }
+
+    // Initialize Web Vitals Monitoring
+    initWebVitalsMonitoring();
+
+    // Initialize Performance Optimizations
+    initPerformanceOptimizations();
+
+    // Initialize LCP Optimizations
+    initLCPOptimizations();
+
+    // Initialize INP Optimizations
+    initINPOptimizations();
   }, [gaId, umamiId, umamiUrl, plausibleId, baiduId]);
 
   // 不渲染任何可见内容

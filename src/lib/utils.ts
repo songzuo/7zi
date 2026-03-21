@@ -376,7 +376,7 @@ export function observeIntersection(
  * @example
  * const cleanup = observeResize(
  *   element,
- *   (entries) => console.log(entries)
+ *   (entries) => console.info('Element resized:', entries[0].contentRect)
  * );
  */
 export function observeResize(

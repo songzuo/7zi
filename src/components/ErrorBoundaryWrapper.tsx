@@ -103,11 +103,10 @@ export class ErrorBoundaryWrapper extends Component<Props, State> {
 
     // 开发环境日志
     if (process.env.NODE_ENV === 'development') {
-      console.group('🚨 ErrorBoundaryWrapper 捕获到错误');
+      console.error('🚨 ErrorBoundaryWrapper 捕获到错误');
       console.error('错误信息:', error.message);
       console.error('错误堆栈:', error.stack);
       console.error('组件堆栈:', errorInfo.componentStack);
-      console.groupEnd();
     }
   }
 
