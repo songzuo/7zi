@@ -218,7 +218,28 @@ export function extractPath(url: string): string {
 export function sanitizeUrlForLogging(url: string): string {
   try {
     const urlObj = new URL(url);
-    const sensitiveParams = ['token', 'password', 'api_key', 'secret', 'code'];
+    const sensitiveParams = [
+      'token',
+      'password',
+      'api_key',
+      'secret',
+      'code',
+      'access_token',
+      'refresh_token',
+      'authorization',
+      'bearer',
+      'api_key',
+      'apikey',
+      'client_secret',
+      'client_id',
+      'oauth_token',
+      'csrf_token',
+      'jwt',
+      'pin',
+      'otp',
+      'cvc',
+      'cvv',
+    ];
 
     sensitiveParams.forEach(param => {
       if (urlObj.searchParams.has(param)) {

@@ -4,6 +4,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { NextRequest } from 'next/server';
 import { GET } from '../route';
 import { createMockNextRequest } from '@/test/utils/mock-request';
 
@@ -118,7 +119,7 @@ describe('/api/stream/health', () => {
 
   describe('error handling', () => {
     it('should handle request without Accept header', async () => {
-      const request = new Request('http://localhost:3000/api/stream/health');
+      const request = new NextRequest('http://localhost:3000/api/stream/health');
 
       const response = await GET(request);
 

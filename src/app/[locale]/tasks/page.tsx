@@ -420,7 +420,7 @@ function KanbanCard({ issue }: KanbanCardProps) {
         <h4 className="text-sm font-medium text-zinc-900 dark:text-white mb-3 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors line-clamp-2">
           {issue.title}
         </h4>
-        {issue.labels.length > 0 && (
+        {issue.labels && issue.labels.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-3">
             {issue.labels.slice(0, 3).map((label, idx) => (
               <span

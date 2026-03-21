@@ -9,6 +9,7 @@ import {
   exportToCSV,
   generateCSVFilename,
   copyCSVToClipboard,
+  type CSVData,
 } from './csv-export';
 
 describe('csv-export', () => {
@@ -30,8 +31,8 @@ describe('csv-export', () => {
   describe('convertToCSV', () => {
     it('should return empty string for empty data', () => {
       expect(convertToCSV([])).toBe('');
-      expect(convertToCSV(null as unknown as typeof null)).toBe('');
-      expect(convertToCSV(undefined as unknown as typeof undefined)).toBe('');
+      expect(convertToCSV(null as unknown as CSVData)).toBe('');
+      expect(convertToCSV(undefined as unknown as CSVData)).toBe('');
     });
 
     it('should convert simple array of objects to CSV', () => {

@@ -191,7 +191,7 @@ export function TaskCardMobile({
           </div>
 
           {/* Labels */}
-          {issue.labels.length > 0 && (
+          {issue.labels && issue.labels.length > 0 && (
             <div className="flex items-center gap-1 mb-3 flex-wrap">
               {issue.labels.slice(0, 3).map((label, idx) => (
                 <span

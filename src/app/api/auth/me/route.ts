@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 
       return createSuccessResponse(userWithoutPassword);
     } catch (error) {
-      logger.error('Get user API error', error);
+      logger.error('Get user API error', error, { category: 'auth' });
       return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
     }
   });

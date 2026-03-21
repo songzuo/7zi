@@ -105,7 +105,7 @@ export const jsonRpcVersionSchema = z.literal('2.0');
 export const jsonRpcRequestSchema = z.object({
   jsonrpc: jsonRpcVersionSchema,
   method: z.string().min(1),
-  params: z.any().optional(),
+  params: z.unknown().optional(),
   id: z.union([z.string(), z.number()]).optional(),
 });
 
@@ -113,11 +113,11 @@ export const jsonRpcBatchRequestSchema = z.array(jsonRpcRequestSchema).min(1);
 
 export const jsonRpcResponseSchema = z.object({
   jsonrpc: jsonRpcVersionSchema,
-  result: z.any().optional(),
+  result: z.unknown().optional(),
   error: z.object({
     code: z.number(),
     message: z.string(),
-    data: z.any().optional(),
+    data: z.unknown().optional(),
   }).optional(),
   id: z.union([z.string(), z.number(), z.null()]),
 });

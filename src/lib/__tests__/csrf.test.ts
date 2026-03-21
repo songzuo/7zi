@@ -11,9 +11,10 @@ import {
   validateCsrfToken,
 } from '../csrf';
 
-// Mock fetch
-const fetchMock = vi.fn() as unknown as typeof fetch;
-global.fetch = fetchMock;
+// Mock fetch with proper type
+import { vi as vitest } from 'vitest';
+const fetchMock = vitest.fn();
+global.fetch = fetchMock as any;
 
 describe('csrf.ts - CSRF 工具测试', () => {
   beforeEach(() => {

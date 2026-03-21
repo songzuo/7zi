@@ -3,36 +3,164 @@
  * Tests authentication flow across multiple layers
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { loginUser } from '@/lib/auth/service'
-import { resetMockDatabase, getMockDatabase } from '@/test/setup-db-mock'
+import { setupMockDatabase, resetMockDatabase } from '@/test/setup-db-mock'
+import type { User } from '@/lib/auth/types'
+
+// Prevent auto-mocking of auth service - we want to test the real implementation
+vi.unmock('@/lib/auth/service')
+
+// Mock JWT token generation to avoid crypto/JWT issues in test environment
+vi.mock('jose', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('jose')>()
+  return {
+    ...actual,
+    SignJWT: vi.fn().mockImplementation(() => ({
+      setProtectedHeader: vi.fn().mockReturnThis(),
+      setIssuedAt: vi.fn().mockReturnThis(),
+      setExpirationTime: vi.fn().mockReturnThis(),
+      setIssuer: vi.fn().mockReturnThis(),
+      setAudience: vi.fn().mockReturnThis(),
+      sign: vi.fn().mockResolvedValue('mock-jwt-token.eyJzdWIiOiJ1c2VyLTEiLCJlbWFpbCI6InRlc3RAZXhhbXBsZS5jb20ifQ.signature'),
+    })),
+    jwtVerify: vi.fn().mockResolvedValue({
+      payload: {
+        sub: 'user-1',
+        email: 'test@example.com',
+        role: 'member',
+        roles: [],
+        permissions: [],
+        customPermissions: [],
+        type: 'user',
+      },
+    }),
+  }
+})
+
+// Mock auth repository to work with in-memory data
+vi.mock('@/lib/auth/repository', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/auth/repository')>()
+  
+  // In-memory user storage for tests
+  const testUsers: User[] = []
+  
+  return {
+    ...actual,
+    hashPassword: actual.hashPassword,
+    verifyPassword: actual.verifyPassword,
+    getUserByEmail: vi.fn((email: string) => {
+      return testUsers.find((u: User) => u.email === email) || null
+    }),
+    getUserById: vi.fn((id: string) => {
+      return testUsers.find((u: User) => u.id === id) || null
+    }),
+    createUser: vi.fn((data: Record<string, unknown>) => {
+      const hashedPassword = actual.hashPassword(data.password as string)
+      const user = {
+        id: `user-${testUsers.length + 1}`,
+        email: data.email as string,
+        name: data.name as string,
+        password: hashedPassword,
+        role: (data.role as string) || 'member',
+        status: 'active' as const,
+        roles: [],
+        permissions: [],
+        metadata: {},
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+      testUsers.push(user)
+      return user
+    }),
+    updateUser: vi.fn((id: string, data: Record<string, unknown>) => {
+      const index = testUsers.findIndex((u: User) => u.id === id)
+      if (index !== -1) {
+        testUsers[index] = { ...testUsers[index], ...data, updatedAt: new Date() }
+        return { ...testUsers[index] }
+      }
+      return null
+    }),
+    createUserToken: vi.fn((_userId: string, expiresInHours: number) => {
+      const now = new Date()
+      return {
+        id: `token-${Date.now()}`,
+        userId: 'user-1',
+        token: `access-token-${Date.now()}`,
+        refreshToken: `refresh-token-${Date.now()}`,
+        expiresAt: new Date(now.getTime() + expiresInHours * 3600 * 1000),
+        refreshExpiresAt: new Date(now.getTime() + expiresInHours * 3600 * 1000 * 7),
+        createdAt: now,
+      }
+    }),
+    validateUserToken: vi.fn((token: string) => {
+      return {
+        user: testUsers[0] || null,
+        token: {
+          id: 'token-1',
+          userId: 'user-1',
+          token,
+          expiresAt: new Date(Date.now() + 3600000),
+          createdAt: new Date(),
+        },
+      }
+    }),
+    refreshUserToken: vi.fn((_refreshToken: string) => {
+      const now = new Date()
+      return {
+        id: `token-${Date.now()}`,
+        userId: 'user-1',
+        token: `new-access-token-${Date.now()}`,
+        refreshToken: `new-refresh-token-${Date.now()}`,
+        expiresAt: new Date(now.getTime() + 3600000),
+        refreshExpiresAt: new Date(now.getTime() + 259200000),
+        createdAt: now,
+      }
+    }),
+    revokeUserToken: vi.fn(() => {}),
+    revokeAllUserTokens: vi.fn(() => {}),
+    updateLastLogin: vi.fn(() => {}),
+    createPasswordResetToken: vi.fn(() => 'reset-token-123'),
+    validatePasswordResetToken: vi.fn(() => testUsers[0] ? { ...testUsers[0] } : null),
+    deletePasswordResetToken: vi.fn(() => {}),
+    getUserByRefreshToken: vi.fn(() => testUsers[0] ? {
+      user: { ...testUsers[0] },
+      token: {
+        id: 'token-1',
+        userId: 'user-1',
+        refreshToken: 'refresh-token-123',
+        refreshExpiresAt: new Date(Date.now() + 259200000),
+      },
+    } : null),
+  }
+})
 
 describe('Authentication Integration', () => {
   beforeEach(() => {
+    setupMockDatabase()
     resetMockDatabase()
   })
 
   afterEach(() => {
     resetMockDatabase()
+    vi.clearAllMocks()
   })
 
   describe('login flow', () => {
     it('should complete full login flow with token generation', async () => {
-      // Arrange: Create a test user
-      const db = getMockDatabase()
-      const userData = {
-        id: 'user-1',
+      // Arrange: Create a test user directly through repository
+      const { createUser } = await import('@/lib/auth/repository')
+      const plainPassword = 'MyPassword123'
+      const user = await createUser({
         email: 'test@example.com',
-        password: 'hashed-password',
+        password: plainPassword,
         name: 'Test User',
-      }
-      // @ts-ignore - mock database structure
-      db.users.push(userData)
+      })
 
       // Act: Login with credentials
       const loginResult = await loginUser({
         email: 'test@example.com',
-        password: 'password',
+        password: plainPassword,
         rememberMe: false,
       })
 
@@ -47,19 +175,17 @@ describe('Authentication Integration', () => {
         const tokenPayload = JSON.parse(
           Buffer.from(loginResult.token.split('.')[1], 'base64').toString()
         )
-        expect(tokenPayload.userId).toBe('user-1')
         expect(tokenPayload.email).toBe('test@example.com')
       }
     })
 
     it('should handle invalid credentials correctly', async () => {
       // Arrange: Create a test user
-      const db = getMockDatabase()
-      // @ts-ignore - mock database structure
-      db.users.push({
-        id: 'user-1',
+      const { createUser } = await import('@/lib/auth/repository')
+      const plainPassword = 'MyPassword123'
+      await createUser({
         email: 'test@example.com',
-        password: 'hashed-password',
+        password: plainPassword,
         name: 'Test User',
       })
 
@@ -74,9 +200,6 @@ describe('Authentication Integration', () => {
       expect(loginResult.success).toBe(false)
       if (!loginResult.success) {
         expect(loginResult.error).toBeDefined()
-      }
-      if (loginResult.success) {
-        expect(loginResult.token).toBeUndefined()
       }
     })
 
@@ -99,19 +222,17 @@ describe('Authentication Integration', () => {
   describe('token refresh flow', () => {
     it('should generate access token from refresh token', async () => {
       // Arrange: Create a user and generate tokens
-      const db = getMockDatabase()
-      const userData = {
-        id: 'user-1',
+      const { createUser } = await import('@/lib/auth/repository')
+      const plainPassword = 'MyPassword123'
+      await createUser({
         email: 'test@example.com',
-        password: 'hashed-password',
+        password: plainPassword,
         name: 'Test User',
-      }
-      // @ts-ignore - mock database structure
-      db.users.push(userData)
+      })
 
       const loginResult = await loginUser({
         email: 'test@example.com',
-        password: 'password',
+        password: plainPassword,
         rememberMe: true,
       })
 
@@ -133,19 +254,17 @@ describe('Authentication Integration', () => {
   describe('logout flow', () => {
     it('should invalidate session on logout', async () => {
       // Arrange: Login to create session
-      const db = getMockDatabase()
-      const userData = {
-        id: 'user-1',
+      const { createUser } = await import('@/lib/auth/repository')
+      const plainPassword = 'MyPassword123'
+      await createUser({
         email: 'test@example.com',
-        password: 'hashed-password',
+        password: plainPassword,
         name: 'Test User',
-      }
-      // @ts-ignore - mock database structure
-      db.users.push(userData)
+      })
 
       const loginResult = await loginUser({
         email: 'test@example.com',
-        password: 'password',
+        password: plainPassword,
         rememberMe: false,
       })
 

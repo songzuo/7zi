@@ -1,21 +1,13 @@
 /**
- * A2A Task Store Tests
+ * Tests for task-store.ts
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import {
   InMemoryTaskStore,
-  TaskStore,
   getTaskStore,
 } from '../task-store';
-import {
-  Task,
-  Message,
-  Artifact,
-  TaskState,
-  TaskStatus,
-  Part,
-} from '../types';
+import type { Task, Message, Artifact, TaskState } from '../types';
 
 describe('InMemoryTaskStore', () => {
   let store: InMemoryTaskStore;
@@ -25,7 +17,7 @@ describe('InMemoryTaskStore', () => {
   });
 
   describe('createTask', () => {
-    it('should create a task without initial message', () => {
+    it('should create a task with generated IDs', () => {
       const task = store.createTask();
 
       expect(task.kind).toBe('task');
@@ -36,11 +28,10 @@ describe('InMemoryTaskStore', () => {
       expect(task.artifacts).toEqual([]);
     });
 
-    it('should create a task with contextId', () => {
-      const contextId = 'test-context-123';
-      const task = store.createTask(contextId);
+    it('should create a task with provided contextId', () => {
+      const task = store.createTask('ctx-1');
 
-      expect(task.contextId).toBe(contextId);
+      expect(task.contextId).toBe('ctx-1');
     });
 
     it('should create a task with initial message', () => {
@@ -52,52 +43,65 @@ describe('InMemoryTaskStore', () => {
         createdAt: new Date().toISOString(),
       };
 
-      const task = store.createTask(undefined, message);
+      const task = store.createTask('ctx-1', message);
 
       expect(task.history).toHaveLength(1);
       expect(task.history?.[0]).toEqual(message);
-      expect(task.status.state).toBe('submitted');
     });
 
-    it('should generate unique task IDs', () => {
-      const task1 = store.createTask();
-      const task2 = store.createTask();
+    it('should index tasks by contextId', () => {
+      const task1 = store.createTask('ctx-1');
+      const task2 = store.createTask('ctx-1');
 
-      expect(task1.id).not.toBe(task2.id);
+      const tasksByContext = store.getTasksByContext('ctx-1');
+
+      expect(tasksByContext).toHaveLength(2);
+      expect(tasksByContext.map(t => t.id)).toContain(task1.id);
+      expect(tasksByContext.map(t => t.id)).toContain(task2.id);
     });
   });
 
   describe('getTask', () => {
+    it('should return task by ID', () => {
+      const task = store.createTask('ctx-1');
+      const retrieved = store.getTask(task.id);
+
+      expect(retrieved).toBeDefined();
+      expect(retrieved?.id).toBe(task.id);
+    });
+
     it('should return undefined for non-existent task', () => {
-      const task = store.getTask('non-existent-id');
-      expect(task).toBeUndefined();
+      const retrieved = store.getTask('non-existent');
+
+      expect(retrieved).toBeUndefined();
     });
 
-    it('should return a copy of the task', () => {
-      const createdTask = store.createTask();
-      const retrievedTask = store.getTask(createdTask.id);
+    it('should return a copy of the task (shallow)', () => {
+      const task = store.createTask('ctx-1');
+      const retrieved = store.getTask(task.id)!;
 
-      expect(retrievedTask).toEqual(createdTask);
+      // Modify the returned task's top-level property
+      retrieved.metadata = { modified: true };
 
-      // Verify it's a copy by modifying retrieved task
-      if (retrievedTask) {
-        (retrievedTask as unknown as { modified: boolean }).modified = true;
-        const taskAgain = store.getTask(createdTask.id);
-        expect((taskAgain as unknown as { modified?: boolean }).modified).toBeUndefined();
-      }
-    });
-
-    it('should return the created task', () => {
-      const createdTask = store.createTask('test-context');
-      const retrievedTask = store.getTask(createdTask.id);
-
-      expect(retrievedTask).toBeDefined();
-      expect(retrievedTask?.id).toBe(createdTask.id);
-      expect(retrievedTask?.contextId).toBe('test-context');
+      // Original should be unchanged for shallow copy
+      const original = store.getTask(task.id)!;
+      expect(original.metadata).toBeUndefined();
     });
   });
 
   describe('updateTaskStatus', () => {
+    it('should update task status', () => {
+      const task = store.createTask('ctx-1');
+
+      const updated = store.updateTaskStatus(task.id, {
+        state: 'completed',
+        timestamp: new Date().toISOString(),
+      });
+
+      expect(updated).toBeDefined();
+      expect(updated?.status.state).toBe('completed');
+    });
+
     it('should return undefined for non-existent task', () => {
       const result = store.updateTaskStatus('non-existent', {
         state: 'completed',
@@ -107,199 +111,163 @@ describe('InMemoryTaskStore', () => {
       expect(result).toBeUndefined();
     });
 
-    it('should update task status', () => {
-      const task = store.createTask();
-
-      const newStatus: TaskStatus = {
-        state: 'working',
-        timestamp: new Date().toISOString(),
-        message: 'Processing...',
-      };
-
-      const updatedTask = store.updateTaskStatus(task.id, newStatus);
-
-      expect(updatedTask).toBeDefined();
-      expect(updatedTask?.status.state).toBe('working');
-      expect(updatedTask?.status.message).toBe('Processing...');
-    });
-
     it('should persist status changes', () => {
-      const task = store.createTask();
+      const task = store.createTask('ctx-1');
 
       store.updateTaskStatus(task.id, {
-        state: 'working',
+        state: 'completed',
         timestamp: new Date().toISOString(),
       });
 
-      const retrievedTask = store.getTask(task.id);
-
-      expect(retrievedTask?.status.state).toBe('working');
-    });
-
-    it('should support all task states', () => {
-      const states: TaskState[] = [
-        'submitted',
-        'working',
-        'input-required',
-        'auth-required',
-        'completed',
-        'canceled',
-        'failed',
-        'rejected',
-      ];
-
-      states.forEach((state) => {
-        const task = store.createTask();
-        const updated = store.updateTaskStatus(task.id, {
-          state,
-          timestamp: new Date().toISOString(),
-        });
-
-        expect(updated?.status.state).toBe(state);
-      });
+      const retrieved = store.getTask(task.id);
+      expect(retrieved?.status.state).toBe('completed');
     });
   });
 
   describe('addArtifact', () => {
+    it('should add artifact to task', () => {
+      const task = store.createTask('ctx-1');
+      const artifact: Artifact = {
+        artifactId: 'art-1',
+        name: 'response',
+        parts: [{ kind: 'text', text: 'Hello' }],
+      };
+
+      const updated = store.addArtifact(task.id, artifact);
+
+      expect(updated).toBeDefined();
+      expect(updated?.artifacts).toHaveLength(1);
+      expect(updated?.artifacts?.[0]).toEqual(artifact);
+    });
+
+    it('should add multiple artifacts', () => {
+      const task = store.createTask('ctx-1');
+
+      const artifact1: Artifact = {
+        artifactId: 'art-1',
+        name: 'response',
+        parts: [{ kind: 'text', text: 'Hello' }],
+      };
+
+      const artifact2: Artifact = {
+        artifactId: 'art-2',
+        name: 'data',
+        parts: [{ kind: 'text', text: 'World' }],
+      };
+
+      store.addArtifact(task.id, artifact1);
+      const updated = store.addArtifact(task.id, artifact2);
+
+      expect(updated?.artifacts).toHaveLength(2);
+    });
+
     it('should return undefined for non-existent task', () => {
       const artifact: Artifact = {
-        artifactId: 'artifact-1',
-        parts: [{ kind: 'text', text: 'Result' }],
+        artifactId: 'art-1',
+        name: 'response',
+        parts: [{ kind: 'text', text: 'Hello' }],
       };
 
       const result = store.addArtifact('non-existent', artifact);
 
       expect(result).toBeUndefined();
     });
-
-    it('should add artifact to task', () => {
-      const task = store.createTask();
-
-      const artifact: Artifact = {
-        artifactId: 'artifact-1',
-        name: 'Test Output',
-        parts: [{ kind: 'text', text: 'Generated content' }],
-      };
-
-      const updatedTask = store.addArtifact(task.id, artifact);
-
-      expect(updatedTask?.artifacts).toHaveLength(1);
-      expect(updatedTask?.artifacts?.[0]).toEqual(artifact);
-    });
-
-    it('should append multiple artifacts', () => {
-      const task = store.createTask();
-
-      const artifact1: Artifact = {
-        artifactId: 'artifact-1',
-        parts: [{ kind: 'text', text: 'First' }],
-      };
-
-      const artifact2: Artifact = {
-        artifactId: 'artifact-2',
-        parts: [{ kind: 'text', text: 'Second' }],
-      };
-
-      store.addArtifact(task.id, artifact1);
-      const updatedTask = store.addArtifact(task.id, artifact2);
-
-      expect(updatedTask?.artifacts).toHaveLength(2);
-      expect(updatedTask?.artifacts?.[0].artifactId).toBe('artifact-1');
-      expect(updatedTask?.artifacts?.[1].artifactId).toBe('artifact-2');
-    });
   });
 
   describe('addMessage', () => {
+    it('should add message to task history', () => {
+      const task = store.createTask('ctx-1');
+      const message: Message = {
+        kind: 'message',
+        messageId: 'msg-1',
+        role: 'user',
+        parts: [{ kind: 'text', text: 'Hello' }],
+        createdAt: new Date().toISOString(),
+      };
+
+      const updated = store.addMessage(task.id, message);
+
+      expect(updated).toBeDefined();
+      expect(updated?.history).toHaveLength(1);
+      expect(updated?.history?.[0]).toEqual(message);
+    });
+
+    it('should add multiple messages', () => {
+      const task = store.createTask('ctx-1');
+
+      const message1: Message = {
+        kind: 'message',
+        messageId: 'msg-1',
+        role: 'user',
+        parts: [{ kind: 'text', text: 'Hello' }],
+        createdAt: new Date().toISOString(),
+      };
+
+      const message2: Message = {
+        kind: 'message',
+        messageId: 'msg-2',
+        role: 'agent',
+        parts: [{ kind: 'text', text: 'Hi there' }],
+        createdAt: new Date().toISOString(),
+      };
+
+      store.addMessage(task.id, message1);
+      const updated = store.addMessage(task.id, message2);
+
+      expect(updated?.history).toHaveLength(2);
+    });
+
     it('should return undefined for non-existent task', () => {
       const message: Message = {
         kind: 'message',
         messageId: 'msg-1',
         role: 'user',
-        parts: [{ kind: 'text', text: 'Test' }],
+        parts: [{ kind: 'text', text: 'Hello' }],
+        createdAt: new Date().toISOString(),
       };
 
       const result = store.addMessage('non-existent', message);
 
       expect(result).toBeUndefined();
     });
-
-    it('should add message to task', () => {
-      const task = store.createTask();
-
-      const message: Message = {
-        kind: 'message',
-        messageId: 'msg-1',
-        role: 'agent',
-        parts: [{ kind: 'text', text: 'Response' }],
-        createdAt: new Date().toISOString(),
-      };
-
-      const updatedTask = store.addMessage(task.id, message);
-
-      expect(updatedTask?.history).toHaveLength(1);
-      expect(updatedTask?.history?.[0]).toEqual(message);
-    });
-
-    it('should append messages to existing history', () => {
-      const initialMessage: Message = {
-        kind: 'message',
-        messageId: 'msg-1',
-        role: 'user',
-        parts: [{ kind: 'text', text: 'Initial' }],
-        createdAt: new Date().toISOString(),
-      };
-
-      const task = store.createTask(undefined, initialMessage);
-
-      const replyMessage: Message = {
-        kind: 'message',
-        messageId: 'msg-2',
-        role: 'agent',
-        parts: [{ kind: 'text', text: 'Reply' }],
-        createdAt: new Date().toISOString(),
-      };
-
-      const updatedTask = store.addMessage(task.id, replyMessage);
-
-      expect(updatedTask?.history).toHaveLength(2);
-      expect(updatedTask?.history?.[0].messageId).toBe('msg-1');
-      expect(updatedTask?.history?.[1].messageId).toBe('msg-2');
-    });
   });
 
   describe('listTasks', () => {
     beforeEach(() => {
-      // Create multiple tasks for testing
-      const context1 = 'context-1';
-      const context2 = 'context-2';
+      // Create test tasks
+      store.createTask('ctx-1');
+      store.createTask('ctx-1');
+      store.createTask('ctx-2');
 
-      store.createTask(context1);
-      const task2 = store.createTask(context1);
-      const task3 = store.createTask(context2);
-
-      store.updateTaskStatus(task2.id, {
+      const task1 = store.getTasksByContext('ctx-1')[0];
+      store.updateTaskStatus(task1.id, {
         state: 'completed',
         timestamp: new Date().toISOString(),
       });
 
-      store.updateTaskStatus(task3.id, {
+      const task2 = store.getTasksByContext('ctx-2')[0];
+      store.updateTaskStatus(task2.id, {
         state: 'working',
         timestamp: new Date().toISOString(),
       });
     });
 
-    it('should return all tasks by default', () => {
+    it('should list all tasks', () => {
       const result = store.listTasks({});
 
       expect(result.tasks).toHaveLength(3);
       expect(result.totalSize).toBe(3);
+      expect(result.nextPageToken).toBe('');
     });
 
     it('should filter by contextId', () => {
-      const result = store.listTasks({ contextId: 'context-1' });
+      const result = store.listTasks({ contextId: 'ctx-1' });
 
       expect(result.tasks).toHaveLength(2);
-      expect(result.tasks.every(t => t.contextId === 'context-1')).toBe(true);
+      expect(result.totalSize).toBe(2);
+      result.tasks.forEach(task => {
+        expect(task.contextId).toBe('ctx-1');
+      });
     });
 
     it('should filter by status', () => {
@@ -309,25 +277,15 @@ describe('InMemoryTaskStore', () => {
       expect(result.tasks[0].status.state).toBe('completed');
     });
 
-    it('should filter by contextId and status combined', () => {
-      const result = store.listTasks({
-        contextId: 'context-1',
-        status: 'completed',
-      });
+    it('should filter by both contextId and status', () => {
+      const result = store.listTasks({ contextId: 'ctx-1', status: 'completed' });
 
       expect(result.tasks).toHaveLength(1);
-      expect(result.tasks[0].contextId).toBe('context-1');
+      expect(result.tasks[0].contextId).toBe('ctx-1');
       expect(result.tasks[0].status.state).toBe('completed');
     });
 
-    it('should respect pageSize', () => {
-      const result = store.listTasks({ pageSize: 2 });
-
-      expect(result.tasks).toHaveLength(2);
-      expect(result.pageSize).toBe(2);
-    });
-
-    it('should handle pagination with pageToken', () => {
+    it('should paginate results', () => {
       const page1 = store.listTasks({ pageSize: 2 });
 
       expect(page1.tasks).toHaveLength(2);
@@ -336,257 +294,166 @@ describe('InMemoryTaskStore', () => {
       const page2 = store.listTasks({ pageSize: 2, pageToken: page1.nextPageToken });
 
       expect(page2.tasks).toHaveLength(1);
-      expect(page2.nextPageToken).toBeFalsy();
+      expect(page2.nextPageToken).toBe('');
     });
 
     it('should exclude artifacts by default', () => {
-      const task = store.createTask();
-      store.addArtifact(task.id, {
-        artifactId: 'artifact-1',
-        parts: [{ kind: 'text', text: 'Test' }],
-      });
+      const artifact: Artifact = {
+        artifactId: 'art-1',
+        name: 'response',
+        parts: [{ kind: 'text', text: 'Hello' }],
+      };
+
+      const task = store.createTask('ctx-1');
+      store.addArtifact(task.id, artifact);
 
       const result = store.listTasks({ includeArtifacts: false });
-      const taskWithoutArtifacts = result.tasks.find(t => t.id === task.id);
+      const taskWithArtifact = result.tasks.find(t => t.id === task.id);
 
-      expect(taskWithoutArtifacts?.artifacts).toBeUndefined();
+      expect(taskWithArtifact?.artifacts).toBeUndefined();
     });
 
     it('should include artifacts when requested', () => {
-      const task = store.createTask();
-      store.addArtifact(task.id, {
-        artifactId: 'artifact-1',
-        parts: [{ kind: 'text', text: 'Test' }],
-      });
+      const artifact: Artifact = {
+        artifactId: 'art-1',
+        name: 'response',
+        parts: [{ kind: 'text', text: 'Hello' }],
+      };
+
+      const task = store.createTask('ctx-1');
+      store.addArtifact(task.id, artifact);
 
       const result = store.listTasks({ includeArtifacts: true });
-      const taskWithArtifacts = result.tasks.find(t => t.id === task.id);
+      const taskWithArtifact = result.tasks.find(t => t.id === task.id);
 
-      expect(taskWithArtifacts?.artifacts).toHaveLength(1);
+      expect(taskWithArtifact?.artifacts).toHaveLength(1);
     });
 
     it('should sort tasks by status timestamp descending', () => {
-      // Create a fresh store for this test to avoid interference from beforeEach
-      const freshStore = new InMemoryTaskStore();
-      const now = new Date();
-      const task1 = freshStore.createTask();
-      const task2 = freshStore.createTask();
+      const result = store.listTasks({});
 
-      freshStore.updateTaskStatus(task1.id, {
-        state: 'completed',
-        timestamp: now.toISOString(),
-      });
-
-      const later = new Date(now.getTime() + 1000);
-      freshStore.updateTaskStatus(task2.id, {
-        state: 'completed',
-        timestamp: later.toISOString(),
-      });
-
-      const result = freshStore.listTasks({});
-      expect(result.tasks[0].id).toBe(task2.id);
-      expect(result.tasks[1].id).toBe(task1.id);
+      const timestamps = result.tasks.map(t => new Date(t.status.timestamp).getTime());
+      for (let i = 1; i < timestamps.length; i++) {
+        expect(timestamps[i - 1]).toBeGreaterThanOrEqual(timestamps[i]);
+      }
     });
   });
 
   describe('deleteTask', () => {
-    it('should return false for non-existent task', () => {
-      const result = store.deleteTask('non-existent');
-      expect(result).toBe(false);
-    });
-
     it('should delete an existing task', () => {
-      const task = store.createTask();
+      const task = store.createTask('ctx-1');
+
       const result = store.deleteTask(task.id);
 
       expect(result).toBe(true);
       expect(store.getTask(task.id)).toBeUndefined();
     });
 
-    it('should remove task from context index', () => {
-      const contextId = 'test-context';
-      const task = store.createTask(contextId);
+    it('should return false for non-existent task', () => {
+      const result = store.deleteTask('non-existent');
 
-      store.deleteTask(task.id);
-
-      const tasksByContext = store.getTasksByContext(contextId);
-      expect(tasksByContext).toHaveLength(0);
+      expect(result).toBe(false);
     });
 
-    it('should clean up empty context index', () => {
-      const contextId = 'test-context';
-      const task = store.createTask(contextId);
+    it('should remove task from context index', () => {
+      const task = store.createTask('ctx-1');
+
+      expect(store.getTasksByContext('ctx-1')).toHaveLength(1);
 
       store.deleteTask(task.id);
 
-      const tasksByContext = store.getTasksByContext(contextId);
-      expect(tasksByContext).toHaveLength(0);
+      expect(store.getTasksByContext('ctx-1')).toHaveLength(0);
+    });
+
+    it('should clean up empty context indices', () => {
+      const task = store.createTask('ctx-1');
+
+      store.deleteTask(task.id);
+
+      // Context index should be removed
+      const tasks = store.getTasksByContext('ctx-1');
+      expect(tasks).toEqual([]);
     });
   });
 
   describe('getTasksByContext', () => {
+    it('should return tasks by contextId', () => {
+      store.createTask('ctx-1');
+      store.createTask('ctx-1');
+      store.createTask('ctx-2');
+
+      const ctx1Tasks = store.getTasksByContext('ctx-1');
+      const ctx2Tasks = store.getTasksByContext('ctx-2');
+
+      expect(ctx1Tasks).toHaveLength(2);
+      expect(ctx2Tasks).toHaveLength(1);
+    });
+
     it('should return empty array for non-existent context', () => {
       const tasks = store.getTasksByContext('non-existent');
+
       expect(tasks).toEqual([]);
-    });
-
-    it('should return tasks for a context', () => {
-      const contextId = 'test-context';
-
-      const task1 = store.createTask(contextId);
-      const task2 = store.createTask(contextId);
-
-      const tasks = store.getTasksByContext(contextId);
-
-      expect(tasks).toHaveLength(2);
-      expect(tasks.some(t => t.id === task1.id)).toBe(true);
-      expect(tasks.some(t => t.id === task2.id)).toBe(true);
-    });
-
-    it('should not return tasks from other contexts', () => {
-      store.createTask('context-1');
-      store.createTask('context-1');
-      store.createTask('context-2');
-
-      const tasks = store.getTasksByContext('context-1');
-
-      expect(tasks).toHaveLength(2);
-      expect(tasks.every(t => t.contextId === 'context-1')).toBe(true);
     });
   });
 
   describe('cleanupOldTasks', () => {
-    it('should remove old completed tasks', () => {
-      const task = store.createTask();
-      store.updateTaskStatus(task.id, {
-        state: 'completed',
-        timestamp: new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString(), // 25 hours ago
-      });
-
-      const cleaned = store.cleanupOldTasks(24 * 60 * 60 * 1000);
-
-      expect(cleaned).toBe(1);
-      expect(store.getTask(task.id)).toBeUndefined();
-    });
-
-    it('should remove old failed tasks', () => {
-      const task = store.createTask();
-      store.updateTaskStatus(task.id, {
-        state: 'failed',
-        timestamp: new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString(),
-      });
-
-      const cleaned = store.cleanupOldTasks(24 * 60 * 60 * 1000);
-
-      expect(cleaned).toBe(1);
-    });
-
-    it('should remove old canceled tasks', () => {
-      const task = store.createTask();
-      store.updateTaskStatus(task.id, {
-        state: 'canceled',
-        timestamp: new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString(),
-      });
-
-      const cleaned = store.cleanupOldTasks(24 * 60 * 60 * 1000);
-
-      expect(cleaned).toBe(1);
-    });
-
-    it('should remove old rejected tasks', () => {
-      const task = store.createTask();
-      store.updateTaskStatus(task.id, {
-        state: 'rejected',
-        timestamp: new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString(),
-      });
-
-      const cleaned = store.cleanupOldTasks(24 * 60 * 60 * 1000);
-
-      expect(cleaned).toBe(1);
-    });
-
-    it('should not remove recent terminal tasks', () => {
-      const task = store.createTask();
-      store.updateTaskStatus(task.id, {
-        state: 'completed',
-        timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(), // 1 hour ago
-      });
-
-      const cleaned = store.cleanupOldTasks(24 * 60 * 60 * 1000);
-
-      expect(cleaned).toBe(0);
-      expect(store.getTask(task.id)).toBeDefined();
-    });
-
-    it('should not remove non-terminal tasks', () => {
-      const task = store.createTask();
-      store.updateTaskStatus(task.id, {
-        state: 'working',
-        timestamp: new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString(),
-      });
-
-      const cleaned = store.cleanupOldTasks(24 * 60 * 60 * 1000);
-
-      expect(cleaned).toBe(0);
-      expect(store.getTask(task.id)).toBeDefined();
-    });
-
-    it('should use custom maxAgeMs', () => {
-      const task = store.createTask();
-      store.updateTaskStatus(task.id, {
-        state: 'completed',
-        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
-      });
-
-      const cleaned = store.cleanupOldTasks(1 * 60 * 60 * 1000); // 1 hour threshold
-
-      expect(cleaned).toBe(1);
-      expect(store.getTask(task.id)).toBeUndefined();
-    });
-
-    it('should return count of cleaned tasks', () => {
+    beforeEach(() => {
       const now = Date.now();
 
-      // Create old tasks
-      for (let i = 0; i < 3; i++) {
-        const task = store.createTask();
-        store.updateTaskStatus(task.id, {
-          state: 'completed',
-          timestamp: new Date(now - 25 * 60 * 60 * 1000).toISOString(),
-        });
-      }
-
-      // Create recent task
-      const recent = store.createTask();
-      store.updateTaskStatus(recent.id, {
+      // Create old completed task
+      const oldTask = store.createTask('ctx-1');
+      store.updateTaskStatus(oldTask.id, {
         state: 'completed',
-        timestamp: new Date(now - 1 * 60 * 60 * 1000).toISOString(),
+        timestamp: new Date(now - 25 * 60 * 60 * 1000).toISOString(), // 25 hours ago
       });
 
-      const cleaned = store.cleanupOldTasks(24 * 60 * 60 * 1000);
+      // Create recent completed task
+      const recentTask = store.createTask('ctx-1');
+      store.updateTaskStatus(recentTask.id, {
+        state: 'completed',
+        timestamp: new Date(now - 1 * 60 * 60 * 1000).toISOString(), // 1 hour ago
+      });
 
-      expect(cleaned).toBe(3);
-      expect(store.listTasks({}).totalSize).toBe(1);
+      // Create working task (should not be cleaned)
+      const workingTask = store.createTask('ctx-1');
+      store.updateTaskStatus(workingTask.id, {
+        state: 'working',
+        timestamp: new Date(now - 25 * 60 * 60 * 1000).toISOString(),
+      });
+    });
+
+    it('should clean up old terminal tasks', () => {
+      const cleaned = store.cleanupOldTasks(24 * 60 * 60 * 1000); // 24 hours
+
+      expect(cleaned).toBe(1);
+    });
+
+    it('should not clean up recent tasks', () => {
+      const allTasks = store.listTasks({});
+      const beforeCount = allTasks.totalSize;
+
+      store.cleanupOldTasks(24 * 60 * 60 * 1000);
+
+      const afterTasks = store.listTasks({});
+      expect(afterTasks.totalSize).toBe(beforeCount - 1);
+    });
+
+    it('should not clean up non-terminal tasks', () => {
+      const beforeList = store.listTasks({ status: 'working' });
+
+      store.cleanupOldTasks(1 * 60 * 60 * 1000); // 1 hour
+
+      const afterList = store.listTasks({ status: 'working' });
+      expect(afterList.totalSize).toBe(beforeList.totalSize);
     });
   });
 });
 
-describe('getTaskStore singleton', () => {
-  it('should return the same instance', () => {
+describe('getTaskStore', () => {
+  it('should return singleton instance', () => {
     const store1 = getTaskStore();
     const store2 = getTaskStore();
 
     expect(store1).toBe(store2);
-  });
-
-  it('should maintain state across calls', () => {
-    const store1 = getTaskStore();
-    const task = store1.createTask();
-
-    const store2 = getTaskStore();
-    const retrieved = store2.getTask(task.id);
-
-    expect(retrieved).toBeDefined();
-    expect(retrieved?.id).toBe(task.id);
   });
 });

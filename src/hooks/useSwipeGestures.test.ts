@@ -2,8 +2,7 @@
  * @fileoverview Tests for useSwipeGestures hook
  */
 
-// @ts-ignore - Mock type compatibility issues with vi.fn()
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { createRef, RefObject } from 'react';
 import { useSwipeGestures } from './useSwipeGestures';
@@ -13,18 +12,18 @@ vi.useFakeTimers();
 
 describe('useSwipeGestures', () => {
   let container: HTMLDivElement;
-  let onSwipeLeft: jest.Mock;
-  let onSwipeRight: jest.Mock;
-  let onSwipeUp: jest.Mock;
-  let onSwipeDown: jest.Mock;
+  let onSwipeLeft: Mock;
+  let onSwipeRight: Mock;
+  let onSwipeUp: Mock;
+  let onSwipeDown: Mock;
 
   beforeEach(() => {
     container = document.createElement('div');
     document.body.appendChild(container);
-    onSwipeLeft = vi.fn() as jest.Mock;
-    onSwipeRight = vi.fn() as jest.Mock;
-    onSwipeUp = vi.fn() as jest.Mock;
-    onSwipeDown = vi.fn() as jest.Mock;
+    onSwipeLeft = vi.fn();
+    onSwipeRight = vi.fn();
+    onSwipeUp = vi.fn();
+    onSwipeDown = vi.fn();
   });
 
   afterEach(() => {

@@ -18,6 +18,7 @@ import {
   isAdmin,
   isManagerOrAdmin,
   isMemberOrHigher,
+  getPermissionsForRoles,
 } from '../rbac';
 import {
   initializeRbacTables,
@@ -162,7 +163,7 @@ describe('RBAC Integration Tests', () => {
 
     it('should handle missing permission context', () => {
       const result = hasAllPermissions(createPermissionContext('user1', []), [Permission.USER_READ]);
-      expect(result.granted).toBe(false);
+      expect(result.allowed).toBe(false);
       expect(result.missingPermissions).toContain(Permission.USER_READ);
     });
 

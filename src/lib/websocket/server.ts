@@ -613,11 +613,14 @@ export async function createServer(req: NextRequest): Promise<Response> {
   if (!httpServer) {
     httpServer = new HTTPServer();
 
+    // Get allowed origin from environment variable
+    const allowedOrigin = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.studio';
+
     // Initialize Socket.IO
     io = new SocketIOServer(httpServer, {
       path: '/api/ws',
       cors: {
-        origin: '*',
+        origin: allowedOrigin,
         methods: ['GET', 'POST'],
         credentials: true,
       },
@@ -640,7 +643,7 @@ export async function createServer(req: NextRequest): Promise<Response> {
       status: 200,
       headers: {
         'Content-Type': 'text/plain',
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.studio',
       },
     }
   );

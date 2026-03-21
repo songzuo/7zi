@@ -7,6 +7,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { Server } from 'socket.io';
+import { NextRequest } from 'next/server';
 import { createServer, getServer, getStats } from '@/lib/websocket/server';
 import type { Socket } from 'socket.io';
 import { verifyToken } from '@/lib/auth/jwt';
@@ -103,7 +104,7 @@ describe('WebSocket Server', () => {
 
   describe('Server Creation', () => {
     it('should create server successfully', async () => {
-      const req = new Request('http://localhost:3000/api/ws');
+      const req = new NextRequest('http://localhost:3000/api/ws');
       const response = await createServer(req);
 
       expect(response.status).toBe(200);
@@ -111,7 +112,7 @@ describe('WebSocket Server', () => {
     });
 
     it('should return WebSocket connection info', async () => {
-      const req = new Request('http://localhost:3000/api/ws');
+      const req = new NextRequest('http://localhost:3000/api/ws');
       const response = await createServer(req);
 
       const text = await response.text();

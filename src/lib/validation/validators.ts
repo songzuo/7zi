@@ -70,8 +70,8 @@ function createValidatorWithTwoParams<T, U>(
 /**
  * 必填验证
  */
-export const required = (message?: string): ValidationRule => ({
-  rule: (value: string) => {
+export const required = (message?: string): ValidationRule<unknown> => ({
+  rule: (value: unknown) => {
     if (typeof value === 'string') {
       return value.trim().length > 0;
     }

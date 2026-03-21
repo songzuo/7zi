@@ -10,41 +10,41 @@ const __dirname = path.dirname(__filename)
 
 export default defineConfig({
   plugins: [react()],
-  
+
   // Vitest 4: 线程池配置在顶层（不在 test 对象内）
   poolOptions: {
     vmForks: {
-      singleFork: false, // 允许并行执行
+      singleFork: true, // 使用单进程执行以减少内存占用和构建阻塞
     },
   },
-  
-  // Vitest 4: 限制并发工作线程数量（maxThreads 现在是顶层选项）
-  maxThreads: 3,
+
+  // Vitest 4: 严格限制并发工作线程数量
+  maxThreads: 1, // 使用单个线程避免内存溢出
   minThreads: 1,
-  
+
   test: {
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./src/test/setup.tsx'],
     include: ['src/**/*.{test,spec}.{js,ts,jsx,tsx}', 'app/**/*.{test,spec}.{js,ts,jsx,tsx}'],
-    
+
     // Vitest 4: 性能优化：使用 vmForks 线程池减少内存占用
     pool: 'vmForks',
-    
+
     // 测试超时配置
     testTimeout: 10000,
     hookTimeout: 10000,
     // 失败时重试
     retry: 1,
-    
+
     // 文件级别的超时配置
     fileTimeout: 30000,
-    
-    // 性能优化：测试隔离模式（in-process 更快但可能不安全，vmThreads 更安全）
+
+    // 性能优化：测试隔离模式（单进程模式下使用 isolate: true 确保测试独立性）
     isolate: true,
-    
+
     // 并发限制：限制同时运行的测试文件数量
-    maxConcurrency: 2,
+    maxConcurrency: 1, // 串行执行以避免内存溢出
     
     // 覆盖率配置
     coverage: {

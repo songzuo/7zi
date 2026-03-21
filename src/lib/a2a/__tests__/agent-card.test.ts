@@ -59,10 +59,10 @@ describe('createAgentCard', () => {
   it('should have capabilities', () => {
     const card = createAgentCard();
     expect(card.capabilities).toBeDefined();
-    expect(card.capabilities.streaming).toBe(true);
-    expect(card.capabilities.pushNotifications).toBe(false);
-    expect(card.capabilities.stateTransitionHistory).toBe(true);
-    expect(card.capabilities.extendedAgentCard).toBe(true);
+    expect(card.capabilities!.streaming).toBe(true);
+    expect(card.capabilities!.pushNotifications).toBe(false);
+    expect(card.capabilities!.stateTransitionHistory).toBe(true);
+    expect(card.capabilities!.extendedAgentCard).toBe(true);
   });
 
   it('should have default input/output modes', () => {
@@ -76,9 +76,9 @@ describe('createAgentCard', () => {
   it('should have additional interfaces', () => {
     const card = createAgentCard();
     expect(card.additionalInterfaces).toBeDefined();
-    expect(card.additionalInterfaces.length).toBeGreaterThan(0);
-    
-    const jsonrpcInterface = card.additionalInterfaces.find(
+    expect((card.additionalInterfaces || []).length).toBeGreaterThan(0);
+
+    const jsonrpcInterface = (card.additionalInterfaces || []).find(
       i => i.transport === 'JSONRPC'
     );
     expect(jsonrpcInterface).toBeDefined();
@@ -88,25 +88,25 @@ describe('createAgentCard', () => {
   it('should have security schemes', () => {
     const card = createAgentCard();
     expect(card.securitySchemes).toBeDefined();
-    expect(card.securitySchemes.bearerAuth).toBeDefined();
-    expect(card.securitySchemes.apiKey).toBeDefined();
-    
-    expect(card.securitySchemes.bearerAuth.type).toBe('http');
-    expect(card.securitySchemes.bearerAuth.scheme).toBe('bearer');
-    expect(card.securitySchemes.apiKey.type).toBe('apiKey');
+    expect((card.securitySchemes || {}).bearerAuth).toBeDefined();
+    expect((card.securitySchemes || {}).apiKey).toBeDefined();
+
+    expect((card.securitySchemes || {}).bearerAuth?.type).toBe('http');
+    expect((card.securitySchemes || {}).bearerAuth?.scheme).toBe('bearer');
+    expect((card.securitySchemes || {}).apiKey?.type).toBe('apiKey');
   });
 
   it('should have empty security requirements (public access)', () => {
     const card = createAgentCard();
     expect(card.security).toBeDefined();
-    expect(card.security.length).toBe(0);
+    expect((card.security || []).length).toBe(0);
   });
 
   it('should have provider info', () => {
     const card = createAgentCard();
     expect(card.provider).toBeDefined();
-    expect(card.provider.organization).toBe('7zi');
-    expect(card.provider.url).toBe('https://7zi.com');
+    expect(card.provider?.organization).toBe('7zi');
+    expect(card.provider?.url).toBe('https://7zi.com');
   });
 
   it('should have documentation URL', () => {
@@ -268,32 +268,32 @@ describe('Agent Card Structure', () => {
 
   it('should have valid skill examples', () => {
     const card = createAgentCard();
-    
+
     card.skills.forEach(skill => {
       expect(skill.examples).toBeDefined();
-      expect(skill.examples.length).toBeGreaterThan(0);
-      expect(skill.examples.every(ex => typeof ex === 'string')).toBe(true);
+      expect((skill.examples || []).length).toBeGreaterThan(0);
+      expect((skill.examples || []).every(ex => typeof ex === 'string')).toBe(true);
     });
   });
 
   it('should have valid skill tags', () => {
     const card = createAgentCard();
-    
+
     card.skills.forEach(skill => {
       expect(skill.tags).toBeDefined();
-      expect(skill.tags.length).toBeGreaterThan(0);
-      expect(skill.tags.every(tag => typeof tag === 'string')).toBe(true);
+      expect((skill.tags || []).length).toBeGreaterThan(0);
+      expect((skill.tags || []).every(tag => typeof tag === 'string')).toBe(true);
     });
   });
 
   it('should have valid input/output modes', () => {
     const card = createAgentCard();
-    
+
     card.skills.forEach(skill => {
       expect(skill.inputModes).toBeDefined();
-      expect(skill.inputModes.length).toBeGreaterThan(0);
+      expect((skill.inputModes || []).length).toBeGreaterThan(0);
       expect(skill.outputModes).toBeDefined();
-      expect(skill.outputModes.length).toBeGreaterThan(0);
+      expect((skill.outputModes || []).length).toBeGreaterThan(0);
     });
   });
 });

@@ -236,7 +236,7 @@ export function ExportPanel<T extends Record<string, unknown>>({
             <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
               数据预览 (前 {previewRows} 条)
             </label>
-            <div className="overflow-x-auto border border-zinc-200 dark:border-zinc-700 rounded-md">
+            <div className="overflow-x-auto hide-scrollbar border border-zinc-200 dark:border-zinc-700 rounded-md">
               <table className="min-w-full divide-y divide-zinc-200 dark:divide-zinc-700">
                 <thead className="bg-zinc-50 dark:bg-zinc-700/50">
                   <tr>

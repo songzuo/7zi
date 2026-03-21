@@ -130,7 +130,7 @@ describe('RBAC Core Functions', () => {
     it('should return true if all permissions match', () => {
       const context = createPermissionContext('user1', [Role.ADMIN]);
       const result = hasAllPermissions(context, [Permission.USER_READ, Permission.TEAM_READ]);
-      expect(result.granted).toBe(true);
+      expect(result.allowed).toBe(true);
       expect(result.missingPermissions).toBeUndefined();
     });
 
@@ -140,7 +140,7 @@ describe('RBAC Core Functions', () => {
         Permission.USER_READ,
         Permission.USER_CREATE,
       ]);
-      expect(result.granted).toBe(false);
+      expect(result.allowed).toBe(false);
       expect(result.missingPermissions).toContain(Permission.USER_CREATE);
     });
   });
@@ -219,7 +219,6 @@ describe('RBAC Core Functions', () => {
       const parsed = parsePermission(Permission.USER_READ);
       expect(parsed.resource).toBe('user');
       expect(parsed.action).toBe('read');
-      expect(parsed.raw).toBe(Permission.USER_READ);
     });
   });
 

@@ -25,6 +25,19 @@ import { logger } from '@/lib/logger';
 // Initialize handler (singleton pattern)
 let handler: A2ARequestHandler | null = null;
 
+/**
+ * Get CORS headers
+ * Enforces strict origin validation using NEXT_PUBLIC_SITE_URL
+ */
+function getCorsHeaders(): Record<string, string> {
+  const allowedOrigin = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.studio';
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  };
+}
+
 function getHandler(): A2ARequestHandler {
   if (!handler) {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
@@ -126,7 +139,7 @@ export async function POST(request: NextRequest) {
           },
           id: null,
         },
-        { status: 400 }
+        { status: 400, headers: getCorsHeaders() }
       );
     }
 
@@ -148,7 +161,7 @@ export async function POST(request: NextRequest) {
       }
 
       const responses = await processBatchRequest(body);
-      return NextResponse.json(responses);
+      return NextResponse.json(responses, { headers: getCorsHeaders() });
     }
 
     // Handle single request
@@ -157,7 +170,7 @@ export async function POST(request: NextRequest) {
     // Determine appropriate status code
     const statusCode = response.error ? determineErrorStatusCode(response.error.code) : 200;
 
-    return NextResponse.json(response, { status: statusCode });
+    return NextResponse.json(response, { status: statusCode, headers: getCorsHeaders() });
 
   } catch (error) {
     logger.error('A2A JSON-RPC error', error);
@@ -173,7 +186,7 @@ export async function POST(request: NextRequest) {
           },
           id: null,
         },
-        { status: 400 }
+        { status: 400, headers: getCorsHeaders() }
       );
     }
 
@@ -190,7 +203,7 @@ export async function POST(request: NextRequest) {
         },
         id: null,
       },
-      { status: 500 }
+      { status: 500, headers: getCorsHeaders() }
     );
   }
 }
@@ -217,12 +230,14 @@ function determineErrorStatusCode(jsonRpcCode: number): number {
 
 /**
  * CORS headers for cross-origin requests
+ * Enforces strict origin validation using NEXT_PUBLIC_SITE_URL
  */
 export async function OPTIONS() {
+  const allowedOrigin = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.studio';
   return new NextResponse(null, {
     status: 204,
     headers: {
-      'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_SITE_URL || '*',
+      'Access-Control-Allow-Origin': allowedOrigin,
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       'Access-Control-Max-Age': '86400', // 24 hours

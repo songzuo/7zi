@@ -45,9 +45,13 @@ function decryptApiKey(encryptedKey: string, secret: string): string {
 
 /**
  * 获取加密密钥
+ * @throws {Error} If neither AGENT_ENCRYPTION_SECRET nor JWT_SECRET is set
  */
 function getEncryptionSecret(): string {
-  const secret = process.env.AGENT_ENCRYPTION_SECRET || process.env.JWT_SECRET || 'default-agent-secret-key';
+  const secret = process.env.AGENT_ENCRYPTION_SECRET || process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('AGENT_ENCRYPTION_SECRET or JWT_SECRET environment variable is required');
+  }
   if (secret.length < 32) {
     return secret.padEnd(32, '0');
   }

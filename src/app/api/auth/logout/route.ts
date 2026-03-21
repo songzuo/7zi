@@ -32,7 +32,8 @@ export async function POST(request: NextRequest) {
 
       return response;
     } catch (error) {
-      logger.error('Logout API error', error);
+      // Never log actual token values - security risk
+      logger.error('Logout API error', error, { category: 'auth' });
       return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
     }
   });

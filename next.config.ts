@@ -1,7 +1,12 @@
 import createNextIntlPlugin from 'next-intl/plugin';
 import type { NextConfig } from "next";
+import bundleAnalyzer from '@next/bundle-analyzer';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+});
 
 const nextConfig: NextConfig = {
   // Docker 部署使用 standalone 输出模式
@@ -18,7 +23,15 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**',
+        hostname: 'github.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'va.vercel-scripts.com',
       },
     ],
     // 图片格式（AVIF 和 WebP）
@@ -28,17 +41,28 @@ const nextConfig: NextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     // 最小缓存时间（秒）
     minimumCacheTTL: 60,
+    // 图片质量优化
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
-  
+
   // 压缩配置
   compress: true,
-  
+
   // React 严格模式（开发环境）
   reactStrictMode: true,
-  
+
   // 禁用 x-powered-by 头（安全）
   poweredByHeader: false,
-  
+
+  // 编译器配置
+  compiler: {
+    // 移除 console.log（生产环境）
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'],
+    } : false,
+  },
+
   // 性能优化：实验性功能
   experimental: {
     // 优化包导入 - 减少打包体积
@@ -47,13 +71,24 @@ const nextConfig: NextConfig = {
       '@sentry/nextjs',
       'zustand',
       'web-vitals',
+      'lucide-react',
     ],
+    // CSS 优化
+    optimizeCss: true,
   },
-  
+
+  // 服务器组件外部包
+  serverExternalPackages: [
+    'sharp',
+    'better-sqlite3',
+    'jose',
+    'uuid',
+  ],
+
   // Webpack 配置优化
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, dev }) => {
     // 生产环境优化
-    if (!isServer) {
+    if (!isServer && !dev) {
       // 客户端包拆分
       config.optimization = config.optimization || {};
       config.optimization.splitChunks = {
@@ -64,18 +99,41 @@ const nextConfig: NextConfig = {
             test: /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/,
             name: 'react-core',
             priority: 40,
+            reuseExistingChunk: true,
           },
           // Next.js 核心单独打包
           next: {
-            test: /[\\/]node_modules[\\/](next)[\\/]/,
+            test: /[\\/]node_modules[\\/](next|next-intl)[\\/]/,
             name: 'next-core',
+            priority: 35,
+            reuseExistingChunk: true,
+          },
+          // 状态管理库
+          state: {
+            test: /[\\/]node_modules[\\/](zustand|immer|redux)[\\/]/,
+            name: 'state-management',
             priority: 30,
+            reuseExistingChunk: true,
           },
           // UI 组件库
+          ui: {
+            test: /[\\/]node_modules[\\/](lucide-react|@radix-ui)[\\/]/,
+            name: 'ui-components',
+            priority: 25,
+            reuseExistingChunk: true,
+          },
+          // 实用工具库
+          utils: {
+            test: /[\\/]node_modules[\\/](uuid|clsx|class-variance-authority|date-fns)[\\/]/,
+            name: 'utils',
+            priority: 20,
+            reuseExistingChunk: true,
+          },
+          // 其他 vendor
           vendor: {
             test: /[\\/]node_modules[\\/]/,
             name: 'vendors',
-            priority: 20,
+            priority: 15,
             reuseExistingChunk: true,
           },
           // 公共模块
@@ -85,14 +143,27 @@ const nextConfig: NextConfig = {
             reuseExistingChunk: true,
           },
         },
-        maxInitialRequests: 25,
-        minSize: 20000,
+        // 更细粒度的 chunk 控制
+        maxInitialRequests: 30,  // 增加到 30
+        maxAsyncRequests: 30,    // 增加异步请求数
+        minSize: 10240,        // 减小到 10KB
+        maxSize: 244000,       // 最大 chunk 大小 244KB
+        minChunks: 1,
       };
+
+      // Tree shaking 优化
+      config.optimization.usedExports = true;
+      config.optimization.sideEffects = false;
     }
-    
+
+    // 优化模块解析
+    config.resolve = config.resolve || {};
+    config.resolve.alias = config.resolve.alias || {};
+    config.resolve.alias['@'] = __dirname + '/src';
+
     return config;
   },
-  
+
   // 安全头配置
   headers: async () => [
     {
@@ -103,10 +174,10 @@ const nextConfig: NextConfig = {
           key: 'Content-Security-Policy',
           value: [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://cdn.jsdelivr.net",
+            "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com https://cdn.jsdelivr.net",
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
             "font-src 'self' https://fonts.gstatic.com data:",
-            "img-src 'self' data: blob: https: http:",
+            "img-src 'self' data: blob: https: http: github.com avatars.githubusercontent.com va.vercel-scripts.com",
             "connect-src 'self' https://api.github.com https://o1.ingest.sentry.io https://va.vercel-scripts.com https://vitals.vercel-insights.com",
             "frame-ancestors 'self'",
             "base-uri 'self'",
@@ -154,20 +225,8 @@ const nextConfig: NextConfig = {
         },
       ],
     },
-    // 注意：已移除 /_next/static/:path* 的自定义 Cache-Control
-    // Next.js 会自动处理静态资源的缓存，自定义配置可能导致问题
   ],
-  
-  // 忽略 TypeScript 错误
-  // typescript: {
-  //   ignoreBuildErrors: true,
-  // },
-  
-  // 忽略 ESLint 错误
-  // eslint: {
-  //   ignoreDuringBuilds: true,
-  // },
 };
 
-// Export with next-intl wrapper
-export default withNextIntl(nextConfig);
+// Export with plugins
+export default withBundleAnalyzer(withNextIntl(nextConfig));

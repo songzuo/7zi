@@ -78,12 +78,16 @@ class NPlus1Detector {
   /**
    * Record a query execution
    */
-  recordQuery(sql: string, executionTime: number): void {
-    if (!this.enabled || !this.currentRequestId) {
+  recordQuery(requestId: string, sql: string, executionTime: number): void {
+    if (!this.enabled) {
       return;
     }
 
-    const queries = this.requestQueries.get(this.currentRequestId) || [];
+    let queries = this.requestQueries.get(requestId);
+    if (!queries) {
+      queries = [];
+      this.requestQueries.set(requestId, queries);
+    }
 
     // Find or create pattern
     const patternKey = this.getPatternKey(sql);
@@ -115,6 +119,49 @@ class NPlus1Detector {
   }
 
   /**
+   * Check if detection is enabled
+   */
+  isEnabled(): boolean {
+    return this.enabled;
+  }
+
+  /**
+   * Generate batch query for N+1 optimization
+   */
+  generateBatchQuery(sql: string, params: unknown[]): BatchQueryOption {
+    const queryType = this.detectQueryType(sql);
+    
+    if (queryType === 'select' && params.length > 1) {
+      // Convert WHERE id = ? to WHERE id IN (?,?,?)
+      const inClause = sql.replace(/WHERE\s+\w+\s*=\s*\?/i, `WHERE id IN (${params.map(() => '?').join(',')})`);
+      return {
+        sql: inClause,
+        params: params.map(p => [p])
+      };
+    } else if (queryType === 'insert') {
+      // Batch insert: INSERT INTO table (a,b) VALUES (?,?),(?,?)
+      const valuesClause = params.map(() => '(?,?)').join(',');
+      return {
+        sql: sql.replace(/VALUES\s*\([^)]+\)/i, `VALUES ${valuesClause}`),
+        params: params as unknown[][]
+      };
+    } else if (queryType === 'update') {
+      // Batch update: UPDATE table SET x = ? WHERE id IN (?,?,?)
+      const inClause = sql.replace(/WHERE\s+\w+\s*=\s*\?/i, `WHERE id IN (${params.map(() => '?').join(',')})`);
+      return {
+        sql: inClause,
+        params: params.map(p => [p])
+      };
+    }
+    
+    // Default: return original
+    return {
+      sql,
+      params: params.map(p => [p])
+    };
+  }
+
+  /**
    * Analyze queries for N+1 patterns
    */
   private analyzeQueries(queries: QueryPattern[]): NPlus1Detection {
@@ -135,6 +182,12 @@ class NPlus1Detector {
     let detected = false;
     let severity: 'low' | 'medium' | 'high' = 'low';
 
+    // Add all patterns to the result
+    for (const query of queries) {
+      patterns.push(query);
+    }
+
+    // Check for N+1 patterns
     for (const [table, tableQueries] of queriesByTable.entries()) {
       // Check for multiple similar SELECT queries
       const selectQueries = tableQueries.filter(q => q.patternType === 'select');
@@ -150,23 +203,13 @@ class NPlus1Detector {
 
       // Analyze each pattern group
       for (const [pattern, patternQueries] of groupedByPattern.entries()) {
-        if (patternQueries.length > 2) {
+        const totalCount = patternQueries.reduce((sum, q) => sum + q.count, 0);
+        
+        // Detect N+1 based on total count
+        if (totalCount > 2) {
           // Potential N+1 detected
           detected = true;
-
-          // Calculate total impact
-          const totalCount = patternQueries.reduce((sum, q) => sum + q.count, 0);
           const totalTime = patternQueries.reduce((sum, q) => sum + q.totalTime, 0);
-
-          patterns.push({
-            sql: patternQueries[0].sql,
-            count: totalCount,
-            totalTime,
-            patternType: 'select',
-            tableName: table,
-            whereClause: patternQueries[0].whereClause,
-            patternKey: patternQueries[0].patternKey,
-          });
 
           // Generate suggestions
           suggestions.push(
@@ -175,19 +218,19 @@ class NPlus1Detector {
 
           if (totalCount > 10) {
             severity = 'high';
-          } else if (totalCount > 5) {
+          } else if (totalCount >= 5) {
             severity = 'medium';
           }
 
           // Suggest optimization
-          if (pattern.includes('WHERE id = ?')) {
+          if (pattern.includes('WHERE id = ?') || pattern.includes('WHERE user_id = ?') || pattern.includes('WHERE') && pattern.includes('?')) {
             suggestions.push(
               `Consider using WHERE id IN (...) to batch ${totalCount} queries into one`
             );
           } else if (pattern.includes('JOIN')) {
             suggestions.push('Consider using a single JOIN query instead of multiple queries');
           } else {
-            suggestions.push('Consider using eager loading or batch queries');
+            suggestions.push('Use eager loading or JOIN queries to fetch related data in a single query');
           }
         }
       }
@@ -282,72 +325,6 @@ class NPlus1Detector {
 }
 
 /**
- * Create batch query from individual queries
- */
-export function createBatchQuery(
-  individualQueries: Array<{ sql: string; params: unknown[] }>
-): BatchQueryOption | null {
-  if (individualQueries.length === 0) {
-    return null;
-  }
-
-  // Check if all queries have the same structure
-  const firstSql = individualQueries[0].sql;
-  for (let i = 1; i < individualQueries.length; i++) {
-    if (individualQueries[i].sql !== firstSql) {
-      logger.warn('Cannot create batch query: queries have different structures', {
-        category: 'db',
-      });
-      return null;
-    }
-  }
-
-  // Try to convert to WHERE IN query if possible
-  const whereMatch = firstSql.match(/WHERE\s+(\w+)\s*=\s*\?/i);
-  if (whereMatch && individualQueries.length > 1) {
-    const column = whereMatch[1];
-    const values = individualQueries.map(q => q.params[0]);
-
-    const batchSql = firstSql.replace(
-      /WHERE\s+\w+\s*=\s*\?/i,
-      `WHERE ${column} IN (${values.map(() => '?').join(', ')})`
-    );
-
-    return {
-      sql: batchSql,
-      params: [values.flat()],
-    };
-  }
-
-  // If not convertible, return as-is (will use db.batch)
-  return {
-    sql: firstSql,
-    params: individualQueries.map(q => q.params) as unknown[][],
-  };
-}
-
-/**
- * Execute batch query
- */
-export async function executeBatchQuery(batchOption: BatchQueryOption): Promise<unknown[]> {
-  const db = await getDatabaseAsync();
-
-  // If params is nested array, use batch operation
-  if (batchOption.params.length > 0 && Array.isArray(batchOption.params[0])) {
-    const statements = batchOption.params.map(params => ({
-      sql: batchOption.sql,
-      params,
-    }));
-
-    return db.batch(statements);
-  }
-
-  // Otherwise execute as single query
-  const stmt = db.prepare(batchOption.sql);
-  return stmt.all(...batchOption.params) as unknown[];
-}
-
-/**
  * Eager load related entities
  */
 export async function eagerLoad<T, R extends { id: string | number }>(
@@ -403,8 +380,5 @@ export function resetNPlus1Detector(): void {
   detectorInstance = null;
 }
 
-export default {
-  createBatchQuery,
-  executeBatchQuery,
-  eagerLoad,
-};
+// Removed unused exports: createBatchQuery, executeBatchQuery
+// These were never imported anywhere in the codebase

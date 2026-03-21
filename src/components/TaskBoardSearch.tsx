@@ -192,7 +192,7 @@ const TaskCardBase: React.FC<TaskCardProps> = ({ issue, searchQuery }) => {
           </div>
 
           {/* 标签 */}
-          {issue.labels.length > 0 && (
+          {issue.labels && issue.labels.length > 0 && (
             <div className="flex items-center gap-1 mb-2 flex-wrap">
               {issue.labels.slice(0, 5).map((label, idx) => (
                 <span

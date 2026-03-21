@@ -204,43 +204,151 @@ GET /api/github/commits?owner=songzuo&repo=7zi&per_page=10&page=1
 
 ---
 
+### Get Repository Issues
+
+**Endpoint:** `GET /api/github/issues`
+
+Proxy to GitHub API to fetch repository issues. Hides `GITHUB_TOKEN` from the client. **Security purpose**: Avoid exposing GitHub token in client-side code.
+
+**Query Parameters:**
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `owner` | string | Yes | - | Repository owner (e.g., "songzuo") |
+| `repo` | string | Yes | - | Repository name (e.g., "7zi") |
+| `state` | string | No | open | Issue state: "open", "closed", or "all" |
+| `labels` | string | No | - | Comma-separated label names |
+| `sort` | string | No | created | Sort field: "created", "updated", or "comments" |
+| `direction` | string | No | desc | Sort direction: "asc" or "desc" |
+| `per_page` | number | No | 30 | Issues per page (max 100) |
+| `page` | number | No | 1 | Page number |
+| `since` | string | No | - | Only issues after this ISO 8601 timestamp |
+
+**Example:**
+```
+GET /api/github/issues?owner=songzuo&repo=7zi&state=open&per_page=10
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 123456789,
+      "number": 42,
+      "title": "Fix authentication bug",
+      "state": "open",
+      "user": {
+        "login": "contributor",
+        "avatar_url": "https://github.com/user.png"
+      },
+      "labels": [
+        {
+          "name": "bug",
+          "color": "d73a4a"
+        }
+      ],
+      "created_at": "2026-03-19T10:00:00.000Z",
+      "updated_at": "2026-03-19T12:00:00.000Z",
+      "html_url": "https://github.com/songzuo/7zi/issues/42"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "per_page": 10,
+    "total": 0
+  },
+  "timestamp": "2026-03-19T12:00:00.000Z"
+}
+```
+
+**Errors:**
+- `400` - Invalid query parameters (validation error)
+- `401` - GitHub authentication token is invalid or expired
+- `403` - GitHub API rate limit exceeded (with reset time in message)
+- `404` - Repository not found or does not exist
+- `502` - Invalid response format from GitHub API
+- `500` - Internal server error
+
+**Important Notes:**
+- Pull requests are automatically filtered out from the response (GitHub API returns both issues and PRs)
+- If `GITHUB_TOKEN` is not configured, the endpoint still works but is subject to GitHub's unauthenticated rate limits (60 requests/hour)
+- With authentication token: 5,000 requests/hour
+- The `total` field in pagination returns 0 because GitHub doesn't provide total count in the API response
+
+---
+
 ## 💚 Health Check APIs
 
 ### General Health Check
 
 **Endpoint:** `GET /api/health`
 
-Basic health check for Kubernetes/Docker and load balancer probes.
+Basic health check for Kubernetes/Docker and load balancer probes. Returns detailed system health status with memory and Node.js version checks.
 
-**Response (200 OK):**
+**Cache:** Disabled (force-dynamic) to ensure fresh health status.
+
+**Response (200 OK) - Healthy:**
 ```json
 {
-  "status": "healthy",
-  "timestamp": "2026-03-19T12:00:00.000Z",
-  "uptime": 3600.5,
-  "version": "1.0.0",
-  "checks": {
-    "memory": {
-      "status": "ok",
-      "used": 128,
-      "limit": 512
-    },
-    "node": {
-      "status": "ok",
-      "version": "v22.22.0"
+  "success": true,
+  "data": {
+    "status": "healthy",
+    "timestamp": "2026-03-19T12:00:00.000Z",
+    "uptime": 3600.5,
+    "version": "1.0.0",
+    "checks": {
+      "memory": {
+        "status": "ok",
+        "used": 128,
+        "limit": 512
+      },
+      "node": {
+        "status": "ok",
+        "version": "v22.22.0"
+      }
     }
-  }
+  },
+  "timestamp": "2026-03-19T12:00:00.000Z"
 }
 ```
 
-**Response (503 Service Unavailable):**
+**Response (503 Service Unavailable) - Unhealthy:**
 ```json
 {
-  "status": "unhealthy",
-  "timestamp": "2026-03-19T12:00:00.000Z",
-  "error": "Health check failed"
+  "success": false,
+  "data": {
+    "status": "unhealthy",
+    "timestamp": "2026-03-19T12:00:00.000Z",
+    "uptime": 3600.5,
+    "version": "1.0.0",
+    "checks": {
+      "memory": {
+        "status": "warning",
+        "used": 486,
+        "limit": 512
+      },
+      "node": {
+        "status": "ok",
+        "version": "v22.22.0"
+      }
+    }
+  },
+  "timestamp": "2026-03-19T12:00:00.000Z"
 }
 ```
+
+**Health Checks:**
+- **Memory**: Checks if heap usage is below 95% of the 512MB limit (486.4MB)
+- **Node.js**: Always returns "ok" with current Node.js version
+
+**Response Fields:**
+- `status`: "healthy" or "unhealthy" based on memory usage
+- `uptime`: Process uptime in seconds
+- `version`: Application version from `npm_package_version` environment variable (defaults to "1.0.0")
+- `checks.memory.used`: Memory used in MB
+- `checks.memory.limit`: Memory limit in MB (fixed at 512MB)
+- `checks.memory.status`: "ok" if below 95%, "warning" if above
 
 ---
 
@@ -665,7 +773,17 @@ Get a CSRF token for form submissions.
 
 **Endpoint:** `POST /api/a2a/jsonrpc`
 
-Agent-to-Agent communication via JSON-RPC 2.0 protocol.
+Agent-to-Agent communication via JSON-RPC 2.0 protocol. Supports both single requests and batch requests.
+
+**Headers:**
+```
+Content-Type: application/json
+Authorization: Bearer <token> (optional)
+```
+
+**CORS:** Supports cross-origin requests with strict origin validation based on `NEXT_PUBLIC_SITE_URL`.
+
+#### Single Request
 
 **Request Body:**
 ```json
@@ -705,21 +823,482 @@ Agent-to-Agent communication via JSON-RPC 2.0 protocol.
 }
 ```
 
-**Error Response:**
+#### Batch Request
+
+Send multiple requests in a single HTTP call for better performance.
+
+**Request Body:**
+```json
+[
+  {
+    "jsonrpc": "2.0",
+    "method": "agent.task.execute",
+    "params": {
+      "agentId": "agent_123",
+      "task": {
+        "type": "code_review",
+        "payload": {
+          "prNumber": 42
+        }
+      }
+    },
+    "id": 1
+  },
+  {
+    "jsonrpc": "2.0",
+    "method": "agent.task.execute",
+    "params": {
+      "agentId": "agent_456",
+      "task": {
+        "type": "code_review",
+        "payload": {
+          "prNumber": 43
+        }
+      }
+    },
+    "id": 2
+  }
+]
+```
+
+**Response (200 OK):**
+```json
+[
+  {
+    "jsonrpc": "2.0",
+    "result": {
+      "success": true,
+      "data": {
+        "agentId": "agent_123",
+        "taskId": "task_456",
+        "status": "completed"
+      }
+    },
+    "id": 1
+  },
+  {
+    "jsonrpc": "2.0",
+    "result": {
+      "success": true,
+      "data": {
+        "agentId": "agent_456",
+        "taskId": "task_789",
+        "status": "completed"
+      }
+    },
+    "id": 2
+  }
+]
+```
+
+#### Error Responses
+
+**Invalid Request (400):**
 ```json
 {
   "jsonrpc": "2.0",
   "error": {
     "code": -32600,
-    "message": "Invalid Request"
+    "message": "Invalid Request",
+    "data": {
+      "method": "Field is required"
+    }
   },
   "id": null
 }
 ```
 
+**Method Not Found (404):**
+```json
+{
+  "jsonrpc": "2.0",
+  "error": {
+    "code": -32601,
+    "message": "Method not found"
+  },
+  "id": 1
+}
+```
+
+**Internal Error (500):**
+```json
+{
+  "jsonrpc": "2.0",
+  "error": {
+    "code": -32603,
+    "message": "Internal error",
+    "data": {
+      "message": "Detailed error message (development only)"
+    }
+  },
+  "id": null
+}
+```
+
+#### JSON-RPC Error Codes
+
+| Code | Message | HTTP Status | Description |
+|------|---------|-------------|-------------|
+| `-32700` | Parse error | 400 | Invalid JSON was received |
+| `-32600` | Invalid Request | 400 | JSON-RPC request is invalid |
+| `-32601` | Method not found | 404 | Method does not exist |
+| `-32602` | Invalid params | 400 | Invalid method parameters |
+| `-32603` | Internal error | 500 | Internal JSON-RPC error |
+
 ---
 
-## 🔒 Security Notes
+## 💾 Backup APIs
+
+### List Backups
+
+**Endpoint:** `GET /api/backup`
+
+List all available database backups with metadata.
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "backups": [
+      {
+        "id": "backup-1711234567890-abc123",
+        "filename": "backup-1711234567890-abc123.json",
+        "createdAt": "2026-03-20T12:00:00.000Z",
+        "sizeInBytes": 10485760,
+        "sizeInMB": 10.0,
+        "version": "1.0.0",
+        "tables": ["users", "tasks", "projects"],
+        "recordCounts": {
+          "users": 100,
+          "tasks": 500,
+          "projects": 25
+        },
+        "checksum": "a1b2c3d4e5f6..."
+      }
+    ],
+    "count": 1,
+    "totalSizeMB": "10.00"
+  }
+}
+```
+
+---
+
+### Create Backup
+
+**Endpoint:** `POST /api/backup`
+
+Create a new full database backup.
+
+**Response (201 Created):**
+```json
+{
+  "success": true,
+  "data": {
+    "backup": {
+      "id": "backup-1711234567890-xyz789",
+      "filename": "backup-1711234567890-xyz789.json",
+      "createdAt": "2026-03-20T12:00:00.000Z",
+      "sizeInBytes": 10485760,
+      "sizeInMB": "10.00",
+      "version": "1.0.0",
+      "tables": ["users", "tasks", "projects"],
+      "recordCounts": {
+        "users": 100,
+        "tasks": 500,
+        "projects": 25
+      },
+      "checksum": "f6e5d4c3b2a1..."
+    },
+    "downloadUrl": "/api/backup/backup-1711234567890-xyz789"
+  }
+}
+```
+
+---
+
+### Get Backup by ID
+
+**Endpoint:** `GET /api/backup/[id]`
+
+Download a specific backup file.
+
+**URL Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `id` | string | Yes | Backup ID (without .json extension) |
+
+**Response (200 OK):**
+Returns the backup JSON file directly.
+
+**Errors:**
+- `404` - Backup not found
+
+---
+
+### Delete Backup
+
+**Endpoint:** `DELETE /api/backup/[id]`
+
+Delete a specific backup file.
+
+**URL Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `id` | string | Yes | Backup ID (without .json extension) |
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Backup deleted successfully"
+}
+```
+
+**Errors:**
+- `404` - Backup not found
+
+---
+
+## 🖼️ Multimodal APIs
+
+### Audio Transcription
+
+**Endpoint:** `POST /api/multimodal/audio`
+
+Upload and transcribe audio files with various options.
+
+**Request Body:** `multipart/form-data`
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `audio` | File | Yes | Audio file to transcribe |
+| `provider` | string | No | Specific provider to use |
+| `language` | string | No | Language code (default: zh-CN) |
+| `model` | string | No | Model to use for transcription |
+| `timestamps` | boolean | No | Include timestamps in result (default: false) |
+| `speakerDiarization` | boolean | No | Identify different speakers (default: false) |
+
+**Supported Audio Types:**
+- audio/mpeg, audio/mp3
+- audio/wav, audio/wave
+- audio/webm, audio/ogg
+- audio/flac, audio/aac, audio/m4a
+
+**Max File Size:** 100MB
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "text": "Transcribed text content here...",
+    "segments": [
+      {
+        "start": 0,
+        "end": 2.5,
+        "text": "First segment",
+        "startFormatted": "00:00",
+        "endFormatted": "00:02"
+      }
+    ],
+    "language": "zh-CN",
+    "duration": 10.5,
+    "durationFormatted": "00:10",
+    "confidence": 0.95,
+    "speakerDiarization": false,
+    "wordCount": 25
+  },
+  "metadata": {
+    "provider": "default",
+    "originalSize": 1048576,
+    "detectedType": "mp3",
+    "filename": "recording.mp3",
+    "type": "audio/mpeg",
+    "duration": 10.5,
+    "language": "zh-CN",
+    "model": "default",
+    "processingTime": "2.345"
+  }
+}
+```
+
+**Supported Languages:**
+`zh-CN`, `zh-TW`, `en-US`, `en-GB`, `ja-JP`, `ko-KR`, `es-ES`, `fr-FR`, `de-DE`, `it-IT`, `pt-BR`
+
+**Errors:**
+- `400` - Invalid request or audio validation failed
+- `413` - Audio file too large
+- `415` - Unsupported audio format
+- `503` - Transcription service unavailable
+- `504` - Transcription timeout
+
+---
+
+### Get Audio Providers
+
+**Endpoint:** `GET /api/multimodal/audio`
+
+Get list of available audio transcription providers with health status.
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "providers": [
+      {
+        "name": "default",
+        "capabilities": ["audio", "transcription"],
+        "healthy": true,
+        "status": "operational"
+      }
+    ],
+    "total": 1,
+    "operational": 1,
+    "supportedLanguages": ["zh-CN", "en-US", ...],
+    "supportedTypes": ["audio/mpeg", "audio/wav", ...],
+    "maxSizeBytes": 104857600,
+    "maxSizeMB": "100"
+  }
+}
+```
+
+---
+
+## 📊 Monitoring & Metrics APIs
+
+### Performance Metrics
+
+**Endpoint:** `GET /api/metrics/performance`
+
+Get comprehensive performance metrics including API, rate limiting, and system health.
+
+**Query Parameters:**
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `category` | string | No | all | Filter: "all", "api", "ratelimit", or "system" |
+| `period` | string | No | 24h | Time period: "1h", "24h", "7d", "30d" |
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "apiPerformance": {
+      "summary": {
+        "totalRequests": 1250,
+        "avgDuration": 85,
+        "successRate": 99.8
+      },
+      "topSlowRequests": [
+        {
+          "path": "/api/performance/report",
+          "avgDuration": 250,
+          "count": 10
+        }
+      ],
+      "routeCount": 28
+    },
+    "rateLimiting": {
+      "totalEntries": 150,
+      "trackedPaths": ["/api/auth/login", "/api/github/commits"],
+      "totalRequestsTracked": 5000,
+      "pathsCount": 20
+    },
+    "system": {
+      "uptime": {
+        "seconds": 3600,
+        "formatted": "1h 0m"
+      },
+      "memory": {
+        "heapUsed": "128 MB",
+        "heapTotal": "512 MB",
+        "heapUsedPercent": "25.00"
+      },
+      "nodeVersion": "v22.22.0",
+      "platform": "linux",
+      "arch": "x64"
+    }
+  },
+  "timestamp": "2026-03-20T12:00:00.000Z"
+}
+```
+
+---
+
+### Prometheus Metrics
+
+**Endpoint:** `GET /api/metrics/prometheus`
+
+Export metrics in Prometheus/OpenMetrics format for integration with Prometheus/Grafana.
+
+**Headers:**
+```
+Content-Type: text/plain; version=0.0.4; charset=utf-8
+```
+
+**Response (200 OK):**
+```
+# HELP http_requests_total Total number of HTTP requests
+# TYPE http_requests_total counter
+http_requests_total{method="GET",path="/api/health",status="200"} 1250
+
+# HELP http_request_duration_seconds HTTP request duration
+# TYPE http_request_duration_seconds histogram
+http_request_duration_seconds_bucket{le="0.1"} 100
+http_request_duration_seconds_bucket{le="1"} 900
+http_request_duration_seconds_bucket{le="+Inf"} 1000
+
+# HELP system_memory_used_bytes System memory usage
+# TYPE system_memory_used_bytes gauge
+system_memory_used_bytes 134217728
+```
+
+---
+
+## 📡 Stream APIs
+
+### Health Stream (SSE)
+
+**Endpoint:** `GET /api/stream/health`
+
+Real-time health metrics using Server-Sent Events (SSE).
+
+**Headers:**
+```
+Accept: text/event-stream
+```
+
+**Response (200 OK):**
+SSE stream with events in the format:
+
+```
+id: client-uuid
+event: connected
+data: {"type":"metrics","timestamp":"2026-03-20T12:00:00.000Z","data":{}}
+
+event: metrics
+data: {"type":"metrics","timestamp":"2026-03-20T12:00:05.000Z","data":{"apiLatency":85,"memoryUsage":128}}
+
+event: status
+data: {"type":"status","timestamp":"2026-03-20T12:00:30.000Z","data":{"status":"ok","checks":{...},"uptime":3600}}
+
+: keep-alive
+```
+
+**Event Types:**
+- `connected` - Initial connection established
+- `metrics` - API latency and memory usage (every 5 seconds)
+- `status` - Detailed health status (every 30 seconds)
+- `error` - Error occurred during data collection
+- `keep-alive` - Keep-alive signal (every 15 seconds)
+
+**Errors:**
+- `400` - Invalid SSE connection request
+- `503` - Streaming service unavailable
+
+---
 
 ### Authentication
 - All protected endpoints require a valid JWT token in the `Authorization` header
@@ -831,4 +1410,4 @@ curl "http://localhost:3000/api/performance/report?detailed=true"
 
 ---
 
-_Last updated: 2026-03-19_
+_Last updated: 2026-03-21_

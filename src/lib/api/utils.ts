@@ -72,12 +72,13 @@ interface CookieOptions {
 
 /**
  * Default cookie options based on environment
+ * Uses 'strict' SameSite policy for enhanced security
  */
 function getDefaultCookieOptions(maxAge: number): CookieOptions {
   return {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    sameSite: 'strict',
     maxAge,
     path: '/',
   };
@@ -99,22 +100,22 @@ export function setAuthCookies(
 ): void {
   const isProduction = process.env.NODE_ENV === 'production';
 
-  // Set access token cookie (1 hour)
+  // Set access token cookie (1 hour) - Use strict for enhanced CSRF protection
   response.cookies.set('auth_token', token, {
     httpOnly: true,
     secure: isProduction,
-    sameSite: 'lax',
+    sameSite: 'strict',
     maxAge: 3600, // 1 hour
     path: '/',
   });
 
-  // Set refresh token cookie if provided
+  // Set refresh token cookie if provided - Use strict for sensitive token
   if (refreshToken) {
     const refreshMaxAge = rememberMe ? 86400 * 7 : 3600 * 2; // 7 days if rememberMe, else 2 hours
     response.cookies.set('refresh_token', refreshToken, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: 'lax',
+      sameSite: 'strict',
       maxAge: refreshMaxAge,
       path: '/',
     });

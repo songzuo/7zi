@@ -82,7 +82,7 @@ describe('withPerformanceLogging', () => {
     });
 
     it('should track query duration', async () => {
-      mockDb.query.mockImplementation((sql) => {
+      mockDb.query.mockImplementation((sql: string) => {
         advanceTime(50);
         return [{ id: 1, name: 'test' }];
       });
@@ -120,7 +120,7 @@ describe('withPerformanceLogging', () => {
     });
 
     it('should detect slow queries (> 100ms)', async () => {
-      mockDb.query.mockImplementation((sql) => {
+      mockDb.query.mockImplementation((sql: string) => {
         advanceTime(150);
         return [{ id: 1, name: 'test' }];
       });
@@ -188,7 +188,7 @@ describe('withPerformanceLogging', () => {
     });
 
     it('should detect slow exec operations', async () => {
-      mockDb.exec.mockImplementation((sql) => {
+      mockDb.exec.mockImplementation((sql: string) => {
         advanceTime(150);
         return { changes: 1, lastInsertRowid: 1 };
       });
@@ -478,7 +478,7 @@ describe('withPerformanceLogging', () => {
     it('should provide insights for slow queries', async () => {
       setupPerformanceMock();
       const db = withPerformanceLogging(mockDb);
-      mockDb.query.mockImplementation((sql) => {
+      mockDb.query.mockImplementation((sql: string) => {
         advanceTime(150);
         return [{ id: 1 }];
       });
@@ -518,7 +518,7 @@ describe('withPerformanceLogging', () => {
     it('should provide recommendations for many slow queries', async () => {
       setupPerformanceMock();
       const db = withPerformanceLogging(mockDb);
-      mockDb.query.mockImplementation((sql) => {
+      mockDb.query.mockImplementation((sql: string) => {
         advanceTime(150);
         return [{ id: 1 }];
       });
@@ -561,7 +561,7 @@ describe('withPerformanceLogging', () => {
       const db = withPerformanceLogging(mockDb);
 
       // Create test metrics with varying durations
-      mockDb.query.mockImplementation((sql, delay) => {
+      mockDb.query.mockImplementation((sql: string, delay?: number) => {
         advanceTime(delay || 10);
         return [{ id: 1 }];
       });
@@ -606,7 +606,7 @@ describe('withPerformanceLogging', () => {
       const db = withPerformanceLogging(mockDb);
       clearQueryMetrics();
 
-      mockDb.query.mockImplementation((sql, delay) => {
+      mockDb.query.mockImplementation((sql: string, delay?: number) => {
         advanceTime(delay);
         return [{ id: 1 }];
       });
@@ -645,7 +645,7 @@ describe('withPerformanceLogging', () => {
       const db = withPerformanceLogging(mockDb);
       clearQueryMetrics();
 
-      mockDb.query.mockImplementation((sql, delay) => {
+      mockDb.query.mockImplementation((sql: string, delay?: number) => {
         advanceTime(delay);
         return [{ id: 1 }];
       });

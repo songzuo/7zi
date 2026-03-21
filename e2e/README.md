@@ -1,198 +1,343 @@
-# E2E 测试指南
+# E2E Tests
 
-本目录包含 7zi-frontend 项目的端到端测试。
+7zi 项目的端到端测试套件，使用 Playwright 测试框架。
 
-## 测试文件结构
+## 📁 目录结构
 
 ```
 e2e/
-├── snapshots/              # 视觉回归测试基线截图
-├── integration/            # 集成测试
-│   └── user-flow.spec.ts   # 用户流程测试
-├── home.spec.ts            # 首页测试
-├── navigation.spec.ts      # 导航测试
-├── pages.spec.ts           # 页面导航测试
-├── form.spec.ts            # 表单测试
-├── dashboard.spec.ts       # Dashboard 测试
-├── team.spec.ts            # 团队页面测试（新增）
-├── i18n.spec.ts            # 多语言测试（新增）
-├── visual-regression.spec.ts  # 视觉回归测试（新增）
-├── responsive.spec.ts      # 响应式测试
-└── theme.spec.ts           # 主题测试
+├── fixtures/                    # 测试 fixtures 和测试数据
+│   └── test-data.ts            # 测试数据工厂
+├── helpers/                    # 测试辅助函数
+│   ├── index.ts               # 辅助函数导出
+│   └── test-helpers.ts        # 通用测试工具
+├── pages/                      # Page Object Model (POM)
+│   ├── index.ts               # 页面对象导出
+│   ├── login-page.ts          # 登录页面对象
+│   ├── dashboard-page.ts      # Dashboard 页面对象
+│   ├── task-creation-page.ts   # 任务创建页面对象
+│   └── navigation-page.ts     # 导航页面对象
+├── integration/                # 集成测试
+│   └── user-flow.spec.ts      # 完整用户流程测试
+├── snapshots/                  # 视觉回归基线截图
+│   └── visual-regression.spec.ts-snapshots/
+├── auth-flow.spec.ts           # 登录/登出流程测试
+├── dashboard.spec.ts           # Dashboard 页面测试
+├── task-creation.spec.ts      # 任务创建测试
+├── navigation.spec.ts          # 导航测试
+├── login-flow-pom.spec.ts      # 使用 POM 的登录流程测试
+├── task-creation-pom.spec.ts   # 使用 POM 的任务创建测试
+├── navigation-pom.spec.ts      # 使用 POM 的导航测试
+├── visual-regression.spec.ts   # 视觉回归测试
+├── visual-regression-enhanced.spec.ts  # 增强的视觉回归测试
+├── team.spec.ts               # 团队页面测试
+├── form.spec.ts               # 表单测试
+├── home.spec.ts               # 首页测试
+├── i18n.spec.ts               # 国际化测试
+├── permissions-errors.spec.ts  # 权限错误测试
+├── responsive.spec.ts         # 响应式测试
+├── theme.spec.ts              # 主题切换测试
+└── pages.spec.ts              # 页面测试
 ```
 
-## 运行测试
+## 🚀 快速开始
 
-### 运行所有测试
+### 安装依赖
+
+```bash
+npm install
+```
+
+### 安装 Playwright 浏览器
+
+```bash
+npx playwright install --with-deps
+```
+
+### 运行所有 E2E 测试
+
 ```bash
 npm run test:e2e
 ```
 
-### 运行特定测试文件
+### 使用运行脚本
+
 ```bash
-npx playwright test e2e/home.spec.ts
+# 运行所有测试
+./run-e2e.sh
+
+# 使用 UI 模式
+./run-e2e.sh -u
+
+# 运行特定文件
+./run-e2e.sh -f login-flow-pom.spec.ts
+
+# 运行匹配的测试
+./run-e2e.sh -g "should login"
+
+# 调试模式
+./run-e2e.sh -d
+
+# 更新截图
+./run-e2e.sh -s
+
+# 查看报告
+./run-e2e.sh -r
 ```
 
-### 运行特定浏览器
-```bash
-npx playwright test --project=chromium
-npx playwright test --project=firefox
-npx playwright test --project=webkit
+## 📚 测试分类
+
+### 1. 核心用户流程测试
+
+| 测试文件 | 描述 | 状态 |
+|---------|------|------|
+| `login-flow-pom.spec.ts` | 登录/登出流程 | ✅ |
+| `task-creation-pom.spec.ts` | 任务创建和管理 | ✅ |
+| `navigation-pom.spec.ts` | 导航和页面访问 | ✅ |
+| `integration/user-flow.spec.ts` | 完整用户流程 | ✅ |
+
+### 2. 页面功能测试
+
+| 测试文件 | 描述 | 状态 |
+|---------|------|------|
+| `dashboard.spec.ts` | Dashboard 功能 | ✅ |
+| `team.spec.ts` | 团队页面 | ✅ |
+| `form.spec.ts` | 表单功能 | ✅ |
+| `home.spec.ts` | 首页功能 | ✅ |
+| `pages.spec.ts` | 页面测试 | ✅ |
+
+### 3. 视觉回归测试
+
+| 测试文件 | 描述 | 状态 |
+|---------|------|------|
+| `visual-regression.spec.ts` | 基础视觉回归 | ✅ |
+| `visual-regression-enhanced.spec.ts` | 增强视觉回归 | ✅ |
+
+### 4. 跨浏览器和响应式测试
+
+| 测试文件 | 描述 | 状态 |
+|---------|------|------|
+| `responsive.spec.ts` | 响应式布局 | ✅ |
+| `theme.spec.ts` | 主题切换 | ✅ |
+| `i18n.spec.ts` | 国际化 | ✅ |
+
+### 5. 错误和权限测试
+
+| 测试文件 | 描述 | 状态 |
+|---------|------|------|
+| `permissions-errors.spec.ts` | 权限和错误处理 | ✅ |
+
+## 🏗️ Page Object Model (POM)
+
+### 使用 POM 的优势
+
+- **可维护性** - UI 变化只需修改页面对象
+- **可复用性** - 页面对象在多个测试中复用
+- **可读性** - 测试代码更接近业务语言
+- **封装性** - 页面细节与测试分离
+
+### 示例
+
+```typescript
+import { LoginPage, DashboardPage } from './pages';
+
+test('should login and access dashboard', async ({ page }) => {
+  const loginPage = new LoginPage(page);
+  const dashboardPage = new DashboardPage(page);
+
+  // Login
+  await loginPage.goto();
+  await loginPage.login('test@7zi.com', 'test123456');
+
+  // Verify dashboard
+  await dashboardPage.waitForLoad();
+  expect(await dashboardPage.isOnDashboard()).toBeTruthy();
+});
 ```
 
-### 运行视觉回归测试
-```bash
-npx playwright test --project=visual-regression
+## 🎯 测试覆盖范围
+
+### 关键用户流程
+
+- ✅ 用户登录
+- ✅ 用户登出
+- ✅ 创建任务
+- ✅ 编辑任务
+- ✅ 删除任务
+- ✅ 查看任务列表
+- ✅ 搜索任务
+- ✅ 筛选任务
+- ✅ 导航主要页面
+- ✅ 主题切换
+- ✅ 语言切换
+
+### 页面覆盖
+
+- ✅ 首页 (`/`)
+- ✅ 登录页 (`/login`)
+- ✅ Dashboard (`/dashboard`)
+- ✅ 任务页面 (`/tasks`)
+- ✅ 团队页面 (`/team`)
+- ✅ 关于页面 (`/about`)
+- ✅ 联系页面 (`/contact`)
+- ✅ 博客页面 (`/blog`)
+- ✅ 设置页面 (`/settings`)
+
+### 浏览器覆盖
+
+- ✅ Chromium (桌面)
+- ✅ Firefox (桌面)
+- ✅ WebKit/Safari (桌面)
+- ✅ Chrome (移动端 - Pixel 5)
+- ✅ Safari (移动端 - iPhone 12)
+
+### 视口覆盖
+
+- ✅ 1920x1080 (桌面)
+- ✅ 1366x768 (笔记本)
+- ✅ 768x1024 (平板)
+- ✅ 375x667 (移动端)
+
+## 🔧 测试配置
+
+### Playwright 配置
+
+配置文件: `playwright.config.ts`
+
+**关键配置项:**
+
+- `baseURL`: `http://localhost:3000`
+- `testDir`: `./e2e`
+- `fullyParallel`: true (并行运行)
+- `retries`: 2 (CI 环境)
+- `workers`: 1 (CI 环境)
+
+### 视觉回归配置
+
+```typescript
+expect: {
+  toHaveScreenshot: {
+    maxDiffPixels: 100,
+    threshold: 0.2,
+  },
+}
 ```
 
-### 更新视觉回归基线
+## 📊 测试报告
+
+### HTML 报告
+
+运行测试后查看报告:
+
 ```bash
-npx playwright test --update-snapshots
+npm run test:e2e:report
 ```
 
-### 调试模式
+### 其他报告格式
+
+- JSON: `test-results/test-results.json`
+- JUnit: `test-results/junit-results.xml`
+- HTML: `playwright-report/index.html`
+
+## 🛠️ 调试测试
+
+### 使用 Playwright Inspector
+
 ```bash
 npx playwright test --debug
 ```
 
-### UI 模式
+### 慢速模式
+
 ```bash
-npx playwright test --ui
+npx playwright test --slowMo=1000
 ```
 
-### 生成报告
-```bash
-npx playwright show-report
-```
-
-## 测试覆盖的关键路径
-
-### 1. 首页加载和导航
-- ✅ 首页正确加载
-- ✅ 导航栏显示
-- ✅ 页脚显示
-- ✅ 页面加载性能
-
-### 2. 多语言切换
-- ✅ 中文/英文页面加载
-- ✅ URL 语言前缀
-- ✅ 语言切换器功能
-- ✅ 内容本地化
-- ✅ 语言持久化
-
-### 3. 团队页面展示
-- ✅ 团队成员显示
-- ✅ 成员卡片信息
-- ✅ 响应式布局
-- ✅ 交互效果
-
-### 4. 联系表单提交
-- ✅ 表单验证
-- ✅ 错误处理
-- ✅ 提交反馈
-- ✅ 无障碍访问
-
-### 5. Dashboard 加载
-- ✅ 统计卡片显示
-- ✅ 成员状态展示
-- ✅ 刷新功能
-- ✅ 响应式布局
-
-### 6. 视觉回归测试
-- ✅ 首页截图（桌面/移动/平板）
-- ✅ 团队页面截图
-- ✅ Dashboard 截图
-- ✅ 联系页面截图
-- ✅ 深色模式截图
-
-## 测试原则
-
-1. **测试用户关键路径** - 优先测试用户最常用的功能
-2. **断言要明确和有意义** - 每个断言都应该验证具体的功能
-3. **避免不稳定的测试** - 使用适当的等待和超时
-4. **可维护性** - 使用 Page Object 模式组织代码
-5. **可重复性** - 测试应该是确定性的
-
-## 视觉回归测试
-
-视觉回归测试使用 Playwright 的截图比较功能。
-
-### 添加新的视觉回归测试
+### 暂停执行
 
 ```typescript
-test('页面截图', async ({ page }) => {
-  await page.goto('/path');
-  await expect(page).toHaveScreenshot('page-name.png', {
-    fullPage: true,
-    maxDiffPixels: 100,
-  });
-});
+await page.pause();
 ```
 
-### 更新基线截图
+### 截图调试
 
-当设计变更时，运行：
-```bash
-npx playwright test --update-snapshots
-```
-
-### 审查差异
-
-测试失败时，查看 `test-results/` 目录中的差异截图。
-
-## 测试报告
-
-测试完成后，报告生成在：
-- HTML 报告：`playwright-report/index.html`
-- JSON 结果：`test-results/test-results.json`
-- JUnit XML: `test-results/junit-results.xml`
-
-查看报告：
-```bash
-npx playwright show-report
-```
-
-## CI/CD 集成
-
-在 CI 环境中运行测试：
-```bash
-# 安装 Playwright 浏览器
-npx playwright install --with-deps chromium
-
-# 运行测试
-npm run test:e2e
-```
-
-## 常见问题
-
-### 测试失败：超时
-增加超时时间或优化等待策略：
 ```typescript
-await page.waitForLoadState('networkidle');
-await page.waitForTimeout(1000); // 等待动画
+await page.screenshot({ path: 'debug.png' });
 ```
 
-### 视觉回归测试失败
-检查是否是预期的设计变更。如果是，更新基线：
-```bash
-npx playwright test --update-snapshots
+## ✅ 最佳实践
+
+1. **使用页面对象模型 (POM)**
+   - 封装页面细节
+   - 提高代码复用
+
+2. **智能等待**
+   - 避免硬编码延迟
+   - 使用 `waitForLoadState`
+
+3. **语义化定位器**
+   - 优先使用 `getByRole`
+   - 避免使用 CSS 类
+
+4. **测试数据隔离**
+   - 使用测试数据工厂
+   - 每个测试独立运行
+
+5. **清理测试状态**
+   - 使用 `afterEach` 清理
+   - 避免测试间干扰
+
+## 📚 相关文档
+
+- [E2E 测试策略](/docs/E2E_TESTING_STRATEGY.md)
+- [测试文档](/TESTING.md)
+- [Playwright 文档](https://playwright.dev/)
+
+## 🤝 贡献
+
+### 添加新测试
+
+1. 确定测试类型（POM、功能测试、视觉回归）
+2. 创建测试文件（如 `new-feature.spec.ts`）
+3. 编写测试用例
+4. 运行测试确保通过
+5. 提交 PR
+
+### 添加新页面对象
+
+1. 在 `pages/` 目录创建新文件
+2. 实现页面对象类
+3. 在 `pages/index.ts` 导出
+4. 在测试中使用
+
+## 🐛 故障排除
+
+### 测试超时
+
+```typescript
+test.setTimeout(60000);
+```
+
+### 元素未找到
+
+```typescript
+await page.waitForSelector('.element', { timeout: 30000 });
 ```
 
 ### 测试不稳定
-- 使用明确的等待条件
-- 避免硬编码的等待时间
-- 使用 data-testid 属性定位元素
 
-## 最佳实践
+```typescript
+test('flaky test', async () => {
+  // ...
+}, { retries: 3 });
+```
 
-1. **使用 data-testid** - 为关键元素添加测试 ID
-2. **Page Object 模式** - 封装页面操作
-3. **Fixture 复用** - 使用 beforeEach 设置通用状态
-4. **有意义的断言** - 验证业务逻辑，不仅是 DOM 存在
-5. **并行执行** - 利用 Playwright 的并行能力
+### 视觉回归失败
 
-## 资源
+```bash
+npx playwright test --update-snapshots
+```
 
-- [Playwright 文档](https://playwright.dev)
-- [Playwright 测试指南](https://playwright.dev/docs/test-intro)
-- [视觉回归测试](https://playwright.dev/docs/test-snapshots)
+---
+
+*最后更新: 2026-03-21*

@@ -2,12 +2,17 @@
  * Pagination Utility for Database Queries
  * 数据库查询分页工具
  *
+ * ⚠️ DEPRECATED: This module is no longer maintained.
+ * Use query-builder.ts pagination functionality instead.
+ *
  * Features:
  * - Offset-based pagination
  * - Cursor-based pagination (for large datasets)
  * - Automatic limit enforcement
  * - Total count optimization
  * - Type-safe pagination
+ *
+ * @deprecated Use QueryBuilder.paginate() instead
  */
 
 export interface PaginationOptions {
@@ -87,8 +92,12 @@ export function parsePaginationOptions(options: PaginationOptions): Required<
   let page = options.page || 1;
   let offset = options.offset || 0;
 
-  // Calculate offset from page
-  if (options.page && !options.offset) {
+  // Respect explicit page=0
+  if (options.page === 0) {
+    page = 0;
+    offset = 0;
+  } else if (options.page && !options.offset) {
+    // Calculate offset from page
     offset = (page - 1) * limit;
   } else if (!options.page && options.offset) {
     // Calculate page from offset

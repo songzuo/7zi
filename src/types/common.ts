@@ -8,14 +8,16 @@
 // ============================================================================
 
 export interface GitHubIssue {
+  id?: number; // Optional because it's not always in GitHub API responses
   number: number;
   title: string;
   state: 'open' | 'closed';
-  labels: Array<{ name: string; color: string }>;
+  labels?: Array<{ name: string; color: string }>; // Optional
   assignee?: { login: string; avatar_url: string } | null;
-  created_at: string;
+  created_at?: string; // Optional
   updated_at: string;
   html_url: string;
+  user?: { login: string; avatar_url: string } | null; // User field from GitHub API
 }
 
 export interface GitHubCommit {

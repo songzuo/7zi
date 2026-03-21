@@ -15,7 +15,7 @@ function measureTime(fn: () => void): number {
 
 // Create test data of various sizes
 function createNestedObject(depth: number, width: number): Record<string, unknown> {
-  let obj: Record<string, unknown> = {};
+  const obj: Record<string, unknown> = {};
 
   for (let i = 0; i < width; i++) {
     if (depth > 0) {

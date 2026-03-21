@@ -174,7 +174,7 @@ describe('/api/health', () => {
   });
 
   describe('memory threshold validation', () => {
-    it('should return 200 when memory is below 90% threshold', async () => {
+    it('should return 200 when memory is below 95% threshold', async () => {
       const response = await GET();
 
       expect(response.status).toBe(200);

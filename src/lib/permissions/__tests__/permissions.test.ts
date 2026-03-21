@@ -107,53 +107,38 @@ describe('Permission System', () => {
 
       const context: PermissionContext = {
         userId: 'user-123',
-        roles: [role1],
+        roles: [Role.ADMIN],
+        permissions: [],
         customPermissions: [Permission.TASK_CREATE],
       };
 
       expect(context.userId).toBe('user-123');
       expect(context.roles).toHaveLength(1);
-      expect(context.roles[0].id).toBe('admin-role');
+      expect(context.roles[0]).toBe(Role.ADMIN);
       expect(context.customPermissions).toHaveLength(1);
       expect(context.customPermissions).toContain(Permission.TASK_CREATE);
     });
 
     it('should allow permission context without custom permissions', () => {
-      const role: RoleDefinition = {
-        id: 'member-role',
-        name: 'Member',
-        permissions: [Permission.TASK_READ],
-      };
-
       const context: PermissionContext = {
         userId: 'user-456',
-        roles: [role],
+        roles: [Role.MEMBER],
+        permissions: [],
       };
 
       expect(context.customPermissions).toBeUndefined();
     });
 
     it('should allow multiple roles in permission context', () => {
-      const role1: RoleDefinition = {
-        id: 'role-a',
-        name: 'Role A',
-        permissions: [Permission.USER_READ],
-      };
-
-      const role2: RoleDefinition = {
-        id: 'role-b',
-        name: 'Role B',
-        permissions: [Permission.TASK_READ, Permission.TASK_CREATE],
-      };
-
       const context: PermissionContext = {
         userId: 'user-789',
-        roles: [role1, role2],
+        roles: [Role.MANAGER, Role.MEMBER],
+        permissions: [],
       };
 
       expect(context.roles).toHaveLength(2);
-      expect(context.roles[0].id).toBe('role-a');
-      expect(context.roles[1].id).toBe('role-b');
+      expect(context.roles[0]).toBe(Role.MANAGER);
+      expect(context.roles[1]).toBe(Role.MEMBER);
     });
   });
 

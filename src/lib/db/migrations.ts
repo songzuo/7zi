@@ -76,6 +76,43 @@ const MIGRATIONS: Migration[] = [
       }
     },
   },
+  {
+    version: 3,
+    name: 'add_critical_indexes',
+    up: async () => {
+      logger.info('Migration 3: Adding critical performance indexes', { category: 'db' });
+      const db = await getDatabaseAsync();
+
+      // Critical indexes for token expiration queries
+      db.exec('CREATE INDEX IF NOT EXISTS idx_agent_tokens_agent_expires ON agent_tokens(agent_id, expires_at)');
+      db.exec('CREATE INDEX IF NOT EXISTS idx_user_tokens_user_expires ON user_tokens(user_id, expires_at)');
+
+      // Critical indexes for role lookups
+      db.exec('CREATE INDEX IF NOT EXISTS idx_roles_name ON roles(name)');
+      db.exec('CREATE INDEX IF NOT EXISTS idx_roles_is_system ON roles(is_system)');
+
+      // Critical indexes for wallet currency queries
+      db.exec('CREATE INDEX IF NOT EXISTS idx_agent_wallets_currency ON agent_wallets(currency)');
+
+      logger.info('Migration 3: Added 5 critical indexes', { category: 'db' });
+    },
+    down: async () => {
+      logger.debug('Migration 3 down: Remove critical indexes', { category: 'db' });
+      const db = await getDatabaseAsync();
+
+      const indexes = [
+        'idx_agent_tokens_agent_expires',
+        'idx_user_tokens_user_expires',
+        'idx_roles_name',
+        'idx_roles_is_system',
+        'idx_agent_wallets_currency',
+      ];
+
+      for (const index of indexes) {
+        db.exec(`DROP INDEX IF EXISTS ${index}`);
+      }
+    },
+  },
 ];
 
 /**

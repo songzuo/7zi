@@ -1,18 +1,15 @@
 /**
-// @ts-ignore - Mock type compatibility issues
- * Agent Executor Tests
+ * Tests for executor.ts
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   SimpleEventBus,
   SevenZiExecutor,
   createSevenZiExecutor,
-  type RequestContext,
-  type ExecutionEventBus,
+  RequestContext,
 } from '../executor';
-import { randomUUID } from 'crypto';
-import type { Message } from '../types';
+import type { Message, Task, TaskStatusUpdateEvent } from '../types';
 
 describe('SimpleEventBus', () => {
   let eventBus: SimpleEventBus;
@@ -21,9 +18,9 @@ describe('SimpleEventBus', () => {
     eventBus = new SimpleEventBus();
   });
 
-  describe('Publishing Events', () => {
-    it('should publish events', () => {
-      const task = {
+  describe('publish', () => {
+    it('should publish events and store them', () => {
+      const task: Task = {
         kind: 'task',
         id: 'task-1',
         contextId: 'ctx-1',
@@ -31,45 +28,72 @@ describe('SimpleEventBus', () => {
         history: [],
         artifacts: [],
       };
-      
+
       eventBus.publish(task);
-      const events = eventBus.getEvents();
-      
-      expect(events.length).toBe(1);
-      expect(events[0]).toEqual(task);
+
+      expect(eventBus.getEvents()).toHaveLength(1);
+      expect(eventBus.getEvents()[0]).toEqual(task);
     });
 
-    it('should publish multiple events', () => {
-      eventBus.publish({ kind: 'task', id: '1', contextId: 'ctx-1', status: { state: 'submitted', timestamp: new Date().toISOString() }, history: [], artifacts: [] });
-      eventBus.publish({ kind: 'task', id: '2', contextId: 'ctx-2', status: { state: 'submitted', timestamp: new Date().toISOString() }, history: [], artifacts: [] });
-      
-      const events = eventBus.getEvents();
-      expect(events.length).toBe(2);
+    it('should notify subscribers when events are published', () => {
+      const listener = vi.fn();
+      eventBus.subscribe(listener);
+
+      const task: Task = {
+        kind: 'task',
+        id: 'task-1',
+        contextId: 'ctx-1',
+        status: { state: 'submitted', timestamp: new Date().toISOString() },
+        history: [],
+        artifacts: [],
+      };
+
+      eventBus.publish(task);
+
+      expect(listener).toHaveBeenCalledTimes(1);
+      expect(listener).toHaveBeenCalledWith(task);
     });
 
-    it('should throw error when publishing after finished', () => {
+    it('should throw error when publishing after finished() is called', () => {
       eventBus.finished();
-      
-      expect(() => {
-        eventBus.publish({ kind: 'task', id: '1', contextId: 'ctx-1', status: { state: 'submitted', timestamp: new Date().toISOString() }, history: [], artifacts: [] });
-      }).toThrow('Cannot publish events after finished() has been called');
+
+      const task: Task = {
+        kind: 'task',
+        id: 'task-1',
+        contextId: 'ctx-1',
+        status: { state: 'submitted', timestamp: new Date().toISOString() },
+        history: [],
+        artifacts: [],
+      };
+
+      expect(() => eventBus.publish(task)).toThrow('Cannot publish events after finished() has been called');
     });
   });
 
-  describe('Finished State', () => {
-    it('should track finished state', () => {
+  describe('finished', () => {
+    it('should mark event bus as finished', () => {
       expect(eventBus.isFinished()).toBe(false);
+
+      eventBus.finished();
+
+      expect(eventBus.isFinished()).toBe(true);
+    });
+  });
+
+  describe('isFinished', () => {
+    it('should return false initially', () => {
+      expect(eventBus.isFinished()).toBe(false);
+    });
+
+    it('should return true after calling finished()', () => {
       eventBus.finished();
       expect(eventBus.isFinished()).toBe(true);
     });
   });
 
-  describe('Subscriptions', () => {
-    it('should notify subscribers', () => {
-      const listener = vi.fn();
-      eventBus.subscribe(listener);
-      
-      const task = {
+  describe('getEvents', () => {
+    it('should return a copy of events', () => {
+      const task: Task = {
         kind: 'task',
         id: 'task-1',
         contextId: 'ctx-1',
@@ -77,31 +101,31 @@ describe('SimpleEventBus', () => {
         history: [],
         artifacts: [],
       };
-      
+
       eventBus.publish(task);
-      
-      expect(listener).toHaveBeenCalledTimes(1);
-      expect(listener).toHaveBeenCalledWith(task);
+      const events = eventBus.getEvents();
+
+      // Modify the returned array
+      events.push({} as Task);
+
+      // Original should be unchanged
+      expect(eventBus.getEvents()).toHaveLength(1);
     });
 
-    it('should unsubscribe listeners', () => {
-      const listener = vi.fn();
-      eventBus.subscribe(listener);
-      
-      eventBus.unsubscribe(listener);
-      eventBus.publish({ kind: 'task', id: '1', contextId: 'ctx-1', status: { state: 'submitted', timestamp: new Date().toISOString() }, history: [], artifacts: [] });
-      
-      expect(listener).not.toHaveBeenCalled();
+    it('should return empty array when no events', () => {
+      expect(eventBus.getEvents()).toEqual([]);
     });
+  });
 
-    it('should notify multiple subscribers', () => {
+  describe('subscribe', () => {
+    it('should add a listener', () => {
       const listener1 = vi.fn();
       const listener2 = vi.fn();
-      
+
       eventBus.subscribe(listener1);
       eventBus.subscribe(listener2);
-      
-      const task = {
+
+      const task: Task = {
         kind: 'task',
         id: 'task-1',
         contextId: 'ctx-1',
@@ -109,17 +133,24 @@ describe('SimpleEventBus', () => {
         history: [],
         artifacts: [],
       };
-      
+
       eventBus.publish(task);
-      
+
       expect(listener1).toHaveBeenCalledTimes(1);
       expect(listener2).toHaveBeenCalledTimes(1);
     });
   });
 
-  describe('Get Events', () => {
-    it('should return copy of events', () => {
-      const task = {
+  describe('unsubscribe', () => {
+    it('should remove a listener', () => {
+      const listener1 = vi.fn();
+      const listener2 = vi.fn();
+
+      eventBus.subscribe(listener1);
+      eventBus.subscribe(listener2);
+      eventBus.unsubscribe(listener1);
+
+      const task: Task = {
         kind: 'task',
         id: 'task-1',
         contextId: 'ctx-1',
@@ -127,13 +158,11 @@ describe('SimpleEventBus', () => {
         history: [],
         artifacts: [],
       };
-      
+
       eventBus.publish(task);
-      const events1 = eventBus.getEvents();
-      const events2 = eventBus.getEvents();
-      
-      expect(events1).toEqual(events2);
-      expect(events1).not.toBe(events2); // Different references
+
+      expect(listener1).not.toHaveBeenCalled();
+      expect(listener2).toHaveBeenCalledTimes(1);
     });
   });
 });
@@ -147,225 +176,227 @@ describe('SevenZiExecutor', () => {
     eventBus = new SimpleEventBus();
   });
 
-  const createTestContext = (message?: string): RequestContext => ({
-    taskId: randomUUID(),
-    contextId: randomUUID(),
-    userMessage: {
-      kind: 'message',
-      parts: [{ kind: 'text', text: message || 'Hello!' }],
-    },
-  });
-
-  describe('Task Execution', () => {
-    it('should create initial task if not provided', async () => {
-      const context = createTestContext('Hello');
-      
-      await executor.execute(context, eventBus);
-      
-      const events = eventBus.getEvents();
-      const initialTask = events.find(e => 'kind' in e && e.kind === 'task');
-      
-      expect(initialTask).toBeDefined();
-      expect(initialTask?.id).toBe(context.taskId);
-      expect(initialTask?.contextId).toBe(context.contextId);
+  describe('execute', () => {
+    const createContext = (text: string): RequestContext => ({
+      taskId: 'task-1',
+      contextId: 'ctx-1',
+      userMessage: {
+        kind: 'message',
+        messageId: 'msg-1',
+        role: 'user',
+        parts: [{ kind: 'text', text }],
+        createdAt: new Date().toISOString(),
+      },
     });
 
-    it('should update status to working', async () => {
-      const context = createTestContext('Hello');
-      
+    it('should create initial task when none provided', async () => {
+      const context = createContext('Hello');
+
       await executor.execute(context, eventBus);
-      
+
       const events = eventBus.getEvents();
-      const statusUpdate = events.find(
-        e => 'kind' in e && e.kind === 'status-update' && e.status?.state === 'working'
-      );
-      
-      expect(statusUpdate).toBeDefined();
+      const task = events[0] as Task;
+
+      expect(task.kind).toBe('task');
+      expect(task.id).toBe('task-1');
+      expect(task.contextId).toBe('ctx-1');
+      expect(task.status.state).toBe('submitted');
     });
 
-    it('should create response artifact', async () => {
-      const context = createTestContext('Hello');
-      
+    it('should use existing task when provided', async () => {
+      const existingTask: Task = {
+        kind: 'task',
+        id: 'task-1',
+        contextId: 'ctx-1',
+        status: { state: 'working', timestamp: new Date().toISOString() },
+        history: [],
+        artifacts: [],
+      };
+
+      const context = createContext('Hello');
+      context.task = existingTask;
+
       await executor.execute(context, eventBus);
-      
+
       const events = eventBus.getEvents();
-      const artifactUpdate = events.find(e => 'kind' in e && e.kind === 'artifact-update');
-      
+      const task = events[0] as Task;
+
+      expect(task.status.state).toBe('working');
+    });
+
+    it('should respond to greeting messages', async () => {
+      const context = createContext('Hello');
+
+      await executor.execute(context, eventBus);
+
+      const events = eventBus.getEvents();
+      const artifactUpdate = events.find(e => e.kind === 'artifact-update');
+
       expect(artifactUpdate).toBeDefined();
-      expect('artifact' in artifactUpdate && typeof artifactUpdate.artifact === 'object' && artifactUpdate.artifact !== null && 'name' in artifactUpdate.artifact ? artifactUpdate.artifact.name : '').toBe('response');
+      if (artifactUpdate && 'artifact' in artifactUpdate) {
+        const text = artifactUpdate.artifact.parts[0].text;
+        expect(text).toContain('Hello');
+        expect(text).toContain('7zi');
+      }
     });
 
-    it('should mark task as completed', async () => {
-      const context = createTestContext('Hello');
-      
+    it('should respond to help messages', async () => {
+      const context = createContext('help');
+
       await executor.execute(context, eventBus);
-      
+
       const events = eventBus.getEvents();
-      const finalStatus = events.find(
-        e => 'kind' in e && e.kind === 'status-update' && e.status?.state === 'completed'
-      );
-      
-      expect(finalStatus).toBeDefined();
-      expect('final' in finalStatus && finalStatus.final).toBe(true);
+      const artifactUpdate = events.find(e => e.kind === 'artifact-update');
+
+      expect(artifactUpdate).toBeDefined();
+      if (artifactUpdate && 'artifact' in artifactUpdate) {
+        const text = artifactUpdate.artifact.parts[0].text;
+        expect(text).toContain('help');
+        expect(text).toContain('A2A-compliant');
+      }
     });
 
-    it('should call eventBus.finished() after completion', async () => {
-      const context = createTestContext('Hello');
-      
-      await executor.execute(context, eventBus);
-      
-      expect(eventBus.isFinished()).toBe(true);
-    });
-  });
+    it('should respond to status messages', async () => {
+      const context = createContext('status');
 
-  describe('Message Processing', () => {
-    it('should respond to greetings', async () => {
-      const context = createTestContext('Hello, how are you?');
-      
       await executor.execute(context, eventBus);
-      
+
       const events = eventBus.getEvents();
-      const artifactUpdate = events.find(e => 'kind' in e && e.kind === 'artifact-update');
-      const artifact = 'artifact' in artifactUpdate && typeof artifactUpdate.artifact === 'object' && artifactUpdate.artifact !== null ? artifactUpdate.artifact : null;
-      
-      expect(artifact && typeof artifact === 'object' && 'parts' in artifact && Array.isArray(artifact.parts)).toBe(true);
-      const parts = 'parts' in artifact && Array.isArray(artifact.parts) ? artifact.parts : [];
-      expect(parts[0]).toBeDefined();
-      expect('text' in parts[0] && typeof parts[0].text === 'string' && parts[0].text).toContain('7zi');
+      const artifactUpdate = events.find(e => e.kind === 'artifact-update');
+
+      expect(artifactUpdate).toBeDefined();
+      if (artifactUpdate && 'artifact' in artifactUpdate) {
+        const text = artifactUpdate.artifact.parts[0].text;
+        expect(text).toContain('System Status');
+        expect(text).toContain('task-1');
+      }
     });
 
-    it('should respond to help requests', async () => {
-      const context = createTestContext('What can you do?');
-      
+    it('should handle default messages', async () => {
+      const context = createContext('What is the meaning of life?');
+
       await executor.execute(context, eventBus);
-      
+
       const events = eventBus.getEvents();
-      const artifactUpdate = events.find(e => 'kind' in e && e.kind === 'artifact-update');
-      const artifact = 'artifact' in artifactUpdate && typeof artifactUpdate.artifact === 'object' && artifactUpdate.artifact !== null ? artifactUpdate.artifact : null;
-      
-      expect(artifact && typeof artifact === 'object' && 'parts' in artifact && Array.isArray(artifact.parts)).toBe(true);
-      const parts = 'parts' in artifact && Array.isArray(artifact.parts) ? artifact.parts : [];
-      expect('text' in parts[0] && typeof parts[0].text === 'string' && parts[0].text).toContain('A2A');
+      const artifactUpdate = events.find(e => e.kind === 'artifact-update');
+
+      expect(artifactUpdate).toBeDefined();
+      if (artifactUpdate && 'artifact' in artifactUpdate) {
+        const text = artifactUpdate.artifact.parts[0].text;
+        expect(text).toContain('What is the meaning of life?');
+      }
     });
 
-    it('should respond to status requests', async () => {
-      const context = createTestContext('status');
-      
+    it('should update status through lifecycle', async () => {
+      const context = createContext('Hello');
+
       await executor.execute(context, eventBus);
-      
+
       const events = eventBus.getEvents();
-      const artifactUpdate = events.find(e => 'kind' in e && e.kind === 'artifact-update');
-      const artifact = 'artifact' in artifactUpdate && typeof artifactUpdate.artifact === 'object' && artifactUpdate.artifact !== null ? artifactUpdate.artifact : null;
-      
-      expect(artifact && typeof artifact === 'object' && 'parts' in artifact && Array.isArray(artifact.parts)).toBe(true);
-      const parts = 'parts' in artifact && Array.isArray(artifact.parts) ? artifact.parts : [];
-      expect('text' in parts[0] && typeof parts[0].text === 'string' && parts[0].text).toContain('System Status');
+      const statusUpdates = events.filter(e => e.kind === 'status-update');
+
+      expect(statusUpdates.length).toBeGreaterThanOrEqual(2);
+
+      // Check for working state
+      const working = statusUpdates.find(s => s.status.state === 'working');
+      expect(working).toBeDefined();
+
+      // Check for completed state
+      const completed = statusUpdates.find(s => s.status.state === 'completed');
+      expect(completed).toBeDefined();
+      expect(completed?.final).toBe(true);
     });
 
-    it('should handle unknown messages', async () => {
-      const context = createTestContext('Random unknown message');
-      
-      await executor.execute(context, eventBus);
-      
-      const events = eventBus.getEvents();
-      const artifactUpdate = events.find(e => 'kind' in e && e.kind === 'artifact-update');
-      const artifact = 'artifact' in artifactUpdate && typeof artifactUpdate.artifact === 'object' && artifactUpdate.artifact !== null ? artifactUpdate.artifact : null;
-      
-      expect(artifact && typeof artifact === 'object' && 'parts' in artifact && Array.isArray(artifact.parts)).toBe(true);
-      const parts = 'parts' in artifact && Array.isArray(artifact.parts) ? artifact.parts : [];
-      expect('text' in parts[0] && typeof parts[0].text === 'string' && parts[0].text).toContain('Random unknown message');
-    });
-  });
+    it('should call finished() after execution', async () => {
+      const context = createContext('Hello');
 
-  describe('Task Cancellation', () => {
-    it('should cancel task before execution', async () => {
-      const context = createTestContext('Hello');
-      
-      await executor.cancelTask(context.taskId, eventBus);
       await executor.execute(context, eventBus);
-      
-      const events = eventBus.getEvents();
-      const canceledStatus = events.find(
-        e => 'kind' in e && e.kind === 'status-update' && e.status?.state === 'canceled'
-      );
-      
-      expect(canceledStatus).toBeDefined();
+
       expect(eventBus.isFinished()).toBe(true);
     });
 
-    it('should remove task from cancelled set after completion', async () => {
-      const context = createTestContext('Hello');
-      
-      await executor.cancelTask(context.taskId, eventBus);
-      await executor.execute(context, eventBus);
-      
-      // Execute again - should work since task was removed from cancelled set
-      const eventBus2 = new SimpleEventBus();
-      await executor.execute(context, eventBus2);
-      
-      const events2 = eventBus2.getEvents();
-      const canceledStatus = events2.find(
-        e => 'kind' in e && e.kind === 'status-update' && e.status?.state === 'canceled'
-      );
-      
-      expect(canceledStatus).toBeUndefined();
-    });
-  });
-
-  describe('Error Handling', () => {
     it('should handle errors gracefully', async () => {
-      const context = createTestContext('Hello');
-      context.userMessage = {} as Message; // Invalid message
-      
+      const context = createContext('Hello');
+
+      // Force an error by throwing in the eventBus
+      const originalPublish = eventBus.publish.bind(eventBus);
+      eventBus.publish = vi.fn((event) => {
+        if (event.kind === 'artifact-update') {
+          throw new Error('Test error');
+        }
+        originalPublish(event);
+      });
+
       await executor.execute(context, eventBus);
-      
+
       const events = eventBus.getEvents();
-      const errorStatus = events.find(
-        e => 'kind' in e && e.kind === 'status-update' && e.status?.state === 'failed'
+      const failed = events.find((e): e is TaskStatusUpdateEvent =>
+        e.kind === 'status-update' && (e as TaskStatusUpdateEvent).status?.state === 'failed'
       );
-      
-      expect(errorStatus).toBeDefined();
+
+      expect(failed).toBeDefined();
+      expect(failed?.status.message).toContain('Test error');
     });
   });
 
-  describe('Text Extraction', () => {
-    it('should extract text from message', async () => {
+  describe('cancelTask', () => {
+    it('should mark task as canceled', async () => {
       const context: RequestContext = {
-        taskId: randomUUID(),
-        contextId: randomUUID(),
+        taskId: 'task-1',
+        contextId: 'ctx-1',
         userMessage: {
           kind: 'message',
-          parts: [
-            { kind: 'text', text: 'Hello ' },
-            { kind: 'text', text: 'World!' },
-          ],
+          messageId: 'msg-1',
+          role: 'user',
+          parts: [{ kind: 'text', text: 'Hello' }],
+          createdAt: new Date().toISOString(),
         },
       };
-      
+
+      // Cancel the task before execution
+      await executor.cancelTask('task-1', eventBus);
+
       await executor.execute(context, eventBus);
-      
+
       const events = eventBus.getEvents();
-      const artifactUpdate = events.find(e => 'kind' in e && e.kind === 'artifact-update');
-      const artifact = 'artifact' in artifactUpdate && typeof artifactUpdate.artifact === 'object' && artifactUpdate.artifact !== null ? artifactUpdate.artifact : null;
-      
-      expect(artifact && typeof artifact === 'object' && 'parts' in artifact && Array.isArray(artifact.parts)).toBe(true);
-      const parts = 'parts' in artifact && Array.isArray(artifact.parts) ? artifact.parts : [];
-      expect('text' in parts[0] && typeof parts[0].text === 'string' && parts[0].text).toContain('Hello');
+      const canceled = events.find((e): e is TaskStatusUpdateEvent =>
+        e.kind === 'status-update' && (e as TaskStatusUpdateEvent).status?.state === 'canceled'
+      );
+
+      expect(canceled).toBeDefined();
+      expect(canceled?.status.message).toContain('canceled');
+    });
+
+    it('should handle cancellation during execution', async () => {
+      const context: RequestContext = {
+        taskId: 'task-1',
+        contextId: 'ctx-1',
+        userMessage: {
+          kind: 'message',
+          messageId: 'msg-1',
+          role: 'user',
+          parts: [{ kind: 'text', text: 'Hello' }],
+          createdAt: new Date().toISOString(),
+        },
+      };
+
+      // Start execution but cancel immediately
+      const executionPromise = executor.execute(context, eventBus);
+      await executor.cancelTask('task-1', eventBus);
+      await executionPromise;
+
+      const events = eventBus.getEvents();
+      const canceled = events.find(e => e.kind === 'status-update' && e.status.state === 'canceled');
+
+      expect(canceled).toBeDefined();
     });
   });
-});
 
-describe('createSevenZiExecutor', () => {
-  it('should create executor instance', () => {
-    const executor = createSevenZiExecutor();
-    expect(executor).toBeDefined();
-    expect(executor).toBeInstanceOf(SevenZiExecutor);
-  });
+  describe('createSevenZiExecutor', () => {
+    it('should create a SevenZiExecutor instance', () => {
+      const executor = createSevenZiExecutor();
 
-  it('should create new instance each time', () => {
-    const executor1 = createSevenZiExecutor();
-    const executor2 = createSevenZiExecutor();
-    
-    expect(executor1).not.toBe(executor2);
+      expect(executor).toBeInstanceOf(SevenZiExecutor);
+    });
   });
 });

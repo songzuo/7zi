@@ -210,11 +210,11 @@ describe('Connection Pool Manager', () => {
       const shortPool = new ConnectionPoolManager(shortAgeConfig);
 
       const conn = await shortPool.acquire();
-      (conn as any).createdAt = Date.now() - 200;
+      (conn as PooledConnection).createdAt = Date.now() - 200;
 
       await shortPool.cleanupOld();
       const connections = await shortPool.getAllConnections();
-      const oldConn = connections.find(c => c.id === conn.id);
+      const oldConn = connections.find((c: PooledConnection) => c.id === conn.id);
       expect(oldConn).toBeUndefined();
     });
   });

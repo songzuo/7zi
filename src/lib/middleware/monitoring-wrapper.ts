@@ -76,7 +76,7 @@ const globalStats: MonitoringStats = {
 /**
  * 监控包装器 - 自动添加性能追踪和错误记录
  */
-export function withMonitoring<T extends any[]>(
+export function withMonitoring<T extends unknown[]>(
   handler: (request: NextRequest, ...args: T) => Promise<NextResponse>,
   options: MonitoringOptions = {}
 ): (request: NextRequest, ...args: T) => Promise<NextResponse> {
@@ -318,7 +318,7 @@ export function resetMonitoringStats(): void {
 /**
  * GET 请求监控装饰器
  */
-export function withGETMonitoring<T extends any[]>(
+export function withGETMonitoring<T extends unknown[]>(
   handler: (request: NextRequest, ...args: T) => Promise<NextResponse>,
   options?: MonitoringOptions
 ) {
@@ -328,7 +328,7 @@ export function withGETMonitoring<T extends any[]>(
 /**
  * POST 请求监控装饰器
  */
-export function withPOSTMonitoring<T extends any[]>(
+export function withPOSTMonitoring<T extends unknown[]>(
   handler: (request: NextRequest, ...args: T) => Promise<NextResponse>,
   options?: MonitoringOptions
 ) {
@@ -338,7 +338,7 @@ export function withPOSTMonitoring<T extends any[]>(
 /**
  * PUT 请求监控装饰器
  */
-export function withPUTMonitoring<T extends any[]>(
+export function withPUTMonitoring<T extends unknown[]>(
   handler: (request: NextRequest, ...args: T) => Promise<NextResponse>,
   options?: MonitoringOptions
 ) {
@@ -348,7 +348,7 @@ export function withPUTMonitoring<T extends any[]>(
 /**
  * DELETE 请求监控装饰器
  */
-export function withDELETEMonitoring<T extends any[]>(
+export function withDELETEMonitoring<T extends unknown[]>(
   handler: (request: NextRequest, ...args: T) => Promise<NextResponse>,
   options?: MonitoringOptions
 ) {

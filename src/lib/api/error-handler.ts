@@ -70,7 +70,8 @@ export interface ErrorResponse {
  */
 export function createErrorResponse(
   error: Error | ApiError,
-  statusCode?: number
+  statusCode?: number,
+  details?: Record<string, unknown>
 ): NextResponse<ErrorResponse> {
   const timestamp = new Date().toISOString();
 
@@ -102,6 +103,7 @@ export function createErrorResponse(
       error: {
         type: errorType,
         message: 'An internal error occurred',
+        // Only include details in development, and sanitize them
         details: process.env.NODE_ENV === 'development'
           ? { originalMessage: error.message }
           : undefined,

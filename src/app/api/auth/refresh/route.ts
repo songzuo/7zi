@@ -60,7 +60,8 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch (error) {
-    logger.error('Refresh token API error', error);
+    // Never log actual refresh token values - security risk
+    logger.error('Refresh token API error', error, { category: 'auth' });
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }
 }

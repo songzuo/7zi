@@ -317,7 +317,7 @@ const mockDb: DatabaseConnection = {
 // EVENTSOURCE MOCK
 // ============================================================================
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 class MockEventSource extends EventTarget {
   public readonly url: string;
   public readonly withCredentials: boolean;

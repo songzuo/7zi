@@ -423,13 +423,13 @@ export default async function HomePage({ params }: { params: Params }) {
 
                 <>
 
-                  用 AI 重新定义
+                  {tHero('title1')}
 
                   <br />
 
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 animate-gradient bg-[length:200%_200%] inline-block hover:scale-105 transition-transform duration-300">
 
-                    团队协作
+                    {tHero('title2')}
 
                   </span>
 

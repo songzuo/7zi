@@ -8,7 +8,7 @@
   /* Base colors */
   --background: #ffffff;
   --foreground: #171717;
-  
+
   /* Extended theme colors */
   --card: #ffffff;
   --card-foreground: #171717;
@@ -27,7 +27,7 @@
   --border: #e4e4e7;
   --input: #e4e4e7;
   --ring: #06b6d4;
-  
+
   /* Navigation specific */
   --nav-bg: #ffffff;
   --nav-border: #e5e7eb;
@@ -42,7 +42,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  
+
   /* Tailwind v4 compatible color definitions */
   --color-cyan-50: #ecfeff;
   --color-cyan-100: #cffafe;
@@ -55,7 +55,7 @@
   --color-cyan-800: #155e75;
   --color-cyan-900: #164e63;
   --color-cyan-950: #083344;
-  
+
   --color-purple-50: #faf5ff;
   --color-purple-100: #f3e8ff;
   --color-purple-200: #e9d5ff;
@@ -67,7 +67,7 @@
   --color-purple-800: #6b21a8;
   --color-purple-900: #581c87;
   --color-purple-950: #3b0764;
-  
+
   --color-pink-50: #fdf2f8;
   --color-pink-100: #fce7f3;
   --color-pink-200: #fbcfe8;
@@ -79,7 +79,7 @@
   --color-pink-800: #9d174d;
   --color-pink-900: #831843;
   --color-pink-950: #500724;
-  
+
   --color-blue-50: #eff6ff;
   --color-blue-100: #dbeafe;
   --color-blue-200: #bfdbfe;
@@ -91,7 +91,7 @@
   --color-blue-800: #1e40af;
   --color-blue-900: #1e3a8a;
   --color-blue-950: #172554;
-  
+
   --color-orange-50: #fff7ed;
   --color-orange-100: #ffedd5;
   --color-orange-200: #fed7aa;
@@ -103,7 +103,7 @@
   --color-orange-800: #9a3412;
   --color-orange-900: #7c2d12;
   --color-orange-950: #431407;
-  
+
   --color-red-50: #fef2f2;
   --color-red-100: #fee2e2;
   --color-red-200: #fecaca;
@@ -115,7 +115,7 @@
   --color-red-800: #991b1b;
   --color-red-900: #7f1d1d;
   --color-red-950: #450a0a;
-  
+
   --color-green-50: #f0fdf4;
   --color-green-100: #dcfce7;
   --color-green-200: #bbf7d0;
@@ -127,7 +127,7 @@
   --color-green-800: #166534;
   --color-green-900: #14532d;
   --color-green-950: #052e16;
-  
+
   --color-emerald-50: #ecfdf5;
   --color-emerald-100: #d1fae5;
   --color-emerald-200: #a7f3d0;
@@ -139,7 +139,7 @@
   --color-emerald-800: #065f46;
   --color-emerald-900: #064e3b;
   --color-emerald-950: #022c22;
-  
+
   --color-violet-50: #f5f3ff;
   --color-violet-100: #ede9fe;
   --color-violet-200: #ddd6fe;
@@ -151,7 +151,7 @@
   --color-violet-800: #5b21b6;
   --color-violet-900: #4c1d95;
   --color-violet-950: #2e1065;
-  
+
   --color-amber-50: #fffbeb;
   --color-amber-100: #fef3c7;
   --color-amber-200: #fde68a;
@@ -163,7 +163,7 @@
   --color-amber-800: #92400e;
   --color-amber-900: #78350f;
   --color-amber-950: #451a03;
-  
+
   --color-teal-50: #f0fdfa;
   --color-teal-100: #ccfbf1;
   --color-teal-200: #99f6e4;
@@ -175,7 +175,7 @@
   --color-teal-800: #115e59;
   --color-teal-900: #134e4a;
   --color-teal-950: #042f2e;
-  
+
   --color-indigo-50: #eef2ff;
   --color-indigo-100: #e0e7ff;
   --color-indigo-200: #c7d2fe;
@@ -187,7 +187,7 @@
   --color-indigo-800: #3730a3;
   --color-indigo-900: #312e81;
   --color-indigo-950: #1e1b4b;
-  
+
   --color-rose-50: #fff1f2;
   --color-rose-100: #ffe4e6;
   --color-rose-200: #fecdd3;
@@ -199,7 +199,7 @@
   --color-rose-800: #9f1239;
   --color-rose-900: #881337;
   --color-rose-950: #4c0519;
-  
+
   --color-yellow-50: #fefce8;
   --color-yellow-100: #fef9c3;
   --color-yellow-200: #fef08a;
@@ -211,7 +211,7 @@
   --color-yellow-800: #854d0e;
   --color-yellow-900: #713f12;
   --color-yellow-950: #422006;
-  
+
   /* Zinc colors */
   --color-zinc-50: #fafafa;
   --color-zinc-100: #f4f4f5;
@@ -224,17 +224,13 @@
   --color-zinc-800: #27272a;
   --color-zinc-900: #18181b;
   --color-zinc-950: #09090b;
-  
-  /* Animation */
-  --animate-gradient: gradient 3s ease infinite;
-  --animate-fade-in: fade-in 0.5s ease-out forwards;
 }
 
-/* Dark theme via class (used by ThemeProvider) */
+/* Dark theme via class (used by SettingsProvider/ThemeProvider) */
 .dark {
   --background: #0a0a0a;
   --foreground: #ededed;
-  
+
   --card: #18181b;
   --card-foreground: #fafafa;
   --popover: #18181b;
@@ -252,7 +248,7 @@
   --border: #27272a;
   --input: #27272a;
   --ring: #22d3ee;
-  
+
   /* Navigation specific */
   --nav-bg: #18181b;
   --nav-border: #27272a;
@@ -267,7 +263,7 @@
   :root:not(.light) {
     --background: #0a0a0a;
     --foreground: #ededed;
-    
+
     --card: #18181b;
     --card-foreground: #fafafa;
     --popover: #18181b;
@@ -285,7 +281,7 @@
     --border: #27272a;
     --input: #27272a;
     --ring: #22d3ee;
-    
+
     --nav-bg: #18181b;
     --nav-border: #27272a;
     --nav-text: #a1a1aa;
@@ -295,19 +291,17 @@
   }
 }
 
+/* ============================================
+   BASE STYLES
+   ============================================ */
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-}
-
-/* Theme transition - smooth color changes */
-html {
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-html.dark {
-  color-scheme: dark;
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 /* Prevent flash of wrong theme */
@@ -315,25 +309,58 @@ html:not(.dark):not(.light) {
   visibility: hidden;
 }
 
-/* Theme transition for all elements - 优化版 */
+html.dark {
+  color-scheme: dark;
+}
+
+/* Smooth transitions */
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
+  scroll-behavior: smooth;
+}
+
 * {
   transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 200ms;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* 排除过渡元素，避免布局抖动 */
-.no-transition,
-.no-transition * {
-  transition: none !important;
+/* ============================================
+   FOCUS & ACCESSIBILITY
+   ============================================ */
+
+/* Focus visible */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
-/* Disable transitions during initial page load to prevent flash */
-.no-transitions * {
-  transition: none !important;
+:focus:not(:focus-visible) {
+  outline: none;
 }
 
-/* Custom Scrollbar */
+/* Touch devices - hide focus outline */
+@media (hover: none) {
+  *:focus-visible {
+    outline: none;
+  }
+}
+
+/* Selection color */
+::selection {
+  background-color: rgba(6, 182, 212, 0.3);
+  color: inherit;
+}
+
+.dark ::selection {
+  background-color: rgba(6, 182, 212, 0.4);
+}
+
+/* ============================================
+   SCROLLBAR STYLING
+   ============================================ */
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -361,100 +388,50 @@ html:not(.dark):not(.light) {
 }
 
 /* Hide scrollbar but keep functionality */
-.scrollbar-hide {
+.hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
-.scrollbar-hide::-webkit-scrollbar {
+.hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
 
-/* Smooth Scroll Behavior */
-html {
-  scroll-behavior: smooth;
+/* ============================================
+   LINE CLAMP UTILITIES
+   ============================================ */
+
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-/* Animation Utilities */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* ============================================
+   ANIMATIONS
+   ============================================ */
 
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
   }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-20px);
-  }
-}
-
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 40px rgba(6, 182, 212, 0.6);
+  100% {
+    background-position: 1000px 0;
   }
 }
 
@@ -470,309 +447,39 @@ html {
   }
 }
 
-@keyframes shimmer {
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes modalIn {
   0% {
-    background-position: -1000px 0;
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
   }
   100% {
-    background-position: 1000px 0;
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-out forwards;
-}
-
-.animate-slide-up {
-  animation: slideUp 0.5s ease-out forwards;
-}
-
-.animate-slide-down {
-  animation: slideDown 0.5s ease-out forwards;
-}
-
-.animate-slide-in-left {
-  animation: slideInLeft 0.5s ease-out forwards;
-}
-
-.animate-slide-in-right {
-  animation: slideInRight 0.5s ease-out forwards;
-}
-
-.animate-scale-in {
-  animation: scaleIn 0.3s ease-out forwards;
-}
-
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
-}
-
-.animate-gradient {
-  background-size: 200% 200%;
-  animation: gradient-shift 3s ease infinite;
-}
-
-/* Shimmer effect for loading states */
-.shimmer {
-  background: linear-gradient(
-    90deg,
-    #f0f0f0 0%,
-    #e0e0e0 20%,
-    #f0f0f0 40%,
-    #f0f0f0 100%
-  );
-  background-size: 1000px 100%;
-  animation: shimmer 2s infinite linear;
-}
-
-.dark .shimmer {
-  background: linear-gradient(
-    90deg,
-    #27272a 0%,
-    #3f3f46 20%,
-    #27272a 40%,
-    #27272a 100%
-  );
-  background-size: 1000px 100%;
-}
-
-/* Glass morphism effect */
-.glass {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.dark .glass {
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* 3D Card Effect */
-.card-3d {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  transform-style: preserve-3d;
-}
-
-.card-3d:hover {
-  transform: translateY(-5px) rotateX(5deg);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-}
-
-/* Gradient Text */
-.gradient-text {
-  background: linear-gradient(135deg, #06b6d4, #a855f7, #ec4899);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Button Hover Glow */
-.btn-glow {
-  position: relative;
-  overflow: hidden;
-}
-
-.btn-glow::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
-  transition: left 0.5s;
-}
-
-.btn-glow:hover::before {
-  left: 100%;
-}
-
-/* Line Clamp Utility */
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.line-clamp-3 {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* Focus Styles */
-.focus-visible-ring {
-  outline: none;
-}
-
-.focus-visible-ring:focus-visible {
-  ring: 2px;
-  ring-color: #06b6d4;
-  ring-offset: 2px;
-}
-
-/* Selection Color */
-::selection {
-  background-color: rgba(6, 182, 212, 0.3);
-  color: inherit;
-}
-
-.dark ::selection {
-  background-color: rgba(6, 182, 212, 0.4);
-}
-
-/* Image Optimization */
-img {
-  image-rendering: -webkit-optimize-contrast;
-}
-
-/* Smooth Transitions */
-* {
-  transition-property: background-color, border-color, color, fill, stroke;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
-}
-
-/* Reduced Motion */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+@keyframes notificationSlide {
+  0% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 
-/* ============================================
-   ENHANCED ANIMATIONS & INTERACTIONS
-   ============================================ */
-
-/* Parallax Scroll Effect */
-.parallax-layer {
-  transform: translateZ(0);
-  will-change: transform;
-}
-
-/* Stagger Animation Delays */
-.stagger-1 { animation-delay: 100ms; }
-.stagger-2 { animation-delay: 200ms; }
-.stagger-3 { animation-delay: 300ms; }
-.stagger-4 { animation-delay: 400ms; }
-.stagger-5 { animation-delay: 500ms; }
-
-/* Hover Lift Effect */
-.hover-lift {
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
-}
-.hover-lift:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
-}
-
-/* Ripple Effect Container */
-.ripple-container {
-  position: relative;
-  overflow: hidden;
-}
-.ripple-container::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
-}
-.ripple-container:active::after {
-  width: 300px;
-  height: 300px;
-}
-
-/* Gradient Border Animation */
-.gradient-border {
-  position: relative;
-  background: linear-gradient(#fff, #fff) padding-box,
-              linear-gradient(45deg, #06b6d4, #a855f7, #ec4899) border-box;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-}
-.gradient-border::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 2px;
-  background: linear-gradient(45deg, #06b6d4, #a855f7, #ec4899, #06b6d4);
-  background-size: 400% 400%;
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  animation: gradient-shift 3s ease infinite;
-}
-
-/* Glow on Hover */
-.glow-on-hover {
-  position: relative;
-}
-.glow-on-hover::before {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  background: linear-gradient(45deg, #06b6d4, #a855f7, #ec4899);
-  border-radius: inherit;
-  z-index: -1;
-  opacity: 0;
-  filter: blur(15px);
-  transition: opacity 0.3s ease;
-}
-.glow-on-hover:hover::before {
-  opacity: 0.8;
-}
-
-/* Text Reveal Animation */
-.text-reveal {
-  background: linear-gradient(to right, #171717 50%, #a1a1aa 50%);
-  background-size: 200% 100%;
-  background-position: 100%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  transition: background-position 0.5s ease;
-}
-.text-reveal:hover {
-  background-position: 0%;
-}
-
-/* Skeleton Loading */
-.skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-  border-radius: 4px;
-}
-.dark .skeleton {
-  background: linear-gradient(90deg, #27272a 25%, #3f3f46 50%, #27272a 75%);
-  background-size: 200% 100%;
-}
-
-/* Bounce In */
 @keyframes bounceIn {
   0% {
     opacity: 0;
@@ -789,100 +496,81 @@ img {
     transform: scale(1);
   }
 }
+
+/* Animation utility classes */
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite linear;
+}
+
+.animate-gradient-shift {
+  animation: gradient-shift 3s ease infinite;
+}
+
+.animate-modal-in {
+  animation: modalIn 0.3s ease-out forwards;
+}
+
 .animate-bounce-in {
   animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
 }
 
-/* Rotate In */
-@keyframes rotateIn {
-  from {
-    opacity: 0;
-    transform: rotate(-180deg) scale(0.5);
-  }
-  to {
-    opacity: 1;
-    transform: rotate(0) scale(1);
-  }
-}
-.animate-rotate-in {
-  animation: rotateIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+/* Glass morphism effect */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* Zoom Fade */
-@keyframes zoomFade {
-  from {
-    opacity: 0;
-    transform: scale(1.1);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-.animate-zoom-fade {
-  animation: zoomFade 0.5s ease-out forwards;
-}
-
-/* Mobile Touch Feedback */
-@media (hover: none) and (pointer: coarse) {
-  .touch-feedback:active {
-    transform: scale(0.95);
-    opacity: 0.8;
-  }
-}
-
-/* Intersection Observer Fade */
-.observe-fade {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
-}
-.observe-fade.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Mobile Optimizations */
-@media (max-width: 768px) {
-  /* Reduce animation complexity on mobile */
-  .hover-lift:hover {
-    transform: translateY(-4px);
-  }
-  
-  /* Larger touch targets */
-  button, a {
-    min-height: 44px;
-    min-width: 44px;
-  }
-  
-  /* Smooth scrolling on mobile */
-  html {
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-  }
+.dark .glass {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* ============================================
-   RESPONSIVE OPTIMIZATIONS - Designer Patch
+   TOUCH FEEDBACK & MOBILE OPTIMIZATIONS
    ============================================ */
 
-/* Touch Target Optimization (44x44px minimum) */
+/* Touch feedback utility */
+.touch-active {
+  position: relative;
+  overflow: hidden;
+}
+
+.touch-active::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.05);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.touch-active:active::after {
+  opacity: 1;
+}
+
+/* Touch device specific optimizations */
 @media (hover: none) and (pointer: coarse) {
-  nav a,
-  nav button,
-  .nav-link {
-    min-height: 48px;
-    min-width: 48px;
-    padding: 12px 16px;
+  .touch-feedback,
+  button,
+  a,
+  [role="button"] {
+    -webkit-tap-highlight-color: rgba(6, 182, 212, 0.1);
   }
-  
-  /* Filter and tab buttons */
-  .filter-btn,
-  button[class*="rounded-full"] {
-    min-height: 48px;
+
+  .touch-feedback:active,
+  button:active,
+  a:active {
+    transform: scale(0.97);
+    opacity: 0.9;
   }
-  
-  /* Form inputs - prevent iOS zoom */
+
+  /* Prevent iOS zoom on input */
   input,
   textarea,
   select {
@@ -890,327 +578,77 @@ img {
   }
 }
 
-/* Safe Area Support (Notch/Home Indicator) */
+/* ============================================
+   SAFE AREA UTILITIES
+   ============================================ */
+
 @supports (padding: max(0px)) {
   body {
     padding-left: max(0px, env(safe-area-inset-left));
     padding-right: max(0px, env(safe-area-inset-right));
   }
-  
-  .fixed.bottom-0,
-  footer.fixed {
+
+  .safe-top {
+    padding-top: max(0px, env(safe-area-inset-top));
+  }
+
+  .safe-bottom {
     padding-bottom: max(16px, env(safe-area-inset-bottom));
   }
-  
-  .fixed.top-0 {
+
+  .p-safe-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+
+  .p-safe-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .mt-safe-top {
+    margin-top: max(1rem, env(safe-area-inset-top));
+  }
+
+  .mb-safe-bottom {
+    margin-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  /* Fixed elements */
+  .fixed.bottom-0,
+  footer.fixed,
+  .fixed-bottom {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+
+  .fixed.top-0,
+  nav.fixed,
+  header.fixed {
     padding-top: max(0px, env(safe-area-inset-top));
   }
 }
 
-/* Small Screen Chat Fullscreen */
-@media (max-width: 480px) {
-  .chat-window-fullscreen {
-    position: fixed !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    max-width: 100% !important;
-    border-radius: 0 !important;
-  }
-}
-
-/* Touch Feedback */
-.touch-active:active {
-  transform: scale(0.97);
-  opacity: 0.9;
-}
-
-/* Responsive Text Truncation */
-.truncate-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.truncate-3 {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* Hide scrollbar but keep functionality */
-.hide-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
 /* ============================================
-   RESPONSIVE OPTIMIZATIONS - Designer Patch v2
-   导入移动端响应式优化
+   STATE COLORS & SHADOWS
    ============================================ */
 
-@import "../styles/responsive-mobile.css";
-
-/* ============================================
-   DESIGNER PATCH v3 - 增强版动画与交互
-   ============================================ */
-
-/* 微交互 - 按钮点击波纹 */
-.btn-ripple {
-  position: relative;
-  overflow: hidden;
-}
-
-.btn-ripple::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  transition: width 0.6s ease, height 0.6s ease;
-}
-
-.btn-ripple:active::after {
-  width: 300%;
-  height: 300%;
-}
-
-/* 卡片悬停增强 */
-.card-hover {
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), 
-              box-shadow 0.3s ease,
-              border-color 0.3s ease;
-}
-
-.card-hover:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.15);
-}
-
-.dark .card-hover:hover {
-  box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.5);
-}
-
-/* 图标悬停旋转 */
-.icon-spin-hover:hover {
-  animation: iconSpin 0.5s ease;
-}
-
-@keyframes iconSpin {
-  0% { transform: rotate(0deg); }
-  25% { transform: rotate(15deg); }
-  50% { transform: rotate(-10deg); }
-  75% { transform: rotate(5deg); }
-  100% { transform: rotate(0deg); }
-}
-
-/* 文字渐变动画 */
-.text-gradient-animate {
-  background: linear-gradient(90deg, #06b6d4, #a855f7, #ec4899, #06b6d4);
-  background-size: 300% 100%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: gradient-text 4s ease infinite;
-}
-
-@keyframes gradient-text {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-
-/* 弹性出现动画 */
-@keyframes elasticIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  70% {
-    transform: scale(0.95);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.animate-elastic-in {
-  animation: elasticIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
-}
-
-/* 摇晃动画 - 用于错误提示 */
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
-  20%, 40%, 60%, 80% { transform: translateX(4px); }
-}
-
-.animate-shake {
-  animation: shake 0.5s ease-in-out;
-}
-
-/* 心跳动画 - 用于重要提示 */
-@keyframes heartbeat {
-  0%, 100% { transform: scale(1); }
-  14% { transform: scale(1.1); }
-  28% { transform: scale(1); }
-  42% { transform: scale(1.1); }
-  70% { transform: scale(1); }
-}
-
-.animate-heartbeat {
-  animation: heartbeat 1.5s ease-in-out infinite;
-}
-
-/* 打字机效果 */
-@keyframes typing {
-  from { width: 0; }
-  to { width: 100%; }
-}
-
-.typing-effect {
-  overflow: hidden;
-  white-space: nowrap;
-  animation: typing 2s steps(40, end);
-}
-
-/* 闪烁光标 */
-@keyframes blink-caret {
-  from, to { border-color: transparent; }
-  50% { border-color: var(--primary); }
-}
-
-.cursor-blink {
-  border-right: 2px solid;
-  animation: blink-caret 0.75s step-end infinite;
-}
-
-/* 加载点动画 */
-@keyframes loadingDots {
-  0%, 20% { opacity: 0; }
-  50% { opacity: 1; }
-  100% { opacity: 0; }
-}
-
-.loading-dots span {
-  animation: loadingDots 1.4s infinite;
-}
-
-.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
-.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
-
-/* 通知弹出动画 */
-@keyframes notificationSlide {
-  0% {
-    opacity: 0;
-    transform: translateX(100%);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.animate-notification {
-  animation: notificationSlide 0.3s ease-out forwards;
-}
-
-/* 模态框进入动画 */
-@keyframes modalIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.95) translateY(10px);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-.animate-modal-in {
-  animation: modalIn 0.3s ease-out forwards;
-}
-
-/* 涟漪扩散效果 */
-@keyframes ripple {
-  0% {
-    transform: scale(0);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(4);
-    opacity: 0;
-  }
-}
-
-.ripple-effect {
-  position: relative;
-  overflow: hidden;
-}
-
-.ripple-effect::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 20px;
-  height: 20px;
-  background: rgba(255, 255, 255, 0.4);
-  border-radius: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  opacity: 0;
-}
-
-.ripple-effect:active::before {
-  animation: ripple 0.6s ease-out;
-}
-
-/* ============================================
-   颜色一致性 - 统一色板
-   ============================================ */
-
-/* 状态颜色变量 */
 :root {
-  /* 成功色 */
+  /* Semantic colors */
   --success: #10b981;
   --success-light: #d1fae5;
   --success-dark: #065f46;
-  
-  /* 警告色 */
+
   --warning: #f59e0b;
   --warning-light: #fef3c7;
   --warning-dark: #92400e;
-  
-  /* 错误色 */
+
   --error: #ef4444;
   --error-light: #fee2e2;
   --error-dark: #991b1b;
-  
-  /* 信息色 */
+
   --info: #3b82f6;
   --info-light: #dbeafe;
   --info-dark: #1e40af;
-  
-  /* 品牌渐变 */
-  --gradient-primary: linear-gradient(135deg, #06b6d4 0%, #a855f7 50%, #ec4899 100%);
-  --gradient-secondary: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-  --gradient-success: linear-gradient(135deg, #10b981 0%, #34d399 100%);
-  --gradient-warm: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
-  
-  /* 阴影 */
+
+  /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
@@ -1223,7 +661,7 @@ img {
   --warning-light: #78350f;
   --error-light: #7f1d1d;
   --info-light: #1e3a8a;
-  
+
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
@@ -1231,7 +669,7 @@ img {
   --shadow-glow: 0 0 30px rgba(6, 182, 212, 0.4);
 }
 
-/* 状态徽章统一 */
+/* Status badges */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -1263,1227 +701,77 @@ img {
 }
 
 /* ============================================
-   移动端触摸优化
+   PERFORMANCE OPTIMIZATIONS
    ============================================ */
 
-/* 触摸反馈 - 统一 */
-@media (hover: none) and (pointer: coarse) {
-  .touch-feedback,
-  button,
-  a,
-  [role="button"] {
-    -webkit-tap-highlight-color: rgba(6, 182, 212, 0.1);
-  }
-  
-  .touch-feedback:active,
-  button:active,
-  a:active {
-    transform: scale(0.97);
-    opacity: 0.9;
-  }
-  
-  /* 禁用长按菜单 */
-  .no-callout {
-    -webkit-touch-callout: none;
-    user-select: none;
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
-/* 安全区域底部 */
-.safe-bottom {
-  padding-bottom: max(16px, env(safe-area-inset-bottom));
+/* Prevent iOS scroll bounce */
+html {
+  overscroll-behavior-y: none;
 }
 
-.safe-top {
-  padding-top: max(0px, env(safe-area-inset-top));
-}
-
-/* ============================================
-   焦点状态优化
-   ============================================ */
-
-/* 键盘焦点样式 */
-.focus-ring:focus-visible {
-  outline: none;
-  ring: 2px;
-  ring-offset: 2px;
-  ring-color: var(--primary);
-}
-
-/* 鼠标焦点隐藏 */
-:focus:not(:focus-visible) {
-  outline: none;
-}
-
-/* ============================================
-   滚动优化
-   ============================================ */
-
-/* 平滑滚动 */
+/* Smooth scroll container */
 .smooth-scroll {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
 }
 
-/* 隐藏滚动条 */
-.scrollbar-hidden {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.scrollbar-hidden::-webkit-scrollbar {
-  display: none;
-}
-
-/* 薄滚动条 */
-.scrollbar-thin {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
-}
-
-.scrollbar-thin::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background: rgba(156, 163, 175, 0.5);
-  border-radius: 3px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: rgba(156, 163, 175, 0.7);
-}
-
-/* ============================================
-   文字优化
-   ============================================ */
-
-/* 文字选中样式 */
-::selection {
-  background-color: rgba(6, 182, 212, 0.3);
-  color: inherit;
-}
-
-.dark ::selection {
-  background-color: rgba(6, 182, 212, 0.5);
-}
-
-/* 文字截断 */
-.line-clamp-1 {
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.line-clamp-3 {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* ============================================
-   响应式工具类
-   ============================================ */
-
-/* 移动端隐藏 */
-@media (max-width: 639px) {
-  .hide-mobile { display: none !important; }
-}
-
-/* 平板隐藏 */
-@media (min-width: 640px) and (max-width: 1023px) {
-  .hide-tablet { display: none !important; }
-}
-
-/* 桌面端隐藏 */
-@media (min-width: 1024px) {
-  .hide-desktop { display: none !important; }
-}
-
-/* 仅移动端显示 */
-@media (min-width: 640px) {
-  .mobile-only { display: none !important; }
-}
-
-/* 仅平板显示 */
-@media (max-width: 639px), (min-width: 1024px) {
-  .tablet-only { display: none !important; }
-}
-
-/* 仅桌面端显示 */
-@media (max-width: 1023px) {
-  .desktop-only { display: none !important; }
-}
-
-/* ============================================
-   性能优化
-   ============================================ */
-
-/* GPU 加速 */
-.gpu {
+/* GPU acceleration for animations */
+.gpu-accelerated {
   transform: translateZ(0);
   will-change: transform;
   backface-visibility: hidden;
 }
 
-/* 减少重绘 */
-.contain-paint {
-  contain: paint;
-}
-
-.contain-layout {
-  contain: layout;
-}
-
-/* 内容可见性优化 */
-.content-visibility-auto {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 500px;
-}
-
-/* ============================================
-   DESIGNER PATCH v4 - 统一按钮交互反馈系统
-   ============================================ */
-
-/* 基础按钮交互类 */
-.btn-interactive {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  font-weight: 500;
-  border-radius: 0.75rem;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* 悬停效果 - 抬起 */
-.btn-interactive:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* 点击效果 - 按下 */
-.btn-interactive:active {
-  transform: translateY(0) scale(0.98);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-/* 焦点效果 - 键盘导航 */
-.btn-interactive:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.25);
-}
-
-/* 禁用状态 */
-.btn-interactive:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-/* 主要按钮 */
-.btn-primary {
-  background: linear-gradient(135deg, var(--primary), #a855f7);
-  color: white;
-  box-shadow: 0 2px 8px rgba(6, 182, 212, 0.3);
-}
-
-.btn-primary:hover {
-  box-shadow: 0 4px 16px rgba(6, 182, 212, 0.4);
-}
-
-.btn-primary:active {
-  box-shadow: 0 1px 4px rgba(6, 182, 212, 0.3);
-}
-
-/* 次要按钮 */
-.btn-secondary {
-  background: var(--secondary);
-  color: var(--secondary-foreground);
-  border: 1px solid var(--border);
-}
-
-.btn-secondary:hover {
-  background: var(--accent);
-  border-color: var(--primary);
-}
-
-/* 轮廓按钮 */
-.btn-outline {
-  background: transparent;
-  color: var(--foreground);
-  border: 2px solid var(--border);
-}
-
-.btn-outline:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-  background: rgba(6, 182, 212, 0.05);
-}
-
-/* 幽灵按钮 */
-.btn-ghost {
-  background: transparent;
-  color: var(--foreground);
-}
-
-.btn-ghost:hover {
-  background: var(--secondary);
-}
-
-/* 危险按钮 */
-.btn-danger {
-  background: var(--destructive);
-  color: white;
-}
-
-.btn-danger:hover {
-  background: #dc2626;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-}
-
-/* 按钮尺寸变体 */
-.btn-sm {
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  border-radius: 0.5rem;
-}
-
-.btn-lg {
-  padding: 1rem 2rem;
-  font-size: 1.125rem;
-  border-radius: 1rem;
-}
-
-.btn-xl {
-  padding: 1.25rem 2.5rem;
-  font-size: 1.25rem;
-  border-radius: 1.25rem;
-}
-
-/* 圆形按钮 */
-.btn-circle {
-  padding: 0.75rem;
-  border-radius: 50%;
-  width: 3rem;
-  height: 3rem;
-}
-
-.btn-circle.btn-sm {
-  width: 2.5rem;
-  height: 2.5rem;
-  padding: 0.5rem;
-}
-
-.btn-circle.btn-lg {
-  width: 3.5rem;
-  height: 3.5rem;
-  padding: 1rem;
-}
-
-/* 波纹效果增强版 */
-.btn-ripple-enhanced {
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
-}
-
-.btn-ripple-enhanced::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  background: rgba(255, 255, 255, 0.4);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  transition: width 0.6s ease-out, height 0.6s ease-out, opacity 0.6s ease-out;
-  opacity: 0;
-  z-index: -1;
-}
-
-.btn-ripple-enhanced:active::before {
-  width: 400%;
-  height: 400%;
-  opacity: 1;
-}
-
-/* 加载状态按钮 */
-.btn-loading {
-  pointer-events: none;
-  position: relative;
-  color: transparent !important;
-}
-
-.btn-loading::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 1.25rem;
-  height: 1.25rem;
-  margin: -0.625rem 0 0 -0.625rem;
-  border: 2px solid currentColor;
-  border-right-color: transparent;
-  border-radius: 50%;
-  animation: btnSpin 0.75s linear infinite;
-}
-
-@keyframes btnSpin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* 成功状态按钮 */
-.btn-success {
-  background: var(--success) !important;
-  color: white !important;
-}
-
-.btn-success::before {
-  content: '✓';
-  margin-right: 0.5rem;
-}
-
-/* 触摸设备优化 */
-@media (hover: none) and (pointer: coarse) {
-  .btn-interactive {
-    min-height: 44px;
-    min-width: 44px;
-  }
-  
-  .btn-interactive:hover {
-    transform: none;
-    box-shadow: inherit;
-  }
-  
-  .btn-interactive:active {
-    transform: scale(0.96);
-    opacity: 0.9;
-  }
-}
-
-/* 鼠标设备优化 */
-@media (hover: hover) and (pointer: fine) {
-  .btn-interactive:hover {
-    transform: translateY(-2px);
-  }
-}
-
-/* 按钮组 */
-.btn-group {
-  display: inline-flex;
-  gap: 0;
-}
-
-.btn-group > .btn-interactive {
-  border-radius: 0;
-}
-
-.btn-group > .btn-interactive:first-child {
-  border-top-left-radius: 0.75rem;
-  border-bottom-left-radius: 0.75rem;
-}
-
-.btn-group > .btn-interactive:last-child {
-  border-top-right-radius: 0.75rem;
-  border-bottom-right-radius: 0.75rem;
-}
-
-.btn-group > .btn-interactive:not(:last-child) {
-  border-right: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-/* 图标按钮增强 */
-.btn-icon {
-  padding: 0.625rem;
-  aspect-ratio: 1;
-}
-
-.btn-icon svg {
-  width: 1.25rem;
-  height: 1.25rem;
-}
-
-/* 全宽按钮 */
-.btn-full {
-  width: 100%;
-}
-
-/* 按钮内图标动画 */
-.btn-interactive:hover svg,
-.btn-interactive:hover .btn-icon-animate {
-  transform: translateX(2px);
-}
-
-.btn-interactive:active svg,
-.btn-interactive:active .btn-icon-animate {
-  transform: translateX(0);
-}
-
-/* ============================================
-   表单交互增强
-   ============================================ */
-
-/* 输入框焦点增强 */
-.input-enhanced {
-  transition: all 0.2s ease;
-  border: 2px solid var(--border);
-  background: var(--background);
-}
-
-.input-enhanced:hover {
-  border-color: var(--muted-foreground);
-}
-
-.input-enhanced:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.15);
-}
-
-.input-enhanced:focus-visible {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.25);
-}
-
-/* 错误状态输入框 */
-.input-error {
-  border-color: var(--destructive) !important;
-  animation: inputShake 0.4s ease;
-}
-
-@keyframes inputShake {
-  0%, 100% { transform: translateX(0); }
-  20%, 60% { transform: translateX(-4px); }
-  40%, 80% { transform: translateX(4px); }
-}
-
-/* 成功状态输入框 */
-.input-success {
-  border-color: var(--success) !important;
-}
-
-/* 表单标签动画 */
-.label-animated {
-  position: relative;
-  transition: all 0.2s ease;
-}
-
-.label-animated:focus-within {
-  transform: translateY(-2px);
-}
-
-/* 表单错误消息动画 */
-.error-message {
-  animation: errorSlideIn 0.3s ease;
-}
-
-@keyframes errorSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ============================================
-   进度条动画样式
-   ============================================ */
-
-/* 条纹滚动动画 */
-@keyframes stripes-scroll {
-  0% {
-    background-position: 1rem 0;
-  }
-  100% {
-    background-position: 0 0;
-  }
-}
-
-.bg-stripes-animated {
-  background-image: linear-gradient(
-    45deg,
-    rgba(255, 255, 255, 0.15) 25%,
-    transparent 25%,
-    transparent 50%,
-    rgba(255, 255, 255, 0.15) 50%,
-    rgba(255, 255, 255, 0.15) 75%,
-    transparent 75%,
-    transparent
-  );
-  background-size: 1rem 1rem;
-  animation: stripes-scroll 1s linear infinite;
-}
-
-/* 光泽滑动动画 */
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-.animate-shimmer {
-  animation: shimmer 2s ease-in-out infinite;
-}
-
-/* 渐变位移动画 */
-@keyframes gradient-shift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
+/* Animation containment */
+.animate-fade-in,
+.animate-modal-in,
+.animate-bounce-in,
+.animate-shimmer,
 .animate-gradient-shift {
-  animation: gradient-shift 3s ease infinite;
-}
-
-/* 波浪动画 */
-@keyframes wave {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-.animate-wave {
-  animation: wave 2s linear infinite;
-}
-
-/* 淡入动画 */
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in {
-  animation: fade-in 0.3s ease-out forwards;
-}
-
-/* 弹跳完成动画 */
-@keyframes bounce-complete {
-  0%, 100% {
-    transform: scale(1);
-  }
-  25% {
-    transform: scale(1.05);
-  }
-  50% {
-    transform: scale(1);
-  }
-  75% {
-    transform: scale(1.02);
-  }
-}
-
-.animate-bounce-complete {
-  animation: bounce-complete 0.5s ease-out;
-}
-
-/* 发光效果 */
-@keyframes glow-pulse {
-  0%, 100% {
-    box-shadow: 0 0 5px currentColor, 0 0 10px currentColor;
-  }
-  50% {
-    box-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor;
-  }
-}
-
-.animate-glow {
-  animation: glow-pulse 2s ease-in-out infinite;
-}
-
-/* 减少动画模式下的进度条 */
-@media (prefers-reduced-motion: reduce) {
-  .bg-stripes-animated,
-  .animate-shimmer,
-  .animate-gradient-shift,
-  .animate-wave,
-  .animate-fade-in,
-  .animate-bounce-complete,
-  .animate-glow {
-    animation: none !important;
-  }
+  contain: layout style paint;
 }
 
 /* ============================================
-   RTL (Right-to-Left) LANGUAGE SUPPORT
+   PRINT STYLES
    ============================================ */
 
-/* RTL 方向性 */
-[dir="rtl"] {
-  direction: rtl;
-  text-align: right;
-}
-
-/* RTL 间距和布局调整 */
-[dir="rtl"] .mr-2,
-[dir="rtl"] .ml-2 {
-  margin-right: 0;
-  margin-left: 0.5rem;
-}
-
-[dir="rtl"] .ml-auto {
-  margin-left: 0;
-  margin-right: auto;
-}
-
-[dir="rtl"] .flex-row {
-  flex-direction: row-reverse;
-}
-
-/* RTL 边框 */
-[dir="rtl"] .border-l,
-[dir="rtl"] .border-r {
-  border-left-color: transparent;
-  border-right-color: var(--border);
-}
-
-[dir="rtl"] .border-l-2 {
-  border-left-width: 0;
-  border-right-width: 2px;
-}
-
-[dir="rtl"] .border-r-2 {
-  border-right-width: 0;
-  border-left-width: 2px;
-}
-
-/* RTL 图标镜像 */
-[dir="rtl"] svg {
-  transform: scaleX(-1);
-}
-
-/* RTL 例外：不需要镜像的图标 */
-[dir="rtl"] .no-rtl-mirror svg,
-[dir="rtl"] .no-rtl-mirror {
-  transform: none;
-}
-
-/* RTL 滚动条 */
-[dir="rtl"] ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-[dir="rtl"] ::-webkit-scrollbar-track {
-  background: var(--muted);
-}
-
-[dir="rtl"] ::-webkit-scrollbar-thumb {
-  background: var(--muted-foreground);
-  border-radius: 4px;
-}
-
-[dir="rtl"] ::-webkit-scrollbar-thumb:hover {
-  background: var(--foreground);
-}
-
-/* RTL 特定布局调整 */
-[dir="rtl"] .flex-row-reverse {
-  flex-direction: row;
-}
-
-[dir="rtl"] .flex-col-reverse {
-  flex-direction: column;
-}
-
-/* RTL 文本对齐覆盖 */
-[dir="rtl"] .text-left {
-  text-align: right;
-}
-
-[dir="rtl"] .text-right {
-  text-align: left;
-}
-
-[dir="rtl"] .text-start {
-  text-align: end;
-}
-
-[dir="rtl"] .text-end {
-  text-align: start;
-}
-
-/* RTL 定位调整 */
-[dir="rtl"] .left-0 {
-  left: auto;
-  right: 0;
-}
-
-[dir="rtl"] .right-0 {
-  right: auto;
-  left: 0;
-}
-
-[dir="rtl"] .top-right {
-  top: 0;
-  right: auto;
-  left: 0;
-}
-
-[dir="rtl"] .top-left {
-  top: 0;
-  left: auto;
-  right: 0;
-}
-
-/* RTL 响应式布局 */
-@media (min-width: 768px) {
-  [dir="rtl"] .md\:mr-4 {
-    margin-right: 0;
-    margin-left: 1rem;
+@media print {
+  /* Hide unnecessary elements */
+  nav,
+  .chat-toggle-btn,
+  .chat-window,
+  footer,
+  .mobile-menu {
+    display: none !important;
   }
 
-  [dir="rtl"] .md\:ml-4 {
-    margin-left: 0;
-    margin-right: 1rem;
-  }
-}
-
-/* RTL 暗色模式支持 */
-.dark[dir="rtl"] ::-webkit-scrollbar-track {
-  background: var(--zinc-800);
-}
-
-.dark[dir="rtl"] ::-webkit-scrollbar-thumb {
-  background: var(--zinc-600);
-}
-
-.dark[dir="rtl"] ::-webkit-scrollbar-thumb:hover {
-  background: var(--zinc-400);
-}
-
-/* ============================================
-   MOBILE RESPONSIVE UTILITIES
-   ============================================ */
-
-/* Touch-friendly active states */
-.touch-active {
-  position: relative;
-  overflow: hidden;
-}
-
-.touch-active::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.05);
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-.touch-active:active::after {
-  opacity: 1;
-}
-
-/* Safe area insets for notched phones */
-@supports (padding: max(0px)) {
-  .safe-area-top {
-    padding-top: max(0px, env(safe-area-inset-top));
-  }
-
-  .safe-area-bottom {
-    padding-bottom: max(0px, env(safe-area-inset-bottom));
-  }
-
-  .safe-area-left {
-    padding-left: max(0px, env(safe-area-inset-left));
-  }
-
-  .safe-area-right {
-    padding-right: max(0px, env(safe-area-inset-right));
-  }
-}
-
-/* Scrollbar hiding for clean mobile look */
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-/* Optimized text rendering on mobile */
-@media (max-width: 640px) {
+  /* Optimize print layout */
   body {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeSpeed;
-  }
-}
-
-/* Prevent text size adjustment on orientation change */
-body {
-  -webkit-text-size-adjust: 100%;
-  -moz-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-}
-
-/* Disable tap highlight color */
-* {
-  -webkit-tap-highlight-color: transparent;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-}
-
-/* Prevent overscroll bounce on iOS */
-html {
-  overscroll-behavior-y: none;
-}
-
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-}
-
-/* Focus visible for keyboard navigation */
-*:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-}
-
-/* Hide focus on touch devices */
-@media (hover: none) {
-  *:focus-visible {
-    outline: none;
-  }
-}
-
-/* Loading skeleton animation */
-@keyframes shimmer {
-  0% {
-    background-position: -1000px 0;
-  }
-  100% {
-    background-position: 1000px 0;
-  }
-}
-
-.skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--secondary) 25%,
-    var(--muted) 50%,
-    var(--secondary) 75%
-  );
-  background-size: 1000px 100%;
-  animation: shimmer 2s infinite linear;
-}
-
-/* Responsive spacing utilities */
-.p-safe-top {
-  padding-top: max(1rem, env(safe-area-inset-top));
-}
-
-.p-safe-bottom {
-  padding-bottom: max(1rem, env(safe-area-inset-bottom));
-}
-
-.mt-safe-top {
-  margin-top: max(1rem, env(safe-area-inset-top));
-}
-
-.mb-safe-bottom {
-  margin-bottom: max(1rem, env(safe-area-inset-bottom));
-}
-
-/* Mobile-first typography scale */
-@media (max-width: 375px) {
-  .text-responsive-h1 {
-    font-size: 1.5rem;
-    line-height: 2rem;
+    font-size: 12pt;
+    line-height: 1.5;
+    color: black;
+    background: white;
   }
 
-  .text-responsive-h2 {
-    font-size: 1.25rem;
-    line-height: 1.75rem;
+  a {
+    text-decoration: underline;
   }
 
-  .text-responsive-body {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
+  /* Avoid page breaks */
+  .team-card,
+  .project-card {
+    break-inside: avoid;
   }
 }
-
-@media (min-width: 376px) and (max-width: 414px) {
-  .text-responsive-h1 {
-    font-size: 1.75rem;
-    line-height: 2.25rem;
-  }
-
-  .text-responsive-h2 {
-    font-size: 1.5rem;
-    line-height: 2rem;
-  }
-
-  .text-responsive-body {
-    font-size: 0.9375rem;
-    line-height: 1.375rem;
-  }
-}
-
-/* Improved touch targets on mobile */
-@media (max-width: 640px) {
-  button,
-  a,
-  input,
-  select,
-  [role="button"] {
-    min-height: 44px;
-    min-width: 44px;
-  }
-
-  button:has([aria-label]),
-  a:has([aria-label]) {
-    min-height: 48px;
-    min-width: 48px;
-  }
-}
-
-/* Card hover effects - reduced on mobile */
-.card-hover {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-@media (hover: hover) {
-  .card-hover:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-  }
-}
-
-.card-hover:active {
-  transform: scale(0.98);
-}
-
-/* Responsive grid gaps */
-.gap-responsive {
-  gap: 0.5rem;
-}
-
-@media (min-width: 415px) {
-  .gap-responsive {
-    gap: 0.75rem;
-  }
-}
-
-@media (min-width: 641px) {
-  .gap-responsive {
-    gap: 1rem;
-  }
-}
-
-@media (min-width: 1025px) {
-  .gap-responsive {
-    gap: 1.5rem;
-  }
-}
-
-/* Sticky positioning with safe area */
-.sticky-header {
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  padding-top: max(0px, env(safe-area-inset-top));
-}
-
-.sticky-footer {
-  position: sticky;
-  bottom: 0;
-  z-index: 40;
-  padding-bottom: max(0px, env(safe-area-inset-bottom));
-}
-
-/* Bottom navigation indicator */
-.bottom-nav-indicator {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 20px;
-  height: 5px;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 100px 100px 0 0;
-}
-
-@media (prefers-color-scheme: dark) {
-  .bottom-nav-indicator {
-    background: rgba(255, 255, 255, 0.2);
-  }
-}
-
-/* Input field styling improvements */
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="number"],
-textarea,
-select {
-  font-size: 16px; /* Prevents iOS zoom */
-  padding: 12px 16px;
-}
-
-@media (min-width: 641px) {
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="number"],
-  textarea,
-  select {
-    font-size: 14px;
-    padding: 10px 14px;
-  }
-}
-
-/* Pull to refresh support (optional) */
-@supports (-webkit-overflow-scrolling: touch) {
-  .overscroll-contain {
-    overscroll-behavior-y: contain;
-  }
-
-  .overscroll-none {
-    overscroll-behavior: none;
-  }
-}
-
-/* Modal backdrop for mobile */
-.modal-backdrop-mobile {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  z-index: 50;
-}
-
-/* Responsive modal */
-.modal-responsive {
-  max-height: 90vh;
-  max-width: 90vw;
-  margin: auto;
-}
-
-@media (min-width: 641px) {
-  .modal-responsive {
-    max-height: 85vh;
-    max-width: 85vw;
-  }
-}
-
-@media (min-width: 1025px) {
-  .modal-responsive {
-    max-height: 80vh;
-    max-width: 800px;
-  }
-}
-
-/* Mobile swipe indicator */
-.swipe-indicator {
-  width: 40px;
-  height: 5px;
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 100px;
-  margin: 8px auto;
-}
-
-@media (prefers-color-scheme: dark) {
-  .swipe-indicator {
-    background: rgba(255, 255, 255, 0.1);
-  }
-}
-
-/* Tab bar active indicator */
-.tab-active-indicator {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--primary);
-  border-radius: 1px;
-}
-
-/* Notification badge */
-.notification-badge {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  background: var(--destructive);
-  color: var(--destructive-foreground);
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 18px;
-  text-align: center;
-  border-radius: 9px;
-  border: 2px solid var(--background);
-}
-
-/* Responsive divider */
-.divider-responsive {
-  border-top: 1px solid var(--border);
-  margin: 1rem 0;
-}
-
-@media (min-width: 641px) {
-  .divider-responsive {
-    margin: 1.5rem 0;
-  }
-}
-
-/* End of Mobile Responsive Utilities */

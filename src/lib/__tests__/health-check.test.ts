@@ -327,7 +327,7 @@ describe('Health Check Module', () => {
 
       expect(health1.status).toBe('ok');
       expect(health2.status).toBe('ok');
-      expect(health3.data.status).toBe('ok');
+      expect(health3.status).toBe('ok');
     });
 
     it('should handle timeout errors gracefully', async () => {

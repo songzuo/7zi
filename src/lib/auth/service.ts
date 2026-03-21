@@ -41,9 +41,13 @@ import { logger } from '../logger';
 
 /**
  * Get JWT secret
+ * @throws {Error} If JWT_SECRET is not set in environment
  */
 function getJwtSecret(): string {
-  const secret = process.env.JWT_SECRET || process.env.AGENT_ENCRYPTION_SECRET || 'default-jwt-secret-key-change-in-production';
+  const secret = process.env.JWT_SECRET || process.env.AGENT_ENCRYPTION_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET environment variable is required in production');
+  }
   return secret;
 }
 

@@ -4,11 +4,13 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Version](https://img.shields.io/badge/version-1.0.5-blue.svg)](https://github.com/songzuo/7zi)
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/songzuo/7zi)
+[![CI Status](https://github.com/songzuo/7zi/workflows/CI%20-%20Pull%20Request%20Checks/badge.svg)](https://github.com/songzuo/7zi/actions/workflows/ci-pr.yml)
+[![Deploy Status](https://github.com/songzuo/7zi/workflows/Deploy%20-%20Main%20Branch/badge.svg)](https://github.com/songzuo/7zi/actions/workflows/deploy-main.yml)
 [![Next.js](https://img.shields.io/badge/Next.js-16.1.7-black?logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.2.4-blue?logo=react)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
+[![Docker](https://img.shields.io/badge/Docker-ghcr.io-blue?logo=docker)](https://ghcr.io/songzuo/7zi)
 
 ---
 
@@ -45,7 +47,7 @@
 
 - **✅ Console 清理** - 所有 debug console 语句已移除，使用 logger 系统
 - **✅ 类型安全** - 消除 `any` 类型，使用 `unknown` 提升类型安全
-- **✅ 测试优化** - 400+ 测试用例全部通过
+- **✅ 测试覆盖** - 197+ 测试文件覆盖组件、Hooks、工具函数、API
 - **✅ ESLint 警告** - 全部清理完成
 - **✅ TypeScript 编译** - 生产代码零错误
 
@@ -54,8 +56,7 @@
 | 指标 | 状态 |
 |------|------|
 | **版本** | v1.0.5 |
-| **测试通过率** | 100% ✅ (400+ tests) |
-| **测试覆盖率** | 85%+ |
+| **测试文件数** | 197+ ✅ |
 | **ESLint** | 0 警告 ✅ |
 | **TypeScript 编译** | 通过 ✅ |
 | **构建状态** | 成功 ✅ |
@@ -120,16 +121,6 @@
   - 隐私设置（在线状态、数据收集）
   - 高级设置（自动保存、页面大小、实验性功能）
 
-- **🔌 扩展系统**
-  - 技能插件架构
-  - 自定义工作流
-  - API 集成支持
-
-- **💾 记忆系统**
-  - 长期记忆存储
-  - 上下文保持
-  - 知识图谱构建
-
 - **🔐 安全控制**
   - 权限管理
   - 操作审计
@@ -141,6 +132,10 @@
   - JSON 结构化导出
   - Excel 导出
   - **自定义数据导出** - 支持筛选条件和自定义数据
+
+- **🎮 演示页面**
+  - **协作演示** (`/collaboration-demo`) - 实时协作功能演示
+  - **SSE 演示** (`/sse-demo`) - Server-Sent Events 实时推送演示
 
 - **🔔 通知系统**
   - NotificationToast 组件
@@ -162,7 +157,9 @@
 | **TypeScript** | 5.x | 类型安全 |
 | **Tailwind CSS** | 4.x | 原子化 CSS |
 | **Socket.IO Client** | 4.8.3 | WebSocket 通信 |
-| **Framer Motion** | 最新 | 动画效果 |
+| **Zustand** | 5.0.12 | 状态管理 |
+| **Lucide React** | 0.577.0 | 图标库 |
+| **Sharp** | 0.34.5 | 图片优化 |
 
 ### 后端技术
 
@@ -192,16 +189,14 @@
 | **JSDOM** | 28.x | 浏览器环境模拟 |
 | **Playwright** | 1.58.2 | E2E 测试 |
 
-## 🧪 测试覆盖率
+## 🧪 测试
 
 ### 测试统计
 
 | 指标 | 数值 |
 |------|------|
-| **总测试用例** | 400+ |
-| **测试通过率** | 100% ✅ |
-| **测试文件数** | 30+ |
-| **测试覆盖率** | 85%+ |
+| **测试文件数** | 197+ |
+| **测试覆盖** | 组件、Hooks、工具函数、API |
 
 ### 运行测试
 
@@ -217,6 +212,41 @@ npm run test:coverage
 
 # E2E 测试
 npm run test:e2e
+```
+
+---
+
+## 🚀 部署
+
+### 部署选项
+
+项目支持多种部署方式：
+
+- **🐳 Docker** - 使用 Dockerfile 和 docker-compose.yml 容器化部署
+- **☁️ Vercel** - Next.js 原生支持，配置 `vercel.json` 即可
+- **🐙 GitHub Actions** - 自动化 CI/CD 流程
+
+### Docker 部署
+
+```bash
+# 构建并启动
+docker-compose up -d
+
+# 生产环境
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+### Vercel 部署
+
+```bash
+# 登录 Vercel
+vercel login
+
+# 部署
+vercel
+
+# 生产环境
+vercel --prod
 ```
 
 ---

@@ -18,7 +18,7 @@ interface QuickActionsProps {
 export function QuickActions({ actions, onAction }: QuickActionsProps) {
   return (
     <div className="px-4 py-2 bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800">
-      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+      <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar">
         {actions.map((action) => (
           <button
             key={action}

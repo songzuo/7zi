@@ -173,7 +173,7 @@ describe('logger/utils', () => {
         password: 'secret',
         Username: 'john'
       };
-      const sanitized = sanitize(data, ['password']);
+      const sanitized = sanitize(data, ['password']) as typeof data;
 
       expect(sanitized.Password).toBe('[REDACTED]');
       expect(sanitized.PASSWORD).toBe('[REDACTED]');
@@ -209,8 +209,8 @@ describe('logger/utils', () => {
       const sanitized = sanitize(data, ['password', 'apiKey']);
 
       expect(sanitized.user.username).toBe('john');
-      expect(sanitized.user.password).toBe('[REDACTED]');
-      expect(sanitized.user.settings.apiKey).toBe('[REDACTED]');
+      expect((sanitized.user as any).password).toBe('[REDACTED]');
+      expect((sanitized.user.settings as any).apiKey).toBe('[REDACTED]');
     });
 
     it('should handle deeply nested objects', () => {
@@ -228,8 +228,8 @@ describe('logger/utils', () => {
       };
       const sanitized = sanitize(data, ['password']);
 
-      expect(sanitized.level1.level2.level3.level4.password).toBe('[REDACTED]');
-      expect(sanitized.level1.level2.level3.level4.normal).toBe('value');
+      expect((sanitized.level1.level2.level3.level4 as any).password).toBe('[REDACTED]');
+      expect((sanitized.level1.level2.level3.level4 as any).normal).toBe('value');
     });
 
     it('should handle arrays of objects', () => {
@@ -241,10 +241,10 @@ describe('logger/utils', () => {
       };
       const sanitized = sanitize(data, ['password']);
 
-      expect(sanitized.users[0].name).toBe('John');
-      expect(sanitized.users[0].password).toBe('[REDACTED]');
-      expect(sanitized.users[1].name).toBe('Jane');
-      expect(sanitized.users[1].password).toBe('[REDACTED]');
+      expect((sanitized.users as any)[0].name).toBe('John');
+      expect((sanitized.users as any)[0].password).toBe('[REDACTED]');
+      expect((sanitized.users as any)[1].name).toBe('Jane');
+      expect((sanitized.users as any)[1].password).toBe('[REDACTED]');
     });
 
     it('should handle mixed data structures', () => {
@@ -322,9 +322,9 @@ describe('logger/utils', () => {
 
       Object.keys(sanitized).forEach(key => {
         if (key === 'normalField') {
-          expect(sanitized[key]).toBe('normal');
+          expect((sanitized as any)[key]).toBe('normal');
         } else {
-          expect(sanitized[key]).toBe('[REDACTED]');
+          expect((sanitized as any)[key]).toBe('[REDACTED]');
         }
       });
     });
@@ -390,13 +390,13 @@ describe('Integration Tests', () => {
       sensitiveData
     );
 
-    const sanitizedData = sanitize(entry.data!, sanitizeFields);
+    const sanitizedData = sanitize(entry.data!, sanitizeFields) as typeof entry.data;
 
-    expect(sanitizedData.user.username).toBe('john');
-    expect(sanitizedData.user.password).toBe('[REDACTED]');
-    expect(sanitizedData.user.apiKey).toBe('[REDACTED]');
-    expect(sanitizedData.request.url).toBe('/api/login');
-    expect(sanitizedData.request.method).toBe('POST');
+    expect((sanitizedData as any).user.username).toBe('john');
+    expect((sanitizedData as any).user.password).toBe('[REDACTED]');
+    expect((sanitizedData as any).user.apiKey).toBe('[REDACTED]');
+    expect((sanitizedData as any).request.url).toBe('/api/login');
+    expect((sanitizedData as any).request.method).toBe('POST');
   });
 
   it('should respect log level filtering', () => {
@@ -435,7 +435,7 @@ describe('Integration Tests', () => {
       }
     };
 
-    const sanitized = sanitize(complexData, ['password', 'token', 'apiKey']);
+    const sanitized = sanitize(complexData, ['password', 'token', 'apiKey']) as typeof complexData;
 
     expect(sanitized.users[0].name).toBe('User 1');
     expect(sanitized.users[0].credentials.password).toBe('[REDACTED]');

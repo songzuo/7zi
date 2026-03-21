@@ -27,9 +27,14 @@ import { createWallet } from './wallet-repository';
 
 /**
  * 获取 JWT 密钥
+ * @throws {Error} If JWT_SECRET or AGENT_ENCRYPTION_SECRET is not set
  */
 function getJwtSecret(): string {
-  return process.env.JWT_SECRET || process.env.AGENT_ENCRYPTION_SECRET || 'default-jwt-secret-key-change-in-production';
+  const secret = process.env.JWT_SECRET || process.env.AGENT_ENCRYPTION_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET or AGENT_ENCRYPTION_SECRET environment variable is required');
+  }
+  return secret;
 }
 
 /**

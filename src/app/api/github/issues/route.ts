@@ -159,8 +159,9 @@ export async function GET(request: NextRequest) {
     if (!Array.isArray(data)) {
       logger.error('GitHub API returned unexpected data format', { data });
       return createErrorResponse(
-        new Error('An internal error occurred'),
-        502
+        new Error('Invalid response format'),
+        502,
+        { originalMessage: 'Invalid response format: expected array' }
       );
     }
 

@@ -189,6 +189,7 @@ export async function POST(request: NextRequest) {
       requestId: metadata.requestId,
       userId: result.user?.id,
       email: result.user?.email,
+      // Never log tokens in logs
     });
 
     logRequestComplete(metadata, response, startTime);

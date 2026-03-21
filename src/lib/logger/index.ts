@@ -94,10 +94,33 @@ const DEFAULT_CONFIG: LoggerConfig = {
     'secret',
     'apiKey',
     'api_key',
+    'apikey',
     'authorization',
     'cookie',
     'creditCard',
     'ssn',
+    'accessToken',
+    'refreshToken',
+    'refresh_token',
+    'privateKey',
+    'private_key',
+    'clientSecret',
+    'client_secret',
+    'oauthToken',
+    'oauth_token',
+    'sessionToken',
+    'session_token',
+    'jwt',
+    'bearer',
+    'csrfToken',
+    'csrf_token',
+    'otp',
+    'oneTimePassword',
+    'pin',
+    'cvc',
+    'cvv',
+    'cardNumber',
+    'card_number',
   ],
 };
 
@@ -249,6 +272,10 @@ class Logger {
       logData._context = entry.context;
     }
 
+    // In production, limit error details for security
+    const isProduction = process.env.NODE_ENV === 'production';
+    const errorDetails = entry.error ? this.formatErrorForLogging(entry.error, isProduction) : '';
+
     switch (entry.level) {
       case 'debug':
         console.debug(styledPrefix, entry.message, logData);
@@ -261,8 +288,21 @@ class Logger {
         break;
       case 'error':
       case 'fatal':
-        console.error(styledPrefix, entry.message, entry.error || '', logData);
+        console.error(styledPrefix, entry.message, errorDetails, logData);
         break;
+    }
+  }
+
+  /**
+   * Format error for logging based on environment
+   */
+  private formatErrorForLogging(error: Error, isProduction: boolean): string {
+    if (isProduction) {
+      // In production, only log error message without stack trace
+      return `[${error.name}] ${error.message}`;
+    } else {
+      // In development, log full error with stack trace
+      return `${error.name}: ${error.message}\n${error.stack || ''}`;
     }
   }
 
@@ -349,12 +389,45 @@ class Logger {
         sanitized[key] = '[REDACTED]';
       } else if (typeof value === 'object' && value !== null) {
         sanitized[key] = this.sanitize(value as Record<string, unknown>);
+      } else if (typeof value === 'string') {
+        // Check if the string value looks like a sensitive token/password
+        sanitized[key] = this.sanitizeStringValue(key, value);
       } else {
         sanitized[key] = value;
       }
     }
 
     return sanitized;
+  }
+
+  /**
+   * Sanitize string values that might contain sensitive data
+   */
+  private sanitizeStringValue(key: string, value: string): string | unknown {
+    const lowerKey = key.toLowerCase();
+
+    // Check for common token patterns
+    const tokenPatterns = [
+      /^[A-Za-z0-9_-]{20,}$/, // Long alphanumeric strings (likely tokens)
+      /^[A-Za-z0-9_-]{40}$/, // SHA-1 hashes
+      /^[A-Za-z0-9_-]{64}$/, // SHA-256 hashes
+      /^Bearer\s+[A-Za-z0-9_-]+$/i, // Bearer tokens
+      /^Basic\s+[A-Za-z0-9+/=]+$/i, // Basic auth
+    ];
+
+    // Check if the field name suggests it might contain sensitive data
+    if (this.config.sanitizeFields.some((field) => lowerKey.includes(field.toLowerCase()))) {
+      return '[REDACTED]';
+    }
+
+    // Check if the value matches token patterns
+    for (const pattern of tokenPatterns) {
+      if (pattern.test(value) && value.length > 30) {
+        return '[REDACTED]';
+      }
+    }
+
+    return value;
   }
 }
 

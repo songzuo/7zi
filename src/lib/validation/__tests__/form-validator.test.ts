@@ -279,6 +279,7 @@ describe('FormValidator', () => {
       validator.validate({
         name: '',
         email: 'invalid',
+        age: 25,
       });
 
       validator.clearFieldError('name');

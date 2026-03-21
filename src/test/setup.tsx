@@ -1,6 +1,15 @@
-import '@testing-library/jest-dom'
-import { cleanup } from '@testing-library/react'
-import { afterEach, vi, beforeEach } from 'vitest'
+import '@testing-library/jest-dom';
+import { cleanup } from '@testing-library/react';
+import { afterEach, vi, beforeEach } from 'vitest';
+
+// Polyfill ReadableStream for jsdom environment (Node.js 18+)
+if (typeof ReadableStream === 'undefined') {
+  // @ts-ignore - Polyfilling global
+  const { ReadableStream, WritableStream, TransformStream } = await import('node:stream/web');
+  global.ReadableStream = ReadableStream as any;
+  global.WritableStream = WritableStream as any;
+  global.TransformStream = TransformStream as any;
+}
 
 // Import vi-mocks to set up database and collaboration mocks
 import '@/test/vi-mocks'
@@ -18,6 +27,8 @@ afterEach(() => {
 // Reset all mocks before each test
 beforeEach(() => {
   vi.clearAllMocks()
+  // Reset locale mock to default 'zh'
+  mockUseLocale.mockReturnValue('zh')
 })
 
 // Mock logger
@@ -117,6 +128,22 @@ vi.mock('next/navigation', () => ({
     back: vi.fn(),
   }),
   usePathname: () => '/',
+}))
+
+// Mock next-intl hooks
+const mockUseLocale = vi.fn(() => 'zh');
+const mockUseTranslations = vi.fn(() => (key: string) => key);
+
+vi.mock('next-intl', () => ({
+  useLocale: () => mockUseLocale(),
+  useTranslations: () => mockUseTranslations(),
+  NextIntlClientProvider: ({ children, locale }: { children: React.ReactNode; locale?: string }) => {
+    // Update the mock locale when provider is called with a locale
+    if (locale) {
+      mockUseLocale.mockReturnValue(locale);
+    }
+    return <>{children}</>;
+  },
 }))
 
 // Mock Next.js image

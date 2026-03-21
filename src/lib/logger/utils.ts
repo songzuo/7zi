@@ -81,10 +81,10 @@ export function createLogEntry(
 /**
  * Sanitize sensitive data from log entries
  */
-export function sanitize(
-  data: Record<string, unknown>,
+export function sanitize<T extends Record<string, unknown>>(
+  data: T,
   sanitizeFields: string[]
-): Record<string, unknown> {
+): T {
   const sanitized: Record<string, unknown> = {};
 
   for (const [key, value] of Object.entries(data)) {
@@ -103,7 +103,7 @@ export function sanitize(
     }
   }
 
-  return sanitized;
+  return sanitized as T;
 }
 
 /**

@@ -1,11 +1,13 @@
 /**
- * Tests for Multimodal Image Processing API
+ * Tests for Multimodal Image Recognition API
  * /api/multimodal/image/route.ts
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { POST, GET } from './route';
 import { NextRequest } from 'next/server';
+import { MultimodalService } from '@/lib/multimodal/multimodal-service';
+import type { ValidationResult } from '@/lib/multimodal/image-utils';
 
 // Mock dependencies
 vi.mock('@/lib/multimodal/multimodal-service', () => ({
@@ -14,7 +16,11 @@ vi.mock('@/lib/multimodal/multimodal-service', () => ({
 
 vi.mock('@/lib/multimodal/image-utils', () => ({
   validateImage: vi.fn(),
-  compressImage: vi.fn(),
+  formatImageMetadata: vi.fn((data) => ({
+    format: 'jpeg',
+    width: data.width || 0,
+    height: data.height || 0,
+  })),
 }));
 
 vi.mock('@/lib/api/error-handler', () => ({
@@ -28,47 +34,45 @@ vi.mock('@/lib/api/error-handler', () => ({
   })),
   createErrorResponse: vi.fn((error) => ({
     status: 500,
-    json: async () => ({
-      success: false,
-      error: error.message || 'Internal server error',
-    }),
-  })),
-  ErrorType: {
-    VALIDATION: 'VALIDATION',
-    BAD_REQUEST: 'BAD_REQUEST',
-    INTERNAL: 'INTERNAL',
-  },
-}));
-
-vi.mock('@/lib/logger', () => ({
-  logger: {
-    info: vi.fn(),
-    warn: vi.fn(),
-    error: vi.fn(),
-    debug: vi.fn(),
-  },
-}));
-
-vi.mock('@/lib/api/utils', () => ({
-  createSuccessResponse: vi.fn((data) => ({
-    status: 200,
-    json: async () => ({ success: true, ...data }),
+    json: async () => ({ success: false, error: error.message || 'Internal server error' }),
   })),
 }));
 
-describe('Multimodal Image Processing API', () => {
-  beforeEach(() => {
+describe('POST /api/multimodal/image', () => {
+  let getMultimodalService: typeof import('@/lib/multimodal/multimodal-service').getMultimodalService;
+  let validateImage: typeof import('@/lib/multimodal/image-utils').validateImage;
+
+  beforeEach(async () => {
     vi.clearAllMocks();
+
+    // Import mocked functions
+    const multimodalModule = await import('@/lib/multimodal/multimodal-service');
+    getMultimodalService = multimodalModule.getMultimodalService;
+
+    const utilsModule = await import('@/lib/multimodal/image-utils');
+    validateImage = utilsModule.validateImage;
+
+    // Default mocks
+    vi.mocked(validateImage).mockResolvedValue({ valid: true });
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    vi.resetAllMocks();
   });
 
-  describe('POST /api/multimodal/image', () => {
-    it('should reject requests without image file', async () => {
+  describe('Authentication & Authorization', () => {
+    it('should return 401 if no authentication token is provided', async () => {
+      vi.mocked(getMultimodalService).mockReturnValue({
+        processImage: vi.fn(),
+        processAudio: vi.fn(),
+        getProviders: vi.fn(),
+        healthCheck: vi.fn(),
+        setDefaultProvider: vi.fn(),
+      } as any);
+
       const formData = new FormData();
-      formData.append('maxSize', '10485760');
+      const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
+      formData.append('image', file);
 
       const request = new NextRequest('http://localhost:3000/api/multimodal/image', {
         method: 'POST',
@@ -78,11 +82,44 @@ describe('Multimodal Image Processing API', () => {
       const response = await POST(request);
       const result = await response.json();
 
+      expect(response.status).toBe(401);
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('Authentication required');
+    });
+  });
+
+  describe('Request Validation', () => {
+    it('should return 400 if image file is missing', async () => {
+      vi.mocked(getMultimodalService).mockReturnValue({
+        processImage: vi.fn(),
+        processAudio: vi.fn(),
+        getProviders: vi.fn(),
+        healthCheck: vi.fn(),
+        setDefaultProvider: vi.fn(),
+      } as any);
+
+      const request = new NextRequest('http://localhost:3000/api/multimodal/image', {
+        method: 'POST',
+        body: new FormData(),
+      });
+
+      const response = await POST(request);
+      const result = await response.json();
+
       expect(response.status).toBe(400);
       expect(result.success).toBe(false);
+      expect(result.error).toContain('image file is required');
     });
 
-    it('should reject unsupported image types', async () => {
+    it('should return 400 if file type is invalid', async () => {
+      vi.mocked(getMultimodalService).mockReturnValue({
+        processImage: vi.fn(),
+        processAudio: vi.fn(),
+        getProviders: vi.fn(),
+        healthCheck: vi.fn(),
+        setDefaultProvider: vi.fn(),
+      } as any);
+
       const formData = new FormData();
       const file = new File(['test'], 'test.txt', { type: 'text/plain' });
       formData.append('image', file);
@@ -97,59 +134,61 @@ describe('Multimodal Image Processing API', () => {
 
       expect(response.status).toBe(400);
       expect(result.success).toBe(false);
-      expect(result.error).toContain('Unsupported image type');
+      expect(result.error).toContain('Invalid image file type');
     });
 
-    it('should validate maxSize parameter', async () => {
-      const formData = new FormData();
-      const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
-      formData.append('image', file);
-      formData.append('maxSize', 'invalid');
-
-      const request = new NextRequest('http://localhost:3000/api/multimodal/image', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const response = await POST(request);
-      const result = await response.json();
-
-      expect(response.status).toBe(400);
-      expect(result.success).toBe(false);
-      expect(result.error).toContain('Invalid maxSize value');
-    });
-
-    it('should validate quality parameter', async () => {
-      const formData = new FormData();
-      const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
-      formData.append('image', file);
-      formData.append('quality', '2.0');
-
-      const request = new NextRequest('http://localhost:3000/api/multimodal/image', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const response = await POST(request);
-      const result = await response.json();
-
-      expect(response.status).toBe(400);
-      expect(result.success).toBe(false);
-      expect(result.error).toContain('Invalid quality value');
-    });
-
-    it('should process valid image with default options', async () => {
-      const { validateImage, compressImage } = await import('@/lib/multimodal/image-utils');
-      vi.mocked(validateImage).mockResolvedValue({ valid: true });
-
-      const { getMultimodalService } = await import('@/lib/multimodal/multimodal-service');
+    it('should validate file size', async () => {
       vi.mocked(getMultimodalService).mockReturnValue({
-        processImage: vi.fn().mockResolvedValue({
-          success: true,
-          data: { url: 'https://example.com/image.jpg' },
-          provider: 'default',
-        }),
+        processImage: vi.fn(),
+        processAudio: vi.fn(),
+        getProviders: vi.fn(),
+        healthCheck: vi.fn(),
+        setDefaultProvider: vi.fn(),
+      } as any);
+
+      const formData = new FormData();
+      const largeBuffer = Buffer.alloc(20 * 1024 * 1024); // 20MB
+      const file = new File([largeBuffer], 'test.jpg', { type: 'image/jpeg' });
+      formData.append('image', file);
+
+      const request = new NextRequest('http://localhost:3000/api/multimodal/image', {
+        method: 'POST',
+        body: formData,
       });
+
+      const response = await POST(request);
+      const result = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('File size exceeds maximum allowed size');
+    });
+  });
+
+  describe('Image Processing', () => {
+    it('should process valid image', async () => {
+      vi.mocked(validateImage).mockResolvedValue({ valid: true });
+      const mockProcessImage = vi.fn().mockResolvedValue({
+        success: true,
+        data: {
+          objects: [
+            { label: 'cat', confidence: 0.95, bbox: { x: 10, y: 10, width: 100, height: 100 } },
+            { label: 'dog', confidence: 0.85, bbox: { x: 120, y: 10, width: 100, height: 100 } },
+          ],
+          text: '',
+          tags: ['cat', 'dog'],
+          confidence: 0.95,
+        },
+        provider: 'default',
+      });
+
+      vi.mocked(getMultimodalService).mockReturnValue({
+        processImage: mockProcessImage,
+        processAudio: vi.fn(),
+        getProviders: vi.fn(),
+        healthCheck: vi.fn(),
+        setDefaultProvider: vi.fn(),
+      } as any);
 
       const formData = new FormData();
       const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
@@ -166,47 +205,20 @@ describe('Multimodal Image Processing API', () => {
       expect(response.status).toBe(200);
       expect(result.success).toBe(true);
       expect(result.data).toBeDefined();
+      expect(result.data.objects).toHaveLength(2);
     });
 
-    it('should compress image when requested', async () => {
-      const { validateImage, compressImage } = await import('@/lib/multimodal/image-utils');
+    it('should handle processing errors', async () => {
       vi.mocked(validateImage).mockResolvedValue({ valid: true });
-      vi.mocked(compressImage).mockResolvedValue(Buffer.from('compressed'));
+      const mockProcessImage = vi.fn().mockRejectedValue(new Error('Image processing failed'));
 
-      const { getMultimodalService } = await import('@/lib/multimodal/multimodal-service');
       vi.mocked(getMultimodalService).mockReturnValue({
-        processImage: vi.fn().mockResolvedValue({
-          success: true,
-          data: { url: 'https://example.com/image.jpg' },
-          provider: 'default',
-        }),
-      });
-
-      const formData = new FormData();
-      const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
-      formData.append('image', file);
-      formData.append('compress', 'true');
-      formData.append('quality', '0.8');
-
-      const request = new NextRequest('http://localhost:3000/api/multimodal/image', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const response = await POST(request);
-      const result = await response.json();
-
-      expect(response.status).toBe(200);
-      expect(result.success).toBe(true);
-      expect(compressImage).toHaveBeenCalled();
-    });
-
-    it('should handle image validation failure', async () => {
-      const { validateImage } = await import('@/lib/multimodal/image-utils');
-      vi.mocked(validateImage).mockResolvedValue({
-        valid: false,
-        error: 'Image file too large',
-      });
+        processImage: mockProcessImage,
+        processAudio: vi.fn(),
+        getProviders: vi.fn(),
+        healthCheck: vi.fn(),
+        setDefaultProvider: vi.fn(),
+      } as any);
 
       const formData = new FormData();
       const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
@@ -220,128 +232,22 @@ describe('Multimodal Image Processing API', () => {
       const response = await POST(request);
       const result = await response.json();
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(500);
       expect(result.success).toBe(false);
-    });
-
-    it('should handle processing failure', async () => {
-      const { validateImage } = await import('@/lib/multimodal/image-utils');
-      vi.mocked(validateImage).mockResolvedValue({ valid: true });
-
-      const { getMultimodalService } = await import('@/lib/multimodal/multimodal-service');
-      vi.mocked(getMultimodalService).mockReturnValue({
-        processImage: vi.fn().mockResolvedValue({
-          success: false,
-          error: 'Unsupported image format',
-          provider: 'default',
-        }),
-      });
-
-      const formData = new FormData();
-      const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
-      formData.append('image', file);
-
-      const request = new NextRequest('http://localhost:3000/api/multimodal/image', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const response = await POST(request);
-      const result = await response.json();
-
-      expect(response.status).toBe(400);
-      expect(result.success).toBe(false);
-    });
-
-    it('should include metadata in response', async () => {
-      const { validateImage } = await import('@/lib/multimodal/image-utils');
-      vi.mocked(validateImage).mockResolvedValue({ valid: true });
-
-      const { getMultimodalService } = await import('@/lib/multimodal/multimodal-service');
-      vi.mocked(getMultimodalService).mockReturnValue({
-        processImage: vi.fn().mockResolvedValue({
-          success: true,
-          data: { url: 'https://example.com/image.jpg' },
-          provider: 'default',
-        }),
-      });
-
-      const formData = new FormData();
-      const file = new File(['test'], 'test.jpg', { type: 'image/jpeg', name: 'test.jpg' });
-      formData.append('image', file);
-
-      const request = new NextRequest('http://localhost:3000/api/multimodal/image', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const response = await POST(request);
-      const result = await response.json();
-
-      expect(result.success).toBe(true);
-      expect(result.metadata).toBeDefined();
-      expect(result.metadata.filename).toBe('test.jpg');
-      expect(result.metadata.type).toBe('image/jpeg');
-      expect(result.metadata.processingTime).toBeDefined();
     });
   });
+});
 
-  describe('GET /api/multimodal/image', () => {
-    it('should return list of providers', async () => {
-      const { getMultimodalService } = await import('@/lib/multimodal/multimodal-service');
-      vi.mocked(getMultimodalService).mockReturnValue({
-        getProviders: vi.fn(() => [
-          { name: 'provider1', capabilities: ['image'] },
-          { name: 'provider2', capabilities: ['image'] },
-        ]),
-        healthCheck: vi.fn().mockResolvedValue({
-          provider1: true,
-          provider2: true,
-        }),
-      });
+describe('GET /api/multimodal/image', () => {
+  it('should return service information', async () => {
+    const request = new NextRequest('http://localhost:3000/api/multimodal/image');
 
-      const response = await GET();
-      const result = await response.json();
+    const response = await GET(request);
+    const result = await response.json();
 
-      expect(response.status).toBe(200);
-      expect(result.success).toBe(true);
-      expect(result.providers).toHaveLength(2);
-      expect(result.total).toBe(2);
-      expect(result.operational).toBe(2);
-    });
-
-    it('should include health status for each provider', async () => {
-      const { getMultimodalService } = await import('@/lib/multimodal/multimodal-service');
-      vi.mocked(getMultimodalService).mockReturnValue({
-        getProviders: vi.fn(() => [
-          { name: 'provider1', capabilities: ['image'] },
-        ]),
-        healthCheck: vi.fn().mockResolvedValue({
-          provider1: true,
-        }),
-      });
-
-      const response = await GET();
-      const result = await response.json();
-
-      expect(result.providers[0].healthy).toBe(true);
-      expect(result.providers[0].status).toBe('operational');
-    });
-
-    it('should handle health check failure gracefully', async () => {
-      const { getMultimodalService } = await import('@/lib/multimodal/multimodal-service');
-      vi.mocked(getMultimodalService).mockReturnValue({
-        getProviders: vi.fn(() => [
-          { name: 'provider1', capabilities: ['image'] },
-        ]),
-        healthCheck: vi.fn().mockRejectedValue(new Error('Health check failed')),
-      });
-
-      const response = await GET();
-      const result = await response.json();
-
-      expect(result.providers[0].healthy).toBe(false);
-      expect(result.providers[0].status).toBe('unavailable');
-    });
+    expect(response.status).toBe(200);
+    expect(result).toHaveProperty('service');
+    expect(result).toHaveProperty('version');
+    expect(result).toHaveProperty('endpoints');
   });
 });
