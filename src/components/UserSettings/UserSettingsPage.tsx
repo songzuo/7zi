@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, memo } from 'react';
 import { useTheme } from '@/components/ThemeProvider';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useLocalStorage } from '@/hooks/useLocalStorage';

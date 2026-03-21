@@ -249,7 +249,7 @@ export async function importData(
           if (!options.skipErrors) {
             throw error;
           }
-          logger.warn(`Failed to insert record into ${table}`, error);
+          logger.warn(`Failed to insert record into ${table}`, { error });
         }
       }
     }

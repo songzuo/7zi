@@ -32,6 +32,9 @@ export { debounce, throttle, memoize, sleep, retry } from './utils/async';
 // @deprecated Import from @/lib/cache/lru-cache directly instead
 export { LRUCache, createCache } from './cache/lru-cache';
 
+// Re-export date utilities from dedicated module
+export { formatTimeAgo, formatDate, formatDateTime, isToday, isYesterday } from './date';
+
 // Re-export array utilities for backward compatibility
 // @deprecated Import from @/lib/utils/array directly instead
 export { batch, shuffle, randomItem, unique, groupBy, pick, omit } from './utils/array';

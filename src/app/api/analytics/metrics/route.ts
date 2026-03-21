@@ -3,7 +3,7 @@
  * 数据分析 API 端点
  */
 
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import {
   type AnalyticsMetrics,
@@ -207,11 +207,18 @@ export async function GET(request: NextRequest) {
     };
 
     // Cache for 1 minute
-    return createSuccessResponse(responseData, {
-      headers: {
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30'
+    return NextResponse.json(
+      {
+        success: true,
+        data: responseData,
+        timestamp: new Date().toISOString(),
+      },
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30'
+        }
       }
-    });
+    );
   } catch (error) {
     logger.error('Analytics API error', error, { category: 'analytics' });
     return createErrorResponse(error instanceof Error ? error : new Error('Internal server error'));

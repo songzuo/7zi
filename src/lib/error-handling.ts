@@ -27,7 +27,7 @@ export {
   // Type guards
   isSuccessResponse,
   isErrorResponse,
-} from './lib/api/api-error';
+} from './api/api-error';
 
 export {
   // Response wrappers
@@ -45,7 +45,7 @@ export {
   // Handler wrapper
   withApiHandler,
   parseResponse,
-} from './lib/api/api-response-wrapper';
+} from './api/api-response-wrapper';
 
 // ============================================================
 // Error Logging Middleware
@@ -63,7 +63,7 @@ export {
 
   // Configuration
   type ErrorLoggingMiddlewareConfig,
-} from './lib/middleware/api-error-logging';
+} from './middleware/api-error-logging';
 
 // ============================================================
 // Fallback & Degradation Components
@@ -75,7 +75,7 @@ export {
   withFallback,
   type FallbackVariant,
   type ComponentFallbackProps,
-} from './components/fallbacks/ComponentFallback';
+} from '../components/fallbacks/ComponentFallback';
 
 export {
   // Async boundary
@@ -85,7 +85,7 @@ export {
   type AsyncBoundaryProps,
   type AsyncBoundaryFnProps,
   type AsyncChildren,
-} from './components/fallbacks/AsyncBoundary';
+} from '../components/fallbacks/AsyncBoundary';
 
 // ============================================================
 // Circuit Breaker & Graceful Degradation
@@ -146,14 +146,14 @@ export {
   // Next.js page error boundaries
   ErrorBoundary as PageErrorBoundary,
   type ErrorBoundaryProps,
-} from './components/ErrorBoundary';
+} from '../components/ErrorBoundary';
 export {
   // Error display components
   ErrorDisplay,
   type ErrorDisplayProps,
   type ErrorVariant,
   type ErrorType,
-} from './components/ErrorDisplay';
+} from '../components/ErrorDisplay';
 
 // ============================================================
 // Logger

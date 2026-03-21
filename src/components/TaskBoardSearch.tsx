@@ -9,7 +9,7 @@ import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { GitHubIssue } from '@/types';
 import { SearchFilter } from '@/components/SearchFilter';
-import { ISSUE_FILTER_CONFIGS, ISSUE_SORT_CONFIGS } from '@/types/search-filter';
+import { ISSUE_FILTER_CONFIGS, ISSUE_SORT_CONFIGS, type FilterConfig } from '@/types/search-filter';
 import {
   extractLabelOptions,
   extractAssigneeOptions,
@@ -58,11 +58,11 @@ export const TaskBoardSearch: React.FC<TaskBoardSearchProps> = ({
   }, [labelOptions, assigneeOptions]);
 
   // 处理搜索过滤结果变化
-  const handleResultsChange = (result: { items: GitHubIssue[]; totalResults: number; filteredResults: number }) => {
+  const handleResultsChange = (result: any) => {
     setFilteredIssues(result.items);
     setSearchResults({
-      total: result.totalResults,
-      filtered: result.filteredResults,
+      total: result.items?.length || 0,
+      filtered: result.items?.length || 0,
     });
   };
 
@@ -105,8 +105,8 @@ export const TaskBoardSearch: React.FC<TaskBoardSearchProps> = ({
       <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800">
         <SearchFilter
           items={issues}
-          filters={filterConfigs}
-          sorts={ISSUE_SORT_CONFIGS}
+          filters={filterConfigs as any}
+          sorts={ISSUE_SORT_CONFIGS as any}
           onResultsChange={handleResultsChange}
           searchPlaceholder="搜索任务标题、标签..."
           showFilterCount={true}

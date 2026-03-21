@@ -138,12 +138,11 @@ export function cancelIdleTask(handle: number) {
  * 被动事件监听器
  * 
  * 使用 passive: true 可以提高滚动和触摸事件的性能
- * 
+ *
  * 使用方法：
  * ```ts
  * element.addEventListener('scroll', handler, { passive: true });
  * ```
- */
  */
 export function addPassiveEventListener(
   element: HTMLElement | Document | Window,

@@ -1,6 +1,6 @@
 /**
  * Utility Functions - Central Export Point
- * 
+ *
  * @module lib/utils
  * @deprecated This file is kept for backward compatibility.
  *            Please import from specific modules:
@@ -9,6 +9,9 @@
  *            - @/lib/utils/format (formatFileSize, formatNumber)
  *            - @/lib/utils/id (generateId, generateUUID)
  *            - @/lib/utils/cache (LRUCache, createCache)
+ *            - @/lib/date (formatTimeAgo, formatDate, formatDateTime, isToday, isYesterday)
+ *            - @/lib/utils/array (batch, shuffle, randomItem, unique, groupBy, pick, omit)
+ *            - @/lib/utils/math (clamp, mapRange, lerp)
  */
 
 // Async utilities

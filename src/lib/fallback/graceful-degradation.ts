@@ -361,7 +361,7 @@ export class NetworkCondition {
     }
 
     const nav = navigator as NavigatorWithConnection;
-    const connection = nav.connection; // @ts-expect-error - Network Information API is experimental
+    const connection = nav.connection;
 
     if (connection) {
       this.isSlow = connection.effectiveType === 'slow-2g' ||

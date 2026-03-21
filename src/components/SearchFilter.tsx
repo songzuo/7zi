@@ -5,7 +5,7 @@
  * @description 提供通用的搜索框和过滤器 UI
  */
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, memo } from 'react';
 import Image from 'next/image';
 import type {
   FilterConfig,
