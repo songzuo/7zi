@@ -4,6 +4,7 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import { NextRequest } from 'next/server';
 import { GET as getMetrics, POST as postMetrics, DELETE as deleteMetrics } from '@/app/api/performance/metrics/route';
 import { GET as getAlerts, POST as postAlerts, PUT as putAlerts, DELETE as deleteAlerts } from '@/app/api/performance/alerts/route';
 import { GET as getReport } from '@/app/api/performance/report/route';
@@ -23,12 +24,12 @@ function createMockRequest(
   method: string,
   url: string,
   body?: MockRequestBody
-): Request {
+): NextRequest {
   return {
     method,
     url,
     json: async () => body,
-  } as Request;
+  } as unknown as NextRequest;
 }
 
 // ========================================
