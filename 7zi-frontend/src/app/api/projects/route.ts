@@ -16,6 +16,14 @@ import {
   PermissionContext,
   canAccessResource,
 } from '../../lib/permissions';
+import {
+  createSuccessResponse,
+  createUnauthorizedError,
+  createForbiddenError,
+  createNotFoundError,
+  createErrorResponse,
+  ErrorType,
+} from '../../../lib/api/error-handler';
 
 /**
  * API 上下文
@@ -109,7 +117,7 @@ export async function GET(request: NextRequest) {
     const user = users[userId];
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 401 });
+      return createUnauthorizedError('User not found');
     }
 
     const ctx: ApiContext = { user, request };
@@ -118,18 +126,13 @@ export async function GET(request: NextRequest) {
     return await projectController.listProjects(ctx);
   } catch (error) {
     if (error instanceof PermissionDeniedError) {
-      return NextResponse.json(
-        {
-          error: 'Permission denied',
-          message: error.message,
-          requiredPermissions: error.requiredPermissions,
-          missingPermissions: error.missingPermissions,
-        },
-        { status: 403 }
-      );
+      return createForbiddenError(error.message, {
+        requiredPermissions: error.requiredPermissions,
+        missingPermissions: error.missingPermissions,
+      });
     }
 
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }
 }
 
@@ -143,7 +146,7 @@ export async function POST(request: NextRequest) {
     const user = users[userId];
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 401 });
+      return createUnauthorizedError('User not found');
     }
 
     const ctx: ApiContext = { user, request };
@@ -154,18 +157,13 @@ export async function POST(request: NextRequest) {
     return await projectController.createProject(ctx, body);
   } catch (error) {
     if (error instanceof PermissionDeniedError) {
-      return NextResponse.json(
-        {
-          error: 'Permission denied',
-          message: error.message,
-          requiredPermissions: error.requiredPermissions,
-          missingPermissions: error.missingPermissions,
-        },
-        { status: 403 }
-      );
+      return createForbiddenError(error.message, {
+        requiredPermissions: error.requiredPermissions,
+        missingPermissions: error.missingPermissions,
+      });
     }
 
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }
 }
 
@@ -190,10 +188,7 @@ class ProjectController {
       isOwner: p.ownerId === user.id,
     }));
 
-    return NextResponse.json({
-      success: true,
-      data: projectList,
-    });
+    return createSuccessResponse(projectList);
   }
 
   /**
@@ -214,10 +209,7 @@ class ProjectController {
 
     projects[newProject.id] = newProject;
 
-    return NextResponse.json({
-      success: true,
-      data: newProject,
-    });
+    return createSuccessResponse(newProject, 201);
   }
 
   /**
@@ -228,7 +220,7 @@ class ProjectController {
 
     const project = projects[projectId];
     if (!project) {
-      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+      return createNotFoundError('Project not found');
     }
 
     // 检查权限（资源级别）
@@ -249,10 +241,7 @@ class ProjectController {
 
       projects[projectId] = updatedProject;
 
-      return NextResponse.json({
-        success: true,
-        data: updatedProject,
-      });
+      return createSuccessResponse(updatedProject);
     }
 
     // 否则检查是否有 project:manage 权限
@@ -275,10 +264,7 @@ class ProjectController {
 
     projects[projectId] = updatedProject;
 
-    return NextResponse.json({
-      success: true,
-      data: updatedProject,
-    });
+    return createSuccessResponse(updatedProject);
   }
 
   /**
@@ -289,7 +275,7 @@ class ProjectController {
 
     const project = projects[projectId];
     if (!project) {
-      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+      return createNotFoundError('Project not found');
     }
 
     // 检查权限（资源级别）
@@ -304,8 +290,7 @@ class ProjectController {
     if (project.ownerId === user.id || user.roles.some(r => r.level >= 100)) {
       delete projects[projectId];
 
-      return NextResponse.json({
-        success: true,
+      return createSuccessResponse({
         message: `Project ${projectId} deleted`,
       });
     }
@@ -324,8 +309,7 @@ class ProjectController {
     // 执行删除
     delete projects[projectId];
 
-    return NextResponse.json({
-      success: true,
+    return createSuccessResponse({
       message: `Project ${projectId} deleted`,
     });
   }
@@ -339,15 +323,12 @@ class ProjectController {
 
     const project = projects[projectId];
     if (!project) {
-      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+      return createNotFoundError('Project not found');
     }
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        project,
-        canManage: true,
-      },
+    return createSuccessResponse({
+      project,
+      canManage: true,
     });
   }
 
@@ -360,13 +341,10 @@ class ProjectController {
 
     const project = projects[projectId];
     if (!project) {
-      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+      return createNotFoundError('Project not found');
     }
 
-    return NextResponse.json({
-      success: true,
-      data: project,
-    });
+    return createSuccessResponse(project);
   }
 
   /**
@@ -377,7 +355,7 @@ class ProjectController {
 
     const project = projects[projectId];
     if (!project) {
-      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+      return createNotFoundError('Project not found');
     }
 
     // 检查项目读取权限
@@ -390,10 +368,7 @@ class ProjectController {
 
     // 项目所有者或管理员可以读取
     if (project.ownerId === user.id || user.roles.some(r => r.level >= 100)) {
-      return NextResponse.json({
-        success: true,
-        data: project,
-      });
+      return createSuccessResponse(project);
     }
 
     // 否则检查是否有 project:read 权限
@@ -407,10 +382,7 @@ class ProjectController {
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      data: project,
-    });
+    return createSuccessResponse(project);
   }
 }
 
@@ -423,7 +395,7 @@ export async function getProject(request: NextRequest, { params }: { params: { i
     const user = users[userId];
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 401 });
+      return createUnauthorizedError('User not found');
     }
 
     const ctx: ApiContext = { user, request, params };
@@ -432,17 +404,12 @@ export async function getProject(request: NextRequest, { params }: { params: { i
     return await projectController.getProject(ctx, params.id);
   } catch (error) {
     if (error instanceof PermissionDeniedError) {
-      return NextResponse.json(
-        {
-          error: 'Permission denied',
-          message: error.message,
-          requiredPermissions: error.requiredPermissions,
-          missingPermissions: error.missingPermissions,
-        },
-        { status: 403 }
-      );
+      return createForbiddenError(error.message, {
+        requiredPermissions: error.requiredPermissions,
+        missingPermissions: error.missingPermissions,
+      });
     }
 
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }
 }

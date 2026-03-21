@@ -143,7 +143,9 @@ export function NotificationPreferences({
         throw new Error(result.error || 'Save failed');
       }
     } catch (err) {
-      console.error('Error saving preferences:', err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error saving preferences:', err);
+      }
       setError('保存偏好设置失败');
       toast.error('保存偏好设置失败');
     } finally {
@@ -196,7 +198,9 @@ export function NotificationPreferences({
         toast.success('已重置为默认设置');
       }
     } catch (err) {
-      console.error('Error resetting preferences:', err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error resetting preferences:', err);
+      }
       setError('重置失败');
       toast.error('重置失败');
     } finally {

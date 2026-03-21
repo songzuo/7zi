@@ -3,7 +3,7 @@
  * Tests feedback table initialization and statistics functions
  */
 
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import {describe, it, expect, beforeEach, vi} from 'vitest';
 
 // Mock logger
 vi.mock('../../logger', () => ({

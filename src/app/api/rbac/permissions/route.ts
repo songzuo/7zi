@@ -3,11 +3,12 @@
  * 管理系统所有权限
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { withAdmin } from '@/lib/auth/middleware-rbac';
 import { Permission } from '@/lib/permissions/types';
 import { getAllPermissions } from '@/lib/permissions/repository';
 import { logger } from '@/lib/logger';
+import { createSuccessResponse, createErrorResponse } from '@/lib/api/error-handler';
 
 /**
  * GET /api/rbac/permissions - 获取所有权限
@@ -49,26 +50,13 @@ export async function GET(request: NextRequest) {
         data = grouped;
       }
 
-      return NextResponse.json({
-        success: true,
+      return createSuccessResponse({
         data,
-        meta: {
-          count: Array.isArray(permissions) ? permissions.length : 0,
-          timestamp: new Date().toISOString(),
-        },
+        count: Array.isArray(permissions) ? permissions.length : 0,
       });
     } catch (error) {
-      logger.error('Failed to fetch permissions:', { error, userId: context.userId });
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: 'INTERNAL_ERROR',
-            message: error instanceof Error ? error.message : 'Failed to fetch permissions',
-          },
-        },
-        { status: 500 }
-      );
+      logger.error('Failed to fetch permissions:', error instanceof Error ? error : new Error(String(error)), { userId: context.userId, category: 'rbac' });
+      return createErrorResponse(new Error('Failed to fetch permissions'));
     }
   });
 }

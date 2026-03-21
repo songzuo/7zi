@@ -89,35 +89,41 @@ export function useTaskRealtime(
     subscribe([channel]);
 
     // Listen for task-specific events
-    const cleanupStatus = on('task:status_changed', (data: TaskStatusChangedPayload) => {
-      if (data.taskId === taskId) {
+    const cleanupStatus = on('task:status_changed', (data) => {
+      // @ts-ignore - Type assertion for payload
+      const payload = data as TaskStatusChangedPayload;
+      if (payload.taskId === taskId) {
         addUpdate({
           type: 'status_changed',
           taskId,
           timestamp: new Date().toISOString(),
-          data,
+          data: payload,
         });
       }
     });
 
-    const cleanupAssigned = on('task:assigned', (data: TaskAssignedPayload) => {
-      if (data.taskId === taskId) {
+    const cleanupAssigned = on('task:assigned', (data) => {
+      // @ts-ignore - Type assertion for payload
+      const payload = data as TaskAssignedPayload;
+      if (payload.taskId === taskId) {
         addUpdate({
           type: 'assigned',
           taskId,
           timestamp: new Date().toISOString(),
-          data,
+          data: payload,
         });
       }
     });
 
-    const cleanupComment = on('task:comment', (data: TaskCommentPayload) => {
-      if (data.taskId === taskId) {
+    const cleanupComment = on('task:comment', (data) => {
+      // @ts-ignore - Type assertion for payload
+      const payload = data as TaskCommentPayload;
+      if (payload.taskId === taskId) {
         addUpdate({
           type: 'comment',
           taskId,
           timestamp: new Date().toISOString(),
-          data,
+          data: payload,
         });
       }
     });
@@ -137,35 +143,38 @@ export function useTaskRealtime(
     subscribe([channel]);
 
     // Listen for project-wide task events
-    const cleanupTaskCreated = on('task:created', (data: { taskId: string; projectId: string }) => {
-      if (data.projectId === projectId) {
+    const cleanupTaskCreated = on('task:created', (data) => {
+      const payload = data as unknown as { taskId: string; projectId: string };
+      if (payload.projectId === projectId) {
         addUpdate({
           type: 'updated',
-          taskId: data.taskId,
+          taskId: payload.taskId,
           timestamp: new Date().toISOString(),
-          data,
+          data: data as unknown as TaskStatusChangedPayload | TaskAssignedPayload | TaskCommentPayload,
         });
       }
     });
 
-    const cleanupTaskUpdated = on('task:updated', (data: { taskId: string; projectId: string }) => {
-      if (data.projectId === projectId) {
+    const cleanupTaskUpdated = on('task:updated', (data) => {
+      const payload = data as unknown as { taskId: string; projectId: string };
+      if (payload.projectId === projectId) {
         addUpdate({
           type: 'updated',
-          taskId: data.taskId,
+          taskId: payload.taskId,
           timestamp: new Date().toISOString(),
-          data,
+          data: data as unknown as TaskStatusChangedPayload | TaskAssignedPayload | TaskCommentPayload,
         });
       }
     });
 
-    const cleanupTaskDeleted = on('task:deleted', (data: { taskId: string; projectId: string }) => {
-      if (data.projectId === projectId) {
+    const cleanupTaskDeleted = on('task:deleted', (data) => {
+      const payload = data as unknown as { taskId: string; projectId: string };
+      if (payload.projectId === projectId) {
         addUpdate({
           type: 'deleted',
-          taskId: data.taskId,
+          taskId: payload.taskId,
           timestamp: new Date().toISOString(),
-          data,
+          data: data as unknown as TaskStatusChangedPayload | TaskAssignedPayload | TaskCommentPayload,
         });
       }
     });
@@ -185,24 +194,26 @@ export function useTaskRealtime(
     subscribe([channel]);
 
     // Listen for user-specific task events
-    const cleanupAssigned = on('task:assigned', (data: TaskAssignedPayload) => {
-      if (data.assignedTo.id === userId) {
+    const cleanupAssigned = on('task:assigned', (data) => {
+      const payload = data as unknown as TaskAssignedPayload;
+      if (payload.assignedTo.id === userId) {
         addUpdate({
           type: 'assigned',
-          taskId: data.taskId,
+          taskId: payload.taskId,
           timestamp: new Date().toISOString(),
-          data,
+          data: payload,
         });
       }
     });
 
-    const cleanupStatus = on('task:status_changed', (data: TaskStatusChangedPayload) => {
+    const cleanupStatus = on('task:status_changed', (data) => {
+      const payload = data as unknown as TaskStatusChangedPayload;
       // User might be assigned to this task or be watching it
       addUpdate({
         type: 'status_changed',
-        taskId: data.taskId,
+        taskId: payload.taskId,
         timestamp: new Date().toISOString(),
-        data,
+        data: payload,
       });
     });
 

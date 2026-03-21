@@ -3,7 +3,7 @@
  * @description API endpoint for global search across entities
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getGlobalSearchManager } from '@/lib/search/advanced-search';
 import { getGlobalHistoryManager } from '@/lib/search/history-manager';
 import type {
@@ -11,6 +11,8 @@ import type {
   PaginatedSearchResult,
   UnifiedEntity,
 } from '@/lib/search/types';
+import { createErrorResponse, createSuccessResponse } from '@/lib/api/error-handler';
+import { logger } from '@/lib/logger';
 
 /**
  * GET /api/search - Perform a global search
@@ -107,20 +109,13 @@ export async function GET(request: NextRequest) {
           timestamp: h.timestamp,
         })),
       };
-      return NextResponse.json(responseWithHistory);
+      return createSuccessResponse(responseWithHistory);
     }
 
-    return NextResponse.json(response);
+    return createSuccessResponse(response);
   } catch (error) {
-    console.error('Search API error:', error);
-
-    return NextResponse.json(
-      {
-        error: 'Search failed',
-        message: error instanceof Error ? error.message : 'Unknown error',
-      },
-      { status: 500 }
-    );
+    logger.error('Search API error:', error instanceof Error ? error : new Error(String(error)), { category: 'search' });
+    return createErrorResponse(error instanceof Error ? error : new Error('Search failed'));
   }
 }
 

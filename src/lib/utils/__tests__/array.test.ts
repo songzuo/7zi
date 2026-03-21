@@ -2,7 +2,7 @@
  * @fileoverview Tests for array utilities
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import {describe, it, expect} from 'vitest';
 import { batch, shuffle, randomItem, unique, groupBy, pick, omit } from '../array';
 
 describe('array', () => {

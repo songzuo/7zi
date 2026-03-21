@@ -75,16 +75,10 @@ export {
   withFallback,
   type FallbackVariant,
   type ComponentFallbackProps,
-
-  // Async boundary
-  AsyncBoundary,
-  AsyncBoundaryFn,
-  type AsyncStatus,
-  type AsyncBoundaryProps,
-  type AsyncBoundaryFnProps,
-  type AsyncChildren,
 } from './components/fallbacks/ComponentFallback';
+
 export {
+  // Async boundary
   AsyncBoundary,
   AsyncBoundaryFn,
   type AsyncStatus,

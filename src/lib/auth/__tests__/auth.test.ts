@@ -4,7 +4,7 @@
  * Tests for authentication service, repository, and middleware
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import {describe, it, expect, beforeEach, afterEach} from 'vitest';
 import {
   registerUser,
   loginUser,

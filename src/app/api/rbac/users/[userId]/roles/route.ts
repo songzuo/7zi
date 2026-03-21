@@ -34,7 +34,7 @@ export async function GET(
 
       const roles = await getUserRoles(userId);
 
-      let response: {
+      const response: {
         userId: string;
         roles: Role[];
         permissions?: string[];

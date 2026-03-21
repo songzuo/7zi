@@ -3,7 +3,7 @@
  * @description Tests for search history management
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import {describe, it, expect, beforeEach} from 'vitest';
 import { SearchHistoryManager } from '@/lib/search/history-manager';
 
 describe('SearchHistoryManager', () => {

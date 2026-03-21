@@ -12,8 +12,8 @@
  * - 提供性能调试信息
  */
 
-import { useEffect, useRef, useState } from 'react';
-import type { ReactNode } from 'react';
+import { useEffect, useRef, useState, ReactNode } from 'react';
+import { logger } from '@/lib/logger';
 import {
   initWebVitalsMonitoring,
   optimizeLCP,
@@ -89,10 +89,19 @@ export function PerformanceOptimizer({
 
     // 输出初始化完成信息
     if (debug) {
-      console.log('[PerformanceOptimizer] Initialized', {
+      interface NetworkConnection {
+        effectiveType?: string;
+      }
+
+      interface NavigatorWithConnection extends Navigator {
+        connection?: NetworkConnection;
+      }
+
+      const nav = navigator as NavigatorWithConnection;
+      logger.debug('[PerformanceOptimizer] Initialized', {
         timestamp: new Date().toISOString(),
         userAgent: navigator.userAgent,
-        connection: (navigator as any).connection?.effectiveType || 'unknown', // Network Information API
+        connection: nav.connection?.effectiveType || 'unknown', // Network Information API
       });
     }
 
@@ -109,7 +118,7 @@ export function PerformanceOptimizer({
  * 性能日志输出辅助函数
  */
 function logPerformance(data: Record<string, unknown>) {
-  console.log('[PerformanceOptimizer]', data);
+  logger.debug('[PerformanceOptimizer]', data);
 }
 
 /**
@@ -118,7 +127,7 @@ function logPerformance(data: Record<string, unknown>) {
 function registerDebugListeners() {
   // 监听长任务
   window.addEventListener('longtask', ((event: CustomEvent) => {
-    console.log('[PerformanceOptimizer] Long task detected', {
+    logger.debug('[PerformanceOptimizer] Long task detected', {
       duration: event.detail.duration,
       startTime: event.detail.startTime,
     });
@@ -126,7 +135,7 @@ function registerDebugListeners() {
 
   // 监听布局偏移
   window.addEventListener('layoutshift', ((event: CustomEvent) => {
-    console.log('[PerformanceOptimizer] Layout shift detected', {
+    logger.debug('[PerformanceOptimizer] Layout shift detected', {
       value: event.detail.value,
       hadRecentInput: event.detail.hadRecentInput,
     });
@@ -141,11 +150,23 @@ function registerDebugListeners() {
 
   // 监听网络状态变化
   if ('connection' in navigator) {
-    (navigator as any).connection?.addEventListener('change', () => { // Network Information API
+    interface NetworkConnection extends EventTarget {
+      effectiveType?: string;
+      downlink?: number;
+      addEventListener(type: 'change', listener: () => void, options?: AddEventListenerOptions): void;
+      removeEventListener(type: 'change', listener: () => void): void;
+    }
+
+    interface NavigatorWithConnection extends Navigator {
+      connection?: NetworkConnection;
+    }
+
+    const nav = navigator as NavigatorWithConnection;
+    nav.connection?.addEventListener('change', () => { // Network Information API
       logPerformance({
         type: 'network-change',
-        effectiveType: (navigator as any).connection?.effectiveType,
-        downlink: (navigator as any).connection?.downlink,
+        effectiveType: nav.connection?.effectiveType,
+        downlink: nav.connection?.downlink,
       });
     });
   }
@@ -264,10 +285,15 @@ export function useResourceTiming(resourceUrl: string) {
     };
 
     // 检查资源是否已经加载
-    const resource = document.querySelector(`script[src="${resourceUrl}"], link[href="${resourceUrl}"]`);
+    const resource = document.querySelector(`script[src="${resourceUrl}"], link[href="${resourceUrl}"]`) as HTMLScriptElement | HTMLLinkElement | null;
 
     if (resource) {
-      if ((resource as any).complete) { // Resource loading state
+      interface ResourceWithComplete {
+        complete?: boolean;
+      }
+
+      const resourceWithComplete = resource as ResourceWithComplete;
+      if (resourceWithComplete.complete) { // Resource loading state
         handleLoad();
       } else {
         resource.addEventListener('load', handleLoad);

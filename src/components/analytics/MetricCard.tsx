@@ -158,7 +158,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   const displayValue = formatValue(value, statistic.format);
 
   const changeValue = change?.value ?? 0;
-  const trendIcon = changeValue > 0 ? TrendingUp : changeValue < 0 ? TrendingDown : Minus;
+  const TrendIcon = changeValue > 0 ? TrendingUp : changeValue < 0 ? TrendingDown : Minus;
   const trendColor = changeValue > 0 ? 'text-green-600 dark:text-green-400' : changeValue < 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-500';
 
   return (
@@ -203,7 +203,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
         {/* Bottom: Trend */}
         {change && (
           <div className="mt-2 flex items-center gap-2">
-            <trendIcon className={`w-4 h-4 ${trendColor}`} />
+            <TrendIcon className={`w-4 h-4 ${trendColor}`} />
             <span className={`text-xs font-medium ${trendColor}`}>
               {changeValue > 0 ? '+' : ''}{changeValue}%
             </span>

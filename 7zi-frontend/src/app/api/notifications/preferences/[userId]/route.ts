@@ -6,6 +6,11 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { enhancedNotificationService, UserNotificationPreferences, NotificationPriority } from '@/lib/services/notification-enhanced';
+import {
+  createSuccessResponse,
+  createValidationError,
+  createErrorResponse,
+} from '../../../../../lib/api/error-handler';
 
 /**
  * GET /api/notifications/preferences/[userId]
@@ -23,34 +28,21 @@ export async function GET(
 
     if (!preferences) {
       // Return default preferences
-      return NextResponse.json({
-        success: true,
-        data: {
-          userId,
-          emailEnabled: true,
-          emailThreshold: NotificationPriority.HIGH,
-          pushEnabled: true,
-          pushThreshold: NotificationPriority.MEDIUM,
-          digestEnabled: false,
-          digestFrequency: 'daily',
-          timezone: 'UTC',
-        },
+      return createSuccessResponse({
+        userId,
+        emailEnabled: true,
+        emailThreshold: NotificationPriority.HIGH,
+        pushEnabled: true,
+        pushThreshold: NotificationPriority.MEDIUM,
+        digestEnabled: false,
+        digestFrequency: 'daily',
+        timezone: 'UTC',
       });
     }
 
-    return NextResponse.json({
-      success: true,
-      data: preferences,
-    });
+    return createSuccessResponse(preferences);
   } catch (error) {
-    console.error(`[GET /api/notifications/preferences/${params.userId}] Error:`, error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch preferences',
-      },
-      { status: 500 }
-    );
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }
 }
 
@@ -71,23 +63,11 @@ export async function PUT(
     const validPriorities = [NotificationPriority.LOW, NotificationPriority.MEDIUM, NotificationPriority.HIGH, NotificationPriority.URGENT];
 
     if (body.emailThreshold && !validPriorities.includes(body.emailThreshold)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Invalid emailThreshold value',
-        },
-        { status: 400 }
-      );
+      return createValidationError('Invalid emailThreshold value');
     }
 
     if (body.pushThreshold && !validPriorities.includes(body.pushThreshold)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Invalid pushThreshold value',
-        },
-        { status: 400 }
-      );
+      return createValidationError('Invalid pushThreshold value');
     }
 
     // Update preferences
@@ -107,19 +87,11 @@ export async function PUT(
     // Fetch updated preferences
     const preferences = enhancedNotificationService.getUserPreferences(userId);
 
-    return NextResponse.json({
-      success: true,
-      data: preferences,
+    return createSuccessResponse({
+      ...preferences,
       message: 'Preferences updated successfully',
     });
   } catch (error) {
-    console.error(`[PUT /api/notifications/preferences/${params.userId}] Error:`, error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to update preferences',
-      },
-      { status: 500 }
-    );
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }
 }

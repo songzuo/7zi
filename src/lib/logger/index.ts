@@ -277,18 +277,20 @@ class Logger {
     const errorDetails = entry.error ? this.formatErrorForLogging(entry.error, isProduction) : '';
 
     switch (entry.level) {
-      case 'debug':
-        console.debug(styledPrefix, entry.message, logData);
-        break;
-      case 'info':
-        console.info(styledPrefix, entry.message, logData);
-        break;
       case 'warn':
         console.warn(styledPrefix, entry.message, logData);
         break;
       case 'error':
       case 'fatal':
         console.error(styledPrefix, entry.message, errorDetails, logData);
+        break;
+      // debug 和 info 级别的日志只在开发环境输出
+      case 'debug':
+      case 'info':
+        if (!isProduction) {
+          const consoleMethod = entry.level === 'debug' ? console.debug : console.info;
+          consoleMethod(styledPrefix, entry.message, logData);
+        }
         break;
     }
   }

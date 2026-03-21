@@ -3,7 +3,7 @@
  * @description Tests for /api/database/health endpoint - database health checks
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import {describe, it, expect, vi, beforeEach} from 'vitest';
 import { GET } from '../health/route';
 
 // Mock database functions

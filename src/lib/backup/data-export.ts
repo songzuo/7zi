@@ -237,8 +237,9 @@ export async function importData(
 
       // Insert records
       for (const record of tableData) {
-        const columns = Object.keys(record);
-        const values = Object.values(record);
+        const recordObj = record as Record<string, unknown>;
+        const columns = Object.keys(recordObj);
+        const values = Object.values(recordObj);
         const placeholders = values.map(() => '?').join(', ');
 
         try {

@@ -4,7 +4,7 @@
  * Tests against actual backup file operations, not mocks
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import {describe, it, expect, beforeAll, afterAll} from 'vitest';
 import { NextRequest } from 'next/server';
 import { GET, POST } from '../route';
 import fs from 'fs/promises';

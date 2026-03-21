@@ -3,8 +3,9 @@
  * Enhanced API for comprehensive performance monitoring with alerting
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { logger } from '@/lib/logger';
+import { createSuccessResponse, createErrorResponse, createValidationError } from '@/lib/api/error-handler';
 
 // ========================================
 // Types
@@ -324,8 +325,7 @@ export async function GET(request: NextRequest) {
     stats[name] = calculateMetricStats(metrics);
   });
 
-  return NextResponse.json({
-    success: true,
+  return createSuccessResponse({
     metrics: allMetrics,
     stats,
     totalAlerts: activeAlerts.filter(a => !a.acknowledged).length,
@@ -342,10 +342,7 @@ export async function POST(request: NextRequest) {
     const { metrics, metadata } = body;
 
     if (!Array.isArray(metrics) || metrics.length === 0) {
-      return NextResponse.json(
-        { error: 'Invalid metrics data' },
-        { status: 400 }
-      );
+      return createValidationError('Invalid metrics data');
     }
 
     const storedMetrics: PerformanceMetric[] = [];
@@ -391,19 +388,15 @@ export async function POST(request: NextRequest) {
     // Evaluate alerts
     const triggeredAlerts = evaluateAlerts(storedMetrics);
 
-    return NextResponse.json({
-      success: true,
+    return createSuccessResponse({
       stored: storedMetrics.length,
       alertsTriggered: triggeredAlerts.length,
       alerts: triggeredAlerts,
     });
   } catch (error) {
-    logger.error('Failed to process performance metrics', { error });
+    logger.error('Failed to process performance metrics', error instanceof Error ? error : new Error(String(error)), { category: 'performance' });
 
-    return NextResponse.json(
-      { error: 'Failed to process metrics', details: String(error) },
-      { status: 500 }
-    );
+    return createErrorResponse(error instanceof Error ? error : new Error('Failed to process metrics'));
   }
 }
 
@@ -425,8 +418,7 @@ export async function DELETE(request: NextRequest) {
       deletedCount += initialLength - filtered.length;
     });
 
-    return NextResponse.json({
-      success: true,
+    return createSuccessResponse({
       deleted: deletedCount,
       remainingMetrics: Array.from(performanceStore.values()).flat().length,
     });
@@ -435,8 +427,7 @@ export async function DELETE(request: NextRequest) {
     const totalMetrics = Array.from(performanceStore.values()).flat().length;
     performanceStore.clear();
 
-    return NextResponse.json({
-      success: true,
+    return createSuccessResponse({
       deleted: totalMetrics,
       remainingMetrics: 0,
     });

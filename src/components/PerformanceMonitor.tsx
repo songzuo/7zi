@@ -193,8 +193,8 @@ export function ResourceTimingMonitor() {
       for (const entry of list.getEntries()) {
         const resource = entry as PerformanceResourceTiming;
         
-        // 记录慢资源 (>1s)
-        if (resource.duration > 1000) {
+        // Warn about slow resources in development only
+        if (process.env.NODE_ENV === 'development' && resource.duration > 1000) {
           console.warn(`Slow resource: ${resource.name} took ${resource.duration.toFixed(0)}ms`);
         }
       }

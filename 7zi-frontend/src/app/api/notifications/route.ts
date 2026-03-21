@@ -6,6 +6,11 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { notificationService, NotificationType, NotificationPriority, NotificationFilter } from '@/lib/services/notification';
+import {
+  createSuccessResponse,
+  createValidationError,
+  createErrorResponse,
+} from '../../../lib/api/error-handler';
 
 /**
  * GET /api/notifications
@@ -59,23 +64,15 @@ export async function GET(request: NextRequest) {
     // Get unread count
     const unreadCount = notificationService.getUnreadCount(filter);
 
-    return NextResponse.json({
-      success: true,
-      data: notifications,
+    return createSuccessResponse({
+      notifications,
       meta: {
         count: notifications.length,
         unreadCount,
       },
     });
   } catch (error) {
-    console.error('[GET /api/notifications] Error:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch notifications',
-      },
-      { status: 500 }
-    );
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }
 }
 
@@ -90,13 +87,7 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!body.title || !body.message) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'title and message are required',
-        },
-        { status: 400 }
-      );
+      return createValidationError('title and message are required');
     }
 
     // Create notification
@@ -112,24 +103,11 @@ export async function POST(request: NextRequest) {
       expiresAt: body.expiresAt,
     });
 
-    return NextResponse.json(
-      {
-        success: true,
-        data: {
-          id: notificationId,
-          message: 'Notification created',
-        },
-      },
-      { status: 201 }
-    );
+    return createSuccessResponse({
+      id: notificationId,
+      message: 'Notification created',
+    }, 201);
   } catch (error) {
-    console.error('[POST /api/notifications] Error:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to create notification',
-      },
-      { status: 500 }
-    );
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }
 }

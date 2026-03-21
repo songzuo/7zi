@@ -139,7 +139,7 @@ export function SearchResults({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1 flex-wrap">
               <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">
-                {item.name || item.title}
+                {item.name}
               </h3>
               <span
                 className={`text-xs px-2 py-0.5 rounded-full bg-${typeInfo.color}-100 dark:bg-${typeInfo.color}-900 text-${typeInfo.color}-700 dark:text-${typeInfo.color}-300`}
@@ -190,7 +190,7 @@ export function SearchResults({
               {item.type === 'member' && item.login && (
                 <span>@{item.login}</span>
               )}
-              {item.updatedAt && (
+              {(item.type === 'task' || item.type === 'project') && item.updatedAt && (
                 <span>Updated: {new Date(item.updatedAt).toLocaleDateString()}</span>
               )}
             </div>

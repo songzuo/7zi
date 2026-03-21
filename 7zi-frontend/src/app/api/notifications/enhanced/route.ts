@@ -7,6 +7,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { enhancedNotificationService, NotificationType, NotificationPriority } from '@/lib/services/notification-enhanced';
 import { EmailRecipient } from '@/lib/services/email';
+import {
+  createSuccessResponse,
+  createValidationError,
+  createErrorResponse,
+} from '../../../../lib/api/error-handler';
 
 /**
  * GET /api/notifications/enhanced
@@ -39,23 +44,15 @@ export async function GET(request: NextRequest) {
 
     const unreadCount = enhancedNotificationService.getUnreadCount(userId);
 
-    return NextResponse.json({
-      success: true,
-      data: notifications,
+    return createSuccessResponse({
+      notifications,
       meta: {
         count: notifications.length,
         unreadCount,
       },
     });
   } catch (error) {
-    console.error('[GET /api/notifications/enhanced] Error:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch notifications',
-      },
-      { status: 500 }
-    );
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }
 }
 
@@ -70,13 +67,7 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!body.title || !body.message) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'title and message are required',
-        },
-        { status: 400 }
-      );
+      return createValidationError('title and message are required');
     }
 
     // Prepare delivery options
@@ -104,26 +95,16 @@ export async function POST(request: NextRequest) {
       options
     );
 
-    return NextResponse.json(
-      {
-        success: result.success,
-        data: {
-          id: result.notificationId,
-          emailSent: result.emailSent,
-          message: result.success ? 'Notification sent' : 'Failed to send notification',
-        },
-        error: result.error,
-      },
-      { status: result.success ? 201 : 500 }
-    );
+    if (result.success) {
+      return createSuccessResponse({
+        id: result.notificationId,
+        emailSent: result.emailSent,
+        message: 'Notification sent',
+      }, 201);
+    } else {
+      return createErrorResponse(new Error(result.error || 'Failed to send notification'));
+    }
   } catch (error) {
-    console.error('[POST /api/notifications/enhanced] Error:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to send notification',
-      },
-      { status: 500 }
-    );
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }
 }

@@ -29,7 +29,7 @@ interface ErrorLoggingMiddlewareConfig {
 
 const DEFAULT_CONFIG: Required<ErrorLoggingMiddlewareConfig> = {
   enabled: true,
-  logLevel: LogLevel.ERROR,
+  logLevel: 'error',
   enableSentry: true,
   logBody: true,
   logHeaders: false,
@@ -99,11 +99,11 @@ export function logApiError(
   }
 
   // Capture to Sentry if enabled
-  if (config.enableSentry && config.logLevel <= LogLevel.ERROR) {
+  if (config.enableSentry && (config.logLevel === 'error' || config.logLevel === 'fatal')) {
     const apiError = error instanceof ApiError
       ? error
       : new ApiError({
-          code: 'INTERNAL_SERVER_ERROR' as ApiErrorCode, // @ts-expect-error - ApiErrorCode enum
+          code: 'INTERNAL_SERVER_ERROR',
           message: response.statusText,
           statusCode: response.status,
         });
@@ -183,7 +183,7 @@ export function withErrorLogging<T = unknown>(
     const requestId = generateRequestId();
 
     // Log request start
-    if (finalConfig.enabled && finalConfig.logLevel <= LogLevel.INFO) {
+    if (finalConfig.enabled && (finalConfig.logLevel === 'info' || finalConfig.logLevel === 'debug' || finalConfig.logLevel === 'warn' || finalConfig.logLevel === 'error' || finalConfig.logLevel === 'fatal')) {
       logger.info(`${finalConfig.logPrefix} Request started`, {
         requestId,
         method: request.method,

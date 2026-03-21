@@ -186,9 +186,11 @@ export class ErrorBoundary extends Component<
       this.props.onError(error, errorInfo);
     }
 
-    // 控制台输出
-    console.error('ErrorBoundary 捕获到错误:', error);
-    console.error('组件堆栈:', errorInfo.componentStack);
+    // 控制台输出（仅开发环境）
+    if (process.env.NODE_ENV === 'development') {
+      console.error('ErrorBoundary 捕获到错误:', error);
+      console.error('组件堆栈:', errorInfo.componentStack);
+    }
   }
 
   /**

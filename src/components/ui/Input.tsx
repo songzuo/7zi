@@ -2,7 +2,7 @@
 import { InputHTMLAttributes } from 'react';
 import { useTranslations } from 'next-intl';
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   labelKey?: string;
   placeholderKey?: string;

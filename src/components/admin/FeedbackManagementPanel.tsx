@@ -47,7 +47,9 @@ export const FeedbackManagementPanel: React.FC = () => {
         setStats(data.data.stats);
       }
     } catch (error) {
-      console.error('Failed to fetch feedbacks:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to fetch feedbacks:', error);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -81,7 +83,9 @@ export const FeedbackManagementPanel: React.FC = () => {
         }
       }
     } catch (error) {
-      console.error('Failed to update feedback:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to update feedback:', error);
+      }
       alert('更新失败');
     }
   };
@@ -106,7 +110,9 @@ export const FeedbackManagementPanel: React.FC = () => {
         }
       }
     } catch (error) {
-      console.error('Failed to delete feedback:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to delete feedback:', error);
+      }
       alert('删除失败');
     }
   };

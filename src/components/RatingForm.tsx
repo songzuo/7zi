@@ -317,7 +317,10 @@ export const RatingDisplay: React.FC<RatingDisplayProps> = ({
       await onHelpfulClick(rating.id, helpful);
       setIsHelpful(helpful);
     } catch (error) {
-      console.error('Failed to vote:', error);
+      // Silently handle error in production
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to vote:', error);
+      }
     } finally {
       setIsVoting(false);
     }

@@ -124,7 +124,9 @@ export function ServiceWorkerRegistration() {
         }
       }
     } catch (error) {
-      console.error('[SW] Failed to unregister old service workers:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[SW] Failed to unregister old service workers:', error);
+      }
     }
   };
 
@@ -147,7 +149,9 @@ export function ServiceWorkerRegistration() {
         return versionPromise;
       }
     } catch (error) {
-      console.error('[SW] Failed to get SW version:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[SW] Failed to get SW version:', error);
+      }
     }
     return 'unknown';
   };
@@ -182,13 +186,26 @@ export function ServiceWorkerRegistration() {
 
       window.location.reload();
     } catch (error) {
-      console.error('[SW] Failed to clear cache:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[SW] Failed to clear cache:', error);
+      }
     }
   };
 
   // Expose functions to window for manual control
   useEffect(() => {
-    (window as any).__SW_CONTROL = { // Global debug variable
+    interface WindowWithSWControl extends Window {
+      __SW_CONTROL?: {
+        update: () => void;
+        clearCache: () => void;
+        getVersion: () => string | null;
+        isOnline: boolean;
+        hasUpdate: boolean;
+      };
+    }
+
+    const win = window as WindowWithSWControl;
+    win.__SW_CONTROL = { // Global debug variable
       update: handleUpdate,
       clearCache,
       getVersion: () => swVersion,

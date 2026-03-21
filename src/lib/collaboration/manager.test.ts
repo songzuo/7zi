@@ -3,7 +3,7 @@
  * @description Tests for real-time collaboration features including OT, cursor management, and presence tracking
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import {describe, it, expect, vi, beforeEach} from 'vitest';
 import {
   transform,
   applyOperation,

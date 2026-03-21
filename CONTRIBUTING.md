@@ -153,6 +153,178 @@ describe('Button', () => {
 
 详细测试指南请参考 [测试文档](./docs/TESTING.md)
 
+## 🛡️ 错误处理最佳实践
+
+在 7zi 项目中，我们使用统一的错误处理系统。所有开发者必须遵循以下规范：
+
+### API 路由错误处理
+
+✅ **必须使用 `withErrorHandling` 包装器**:
+
+```typescript
+import { withErrorHandling, createSuccessResponse } from '@/lib/api/error-handler';
+
+export const GET = withErrorHandling(async (request: Request) => {
+  const data = await fetchData();
+  return createSuccessResponse(data);
+});
+```
+
+✅ **使用标准化的错误响应函数**:
+
+```typescript
+import {
+  createValidationError,
+  createNotFoundError,
+  createUnauthorizedError,
+  createForbiddenError
+} from '@/lib/api/error-handler';
+
+// 验证错误 (400)
+if (!email) {
+  return createValidationError('Email is required');
+}
+
+// 未找到错误 (404)
+if (!user) {
+  return createNotFoundError('User not found');
+}
+
+// 未授权错误 (401)
+if (!isAuthenticated) {
+  return createUnauthorizedError('Please log in');
+}
+
+// 禁止访问错误 (403)
+if (!hasPermission) {
+  return createForbiddenError('Access denied');
+}
+```
+
+❌ **禁止直接返回 NextResponse.json 错误**:
+
+```typescript
+// ❌ 错误示例
+return NextResponse.json({ error: 'Permission denied' }, { status: 403 });
+return NextResponse.json({ error: error.message }, { status: 500 });
+```
+
+### 组件错误边界
+
+✅ **为异步组件添加错误边界**:
+
+```tsx
+import { ErrorBoundaryWrapper } from '@/components/ErrorBoundaryWrapper';
+
+function MyComponent() {
+  return (
+    <ErrorBoundaryWrapper title="组件加载失败" showReset variant="compact">
+      <AsyncComponent />
+    </ErrorBoundaryWrapper>
+  );
+}
+```
+
+✅ **为 React.lazy 组件使用错误边界**:
+
+```tsx
+import { ErrorBoundaryWrapper } from '@/components/ErrorBoundaryWrapper';
+import { Suspense } from 'react';
+
+const LazyComponent = lazy(() => import('./LazyComponent'));
+
+function App() {
+  return (
+    <ErrorBoundaryWrapper title="加载失败">
+      <Suspense fallback={<LoadingSpinner />}>
+        <LazyComponent />
+      </Suspense>
+    </ErrorBoundaryWrapper>
+  );
+}
+```
+
+### 错误日志记录
+
+✅ **使用 logger 而不是 console.error**:
+
+```typescript
+import { logger } from '@/lib/logger';
+
+// 正确方式
+logger.error('Failed to process request', error, {
+  category: 'api',
+  endpoint: '/api/users',
+  sensitive: false
+});
+```
+
+❌ **禁止使用 console.error**:
+
+```typescript
+// ❌ 错误示例 - 会在生产环境暴露敏感信息
+console.error('Failed to encrypt backup:', error);
+```
+
+### 安全注意事项
+
+⚠️ **绝对禁止在错误消息中暴露**:
+- 加密密钥
+- 密码
+- 会话令牌
+- 文件路径
+- 数据库查询
+- 内部 API 端点
+
+✅ **生产环境错误响应**:
+
+```typescript
+// 用户友好的消息
+return createUnauthorizedError('Please log in to continue');
+```
+
+❌ **技术细节暴露**:
+
+```typescript
+// ❌ 不要暴露技术细节
+return createUnauthorizedError('JWT token missing in Authorization header');
+```
+
+### 完整示例
+
+```typescript
+import { NextRequest } from 'next/server';
+import { withErrorHandling, createSuccessResponse, createValidationError } from '@/lib/api/error-handler';
+import { logger } from '@/lib/logger';
+
+export const POST = withErrorHandling(async (request: NextRequest) => {
+  const { email, password } = await request.json();
+
+  // 验证输入
+  if (!email || !password) {
+    return createValidationError('Email and password are required');
+  }
+
+  if (!isValidEmail(email)) {
+    return createValidationError('Invalid email format');
+  }
+
+  // 业务逻辑
+  const user = await authenticateUser(email, password);
+
+  // 记录成功日志（非敏感信息）
+  logger.info('User authenticated successfully', { userId: user.id });
+
+  return createSuccessResponse({ token: user.token });
+});
+```
+
+### 相关文档
+
+- 📖 [错误处理完整指南](./docs/ERROR_HANDLING_GUIDE.md)
+- 📋 [错误处理审计报告](./ERROR_HANDLING_AUDIT.md)
+- 🛠️ [API 错误处理器实现](./src/lib/api/error-handler.ts)
+
 ## 📝 提交规范
 
 ### 提交信息格式

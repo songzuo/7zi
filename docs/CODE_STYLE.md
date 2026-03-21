@@ -272,8 +272,105 @@ docs(readme): 更新快速开始指南
 
 ### 错误处理
 
+7zi 项目使用统一的错误处理系统。所有代码必须遵循以下规范：
+
+#### API 路由错误处理
+
 ```typescript
-// ✅ 正确的错误处理
+// ✅ 正确 - 使用 withErrorHandling 包装器
+import { withErrorHandling, createSuccessResponse, createValidationError } from '@/lib/api/error-handler';
+
+export const POST = withErrorHandling(async (request: NextRequest) => {
+  const { email } = await request.json();
+
+  // 验证输入
+  if (!email) {
+    return createValidationError('Email is required');
+  }
+
+  const user = await createUser(email);
+  return createSuccessResponse(user, 201);
+});
+```
+
+```typescript
+// ❌ 错误 - 不要直接返回 NextResponse.json 错误
+export async function POST(request: NextRequest) {
+  try {
+    const user = await createUser(email);
+    return NextResponse.json(user);
+  } catch (error) {
+    // ❌ 暴露错误详情到生产环境
+    console.error('Error:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+```
+
+#### 组件错误边界
+
+```typescript
+// ✅ 正确 - 为异步组件添加错误边界
+import { ErrorBoundaryWrapper } from '@/components/ErrorBoundaryWrapper';
+
+function UserProfile() {
+  return (
+    <ErrorBoundaryWrapper title="用户资料加载失败" showReset variant="compact">
+      <Suspense fallback={<LoadingSpinner />}>
+        <UserData />
+      </Suspense>
+    </ErrorBoundaryWrapper>
+  );
+}
+```
+
+```typescript
+// ❌ 错误 - 没有错误边界
+function UserProfile() {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <UserData />  {/* 如果失败，整个组件崩溃 */}
+    </Suspense>
+  );
+}
+```
+
+#### 错误日志记录
+
+```typescript
+// ✅ 正确 - 使用 logger
+import { logger } from '@/lib/logger';
+
+logger.error('Failed to process request', error, {
+  category: 'api',
+  endpoint: '/api/users',
+  sensitive: false
+});
+```
+
+```typescript
+// ❌ 错误 - 不要使用 console.error
+console.error('Failed to encrypt backup:', error);  // ⚠️ 暴露敏感信息
+```
+
+#### 安全注意事项
+
+```typescript
+// ✅ 正确 - 用户友好的消息
+return createUnauthorizedError('Please log in to continue');
+
+// ❌ 错误 - 不要暴露技术细节
+return createUnauthorizedError('JWT token missing in Authorization header');
+```
+
+**相关文档:**
+- 📖 [错误处理完整指南](./ERROR_HANDLING_GUIDE.md)
+- 📋 [错误处理审计报告](../ERROR_HANDLING_AUDIT.md)
+
+### 其他最佳实践
+
+```typescript
+// ✅ 正确的错误处理（非错误处理相关）
 try {
   const data = await fetchData();
   return { success: true, data };

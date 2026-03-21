@@ -157,7 +157,10 @@ export function DataExportPanel() {
         });
       }, 2000);
     } catch (error) {
-      console.error('Export error:', error);
+      // Silently handle error in production
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Export error:', error);
+      }
       setProgress({
         isExporting: false,
         progress: 0,

@@ -4,7 +4,7 @@
  * @module lib/agents/__tests__/wallet-repository.test
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import {describe, it, expect} from 'vitest';
 
 // Note: Full integration tests require database setup.
 // These tests verify the module structure and basic functionality.

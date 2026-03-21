@@ -49,7 +49,7 @@ export interface UndoRedoProps {
    * Button variant
    * @default 'outline'
    */
-  variant?: 'solid' | 'outline' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'link';
 
   /**
    * Orientation

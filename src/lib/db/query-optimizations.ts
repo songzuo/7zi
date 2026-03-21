@@ -6,6 +6,28 @@
 import { DatabaseConnection } from './index';
 
 /**
+ * Database table row types for query results
+ */
+
+export interface FeedbackAttachmentRow {
+  id: string;
+  feedback_id: string;
+  filename: string;
+  url: string;
+  size: number;
+  mimetype: string;
+  uploaded_at: string;
+}
+
+export interface HelpfulVoteRow {
+  id: string;
+  rating_id: string;
+  user_id: string;
+  is_helpful: number;
+  created_at: string;
+}
+
+/**
  * Optimized feedback statistics query
  * Combines multiple GROUP BY queries into single query with CTEs
  */
@@ -284,7 +306,7 @@ export async function paginate<T>(
 export async function getFeedbacksWithAttachments(
   db: DatabaseConnection,
   feedbackIds: string[]
-): Promise<Map<string, any[]>> {
+): Promise<Map<string, FeedbackAttachmentRow[]>> {
   if (feedbackIds.length === 0) {
     return new Map();
   }
@@ -294,10 +316,10 @@ export async function getFeedbacksWithAttachments(
   const attachments = db.queryRows(
     `SELECT * FROM feedback_attachments WHERE feedback_id IN (${placeholders}) ORDER BY feedback_id, uploaded_at`,
     feedbackIds
-  ) as Array<any>;
+  ) as Array<FeedbackAttachmentRow>;
 
   // Group by feedback_id
-  const grouped = new Map<string, any[]>();
+  const grouped = new Map<string, FeedbackAttachmentRow[]>();
   for (const attachment of attachments) {
     if (!grouped.has(attachment.feedback_id)) {
       grouped.set(attachment.feedback_id, []);
@@ -315,7 +337,7 @@ export async function getFeedbacksWithAttachments(
 export async function getRatingWithVotes(
   db: DatabaseConnection,
   ratingIds: string[]
-): Promise<Map<string, any[]>> {
+): Promise<Map<string, HelpfulVoteRow[]>> {
   if (ratingIds.length === 0) {
     return new Map();
   }
@@ -325,10 +347,10 @@ export async function getRatingWithVotes(
   const votes = db.queryRows(
     `SELECT * FROM helpful_votes WHERE rating_id IN (${placeholders}) ORDER BY rating_id, created_at`,
     ratingIds
-  ) as Array<any>;
+  ) as Array<HelpfulVoteRow>;
 
   // Group by rating_id
-  const grouped = new Map<string, any[]>();
+  const grouped = new Map<string, HelpfulVoteRow[]>();
   for (const vote of votes) {
     if (!grouped.has(vote.rating_id)) {
       grouped.set(vote.rating_id, []);

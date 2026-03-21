@@ -2,7 +2,7 @@
  * Agent Middleware Tests
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import {describe, it, expect, vi, beforeEach} from 'vitest';
 import { NextRequest, NextResponse } from 'next/server';
 import { withAgentAuth, withPermissions, withAnyPermission, AgentContext } from '@/lib/agents/middleware';
 import { verifyAgentToken } from '@/lib/agents/auth-service';

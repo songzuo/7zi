@@ -9,16 +9,14 @@ import Link from 'next/link';
 import { useMemo } from 'react';
 
 import {
-  withPermissions,
-  withAnyPermission,
-  withRole,
-  withAnyRole,
-  addRolesToUser,
-  removeRolesFromUser,
-  assignPermissionsToRole
+  hasPermission,
+  hasAnyPermission,
+  hasAllPermissions,
+  hasRole,
+  hasRoleLevel
 } from '@/lib/permissions';
 import { Permission, Role } from '@/lib/permissions/types';
-import { hasPermission, hasRole, isAdmin } from '@/lib/permissions/rbac';
+import { isAdmin } from '@/lib/permissions/rbac';
 import {
   PermissionProvider,
   usePermissions,

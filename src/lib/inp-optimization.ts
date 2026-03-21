@@ -8,9 +8,16 @@
  * 1. 减少主线程阻塞
  * 2. 使用 requestIdleCallback
  * 3. 事件委托
- * 4. 防抖和节流
- * 5. Web Workers
+ * 4. Web Workers
+ * 
+ * @module lib/inp-optimization
  */
+
+import { debounce as importedDebounce, throttle as importedThrottle } from './utils/async';
+
+// Re-export for convenience
+export const debounce = importedDebounce;
+export const throttle = importedThrottle;
 
 // ============================================
 // 主线程优化
@@ -128,70 +135,6 @@ export function cancelIdleTask(handle: number) {
 // ============================================
 
 /**
- * 防抖函数
- * 
- * 确保函数在快速触发时只执行一次
- * 
- * 使用方法：
- * ```ts
- * const debouncedSearch = debounce((query: string) => {
- *   // 搜索逻辑
- * }, 300);
- * 
- * input.addEventListener('input', (e) => {
- *   debouncedSearch(e.target.value);
- * });
- * ```
- */
-export function debounce<T extends unknown[]>(
-  func: (...args: T) => void,
-  wait: number
-): (...args: T) => void {
-  let timeout: ReturnType<typeof setTimeout> | null = null;
-
-  return function executedFunction(...args: T) {
-    const later = () => {
-      timeout = null;
-      func(...args);
-    };
-
-    if (timeout) {
-      clearTimeout(timeout);
-    }
-    timeout = setTimeout(later, wait);
-  };
-}
-
-/**
- * 节流函数
- * 
- * 确保函数在指定时间内最多执行一次
- * 
- * 使用方法：
- * ```ts
- * const throttledScroll = throttle(() => {
- *   // 滚动处理逻辑
- * }, 100);
- * 
- * window.addEventListener('scroll', throttledScroll);
- * ```
- */
-export function throttle<T extends (...args: unknown[]) => unknown>(
-  func: T,
-  limit: number
-): (...args: Parameters<T>) => void {
-  let inThrottle: boolean;
-
-  return function executedFunction(...args: Parameters<T>) {
-    if (!inThrottle) {
-      func(...args);
-      inThrottle = true;
-      setTimeout(() => (inThrottle = false), limit);
-    }
-  };
-}
-
-/**
  * 被动事件监听器
  * 
  * 使用 passive: true 可以提高滚动和触摸事件的性能
@@ -200,6 +143,7 @@ export function throttle<T extends (...args: unknown[]) => unknown>(
  * ```ts
  * element.addEventListener('scroll', handler, { passive: true });
  * ```
+ */
  */
 export function addPassiveEventListener(
   element: HTMLElement | Document | Window,
@@ -212,13 +156,13 @@ export function addPassiveEventListener(
 
 /**
  * 事件委托
- * 
+ *
  * 使用事件委托减少事件监听器数量
- * 
+ *
  * 使用方法：
  * ```ts
  * delegateEvent(container, 'button', 'click', (e) => {
- *   console.log('Button clicked:', e.target);
+ *   // Handle button click
  * });
  * ```
  */

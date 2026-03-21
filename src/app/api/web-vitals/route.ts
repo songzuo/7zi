@@ -216,16 +216,6 @@ export async function POST(request: NextRequest) {
     // 计算性能评分
     const performanceScore = calculatePerformanceScore(enrichedMetrics);
 
-    // 记录到控制台（开发环境）
-    if (process.env.NODE_ENV === 'development') {
-      console.group('[Web Vitals Report]');
-      console.log('Route:', body.metadata.url);
-      console.log('Device:', deviceType);
-      console.log('Metrics:', enrichedMetrics);
-      console.log('Performance Score:', performanceScore);
-      console.groupEnd();
-    }
-
     // TODO: 存储到数据库
     // await db.webVitals.createMany({
     //   data: enrichedMetrics.map(metric => ({

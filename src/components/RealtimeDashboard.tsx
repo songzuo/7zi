@@ -155,7 +155,9 @@ export const RealtimeDashboard: React.FC<RealtimeDashboardProps> = memo(({
       try {
         await updateData();
       } catch (error) {
-        console.error('Failed to load RealtimeDashboard data:', error);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Failed to load RealtimeDashboard data:', error);
+        }
       } finally {
         if (isMounted) {
           setIsLoading(false);
@@ -168,7 +170,7 @@ export const RealtimeDashboard: React.FC<RealtimeDashboardProps> = memo(({
 
     // 定时更新（每 5 秒）
     const interval = setInterval(() => {
-      updateData().catch(err => console.error('Failed to update data:', err));
+      updateData();
     }, 5000);
 
     return () => {

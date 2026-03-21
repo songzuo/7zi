@@ -174,7 +174,7 @@ export function validateImportOptions(options: ImportOptions): { valid: boolean;
 /**
  * Export data from database
  */
-export async function exportData(options: ExportOptions): Promise<ExportResult> {
+export async function _exportData(options: ExportOptions): Promise<ExportResult> {
   const validation = validateExportOptions(options);
   if (!validation.valid) {
     throw new Error(`Invalid export options: ${validation.errors.join(', ')}`);
@@ -433,7 +433,7 @@ export function parseJSON(json: string): ExportResult {
 /**
  * Import data into database
  */
-export async function importData(
+export async function _importData(
   data: ExportResult,
   options: ImportOptions,
 ): Promise<ImportResult> {

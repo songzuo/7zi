@@ -55,7 +55,7 @@
 
   // Store theme on window for debugging
   if (typeof window !== 'undefined') {
-    (window as any).__THEME__ = { // @ts-expect-error - Global debug variable
+    (window as Window & { __THEME__?: { stored: 'light' | 'dark' | 'system'; effective: 'light' | 'dark' } }).__THEME__ = {
       stored: theme,
       effective: effectiveTheme,
     };

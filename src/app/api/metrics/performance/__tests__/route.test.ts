@@ -13,8 +13,6 @@ import {
   getRateLimitStats,
   clearAllRateLimits,
 } from '@/lib/middleware/rate-limit';
-import { logger } from '@/lib/logger';
-
 // Mock dependencies
 vi.mock('@/lib/logger', () => ({
   logger: {

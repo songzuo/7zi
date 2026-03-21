@@ -4,7 +4,7 @@
  * Returns current user information
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { withUserAuth } from '@/lib/auth/middleware';
 import { getUserById } from '@/lib/auth/repository';
 import { logger } from '@/lib/logger';

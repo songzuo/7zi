@@ -45,7 +45,9 @@ export function SearchHistory({
       const data = await response.json();
       setHistory(data.entries || []);
     } catch (error) {
-      console.error('Error fetching history:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching history:', error);
+      }
     } finally {
       setLoading(false);
     }
@@ -63,7 +65,9 @@ export function SearchHistory({
       // Update local state
       setHistory(prev => prev.filter(entry => entry.query !== query));
     } catch (error) {
-      console.error('Error deleting history:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error deleting history:', error);
+      }
     }
   };
 
@@ -78,7 +82,9 @@ export function SearchHistory({
 
       setHistory([]);
     } catch (error) {
-      console.error('Error clearing history:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error clearing history:', error);
+      }
     }
   };
 

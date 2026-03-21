@@ -4,11 +4,10 @@
  */
 
 import React, { useState } from 'react';
-import { Star, ThumbsUp, MessageCircle, Flag, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Star, ThumbsUp, MessageCircle, Flag, Trash2, ChevronDown, ChevronUp, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Avatar } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui';
+import { Input } from '@/components/ui';
 import { Rating, HelpfulVote } from '@/types/feedback';
 
 export interface ReviewItemProps {
@@ -110,11 +109,9 @@ export function ReviewItem({
       {/* Review Header */}
       <div className="flex items-start gap-4">
         {/* Avatar */}
-        <Avatar className="w-10 h-10">
-          <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold">
-            {rating.user_id.substring(0, 2).toUpperCase()}
-          </div>
-        </Avatar>
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold">
+          {rating.user_id.substring(0, 2).toUpperCase()}
+        </div>
 
         {/* Review Content */}
         <div className="flex-1 min-w-0">
@@ -262,12 +259,12 @@ export function ReviewItem({
           {/* Reply Form */}
           {isReplying && onReply && (
             <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-              <Textarea
+              <textarea
                 placeholder="Write your reply..."
                 value={replyContent}
                 onChange={(e) => setReplyContent(e.target.value)}
                 rows={3}
-                className="mb-3"
+                className="w-full border rounded px-3 py-2 mb-3"
               />
               <div className="flex gap-2">
                 <Button
@@ -294,11 +291,9 @@ export function ReviewItem({
             <div className="mt-4 space-y-4">
               {/* Sample Reply - In production, this would be fetched from API */}
               <div className="flex gap-3 pl-4">
-                <Avatar className="w-8 h-8">
-                  <div className="w-full h-full bg-gradient-to-br from-green-500 to-teal-500 flex items-center justify-center text-white text-xs font-semibold">
-                    AD
-                  </div>
-                </Avatar>
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-teal-500 flex items-center justify-center text-white text-xs font-semibold">
+                  AD
+                </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="font-medium text-sm text-gray-900">Admin</span>

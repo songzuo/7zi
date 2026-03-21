@@ -25,4 +25,4 @@ export type {
   AnalyticsError,
   Statistic,
   TrendAnalysis
-} from './analytics';
+} from '../analytics';

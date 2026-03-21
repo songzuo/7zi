@@ -3,7 +3,7 @@
  * Approval System Tests
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import {describe, it, expect, beforeEach} from 'vitest';
 import { ApprovalRepository } from '../repository';
 import { ApprovalWorkflowService } from '../workflow';
 import {

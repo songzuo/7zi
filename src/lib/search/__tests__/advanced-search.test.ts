@@ -3,7 +3,7 @@
  * @description Tests for the advanced search functionality
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import {describe, it, expect, beforeEach} from 'vitest';
 import { AdvancedSearchManager } from '@/lib/search/advanced-search';
 import type { UnifiedEntity } from '@/lib/search/types';
 

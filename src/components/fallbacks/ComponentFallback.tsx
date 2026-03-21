@@ -29,6 +29,8 @@ export interface ComponentFallbackProps {
   error?: Error;
   /** Custom className */
   className?: string;
+  /** Children to render */
+  children?: React.ReactNode;
 }
 
 /**
@@ -251,7 +253,7 @@ export function withFallback<P extends object>(
       <ComponentFallback
         {...fallbackProps}
         {...props.fallback}
-        error={error}
+        error={error ?? undefined}
         showLoading={showLoading}
         showRetry={!!props.fallback?.showRetry || true}
         onRetry={handleRetry}

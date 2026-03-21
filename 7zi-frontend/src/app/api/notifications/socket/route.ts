@@ -8,6 +8,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { notificationService } from '@/lib/services/notification';
 import { createServer } from 'http';
+import {
+  createSuccessResponse,
+  createErrorResponse,
+} from '../../../../lib/api/error-handler';
 
 /**
  * GET /api/notifications/socket
@@ -17,14 +21,11 @@ import { createServer } from 'http';
 export async function GET() {
   const io = notificationService.getIO();
 
-  return NextResponse.json({
-    success: true,
-    data: {
-      initialized: !!io,
-      message: io
-        ? 'Socket.IO server is running'
-        : 'Socket.IO server not initialized yet',
-    },
+  return createSuccessResponse({
+    initialized: !!io,
+    message: io
+      ? 'Socket.IO server is running'
+      : 'Socket.IO server not initialized yet',
   });
 }
 
@@ -38,11 +39,8 @@ export async function POST(request: NextRequest) {
     const io = notificationService.getIO();
 
     if (io) {
-      return NextResponse.json({
-        success: true,
-        data: {
-          message: 'Socket.IO server already initialized',
-        },
+      return createSuccessResponse({
+        message: 'Socket.IO server already initialized',
       });
     }
 
@@ -61,21 +59,11 @@ export async function POST(request: NextRequest) {
       notificationService.cleanupExpired();
     }, 5 * 60 * 1000); // Every 5 minutes
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        message: 'Socket.IO server initialized',
-        port: SOCKET_PORT,
-      },
+    return createSuccessResponse({
+      message: 'Socket.IO server initialized',
+      port: SOCKET_PORT,
     });
   } catch (error) {
-    console.error('[POST /api/notifications/socket] Error:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to initialize Socket.IO server',
-      },
-      { status: 500 }
-    );
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }
 }

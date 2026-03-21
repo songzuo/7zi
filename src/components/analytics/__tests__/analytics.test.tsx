@@ -3,7 +3,7 @@
  * @description 测试 MetricCard, DateRangePicker, FilterPanel, AnalyticsChart 等组件
  */
 
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import {describe, it, expect, beforeEach, vi} from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { MetricCard } from '@/components/analytics/MetricCard';
@@ -116,7 +116,7 @@ describe('MetricCard', () => {
   it('should format bytes values', () => {
     const bytesStat: Statistic = {
       label: 'Storage Used',
-      value: 1500000,
+      value: 1572864, // Exactly 1.5 MiB (1024² × 1.5)
       format: 'bytes'
     };
 
@@ -156,13 +156,15 @@ describe('MetricCard', () => {
 
   it('should apply color variants', () => {
     const { rerender } = render(<MetricCard statistic={mockStatistic} color="blue" />);
-    const blueCard = screen.getByText('Active Users').closest('div');
+    // Find root card div by matching the gradient class
+    const getCardDiv = () => screen.getByText('Active Users').closest('[class*="bg-gradient"]');
+
+    let card = getCardDiv();
+    expect(card).toHaveClass('from-blue-50');
 
     rerender(<MetricCard statistic={mockStatistic} color="green" />);
-    const greenCard = screen.getByText('Active Users').closest('div');
-
-    expect(blueCard).toHaveClass('from-blue-50');
-    expect(greenCard).toHaveClass('from-green-50');
+    card = getCardDiv();
+    expect(card).toHaveClass('from-green-50');
   });
 });
 
@@ -227,15 +229,21 @@ describe('DateRangePicker', () => {
       />
     );
 
-    const button = screen.getByText('Last 7 Days').closest('button');
-    button && fireEvent.click(button);
+    const triggerButton = screen.getByRole('button', { name: /last 7 days/i });
+    fireEvent.click(triggerButton);
 
+    // Wait for dropdown to open and option to be available
     await waitFor(() => {
-      const monthOption = screen.getByText('Last 30 Days');
-      monthOption && fireEvent.click(monthOption);
+      expect(screen.getByRole('button', { name: /last 30 days/i })).toBeInTheDocument();
     });
 
-    expect(mockOnChange).toHaveBeenCalledWith('month', undefined);
+    const monthOption = screen.getByRole('button', { name: /last 30 days/i });
+    fireEvent.click(monthOption);
+
+    // The onChange should be called immediately when a non-custom range is selected
+    await waitFor(() => {
+      expect(mockOnChange).toHaveBeenCalledWith('month');
+    });
   });
 
   it('should display custom range when selected', () => {
@@ -289,23 +297,29 @@ describe('DateRangePicker', () => {
       />
     );
 
+    // Open dropdown to show custom range form
     const button = screen.getByText('Custom').closest('button');
     button && fireEvent.click(button);
 
+    // Wait for custom form to appear
     await waitFor(() => {
-      const startInput = screen.getByLabelText('Start Date');
-      const endInput = screen.getByLabelText('End Date');
-
-      fireEvent.change(startInput, { target: { value: '2024-01-01' } });
-      fireEvent.change(endInput, { target: { value: '2024-01-31' } });
-
-      const applyButton = screen.getByText('Apply');
-      fireEvent.click(applyButton);
+      expect(screen.getByText('Start Date')).toBeInTheDocument();
+      expect(screen.getByText('End Date')).toBeInTheDocument();
     });
 
-    expect(mockOnChange).toHaveBeenCalledWith('custom', {
-      start: '2024-01-01',
-      end: '2024-01-31'
+    // Find date inputs (component uses native date inputs)
+    const inputs = document.querySelectorAll('input[type="date"]');
+    fireEvent.change(inputs[0], { target: { value: '2024-01-01' } });
+    fireEvent.change(inputs[1], { target: { value: '2024-01-31' } });
+
+    const applyButton = screen.getByText('Apply');
+    fireEvent.click(applyButton);
+
+    await waitFor(() => {
+      expect(mockOnChange).toHaveBeenCalledWith('custom', {
+        start: '2024-01-01',
+        end: '2024-01-31'
+      });
     });
   });
 });
@@ -572,7 +586,7 @@ describe('AnalyticsChartChartJS', () => {
     const mockOnExport = vi.fn();
     render(<AnalyticsChartChartJS config={mockConfig} onExport={mockOnExport} />);
 
-    const exportButton = screen.getByTestId('download');
+    const exportButton = screen.getByTestId('export-button');
     fireEvent.mouseEnter(exportButton);
 
     expect(screen.getByText('CSV')).toBeInTheDocument();
@@ -584,7 +598,7 @@ describe('AnalyticsChartChartJS', () => {
     const mockOnExport = vi.fn();
     render(<AnalyticsChartChartJS config={mockConfig} onExport={mockOnExport} />);
 
-    const exportButton = screen.getByTestId('download');
+    const exportButton = screen.getByTestId('export-button');
     fireEvent.mouseEnter(exportButton);
 
     const jsonOption = screen.getByText('JSON');

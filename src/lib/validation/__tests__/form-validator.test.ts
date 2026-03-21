@@ -3,7 +3,7 @@
  * @vitest-environment jsdom
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import {describe, it, expect, beforeEach} from 'vitest';
 import { FormValidator, createFormValidator, validateValue, validateRequired, validateLength, validateRange, validateEmail, validatePhone, validateUrl, validatePassword, validateIdCard, validateDate, validationRules } from '../form-validator';
 
 describe('FormValidator', () => {

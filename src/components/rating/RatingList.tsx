@@ -6,9 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { Star, Filter, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button, Input } from '@/components/ui';
 import { ReviewItem } from './ReviewItem';
 import { Rating, RatingFilters, RatingListResponse } from '@/types/feedback';
 
@@ -87,10 +85,13 @@ export function RatingList({
         throw new Error('Failed to fetch ratings');
       }
 
-      const data: RatingListResponse = await response.json();
-      setRatings(data.data?.ratings || data.ratings || []);
-      setTotal(data.data?.meta?.total || data.meta?.total || 0);
-      setTotalPages(data.data?.meta?.total_pages || data.meta?.total_pages || 0);
+      const res = await response.json();
+      if (res.success) {
+        const resData = res.data as RatingListResponse;
+        setRatings(resData.ratings || []);
+        setTotal(resData.meta?.total || 0);
+        setTotalPages(resData.meta?.total_pages || 0);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -206,42 +207,34 @@ export function RatingList({
           <div className="flex gap-4 items-end">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Min Rating</label>
-              <Select
+              <select
                 value={ratingMin?.toString() || 'all'}
-                onValueChange={(value) => setRatingMin(value === 'all' ? undefined : parseInt(value))}
+                onChange={(e) => setRatingMin(e.target.value === 'all' ? undefined : parseInt(e.target.value))}
+                className="border rounded px-3 py-2 w-32"
               >
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="1">1★</SelectItem>
-                  <SelectItem value="2">2★</SelectItem>
-                  <SelectItem value="3">3★</SelectItem>
-                  <SelectItem value="4">4★</SelectItem>
-                  <SelectItem value="5">5★</SelectItem>
-                </SelectContent>
-              </Select>
+                <option value="all">All</option>
+                <option value="1">1★</option>
+                <option value="2">2★</option>
+                <option value="3">3★</option>
+                <option value="4">4★</option>
+                <option value="5">5★</option>
+              </select>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Max Rating</label>
-              <Select
+              <select
                 value={ratingMax?.toString() || 'all'}
-                onValueChange={(value) => setRatingMax(value === 'all' ? undefined : parseInt(value))}
+                onChange={(e) => setRatingMax(e.target.value === 'all' ? undefined : parseInt(e.target.value))}
+                className="border rounded px-3 py-2 w-32"
               >
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="1">1★</SelectItem>
-                  <SelectItem value="2">2★</SelectItem>
-                  <SelectItem value="3">3★</SelectItem>
-                  <SelectItem value="4">4★</SelectItem>
-                  <SelectItem value="5">5★</SelectItem>
-                </SelectContent>
-              </Select>
+                <option value="all">All</option>
+                <option value="1">1★</option>
+                <option value="2">2★</option>
+                <option value="3">3★</option>
+                <option value="4">4★</option>
+                <option value="5">5★</option>
+              </select>
             </div>
 
             <Button variant="ghost" onClick={handleResetFilters}>
@@ -255,7 +248,7 @@ export function RatingList({
       <div className="flex items-center gap-2">
         <span className="text-sm text-gray-600">Sort by:</span>
         <Button
-          variant={sortBy === 'created_at' ? 'default' : 'ghost'}
+          variant={sortBy === 'created_at' ? 'primary' : 'ghost'}
           size="sm"
           onClick={() => handleSortChange('created_at')}
           className="gap-2"
@@ -266,7 +259,7 @@ export function RatingList({
           )}
         </Button>
         <Button
-          variant={sortBy === 'rating' ? 'default' : 'ghost'}
+          variant={sortBy === 'rating' ? 'primary' : 'ghost'}
           size="sm"
           onClick={() => handleSortChange('rating')}
           className="gap-2"
@@ -277,7 +270,7 @@ export function RatingList({
           )}
         </Button>
         <Button
-          variant={sortBy === 'helpful_count' ? 'default' : 'ghost'}
+          variant={sortBy === 'helpful_count' ? 'primary' : 'ghost'}
           size="sm"
           onClick={() => handleSortChange('helpful_count')}
           className="gap-2"
@@ -367,7 +360,7 @@ export function RatingList({
                 return (
                   <Button
                     key={pageNum}
-                    variant={page === pageNum ? 'default' : 'outline'}
+                    variant={page === pageNum ? 'primary' : 'outline'}
                     size="sm"
                     onClick={() => setPage(pageNum)}
                   >

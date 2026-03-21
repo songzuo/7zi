@@ -7,7 +7,7 @@
  * - /api/backup - Backup management endpoint
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
+import {describe, it, expect, vi, beforeAll, afterAll} from 'vitest';
 import { GET as getStatusGET } from '@/app/api/status/route';
 import { GET as getReadyGET } from '@/app/api/health/ready/route';
 import { GET as getBackupListGET, POST as getBackupPOST } from '@/app/api/backup/route';

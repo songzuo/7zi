@@ -15,8 +15,6 @@ import {
   getUserRateLimitStats,
   cleanupUserRateLimits,
 } from '@/lib/middleware/user-rate-limit';
-import { logger } from '@/lib/logger';
-
 // Mock logger
 vi.mock('@/lib/logger', () => ({
   logger: {

@@ -47,7 +47,10 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
           setCsrfToken(data.csrfToken);
         }
       } catch (error) {
-        console.error('Failed to fetch CSRF token:', error);
+        // Silently handle error in production
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Failed to fetch CSRF token:', error);
+        }
       }
     };
     
@@ -123,7 +126,10 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
       setSubmitStatus("success");
       setFormData(emptyFormData);
     } catch (error) {
-      console.error("Form submission error:", error);
+      // Silently handle error in production
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Form submission error:", error);
+      }
       setSubmitStatus("error");
     } finally {
       setIsSubmitting(false);

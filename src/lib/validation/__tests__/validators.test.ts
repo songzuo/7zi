@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import {describe, it, expect, vi} from 'vitest';
 // @ts-ignore - Mock type compatibility issues
 import {
   required,

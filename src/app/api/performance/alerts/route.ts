@@ -13,7 +13,7 @@ import type { AlertRule, PerformanceAlert } from '../metrics/route';
 
 // These are shared with the metrics API via a singleton pattern
 // In production, use a database
-let alertRules: AlertRule[] = [
+const alertRules: AlertRule[] = [
   {
     id: 'lcp-poor',
     name: 'LCP > 4000ms (Poor)',

@@ -4,7 +4,7 @@
  * Tests types, interfaces, and helper functions
  */
 
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import {describe, it, expect, beforeEach, vi} from 'vitest';
 import type { DatabaseConnection, DatabaseStatement, DatabaseResult } from './types';
 
 // Mock better-sqlite3 before importing the module

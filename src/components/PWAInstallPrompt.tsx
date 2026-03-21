@@ -27,7 +27,12 @@ export function PWAInstallPrompt() {
     // Check if app is already installed
     const checkInstalled = () => {
       // For iOS - check if running in standalone mode
-      const isIOSStandalone = (window.navigator as any).standalone === true; // iOS Safari non-standard API
+      interface NavigatorWithStandalone extends Navigator {
+        standalone?: boolean;
+      }
+
+      const nav = navigator as NavigatorWithStandalone;
+      const isIOSStandalone = nav.standalone === true; // iOS Safari non-standard API
 
       // For Android/Chrome - check if display mode is standalone
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
@@ -113,7 +118,10 @@ export function PWAInstallPrompt() {
         localStorage.setItem('pwa-install-dismissed-time', Date.now().toString());
       }
     } catch (err) {
-      console.error('[PWA] Error prompting for install:', err);
+      // Silently handle error in production
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[PWA] Error prompting for install:', err);
+      }
     } finally {
       setDeferredPrompt(null);
       setShowPrompt(false);

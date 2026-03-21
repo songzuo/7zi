@@ -3,7 +3,7 @@
  * Approval Repository Tests
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import {describe, it, expect, beforeEach, afterEach} from 'vitest';
 import { ApprovalRepository } from '../repository';
 import {
   ApprovalStatus,

@@ -12,8 +12,6 @@ import {
   blacklistIP,
   whitelistIP,
 } from '@/lib/middleware/crawler-detection';
-import { logger } from '@/lib/logger';
-
 // Mock logger
 vi.mock('@/lib/logger', () => ({
   logger: {

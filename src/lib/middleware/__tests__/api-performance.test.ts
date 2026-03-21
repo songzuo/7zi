@@ -2,7 +2,7 @@
 // @ts-ignore - Mock type compatibility issues
  * @fileoverview API Performance Middleware Tests
  */
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import {describe, it, expect, beforeEach} from 'vitest';
 import { withApiPerformanceTracking, getApiMetricsSummary, clearApiMetrics, getApiMetrics, getRecentMetrics, ApiPerformanceData } from '../api-performance';
 import { NextRequest, NextResponse } from 'next/server';
 

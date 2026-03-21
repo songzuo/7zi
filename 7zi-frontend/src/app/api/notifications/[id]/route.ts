@@ -6,6 +6,11 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { notificationService } from '@/lib/services/notification';
+import {
+  createSuccessResponse,
+  createNotFoundError,
+  createErrorResponse,
+} from '../../../../lib/api/error-handler';
 
 /**
  * GET /api/notifications/[id]
@@ -25,28 +30,12 @@ export async function GET(
     const notification = allNotifications.find(n => n.id === notificationId);
 
     if (!notification) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Notification not found',
-        },
-        { status: 404 }
-      );
+      return createNotFoundError('Notification not found');
     }
 
-    return NextResponse.json({
-      success: true,
-      data: notification,
-    });
+    return createSuccessResponse(notification);
   } catch (error) {
-    console.error(`[GET /api/notifications/${params.id}] Error:`, error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch notification',
-      },
-      { status: 500 }
-    );
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }
 }
 
@@ -67,22 +56,12 @@ export async function PATCH(
       notificationService.markAsRead(notificationId);
     }
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        id: notificationId,
-        message: 'Notification updated',
-      },
+    return createSuccessResponse({
+      id: notificationId,
+      message: 'Notification updated',
     });
   } catch (error) {
-    console.error(`[PATCH /api/notifications/${params.id}] Error:`, error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to update notification',
-      },
-      { status: 500 }
-    );
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }
 }
 
@@ -99,21 +78,11 @@ export async function DELETE(
     const notificationId = params.id;
     notificationService.deleteNotification(notificationId);
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        id: notificationId,
-        message: 'Notification deleted',
-      },
+    return createSuccessResponse({
+      id: notificationId,
+      message: 'Notification deleted',
     });
   } catch (error) {
-    console.error(`[DELETE /api/notifications/${params.id}] Error:`, error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to delete notification',
-      },
-      { status: 500 }
-    );
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }
 }

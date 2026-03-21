@@ -46,7 +46,9 @@ export function BackupList({ refreshTrigger }: BackupListProps) {
       const data = await response.json();
       setBackups(data.data.backups);
     } catch (err) {
-      console.error('Failed to fetch backups:', err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to fetch backups:', err);
+      }
       setError(err instanceof Error ? err.message : 'Failed to fetch backups');
     } finally {
       setLoading(false);
@@ -57,7 +59,9 @@ export function BackupList({ refreshTrigger }: BackupListProps) {
     try {
       await downloadFromUrl(`/api/backup/${backupId}`, filename);
     } catch (err) {
-      console.error('Failed to download backup:', err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to download backup:', err);
+      }
       alert('Failed to download backup. Please try again.');
     }
   };
@@ -81,7 +85,9 @@ export function BackupList({ refreshTrigger }: BackupListProps) {
       // Refresh the list
       await fetchBackups();
     } catch (err) {
-      console.error('Failed to delete backup:', err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to delete backup:', err);
+      }
       alert('Failed to delete backup. Please try again.');
     } finally {
       setDeleting(null);

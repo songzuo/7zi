@@ -161,7 +161,7 @@ function analyzeContent(content: string, config: AntiSpamConfig): {
   score: number;
 } {
   let spamScore = 0;
-  let reasons: string[] = [];
+  const reasons: string[] = [];
 
   // Check for blocked words
   if (config.enable_content_filter && containsBlockedWords(content, config.blocked_words)) {
@@ -220,7 +220,7 @@ export async function detectSpam(
 ): Promise<SpamDetection> {
   const config = await getAntiSpamConfig();
   let spamScore = 0;
-  let reasons: string[] = [];
+  const reasons: string[] = [];
 
   // Check rate limits
   const rateLimitCheck = await checkRateLimits(userId, config);

@@ -16,6 +16,12 @@ import {
   PermissionDeniedError,
   Permissions,
 } from '../../lib/permissions';
+import {
+  createSuccessResponse,
+  createUnauthorizedError,
+  createForbiddenError,
+  createErrorResponse,
+} from '../../../lib/api/error-handler';
 
 /**
  * 模拟的 API 上下文（实际应用中从 session 或 JWT 解析）
@@ -68,7 +74,7 @@ export async function GET(request: NextRequest) {
     const user = users[userId];
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 401 });
+      return createUnauthorizedError('User not found');
     }
 
     // 创建 API 上下文
@@ -81,18 +87,13 @@ export async function GET(request: NextRequest) {
     return await userController.listUsers(ctx);
   } catch (error) {
     if (error instanceof PermissionDeniedError) {
-      return NextResponse.json(
-        {
-          error: 'Permission denied',
-          message: error.message,
-          requiredPermissions: error.requiredPermissions,
-          missingPermissions: error.missingPermissions,
-        },
-        { status: 403 }
-      );
+      return createForbiddenError(error.message, {
+        requiredPermissions: error.requiredPermissions,
+        missingPermissions: error.missingPermissions,
+      });
     }
 
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }
 }
 
@@ -106,7 +107,7 @@ export async function POST(request: NextRequest) {
     const user = users[userId];
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 401 });
+      return createUnauthorizedError('User not found');
     }
 
     const ctx: ApiContext = { user, request };
@@ -117,18 +118,13 @@ export async function POST(request: NextRequest) {
     return await userController.createUser(ctx, body);
   } catch (error) {
     if (error instanceof PermissionDeniedError) {
-      return NextResponse.json(
-        {
-          error: 'Permission denied',
-          message: error.message,
-          requiredPermissions: error.requiredPermissions,
-          missingPermissions: error.missingPermissions,
-        },
-        { status: 403 }
-      );
+      return createForbiddenError(error.message, {
+        requiredPermissions: error.requiredPermissions,
+        missingPermissions: error.missingPermissions,
+      });
     }
 
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }
 }
 
@@ -152,10 +148,7 @@ class UserController {
       roles: u.roles.map(r => r.name),
     }));
 
-    return NextResponse.json({
-      success: true,
-      data: userList,
-    });
+    return createSuccessResponse(userList);
   }
 
   /**
@@ -173,10 +166,7 @@ class UserController {
       createdAt: new Date(),
     };
 
-    return NextResponse.json({
-      success: true,
-      data: newUser,
-    });
+    return createSuccessResponse(newUser, 201);
   }
 
   /**
@@ -190,10 +180,7 @@ class UserController {
     const { user } = ctx;
 
     // 实际业务逻辑
-    return NextResponse.json({
-      success: true,
-      data: { id: userId, ...updates },
-    });
+    return createSuccessResponse({ id: userId, ...updates });
   }
 
   /**
@@ -207,8 +194,7 @@ class UserController {
     const { user } = ctx;
 
     // 实际业务逻辑
-    return NextResponse.json({
-      success: true,
+    return createSuccessResponse({
       message: `User ${userId} deleted`,
     });
   }
@@ -220,8 +206,7 @@ class UserController {
   async manageUser(ctx: ApiContext): Promise<NextResponse> {
     const { user } = ctx;
 
-    return NextResponse.json({
-      success: true,
+    return createSuccessResponse({
       message: 'User management operations',
     });
   }
@@ -240,9 +225,6 @@ class UserController {
       email: u.email,
     }));
 
-    return NextResponse.json({
-      success: true,
-      data: userData,
-    });
+    return createSuccessResponse(userData);
   }
 }

@@ -3,7 +3,7 @@
  * @description Tests for the undo-redo Zustand middleware
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import {describe, it, expect, vi} from 'vitest';
 import { create } from 'zustand';
 import { undoRedo } from '../middleware';
 

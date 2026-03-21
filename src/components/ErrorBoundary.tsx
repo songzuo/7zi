@@ -150,7 +150,9 @@ export function ErrorBoundary({
       setHasRecovered(true);
     } catch (e) {
       // 重试失败，错误会被 ErrorBoundary 重新捕获
-      console.error('重试失败:', e);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('重试失败:', e);
+      }
     }
   }, [reset]);
 

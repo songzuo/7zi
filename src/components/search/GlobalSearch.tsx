@@ -153,7 +153,9 @@ export function GlobalSearch({
       setResults(data.results || []);
     } catch (error) {
       if (error instanceof Error && error.name !== 'AbortError') {
-        console.error('Error searching:', error);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error searching:', error);
+        }
       }
     } finally {
       setIsLoading(false);
@@ -169,7 +171,9 @@ export function GlobalSearch({
       const data = await response.json();
       setHistory(data.entries || []);
     } catch (error) {
-      console.error('Error fetching history:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching history:', error);
+      }
     }
   }, []);
 
@@ -412,7 +416,7 @@ export function GlobalSearch({
               {suggestions.map((suggestion, index) => (
                 <button
                   key={index}
-                  onClick={() => handleSelectResult(suggestion)}
+                  onClick={() => handleSelectResult(suggestion as unknown as SearchResultItem)}
                   className="w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md flex items-center gap-3 transition-colors"
                 >
                   {suggestion.type === 'history' && (
@@ -476,22 +480,22 @@ export function GlobalSearch({
                 >
                   <div className="flex items-start gap-3">
                     <span className="text-lg flex-shrink-0 mt-0.5">
-                      {getEntityIcon(result.item?.type || 'task')}
+                      {getEntityIcon(result.entity?.type || 'task')}
                     </span>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-medium text-gray-900 dark:text-gray-100 truncate">
-                          {result.item?.name || result.item?.title}
+                          {result.entity?.name}
                         </span>
-                        {result.item?.type && (
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${getEntityColor(result.item.type)}`}>
-                            {result.item.type}
+                        {result.entity?.type && (
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${getEntityColor(result.entity.type)}`}>
+                            {result.entity.type}
                           </span>
                         )}
                       </div>
-                      {result.item?.description && (
+                      {result.entity?.description && (
                         <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                          {result.item.description}
+                          {result.entity.description}
                         </p>
                       )}
                     </div>

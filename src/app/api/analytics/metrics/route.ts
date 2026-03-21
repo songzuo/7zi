@@ -3,7 +3,7 @@
  * 数据分析 API 端点
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { logger } from '@/lib/logger';
 import {
   type AnalyticsMetrics,
@@ -12,6 +12,7 @@ import {
   type AnalyticsResponse,
   TimeRange
 } from '@/lib/types/analytics';
+import { createErrorResponse, createSuccessResponse, createValidationError } from '@/lib/api/error-handler';
 
 // ============================================================================
 // Mock Data Generator
@@ -186,10 +187,7 @@ export async function GET(request: NextRequest) {
       try {
         parsedCustomRange = JSON.parse(customRange);
       } catch {
-        return NextResponse.json(
-          { success: false, error: 'Invalid customRange format' },
-          { status: 400 }
-        );
+        return createValidationError('Invalid customRange format');
       }
     }
 
@@ -201,31 +199,22 @@ export async function GET(request: NextRequest) {
     const metrics = generateMockMetrics(filters);
     const timeSeries = generateTimeSeriesData(filters);
 
-    const response: AnalyticsResponse<{
-      metrics: AnalyticsMetrics;
-      timeSeries: TimeSeriesDataPoint[];
-    }> = {
-      success: true,
-      data: {
-        metrics,
-        timeSeries
-      },
+    const responseData = {
+      metrics,
+      timeSeries,
       timestamp: new Date().toISOString(),
       filters
     };
 
     // Cache for 1 minute
-    return NextResponse.json(response, {
+    return createSuccessResponse(responseData, {
       headers: {
         'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30'
       }
     });
   } catch (error) {
-    logger.error('Analytics API error', { error });
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    );
+    logger.error('Analytics API error', error, { category: 'analytics' });
+    return createErrorResponse(error instanceof Error ? error : new Error('Internal server error'));
   }
 }
 
@@ -251,25 +240,16 @@ export async function POST(request: NextRequest) {
     const metrics = generateMockMetrics(filters);
     const timeSeries = generateTimeSeriesData(filters);
 
-    const response: AnalyticsResponse<{
-      metrics: AnalyticsMetrics;
-      timeSeries: TimeSeriesDataPoint[];
-    }> = {
-      success: true,
-      data: {
-        metrics,
-        timeSeries
-      },
+    const responseData = {
+      metrics,
+      timeSeries,
       timestamp: new Date().toISOString(),
       filters
     };
 
-    return NextResponse.json(response);
+    return createSuccessResponse(responseData);
   } catch (error) {
-    logger.error('Analytics POST API error', { error });
-    return NextResponse.json(
-      { success: false, error: 'Invalid request body' },
-      { status: 400 }
-    );
+    logger.error('Analytics POST API error', error, { category: 'analytics' });
+    return createErrorResponse(error instanceof Error ? error : new Error('Invalid request body'));
   }
 }

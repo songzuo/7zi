@@ -141,7 +141,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
       shortcut: '/favicon-16x16.png',
       apple: '/apple-touch-icon.png',
     },
-    manifest: '/site.webmanifest',
+    manifest: '/manifest.json',
     appleWebApp: {
       capable: true,
       statusBarStyle: 'default',

@@ -3,7 +3,7 @@
  * 数据导出 API (CSV/Excel/JSON/PDF)
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { logger } from '@/lib/logger';
 import {
   type ExportOptions,
@@ -13,6 +13,7 @@ import {
   type AnalyticsResponse
 } from '@/lib/types/analytics';
 import * as XLSX from 'xlsx';
+import { createErrorResponse, createSuccessResponse, createValidationError } from '@/lib/api/error-handler';
 
 // ============================================================================
 // Helper Functions
@@ -123,18 +124,12 @@ export async function POST(request: NextRequest) {
 
     // Validate format
     if (!['csv', 'xlsx', 'json'].includes(format)) {
-      return NextResponse.json(
-        { success: false, error: 'Unsupported export format' },
-        { status: 400 }
-      );
+      return createValidationError('Unsupported export format', { format });
     }
 
     // Validate data
     if (!data || !Array.isArray(data) || data.length === 0) {
-      return NextResponse.json(
-        { success: false, error: 'No data to export' },
-        { status: 400 }
-      );
+      return createValidationError('No data to export');
     }
 
     let content: string | Buffer;
@@ -158,10 +153,7 @@ export async function POST(request: NextRequest) {
         break;
 
       default:
-        return NextResponse.json(
-          { success: false, error: 'Unsupported export format' },
-          { status: 400 }
-        );
+        return createValidationError('Unsupported export format', { format });
     }
 
     // Generate filename
@@ -173,14 +165,16 @@ export async function POST(request: NextRequest) {
       dataSize: data.length,
       filename: finalFilename,
       filters,
-      dateRange
+      dateRange,
+      category: 'analytics'
     });
 
     // Return file as download
     const responseBody = Buffer.isBuffer(content)
       ? new Uint8Array(content)
       : new TextEncoder().encode(content);
-    return new NextResponse(responseBody, {
+    return new Response(responseBody, {
+      status: 200,
       headers: {
         'Content-Type': contentType,
         'Content-Disposition': `attachment; filename="${finalFilename}"`,
@@ -188,11 +182,8 @@ export async function POST(request: NextRequest) {
       }
     });
   } catch (error) {
-    logger.error('Analytics export API error', { error });
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    );
+    logger.error('Analytics export API error', error, { category: 'analytics' });
+    return createErrorResponse(error instanceof Error ? error : new Error('Internal server error'));
   }
 }
 
@@ -201,11 +192,7 @@ export async function POST(request: NextRequest) {
  * Get export options and supported formats
  */
 export async function GET() {
-  const response: AnalyticsResponse<{
-    formats: ExportFormat[];
-    maxRecords: number;
-    options: Record<string, string[]>;
-  }> = {
+  const response = {
     success: true,
     data: {
       formats: ['csv', 'xlsx', 'json'],
@@ -218,5 +205,5 @@ export async function GET() {
     timestamp: new Date().toISOString()
   };
 
-  return NextResponse.json(response);
+  return createSuccessResponse(response.data);
 }

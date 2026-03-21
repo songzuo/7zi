@@ -3,7 +3,7 @@
  * 管理系统角色及其权限
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { withAdmin } from '@/lib/auth/middleware-rbac';
 import { Role, Permission } from '@/lib/permissions/types';
 import {
@@ -18,6 +18,7 @@ import {
 } from '@/lib/permissions/repository';
 import { getRoleDefinition } from '@/lib/permissions/rbac';
 import { logger } from '@/lib/logger';
+import { createSuccessResponse, createErrorResponse, createValidationError } from '@/lib/api/error-handler';
 
 /**
  * GET /api/rbac/roles - 获取所有角色
@@ -30,26 +31,13 @@ export async function GET(request: NextRequest) {
 
       const roles = includeCount ? await getAllRolesWithCount() : await getAllRoles();
 
-      return NextResponse.json({
-        success: true,
-        data: roles,
-        meta: {
-          count: roles.length,
-          timestamp: new Date().toISOString(),
-        },
+      return createSuccessResponse({
+        roles,
+        count: roles.length,
       });
     } catch (error) {
-      logger.error('Failed to fetch roles:', { error, userId: context.userId });
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: 'INTERNAL_ERROR',
-            message: error instanceof Error ? error.message : 'Failed to fetch roles',
-          },
-        },
-        { status: 500 }
-      );
+      logger.error('Failed to fetch roles:', error instanceof Error ? error : new Error(String(error)), { userId: context.userId, category: 'rbac' });
+      return createErrorResponse(new Error('Failed to fetch roles'));
     }
   });
 }
@@ -65,44 +53,19 @@ export async function POST(request: NextRequest) {
 
       // 验证必填字段
       if (!id || !name) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: {
-              code: 'VALIDATION_ERROR',
-              message: 'Role ID and name are required',
-            },
-          },
-          { status: 400 }
-        );
+        return createValidationError('Role ID and name are required');
       }
 
       // 检查角色 ID 是否已存在（包括系统角色）
       if (Object.values(Role).includes(id as Role)) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: {
-              code: 'INVALID_ROLE_ID',
-              message: 'Cannot use system role ID for custom role',
-            },
-          },
-          { status: 400 }
-        );
+        return createValidationError('Cannot use system role ID for custom role');
       }
 
       const existingRole = await getRoleById(id);
       if (existingRole) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: {
-              code: 'ROLE_EXISTS',
-              message: 'Role with this ID already exists',
-            },
-          },
-          { status: 409 }
-        );
+        const error = new Error('Role with this ID already exists');
+        (error as any).statusCode = 409;
+        return createErrorResponse(error);
       }
 
       // 验证权限
@@ -124,28 +87,13 @@ export async function POST(request: NextRequest) {
         roleName: name,
         createdBy: context.userId,
         permissions: validPermissions.length,
+        category: 'rbac'
       });
 
-      return NextResponse.json(
-        {
-          success: true,
-          data: newRole,
-          message: 'Role created successfully',
-        },
-        { status: 201 }
-      );
+      return createSuccessResponse(newRole, 201);
     } catch (error) {
-      logger.error('Failed to create role:', { error, userId: context.userId });
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: 'INTERNAL_ERROR',
-            message: error instanceof Error ? error.message : 'Failed to create role',
-          },
-        },
-        { status: 500 }
-      );
+      logger.error('Failed to create role:', error instanceof Error ? error : new Error(String(error)), { userId: context.userId, category: 'rbac' });
+      return createErrorResponse(new Error('Failed to create role'));
     }
   });
 }

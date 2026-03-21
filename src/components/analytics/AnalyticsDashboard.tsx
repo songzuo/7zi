@@ -193,7 +193,9 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         document.body.removeChild(a);
       }
     } catch (error) {
-      console.error('Export failed:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Export failed:', error);
+      }
     }
   }, [timeSeries, filters]);
 
@@ -450,3 +452,4 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
 };
 
 export default AnalyticsDashboard;
+rd;

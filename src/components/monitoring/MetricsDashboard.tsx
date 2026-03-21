@@ -120,7 +120,9 @@ export function MetricsDashboard() {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
-      console.error('Failed to fetch metrics:', err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to fetch metrics:', err);
+      }
     } finally {
       setLoading(false);
     }

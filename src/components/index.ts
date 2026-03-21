@@ -128,7 +128,6 @@ export {
   ContactError,
   DashboardError,
   TeamError,
-  LocaleError,
 } from './errors';
 
 // Contact & Social

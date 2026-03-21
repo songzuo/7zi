@@ -3,7 +3,7 @@
  * End-to-end tests for performance monitoring system
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import {describe, it, expect, beforeAll, afterAll} from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import PerformanceDashboard from '@/app/[locale]/performance/page';

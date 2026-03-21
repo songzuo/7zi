@@ -6,6 +6,10 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { enhancedNotificationService } from '@/lib/services/notification-enhanced';
+import {
+  createSuccessResponse,
+  createErrorResponse,
+} from '../../../../lib/api/error-handler';
 
 /**
  * GET /api/notifications/stats
@@ -16,18 +20,8 @@ export async function GET() {
   try {
     const stats = enhancedNotificationService.getStats();
 
-    return NextResponse.json({
-      success: true,
-      data: stats,
-    });
+    return createSuccessResponse(stats);
   } catch (error) {
-    console.error('[GET /api/notifications/stats] Error:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch statistics',
-      },
-      { status: 500 }
-    );
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }
 }

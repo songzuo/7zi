@@ -178,7 +178,7 @@ export default function UndoRedoExamplePage() {
           <div className="flex items-center justify-center gap-4">
             <UndoRedo
               size="lg"
-              variant="solid"
+              variant="primary"
               showCount
               showTooltips
             />

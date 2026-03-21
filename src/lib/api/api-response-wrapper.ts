@@ -68,7 +68,7 @@ export function error(
   return NextResponse.json(response, {
     status,
     headers: {
-      'X-Request-ID': response.requestId,
+      'X-Request-ID': response.requestId || '',
       'Content-Type': 'application/json',
     },
   });
@@ -262,8 +262,8 @@ export function withApiHandler<T = unknown>(
       }
 
       return response;
-    } catch (error) {
-      return error(error, { requestId });
+    } catch (err) {
+      return error(err, { requestId });
     }
   };
 }

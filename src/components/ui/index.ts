@@ -32,6 +32,12 @@ export {
 export { Badge } from './Badge';
 export type { BadgeProps } from './Badge';
 
+// Input Component
+export { Input } from './Input';
+export type { InputProps } from './Input';
+export { Select } from './Select';
+export type { SelectProps } from './Select';
+
 // Modal Components
 export {
   Modal,

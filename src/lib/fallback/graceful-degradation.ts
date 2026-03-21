@@ -351,7 +351,18 @@ export class NetworkCondition {
     this.isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
 
     // Check connection type (if available)
-    const connection = (navigator as any).connection; // @ts-expect-error - Network Information API
+    interface NetworkConnection {
+      effectiveType?: string;
+      downlink?: number;
+    }
+
+    interface NavigatorWithConnection extends Navigator {
+      connection?: NetworkConnection;
+    }
+
+    const nav = navigator as NavigatorWithConnection;
+    const connection = nav.connection; // @ts-expect-error - Network Information API is experimental
+
     if (connection) {
       this.isSlow = connection.effectiveType === 'slow-2g' ||
                    connection.effectiveType === '2g' ||

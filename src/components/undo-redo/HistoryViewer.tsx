@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { Tooltip } from '@/components/ui/Tooltip';
 import { useUndoRedo } from '@/lib/undo-redo';
+import type { HistoryEntry as LibHistoryEntry } from '@/lib/undo-redo/types';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 
@@ -19,24 +20,13 @@ import { useState } from 'react';
 // ============================================================================
 
 /**
- * History entry type
+ * History entry type (extends the library type with index signature for flexibility)
  */
-export interface HistoryEntry {
-  id: string;
-  type?: string;
-  title?: string;
-  description?: string;
-  timestamp?: Date | string;
-  user?: {
-    id?: string;
-    name?: string;
-    avatar?: string;
-  };
-  data?: unknown;
+export interface HistoryEntry extends LibHistoryEntry {
   [key: string]: unknown;
 }
 
-interface HistoryViewerProps {
+export interface HistoryViewerProps {
   /**
    * Additional CSS classes
    */
@@ -108,8 +98,8 @@ export function HistoryViewer({
 
   // Filter history
   const filteredHistory = filter
-    ? history.filter(filter)
-    : history;
+    ? (history as HistoryEntry[]).filter(filter)
+    : (history as HistoryEntry[]);
 
   // Format timestamp
   const formatTime = (date: Date | string) => {
@@ -131,6 +121,18 @@ export function HistoryViewer({
       hour: '2-digit',
       minute: '2-digit',
     });
+  };
+
+  // Helper to safely access group data
+  const getGroupEntriesCount = (entry: HistoryEntry): number | null => {
+    if (entry.type !== 'group' || !entry.data || typeof entry.data !== 'object') {
+      return null;
+    }
+    const data = entry.data as Record<string, unknown>;
+    if ('entries' in data && Array.isArray(data.entries)) {
+      return data.entries.length;
+    }
+    return null;
   };
 
   // Get action type color
@@ -188,10 +190,10 @@ export function HistoryViewer({
         <div className="flex-1 min-w-0">
           {/* Title and Badge */}
           <div className="flex items-center gap-2 mb-1">
-            <p className="text-sm font-medium truncate">{entry.description}</p>
+            <p className="text-sm font-medium truncate">{entry.description || '未命名操作'}</p>
             {showBadges && (
-              <Badge variant="secondary" className={cn('text-xs', getTypeColor(entry.type))}>
-                {entry.type}
+              <Badge variant="info" className={cn('text-xs', getTypeColor(entry.type || 'default'))}>
+                {entry.type || 'default'}
               </Badge>
             )}
           </div>
@@ -199,7 +201,7 @@ export function HistoryViewer({
           {/* Metadata */}
           {!compact && (
             <div className="flex items-center gap-3 text-xs text-muted-foreground">
-              {showTimestamp && (
+              {showTimestamp && entry.timestamp && (
                 <Tooltip content={formatFullTime(entry.timestamp)}>
                   <span className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
@@ -215,11 +217,14 @@ export function HistoryViewer({
                 </span>
               )}
 
-              {entry.type === 'group' && entry.data?.entries && (
-                <Badge variant="outline" className="text-xs">
-                  {entry.data.entries.length} 操作
-                </Badge>
-              )}
+              {(() => {
+                const count = getGroupEntriesCount(entry);
+                return count !== null ? (
+                  <Badge variant="outline" className="text-xs">
+                    {count} 操作
+                  </Badge>
+                ) : null;
+              })()}
             </div>
           )}
 

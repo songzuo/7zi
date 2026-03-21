@@ -50,10 +50,6 @@ export {
   executeOperation,
 } from './manager';
 
-export type {
-  UndoRedoManagerState,
-} from './manager';
-
 // ============================================================================
 // React Hooks (for backward compatibility)
 // ============================================================================

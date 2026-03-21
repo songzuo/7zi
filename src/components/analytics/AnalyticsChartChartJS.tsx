@@ -20,7 +20,7 @@ import {
   Legend,
   Filler
 } from 'chart.js';
-import { Line, Bar, Pie, Doughnut, Radar, Scatter } from 'react-chartjs-2';
+import { Line, Bar, Pie, Doughnut, Radar } from 'react-chartjs-2';
 import { type ChartConfig, type TimeSeriesDataPoint, type ChartType } from '@/lib/types/analytics';
 
 // Register Chart.js components
@@ -422,26 +422,26 @@ export const AnalyticsChartChartJS: React.FC<AnalyticsChartChartJSProps> = ({
       case 'area':
         return (
           <Line
-            ref={chartRef as any} 
-            data={chartData as any} 
-            options={chartOptions as any} 
+            ref={chartRef as React.RefObject<ChartJS<'line'>>}
+            data={chartData}
+            options={chartOptions as ChartJS<'line'>['options']}
           />
         );
 
       case 'bar':
         return (
           <Bar
-            ref={chartRef as any} 
-            data={chartData as any} 
-            options={chartOptions as any} 
+            ref={chartRef as React.RefObject<ChartJS<'bar'>>}
+            data={chartData}
+            options={chartOptions as ChartJS<'bar'>['options']}
           />
         );
 
       case 'pie':
         return (
           <Pie
-            ref={chartRef as any} 
-            data={chartData as any} 
+            ref={chartRef as React.RefObject<ChartJS<'pie'>>}
+            data={chartData}
             options={{
               ...chartOptions,
               plugins: {
@@ -452,15 +452,15 @@ export const AnalyticsChartChartJS: React.FC<AnalyticsChartChartJSProps> = ({
                 }
               },
               scales: undefined
-            } as any} 
+            }}
           />
         );
 
       case 'donut':
         return (
           <Doughnut
-            ref={chartRef as any} 
-            data={chartData as any} 
+            ref={chartRef as React.RefObject<ChartJS<'doughnut'>>}
+            data={chartData}
             options={{
               ...chartOptions,
               plugins: {
@@ -471,15 +471,15 @@ export const AnalyticsChartChartJS: React.FC<AnalyticsChartChartJSProps> = ({
                 }
               },
               scales: undefined
-            } as any} 
+            }}
           />
         );
 
       case 'radar':
         return (
           <Radar
-            ref={chartRef as any} 
-            data={chartData as any} 
+            ref={chartRef as React.RefObject<ChartJS<'radar'>>}
+            data={chartData}
             options={{
               ...chartOptions,
               scales: {
@@ -499,7 +499,7 @@ export const AnalyticsChartChartJS: React.FC<AnalyticsChartChartJSProps> = ({
                   }
                 }
               }
-            } as any} 
+            }}
           />
         );
 
@@ -522,7 +522,10 @@ export const AnalyticsChartChartJS: React.FC<AnalyticsChartChartJSProps> = ({
           {/* Export Button */}
           {onExport && (
             <div className="relative group">
-              <button className="p-2 bg-gray-100 dark:bg-zinc-700 rounded-lg hover:bg-gray-200 dark:hover:bg-zinc-600 transition-colors">
+              <button
+                className="p-2 bg-gray-100 dark:bg-zinc-700 rounded-lg hover:bg-gray-200 dark:hover:bg-zinc-600 transition-colors"
+                data-testid="export-button"
+              >
                 <svg className="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>

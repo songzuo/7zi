@@ -86,23 +86,23 @@ export function TaskUpdateFeed({
 
     switch (type) {
       case 'status_changed':
-        const statusData = data as TaskStatusChangedPayload;
+        const statusData = data as unknown as TaskStatusChangedPayload;
         return `Status changed from "${statusData.oldStatus}" to "${statusData.newStatus}"`;
 
       case 'assigned':
-        const assignedData = data as TaskAssignedPayload;
+        const assignedData = data as unknown as TaskAssignedPayload;
         return `Assigned to ${assignedData.assignedTo.name} by ${assignedData.assignedBy.name}`;
 
       case 'comment':
-        const commentData = data as TaskCommentPayload;
+        const commentData = data as unknown as TaskCommentPayload;
         return `New comment from ${commentData.author.name}: "${commentData.content.substring(0, 50)}..."`;
 
       case 'deleted':
-        const deletedData = data as TaskDeletedPayload;
+        const deletedData = data as unknown as TaskDeletedPayload;
         return `Task "${deletedData.taskTitle}" was deleted`;
 
       case 'updated':
-        const updatedData = data as TaskUpdatedPayload;
+        const updatedData = data as unknown as TaskUpdatedPayload;
         return `Task "${updatedData.taskTitle}" was updated`;
 
       default:
