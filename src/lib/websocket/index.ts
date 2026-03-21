@@ -17,11 +17,12 @@ export {
 
 export type {
   AuthenticatedSocket,
-  Room,
-  RoomUser,
-  WebSocketMessage,
   TaskStatusUpdate,
+  RoomUser,
+  Room,
 } from './server';
+
+export type { WebSocketMessage } from './types';
 
 export { default as useCollaboration } from './useCollaboration';
 export type {

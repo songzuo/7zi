@@ -74,7 +74,7 @@ export class EnhancedNotificationService {
         });
       }
 
-      logger.log('[EnhancedNotificationService] Initialized');
+      logger.info('[EnhancedNotificationService] Initialized');
     } catch (error) {
       logger.error('[EnhancedNotificationService] Failed to initialize:', error);
       throw error;
@@ -141,9 +141,9 @@ export class EnhancedNotificationService {
             notificationStorage.logDelivery({
               notificationId: id,
               channel: 'email',
-              recipient: Array.isArray(options.emailRecipients)
+              recipient: (options.emailRecipients && Array.isArray(options.emailRecipients))
                 ? options.emailRecipients.map(r => r.email).join(', ')
-                : (options.emailRecipients?.email || fullNotification.userId || 'unknown'),
+                : (fullNotification.userId || 'unknown'),
               status: 'sent',
               sentAt: Date.now(),
               deliveryMetadata: JSON.stringify({ messageId: emailResult.messageId }),
@@ -173,7 +173,7 @@ export class EnhancedNotificationService {
         sentAt: Date.now(),
       });
 
-      logger.log(`[EnhancedNotificationService] Notification sent: ${id}`, {
+      logger.info(`[EnhancedNotificationService] Notification sent: ${id}`, {
         type: notification.type,
         priority: notification.priority,
         emailSent,
@@ -572,6 +572,3 @@ export class EnhancedNotificationService {
 
 // Singleton instance
 export const enhancedNotificationService = new EnhancedNotificationService();
-
-ce = new EnhancedNotificationService();
-ce = new EnhancedNotificationService();

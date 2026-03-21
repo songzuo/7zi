@@ -316,6 +316,19 @@ export const useDashboardStore = create<DashboardStateWithUndoRedo>()(
         token: null,
         refreshInterval: DEFAULT_REFRESH_INTERVAL,
 
+        // Undo-redo actions (will be overridden by middleware)
+        undo: () => {},
+        redo: () => {},
+        clearHistory: () => {},
+        skipNextHistoryPush: () => {},
+        canUndo: false,
+        canRedo: false,
+        pastStatesCount: 0,
+        futureStatesCount: 0,
+        getHistorySnapshot: () => ({ past: [], present: get(), future: [], currentIndex: 0, isUndoing: false, isRedoing: false }),
+        exportHistory: () => '',
+        importHistory: () => ({ success: false }),
+
         // Set config (not recorded in history)
         setConfig: (owner, repo, token) => {
           // @ts-ignore - skipNextHistoryPush is added by middleware

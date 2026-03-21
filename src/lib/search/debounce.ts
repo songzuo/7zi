@@ -202,7 +202,7 @@ export function createSearchDebounce<T extends (...args: unknown[]) => unknown>(
  * 防抖管理器 - 集中管理多个防抖函数
  */
 export class DebounceManager {
-  private debouncers: Map<string, ReturnType<typeof debounceCancellable<(...args: unknown[]) => void>>> = new Map();
+  private debouncers: Map<string, { (...args: unknown[]): void; cancel: () => void; flush: () => void }> = new Map();
 
   /**
    * 注册一个防抖函数
@@ -218,7 +218,7 @@ export class DebounceManager {
     }
 
     const debounced = debounceCancellable(fn, delay);
-    this.debouncers.set(key, debounced);
+    this.debouncers.set(key, debounced as { (...args: unknown[]): void; cancel: () => void; flush: () => void });
   }
 
   /**

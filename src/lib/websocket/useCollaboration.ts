@@ -52,8 +52,14 @@ export type ConnectionState =
 export interface RoomUser {
   id: string;
   name: string;
+  email?: string;
   avatar?: string;
   color: string;
+  joinedAt: Date;
+  cursor?: {
+    position: number;
+    selection?: { start: number; end: number };
+  };
   isTyping: boolean;
   lastActivity: Date;
 }
@@ -341,6 +347,30 @@ export function useCollaboration(config: CollaborationConfig): CollaborationStat
           userName: data.userName,
           color: data.color,
           position: data.position,
+          selection: data.selection,
+        }));
+      });
+
+      // Selection updated
+      socket.on('selection:update', (data) => {
+        logger.debug('Selection updated', { data });
+        setCursors(prev => {
+          const next = new Map(prev);
+          const existing = next.get(data.userId);
+          next.set(data.userId, {
+            userId: data.userId,
+            userName: data.userName,
+            color: data.color,
+            position: existing?.position || 0,
+            selection: data.selection,
+          });
+          return next;
+        });
+        cursorUpdateCallbacksRef.current.forEach(cb => cb({
+          userId: data.userId,
+          userName: data.userName,
+          color: data.color,
+          position: cursors.get(data.userId)?.position || 0,
           selection: data.selection,
         }));
       });

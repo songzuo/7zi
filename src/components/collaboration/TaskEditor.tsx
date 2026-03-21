@@ -91,6 +91,22 @@ export function TaskEditor({
     return unsubscribe;
   }, [document, onDocumentUpdate]);
 
+  // Handle cursor movement and selection
+  const handleCursorChange = () => {
+    if (!textareaRef.current) return;
+    const newPosition = textareaRef.current.selectionStart;
+    const selectionEnd = textareaRef.current.selectionEnd;
+    setCursorPosition(newPosition);
+
+    // Send cursor position
+    moveCursor(newPosition, {
+      start: Math.min(newPosition, selectionEnd),
+      end: Math.max(newPosition, selectionEnd),
+    });
+
+    // Selection update is handled automatically by moveCursor
+  };
+
   // Handle text input
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newContent = e.target.value;
@@ -111,14 +127,6 @@ export function TaskEditor({
     setTimeout(() => {
       setTyping(false);
     }, 3000);
-  };
-
-  // Handle cursor movement
-  const handleCursorChange = () => {
-    if (!textareaRef.current) return;
-    const newPosition = textareaRef.current.selectionStart;
-    setCursorPosition(newPosition);
-    moveCursor(newPosition, { start: newPosition, end: textareaRef.current.selectionEnd });
   };
 
   // Calculate operation to send to server

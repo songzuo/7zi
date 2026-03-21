@@ -39,9 +39,9 @@ export class NotificationStorage {
 
       this.createTables();
 
-      logger.log('[NotificationStorage] Database initialized at:', this.dbPath);
+      logger.info('[NotificationStorage] Database initialized at', { dbPath: this.dbPath });
     } catch (error) {
-      logger.error('[NotificationStorage] Failed to initialize database:', error);
+      logger.error('[NotificationStorage] Failed to initialize database', error);
       throw error;
     }
   }
@@ -516,7 +516,7 @@ export class NotificationStorage {
     const result = stmt.run(Date.now());
 
     if (result.changes > 0) {
-      logger.log(`[NotificationStorage] Cleaned up ${result.changes} expired notifications`);
+      logger.info(`[NotificationStorage] Cleaned up ${result.changes} expired notifications`);
     }
 
     return result.changes;
@@ -555,12 +555,11 @@ export class NotificationStorage {
     if (this.db) {
       this.db.close();
       this.db = null;
-      logger.log('[NotificationStorage] Database connection closed');
+      logger.info('[NotificationStorage] Database connection closed');
     }
   }
 }
 
 // Singleton instance
 export const notificationStorage = new NotificationStorage();
-ionStorage = new NotificationStorage();
 

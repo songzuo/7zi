@@ -8,7 +8,8 @@
 'use client';
 
 import React from 'react';
-import type { ConnectionState, RoomUser } from '@/lib/websocket';
+import type { ConnectionState } from '@/lib/websocket';
+import type { RoomUser } from '@/lib/websocket/types';
 
 interface ConnectionStatusProps {
   connectionState: ConnectionState;

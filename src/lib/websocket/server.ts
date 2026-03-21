@@ -53,7 +53,7 @@ let httpServer: HTTPServer | null = null;
 // Room Management
 // ============================================================================
 
-interface RoomUser {
+export interface RoomUser {
   id: string;
   name: string;
   email: string;
@@ -68,7 +68,7 @@ interface RoomUser {
   lastActivity: Date;
 }
 
-interface Room {
+export interface Room {
   id: string;
   name: string;
   type: 'task' | 'project' | 'chat' | 'document';
@@ -502,6 +502,38 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
     }
   });
 
+  // Selection update
+  socket.on('selection:update', (data: {
+    roomId: string;
+    selection: { start: number; end: number };
+  }) => {
+    try {
+      const { roomId, selection } = data;
+      const room = getRoom(roomId);
+
+      if (!room) return;
+
+      const roomUser = room.users.get(user.id);
+      if (roomUser) {
+        roomUser.cursor = {
+          position: roomUser.cursor?.position || 0,
+          selection,
+        };
+        roomUser.lastActivity = new Date();
+
+        // Broadcast selection update to room
+        broadcastToRoom(roomId, 'selection:update', {
+          userId: user.id,
+          userName: user.name,
+          color: roomUser.color,
+          selection,
+        });
+      }
+    } catch (error) {
+      logger.error('Error updating selection', { socketId: socket.id, error });
+    }
+  });
+
   // --------------------------------------------------------------------
   // Presence Events
   // --------------------------------------------------------------------
@@ -736,9 +768,14 @@ export interface TaskStatusUpdate {
 export async function broadcastTaskStatusUpdate(update: TaskStatusUpdate): Promise<void> {
   const message = {
     id: crypto.randomUUID(),
-    timestamp: new Date().toISOString(),
     type: 'task_status',
-    ...update,
+    taskId: update.taskId,
+    status: update.status,
+    state: update.state,
+    userId: update.userId,
+    projectId: update.projectId,
+    metadata: update.metadata,
+    timestamp: update.timestamp || new Date().toISOString(),
   };
 
   // Broadcast to all clients
@@ -766,9 +803,14 @@ export async function broadcastTaskStatusToUser(
 ): Promise<void> {
   const message = {
     id: crypto.randomUUID(),
-    timestamp: new Date().toISOString(),
     type: 'task_status',
-    ...update,
+    taskId: update.taskId,
+    status: update.status,
+    state: update.state,
+    userId: update.userId,
+    projectId: update.projectId,
+    metadata: update.metadata,
+    timestamp: update.timestamp || new Date().toISOString(),
   };
 
   broadcastToUser(userId, 'task:status_update', message);

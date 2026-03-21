@@ -110,13 +110,27 @@ export function SelectionHighlighter({
 
     // Add highlighted selection
     parts.push(
-      <RemoteSelectionHighlight
+      <span
         key={`selection-${sel.userId}-${start}`}
-        selection={sel}
-        currentUserId={currentUserId}
+        className="relative inline-block px-0.5"
+        style={{
+          backgroundColor: `${sel.color}33`, // 20% opacity
+          borderBottom: `2px solid ${sel.color}`,
+        }}
+        title={`${sel.userName} is selecting this text`}
       >
         {content.slice(start, end)}
-      </RemoteSelectionHighlight>
+
+        {/* User label tooltip */}
+        <span
+          className="absolute -top-6 left-0 px-2 py-0.5 text-white text-xs rounded whitespace-nowrap z-10"
+          style={{
+            backgroundColor: sel.color,
+          }}
+        >
+          {sel.userName}
+        </span>
+      </span>
     );
 
     lastIndex = end;

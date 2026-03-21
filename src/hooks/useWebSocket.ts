@@ -34,6 +34,9 @@ export interface TaskStatusUpdate {
   status: string;
   state: string;
   timestamp: string;
+  userId?: string;
+  projectId?: string;
+  metadata?: Record<string, unknown>;
 }
 
 export interface WebSocketState {
@@ -359,11 +362,12 @@ export function useTaskStatusUpdates(config: WebSocketConfig = {}) {
   const [taskUpdates, setTaskUpdates] = useState<Map<string, TaskStatusUpdate>>(new Map());
 
   useEffect(() => {
-    const handleTaskUpdate = (data: TaskStatusUpdate) => {
-      console.log('[WebSocket] Task status update', data);
+    const handleTaskUpdate = (data: unknown) => {
+      const update = data as TaskStatusUpdate;
+      console.log('[WebSocket] Task status update', update);
       setTaskUpdates(prev => {
         const updates = new Map(prev);
-        updates.set(data.taskId, data);
+        updates.set(update.taskId, update);
         return updates;
       });
     };

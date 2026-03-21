@@ -130,14 +130,14 @@ export class EmailService {
         throw new Error(result.message || 'Failed to send email');
       }
 
-      logger.log('[EmailService] Email sent successfully:', result.id);
+      logger.info('[EmailService] Email sent successfully', { messageId: result.id });
 
       return {
         success: true,
         messageId: result.id,
       };
     } catch (error) {
-      logger.error('[EmailService] Failed to send email:', error);
+      logger.error('[EmailService] Failed to send email', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -327,5 +327,3 @@ ${process.env.NEXT_PUBLIC_APP_URL || 'https://7zi.com'}
 
 // Singleton instance
 export const emailService = new EmailService();
- const emailService = new EmailService();
- const emailService = new EmailService();

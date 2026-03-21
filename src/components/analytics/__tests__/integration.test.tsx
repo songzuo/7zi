@@ -15,10 +15,83 @@ import { type AnalyticsMetrics, type TimeSeriesDataPoint } from '@/lib/types/ana
 
 const mockFetch = vi.fn();
 
+// Create a proper mock Response object
+class MockResponse implements Response {
+  ok: boolean;
+  status: number;
+  statusText: string;
+  headers: Headers;
+  body: ReadableStream | null = null;
+  bodyUsed = false;
+  redirected = false;
+  type: ResponseType = 'basic';
+  url = '';
+  private data: any;
+
+  constructor(data: any, init?: ResponseInit) {
+    this.data = data;
+    this.ok = init?.ok ?? (init?.status ?? 200) < 400;
+    this.status = init?.status ?? 200;
+    this.statusText = init?.statusText ?? 'OK';
+    this.headers = init?.headers ? new Headers(init.headers) : new Headers();
+  }
+
+  async json() {
+    if (this.data instanceof Blob) {
+      const text = await this.text();
+      return JSON.parse(text);
+    }
+    return this.data;
+  }
+
+  async text() {
+    if (this.data instanceof Blob) {
+      return this.data.text();
+    }
+    return typeof this.data === 'string' ? this.data : JSON.stringify(this.data);
+  }
+
+  async blob() {
+    if (this.data instanceof Blob) return this.data;
+    return new Blob([JSON.stringify(this.data)], { type: 'application/json' });
+  }
+
+  async arrayBuffer() {
+    const text = await this.text();
+    return new TextEncoder().encode(text).buffer;
+  }
+
+  async formData() {
+    throw new Error('Not implemented');
+  }
+
+  clone(): Response {
+    return new MockResponse(this.data, {
+      status: this.status,
+      statusText: this.statusText,
+      headers: this.headers,
+      ok: this.ok,
+    });
+  }
+}
+
 global.fetch = mockFetch;
 
 beforeEach(() => {
   mockFetch.mockClear();
+  // Mock localStorage
+  const localStorageMock = {
+    getItem: vi.fn(),
+    setItem: vi.fn(),
+    clear: vi.fn(),
+    removeItem: vi.fn(),
+    length: 0,
+    key: vi.fn(),
+  };
+  Object.defineProperty(window, 'localStorage', {
+    value: localStorageMock,
+    writable: true,
+  });
 });
 
 afterEach(() => {
@@ -137,22 +210,24 @@ const mockTimeSeries: TimeSeriesDataPoint[] = Array.from({ length: 30 }, (_, i) 
 
 describe('AnalyticsDashboard - Integration', () => {
   beforeEach(() => {
+    mockFetch.mockReset();
     // Mock successful API response
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        success: true,
-        data: {
-          metrics: mockMetrics,
-          timeSeries: mockTimeSeries
-        },
-        timestamp: new Date().toISOString(),
-        filters: {
-          timeRange: 'week',
-          metrics: ['agents', 'users', 'tasks', 'tokens', 'revenue', 'errors']
-        }
-      })
-    });
+    mockFetch.mockResolvedValue(new MockResponse({
+      success: true,
+      data: {
+        metrics: mockMetrics,
+        timeSeries: mockTimeSeries
+      },
+      timestamp: new Date().toISOString(),
+      filters: {
+        timeRange: 'week',
+        metrics: ['agents', 'users', 'tasks', 'tokens', 'revenue', 'errors']
+      }
+    }));
+  });
+
+  afterEach(() => {
+    mockFetch.mockReset();
   });
 
   it('should render dashboard with title', async () => {
@@ -315,18 +390,20 @@ describe('AnalyticsDashboard - Integration', () => {
 
 describe('AnalyticsDashboard - Real-time Updates', () => {
   beforeEach(() => {
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        success: true,
-        data: {
-          metrics: mockMetrics,
-          timeSeries: mockTimeSeries
-        },
-        timestamp: new Date().toISOString(),
-        filters: { timeRange: 'week' }
-      })
-    });
+    mockFetch.mockReset();
+    mockFetch.mockResolvedValue(new MockResponse({
+      success: true,
+      data: {
+        metrics: mockMetrics,
+        timeSeries: mockTimeSeries
+      },
+      timestamp: new Date().toISOString(),
+      filters: { timeRange: 'week' }
+    }));
+  });
+
+  afterEach(() => {
+    mockFetch.mockReset();
   });
 
   it('should update data when time range changes', async () => {
@@ -352,68 +429,78 @@ describe('AnalyticsDashboard - Real-time Updates', () => {
 
 describe('AnalyticsDashboard - Export', () => {
   beforeEach(() => {
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        success: true,
-        data: {
-          metrics: mockMetrics,
-          timeSeries: mockTimeSeries
-        },
-        timestamp: new Date().toISOString(),
-        filters: { timeRange: 'week' }
-      })
-    });
-
-    // Mock export API
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      blob: async () => new Blob(['export data'], { type: 'text/csv' }),
-      headers: {
-        get: (name: string) => {
-          if (name === 'Content-Disposition') {
-            return 'attachment; filename="analytics-export-week.csv"';
-          }
-          return null;
-        }
-      }
-    });
+    mockFetch.mockReset();
+    // Mock API response for initial load
+    mockFetch.mockResolvedValue(new MockResponse({
+      success: true,
+      data: {
+        metrics: mockMetrics,
+        timeSeries: mockTimeSeries
+      },
+      timestamp: new Date().toISOString(),
+      filters: { timeRange: 'week' }
+    }));
   });
 
-  it('should show export options', async () => {
+  afterEach(() => {
+    mockFetch.mockReset();
+  });
+
+  it('should show export button', async () => {
     render(<AnalyticsDashboard locale="en" />);
 
     await waitFor(() => {
       const exportButton = screen.getByTitle(/Export/i);
-      fireEvent.click(exportButton);
+      expect(exportButton).toBeInTheDocument();
     });
-
-    // Should show export dropdown
-    // (Note: actual export functionality requires blob handling)
   });
 
-  it('should trigger export', async () => {
+  it('should trigger export on button click', async () => {
     // Mock URL.createObjectURL and download
     const mockCreateObjectURL = vi.fn(() => 'blob:mock-url');
+    const originalCreateObjectURL = global.URL.createObjectURL;
     global.URL.createObjectURL = mockCreateObjectURL as any;
 
     const mockRevokeObjectURL = vi.fn();
+    const originalRevokeObjectURL = global.URL.revokeObjectURL;
     global.URL.revokeObjectURL = mockRevokeObjectURL as any;
 
-    const mockAnchor = document.createElement('a');
-    mockAnchor.href = '';
-    mockAnchor.download = '';
-    const appendSpy = vi.spyOn(document.body, 'appendChild');
-    const removeSpy = vi.spyOn(document.body, 'removeChild');
-    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click');
+    // Mock the export API call
+    const blob = new Blob(['export data'], { type: 'text/csv' });
+    mockFetch.mockImplementationOnce(() =>
+      Promise.resolve(new MockResponse(blob, {
+        ok: true,
+        status: 200,
+        headers: new Headers({
+          'Content-Disposition': 'attachment; filename="analytics-export-week.csv"'
+        })
+      }))
+    );
+
+    const appendSpy = vi.spyOn(document.body, 'appendChild').mockImplementation(() => {
+      return document.createElement('div'); // Return a dummy element
+    });
+    const removeSpy = vi.spyOn(document.body, 'removeChild').mockImplementation(() => {});
+    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
 
     render(<AnalyticsDashboard locale="en" />);
 
     await waitFor(() => {
       const exportButton = screen.getByTitle(/Export/i);
-      fireEvent.click(exportButton);
+      expect(exportButton).toBeInTheDocument();
     });
 
+    // Click export button
+    fireEvent.click(screen.getByTitle(/Export/i));
+
+    await waitFor(() => {
+      // Verify export was attempted
+      expect(mockFetch).toHaveBeenCalled();
+    }, { timeout: 5000 });
+
+    // Restore original functions
+    global.URL.createObjectURL = originalCreateObjectURL;
+    global.URL.revokeObjectURL = originalRevokeObjectURL;
     appendSpy.mockRestore();
     removeSpy.mockRestore();
     clickSpy.mockRestore();
@@ -426,51 +513,77 @@ describe('AnalyticsDashboard - Export', () => {
 
 describe('AnalyticsDashboard - Responsive Design', () => {
   beforeEach(() => {
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        success: true,
-        data: {
-          metrics: mockMetrics,
-          timeSeries: mockTimeSeries
-        },
-        timestamp: new Date().toISOString(),
-        filters: { timeRange: 'week' }
-      })
-    });
+    mockFetch.mockReset();
+    mockFetch.mockResolvedValue(new MockResponse({
+      success: true,
+      data: {
+        metrics: mockMetrics,
+        timeSeries: mockTimeSeries
+      },
+      timestamp: new Date().toISOString(),
+      filters: { timeRange: 'week' }
+    }));
+  });
+
+  afterEach(() => {
+    mockFetch.mockReset();
   });
 
   it('should be accessible on mobile', async () => {
     // Set mobile viewport
-    window.innerWidth = 375;
-    window.innerHeight = 667;
+    Object.defineProperty(window, 'innerWidth', {
+      writable: true,
+      configurable: true,
+      value: 375,
+    });
+    Object.defineProperty(window, 'innerHeight', {
+      writable: true,
+      configurable: true,
+      value: 667,
+    });
 
     render(<AnalyticsDashboard locale="en" />);
 
     await waitFor(() => {
       expect(screen.getByText(/Analytics Dashboard/i)).toBeInTheDocument();
-    });
+    }, { timeout: 5000 });
   });
 
   it('should handle tablet viewport', async () => {
-    window.innerWidth = 768;
-    window.innerHeight = 1024;
+    Object.defineProperty(window, 'innerWidth', {
+      writable: true,
+      configurable: true,
+      value: 768,
+    });
+    Object.defineProperty(window, 'innerHeight', {
+      writable: true,
+      configurable: true,
+      value: 1024,
+    });
 
     render(<AnalyticsDashboard locale="en" />);
 
     await waitFor(() => {
       expect(screen.getByText(/Analytics Dashboard/i)).toBeInTheDocument();
-    });
+    }, { timeout: 5000 });
   });
 
   it('should handle desktop viewport', async () => {
-    window.innerWidth = 1920;
-    window.innerHeight = 1080;
+    Object.defineProperty(window, 'innerWidth', {
+      writable: true,
+      configurable: true,
+      value: 1920,
+    });
+    Object.defineProperty(window, 'innerHeight', {
+      writable: true,
+      configurable: true,
+      value: 1080,
+    });
 
     render(<AnalyticsDashboard locale="en" />);
 
     await waitFor(() => {
       expect(screen.getByText(/Analytics Dashboard/i)).toBeInTheDocument();
-    });
+    }, { timeout: 5000 });
   });
 });

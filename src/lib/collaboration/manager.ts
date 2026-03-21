@@ -503,6 +503,19 @@ export class CollaborationManager {
   }
 
   /**
+   * Update cursor (alias for handleCursorUpdate)
+   */
+  updateCursor(
+    roomId: string,
+    userId: string,
+    userName: string,
+    position: number,
+    selection?: { start: number; end: number }
+  ): Cursor {
+    return this.handleCursorUpdate(roomId, userId, userName, position, selection);
+  }
+
+  /**
    * Handle presence update
    */
   handlePresenceUpdate(
@@ -512,6 +525,18 @@ export class CollaborationManager {
     isTyping?: boolean
   ): Presence {
     return this.presence.updatePresence(userId, userName, status, isTyping);
+  }
+
+  /**
+   * Update presence (alias for handlePresenceUpdate)
+   */
+  updatePresence(
+    userId: string,
+    userName: string,
+    status: Presence['status'],
+    isTyping?: boolean
+  ): Presence {
+    return this.handlePresenceUpdate(userId, userName, status, isTyping);
   }
 
   /**

@@ -2,7 +2,7 @@
  * A2A Task Store - In-memory implementation for task lifecycle management
  */
 
-import { Task, Message, Artifact, TaskState, TaskStatus, TaskWithPriority } from './types';
+import { Task, Message, Artifact, TaskState, TaskStatus } from './types';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface TaskWithPriority extends Task {

@@ -417,5 +417,5 @@ export interface SearchIndexOptions<T> {
   /** Fields to search */
   fields: string[];
   /** Fuse.js configuration */
-  fuseOptions?: Partial<Fuse.IFuseOptions<T>>;
+  fuseOptions?: Partial<import('fuse.js').IFuseOptions<T>>;
 }

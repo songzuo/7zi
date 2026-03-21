@@ -95,7 +95,7 @@ export class NotificationService {
       return;
     }
 
-    this.io = new SocketIOServer(httpServer, {
+    this.io = new SocketIOServer(httpServer as any, {
       cors: {
         origin: '*',
         methods: ['GET', 'POST'],
@@ -104,7 +104,7 @@ export class NotificationService {
     });
 
     this.io.on('connection', (socket: Socket) => {
-      logger.log(`[NotificationService] Client connected: ${socket.id}`);
+      logger.info(`[NotificationService] Client connected: ${socket.id}`);
 
       // Handle subscription
       socket.on('subscribe', (subscription: NotificationSubscription) => {
@@ -135,11 +135,11 @@ export class NotificationService {
       // Disconnect
       socket.on('disconnect', () => {
         this.handleUnsubscribe(socket);
-        logger.log(`[NotificationService] Client disconnected: ${socket.id}`);
+        logger.info(`[NotificationService] Client disconnected: ${socket.id}`);
       });
     });
 
-    logger.log('[NotificationService] Socket.IO server initialized');
+    logger.info('[NotificationService] Socket.IO server initialized');
   }
 
   /**
@@ -163,7 +163,7 @@ export class NotificationService {
     socket.emit('initial_notifications', pendingNotifications);
     socket.emit('subscribed', { channels: subscription.channels });
 
-    logger.log(`[NotificationService] Client ${socket.id} subscribed to channels:`, subscription.channels);
+    logger.info(`[NotificationService] Client ${socket.id} subscribed to channels`, { channels: subscription.channels });
   }
 
   /**
@@ -176,7 +176,7 @@ export class NotificationService {
         socket.leave(channel);
       });
       this.subscriptions.delete(socket.id);
-      logger.log(`[NotificationService] Client ${socket.id} unsubscribed`);
+      logger.info(`[NotificationService] Client ${socket.id} unsubscribed`);
     }
   }
 
@@ -217,7 +217,7 @@ export class NotificationService {
       }
     }
 
-    logger.log(`[NotificationService] Notification sent: ${id}`, {
+    logger.info(`[NotificationService] Notification sent: ${id}`, {
       type: notification.type,
       channels,
     });
@@ -322,7 +322,7 @@ export class NotificationService {
     }
 
     if (cleaned > 0) {
-      logger.log(`[NotificationService] Cleaned up ${cleaned} expired notifications`);
+      logger.info(`[NotificationService] Cleaned up ${cleaned} expired notifications`);
     }
 
     return cleaned;
@@ -423,4 +423,3 @@ export class NotificationService {
 
 // Singleton instance
 export const notificationService = new NotificationService();
-ionService = new NotificationService();
