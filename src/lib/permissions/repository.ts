@@ -395,6 +395,107 @@ export async function isSystemRole(role: Role): Promise<boolean> {
 }
 
 /**
+ * Create custom role
+ */
+export async function createRole(data: {
+  id: string;
+  name: string;
+  description?: string;
+  permissions: Permission[];
+  isSystem?: boolean;
+}): Promise<RoleDefinition> {
+  const db = await getDatabaseAsync();
+  await initializeRbacTables();
+
+  const now = new Date().toISOString();
+
+  const stmt = db.prepare(`
+    INSERT INTO roles (id, name, description, permissions, is_system, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  stmt.run(
+    data.id,
+    data.name,
+    data.description || null,
+    JSON.stringify(data.permissions || []),
+    data.isSystem ? 1 : 0,
+    now,
+    now
+  );
+
+  // Assign permissions to role
+  if (data.permissions.length > 0) {
+    await assignPermissionsToRole(data.id as Role, data.permissions);
+  }
+
+  return {
+    id: data.id,
+    name: data.name,
+    description: data.description,
+    permissions: data.permissions,
+    isSystem: data.isSystem || false,
+  };
+}
+
+/**
+ * Update role
+ */
+export async function updateRole(
+  role: string,
+  data: {
+    name?: string;
+    description?: string;
+    permissions?: Permission[];
+  }
+): Promise<RoleDefinition> {
+  const db = await getDatabaseAsync();
+  await initializeRbacTables();
+
+  const now = new Date().toISOString();
+
+  // Update role fields
+  const updates: string[] = [];
+  const params: unknown[] = [];
+
+  if (data.name !== undefined) {
+    updates.push('name = ?');
+    params.push(data.name);
+  }
+
+  if (data.description !== undefined) {
+    updates.push('description = ?');
+    params.push(data.description);
+  }
+
+  if (updates.length > 0) {
+    updates.push('updated_at = ?');
+    params.push(now);
+    params.push(role);
+
+    const stmt = db.prepare(`
+      UPDATE roles
+      SET ${updates.join(', ')}
+      WHERE id = ?
+    `);
+    stmt.run(...params);
+  }
+
+  // Update permissions if provided
+  if (data.permissions !== undefined) {
+    await assignPermissionsToRole(role as Role, data.permissions);
+  }
+
+  // Return updated role
+  const updatedRole = await getRoleById(role);
+  if (!updatedRole) {
+    throw new Error('Role not found after update');
+  }
+
+  return updatedRole;
+}
+
+/**
  * Delete custom role (only non-system roles)
  */
 export async function deleteRole(role: Role): Promise<boolean> {
