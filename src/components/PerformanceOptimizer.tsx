@@ -141,7 +141,7 @@ function registerDebugListeners() {
 
   // 监听网络状态变化
   if ('connection' in navigator) {
-    (navigator as any).connection?.addEventListener('change', () => { // @ts-expect-error - Network Information API
+    (navigator as any).connection?.addEventListener('change', () => { // Network Information API
       logPerformance({
         type: 'network-change',
         effectiveType: (navigator as any).connection?.effectiveType,
@@ -267,7 +267,7 @@ export function useResourceTiming(resourceUrl: string) {
     const resource = document.querySelector(`script[src="${resourceUrl}"], link[href="${resourceUrl}"]`);
 
     if (resource) {
-      if ((resource as any).complete) { // @ts-expect-error - Resource loading state
+      if ((resource as any).complete) { // Resource loading state
         handleLoad();
       } else {
         resource.addEventListener('load', handleLoad);

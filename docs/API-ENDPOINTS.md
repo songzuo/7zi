@@ -1,7 +1,7 @@
 # 7zi Project API Endpoints Summary
 
-**Generated**: 2026-03-18
-**Version**: 0.1.0
+**Generated**: 2026-03-21
+**Version**: 0.2.0
 
 ## Quick Reference
 
@@ -58,9 +58,27 @@
 
 ## Total Count
 
-- **Total Routes**: 11 API routes
-- **Total Methods**: 16 HTTP methods (including JSON-RPC methods)
-- **Protocols**: REST (10), JSON-RPC (1)
+- **Total Routes**: 65+ API routes
+- **API Modules**: 26 API modules
+- **Total Methods**: 65+ HTTP endpoints
+- **Protocols**: REST (65), WebSocket (via `/api/ws`), JSON-RPC (1)
+
+> **Note**: The project has expanded significantly since v0.1.0. The API now includes modules for:
+> - Analytics (metrics, export)
+> - Backup (jobs, statistics, scheduling)
+> - CSP violation reporting
+> - Database health & optimization
+> - Feedback (notifications, ratings)
+> - Health checks (live, ready, detailed)
+> - Multimodal (image, audio)
+> - Performance metrics
+> - RBAC permissions
+> - Search functionality
+> - User management
+> - Web Vitals
+> - WebSocket real-time communication (`/api/ws`)
+
+Full endpoint list available in [API-COMPLETE-REFERENCE.md](./API-COMPLETE-REFERENCE.md).
 
 ---
 

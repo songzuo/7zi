@@ -11,9 +11,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🎉 Release Highlights
 
-This release focuses on code quality improvements, test coverage expansion, and comprehensive API documentation updates. Enhanced type safety across the entire codebase.
+This release focuses on code quality improvements, test coverage expansion, comprehensive API documentation updates, and major feature additions including real-time notification system and RBAC permission control. Enhanced type safety across the entire codebase.
 
 ### ✨ New Features
+
+- **🔔 Real-time Notification System**
+  - Comprehensive WebSocket-based notification system using Socket.IO
+  - SQLite persistent storage with read/unread tracking
+  - Email notification integration via Resend API
+  - User customizable preferences (email/push thresholds, quiet hours)
+  - Multiple notification types: info, success, warning, error, task_assigned, task_completed, system
+  - Four priority levels: low, medium, high, urgent
+  - Notification statistics and delivery logging
+  - NotificationProvider, NotificationCenter, NotificationToast components
+  - useNotifications React hook for easy integration
+
+- **👥 RBAC Permission Control System**
+  - Role-based access control implementation
+  - Comprehensive API endpoints for permission management
+  - Role assignment and permission checking
+  - User-role mapping with granular permissions
+  - Permission validation middleware
 
 - **🧪 Comprehensive Test Coverage**
   - Added 490+ test files covering critical business logic

@@ -177,6 +177,7 @@
 | [websocket-implementation-summary.md](./websocket-implementation-summary.md) | ✅ 最新 | WebSocket 实现总结 |
 | [websocket-status.md](./websocket-status.md) | ✅ 最新 | WebSocket 状态 |
 | [LOADING-SYSTEM.md](./LOADING-SYSTEM.md) | ✅ 最新 | 加载系统 |
+| [NOTIFICATION_SYSTEM.md](./NOTIFICATION_SYSTEM.md) | ✅ 最新 | 实时通知系统文档 |
 
 ### 📈 项目管理
 
@@ -367,7 +368,7 @@
 | 🔒 安全文档 | 8 |
 | 🌍 国际化 | 2 |
 | 🎨 UI/UX | 8 |
-| 🔌 集成文档 | 6 |
+| 🔌 集成文档 | 7 |
 | 📈 项目管理 | 7 |
 | 🔧 工具脚本 | 4 |
 | 🗄️ 数据库优化 | 1 |
@@ -380,7 +381,15 @@
 | 📝 其他文档 | 2 |
 | 📂 根目录重要文档 | 8 |
 
-**总计**：119 个文档
+**总计**：120 个文档
+
+### API 端点统计
+
+| 指标 | 数量 |
+|------|------|
+| **API 端点总数** | 65+ |
+| **API 模块数** | 26 |
+| **路由文件数** | 65+ |
 
 ### 按状态统计
 
@@ -396,11 +405,10 @@
 
 ### 2026-03-21 今日更新
 
-- ✅ 更新 WebSocket 文档集（3个文件）
-- ✅ 新增 Web Vitals 优化文档
-- ✅ 新增 CSP 安全配置文档
-- ✅ 更新架构文档
-- ✅ 完整文档索引更新（新增 35+ 个文档条目）
+- ✅ 新增实时通知系统文档 (NOTIFICATION_SYSTEM.md)
+- ✅ 更新 README.md 至 v1.0.6，添加实时通知系统特性说明
+- ✅ 更新文档索引，新增通知系统文档条目
+- ✅ 之前更新：WebSocket 文档集、Web Vitals 优化、CSP 安全配置、架构文档
 
 ### 2026-03-20 之前更新
 
