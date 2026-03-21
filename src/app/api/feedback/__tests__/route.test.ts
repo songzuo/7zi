@@ -84,11 +84,13 @@ const mockDb = {
   exec: vi.fn(),
 };
 
+// Get the mocked function
+const { getDatabaseAsync } = await import('@/lib/db/index');
+
 describe('GET /api/feedback', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    const { getDatabaseAsync } = require('@/lib/db/index');
-    getDatabaseAsync.mockResolvedValue(mockDb);
+    vi.mocked(getDatabaseAsync).mockResolvedValue(mockDb);
   });
 
   it('should return feedbacks list', async () => {
@@ -188,8 +190,7 @@ describe('GET /api/feedback', () => {
 describe('POST /api/feedback', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    const { getDatabaseAsync } = require('@/lib/db/index');
-    getDatabaseAsync.mockResolvedValue(mockDb);
+    vi.mocked(getDatabaseAsync).mockResolvedValue(mockDb);
   });
 
   it('should create a new feedback', async () => {
@@ -342,8 +343,7 @@ describe('POST /api/feedback', () => {
 describe('GET_FEEDBACK /api/feedback/[id]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    const { getDatabaseAsync } = require('@/lib/db/index');
-    getDatabaseAsync.mockResolvedValue(mockDb);
+    vi.mocked(getDatabaseAsync).mockResolvedValue(mockDb);
   });
 
   it('should return single feedback', async () => {
@@ -373,8 +373,7 @@ describe('GET_FEEDBACK /api/feedback/[id]', () => {
 describe('PATCH /api/feedback/[id]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    const { getDatabaseAsync } = require('@/lib/db/index');
-    getDatabaseAsync.mockResolvedValue(mockDb);
+    vi.mocked(getDatabaseAsync).mockResolvedValue(mockDb);
   });
 
   it('should update feedback status', async () => {
@@ -515,8 +514,7 @@ describe('PATCH /api/feedback/[id]', () => {
 describe('DELETE_FEEDBACK /api/feedback/[id]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    const { getDatabaseAsync } = require('@/lib/db/index');
-    getDatabaseAsync.mockResolvedValue(mockDb);
+    vi.mocked(getDatabaseAsync).mockResolvedValue(mockDb);
   });
 
   it('should delete feedback', async () => {

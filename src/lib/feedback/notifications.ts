@@ -5,7 +5,7 @@
 
 import { getDatabaseAsync } from '../db/index';
 import { logger } from '../logger';
-import { Feedback, FeedbackType, FeedbackStatus } from '@/types/feedback';
+import { Feedback, FeedbackType, FeedbackStatus, FeedbackPriority } from '@/types/feedback';
 
 /**
  * Notification types for feedback
@@ -98,9 +98,31 @@ export async function getUnreadFeedbackNotifications(
      WHERE fn.recipient_id = ? AND fn.read_at IS NULL
      ORDER BY fn.created_at DESC`,
     [userId]
-  ) as FeedbackNotification[];
+  ) as unknown as FeedbackNotification[];
 
-  return notifications;
+  // Map and type-cast the notifications
+  return notifications.map((notif) => ({
+    id: notif.id,
+    feedback_id: notif.feedback_id,
+    type: notif.type as FeedbackNotificationType,
+    created_at: notif.created_at,
+    feedback: notif.feedback_type && notif.title
+      ? {
+          id: notif.feedback_id,
+          type: notif.feedback_type,
+          title: notif.title,
+          status: (notif.status || 'open') as FeedbackStatus,
+          priority: (notif.priority || 'medium') as FeedbackPriority,
+          rating: notif.rating || 0,
+          created_at: notif.created_at,
+          updated_at: notif.created_at,
+          user_id: userId,
+          description: '',
+          helpful_count: 0,
+          not_helpful_count: 0,
+        }
+      : undefined,
+  }));
 }
 
 /**
@@ -288,7 +310,7 @@ export async function processFeedbackNotifications(
      ORDER BY created_at ASC
      LIMIT ?`,
     [batchSize]
-  ) as FeedbackNotification[];
+  ) as unknown as FeedbackNotification[];
 
   logger.info('Processing feedback notifications', {
     category: 'feedback',
@@ -302,7 +324,7 @@ export async function processFeedbackNotifications(
       const feedback = db.queryRows(
         'SELECT * FROM feedbacks WHERE id = ?',
         [notification.feedback_id]
-      )[0] as Feedback | undefined;
+      )[0] as unknown as Feedback | undefined;
 
       if (!feedback) {
         logger.warn('Feedback not found for notification', {

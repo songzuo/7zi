@@ -7,6 +7,7 @@
 import { notificationService as baseService, Notification, NotificationType, NotificationPriority } from '@/lib/services/notification';
 import { emailService, EmailRecipient } from '@/lib/services/email';
 import { notificationStorage } from '@/lib/services/notification-storage';
+import { logger } from '@/lib/logger';
 
 /**
  * Priority order (lower number = higher priority)
@@ -73,9 +74,9 @@ export class EnhancedNotificationService {
         });
       }
 
-      console.log('[EnhancedNotificationService] Initialized');
+      logger.log('[EnhancedNotificationService] Initialized');
     } catch (error) {
-      console.error('[EnhancedNotificationService] Failed to initialize:', error);
+      logger.error('[EnhancedNotificationService] Failed to initialize:', error);
       throw error;
     }
   }
@@ -172,7 +173,7 @@ export class EnhancedNotificationService {
         sentAt: Date.now(),
       });
 
-      console.log(`[EnhancedNotificationService] Notification sent: ${id}`, {
+      logger.log(`[EnhancedNotificationService] Notification sent: ${id}`, {
         type: notification.type,
         priority: notification.priority,
         emailSent,
@@ -184,7 +185,7 @@ export class EnhancedNotificationService {
         emailSent,
       };
     } catch (error) {
-      console.error('[EnhancedNotificationService] Failed to send notification:', error);
+      logger.error('[EnhancedNotificationService] Failed to send notification:', error);
       return {
         success: false,
         notificationId: '',
@@ -251,6 +252,14 @@ export class EnhancedNotificationService {
     try {
       const now = new Date();
 
+      // Validate timezone
+      try {
+        now.toLocaleTimeString('en-US', { timeZone: timezone });
+      } catch (tzError) {
+        logger.warn(`[EnhancedNotificationService] Invalid timezone "${timezone}", falling back to UTC`);
+        timezone = 'UTC';
+      }
+
       // Get current time in user's timezone
       const options: Intl.DateTimeFormatOptions = {
         timeZone: timezone,
@@ -261,20 +270,26 @@ export class EnhancedNotificationService {
 
       const currentTimeStr = now.toLocaleTimeString('en-US', options); // "HH:mm"
 
+      // Validate time format
+      if (!currentTimeStr || !currentTimeStr.includes(':')) {
+        logger.error('[EnhancedNotificationService] Failed to get current time string');
+        return false;
+      }
+
       const currentMinutes = this.timeToMinutes(currentTimeStr);
       const startMinutes = this.timeToMinutes(start);
       const endMinutes = this.timeToMinutes(end);
 
       // Check if current time is between start and end
       if (startMinutes < endMinutes) {
-        // Normal case: 22:00 - 08:00 (overnight)
-        return currentMinutes >= startMinutes || currentMinutes < endMinutes;
+        // Normal case: e.g., 22:00 - 08:00
+        return currentMinutes >= startMinutes && currentMinutes < endMinutes;
       } else {
-        // Over midnight: 22:00 - 06:00
+        // Over midnight: e.g., 22:00 - 06:00
         return currentMinutes >= startMinutes || currentMinutes < endMinutes;
       }
     } catch (error) {
-      console.error('[EnhancedNotificationService] Failed to check quiet hours:', error);
+      logger.error('[EnhancedNotificationService] Failed to check quiet hours:', error);
       return false;
     }
   }
@@ -324,7 +339,7 @@ export class EnhancedNotificationService {
 
       return result;
     } catch (error) {
-      console.error('[EnhancedNotificationService] Failed to send email:', error);
+      logger.error('[EnhancedNotificationService] Failed to send email:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -428,20 +443,31 @@ export class EnhancedNotificationService {
     });
 
     // Convert storage format to Notification interface
-    return storageNotifications.map(n => ({
-      id: n.id,
-      type: n.type as NotificationType,
-      priority: n.priority as NotificationPriority,
-      title: n.title,
-      message: n.message,
-      data: n.data ? JSON.parse(n.data) : undefined,
-      userId: n.userId || undefined,
-      teamId: n.teamId || undefined,
-      taskId: n.taskId || undefined,
-      read: n.read === 1,
-      createdAt: n.createdAt,
-      expiresAt: n.expiresAt || undefined,
-    }));
+    return storageNotifications.map(n => {
+      let data: Record<string, unknown> | undefined = undefined;
+      if (n.data) {
+        try {
+          data = JSON.parse(n.data) as Record<string, unknown>;
+        } catch (error) {
+          logger.error('[EnhancedNotificationService] Failed to parse notification data:', error);
+        }
+      }
+
+      return {
+        id: n.id,
+        type: n.type as NotificationType,
+        priority: n.priority as NotificationPriority,
+        title: n.title,
+        message: n.message,
+        data,
+        userId: n.userId || undefined,
+        teamId: n.teamId || undefined,
+        taskId: n.taskId || undefined,
+        read: n.read === 1,
+        createdAt: n.createdAt,
+        expiresAt: n.expiresAt || undefined,
+      };
+    });
   }
 
   /**
@@ -566,6 +592,23 @@ export class EnhancedNotificationService {
     }
 
     return count;
+  }
+
+  /**
+   * Clean up resources and close connections
+   */
+  async shutdown(): Promise<void> {
+    try {
+      if (this.storageInitialized) {
+        notificationStorage.close();
+        this.storageInitialized = false;
+      }
+
+      logger.log('[EnhancedNotificationService] Shut down successfully');
+    } catch (error) {
+      logger.error('[EnhancedNotificationService] Error during shutdown:', error);
+      throw error;
+    }
   }
 }
 

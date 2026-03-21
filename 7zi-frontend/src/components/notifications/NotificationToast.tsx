@@ -6,9 +6,9 @@
 
 'use client';
 
+import React, { useEffect, useState, useCallback, memo } from 'react';
 import { Notification, NotificationType } from '@/lib/services/notification';
 import { X, Info, CheckCircle, AlertTriangle, XCircle, MessageSquare, Bell } from 'lucide-react';
-import { useEffect, useState } from 'react';
 
 interface NotificationToastProps {
   notification: Notification;
@@ -18,7 +18,46 @@ interface NotificationToastProps {
   autoHideDelay?: number;
 }
 
-export function NotificationToast({
+// Extract helper functions outside component to avoid recreation
+const getIcon = (type: NotificationType) => {
+  switch (type) {
+    case NotificationType.SUCCESS:
+      return <CheckCircle className="h-5 w-5 text-green-500" />;
+    case NotificationType.WARNING:
+      return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
+    case NotificationType.ERROR:
+      return <XCircle className="h-5 w-5 text-red-500" />;
+    case NotificationType.MESSAGE:
+      return <MessageSquare className="h-5 w-5 text-blue-500" />;
+    case NotificationType.TASK_ASSIGNED:
+    case NotificationType.TASK_COMPLETED:
+    case NotificationType.TASK_UPDATED:
+      return <Bell className="h-5 w-5 text-purple-500" />;
+    default:
+      return <Info className="h-5 w-5 text-gray-500" />;
+  }
+};
+
+const getBorderColor = (type: NotificationType) => {
+  switch (type) {
+    case NotificationType.SUCCESS:
+      return 'border-green-500';
+    case NotificationType.WARNING:
+      return 'border-yellow-500';
+    case NotificationType.ERROR:
+      return 'border-red-500';
+    case NotificationType.MESSAGE:
+      return 'border-blue-500';
+    case NotificationType.TASK_ASSIGNED:
+    case NotificationType.TASK_COMPLETED:
+    case NotificationType.TASK_UPDATED:
+      return 'border-purple-500';
+    default:
+      return 'border-gray-500';
+  }
+};
+
+function NotificationToast({
   notification,
   onClose,
   onMarkRead,
@@ -40,58 +79,20 @@ export function NotificationToast({
 
       return () => clearTimeout(timer);
     }
-  }, [autoHide, autoHideDelay]);
+  }, [autoHide, autoHideDelay, notification.id]);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setIsLeaving(true);
     onMarkRead(notification.id);
     setTimeout(() => {
       onClose();
     }, 300);
-  };
-
-  const getIcon = () => {
-    switch (notification.type) {
-      case NotificationType.SUCCESS:
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case NotificationType.WARNING:
-        return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
-      case NotificationType.ERROR:
-        return <XCircle className="h-5 w-5 text-red-500" />;
-      case NotificationType.MESSAGE:
-        return <MessageSquare className="h-5 w-5 text-blue-500" />;
-      case NotificationType.TASK_ASSIGNED:
-      case NotificationType.TASK_COMPLETED:
-      case NotificationType.TASK_UPDATED:
-        return <Bell className="h-5 w-5 text-purple-500" />;
-      default:
-        return <Info className="h-5 w-5 text-gray-500" />;
-    }
-  };
-
-  const getBorderColor = () => {
-    switch (notification.type) {
-      case NotificationType.SUCCESS:
-        return 'border-green-500';
-      case NotificationType.WARNING:
-        return 'border-yellow-500';
-      case NotificationType.ERROR:
-        return 'border-red-500';
-      case NotificationType.MESSAGE:
-        return 'border-blue-500';
-      case NotificationType.TASK_ASSIGNED:
-      case NotificationType.TASK_COMPLETED:
-      case NotificationType.TASK_UPDATED:
-        return 'border-purple-500';
-      default:
-        return 'border-gray-500';
-    }
-  };
+  }, [notification.id, onMarkRead, onClose]);
 
   return (
     <div
       className={`
-        relative bg-white dark:bg-gray-800 rounded-lg shadow-lg border-l-4 ${getBorderColor()}
+        relative bg-white dark:bg-gray-800 rounded-lg shadow-lg border-l-4 ${getBorderColor(notification.type)}
         p-4 mb-2 transition-all duration-300 transform
         ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}
         ${isLeaving ? 'translate-x-full opacity-0' : ''}
@@ -99,7 +100,7 @@ export function NotificationToast({
     >
       <div className="flex items-start gap-3">
         <div className="flex-shrink-0 mt-0.5">
-          {getIcon()}
+          {getIcon(notification.type)}
         </div>
 
         <div className="flex-1 min-w-0">
@@ -129,3 +130,6 @@ export function NotificationToast({
     </div>
   );
 }
+
+// Wrap with React.memo to prevent unnecessary re-renders
+export default memo(NotificationToast);

@@ -4,6 +4,8 @@
  * Provides email notification functionality using Resend API
  */
 
+import { logger } from '@/lib/logger';
+
 /**
  * Email configuration
  */
@@ -51,9 +53,9 @@ export class EmailService {
     this.enabled = !!config.apiKey;
 
     if (this.enabled) {
-      console.log('[EmailService] Email service initialized');
+      logger.log('[EmailService] Email service initialized');
     } else {
-      console.warn('[EmailService] Email service disabled: No API key provided');
+      logger.warn('[EmailService] Email service disabled: No API key provided');
     }
   }
 
@@ -128,14 +130,14 @@ export class EmailService {
         throw new Error(result.message || 'Failed to send email');
       }
 
-      console.log('[EmailService] Email sent successfully:', result.id);
+      logger.log('[EmailService] Email sent successfully:', result.id);
 
       return {
         success: true,
         messageId: result.id,
       };
     } catch (error) {
-      console.error('[EmailService] Failed to send email:', error);
+      logger.error('[EmailService] Failed to send email:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -325,3 +327,5 @@ ${process.env.NEXT_PUBLIC_APP_URL || 'https://7zi.com'}
 
 // Singleton instance
 export const emailService = new EmailService();
+ const emailService = new EmailService();
+ const emailService = new EmailService();

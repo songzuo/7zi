@@ -18,7 +18,7 @@ import {
 // Types
 // ============================================================================
 
-interface NotificationState {
+export interface NotificationState {
   // Notifications
   notifications: Notification[];
   unreadCount: number;
@@ -58,6 +58,7 @@ interface NotificationState {
 // ============================================================================
 
 const defaultPreferences: NotificationPreferences = {
+  user_id: '', // Will be set when user logs in
   enabled_types: [
     NotificationType.TASK_ASSIGNED,
     NotificationType.TASK_OVERDUE,
@@ -222,7 +223,7 @@ export const useFetchNotifications = () => {
   const setLoading = useNotificationStore((state) => state.setLoading);
   const setError = useNotificationStore((state) => state.setError);
 
-  const fetch = async () => {
+  const fetchNotifications = async () => {
     try {
       setLoading(true);
       setError(null);
@@ -242,7 +243,7 @@ export const useFetchNotifications = () => {
     }
   };
 
-  return { fetch, isLoading: useNotificationStore((state) => state.isLoading) };
+  return { fetch: fetchNotifications, isLoading: useNotificationStore((state) => state.isLoading) };
 };
 
 /**

@@ -23,10 +23,6 @@ export {
   // Error classes
   ApiError,
   ValidationError,
-
-  // Type guards
-  isSuccessResponse,
-  isErrorResponse,
 } from './api/api-error';
 
 export {
@@ -100,8 +96,7 @@ export {
   getCircuitBreaker,
   CircuitState,
   type CircuitBreakerConfig,
-  type CircuitStats,
-} from './lib/fallback/circuit-breaker';
+} from './fallback/circuit-breaker';
 
 export {
   // Graceful degradation
@@ -114,7 +109,7 @@ export {
   type DegradationStrategy,
   type DegradationConfig,
   type DegradationLevel,
-} from './lib/fallback/graceful-degradation';
+} from './fallback/graceful-degradation';
 
 // ============================================================
 // Error Tracking & Monitoring
@@ -131,7 +126,7 @@ export {
   // Types
   ErrorCategory,
   ErrorSeverity,
-} from './lib/monitoring/errors';
+} from './monitoring/errors';
 
 // ============================================================
 // Error Boundaries
@@ -140,42 +135,24 @@ export {
 export {
   // React error boundaries
   ErrorBoundary as UIErrorBoundary,
-  withErrorBoundary,
-  createErrorBoundaryWrapper,
-
-  // Next.js page error boundaries
   ErrorBoundary as PageErrorBoundary,
   type ErrorBoundaryProps,
 } from '../components/ErrorBoundary';
-export {
-  // Error display components
-  ErrorDisplay,
-  type ErrorDisplayProps,
-  type ErrorVariant,
-  type ErrorType,
-} from '../components/ErrorDisplay';
+export type { ErrorDisplayProps, ErrorVariant, ErrorType } from '../components/ErrorDisplay';
 
 // ============================================================
 // Logger
 // ============================================================
 
 export {
-  Logger,
-  ConsoleTransport,
-  MemoryTransport,
-  FilterTransport,
   logger,
-  createLogger,
+  log,
+} from './logger';
 
-  // Types
+export type {
   LogLevel,
-  type LogEntry,
-  type LogTransport,
-} from './lib/logger';
-
-// ============================================================
-// Error Utilities
-// ============================================================
+  LogEntry,
+} from './logger';
 
 export {
   createAppError,
@@ -184,20 +161,12 @@ export {
   getErrorCode,
   getUserFriendlyMessage,
   type AppError,
-} from './lib/errors';
-
-// ============================================================
-// Global Error Handlers
-// ============================================================
+} from './errors';
 
 export {
   setupGlobalErrorHandlers,
   setupBrowserErrorHandlers,
-} from './lib/global-error-handlers';
-
-// ============================================================
-// Retry Mechanism
-// ============================================================
+} from './global-error-handlers';
 
 export {
   retry,
@@ -209,4 +178,4 @@ export {
   // Types
   type RetryOptions,
   type RetryResult,
-} from './lib/utils/retry';
+} from './utils/retry';

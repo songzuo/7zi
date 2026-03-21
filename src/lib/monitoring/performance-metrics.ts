@@ -4,7 +4,7 @@
  */
 
 import { logger } from '@/lib/logger';
-import type { PerformanceMetric } from '../api/performance/metrics/route';
+import type { PerformanceMetric } from '@/app/api/performance/metrics/route';
 
 // ========================================
 // Constants
@@ -67,7 +67,7 @@ function getConnectionType(): string {
 export function queueMetric(
   name: string,
   value: number,
-  rating: 'good' | 'needs-improvement' | 'poor'
+  rating: 'good' | 'needsImprovement' | 'poor'
 ) {
   if (typeof window === 'undefined') return;
 
@@ -121,7 +121,7 @@ export function queueMetric(
 /**
  * Flush queued metrics to the API
  */
-export async function flushMetrics() {
+async function flushMetrics() {
   if (metricQueue.length === 0) return;
 
   const batch = [...metricQueue];
@@ -187,34 +187,34 @@ export function initPerformanceMonitoring() {
   });
 
   // Import and initialize Web Vitals monitoring
-  import('@/lib/monitoring/web-vitals').then(({ onLCP, onFID, onCLS, onTTFB, onFCP, onINP }) => {
+  import('web-vitals').then(({ onLCP, onFID, onCLS, onTTFB, onFCP, onINP }) => {
     onLCP((metric) => {
-      const rating = metric.value <= 2500 ? 'good' : metric.value <= 4000 ? 'needs-improvement' : 'poor';
+      const rating = metric.value <= 2500 ? 'good' : metric.value <= 4000 ? 'needsImprovement' : 'poor';
       queueMetric('LCP', metric.value, rating);
     });
 
     onFID((metric) => {
-      const rating = metric.value <= 100 ? 'good' : metric.value <= 300 ? 'needs-improvement' : 'poor';
+      const rating = metric.value <= 100 ? 'good' : metric.value <= 300 ? 'needsImprovement' : 'poor';
       queueMetric('FID', metric.value, rating);
     });
 
     onCLS((metric) => {
-      const rating = metric.value <= 0.1 ? 'good' : metric.value <= 0.25 ? 'needs-improvement' : 'poor';
+      const rating = metric.value <= 0.1 ? 'good' : metric.value <= 0.25 ? 'needsImprovement' : 'poor';
       queueMetric('CLS', metric.value, rating);
     });
 
     onTTFB((metric) => {
-      const rating = metric.value <= 800 ? 'good' : metric.value <= 1800 ? 'needs-improvement' : 'poor';
+      const rating = metric.value <= 800 ? 'good' : metric.value <= 1800 ? 'needsImprovement' : 'poor';
       queueMetric('TTFB', metric.value, rating);
     });
 
     onFCP((metric) => {
-      const rating = metric.value <= 1800 ? 'good' : metric.value <= 3000 ? 'needs-improvement' : 'poor';
+      const rating = metric.value <= 1800 ? 'good' : metric.value <= 3000 ? 'needsImprovement' : 'poor';
       queueMetric('FCP', metric.value, rating);
     });
 
     onINP((metric) => {
-      const rating = metric.value <= 200 ? 'good' : metric.value <= 500 ? 'needs-improvement' : 'poor';
+      const rating = metric.value <= 200 ? 'good' : metric.value <= 500 ? 'needsImprovement' : 'poor';
       queueMetric('INP', metric.value, rating);
     });
 
@@ -234,7 +234,7 @@ export function initPerformanceMonitoring() {
 export function recordCustomMetric(
   name: string,
   value: number,
-  rating: 'good' | 'needs-improvement' | 'poor' = 'needs-improvement'
+  rating: 'good' | 'needsImprovement' | 'poor' = 'needsImprovement'
 ) {
   queueMetric(name, value, rating);
 }
@@ -243,7 +243,7 @@ export function recordCustomMetric(
  * Record API response time
  */
 export function recordApiResponse(endpoint: string, duration: number) {
-  const rating = duration <= 200 ? 'good' : duration <= 1000 ? 'needs-improvement' : 'poor';
+  const rating = duration <= 200 ? 'good' : duration <= 1000 ? 'needsImprovement' : 'poor';
   queueMetric(`API-${endpoint}`, duration, rating);
 }
 
@@ -251,7 +251,7 @@ export function recordApiResponse(endpoint: string, duration: number) {
  * Record component render time
  */
 export function recordComponentRender(componentName: string, duration: number) {
-  const rating = duration <= 16 ? 'good' : duration <= 100 ? 'needs-improvement' : 'poor';
+  const rating = duration <= 16 ? 'good' : duration <= 100 ? 'needsImprovement' : 'poor';
   queueMetric(`Render-${componentName}`, duration, rating);
 }
 

@@ -316,7 +316,7 @@ export async function getFeedbacksWithAttachments(
   const attachments = db.queryRows(
     `SELECT * FROM feedback_attachments WHERE feedback_id IN (${placeholders}) ORDER BY feedback_id, uploaded_at`,
     feedbackIds
-  ) as Array<FeedbackAttachmentRow>;
+  ) as unknown as Array<FeedbackAttachmentRow>;
 
   // Group by feedback_id
   const grouped = new Map<string, FeedbackAttachmentRow[]>();
@@ -347,7 +347,7 @@ export async function getRatingWithVotes(
   const votes = db.queryRows(
     `SELECT * FROM helpful_votes WHERE rating_id IN (${placeholders}) ORDER BY rating_id, created_at`,
     ratingIds
-  ) as Array<HelpfulVoteRow>;
+  ) as unknown as Array<HelpfulVoteRow>;
 
   // Group by rating_id
   const grouped = new Map<string, HelpfulVoteRow[]>();

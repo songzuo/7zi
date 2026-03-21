@@ -9,6 +9,7 @@
  */
 
 import { User, UserRole } from './auth';
+import type { Role } from './permissions/types';
 
 /**
  * ==================== RBAC 模型定义 ====================
@@ -537,7 +538,7 @@ export const permissionManager = new PermissionManager();
 /**
  * 扩展用户接口，包含角色信息
  */
-export interface UserWithRoles extends User {
+export interface UserWithRoles extends Omit<User, 'roles'> {
   roleIds: string[];
   roles: RoleDefinition[];
 }
@@ -577,6 +578,16 @@ export function hasAllPermissions(
   permissions: Permission[]
 ): boolean {
   return permissions.every(permission => hasPermission(user, permission));
+}
+
+/**
+ * 检查用户是否有指定角色
+ */
+export function hasRole(
+  user: UserWithRoles,
+  role: Role
+): boolean {
+  return user.roles.some(r => r.name === role || r.id === role);
 }
 
 /**

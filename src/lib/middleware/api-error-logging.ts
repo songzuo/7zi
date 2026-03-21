@@ -7,12 +7,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { logger, LogLevel } from '@/lib/logger';
 import { captureError, ErrorCategory, ErrorSeverity } from '@/lib/monitoring/errors';
-import { ApiErrorResponse, ApiError } from '@/lib/api/api-error';
+import { ApiErrorResponse, ApiError, ApiErrorCode } from '@/lib/api/api-error';
 
 /**
  * Middleware configuration
  */
-interface ErrorLoggingMiddlewareConfig {
+export interface ErrorLoggingMiddlewareConfig {
   /** Enable/disable middleware */
   enabled?: boolean;
   /** Minimum log level */
@@ -39,12 +39,12 @@ const DEFAULT_CONFIG: Required<ErrorLoggingMiddlewareConfig> = {
 /**
  * Log API error with context
  */
-export function logApiError(
+export async function logApiError(
   request: NextRequest,
   response: NextResponse<ApiErrorResponse>,
   error?: Error | unknown,
   config: Required<ErrorLoggingMiddlewareConfig> = DEFAULT_CONFIG
-): void {
+): Promise<void> {
   if (!config.enabled) {
     return;
   }
@@ -93,7 +93,7 @@ export function logApiError(
   const message = `${config.logPrefix} ${request.method} ${request.url}`;
 
   if (error instanceof Error) {
-    logger.error(message, context, error);
+    logger.error(message, context, error as unknown as Record<string, unknown>);
   } else {
     logger.error(message, context);
   }
@@ -103,7 +103,7 @@ export function logApiError(
     const apiError = error instanceof ApiError
       ? error
       : new ApiError({
-          code: 'INTERNAL_SERVER_ERROR',
+          code: ApiErrorCode.INTERNAL_SERVER_ERROR,
           message: response.statusText,
           statusCode: response.status,
         });
@@ -117,7 +117,7 @@ export function logApiError(
         status_code: String(response.status),
         request_id: requestId,
       },
-      extra: context,
+      extra: context as Record<string, unknown>,
     });
   }
 }
@@ -216,7 +216,7 @@ export function withErrorLogging<T = unknown>(
         try {
           const clone = response.clone();
           const json = (await clone.json()) as ApiErrorResponse;
-          logApiError(request, response.clone(), undefined, finalConfig);
+          await logApiError(request, response.clone() as NextResponse<ApiErrorResponse>, undefined, finalConfig);
         } catch {
           // Response not JSON, skip detailed logging
         }
@@ -227,17 +227,17 @@ export function withErrorLogging<T = unknown>(
       const duration = Date.now() - startTime;
 
       // Log error
-      logApiError(
+      await logApiError(
         request,
         NextResponse.json(
           {
-            code: 'INTERNAL_SERVER_ERROR',
+            code: ApiErrorCode.INTERNAL_SERVER_ERROR,
             message: '服务器内部错误',
             timestamp: new Date().toISOString(),
           },
           { status: 500 }
         ) as NextResponse<ApiErrorResponse>,
-        error,
+        error as unknown as Record<string, unknown> | undefined,
         finalConfig
       );
 
@@ -247,7 +247,7 @@ export function withErrorLogging<T = unknown>(
         url: request.url,
         duration,
         error: error instanceof Error ? error.message : String(error),
-      }, error instanceof Error ? error : undefined);
+      }, error instanceof Error ? error as unknown as Record<string, unknown> : undefined);
 
       // Re-throw for the API wrapper to handle
       throw error;

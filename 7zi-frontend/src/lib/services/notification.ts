@@ -5,6 +5,7 @@
  */
 
 import { Server as SocketIOServer, Socket } from 'socket.io';
+import { logger } from '@/lib/logger';
 
 /**
  * Notification types
@@ -90,7 +91,7 @@ export class NotificationService {
    */
   initialize(httpServer: unknown): void {
     if (this.io) {
-      console.warn('[NotificationService] Already initialized');
+      logger.warn('[NotificationService] Already initialized');
       return;
     }
 
@@ -103,7 +104,7 @@ export class NotificationService {
     });
 
     this.io.on('connection', (socket: Socket) => {
-      console.log(`[NotificationService] Client connected: ${socket.id}`);
+      logger.log(`[NotificationService] Client connected: ${socket.id}`);
 
       // Handle subscription
       socket.on('subscribe', (subscription: NotificationSubscription) => {
@@ -134,11 +135,11 @@ export class NotificationService {
       // Disconnect
       socket.on('disconnect', () => {
         this.handleUnsubscribe(socket);
-        console.log(`[NotificationService] Client disconnected: ${socket.id}`);
+        logger.log(`[NotificationService] Client disconnected: ${socket.id}`);
       });
     });
 
-    console.log('[NotificationService] Socket.IO server initialized');
+    logger.log('[NotificationService] Socket.IO server initialized');
   }
 
   /**
@@ -162,7 +163,7 @@ export class NotificationService {
     socket.emit('initial_notifications', pendingNotifications);
     socket.emit('subscribed', { channels: subscription.channels });
 
-    console.log(`[NotificationService] Client ${socket.id} subscribed to channels:`, subscription.channels);
+    logger.log(`[NotificationService] Client ${socket.id} subscribed to channels:`, subscription.channels);
   }
 
   /**
@@ -175,7 +176,7 @@ export class NotificationService {
         socket.leave(channel);
       });
       this.subscriptions.delete(socket.id);
-      console.log(`[NotificationService] Client ${socket.id} unsubscribed`);
+      logger.log(`[NotificationService] Client ${socket.id} unsubscribed`);
     }
   }
 
@@ -216,7 +217,7 @@ export class NotificationService {
       }
     }
 
-    console.log(`[NotificationService] Notification sent: ${id}`, {
+    logger.log(`[NotificationService] Notification sent: ${id}`, {
       type: notification.type,
       channels,
     });
@@ -321,7 +322,7 @@ export class NotificationService {
     }
 
     if (cleaned > 0) {
-      console.log(`[NotificationService] Cleaned up ${cleaned} expired notifications`);
+      logger.log(`[NotificationService] Cleaned up ${cleaned} expired notifications`);
     }
 
     return cleaned;

@@ -7,7 +7,7 @@ Complete API documentation for the 7zi AI Team Management Platform.
 **Last Updated:** 2026-03-21
 **Version:** v1.0.6
 **Reviewer:** AI Documentation Agent
-**Total Endpoints:** 28+
+**Total Endpoints:** 50+ (including 15+ RBAC endpoints)
 
 ---
 
@@ -1275,6 +1275,1137 @@ data: {"type":"metrics","timestamp":"2026-03-21T12:00:05.000Z","data":[
 - `400` - Invalid SSE connection request
 - `401` - Authentication required
 - `403` - Insufficient permissions
+
+---
+
+## 🔐 RBAC (Role-Based Access Control) APIs
+
+Complete RBAC system for fine-grained permission control. Manages roles, permissions, and user access.
+
+### System Roles
+
+The system includes 5 built-in roles:
+
+| Role | Level | Description |
+|------|-------|-------------|
+| **ADMIN** | 100 | Full system access with all permissions |
+| **MANAGER** | 80 | Manage teams, tasks, and approvals |
+| **MEMBER** | 60 | Standard team member with task access |
+| **VIEWER** | 40 | Read-only access to all resources |
+| **GUEST** | 20 | Limited guest access |
+
+### System Status & Initialization
+
+#### Get RBAC System Status
+
+**Endpoint:** `GET /api/rbac/system`
+
+Get current RBAC system status and initialization state.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Required Permission:** `system:read` or ADMIN role
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "systemInitialized": true,
+    "rolesInDb": 5,
+    "permissionsInDb": 45,
+    "defaultRolesCount": 5,
+    "needsSeeding": false
+  },
+  "timestamp": "2026-03-21T19:00:00.000Z"
+}
+```
+
+---
+
+#### Initialize RBAC System
+
+**Endpoint:** `POST /api/rbac/system/initialize`
+
+Initialize the RBAC system with default roles and permissions.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+**Required Permission:** ADMIN role
+
+**Request Body:**
+```json
+{
+  "force": false
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `force` | boolean | No | Force re-initialization even if already seeded (default: false) |
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "success": true,
+    "message": "Roles and permissions seeded successfully",
+    "rolesSeeded": ["ADMIN", "MANAGER", "MEMBER", "VIEWER", "GUEST"],
+    "permissionsSeeded": 45
+  },
+  "message": "RBAC system initialized successfully",
+  "timestamp": "2026-03-21T19:00:00.000Z"
+}
+```
+
+**Response (200 OK) - Already initialized:**
+```json
+{
+  "success": true,
+  "data": {
+    "message": "RBAC system already initialized",
+    "initialized": false
+  }
+}
+```
+
+---
+
+#### Reset RBAC System
+
+**Endpoint:** `DELETE /api/rbac/system/reset`
+
+Reset RBAC system to default state (deletes all custom roles and permissions).
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Required Permission:** ADMIN role
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "success": true,
+    "message": "Roles and permissions reset successfully"
+  },
+  "message": "RBAC system reset to defaults successfully",
+  "timestamp": "2026-03-21T19:00:00.000Z"
+}
+```
+
+---
+
+### Permissions Management
+
+#### Get All Permissions
+
+**Endpoint:** `GET /api/rbac/permissions`
+
+List all system permissions with optional grouping.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Required Permission:** ADMIN role
+
+**Query Parameters:**
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `groupBy` | string | No | null | Group by: 'resource' or 'action' |
+
+**Response (200 OK) - Default (no grouping):**
+```json
+{
+  "success": true,
+  "data": [
+    "user:read",
+    "user:create",
+    "user:update",
+    "user:delete",
+    "user:manage_role",
+    "team:read",
+    "team:create",
+    "team:update",
+    "team:delete",
+    "team:add_member",
+    "team:remove_member",
+    "team:manage",
+    "task:read",
+    "task:create",
+    "task:update",
+    "task:delete",
+    "task:batch",
+    "task:assign",
+    "settings:read",
+    "settings:update",
+    "settings:manage",
+    "approval:read",
+    "approval:create",
+    "approval:update",
+    "approval:delete",
+    "approval:approve",
+    "approval:reject",
+    "approval:manage",
+    "reports:export",
+    "reports:view",
+    "reports:manage",
+    "system:read",
+    "system:manage",
+    "system:config",
+    "logs:read",
+    "logs:export",
+    "agent:read",
+    "agent:create",
+    "agent:update",
+    "agent:delete",
+    "agent:manage",
+    "agent:execute",
+    "wallet:read",
+    "wallet:manage",
+    "wallet:transfer"
+  ],
+  "count": 45,
+  "timestamp": "2026-03-21T19:00:00.000Z"
+}
+```
+
+**Response (200 OK) - Grouped by resource:**
+```
+GET /api/rbac/permissions?groupBy=resource
+```
+```json
+{
+  "success": true,
+  "data": {
+    "user": ["user:read", "user:create", "user:update", "user:delete", "user:manage_role"],
+    "team": ["team:read", "team:create", "team:update", "team:delete", "team:add_member", "team:remove_member", "team:manage"],
+    "task": ["task:read", "task:create", "task:update", "task:delete", "task:batch", "task:assign"],
+    "settings": ["settings:read", "settings:update", "settings:manage"],
+    "approval": ["approval:read", "approval:create", "approval:update", "approval:delete", "approval:approve", "approval:reject", "approval:manage"],
+    "reports": ["reports:export", "reports:view", "reports:manage"],
+    "system": ["system:read", "system:manage", "system:config"],
+    "logs": ["logs:read", "logs:export"],
+    "agent": ["agent:read", "agent:create", "agent:update", "agent:delete", "agent:manage", "agent:execute"],
+    "wallet": ["wallet:read", "wallet:manage", "wallet:transfer"]
+  },
+  "count": 45,
+  "timestamp": "2026-03-21T19:00:00.000Z"
+}
+```
+
+**Response (200 OK) - Grouped by action:**
+```
+GET /api/rbac/permissions?groupBy=action
+```
+```json
+{
+  "success": true,
+  "data": {
+    "read": ["user:read", "team:read", "task:read", "settings:read", "approval:read", "reports:view", "system:read", "logs:read", "agent:read", "wallet:read"],
+    "create": ["user:create", "team:create", "task:create", "approval:create", "agent:create"],
+    "update": ["user:update", "team:update", "task:update", "settings:update", "approval:update", "agent:update"],
+    "delete": ["user:delete", "team:delete", "task:delete", "approval:delete", "agent:delete"],
+    "export": ["reports:export", "logs:export"]
+  },
+  "count": 45,
+  "timestamp": "2026-03-21T19:00:00.000Z"
+}
+```
+
+---
+
+### Roles Management
+
+#### Get All Roles
+
+**Endpoint:** `GET /api/rbac/roles`
+
+List all roles with optional user counts.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Required Permission:** ADMIN role
+
+**Query Parameters:**
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `includeCount` | boolean | No | false | Include user count for each role |
+
+**Response (200 OK) - Without counts:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "ADMIN",
+      "name": "Administrator",
+      "description": "Full system access with all permissions",
+      "permissions": ["user:read", "user:create", "user:update", "user:delete", "user:manage_role", "team:read", "team:create", "team:update", "team:delete", "team:add_member", "team:remove_member", "team:manage", "task:read", "task:create", "task:update", "task:delete", "task:batch", "task:assign", "settings:read", "settings:update", "settings:manage", "approval:read", "approval:create", "approval:update", "approval:delete", "approval:approve", "approval:reject", "approval:manage", "reports:export", "reports:view", "reports:manage", "system:read", "system:manage", "system:config", "logs:read", "logs:export", "agent:read", "agent:create", "agent:update", "agent:delete", "agent:manage", "agent:execute", "wallet:read", "wallet:manage", "wallet:transfer"],
+      "isSystem": true
+    },
+    {
+      "id": "MANAGER",
+      "name": "Manager",
+      "description": "Manage teams, tasks, and approvals",
+      "permissions": ["user:read", "team:read", "team:create", "team:update", "team:add_member", "team:remove_member", "task:read", "task:create", "task:update", "task:assign", "settings:read", "approval:read", "approval:approve", "approval:reject", "reports:export", "reports:view"],
+      "isSystem": true
+    },
+    {
+      "id": "MEMBER",
+      "name": "Member",
+      "description": "Standard team member with task access",
+      "permissions": ["user:read", "team:read", "task:read", "task:create", "task:update", "settings:read"],
+      "isSystem": true
+    },
+    {
+      "id": "VIEWER",
+      "name": "Viewer",
+      "description": "Read-only access to all resources",
+      "permissions": ["user:read", "team:read", "task:read", "settings:read", "approval:read", "reports:view", "system:read"],
+      "isSystem": true
+    },
+    {
+      "id": "GUEST",
+      "name": "Guest",
+      "description": "Limited guest access",
+      "permissions": [],
+      "isSystem": true
+    }
+  ],
+  "count": 5,
+  "timestamp": "2026-03-21T19:00:00.000Z"
+}
+```
+
+**Response (200 OK) - With user counts:**
+```
+GET /api/rbac/roles?includeCount=true
+```
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "ADMIN",
+      "name": "Administrator",
+      "description": "Full system access with all permissions",
+      "isSystem": true,
+      "userCount": 2
+    },
+    {
+      "id": "MANAGER",
+      "name": "Manager",
+      "description": "Manage teams, tasks, and approvals",
+      "isSystem": true,
+      "userCount": 5
+    },
+    {
+      "id": "MEMBER",
+      "name": "Member",
+      "description": "Standard team member with task access",
+      "isSystem": true,
+      "userCount": 42
+    },
+    {
+      "id": "VIEWER",
+      "name": "Viewer",
+      "description": "Read-only access to all resources",
+      "isSystem": true,
+      "userCount": 10
+    },
+    {
+      "id": "GUEST",
+      "name": "Guest",
+      "description": "Limited guest access",
+      "isSystem": true,
+      "userCount": 3
+    }
+  ],
+  "count": 5,
+  "timestamp": "2026-03-21T19:00:00.000Z"
+}
+```
+
+---
+
+#### Create Custom Role
+
+**Endpoint:** `POST /api/rbac/roles`
+
+Create a new custom role with specific permissions.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+**Required Permission:** ADMIN role
+
+**Request Body:**
+```json
+{
+  "id": "content_editor",
+  "name": "Content Editor",
+  "description": "Can edit content but not delete",
+  "permissions": ["user:read", "team:read", "task:read", "task:create", "task:update"]
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `id` | string | Yes | Unique role ID (cannot match system roles) |
+| `name` | string | Yes | Display name for the role |
+| `description` | string | No | Role description |
+| `permissions` | string[] | No | Array of permission strings |
+
+**Response (201 Created):**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "content_editor",
+    "name": "Content Editor",
+    "description": "Can edit content but not delete",
+    "permissions": ["user:read", "team:read", "task:read", "task:create", "task:update"],
+    "isSystem": false
+  },
+  "message": "Role created successfully",
+  "timestamp": "2026-03-21T19:00:00.000Z"
+}
+```
+
+**Errors:**
+- `400` - Validation error (ID or name missing)
+- `409` - Role with this ID already exists
+- `500` - Internal server error
+
+---
+
+#### Get Role Details
+
+**Endpoint:** `GET /api/rbac/roles/[roleId]`
+
+Get detailed information about a specific role.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Required Permission:** ADMIN role
+
+**URL Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `roleId` | string | Yes | Role ID |
+
+**Query Parameters:**
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `includePermissions` | boolean | No | false | Include full permissions list |
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "MANAGER",
+    "name": "Manager",
+    "description": "Manage teams, tasks, and approvals",
+    "permissions": ["user:read", "team:read", "team:create", "team:update", "team:add_member", "team:remove_member", "task:read", "task:create", "task:update", "task:assign", "settings:read", "approval:read", "approval:approve", "approval:reject", "reports:export", "reports:view"],
+    "isSystem": true
+  },
+  "timestamp": "2026-03-21T19:00:00.000Z"
+}
+```
+
+**Errors:**
+- `404` - Role not found
+
+---
+
+#### Update Role
+
+**Endpoint:** `PUT /api/rbac/roles/[roleId]`
+
+Update role information.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+**Required Permission:** ADMIN role
+
+**URL Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `roleId` | string | Yes | Role ID |
+
+**Request Body:**
+```json
+{
+  "name": "Updated Role Name",
+  "description": "Updated role description",
+  "permissions": ["user:read", "team:read", "task:read"]
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | No | Updated role name |
+| `description` | string | No | Updated role description |
+| `permissions` | string[] | No | Updated permissions array (custom roles only) |
+
+**System Roles:** System roles (`ADMIN`, `MANAGER`, `MEMBER`, `VIEWER`, `GUEST`) cannot have their permissions modified. Only `name` and `description` can be changed.
+
+**Custom Roles:** All fields can be modified including permissions.
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "content_editor",
+    "name": "Updated Role Name",
+    "description": "Updated role description",
+    "permissions": ["user:read", "team:read", "task:read"],
+    "isSystem": false
+  },
+  "message": "Role updated successfully",
+  "timestamp": "2026-03-21T19:00:00.000Z"
+}
+```
+
+**Errors:**
+- `403` - Cannot modify system role permissions
+- `404` - Role not found
+- `500` - Internal server error
+
+---
+
+#### Delete Role
+
+**Endpoint:** `DELETE /api/rbac/roles/[roleId]`
+
+Delete a custom role.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Required Permission:** ADMIN role
+
+**URL Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `roleId` | string | Yes | Role ID |
+
+**Note:** System roles cannot be deleted.
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Role deleted successfully",
+  "timestamp": "2026-03-21T19:00:00.000Z"
+}
+```
+
+**Errors:**
+- `403` - Cannot delete system role
+- `404` - Role not found
+- `500` - Internal server error
+
+---
+
+### Role Permissions Management
+
+#### Get Role Permissions
+
+**Endpoint:** `GET /api/rbac/roles/[roleId]/permissions`
+
+Get all permissions assigned to a role.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Required Permission:** ADMIN role
+
+**URL Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `roleId` | string | Yes | Role ID |
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "roleId": "MANAGER",
+    "permissions": ["user:read", "team:read", "team:create", "team:update", "team:add_member", "team:remove_member", "task:read", "task:create", "task:update", "task:assign", "settings:read", "approval:read", "approval:approve", "approval:reject", "reports:export", "reports:view"],
+    "count": 15
+  },
+  "timestamp": "2026-03-21T19:00:00.000Z"
+}
+```
+
+**Errors:**
+- `404` - Role not found
+- `500` - Internal server error
+
+---
+
+#### Add Permissions to Role
+
+**Endpoint:** `POST /api/rbac/roles/[roleId]/permissions`
+
+Add permissions to a custom role.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+**Required Permission:** ADMIN role
+
+**URL Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `roleId` | string | Yes | Role ID |
+
+**Request Body:**
+```json
+{
+  "permissions": ["user:read", "user:create", "user:update"]
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `permissions` | string[] | Yes | Array of permission strings to add |
+
+**Note:** System roles cannot have their permissions modified.
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "roleId": "content_editor",
+    "addedPermissions": ["user:read", "user:create", "user:update"],
+    "count": 3
+  },
+  "message": "Permissions assigned successfully",
+  "timestamp": "2026-03-21T19:00:00.000Z"
+}
+```
+
+**Errors:**
+- `400` - Validation error (permissions array required)
+- `403` - Cannot modify system role permissions
+- `404` - Role not found
+- `500` - Internal server error
+
+---
+
+#### Remove Permissions from Role
+
+**Endpoint:** `DELETE /api/rbac/roles/[roleId]/permissions`
+
+Remove permissions from a custom role.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+**Required Permission:** ADMIN role
+
+**URL Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `roleId` | string | Yes | Role ID |
+
+**Request Body:**
+```json
+{
+  "permissions": ["user:delete", "user:manage_role"]
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `permissions` | string[] | Yes | Array of permission strings to remove |
+
+**Note:** System roles cannot have their permissions modified.
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "roleId": "content_editor",
+    "removedPermissions": ["user:delete", "user:manage_role"],
+    "count": 2
+  },
+  "message": "Permissions removed successfully",
+  "timestamp": "2026-03-21T19:00:00.000Z"
+}
+```
+
+**Errors:**
+- `400` - Validation error (permissions array required)
+- `403` - Cannot modify system role permissions
+- `404` - Role not found
+- `500` - Internal server error
+
+---
+
+### User Roles Management
+
+#### Get User Roles
+
+**Endpoint:** `GET /api/rbac/users/[userId]/roles`
+
+Get all roles assigned to a user.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Required Permission:** MANAGER or ADMIN role
+
+**URL Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `userId` | string | Yes | User ID |
+
+**Query Parameters:**
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `includePermissions` | boolean | No | false | Include user's permissions |
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "userId": "user_123",
+    "roles": ["MEMBER", "content_editor"],
+    "count": 2
+  },
+  "timestamp": "2026-03-21T19:00:00.000Z"
+}
+```
+
+**Response (200 OK) - With permissions:**
+```
+GET /api/rbac/users/user_123/roles?includePermissions=true
+```
+```json
+{
+  "success": true,
+  "data": {
+    "userId": "user_123",
+    "roles": ["MEMBER", "content_editor"],
+    "permissions": ["user:read", "team:read", "task:read", "task:create", "task:update", "settings:read"],
+    "count": 2
+  },
+  "timestamp": "2026-03-21T19:00:00.000Z"
+}
+```
+
+**Errors:**
+- `403` - Insufficient permissions
+- `500` - Internal server error
+
+---
+
+#### Add Roles to User
+
+**Endpoint:** `POST /api/rbac/users/[userId]/roles`
+
+Assign roles to a user.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+**Required Permission:** MANAGER or ADMIN role
+
+**URL Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `userId` | string | Yes | User ID |
+
+**Request Body:**
+```json
+{
+  "roles": ["MEMBER", "content_editor"]
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `roles` | string[] | Yes | Array of role IDs to assign |
+
+**Response (201 Created):**
+```json
+{
+  "success": true,
+  "data": {
+    "userId": "user_123",
+    "addedRoles": ["MEMBER", "content_editor"],
+    "count": 2
+  },
+  "message": "Roles added successfully",
+  "timestamp": "2026-03-21T19:00:00.000Z"
+}
+```
+
+**Errors:**
+- `400` - Validation error (roles array required)
+- `500` - Internal server error
+
+---
+
+#### Remove Roles from User
+
+**Endpoint:** `DELETE /api/rbac/users/[userId]/roles`
+
+Remove roles from a user.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+**Required Permission:** MANAGER or ADMIN role
+
+**URL Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `userId` | string | Yes | User ID |
+
+**Request Body:**
+```json
+{
+  "roles": ["content_editor"]
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `roles` | string[] | Yes | Array of role IDs to remove |
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "userId": "user_123",
+    "removedRoles": ["content_editor"],
+    "count": 1
+  },
+  "message": "Roles removed successfully",
+  "timestamp": "2026-03-21T19:00:00.000Z"
+}
+```
+
+**Errors:**
+- `400` - Validation error (roles array required)
+- `500` - Internal server error
+
+---
+
+### User Permissions Management
+
+#### Get User Permissions
+
+**Endpoint:** `GET /api/rbac/users/[userId]/permissions`
+
+Get all permissions for a user based on their assigned roles.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Access Control:**
+- Users can view their own permissions
+- ADMIN role can view any user's permissions
+
+**URL Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `userId` | string | Yes | User ID |
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "userId": "user_123",
+    "roles": ["MEMBER", "content_editor"],
+    "permissions": ["user:read", "team:read", "task:read", "task:create", "task:update", "settings:read"],
+    "roleCount": 2,
+    "permissionCount": 6
+  },
+  "timestamp": "2026-03-21T19:00:00.000Z"
+}
+```
+
+**Errors:**
+- `403` - You can only view your own permissions
+- `500` - Internal server error
+
+---
+
+#### Check User Permissions
+
+**Endpoint:** `POST /api/rbac/users/[userId]/permissions/check`
+
+Check if a user has specific permissions or roles.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+**Access Control:**
+- Users can check their own permissions
+- ADMIN role can check any user's permissions
+
+**URL Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `userId` | string | Yes | User ID |
+
+**Request Body:**
+```json
+{
+  "permissions": ["user:read", "user:create"],
+  "checkType": "all",
+  "roles": ["ADMIN", "MANAGER"]
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `permissions` | string[] | No | Array of permissions to check |
+| `checkType` | string | No | "all" or "any" (default: "all") |
+| `roles` | string[] | No | Array of roles to check |
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "userId": "user_123",
+    "roles": ["MEMBER"],
+    "hasAllPermissions": false,
+    "hasAnyPermission": true,
+    "permissions": ["user:read", "user:create"],
+    "hasAnyRole": false,
+    "hasAllRoles": false,
+    "roleChecks": ["ADMIN", "MANAGER"]
+  },
+  "timestamp": "2026-03-21T19:00:00.000Z"
+}
+```
+
+**Response Fields:**
+- `hasAllPermissions`: True if user has ALL specified permissions
+- `hasAnyPermission`: True if user has ANY of the specified permissions
+- `hasAnyRole`: True if user has ANY of the specified roles
+- `hasAllRoles`: True if user has ALL of the specified roles
+
+**Errors:**
+- `403` - You can only check your own permissions
+- `500` - Internal server error
+
+---
+
+### RBAC Error Responses
+
+All RBAC endpoints may return the following error responses:
+
+#### Validation Error (400)
+```json
+{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Invalid request parameters"
+  }
+}
+```
+
+#### Unauthorized (401)
+```json
+{
+  "success": false,
+  "error": {
+    "code": "UNAUTHORIZED",
+    "message": "Invalid or expired token"
+  }
+}
+```
+
+#### Forbidden (403)
+```json
+{
+  "success": false,
+  "error": {
+    "code": "FORBIDDEN",
+    "message": "Insufficient permissions"
+  }
+}
+```
+
+#### Role Not Found (404)
+```json
+{
+  "success": false,
+  "error": {
+    "code": "ROLE_NOT_FOUND",
+    "message": "Role not found"
+  }
+}
+```
+
+#### System Role Protected (403)
+```json
+{
+  "success": false,
+  "error": {
+    "code": "SYSTEM_ROLE_PROTECTED",
+    "message": "Cannot modify system role"
+  }
+}
+```
+
+#### Conflict (409)
+```json
+{
+  "success": false,
+  "error": {
+    "code": "CONFLICT",
+    "message": "Resource already exists"
+  }
+}
+```
+
+#### Internal Error (500)
+```json
+{
+  "success": false,
+  "error": {
+    "code": "INTERNAL_ERROR",
+    "message": "An unexpected error occurred"
+  }
+}
+```
+
+---
+
+### RBAC Usage Examples
+
+#### Initialize the RBAC System
+```bash
+curl -X POST https://your-domain.com/api/rbac/system/initialize \
+  -H "Authorization: Bearer YOUR_ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"force": false}'
+```
+
+#### Create a Custom Role
+```bash
+curl -X POST https://your-domain.com/api/rbac/roles \
+  -H "Authorization: Bearer YOUR_ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id": "content_editor",
+    "name": "Content Editor",
+    "description": "Can edit content but not delete",
+    "permissions": ["user:read", "task:read", "task:create", "task:update"]
+  }'
+```
+
+#### Assign Roles to a User
+```bash
+curl -X POST https://your-domain.com/api/rbac/users/user_123/roles \
+  -H "Authorization: Bearer YOUR_MANAGER_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "roles": ["MEMBER", "content_editor"]
+  }'
+```
+
+#### Check User Permissions
+```bash
+curl -X POST https://your-domain.com/api/rbac/users/user_123/permissions/check \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "permissions": ["task:create", "task:delete"],
+    "checkType": "any"
+  }'
+```
+
+#### Get Permissions Grouped by Resource
+```bash
+curl https://your-domain.com/api/rbac/permissions?groupBy=resource \
+  -H "Authorization: Bearer YOUR_ADMIN_TOKEN"
+```
+
+---
+
+### RBAC Best Practices
+
+1. **Use Custom Roles for Specific Needs**: Create custom roles for specific job functions rather than assigning multiple system roles to users.
+
+2. **Follow Principle of Least Privilege**: Only grant the minimum permissions needed for a user to perform their job.
+
+3. **Protect System Roles**: System roles (ADMIN, MANAGER, MEMBER, VIEWER, GUEST) cannot be modified or deleted to maintain system integrity.
+
+4. **Audit Role Changes**: All role and permission changes are logged for security auditing.
+
+5. **Test Permissions**: Always test permission changes in a development environment before applying to production.
+
+6. **Use Role Groups**: When multiple users need the same permissions, create a custom role and assign it to all users.
+
+7. **Regular Review**: Periodically review user roles and permissions to ensure they remain appropriate.
 
 ---
 

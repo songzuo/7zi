@@ -6,6 +6,7 @@
 
 import Database from 'better-sqlite3';
 import { join } from 'path';
+import { logger } from '@/lib/logger';
 
 /**
  * Notification storage class
@@ -38,9 +39,9 @@ export class NotificationStorage {
 
       this.createTables();
 
-      console.log('[NotificationStorage] Database initialized at:', this.dbPath);
+      logger.log('[NotificationStorage] Database initialized at:', this.dbPath);
     } catch (error) {
-      console.error('[NotificationStorage] Failed to initialize database:', error);
+      logger.error('[NotificationStorage] Failed to initialize database:', error);
       throw error;
     }
   }
@@ -257,7 +258,24 @@ export class NotificationStorage {
     }
 
     const stmt = this.db.prepare(query);
-    return stmt.all(...params) as any;
+    const results = stmt.all(...params);
+
+    return results as Array<{
+      id: string;
+      type: string;
+      priority: string;
+      title: string;
+      message: string;
+      data: string | null;
+      userId: string | null;
+      teamId: string | null;
+      taskId: string | null;
+      read: number;
+      emailSent: number;
+      emailSentAt: number | null;
+      createdAt: number;
+      expiresAt: number | null;
+    }>;
   }
 
   /**
@@ -327,8 +345,8 @@ export class NotificationStorage {
       WHERE user_id = ? AND read = 0
     `);
 
-    const result = stmt.get(userId) as { count: number };
-    return result.count;
+    const result = stmt.get(userId) as { count: number } | undefined;
+    return result?.count ?? 0;
   }
 
   /**
@@ -349,14 +367,19 @@ export class NotificationStorage {
 
     // Log delivery
     if (messageId) {
-      this.logDelivery({
-        notificationId,
-        channel: 'email',
-        recipient: 'email',
-        status: 'sent',
-        sentAt: Date.now(),
-        deliveryMetadata: JSON.stringify({ messageId }),
-      });
+      try {
+        this.logDelivery({
+          notificationId,
+          channel: 'email',
+          recipient: 'email',
+          status: 'sent',
+          sentAt: Date.now(),
+          deliveryMetadata: JSON.stringify({ messageId }),
+        });
+      } catch (logError) {
+        logger.error('[NotificationStorage] Failed to log email delivery:', logError);
+        // Don't throw here, as the main operation succeeded
+      }
     }
 
     return result.changes > 0;
@@ -395,7 +418,19 @@ export class NotificationStorage {
       WHERE user_id = ?
     `);
 
-    return stmt.get(userId) as any;
+    const result = stmt.get(userId) as {
+      emailEnabled: number;
+      emailThreshold: string;
+      pushEnabled: number;
+      pushThreshold: string;
+      digestEnabled: number;
+      digestFrequency: string;
+      quietHoursStart: string | null;
+      quietHoursEnd: string | null;
+      timezone: string;
+    } | undefined;
+
+    return result ?? null;
   }
 
   /**
@@ -515,7 +550,7 @@ export class NotificationStorage {
     const result = stmt.run(Date.now());
 
     if (result.changes > 0) {
-      console.log(`[NotificationStorage] Cleaned up ${result.changes} expired notifications`);
+      logger.log(`[NotificationStorage] Cleaned up ${result.changes} expired notifications`);
     }
 
     return result.changes;
@@ -539,11 +574,16 @@ export class NotificationStorage {
     const usersStmt = this.db.prepare('SELECT COUNT(DISTINCT user_id) as count FROM notifications WHERE user_id IS NOT NULL');
     const deliveriesStmt = this.db.prepare('SELECT COUNT(*) as count FROM notification_delivery_log');
 
+    const totalResult = totalStmt.get() as { count: number };
+    const unreadResult = unreadStmt.get() as { count: number };
+    const usersResult = usersStmt.get() as { count: number };
+    const deliveriesResult = deliveriesStmt.get() as { count: number };
+
     return {
-      totalNotifications: (totalStmt.get() as { count: number }).count,
-      unreadNotifications: (unreadStmt.get() as { count: number }).count,
-      totalUsers: (usersStmt.get() as { count: number }).count,
-      totalDeliveries: (deliveriesStmt.get() as { count: number }).count,
+      totalNotifications: totalResult.count,
+      unreadNotifications: unreadResult.count,
+      totalUsers: usersResult.count,
+      totalDeliveries: deliveriesResult.count,
     };
   }
 
@@ -554,10 +594,11 @@ export class NotificationStorage {
     if (this.db) {
       this.db.close();
       this.db = null;
-      console.log('[NotificationStorage] Database connection closed');
+      logger.log('[NotificationStorage] Database connection closed');
     }
   }
 }
 
 // Singleton instance
 export const notificationStorage = new NotificationStorage();
+

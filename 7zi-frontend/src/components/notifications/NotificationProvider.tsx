@@ -6,7 +6,7 @@
 
 'use client';
 
-import { createContext, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode, memo, useMemo } from 'react';
 import { useNotifications, UseNotificationsOptions, UseNotificationsReturn } from '@/hooks/useNotifications';
 
 interface NotificationContextValue extends UseNotificationsReturn {
@@ -19,18 +19,27 @@ interface NotificationProviderProps extends UseNotificationsOptions {
   children: ReactNode;
 }
 
-export function NotificationProvider({
+function NotificationProvider({
   children,
   ...options
 }: NotificationProviderProps) {
   const notifications = useNotifications(options);
 
+  // Memoize context value to prevent unnecessary re-renders of consumers
+  const contextValue = useMemo(
+    () => notifications,
+    [notifications]
+  );
+
   return (
-    <NotificationContext.Provider value={notifications}>
+    <NotificationContext.Provider value={contextValue}>
       {children}
     </NotificationContext.Provider>
   );
 }
+
+// Wrap with React.memo to prevent unnecessary re-renders
+export default memo(NotificationProvider);
 
 /**
  * Hook to access notification context

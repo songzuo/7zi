@@ -5,7 +5,7 @@ import { useState, useCallback } from 'react';
 export type ErrorVariant = 'default' | 'compact' | 'fullscreen';
 export type ErrorType = 'generic' | 'network' | 'not-found' | 'unauthorized' | 'forbidden' | 'server';
 
-interface ErrorDisplayProps {
+export interface ErrorDisplayProps {
   title?: string;
   message?: string;
   showReset?: boolean;

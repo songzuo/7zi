@@ -5,7 +5,7 @@ import * as Sentry from '@sentry/nextjs';
 import { ErrorDisplay, ErrorType } from './ErrorDisplay';
 import { getErrorCode, ErrorCodes, isNetworkError } from '@/lib/errors';
 
-interface ErrorBoundaryProps {
+export interface ErrorBoundaryProps {
   error: Error & { digest?: string };
   reset: () => void;
   title?: string;

@@ -79,7 +79,11 @@ export class CacheManager {
    * Delete specific key
    */
   delete(key: string): boolean {
-    return this.cache.delete(key);
+    const deleted = this.cache.delete(key);
+    if (deleted) {
+      this.updateSize();
+    }
+    return deleted;
   }
 
   /**

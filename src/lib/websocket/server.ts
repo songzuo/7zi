@@ -716,4 +716,68 @@ export async function broadcastSystemAnnouncement(message: string): Promise<void
   });
 }
 
+// ============================================================================
+// Task Status Broadcast
+// ============================================================================
+
+export interface TaskStatusUpdate {
+  taskId: string;
+  status: string;
+  state: 'submitted' | 'running' | 'completed' | 'failed' | 'cancelled';
+  timestamp: string;
+  userId?: string;
+  projectId?: string;
+  metadata?: Record<string, unknown>;
+}
+
+/**
+ * Broadcast task status update to all connected clients
+ */
+export async function broadcastTaskStatusUpdate(update: TaskStatusUpdate): Promise<void> {
+  const message = {
+    id: crypto.randomUUID(),
+    timestamp: new Date().toISOString(),
+    type: 'task_status',
+    ...update,
+  };
+
+  // Broadcast to all clients
+  broadcastToAll('task:status_update', message);
+
+  // Also broadcast to specific room if projectId provided
+  if (update.projectId) {
+    const roomId = `project:${update.projectId}`;
+    broadcastToRoom(roomId, 'task:status_update', message);
+  }
+
+  logger.info('Task status update broadcasted', {
+    taskId: update.taskId,
+    status: update.status,
+    state: update.state,
+  });
+}
+
+/**
+ * Broadcast task status update to specific user
+ */
+export async function broadcastTaskStatusToUser(
+  userId: string,
+  update: TaskStatusUpdate
+): Promise<void> {
+  const message = {
+    id: crypto.randomUUID(),
+    timestamp: new Date().toISOString(),
+    type: 'task_status',
+    ...update,
+  };
+
+  broadcastToUser(userId, 'task:status_update', message);
+
+  logger.info('Task status update sent to user', {
+    userId,
+    taskId: update.taskId,
+    status: update.status,
+  });
+}
+
 export default createServer;

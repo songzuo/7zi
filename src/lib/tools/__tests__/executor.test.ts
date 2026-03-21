@@ -75,7 +75,8 @@ describe("FileTools", () => {
     });
 
     it("should return error for non-existent file", async () => {
-      const result = await FileTools.readFile("/nonexistent/file.txt");
+      const nonExistentPath = path.join(testDir, "nonexistent.txt");
+      const result = await FileTools.readFile(nonExistentPath);
 
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toContain("File not found");

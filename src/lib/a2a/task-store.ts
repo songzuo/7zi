@@ -2,8 +2,16 @@
  * A2A Task Store - In-memory implementation for task lifecycle management
  */
 
-import { Task, Message, Artifact, TaskState, TaskStatus } from './types';
+import { Task, Message, Artifact, TaskState, TaskStatus, TaskWithPriority } from './types';
 import { v4 as uuidv4 } from 'uuid';
+
+export interface TaskWithPriority extends Task {
+  priority: 'low' | 'normal' | 'high' | 'critical';
+  createdAt: string;
+  scheduledAt?: string;
+  completedAt?: string;
+  retryCount?: number;
+}
 
 export interface TaskStore {
   createTask(contextId?: string, initialMessage?: Message): Task;
@@ -20,6 +28,23 @@ export interface TaskStore {
   }): { tasks: Task[]; nextPageToken: string; pageSize: number; totalSize: number };
   deleteTask(taskId: string): boolean;
   getTasksByContext(contextId: string): Task[];
+
+  // New priority-aware methods
+  createTaskWithPriority(
+    contextId?: string,
+    initialMessage?: Message,
+    priority?: TaskWithPriority['priority']
+  ): TaskWithPriority;
+  updateTaskPriority(taskId: string, priority: TaskWithPriority['priority']): TaskWithPriority | undefined;
+  getTasksByPriority(priority: TaskWithPriority['priority']): TaskWithPriority[];
+  getHighestPriorityTasks(limit?: number): TaskWithPriority[];
+  markTaskCompleted(taskId: string): TaskWithPriority | undefined;
+  getAsyncTaskStatus(taskId: string): {
+    state: TaskState;
+    progress?: number;
+    currentStep?: string;
+    error?: string;
+  } | undefined;
 }
 
 /**
@@ -27,13 +52,28 @@ export interface TaskStore {
  */
 export class InMemoryTaskStore implements TaskStore {
   private tasks: Map<string, Task> = new Map();
+  private taskWithPriority: Map<string, TaskWithPriority> = new Map();
   private contextTasks: Map<string, Set<string>> = new Map();
+  private asyncTaskStatus: Map<string, {
+    state: TaskState;
+    progress?: number;
+    currentStep?: string;
+    error?: string;
+  }> = new Map();
 
   createTask(contextId?: string, initialMessage?: Message): Task {
+    return this.createTaskWithPriority(contextId, initialMessage, 'normal');
+  }
+
+  createTaskWithPriority(
+    contextId?: string,
+    initialMessage?: Message,
+    priority: TaskWithPriority['priority'] = 'normal'
+  ): TaskWithPriority {
     const taskId = uuidv4();
     const now = new Date().toISOString();
 
-    const task: Task = {
+    const task: TaskWithPriority = {
       kind: 'task',
       id: taskId,
       contextId: contextId || uuidv4(),
@@ -43,9 +83,13 @@ export class InMemoryTaskStore implements TaskStore {
       },
       history: initialMessage ? [initialMessage] : [],
       artifacts: [],
+      priority,
+      createdAt: now,
+      retryCount: 0,
     };
 
     this.tasks.set(taskId, task);
+    this.taskWithPriority.set(taskId, task);
 
     // Index by context
     if (task.contextId) {
@@ -54,6 +98,12 @@ export class InMemoryTaskStore implements TaskStore {
       }
       this.contextTasks.get(task.contextId)!.add(taskId);
     }
+
+    // Initialize async task status
+    this.asyncTaskStatus.set(taskId, {
+      state: 'submitted',
+      progress: 0,
+    });
 
     return task;
   }
@@ -183,6 +233,103 @@ export class InMemoryTaskStore implements TaskStore {
     return Array.from(taskIds)
       .map(id => this.tasks.get(id))
       .filter((t): t is Task => t !== undefined);
+  }
+
+  /**
+   * Update task priority
+   */
+  updateTaskPriority(taskId: string, priority: TaskWithPriority['priority']): TaskWithPriority | undefined {
+    const task = this.taskWithPriority.get(taskId);
+    if (!task) return undefined;
+
+    task.priority = priority;
+    return { ...task };
+  }
+
+  /**
+   * Get tasks by priority
+   */
+  getTasksByPriority(priority: TaskWithPriority['priority']): TaskWithPriority[] {
+    return Array.from(this.taskWithPriority.values())
+      .filter(t => t.priority === priority)
+      .map(t => ({ ...t }));
+  }
+
+  /**
+   * Get highest priority tasks
+   */
+  getHighestPriorityTasks(limit: number = 10): TaskWithPriority[] {
+    const allTasks = Array.from(this.taskWithPriority.values())
+      .filter(t => ['submitted', 'working'].includes(t.status.state));
+
+    // Sort by priority (critical first), then by creation time
+    const priorityOrder: TaskWithPriority['priority'][] = ['critical', 'high', 'normal', 'low'];
+    allTasks.sort((a, b) => {
+      const aPriority = priorityOrder.indexOf(a.priority);
+      const bPriority = priorityOrder.indexOf(b.priority);
+      if (aPriority !== bPriority) {
+        return aPriority - bPriority;
+      }
+      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+    });
+
+    return allTasks.slice(0, limit).map(t => ({ ...t }));
+  }
+
+  /**
+   * Mark task as completed
+   */
+  markTaskCompleted(taskId: string): TaskWithPriority | undefined {
+    const task = this.taskWithPriority.get(taskId);
+    if (!task) return undefined;
+
+    const now = new Date().toISOString();
+    task.completedAt = now;
+    task.status = {
+      state: 'completed',
+      timestamp: now,
+    };
+
+    // Update async task status
+    const asyncStatus = this.asyncTaskStatus.get(taskId);
+    if (asyncStatus) {
+      asyncStatus.state = 'completed';
+      asyncStatus.progress = 100;
+    }
+
+    return { ...task };
+  }
+
+  /**
+   * Get async task status
+   */
+  getAsyncTaskStatus(taskId: string): {
+    state: TaskState;
+    progress?: number;
+    currentStep?: string;
+    error?: string;
+  } | undefined {
+    const status = this.asyncTaskStatus.get(taskId);
+    return status ? { ...status } : undefined;
+  }
+
+  /**
+   * Update async task progress
+   */
+  updateAsyncTaskProgress(
+    taskId: string,
+    progress: number,
+    currentStep?: string
+  ): boolean {
+    const status = this.asyncTaskStatus.get(taskId);
+    if (!status) return false;
+
+    status.progress = progress;
+    if (currentStep) {
+      status.currentStep = currentStep;
+    }
+
+    return true;
   }
 
   /**

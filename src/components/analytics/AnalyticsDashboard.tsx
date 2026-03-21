@@ -1,17 +1,25 @@
 /**
- * Analytics Dashboard Component
- * 数据分析仪表盘主组件
+ * Analytics Dashboard Component - Optimized Version
+ * 数据分析仪表盘主组件 - 性能优化版本
+ *
+ * Optimizations:
+ * - Skeleton screens for better perceived performance
+ * - Error boundary for graceful error handling
+ * - Pagination support for large datasets
+ * - Optimized data fetching with cache
  */
 
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { RefreshCw, Download, LayoutGrid, Settings, Save, RotateCcw } from 'lucide-react';
+import { RefreshCw, Download, LayoutGrid, Settings, Save, RotateCcw, AlertCircle } from 'lucide-react';
 import { DateRangePicker } from './DateRangePicker';
 import { FilterPanel } from './FilterPanel';
 import { MetricCard } from './MetricCard';
 import { AnalyticsChart } from './AnalyticsChart';
-import { Activity, Users, CheckCircle, DollarSign, Cpu, AlertCircle } from 'lucide-react';
+import { AnalyticsErrorBoundary } from './ErrorBoundary';
+import { MetricCardSkeleton, ChartSkeleton, LoadingOverlay, MetricsGridSkeleton } from './Skeleton';
+import { Activity, Users, CheckCircle, DollarSign, Cpu } from 'lucide-react';
 import {
   type AnalyticsMetrics,
   type AnalyticsFilters,
@@ -112,6 +120,15 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Pagination state
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 100,
+    total: 0,
+    totalPages: 0
+  });
 
   // Load saved layout
   useEffect(() => {
@@ -133,25 +150,47 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
   // Fetch data
   const fetchData = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const response = await fetch('/api/analytics/metrics', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(filters)
+        body: JSON.stringify({
+          ...filters,
+          page: pagination.page,
+          limit: pagination.limit
+        })
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const result = await response.json();
       if (result.success) {
         setMetrics(result.data.metrics);
         setTimeSeries(result.data.timeSeries);
         setLastUpdated(new Date());
+
+        // Update pagination state from response
+        if (result.data.pagination) {
+          setPagination({
+            page: result.data.pagination.page,
+            limit: result.data.pagination.limit,
+            total: result.data.pagination.total,
+            totalPages: result.data.pagination.totalPages
+          });
+        }
+      } else {
+        throw new Error(result.error || 'Failed to fetch analytics data');
       }
-    } catch (error) {
-      console.error('Failed to fetch analytics data:', error);
+    } catch (err) {
+      console.error('Failed to fetch analytics data:', err);
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [filters, pagination.page, pagination.limit]);
 
   // Initial fetch
   useEffect(() => {
@@ -348,73 +387,153 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         </div>
       )}
 
-      {/* Loading State */}
-      {loading && !metrics && (
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <RefreshCw className="w-8 h-8 text-gray-400 animate-spin mx-auto" />
-            <p className="mt-2 text-gray-500 dark:text-gray-400">{t.loading}</p>
+      {/* Error State */}
+      {error && (
+        <div className="flex items-center justify-center py-8">
+          <div className="text-center max-w-md">
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <AlertCircle className="w-8 h-8 text-red-500" />
+              <p className="text-lg font-semibold text-red-600 dark:text-red-400">
+                {locale === 'zh' ? '加载失败' : 'Failed to Load'}
+              </p>
+            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{error}</p>
+            <button
+              onClick={fetchData}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+            >
+              <RefreshCw className="w-4 h-4" />
+              {locale === 'zh' ? '重试' : 'Retry'}
+            </button>
           </div>
         </div>
       )}
 
-      {/* Metrics Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {statistics.map((stat, index) => (
-          <MetricCard
-            key={stat.label}
-            statistic={stat}
-            icon={icons[index]}
-            color={index === 0 ? 'blue' : index === 1 ? 'green' : index === 2 ? 'purple' : 'orange'}
-            loading={loading}
-          />
-        ))}
-      </div>
+      {/* Loading State - First Load */}
+      {loading && !metrics && !error && (
+        <>
+          <MetricsGridSkeleton count={4} />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+            <ChartSkeleton />
+            <ChartSkeleton />
+          </div>
+          <ChartSkeleton height={300} className="mt-6" />
+        </>
+      )}
+
+      {/* Loading State - Subsequent Refreshes */}
+      {loading && metrics && !error && (
+        <div className="flex items-center justify-center py-4">
+          <LoadingOverlay message={locale === 'zh' ? '更新中...' : 'Updating...'} />
+        </div>
+      )}
+
+      {/* Content */}
+      {!error && (!loading || metrics) && (
+        <>
+          {/* Metrics Grid */}
+          {loading ? (
+            <MetricsGridSkeleton count={4} />
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {statistics.map((stat, index) => (
+                <MetricCard
+                  key={stat.label}
+                  statistic={stat}
+                  icon={icons[index]}
+                  color={index === 0 ? 'blue' : index === 1 ? 'green' : index === 2 ? 'purple' : 'orange'}
+                  loading={false}
+                />
+              ))}
+            </div>
+          )}
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Activity Chart */}
-        <AnalyticsChart
-          config={{
-            type: 'area',
-            title: locale === 'zh' ? '活动概览' : 'Activity Overview',
-            data: timeSeries,
-            metrics: filters.metrics?.slice(0, 4) || ['agents', 'users', 'tasks'],
-            showLegend: true,
-            showTooltip: true,
-            height: 350
-          }}
-          onExport={handleExport}
-        />
+        {loading ? (
+          <ChartSkeleton />
+        ) : (
+          <AnalyticsChart
+            config={{
+              type: 'area',
+              title: locale === 'zh' ? '活动概览' : 'Activity Overview',
+              data: timeSeries,
+              metrics: filters.metrics?.slice(0, 4) || ['agents', 'users', 'tasks'],
+              showLegend: true,
+              showTooltip: true,
+              height: 350
+            }}
+            onExport={handleExport}
+          />
+        )}
 
         {/* Revenue Chart */}
-        <AnalyticsChart
-          config={{
-            type: 'line',
-            title: locale === 'zh' ? '收入趋势' : 'Revenue Trend',
-            data: timeSeries,
-            metrics: ['revenue'],
-            showLegend: true,
-            showTooltip: true,
-            height: 350
-          }}
-          onExport={handleExport}
-        />
+        {loading ? (
+          <ChartSkeleton />
+        ) : (
+          <AnalyticsChart
+            config={{
+              type: 'line',
+              title: locale === 'zh' ? '收入趋势' : 'Revenue Trend',
+              data: timeSeries,
+              metrics: ['revenue'],
+              showLegend: true,
+              showTooltip: true,
+              height: 350
+            }}
+            onExport={handleExport}
+          />
+        )}
       </div>
 
       {/* Performance Chart */}
-      <AnalyticsChart
-        config={{
-          type: 'bar',
-          title: locale === 'zh' ? 'Token 使用趋势' : 'Token Usage Trend',
-          data: timeSeries,
-          metrics: ['tokens', 'errors'],
-          showLegend: true,
-          showTooltip: true,
-          height: 300
-        }}
-        onExport={handleExport}
-      />
+      {loading ? (
+        <ChartSkeleton height={300} />
+      ) : (
+        <AnalyticsChart
+          config={{
+            type: 'bar',
+            title: locale === 'zh' ? 'Token 使用趋势' : 'Token Usage Trend',
+            data: timeSeries,
+            metrics: ['tokens', 'errors'],
+            showLegend: true,
+            showTooltip: true,
+            height: 300
+          }}
+          onExport={handleExport}
+        />
+      )}
+
+      {/* Pagination Controls */}
+      {pagination.totalPages > 1 && (
+        <div className="flex items-center justify-between gap-4 p-4 bg-white dark:bg-zinc-800 rounded-lg border border-gray-200 dark:border-zinc-700">
+          <div className="text-sm text-gray-600 dark:text-gray-400">
+            {locale === 'zh' ? '第' : 'Page'} {pagination.page} {locale === 'zh' ? '页，共' : 'of'} {pagination.totalPages} {locale === 'zh' ? '页' : 'pages'}
+            <span className="mx-2">•</span>
+            {locale === 'zh' ? '总计' : 'Total'} {pagination.total} {locale === 'zh' ? '条记录' : 'records'}
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPagination(prev => ({ ...prev, page: Math.max(1, prev.page - 1) }))}
+              disabled={pagination.page === 1}
+              className="px-3 py-1 bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed rounded text-sm text-gray-700 dark:text-gray-300 transition-colors"
+            >
+              {locale === 'zh' ? '上一页' : 'Previous'}
+            </button>
+            <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 rounded text-sm font-medium text-blue-700 dark:text-blue-300">
+              {pagination.page}
+            </span>
+            <button
+              onClick={() => setPagination(prev => ({ ...prev, page: Math.min(prev.totalPages, prev.page + 1) }))}
+              disabled={pagination.page === pagination.totalPages}
+              className="px-3 py-1 bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed rounded text-sm text-gray-700 dark:text-gray-300 transition-colors"
+            >
+              {locale === 'zh' ? '下一页' : 'Next'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       {metrics && (
@@ -447,8 +566,17 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           </div>
         </div>
       )}
+        </>
+      )}
     </div>
   );
 };
 
-export default AnalyticsDashboard;
+// Export with error boundary wrapper
+export default function AnalyticsDashboardWithErrorBoundary(props: AnalyticsDashboardProps) {
+  return (
+    <AnalyticsErrorBoundary>
+      <AnalyticsDashboard {...props} />
+    </AnalyticsErrorBoundary>
+  );
+}

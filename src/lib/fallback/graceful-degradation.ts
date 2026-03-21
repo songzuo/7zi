@@ -109,7 +109,11 @@ export class DegradationManager {
       autoDegrade: config.autoDegrade ?? true,
       performanceThreshold: config.performanceThreshold ?? 1000,
       errorThreshold: config.errorThreshold ?? 5,
-      circuitBreaker: config.circuitBreaker,
+      circuitBreaker: config.circuitBreaker ?? {
+        failureThreshold: 5,
+        recoveryTimeout: 60000,
+        successThreshold: 2,
+      },
     };
   }
 
@@ -366,13 +370,13 @@ export class NetworkCondition {
     if (connection) {
       this.isSlow = connection.effectiveType === 'slow-2g' ||
                    connection.effectiveType === '2g' ||
-                   connection.downlink < 1;
+                   (connection.downlink !== undefined && connection.downlink < 1);
 
       return {
         isSlow: this.isSlow,
         isOffline: this.isOffline,
         effectiveType: connection.effectiveType,
-        downlink: connection.downlink,
+        downlink: connection.downlink ?? 0,
       };
     }
 

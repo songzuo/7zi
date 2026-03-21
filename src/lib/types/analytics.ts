@@ -175,6 +175,14 @@ export interface AnalyticsResponse<T = unknown> {
   filters?: AnalyticsFilters;
 }
 
+export interface PaginatedResponse<T = unknown> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 export interface AnalyticsError {
   success: false;
   error: string;

@@ -6,6 +6,11 @@
 
 'use client';
 
+import React, {
+  useState,
+  useMemo,
+  useCallback,
+} from 'react';
 import {
   Notification,
   NotificationType,
@@ -25,7 +30,61 @@ import {
   Bell,
   Clock,
 } from 'lucide-react';
-import { useState, useMemo } from 'react';
+
+// Extract helper functions outside component to avoid recreation
+const getIcon = (type: NotificationType) => {
+  switch (type) {
+    case NotificationType.SUCCESS:
+      return <CheckCircle className="h-4 w-4 text-green-500" />;
+    case NotificationType.WARNING:
+      return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
+    case NotificationType.ERROR:
+      return <XCircle className="h-4 w-4 text-red-500" />;
+    case NotificationType.MESSAGE:
+      return <MessageSquare className="h-4 w-4 text-blue-500" />;
+    case NotificationType.TASK_ASSIGNED:
+    case NotificationType.TASK_COMPLETED:
+    case NotificationType.TASK_UPDATED:
+      return <Bell className="h-4 w-4 text-purple-500" />;
+    default:
+      return <Info className="h-4 w-4 text-gray-500" />;
+  }
+};
+
+const getPriorityBadge = (priority: NotificationPriority) => {
+  const colors = {
+    low: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300',
+    medium: 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300',
+    high: 'bg-orange-100 text-orange-600 dark:bg-orange-900 dark:text-orange-300',
+    urgent: 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300',
+  };
+
+  return (
+    <span
+      className={`text-xs px-2 py-0.5 rounded-full ${colors[priority]}`}
+    >
+      {priority}
+    </span>
+  );
+};
+
+const formatTime = (timestamp: number) => {
+  const now = Date.now();
+  const diff = now - timestamp;
+
+  if (diff < 60000) {
+    return 'Just now';
+  } else if (diff < 3600000) {
+    const minutes = Math.floor(diff / 60000);
+    return `${minutes}m ago`;
+  } else if (diff < 86400000) {
+    const hours = Math.floor(diff / 3600000);
+    return `${hours}h ago`;
+  } else {
+    const days = Math.floor(diff / 86400000);
+    return `${days}d ago`;
+  }
+};
 
 interface NotificationCenterProps {
   notifications: Notification[];
@@ -39,7 +98,7 @@ interface NotificationCenterProps {
 
 type FilterType = 'all' | 'unread' | NotificationType;
 
-export function NotificationCenter({
+function NotificationCenter({
   notifications,
   unreadCount,
   onMarkRead,
@@ -62,59 +121,18 @@ export function NotificationCenter({
     return filtered.sort((a, b) => b.createdAt - a.createdAt);
   }, [notifications, filter]);
 
-  const getIcon = (type: NotificationType) => {
-    switch (type) {
-      case NotificationType.SUCCESS:
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case NotificationType.WARNING:
-        return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
-      case NotificationType.ERROR:
-        return <XCircle className="h-4 w-4 text-red-500" />;
-      case NotificationType.MESSAGE:
-        return <MessageSquare className="h-4 w-4 text-blue-500" />;
-      case NotificationType.TASK_ASSIGNED:
-      case NotificationType.TASK_COMPLETED:
-      case NotificationType.TASK_UPDATED:
-        return <Bell className="h-4 w-4 text-purple-500" />;
-      default:
-        return <Info className="h-4 w-4 text-gray-500" />;
-    }
-  };
+  // Memoize filter change handlers
+  const handleFilterChange = useCallback((newFilter: FilterType) => {
+    setFilter(newFilter);
+  }, []);
 
-  const getPriorityBadge = (priority: NotificationPriority) => {
-    const colors = {
-      low: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300',
-      medium: 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300',
-      high: 'bg-orange-100 text-orange-600 dark:bg-orange-900 dark:text-orange-300',
-      urgent: 'bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300',
-    };
+  const handleMarkRead = useCallback((id: string) => {
+    onMarkRead(id);
+  }, [onMarkRead]);
 
-    return (
-      <span
-        className={`text-xs px-2 py-0.5 rounded-full ${colors[priority]}`}
-      >
-        {priority}
-      </span>
-    );
-  };
-
-  const formatTime = (timestamp: number) => {
-    const now = Date.now();
-    const diff = now - timestamp;
-
-    if (diff < 60000) {
-      return 'Just now';
-    } else if (diff < 3600000) {
-      const minutes = Math.floor(diff / 60000);
-      return `${minutes}m ago`;
-    } else if (diff < 86400000) {
-      const hours = Math.floor(diff / 3600000);
-      return `${hours}h ago`;
-    } else {
-      const days = Math.floor(diff / 86400000);
-      return `${days}d ago`;
-    }
-  };
+  const handleDelete = useCallback((id: string) => {
+    onDelete(id);
+  }, [onDelete]);
 
   if (!isOpen) {
     return null;
@@ -165,7 +183,7 @@ export function NotificationCenter({
         {/* Filter tabs */}
         <div className="flex items-center gap-1 p-2 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
           <button
-            onClick={() => setFilter('all')}
+            onClick={() => handleFilterChange('all')}
             className={`px-3 py-1.5 text-sm rounded-lg transition-colors whitespace-nowrap ${
               filter === 'all'
                 ? 'bg-gray-900 text-white dark:bg-gray-700 dark:text-white'
@@ -175,7 +193,7 @@ export function NotificationCenter({
             All
           </button>
           <button
-            onClick={() => setFilter('unread')}
+            onClick={() => handleFilterChange('unread')}
             className={`px-3 py-1.5 text-sm rounded-lg transition-colors whitespace-nowrap ${
               filter === 'unread'
                 ? 'bg-gray-900 text-white dark:bg-gray-700 dark:text-white'
@@ -185,7 +203,7 @@ export function NotificationCenter({
             Unread
           </button>
           <button
-            onClick={() => setFilter(NotificationType.TASK_ASSIGNED)}
+            onClick={() => handleFilterChange(NotificationType.TASK_ASSIGNED)}
             className={`px-3 py-1.5 text-sm rounded-lg transition-colors whitespace-nowrap ${
               filter === NotificationType.TASK_ASSIGNED
                 ? 'bg-purple-600 text-white'
@@ -195,7 +213,7 @@ export function NotificationCenter({
             Tasks
           </button>
           <button
-            onClick={() => setFilter(NotificationType.MESSAGE)}
+            onClick={() => handleFilterChange(NotificationType.MESSAGE)}
             className={`px-3 py-1.5 text-sm rounded-lg transition-colors whitespace-nowrap ${
               filter === NotificationType.MESSAGE
                 ? 'bg-blue-600 text-white'
@@ -247,7 +265,7 @@ export function NotificationCenter({
 
                         {!notification.read && (
                           <button
-                            onClick={() => onMarkRead(notification.id)}
+                            onClick={() => handleMarkRead(notification.id)}
                             className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 flex items-center gap-1"
                           >
                             <Check className="h-3 w-3" />
@@ -256,7 +274,7 @@ export function NotificationCenter({
                         )}
 
                         <button
-                          onClick={() => onDelete(notification.id)}
+                          onClick={() => handleDelete(notification.id)}
                           className="text-xs text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 flex items-center gap-1"
                         >
                           <Trash2 className="h-3 w-3" />
@@ -285,3 +303,6 @@ export function NotificationCenter({
     </div>
   );
 }
+
+// Wrap with React.memo to prevent unnecessary re-renders
+export default React.memo(NotificationCenter);

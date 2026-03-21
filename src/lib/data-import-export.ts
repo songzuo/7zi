@@ -78,31 +78,28 @@ const SUPPORTED_TABLES = [
  * Get column definitions for a table
  * Memoized to avoid repeated database queries for the same table
  */
-export const getTableSchema = memoize(
-  async (tableName: string): Promise<Record<string, string>> => {
-    const db = await getDatabaseAsync();
-    const columns = db.queryRows(`
+export const getTableSchema = async (tableName: string): Promise<Record<string, string>> => {
+  const db = await getDatabaseAsync();
+  const columns = db.queryRows(`
       PRAGMA table_info(${tableName})
     `);
 
-    const schema: Record<string, string> = {};
-    for (const col of columns) {
-      const name = col.name as string;
-      const type = col.type as string;
-      const notnull = col.notnull as number;
-      const pk = col.pk as number;
+  const schema: Record<string, string> = {};
+  for (const col of columns) {
+    const name = col.name as string;
+    const type = col.type as string;
+    const notnull = col.notnull as number;
+    const pk = col.pk as number;
 
-      let typeStr = type || 'TEXT';
-      if (notnull) typeStr += ' NOT NULL';
-      if (pk) typeStr += ' PRIMARY KEY';
+    let typeStr = type || 'TEXT';
+    if (notnull) typeStr += ' NOT NULL';
+    if (pk) typeStr += ' PRIMARY KEY';
 
-      schema[name] = typeStr;
-    }
+    schema[name] = typeStr;
+  }
 
-    return schema;
-  },
-  { keyPrefix: 'table-schema', ttl: 10 * 60 * 1000 } // Cache for 10 minutes
-);
+  return schema;
+};
 
 /**
  * Get all table names
@@ -515,7 +512,7 @@ export async function _importData(
         for (const row of batch) {
           try {
             if (!options.dryRun) {
-              await importRow(db, table, row, options.mode, primaryKey, options.skipDuplicates);
+              await importRow(db, table, row as Record<string, unknown>, options.mode, primaryKey, options.skipDuplicates);
             }
 
             // Update stats (simulate for dry run)

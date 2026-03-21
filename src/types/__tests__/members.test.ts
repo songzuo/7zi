@@ -7,10 +7,11 @@ import {
   getStatusColor,
   getStatusBgColor,
   MEMBER_STATUS_CONFIG,
+  type MemberStatus,
 } from '@/types/members';
 
 // Define the type values as constants for testing
-const MemberStatus = {
+const LOCAL_MEMBER_STATUS = {
   ONLINE: 'online',
   WORKING: 'working',
   BUSY: 'busy',
@@ -18,7 +19,7 @@ const MemberStatus = {
   OFFLINE: 'offline',
 } as const;
 
-const MemberCategory = {
+const LOCAL_MEMBER_CATEGORY = {
   STRATEGY: 'strategy',
   TECH: 'tech',
   CREATIVE: 'creative',
@@ -28,20 +29,20 @@ const MemberCategory = {
 describe('Member Types', () => {
   describe('MemberStatus', () => {
     it('should have all expected status values', () => {
-      expect(MemberStatus.ONLINE).toBe('online');
-      expect(MemberStatus.WORKING).toBe('working');
-      expect(MemberStatus.BUSY).toBe('busy');
-      expect(MemberStatus.IDLE).toBe('idle');
-      expect(MemberStatus.OFFLINE).toBe('offline');
+      expect(LOCAL_MEMBER_STATUS.ONLINE).toBe('online');
+      expect(LOCAL_MEMBER_STATUS.WORKING).toBe('working');
+      expect(LOCAL_MEMBER_STATUS.BUSY).toBe('busy');
+      expect(LOCAL_MEMBER_STATUS.IDLE).toBe('idle');
+      expect(LOCAL_MEMBER_STATUS.OFFLINE).toBe('offline');
     });
   });
 
   describe('MemberCategory', () => {
     it('should have all expected category values', () => {
-      expect(MemberCategory.STRATEGY).toBe('strategy');
-      expect(MemberCategory.TECH).toBe('tech');
-      expect(MemberCategory.CREATIVE).toBe('creative');
-      expect(MemberCategory.BUSINESS).toBe('business');
+      expect(LOCAL_MEMBER_CATEGORY.STRATEGY).toBe('strategy');
+      expect(LOCAL_MEMBER_CATEGORY.TECH).toBe('tech');
+      expect(LOCAL_MEMBER_CATEGORY.CREATIVE).toBe('creative');
+      expect(LOCAL_MEMBER_CATEGORY.BUSINESS).toBe('business');
     });
   });
 

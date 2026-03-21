@@ -64,14 +64,14 @@ export async function getUserIdFromToken(token: string): Promise<{ userId: strin
     const { payload } = await jwtVerify(token, secret);
 
     // Try different payload structures
-    const userId = payload.userId || payload.sub || payload.id;
-    const role = payload.role || payload.user?.role;
+    const userId = (payload.userId || payload.sub || payload.id) as string | undefined;
+    const role = (payload as { role?: string }).role || (payload as { user?: { role?: string } }).user?.role;
 
     if (!userId) {
       return null;
     }
 
-    return { userId, role };
+    return { userId, role: ((role as string | undefined) || '') as string };
   } catch (error) {
     logger.debug('Failed to verify JWT token', { error });
     return null;

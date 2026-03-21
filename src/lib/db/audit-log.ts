@@ -235,7 +235,7 @@ export async function getAuditLogById(id: string): Promise<AuditLog | null> {
     await initializeAuditLogsTable();
 
     const stmt = db.prepare('SELECT * FROM audit_logs WHERE id = ?');
-    const row = stmt.get(id) as AuditLogRow | undefined;
+    const row = stmt.get(id) as unknown as AuditLogRow | undefined;
 
     if (!row) return null;
 
@@ -311,7 +311,7 @@ export async function queryAuditLogs(options: AuditLogQuery): Promise<{
     params.push(limit, offset);
 
     const stmt = db.prepare(sql);
-    const rows = stmt.all(...params) as AuditLogRow[];
+    const rows = stmt.all(...params) as unknown as AuditLogRow[];
 
     const logs = rows.map(mapRowToAuditLog);
 
@@ -385,7 +385,7 @@ export async function getFailedLoginAttempts(
     params.push(userId);
   }
 
-  const rows = stmt.all(...params) as AuditLogRow[];
+  const rows = stmt.all(...params) as unknown as AuditLogRow[];
   return rows.map(mapRowToAuditLog);
 }
 

@@ -208,6 +208,82 @@ export interface JsonRpcError {
 // Batch response type
 export type JsonRpcBatchResponse = JsonRpcResponse[];
 
+// Task Priority Levels
+export type TaskPriority = 'low' | 'normal' | 'high' | 'critical';
+
+// Message Queue Types
+export interface QueueMessage {
+  id: string;
+  taskId: string;
+  agentId: string;
+  priority: TaskPriority;
+  payload: Record<string, unknown>;
+  createdAt: string;
+  attempts: number;
+  maxAttempts: number;
+  nextRetryAt?: string;
+}
+
+export interface MessageQueue {
+  enqueue(message: QueueMessage): void;
+  dequeue(): QueueMessage | null;
+  peek(): QueueMessage | null;
+  remove(messageId: string): boolean;
+  size(): number;
+  getMessagesByAgent(agentId: string): QueueMessage[];
+  getMessagesByPriority(priority: TaskPriority): QueueMessage[];
+  retry(messageId: string): boolean;
+}
+
+export interface QueueConfig {
+  maxRetries: number;
+  retryDelayMs: number;
+  maxQueueSize: number;
+}
+
+// Agent Registry Types
+export interface AgentRegistration {
+  id: string;
+  name: string;
+  url: string;
+  capabilities: string[];
+  skills: string[];
+  status: 'online' | 'offline' | 'busy';
+  lastHeartbeat: string;
+  load?: number;
+  metadata?: Record<string, unknown>;
+}
+
+export interface AgentRegistry {
+  register(agent: AgentRegistration): void;
+  unregister(agentId: string): boolean;
+  get(agentId: string): AgentRegistration | undefined;
+  getAll(): AgentRegistration[];
+  getByCapability(capability: string): AgentRegistration[];
+  getBySkill(skill: string): AgentRegistration[];
+  getAvailable(): AgentRegistration[];
+  updateStatus(agentId: string, status: AgentRegistration['status']): boolean;
+  updateHeartbeat(agentId: string): boolean;
+  cleanupInactive(timeoutMs: number): number;
+}
+
+// Enhanced Task with Priority
+export interface TaskWithPriority extends Task {
+  priority: TaskPriority;
+  createdAt: string;
+  scheduledAt?: string;
+  completedAt?: string;
+  retryCount?: number;
+}
+
+// Queue Events
+export interface QueueEvent {
+  type: 'enqueued' | 'dequeued' | 'retry' | 'failed' | 'completed';
+  message: QueueMessage;
+  timestamp: string;
+  error?: string;
+}
+
 // Error Codes
 export const A2AErrorCodes = {
   // JSON-RPC Standard Errors
@@ -227,4 +303,13 @@ export const A2AErrorCodes = {
   EXTENDED_AGENT_CARD_NOT_CONFIGURED: -32007,
   EXTENSION_SUPPORT_REQUIRED: -32008,
   VERSION_NOT_SUPPORTED: -32009,
+
+  // New Errors for A2A Protocol v2
+  AGENT_NOT_FOUND: -32010,
+  AGENT_UNAVAILABLE: -32011,
+  QUEUE_FULL: -32012,
+  MESSAGE_EXPIRED: -32013,
+  MAX_RETRIES_EXCEEDED: -32014,
+  INVALID_PRIORITY: -32015,
+  AGENT_REGISTRATION_FAILED: -32016,
 } as const;

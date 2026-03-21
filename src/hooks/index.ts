@@ -22,3 +22,13 @@ export {
 
 // Global Loading Hooks
 export { useGlobalLoading, useScopedLoading, GlobalLoadingProvider } from './useGlobalLoading';
+
+// WebSocket Hooks
+export { useWebSocket, useTaskStatusUpdates } from './useWebSocket';
+export type {
+  WebSocketConfig,
+  WebSocketMessage,
+  TaskStatusUpdate,
+  WebSocketState,
+  UseWebSocketReturn,
+} from './useWebSocket';
