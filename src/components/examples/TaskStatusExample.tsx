@@ -7,7 +7,8 @@
 
 'use client';
 
-import { useTaskStatusUpdates, WebSocketStatusIndicator } from '@/hooks/useWebSocket';
+import { useTaskStatusUpdates } from '@/hooks/useWebSocket';
+import { WebSocketStatusIndicator } from '@/components/websocket/WebSocketStatusIndicator';
 
 export function TaskStatusExample({ taskId }: { taskId: string }) {
   const { state, taskUpdates, getTaskStatus } = useTaskStatusUpdates();

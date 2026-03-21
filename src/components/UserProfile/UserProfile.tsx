@@ -145,7 +145,7 @@ export default function UserProfile({ userId }: { userId: string }) {
         method: 'DELETE',
       });
 
-      const data: ApiResponse = await response.json();
+      const data: ApiResponse<Record<string, unknown>> = await response.json();
 
       if (data.success) {
         await loadUser();

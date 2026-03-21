@@ -89,13 +89,13 @@ export class NotificationService {
   /**
    * Initialize Socket.IO server
    */
-  initialize(httpServer: unknown): void {
+  initialize(httpServer: import('http').Server): void {
     if (this.io) {
       logger.warn('[NotificationService] Already initialized');
       return;
     }
 
-    this.io = new SocketIOServer(httpServer as any, {
+    this.io = new SocketIOServer(httpServer, {
       cors: {
         origin: '*',
         methods: ['GET', 'POST'],

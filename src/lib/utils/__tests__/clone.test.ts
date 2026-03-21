@@ -26,7 +26,11 @@ describe('clone utilities', () => {
     });
 
     it('should deep clone arrays with nested structures', () => {
-      const arr = [1, [2, [3, 4]], { a: { b: 5 } }];
+      const arr = [1, [2, [3, 4]], { a: { b: 5 } }] as [
+        number,
+        number[],
+        { a: { b: number } }
+      ];
       const cloned = deepClone(arr);
 
       expect(cloned).toEqual(arr);
@@ -174,16 +178,17 @@ describe('clone utilities', () => {
     });
 
     it('should handle deeply nested structures', () => {
-      const nested: any = { level: 0 };
+      let nested: any = { level: 0 };
+      const root = nested;
       for (let i = 1; i < 100; i++) {
         nested.next = { level: i };
         nested = nested.next;
       }
       nested.value = 'end';
 
-      const cloned = deepClone(nested);
+      const cloned = deepClone(root);
       expect(cloned.value).toBe('end');
-      expect(cloned).not.toBe(nested);
+      expect(cloned).not.toBe(root);
     });
 
     it('should preserve prototype chain for plain objects', () => {

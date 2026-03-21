@@ -417,7 +417,9 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
             <ChartSkeleton />
             <ChartSkeleton />
           </div>
-          <ChartSkeleton height={300} className="mt-6" />
+          <div className="mt-6">
+            <ChartSkeleton height={300} />
+          </div>
         </>
       )}
 

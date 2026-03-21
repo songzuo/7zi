@@ -13,7 +13,8 @@ import {
   hasAnyPermission,
   hasAllPermissions,
   hasRole,
-  hasRoleLevel
+  hasRoleLevel,
+  withPermissions
 } from '@/lib/permissions';
 import { Permission, Role } from '@/lib/permissions/types';
 import { isAdmin } from '@/lib/permissions/rbac';

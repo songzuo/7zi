@@ -70,16 +70,19 @@ export class NotificationStorage {
         email_sent INTEGER DEFAULT 0,
         email_sent_at INTEGER,
         created_at INTEGER NOT NULL,
-        expires_at INTEGER,
-
-        INDEX idx_user (user_id),
-        INDEX idx_team (team_id),
-        INDEX idx_task (task_id),
-        INDEX idx_read (read),
-        INDEX idx_created_at (created_at),
-        INDEX idx_type (type),
-        INDEX idx_priority (priority)
+        expires_at INTEGER
       )
+    `);
+
+    // Create indexes for better query performance
+    this.db.exec(`
+      CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
+      CREATE INDEX IF NOT EXISTS idx_notifications_team_id ON notifications(team_id);
+      CREATE INDEX IF NOT EXISTS idx_notifications_task_id ON notifications(task_id);
+      CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(read);
+      CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON notifications(created_at);
+      CREATE INDEX IF NOT EXISTS idx_notifications_type ON notifications(type);
+      CREATE INDEX IF NOT EXISTS idx_notifications_priority ON notifications(priority);
     `);
 
     // User notification preferences table
@@ -258,7 +261,23 @@ export class NotificationStorage {
     }
 
     const stmt = this.db.prepare(query);
-    return stmt.all(...params) as any;
+    const results = stmt.all(...params);
+    return results as Array<{
+      id: string;
+      type: string;
+      priority: string;
+      title: string;
+      message: string;
+      data: string | null;
+      userId: string | null;
+      teamId: string | null;
+      taskId: string | null;
+      read: number;
+      emailSent: number;
+      emailSentAt: number | null;
+      createdAt: number;
+      expiresAt: number | null;
+    }>;
   }
 
   /**
@@ -396,7 +415,18 @@ export class NotificationStorage {
       WHERE user_id = ?
     `);
 
-    return stmt.get(userId) as any;
+    const result = stmt.get(userId);
+    return result as {
+      emailEnabled: number;
+      emailThreshold: string;
+      pushEnabled: number;
+      pushThreshold: string;
+      digestEnabled: number;
+      digestFrequency: string;
+      quietHoursStart: string | null;
+      quietHoursEnd: string | null;
+      timezone: string;
+    } | null;
   }
 
   /**

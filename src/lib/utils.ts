@@ -102,3 +102,17 @@ export { cn } from './utils/ui';
 // Re-export clone utilities for backward compatibility
 // @deprecated Import from @/lib/utils/clone directly instead
 export { deepClone } from './utils/clone';
+
+// Re-export format utilities for backward compatibility
+// @deprecated Import from @/lib/utils/format directly instead
+export { formatFileSize, formatNumber } from './utils/format';
+
+// Re-export date utilities
+// @deprecated Import from @/lib/date directly instead
+export {
+  formatTimeAgo,
+  formatDate,
+  formatDateTime,
+  isToday,
+  isYesterday,
+} from './date';

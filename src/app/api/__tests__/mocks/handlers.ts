@@ -12,7 +12,7 @@ const mockData = new MockDataGenerator();
 // Auth endpoints handlers
 export const authHandlers = [
   // Register
-  http.post('http://localhost:3000/api/auth/register', async ({ request }) => {
+  http.post('http://localhost:3000/api/auth/register', async ({ request }: { request: Request }) => {
     const body = await request.json() as any;
 
     // Validation
@@ -113,7 +113,7 @@ export const authHandlers = [
   }),
 
   // Login
-  http.post('http://localhost:3000/api/auth/login', async ({ request }) => {
+  http.post('http://localhost:3000/api/auth/login', async ({ request }: { request: Request }) => {
     const body = await request.json() as any;
 
     if (!body.email || !body.password) {
@@ -180,7 +180,7 @@ export const authHandlers = [
   }),
 
   // Logout
-  http.post('http://localhost:3000/api/auth/logout', async ({ request }) => {
+  http.post('http://localhost:3000/api/auth/logout', async ({ request }: { request: Request }) => {
     const authHeader = request.headers.get('authorization');
 
     if (!authHeader) {
@@ -201,7 +201,7 @@ export const authHandlers = [
   }),
 
   // Get current user (me)
-  http.get('http://localhost:3000/api/auth/me', async ({ request }) => {
+  http.get('http://localhost:3000/api/auth/me', async ({ request }: { request: Request }) => {
     const authHeader = request.headers.get('authorization');
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -253,7 +253,7 @@ export const authHandlers = [
   }),
 
   // Refresh token
-  http.post('http://localhost:3000/api/auth/refresh', async ({ request }) => {
+  http.post('http://localhost:3000/api/auth/refresh', async ({ request }: { request: Request }) => {
     const body = await request.json() as any;
 
     if (!body.refreshToken) {

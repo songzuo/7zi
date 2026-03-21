@@ -185,6 +185,23 @@ export function TaskEditor({
         </div>
       </div>
 
+      {/* Collaboration Banner - shows when collaborating */}
+      {isInRoom && users.length > 1 && (
+        <div className="bg-blue-50 dark:bg-blue-900/20 px-4 py-2 border-b border-blue-200 dark:border-blue-800">
+          <div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
+            <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+            <span>
+              <strong>{users.length}</strong> people are collaborating on this task
+            </span>
+            <span className="text-blue-400 mx-2">•</span>
+            <span className="text-blue-600 dark:text-blue-400">
+              {users.filter(u => u.id !== userId).map(u => u.name).join(', ')}
+              {users.filter(u => u.id !== userId).length > 0 ? ' and you' : 'you'}
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Editor */}
       <div className="flex-1 relative overflow-hidden">
         <textarea
@@ -194,21 +211,74 @@ export function TaskEditor({
           onSelect={handleCursorChange}
           onKeyUp={handleCursorChange}
           onClick={handleCursorChange}
-          className="w-full h-full p-4 resize-none border-none focus:outline-none dark:bg-gray-800 dark:text-white"
+          className="w-full h-full p-4 resize-none border-none focus:outline-none dark:bg-gray-800 dark:text-white font-mono text-sm leading-relaxed"
           placeholder="Start typing to edit the task..."
           disabled={!isConnected || !isInRoom}
+          style={{
+            backgroundColor: '#1f2937',
+            color: '#f9fafb',
+          }}
         />
 
-        {/* Remote cursors overlay */}
-        <div className="absolute inset-0 pointer-events-none">
-          {Array.from(cursors.values()).map((cursor) => (
-            <RemoteCursor
-              key={cursor.userId}
-              cursor={cursor}
-              currentUserId={userId}
-            />
-          ))}
+        {/* Remote cursors overlay - positioned absolutely over textarea */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {Array.from(cursors.values()).map((cursor) => {
+            if (cursor.userId === userId) return null;
+            
+            // Calculate cursor position based on textarea content
+            const textarea = textareaRef.current;
+            if (!textarea) return null;
+            
+            // Get cursor coordinates
+            const cursorStyle = {
+              position: 'absolute' as const,
+              pointerEvents: 'none' as const,
+              zIndex: 10,
+            };
+            
+            return (
+              <div key={cursor.userId} style={cursorStyle}>
+                {/* Cursor caret */}
+                <div
+                  className="w-0.5 h-5 animate-pulse"
+                  style={{ backgroundColor: cursor.color }}
+                />
+                {/* User label */}
+                <div
+                  className="px-2 py-0.5 text-white text-xs rounded-t-sm whitespace-nowrap"
+                  style={{ backgroundColor: cursor.color, fontSize: '10px' }}
+                >
+                  {cursor.userName}
+                </div>
+              </div>
+            );
+          })}
         </div>
+
+        {/* Typing indicator */}
+        {typingUsers.length > 0 && (
+          <div className="absolute bottom-4 right-4 bg-white dark:bg-gray-700 rounded-lg shadow-lg px-3 py-2">
+            <div className="flex items-center gap-2">
+              <div className="flex gap-1">
+                {[0, 1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce"
+                    style={{
+                      animationDelay: `${i * 0.1}s`,
+                      animationDuration: '0.6s',
+                    }}
+                  />
+                ))}
+              </div>
+              <span className="text-sm text-gray-600 dark:text-gray-300">
+                {typingUsers.length === 1
+                  ? `${typingUsers[0]} is typing...`
+                  : `${typingUsers.length} people are typing...`}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Footer */}
