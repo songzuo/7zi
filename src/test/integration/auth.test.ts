@@ -7,6 +7,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { loginUser } from '@/lib/auth/service'
 import { setupMockDatabase, resetMockDatabase } from '@/test/setup-db-mock'
 import type { User } from '@/lib/auth/types'
+import { UserRole, UserStatus } from '@/lib/auth/types'
 
 // Prevent auto-mocking of auth service - we want to test the real implementation
 vi.unmock('@/lib/auth/service')
@@ -57,13 +58,13 @@ vi.mock('@/lib/auth/repository', async (importOriginal) => {
     }),
     createUser: vi.fn((data: Record<string, unknown>) => {
       const hashedPassword = actual.hashPassword(data.password as string)
-      const user = {
+      const user: User = {
         id: `user-${testUsers.length + 1}`,
         email: data.email as string,
         name: data.name as string,
         password: hashedPassword,
-        role: (data.role as string) || 'member',
-        status: 'active' as const,
+        role: (data.role as UserRole) || UserRole.MEMBER,
+        status: UserStatus.ACTIVE,
         roles: [],
         permissions: [],
         metadata: {},
