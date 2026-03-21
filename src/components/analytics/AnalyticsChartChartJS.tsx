@@ -207,7 +207,7 @@ const generateChartOptions = (
             const numValue = value as number;
             if (numValue >= 1000000) return (numValue / 1000000).toFixed(1) + 'M';
             if (numValue >= 1000) return (numValue / 1000).toFixed(1) + 'k';
-            return numValue;
+            return String(numValue);
           }
         }
       }
@@ -232,7 +232,8 @@ const prepareLineAreaData = (
   data: TimeSeriesDataPoint[],
   metrics: string[],
   chartType: 'line' | 'area',
-  isDarkMode: boolean
+  isDarkMode: boolean,
+  locale: string = 'en'
 ) => {
   const labels = data.map(item =>
     item.date || new Date(item.timestamp).toLocaleDateString(locale === 'zh' ? 'zh-CN' : 'en-US', {
@@ -280,7 +281,8 @@ const prepareLineAreaData = (
 const prepareBarData = (
   data: TimeSeriesDataPoint[],
   metrics: string[],
-  isDarkMode: boolean
+  isDarkMode: boolean,
+  locale: string = 'en'
 ) => {
   const labels = data.map(item =>
     item.date || new Date(item.timestamp).toLocaleDateString(locale === 'zh' ? 'zh-CN' : 'en-US', {
@@ -329,7 +331,8 @@ const preparePieDonutData = (
 const prepareRadarData = (
   data: TimeSeriesDataPoint[],
   metrics: string[],
-  isDarkMode: boolean
+  isDarkMode: boolean,
+  locale: string = 'en'
 ) => {
   // Use first 7 data points to avoid overcrowding
   const limitedData = data.slice(0, 7);
@@ -396,17 +399,17 @@ export const AnalyticsChartChartJS: React.FC<AnalyticsChartChartJSProps> = ({
     switch (type) {
       case 'line':
       case 'area':
-        return prepareLineAreaData(data, metrics, type, isDarkMode);
+        return prepareLineAreaData(data, metrics, type, isDarkMode, locale);
 
       case 'bar':
-        return prepareBarData(data, metrics, isDarkMode);
+        return prepareBarData(data, metrics, isDarkMode, locale);
 
       case 'pie':
       case 'donut':
         return preparePieDonutData(data, metrics, type);
 
       case 'radar':
-        return prepareRadarData(data, metrics, isDarkMode);
+        return prepareRadarData(data, metrics, isDarkMode, locale);
 
       default:
         return { labels: [], datasets: [] };
@@ -419,26 +422,26 @@ export const AnalyticsChartChartJS: React.FC<AnalyticsChartChartJSProps> = ({
       case 'area':
         return (
           <Line
-            ref={chartRef as any} // @ts-expect-error - Chart.js ref type compatibility
-            data={chartData as any} // @ts-expect-error - Chart.js data type compatibility
-            options={chartOptions as any} // @ts-expect-error - Chart.js options type compatibility
+            ref={chartRef as any} 
+            data={chartData as any} 
+            options={chartOptions as any} 
           />
         );
 
       case 'bar':
         return (
           <Bar
-            ref={chartRef as any} // @ts-expect-error - Chart.js ref type compatibility
-            data={chartData as any} // @ts-expect-error - Chart.js data type compatibility
-            options={chartOptions as any} // @ts-expect-error - Chart.js options type compatibility
+            ref={chartRef as any} 
+            data={chartData as any} 
+            options={chartOptions as any} 
           />
         );
 
       case 'pie':
         return (
           <Pie
-            ref={chartRef as any} // @ts-expect-error - Chart.js ref type compatibility
-            data={chartData as any} // @ts-expect-error - Chart.js data type compatibility
+            ref={chartRef as any} 
+            data={chartData as any} 
             options={{
               ...chartOptions,
               plugins: {
@@ -449,15 +452,15 @@ export const AnalyticsChartChartJS: React.FC<AnalyticsChartChartJSProps> = ({
                 }
               },
               scales: undefined
-            } as any} // @ts-expect-error - Chart.js pie options type compatibility
+            } as any} 
           />
         );
 
       case 'donut':
         return (
           <Doughnut
-            ref={chartRef as any} // @ts-expect-error - Chart.js ref type compatibility
-            data={chartData as any} // @ts-expect-error - Chart.js data type compatibility
+            ref={chartRef as any} 
+            data={chartData as any} 
             options={{
               ...chartOptions,
               plugins: {
@@ -468,15 +471,15 @@ export const AnalyticsChartChartJS: React.FC<AnalyticsChartChartJSProps> = ({
                 }
               },
               scales: undefined
-            } as any} // @ts-expect-error - Chart.js doughnut options type compatibility
+            } as any} 
           />
         );
 
       case 'radar':
         return (
           <Radar
-            ref={chartRef as any} // @ts-expect-error - Chart.js ref type compatibility
-            data={chartData as any} // @ts-expect-error - Chart.js data type compatibility
+            ref={chartRef as any} 
+            data={chartData as any} 
             options={{
               ...chartOptions,
               scales: {
@@ -496,7 +499,7 @@ export const AnalyticsChartChartJS: React.FC<AnalyticsChartChartJSProps> = ({
                   }
                 }
               }
-            } as any} // @ts-expect-error - Chart.js radar options type compatibility
+            } as any} 
           />
         );
 

@@ -188,7 +188,7 @@ export function ServiceWorkerRegistration() {
 
   // Expose functions to window for manual control
   useEffect(() => {
-    (window as any).__SW_CONTROL = { // @ts-expect-error - Global debug variable
+    (window as any).__SW_CONTROL = { // Global debug variable
       update: handleUpdate,
       clearCache,
       getVersion: () => swVersion,

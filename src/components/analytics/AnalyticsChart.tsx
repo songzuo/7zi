@@ -33,7 +33,8 @@ import {
   LineChart as LineChartIcon,
   PieChart as PieChartIcon,
   Activity,
-  Download
+  Download,
+  TrendingUp
 } from 'lucide-react';
 import { type ChartConfig, type TimeSeriesDataPoint, type ChartType } from '@/lib/types/analytics';
 
@@ -68,7 +69,7 @@ const COLORS = [
 
 const chartTypeIcons: Record<ChartType, React.ElementType> = {
   line: LineChartIcon,
-  area: AreaChartIcon,
+  area: TrendingUp,
   bar: BarChart3,
   pie: PieChartIcon,
   donut: PieChartIcon,
@@ -179,7 +180,7 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
     }));
   }, [data]);
 
-  const StatIcon = chartTypeIcons[activeChartType];
+  const StatIcon = chartTypeIcons[activeChartType] as React.ComponentType<{ className?: string }>;
 
   const renderChart = () => {
     const commonProps = {
@@ -294,7 +295,7 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
               cx="50%"
               cy="50%"
               labelLine={false}
-              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+              label={({ name, percent }) => `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`}
               outerRadius={80}
               fill="#8884d8"
               dataKey="value"
@@ -354,7 +355,7 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
           {/* Chart Type Selector */}
           <div className="flex items-center gap-1 bg-gray-100 dark:bg-zinc-700 rounded-lg p-1">
             {(['line', 'area', 'bar', 'pie', 'radar'] as ChartType[]).map((chartTypeOption) => {
-              const Icon = chartTypeIcons[chartTypeOption];
+              const Icon = chartTypeIcons[chartTypeOption] as React.ComponentType<{ className?: string }>;
               return (
                 <button
                   key={chartTypeOption}
