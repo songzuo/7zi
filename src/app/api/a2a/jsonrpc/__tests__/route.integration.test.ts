@@ -88,7 +88,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const response = await POST(request);
       const data = await response.json();
@@ -114,7 +114,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const response = await POST(request);
       const data = await response.json();
@@ -135,7 +135,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const response = await POST(request);
       const data = await response.json();
@@ -173,7 +173,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const response = await POST(request);
       const data = await response.json();
@@ -208,7 +208,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const response = await POST(request);
       const data = await response.json();
@@ -238,7 +238,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const response = await POST(request);
       const data = await response.json();
@@ -264,7 +264,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const response = await POST(request);
       const data = await response.json();
@@ -300,7 +300,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const createResponse = await POST(createRequest);
       const createData = await createResponse.json();
@@ -320,7 +320,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const getResponse = await POST(getRequest);
       const getData = await getResponse.json();
@@ -350,7 +350,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const createResponse = await POST(createRequest);
       const createData = await createResponse.json();
@@ -371,7 +371,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const getResponse = await POST(getRequest);
       const getData = await getResponse.json();
@@ -395,7 +395,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const response = await POST(request);
       const data = await response.json();
@@ -418,7 +418,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const response = await POST(request);
       const data = await response.json();
@@ -453,7 +453,7 @@ describe('/api/a2a/jsonrpc', () => {
           }),
         });
 
-        vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+        vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
         await POST(createRequest);
       }
 
@@ -469,7 +469,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const response = await POST(listRequest);
       const data = await response.json();
@@ -506,7 +506,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
       await POST(createRequest);
 
       // List tasks with context filter
@@ -523,7 +523,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const response = await POST(listRequest);
       const data = await response.json();
@@ -554,7 +554,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
       await POST(createRequest);
 
       // List tasks by status
@@ -571,7 +571,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const response = await POST(listRequest);
       const data = await response.json();
@@ -595,7 +595,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const response = await POST(listRequest);
       const data = await response.json();
@@ -619,7 +619,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const response = await POST(listRequest);
       const data = await response.json();
@@ -653,7 +653,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const createResponse = await POST(createRequest);
       const createData = await createResponse.json();
@@ -673,7 +673,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const response = await POST(cancelRequest);
       const data = await response.json();
@@ -699,7 +699,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const response = await POST(request);
       const data = await response.json();
@@ -728,7 +728,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const createResponse = await POST(createRequest);
       const createData = await createResponse.json();
@@ -748,7 +748,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const response = await POST(cancelRequest);
       const data = await response.json();
@@ -769,7 +769,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const response = await POST(request);
       const data = await response.json();
@@ -795,7 +795,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const response = await POST(request);
       const data = await response.json();
@@ -818,7 +818,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const response = await POST(request);
       const data = await response.json();
@@ -840,7 +840,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const response = await POST(request);
       const data = await response.json();
@@ -899,7 +899,7 @@ describe('/api/a2a/jsonrpc', () => {
         ]),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const response = await POST(request);
       const data = await response.json();
@@ -944,7 +944,7 @@ describe('/api/a2a/jsonrpc', () => {
         }),
       });
 
-      vi.mocked(validateBody).mockReturnValue({ success: true, errors: [] });
+      vi.mocked(validateBody).mockReturnValue({ success: true, data: {} as any });
 
       const response = await POST(request);
 
