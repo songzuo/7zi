@@ -4,9 +4,12 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { NextRequest } from 'next/server';
 import { GET } from '../route';
 
 describe('/api/database/health', () => {
+  const mockRequest = new NextRequest('http://localhost:3000/api/database/health');
+
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-03-18T08:00:00.000Z'));
@@ -18,7 +21,7 @@ describe('/api/database/health', () => {
 
   describe('GET request', () => {
     it('should return health status with correct structure', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       // May fail due to native bindings in test environment
@@ -32,7 +35,7 @@ describe('/api/database/health', () => {
     });
 
     it('should return success true', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       if (response.status === 200) {
@@ -41,7 +44,7 @@ describe('/api/database/health', () => {
     });
 
     it('should return health status', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       if (response.status === 200) {
@@ -50,7 +53,7 @@ describe('/api/database/health', () => {
     });
 
     it('should return health score as number', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       if (response.status === 200) {
@@ -61,7 +64,7 @@ describe('/api/database/health', () => {
     });
 
     it('should return timestamp', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       if (response.status === 200) {
@@ -70,7 +73,7 @@ describe('/api/database/health', () => {
     });
 
     it('should return connection information', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       if (response.status === 200) {
@@ -83,7 +86,7 @@ describe('/api/database/health', () => {
     });
 
     it('should return database information', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       if (response.status === 200) {
@@ -94,7 +97,7 @@ describe('/api/database/health', () => {
     });
 
     it('should return performance information', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       if (response.status === 200) {
@@ -106,7 +109,7 @@ describe('/api/database/health', () => {
     });
 
     it('should return cache information', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       if (response.status === 200) {
@@ -121,7 +124,7 @@ describe('/api/database/health', () => {
     });
 
     it('should return recommendations array', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       if (response.status === 200) {
@@ -131,7 +134,7 @@ describe('/api/database/health', () => {
     });
 
     it('should return details object', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       if (response.status === 200) {
@@ -144,7 +147,7 @@ describe('/api/database/health', () => {
 
   describe('database migrations', () => {
     it('should return migration information', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       if (response.status === 200) {
@@ -158,7 +161,7 @@ describe('/api/database/health', () => {
 
   describe('cache details', () => {
     it('should return hit rate percentage', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       if (response.status === 200) {
@@ -170,7 +173,7 @@ describe('/api/database/health', () => {
     });
 
     it('should return total size in MB', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       if (response.status === 200) {
@@ -181,7 +184,7 @@ describe('/api/database/health', () => {
     });
 
     it('should return cache status', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       if (response.status === 200) {
@@ -191,7 +194,7 @@ describe('/api/database/health', () => {
     });
 
     it('should have numeric cache stats', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       if (response.status === 200) {
@@ -211,7 +214,7 @@ describe('/api/database/health', () => {
 
   describe('performance metrics', () => {
     it('should return numeric slow queries count', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       if (response.status === 200) {
@@ -221,7 +224,7 @@ describe('/api/database/health', () => {
     });
 
     it('should return numeric missing indexes count', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       if (response.status === 200) {
@@ -231,7 +234,7 @@ describe('/api/database/health', () => {
     });
 
     it('should return database size object', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       if (response.status === 200) {
@@ -242,7 +245,7 @@ describe('/api/database/health', () => {
 
   describe('table details', () => {
     it('should return table array with correct structure', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       if (response.status === 200 && data.details.tables.length > 0) {
@@ -255,7 +258,7 @@ describe('/api/database/health', () => {
     });
 
     it('should have numeric row count and index count', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       if (response.status === 200) {
@@ -269,7 +272,7 @@ describe('/api/database/health', () => {
     });
 
     it('should have boolean hasSuggestions', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       if (response.status === 200) {
@@ -282,7 +285,7 @@ describe('/api/database/health', () => {
 
   describe('response headers', () => {
     it('should return JSON content type', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
 
       expect(response.headers.get('content-type')).toContain('application/json');
     });
@@ -291,9 +294,9 @@ describe('/api/database/health', () => {
   describe('edge cases', () => {
     it('should handle multiple rapid requests', async () => {
       const responses = await Promise.all([
-        GET(),
-        GET(),
-        GET(),
+        GET(mockRequest),
+        GET(mockRequest),
+        GET(mockRequest),
       ]);
 
       // All should complete (may fail due to native bindings)
@@ -301,8 +304,8 @@ describe('/api/database/health', () => {
     });
 
     it('should return consistent data structure', async () => {
-      const response1 = await GET();
-      const response2 = await GET();
+      const response1 = await GET(mockRequest);
+      const response2 = await GET(mockRequest);
 
       if (response1.status === 200 && response2.status === 200) {
         const data1 = await response1.json();
@@ -313,7 +316,7 @@ describe('/api/database/health', () => {
     });
 
     it('should have valid health score range', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       if (response.status === 200) {
@@ -325,7 +328,7 @@ describe('/api/database/health', () => {
 
   describe('health status validation', () => {
     it('should map health score to appropriate status', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       if (response.status === 200) {
@@ -343,7 +346,7 @@ describe('/api/database/health', () => {
     });
 
     it('should only return valid health status values', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       if (response.status === 200) {
@@ -355,7 +358,7 @@ describe('/api/database/health', () => {
 
   describe('recommendations', () => {
     it('should return array of strings', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       if (response.status === 200) {

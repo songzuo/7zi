@@ -182,7 +182,7 @@ describe('CacheManager - Analytics Optimization', () => {
     });
 
     it('should handle mixed argument types', () => {
-      const key = CacheManager.generateKey('analytics', 'week', 1, 100, ['a', 'b']);
+      const key = CacheManager.generateKey('analytics', 'week', 1, 100, 'a,b');
       expect(typeof key).toBe('string');
       expect(key).toContain('analytics');
       expect(key).toContain('week');
@@ -343,8 +343,8 @@ describe('CacheManager - Analytics Optimization', () => {
       cacheManager.set(page1Key, page1Data, CachePresets.LONG);
       cacheManager.set(page2Key, page2Data, CachePresets.LONG);
 
-      const retrievedPage1 = cacheManager.get(page1Key);
-      const retrievedPage2 = cacheManager.get(page2Key);
+      const retrievedPage1 = cacheManager.get(page1Key) as typeof page1Data;
+      const retrievedPage2 = cacheManager.get(page2Key) as typeof page2Data;
 
       expect(retrievedPage1).toEqual(page1Data);
       expect(retrievedPage2).toEqual(page2Data);

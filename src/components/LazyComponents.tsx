@@ -235,12 +235,59 @@ export const LazyPWAInstallPrompt = dynamic(
 );
 
 /**
+ * AnalyticsDashboard 组件 - 数据分析仪表板
+ * 🚀 优化：懒加载减少初始包体积 (584行, ~20KB)
+ * 🚀 优化：使用 measureAsync 追踪加载时间
+ */
+export const LazyAnalyticsDashboard = dynamic(
+  () => measureAsync(
+    'analytics-dashboard-load',
+    () => import('./analytics/AnalyticsDashboard').then((mod) => ({ default: mod.default }))
+  ),
+  {
+    ssr: true,
+    loading: () => (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <LoadingSpinner size="xl" />
+        <p className="ml-4 text-zinc-500 dark:text-zinc-400">Loading Analytics...</p>
+      </div>
+    ),
+  }
+);
+
+/**
+ * MeetingRoom 组件 - 视频会议室组件
+ * 🚀 优化：懒加载减少初始包体积 (575行, ~19KB)
+ * 🚀 优化：包含 WebRTC 逻辑，适合延迟加载
+ * 🚀 优化：使用 measureAsync 追踪加载时间
+ */
+export const LazyMeetingRoom = dynamic(
+  () => measureAsync(
+    'meeting-room-load',
+    () => import('./meeting/MeetingRoom').then((mod) => ({ default: mod.default }))
+  ),
+  {
+    ssr: false,  // WebRTC 组件不需要 SSR
+    loading: () => (
+      <div className="flex items-center justify-center min-h-[400px] bg-zinc-100 dark:bg-zinc-900 animate-pulse rounded-2xl">
+        <div className="text-center">
+          <LoadingSpinner size="lg" />
+          <p className="mt-4 text-zinc-500 dark:text-zinc-400">Connecting to meeting room...</p>
+        </div>
+      </div>
+    ),
+  }
+);
+
+/**
  * 预加载函数 - 用于关键组件的预加载
  */
 export const preloadComponents = {
   aiChat: () => import('./AIChat'),
   projectDashboard: () => import('./ProjectDashboard'),
   githubActivity: () => import('./GitHubActivity'),
+  analyticsDashboard: () => import('./analytics/AnalyticsDashboard'),
+  meetingRoom: () => import('./meeting/MeetingRoom'),
 };
 
 /**

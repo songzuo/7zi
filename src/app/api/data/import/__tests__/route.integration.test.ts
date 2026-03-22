@@ -318,6 +318,7 @@ describe('/api/data/import', () => {
       const response = await POST(request);
 
       expect(response.status).toBe(200);
+      const data = await response.json();
       expect(data.success).toBe(true);
     });
   });

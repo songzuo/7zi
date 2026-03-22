@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
 import Image from 'next/image';
+import type { FC, ReactNode, MouseEvent } from 'react';
 
 export interface ActivityItem {
   id: string;
@@ -17,7 +17,7 @@ interface ActivityLogProps {
   activities: ActivityItem[];
 }
 
-export const ActivityLog: React.FC<ActivityLogProps> = ({ activities }) => {
+export const ActivityLog: FC<ActivityLogProps> = ({ activities }) => {
   const typeIcons = {
     commit: '💻',
     issue: '📋',

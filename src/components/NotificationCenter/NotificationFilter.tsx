@@ -5,8 +5,8 @@
 
 'use client';
 
-import React from 'react';
 import { NotificationType, NotificationPriority } from '@/types/notifications';
+import type { FC } from 'react';
 
 // ============================================================================
 // Types
@@ -46,11 +46,11 @@ const PRIORITY_LABELS: Record<NotificationPriority, string> = {
 // Component
 // ============================================================================
 
-export const NotificationFilter: React.FC<NotificationFilterProps> = ({
+export const NotificationFilter: FC<NotificationFilterProps> = ({
   filter,
   onChange,
 }) => {
-  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleTypeChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     onChange({
       ...filter,
@@ -58,7 +58,7 @@ export const NotificationFilter: React.FC<NotificationFilterProps> = ({
     });
   };
 
-  const handlePriorityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handlePriorityChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     onChange({
       ...filter,

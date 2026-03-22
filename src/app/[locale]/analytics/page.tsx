@@ -5,7 +5,7 @@
 
 import { setRequestLocale } from 'next-intl/server';
 import { Locale, locales } from '@/i18n/config';
-import { AnalyticsDashboard } from '@/components/analytics';
+import { LazyAnalyticsDashboard } from '@/components/LazyComponents';
 import { Metadata } from 'next';
 
 type Params = Promise<{ locale: string }>;

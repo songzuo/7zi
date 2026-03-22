@@ -29,7 +29,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    setupFiles: ['./src/test/setup.tsx'],
+    setupFiles: [path.resolve(__dirname, './src/test/setup.tsx')],
     include: ['src/**/*.{test,spec}.{js,ts,jsx,tsx}', 'app/**/*.{test,spec}.{js,ts,jsx,tsx}'],
 
     // Vitest 4: 性能优化：使用 vmForks 线程池减少内存占用

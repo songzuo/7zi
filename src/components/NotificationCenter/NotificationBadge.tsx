@@ -5,11 +5,11 @@
 
 'use client';
 
-import React from 'react';
 import type { NotificationBadgeProps } from './types';
+import type { FC } from 'react';
 
 /** 通知徽章组件 */
-export const NotificationBadge: React.FC<NotificationBadgeProps> = ({
+export const NotificationBadge: FC<NotificationBadgeProps> = ({
   count,
   maxCount = 99,
 }) => {

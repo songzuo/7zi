@@ -3,10 +3,10 @@
  * Displays rating statistics including average rating and distribution chart
  */
 
-import React from 'react';
 import { Star, TrendingUp, ThumbsUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RatingStats as RatingStatsType } from '@/types/feedback';
+import type { FC } from 'react';
 
 export interface RatingStatsProps {
   stats: RatingStatsType;

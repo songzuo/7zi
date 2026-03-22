@@ -1,7 +1,6 @@
 'use client';
 
-import React from 'react';
-import { Children, ReactNode, isValidElement, cloneElement } from 'react';
+import { Children, ReactNode, isValidElement, cloneElement, type FC } from 'react';
 
 interface ResponsiveGridProps {
   children: ReactNode;
@@ -27,7 +26,7 @@ interface ResponsiveGridProps {
  * - lg (641px+): 3 columns
  * - xl (1025px+): 4 columns
  */
-export const ResponsiveGrid: React.FC<ResponsiveGridProps> = ({
+export const ResponsiveGrid: FC<ResponsiveGridProps> = ({
   children,
   className = '',
   cols = {
@@ -100,7 +99,7 @@ interface ResponsiveCardProps {
   onClick?: () => void;
 }
 
-export const ResponsiveCard: React.FC<ResponsiveCardProps> = ({
+export const ResponsiveCard: FC<ResponsiveCardProps> = ({
   children,
   className = '',
   hover = false,
@@ -149,7 +148,7 @@ interface ResponsiveContainerProps {
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
 }
 
-export const ResponsiveContainer: React.FC<ResponsiveContainerProps> = ({
+export const ResponsiveContainer: FC<ResponsiveContainerProps> = ({
   children,
   className = '',
   maxWidth = 'xl'
@@ -184,10 +183,10 @@ interface ResponsiveTextProps {
   children: ReactNode;
   variant?: 'h1' | 'h2' | 'h3' | 'h4' | 'body' | 'small';
   className?: string;
-  as?: React.ElementType;
+  as?: string;
 }
 
-export const ResponsiveText: React.FC<ResponsiveTextProps> = ({
+export const ResponsiveText: FC<ResponsiveTextProps> = ({
   children,
   variant = 'body',
   className = '',
@@ -202,7 +201,7 @@ export const ResponsiveText: React.FC<ResponsiveTextProps> = ({
     small: 'text-xs sm:text-sm md:text-base'
   };
 
-  const Tag = as as React.ElementType<React.HTMLAttributes<HTMLElement>>;
+  const Tag = as as keyof JSX.IntrinsicElements;
 
   return React.createElement(
     Tag,
@@ -225,7 +224,7 @@ interface ResponsiveButtonProps {
   type?: 'button' | 'submit' | 'reset';
 }
 
-export const ResponsiveButton: React.FC<ResponsiveButtonProps> = ({
+export const ResponsiveButton: FC<ResponsiveButtonProps> = ({
   children,
   onClick,
   variant = 'primary',
@@ -273,13 +272,13 @@ export const ResponsiveButton: React.FC<ResponsiveButtonProps> = ({
  * Responsive Input Component
  * Ensures touch-friendly input heights on mobile
  */
-interface ResponsiveInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
+interface ResponsiveInputProps extends Omit<JSX.IntrinsicElements['input'], 'size'> {
   label?: string;
   error?: string;
   helperText?: string;
 }
 
-export const ResponsiveInput: React.FC<ResponsiveInputProps> = ({
+export const ResponsiveInput: FC<ResponsiveInputProps> = ({
   label,
   error,
   helperText,

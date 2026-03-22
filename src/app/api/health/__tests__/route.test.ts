@@ -4,6 +4,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { NextRequest } from 'next/server';
 import { GET } from '../route';
 
 describe('/api/health', () => {
@@ -18,7 +19,8 @@ describe('/api/health', () => {
 
   describe('GET request', () => {
     it('should return health status with correct structure', async () => {
-      const response = await GET();
+      const mockRequest = new NextRequest('http://localhost:3000/api/health');
+      const response = await GET(mockRequest);
       const body = await response.json();
 
       expect(response.status).toBe(200);
@@ -33,7 +35,7 @@ describe('/api/health', () => {
     });
 
     it('should return healthy status', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const body = await response.json();
       const data = body.data;
 
@@ -41,7 +43,7 @@ describe('/api/health', () => {
     });
 
     it('should return timestamp', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const body = await response.json();
       const data = body.data;
 
@@ -49,7 +51,7 @@ describe('/api/health', () => {
     });
 
     it('should return uptime in seconds', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const body = await response.json();
       const data = body.data;
 
@@ -58,7 +60,7 @@ describe('/api/health', () => {
     });
 
     it('should return version string', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const body = await response.json();
       const data = body.data;
 
@@ -68,7 +70,7 @@ describe('/api/health', () => {
 
     describe('checks', () => {
       it('should return checks object', async () => {
-        const response = await GET();
+        const response = await GET(mockRequest);
         const body = await response.json();
         const data = body.data;
 
@@ -77,7 +79,7 @@ describe('/api/health', () => {
       });
 
       it('should return memory check with correct structure', async () => {
-        const response = await GET();
+        const response = await GET(mockRequest);
         const body = await response.json();
         const data = body.data;
 
@@ -87,7 +89,7 @@ describe('/api/health', () => {
       });
 
       it('should return memory status as ok or warning', async () => {
-        const response = await GET();
+        const response = await GET(mockRequest);
         const body = await response.json();
         const data = body.data;
 
@@ -95,7 +97,7 @@ describe('/api/health', () => {
       });
 
       it('should return memory used in MB', async () => {
-        const response = await GET();
+        const response = await GET(mockRequest);
         const body = await response.json();
         const data = body.data;
 
@@ -104,7 +106,7 @@ describe('/api/health', () => {
       });
 
       it('should return memory limit in MB', async () => {
-        const response = await GET();
+        const response = await GET(mockRequest);
         const body = await response.json();
         const data = body.data;
 
@@ -112,7 +114,7 @@ describe('/api/health', () => {
       });
 
       it('should return node check with correct structure', async () => {
-        const response = await GET();
+        const response = await GET(mockRequest);
         const body = await response.json();
         const data = body.data;
 
@@ -121,7 +123,7 @@ describe('/api/health', () => {
       });
 
       it('should return node status as ok', async () => {
-        const response = await GET();
+        const response = await GET(mockRequest);
         const body = await response.json();
         const data = body.data;
 
@@ -129,7 +131,7 @@ describe('/api/health', () => {
       });
 
       it('should return Node.js version', async () => {
-        const response = await GET();
+        const response = await GET(mockRequest);
         const body = await response.json();
         const data = body.data;
 
@@ -140,7 +142,7 @@ describe('/api/health', () => {
 
   describe('response headers', () => {
     it('should return JSON content type', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
 
       expect(response.headers.get('content-type')).toContain('application/json');
     });
@@ -158,8 +160,8 @@ describe('/api/health', () => {
     });
 
     it('should return consistent data structure', async () => {
-      const response1 = await GET();
-      const response2 = await GET();
+      const response1 = await GET(mockRequest);
+      const response2 = await GET(mockRequest);
 
       const body1 = await response1.json();
       const body2 = await response2.json();
@@ -174,7 +176,7 @@ describe('/api/health', () => {
 
   describe('memory threshold validation', () => {
     it('should return 200 when memory is below 95% threshold', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
 
       expect(response.status).toBe(200);
     });
@@ -182,7 +184,7 @@ describe('/api/health', () => {
 
   describe('status enum validation', () => {
     it('should only return valid status values', async () => {
-      const response = await GET();
+      const response = await GET(mockRequest);
       const body = await response.json();
       const data = body.data;
 

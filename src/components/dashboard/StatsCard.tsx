@@ -2,13 +2,13 @@
 
 /**
  * StatsCard - 统计数据卡片组件
- * 
+ *
  * 用于显示关键业务指标：总agents、总用户、总tokens、收入等
  * 支持响应式设计和移动端友好
  */
 
-import React from 'react';
 import { LucideIcon, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import type { FC } from 'react';
 
 // ============================================================================
 // 类型定义
@@ -82,7 +82,7 @@ const sizeConfig = {
 // 组件实现
 // ============================================================================
 
-export const StatsCard: React.FC<StatsCardProps> = ({
+export const StatsCard: FC<StatsCardProps> = ({
   title,
   value,
   icon: Icon,

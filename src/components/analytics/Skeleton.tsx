@@ -2,7 +2,7 @@
  * Skeleton Loading States for Analytics Dashboard
  */
 
-import React from 'react';
+import type { FC, CSSProperties } from 'react';
 
 interface SkeletonProps {
   className?: string;
@@ -12,7 +12,7 @@ interface SkeletonProps {
   animation?: 'pulse' | 'wave' | 'none';
 }
 
-export const Skeleton: React.FC<SkeletonProps> = ({
+export const Skeleton: FC<SkeletonProps> = ({
   className = '',
   variant = 'text',
   width,
@@ -33,7 +33,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
     none: ''
   };
 
-  const style: React.CSSProperties = {};
+  const style: CSSProperties = {};
   if (width) style.width = typeof width === 'number' ? `${width}px` : width;
   if (height) style.height = typeof height === 'number' ? `${height}px` : height;
 
@@ -50,7 +50,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
 };
 
 // Metric Card Skeleton
-export const MetricCardSkeleton: React.FC = () => (
+export const MetricCardSkeleton: FC = () => (
   <div className="bg-white dark:bg-zinc-800 rounded-lg border border-gray-200 dark:border-zinc-700 p-6">
     <div className="flex items-center justify-between mb-4">
       <Skeleton variant="circular" width={40} height={40} />
@@ -61,8 +61,11 @@ export const MetricCardSkeleton: React.FC = () => (
   </div>
 );
 
+// Import for LoadingOverlay
+import { RefreshCw } from 'lucide-react';
+
 // Chart Skeleton
-export const ChartSkeleton: React.FC<{ height?: number }> = ({ height = 350 }) => (
+export const ChartSkeleton: FC<{ height?: number }> = ({ height = 350 }) => (
   <div className="bg-white dark:bg-zinc-800 rounded-lg border border-gray-200 dark:border-zinc-700 p-6" style={{ height }}>
     <Skeleton variant="text" width={150} height={24} className="mb-6" />
     <div className="flex items-center justify-center h-full min-h-[250px]">
@@ -75,7 +78,7 @@ export const ChartSkeleton: React.FC<{ height?: number }> = ({ height = 350 }) =
 );
 
 // Loading Overlay
-export const LoadingOverlay: React.FC<{ message?: string }> = ({ message }) => (
+export const LoadingOverlay: FC<{ message?: string }> = ({ message }) => (
   <div className="flex items-center justify-center py-12">
     <div className="text-center">
       <RefreshCw className="w-8 h-8 text-gray-400 animate-spin mx-auto" />
@@ -85,13 +88,10 @@ export const LoadingOverlay: React.FC<{ message?: string }> = ({ message }) => (
 );
 
 // Grid of skeleton metric cards
-export const MetricsGridSkeleton: React.FC<{ count?: number }> = ({ count = 4 }) => (
+export const MetricsGridSkeleton: FC<{ count?: number }> = ({ count = 4 }) => (
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
     {Array.from({ length: count }).map((_, i) => (
       <MetricCardSkeleton key={i} />
     ))}
   </div>
 );
-
-// Import for LoadingOverlay
-import { RefreshCw } from 'lucide-react';

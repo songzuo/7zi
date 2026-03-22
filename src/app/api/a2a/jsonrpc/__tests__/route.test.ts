@@ -175,7 +175,7 @@ describe('/api/a2a/jsonrpc route', () => {
     });
 
     it('should handle empty batch request', async () => {
-      const requestBody = [];
+      const requestBody: any[] = [];
 
       const request = new NextRequest('https://7zi.studio/api/a2a/jsonrpc', {
         method: 'POST',
@@ -368,6 +368,7 @@ describe('/api/a2a/jsonrpc route', () => {
   describe('Development Mode', () => {
     it('should include error details in development', async () => {
       const originalEnv = process.env.NODE_ENV;
+      // @ts-ignore - NODE_ENV is read-only in newer TypeScript versions
       process.env.NODE_ENV = 'development';
 
       const requestBody = {
@@ -394,11 +395,13 @@ describe('/api/a2a/jsonrpc route', () => {
       expect(data.error.data).toBeDefined();
       expect(data.error.data.message).toBe('Dev error');
 
+      // @ts-ignore - NODE_ENV is read-only in newer TypeScript versions
       process.env.NODE_ENV = originalEnv;
     });
 
     it('should hide error details in production', async () => {
       const originalEnv = process.env.NODE_ENV;
+      // @ts-ignore - NODE_ENV is read-only in newer TypeScript versions
       process.env.NODE_ENV = 'production';
 
       const requestBody = {
@@ -424,6 +427,7 @@ describe('/api/a2a/jsonrpc route', () => {
 
       expect(data.error.data).toBeUndefined();
 
+      // @ts-ignore - NODE_ENV is read-only in newer TypeScript versions
       process.env.NODE_ENV = originalEnv;
     });
   });

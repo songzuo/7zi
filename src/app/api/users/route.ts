@@ -10,7 +10,7 @@
  * - Consistent error handling
  */
 
-import { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 import {
   getAllUsers,
   createUser,
@@ -22,10 +22,7 @@ import {
   success,
   badRequest,
   conflict,
-  internalError,
   withApiHandler,
-  type ApiSuccessResponse,
-  type ApiErrorResponse,
 } from '@/lib/api/api-response-wrapper';
 
 /**
@@ -85,7 +82,7 @@ interface UserListData {
  *   requestId: "..."
  * }
  */
-export const GET = withApiHandler(async (request: NextRequest) => {
+export const GET = withApiHandler(async (request: Request) => {
   const { searchParams } = new URL(request.url);
 
   // Parse query parameters
@@ -231,17 +228,17 @@ export const GET = withApiHandler(async (request: NextRequest) => {
  *   requestId: "..."
  * }
  */
-export const POST = withApiHandler(async (request: NextRequest) => {
+export const POST = withApiHandler(async (request: Request) => {
   const body = await request.json();
   const { email, password, name, role, roles, permissions, metadata } = body;
 
   // Validate required fields
   if (!email || !password || !name) {
-    return badRequest('email, password, and name are required', {
-      ...(email ? {} : { email: ['Email is required'] }),
-      ...(password ? {} : { password: ['Password is required'] }),
-      ...(name ? {} : { name: ['Name is required'] }),
-    });
+    const errors: Record<string, string[]> = {};
+    if (!email) errors.email = ['Email is required'];
+    if (!password) errors.password = ['Password is required'];
+    if (!name) errors.name = ['Name is required'];
+    return badRequest('email, password, and name are required', errors);
   }
 
   // Validate email format

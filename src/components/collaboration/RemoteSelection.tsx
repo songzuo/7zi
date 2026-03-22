@@ -7,7 +7,7 @@
 
 'use client';
 
-import React from 'react';
+import type { FC, ReactNode } from 'react';
 
 // ============================================================================
 // Types
@@ -94,7 +94,7 @@ export function SelectionHighlighter({
 
   // Build highlighted content
   let lastIndex = 0;
-  const parts: React.ReactNode[] = [];
+  const parts: ReactNode[] = [];
 
   sortedSelections.forEach((sel) => {
     const { start, end } = sel.selection;

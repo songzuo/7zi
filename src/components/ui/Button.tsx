@@ -9,9 +9,9 @@
 
 'use client';
 
-import React from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
+import type { FC } from 'react';
 
 /**
  * Button variant types
@@ -26,7 +26,7 @@ export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 /**
  * Button component props
  */
-export interface ButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'size'> {
+export interface ButtonProps extends Omit<JSX.IntrinsicElements['button'], 'size'> {
   /** Button variant (default: 'primary') */
   variant?: ButtonVariant;
   /** Size preset (default: 'md') */
@@ -38,11 +38,11 @@ export interface ButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonE
   /** Full width button */
   fullWidth?: boolean;
   /** Icon element to display */
-  icon?: React.ReactNode;
+  icon?: ReactNode;
   /** Icon position (default: 'left') */
   iconPosition?: 'left' | 'right';
   /** Button content */
-  children: React.ReactNode;
+  children: ReactNode;
   /** Translation key for i18n (optional, overrides children if provided) */
   textKey?: string;
   /** Translation namespace (optional, defaults to 'ui.button') */
@@ -75,7 +75,7 @@ const SIZE_CONFIG: Record<ButtonSize, string> = {
 /**
  * Loading spinner component
  */
-const LoadingSpinner: React.FC = () => (
+const LoadingSpinner: FC = () => (
   <svg
     className="animate-spin h-4 w-4"
     xmlns="http://www.w3.org/2000/svg"
@@ -101,7 +101,7 @@ const LoadingSpinner: React.FC = () => (
 /**
  * Main Button component with i18n support
  */
-export const Button: React.FC<ButtonProps> = ({
+export const Button: FC<ButtonProps> = ({
   variant = 'primary',
   size = 'md',
   loading = false,
@@ -120,7 +120,7 @@ export const Button: React.FC<ButtonProps> = ({
   const tLoading = useTranslations('loading');
 
   // Use translation if textKey is provided, otherwise use children
-  const displayText = textKey ? t(textKey as keyof typeof t) : children;
+  const displayText = textKey ? t(textKey as any) : children;
   const loadingText = tLoading('default');
 
   return (
@@ -169,12 +169,12 @@ export const Button: React.FC<ButtonProps> = ({
  */
 export interface ButtonGroupProps {
   /** Buttons to group */
-  children: React.ReactNode;
+  children: ReactNode;
   /** Additional class name */
   className?: string;
 }
 
-export const ButtonGroup: React.FC<ButtonGroupProps> = ({ children, className }) => (
+export const ButtonGroup: FC<ButtonGroupProps> = ({ children, className }) => (
   <div className={cn('flex gap-2 flex-wrap', className)}>
     {children}
   </div>
@@ -185,12 +185,12 @@ export const ButtonGroup: React.FC<ButtonGroupProps> = ({ children, className })
  */
 export interface IconButtonProps extends Omit<ButtonProps, 'children'> {
   /** Icon element */
-  icon: React.ReactNode;
+  icon: ReactNode;
   /** Tooltip text */
   tooltip?: string;
 }
 
-export const IconButton: React.FC<IconButtonProps> = ({
+export const IconButton: FC<IconButtonProps> = ({
   icon,
   tooltip,
   size = 'md',

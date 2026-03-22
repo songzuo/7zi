@@ -9,8 +9,8 @@
  * @see ThemeSelector for advanced theme selection with system preference
  */
 
-import React from 'react';
 import { useTheme } from '@/contexts/SettingsContext';
+import type { FC } from 'react';
 
 interface ThemeToggleProps {
   className?: string;

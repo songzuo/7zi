@@ -80,8 +80,12 @@ vi.mock('@/lib/db/query-optimizations', () => ({
 }));
 
 const mockDb = {
+  query: vi.fn(),
   queryRows: vi.fn(),
   exec: vi.fn(),
+  prepare: vi.fn(),
+  pragma: vi.fn(),
+  batch: vi.fn(),
 };
 
 // Get the mocked function
@@ -355,7 +359,7 @@ describe('GET_FEEDBACK /api/feedback/[id]', () => {
     });
 
     const request = new NextRequest('http://localhost/api/feedback/1');
-    const response = await GET_FEEDBACK(request, { params: Promise.resolve({ id: '1' }) });
+    const response = await GET_FEEDBACK(request, { params: { id: '1' } });
 
     expect(response.status).toBe(200);
   });
@@ -364,7 +368,7 @@ describe('GET_FEEDBACK /api/feedback/[id]', () => {
     mockDb.queryRows.mockReturnValueOnce(undefined);
 
     const request = new NextRequest('http://localhost/api/feedback/999');
-    const response = await GET_FEEDBACK(request, { params: Promise.resolve({ id: '999' }) });
+    const response = await GET_FEEDBACK(request, { params: { id: '999' } });
 
     expect(response.status).toBe(404);
   });
@@ -390,7 +394,7 @@ describe('PATCH /api/feedback/[id]', () => {
       }),
     });
 
-    const response = await PATCH(request, { params: Promise.resolve({ id: '1' }) });
+    const response = await PATCH(request, { params: { id: "1" } });
 
     expect(response.status).toBe(200);
   });
@@ -410,7 +414,7 @@ describe('PATCH /api/feedback/[id]', () => {
       }),
     });
 
-    const response = await PATCH(request, { params: Promise.resolve({ id: '1' }) });
+    const response = await PATCH(request, { params: { id: "1" } });
 
     expect(response.status).toBe(200);
     expect(mockDb.exec).toHaveBeenCalledWith(
@@ -434,7 +438,7 @@ describe('PATCH /api/feedback/[id]', () => {
       }),
     });
 
-    const response = await PATCH(request, { params: Promise.resolve({ id: '1' }) });
+    const response = await PATCH(request, { params: { id: "1" } });
 
     expect(response.status).toBe(200);
     expect(mockDb.exec).toHaveBeenCalledWith(
@@ -457,7 +461,7 @@ describe('PATCH /api/feedback/[id]', () => {
       }),
     });
 
-    const response = await PATCH(request, { params: Promise.resolve({ id: '1' }) });
+    const response = await PATCH(request, { params: { id: "1" } });
 
     expect(response.status).toBe(200);
   });
@@ -475,7 +479,7 @@ describe('PATCH /api/feedback/[id]', () => {
       }),
     });
 
-    const response = await PATCH(request, { params: Promise.resolve({ id: '1' }) });
+    const response = await PATCH(request, { params: { id: "1" } });
 
     expect(response.status).toBe(200);
   });
@@ -489,7 +493,7 @@ describe('PATCH /api/feedback/[id]', () => {
       }),
     });
 
-    const response = await PATCH(request, { params: Promise.resolve({ id: '1' }) });
+    const response = await PATCH(request, { params: { id: "1" } });
 
     expect(response.status).toBe(403);
   });
@@ -505,7 +509,7 @@ describe('PATCH /api/feedback/[id]', () => {
       }),
     });
 
-    const response = await PATCH(request, { params: Promise.resolve({ id: '999' }) });
+    const response = await PATCH(request, { params: { id: "1" } });
 
     expect(response.status).toBe(404);
   });
@@ -527,7 +531,7 @@ describe('DELETE_FEEDBACK /api/feedback/[id]', () => {
       method: 'DELETE',
     });
 
-    const response = await DELETE_FEEDBACK(request, { params: Promise.resolve({ id: '1' }) });
+    const response = await DELETE_FEEDBACK(request, { params: { id: "1" } });
 
     expect(response.status).toBe(200);
     expect(mockDb.exec).toHaveBeenCalledWith('DELETE FROM feedbacks WHERE id = ?', ['1']);
@@ -540,7 +544,7 @@ describe('DELETE_FEEDBACK /api/feedback/[id]', () => {
       method: 'DELETE',
     });
 
-    const response = await DELETE_FEEDBACK(request, { params: Promise.resolve({ id: '999' }) });
+    const response = await DELETE_FEEDBACK(request, { params: { id: "1" } });
 
     expect(response.status).toBe(404);
   });
@@ -555,7 +559,7 @@ describe('DELETE_FEEDBACK /api/feedback/[id]', () => {
       method: 'DELETE',
     });
 
-    const response = await DELETE_FEEDBACK(request, { params: Promise.resolve({ id: '1' }) });
+    const response = await DELETE_FEEDBACK(request, { params: { id: "1" } });
 
     expect(response.status).toBe(500);
   });

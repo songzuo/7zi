@@ -1,11 +1,10 @@
-'use client';
-
 /**
  * Image Analysis Result Component
  * Displays objects, OCR text, and tags detected in images
  */
 
-import React from 'react';
+'use client';
+
 import { useTranslations } from 'next-intl';
 import type { ImageData } from '@/lib/multimodal/types';
 

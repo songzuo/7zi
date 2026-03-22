@@ -5,9 +5,9 @@
 
 'use client';
 
-import React from 'react';
 import { LucideIcon, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { type Statistic } from '@/lib/types/analytics';
+import type { FC, CSSProperties } from 'react';
 
 // ============================================================================
 // Type Definitions
@@ -129,7 +129,7 @@ function formatValue(
 // Main Component
 // ============================================================================
 
-export const MetricCard: React.FC<MetricCardProps> = ({
+export const MetricCard: FC<MetricCardProps> = ({
   statistic,
   icon: Icon,
   color = 'blue',

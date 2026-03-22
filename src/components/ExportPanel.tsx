@@ -116,7 +116,7 @@ export function ExportPanel<T extends Record<string, unknown>>({
         selectedFields: selectedFieldKeys,
       });
 
-      const result = exporter.export(data);
+      const result = await exporter.export(data);
 
       if (result.success) {
         downloadExport(result);
@@ -369,7 +369,7 @@ export function QuickExportButton<T extends Record<string, unknown>>({
 }: QuickExportButtonProps<T>): React.ReactElement {
   const [isExporting, setIsExporting] = useState(false);
 
-  const handleExport = useCallback(() => {
+  const handleExport = useCallback(async () => {
     setIsExporting(true);
     try {
       const exporter = new DataExporter<T>({
@@ -377,7 +377,7 @@ export function QuickExportButton<T extends Record<string, unknown>>({
         format,
         fields,
       });
-      const result = exporter.export(data);
+      const result = await exporter.export(data);
       if (result.success) {
         downloadExport(result);
         onExport?.(result);

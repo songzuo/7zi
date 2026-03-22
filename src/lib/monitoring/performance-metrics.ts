@@ -192,7 +192,6 @@ export function initPerformanceMonitoring() {
       const rating = metric.value <= 2500 ? 'good' : metric.value <= 4000 ? 'needsImprovement' : 'poor';
       queueMetric('LCP', metric.value, rating);
     });
-    });
 
     onCLS((metric) => {
       const rating = metric.value <= 0.1 ? 'good' : metric.value <= 0.25 ? 'needsImprovement' : 'poor';

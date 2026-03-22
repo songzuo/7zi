@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import type { FC } from 'react';
 
 interface NavItem {
   href: string;
@@ -42,7 +42,7 @@ interface BottomNavProps {
  * Bottom Navigation Bar (Mobile Only)
  * Shows on screens below 641px (lg breakpoint)
  */
-export const BottomNav: React.FC<BottomNavProps> = ({ locale }) => {
+export const BottomNav: FC<BottomNavProps> = ({ locale }) => {
   const pathname = usePathname();
   const t = useTranslations('nav');
 
@@ -108,8 +108,8 @@ export const BottomNav: React.FC<BottomNavProps> = ({ locale }) => {
  * Bottom Nav Wrapper Component
  * Adds bottom padding to content to prevent overlap with bottom nav
  */
-export const BottomNavWrapper: React.FC<{
-  children: React.ReactNode;
+export const BottomNavWrapper: FC<{
+  children: ReactNode;
   locale: string;
 }> = ({ children, locale }) => {
   const isMobile = typeof window === 'undefined' || window.innerWidth < 641;

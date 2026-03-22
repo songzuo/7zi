@@ -4,7 +4,8 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { fetch } from 'next/test';
+// TODO: Replace with proper testing framework - next/test not available
+// import { fetch } from 'next/test';
 import { type TimeSeriesDataPoint } from '@/lib/types/analytics';
 
 // ============================================================================

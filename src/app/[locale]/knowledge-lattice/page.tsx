@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import KnowledgeLattice3D from '@/components/knowledge-lattice/KnowledgeLattice3D';
+import { LazyKnowledgeLatticeScene } from '@/components/LazyComponents';
 
 export const metadata: Metadata = {
   title: '知识图谱 - 7zi Studio',
@@ -86,7 +86,7 @@ export default function KnowledgeLatticePage() {
 
         {/* 3D Component */}
         <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl p-4 h-[700px]">
-          <KnowledgeLattice3D data={knowledgeData} />
+          <LazyKnowledgeLatticeScene data={knowledgeData} />
         </div>
 
         {/* Info */}

@@ -101,7 +101,7 @@ class PerformanceCollector {
    */
   private async initWebVitals() {
     const webVitals = await import('web-vitals');
-    const { onLCP, onFID, onCLS, onTTFB, onFCP, onINP } = webVitals;
+    const { onLCP, onCLS, onTTFB, onFCP, onINP } = webVitals;
 
     const handleMetric = (name: string) => (metric: { value: number; id: string; navigationType?: string }) => {
       const rating = getMetricRating(name, metric.value);
@@ -122,7 +122,7 @@ class PerformanceCollector {
 
     // 注册所有 Core Web Vitals 监听器
     onLCP(handleMetric('LCP'));
-    onFID(handleMetric('FID'));
+    onINP(handleMetric('FID'));
     onCLS(handleMetric('CLS'));
     onTTFB(handleMetric('TTFB'));
     onFCP(handleMetric('FCP'));

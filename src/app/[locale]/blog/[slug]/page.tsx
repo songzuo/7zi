@@ -1,4 +1,3 @@
-export const dynamic = 'force-dynamic';
 import Link from "next/link";
 
 const baseUrl = "https://7zi.studio";

@@ -698,3 +698,20 @@ export function getExportFileName(format: ExportFormat, tables: string[]): strin
     : tables.join('-');
   return `${tablesStr}-export-${timestamp}.${format}`;
 }
+
+/**
+ * Export data from database (public wrapper)
+ */
+export async function exportData(options: ExportOptions): Promise<ExportResult> {
+  return _exportData(options);
+}
+
+/**
+ * Import data to database (public wrapper)
+ */
+export async function importData(
+  data: string,
+  options: ImportOptions
+): Promise<ImportResult> {
+  return await _importData(data, options);
+}

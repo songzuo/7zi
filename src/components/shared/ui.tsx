@@ -5,8 +5,10 @@
 
 'use client';
 
-import React from 'react';
 import { MemberStatus, STATUS_CONFIG } from '@/types';
+import Image from 'next/image';
+import { formatTimeAgo } from '@/lib/date';
+import type { FC, ReactNode } from 'react';
 
 // ============================================================================
 // Status Badge - 状态徽章
@@ -18,7 +20,7 @@ interface StatusBadgeProps {
   size?: 'sm' | 'md';
 }
 
-export const StatusBadge: React.FC<StatusBadgeProps> = ({
+export const StatusBadge: FC<StatusBadgeProps> = ({
   status,
   showDot = true,
   size = 'sm',
@@ -48,7 +50,7 @@ interface ProgressBarProps {
   animated?: boolean;
 }
 
-export const ProgressBar: React.FC<ProgressBarProps> = ({
+export const ProgressBar: FC<ProgressBarProps> = ({
   progress,
   color = 'default',
   showLabel = false,
@@ -89,8 +91,6 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
 // Avatar - 头像组件
 // ============================================================================
 
-import Image from 'next/image';
-
 interface AvatarProps {
   src?: string;
   name: string;
@@ -99,7 +99,7 @@ interface AvatarProps {
   showStatus?: boolean;
 }
 
-export const Avatar: React.FC<AvatarProps> = ({
+export const Avatar: FC<AvatarProps> = ({
   src,
   name,
   size = 'md',
@@ -150,13 +150,13 @@ export const Avatar: React.FC<AvatarProps> = ({
 // ============================================================================
 
 interface CardProps {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
   hover?: boolean;
   padding?: 'none' | 'sm' | 'md' | 'lg';
 }
 
-export const Card: React.FC<CardProps> = ({
+export const Card: FC<CardProps> = ({
   children,
   className = '',
   hover = false,
@@ -191,10 +191,10 @@ interface EmptyStateProps {
   icon?: string;
   title: string;
   description?: string;
-  action?: React.ReactNode;
+  action?: ReactNode;
 }
 
-export const EmptyState: React.FC<EmptyStateProps> = ({
+export const EmptyState: FC<EmptyStateProps> = ({
   icon = '📭',
   title,
   description,
@@ -223,7 +223,7 @@ interface StatCardProps {
   color?: 'cyan' | 'purple' | 'green' | 'pink' | 'orange';
 }
 
-export const StatCard: React.FC<StatCardProps> = ({
+export const StatCard: FC<StatCardProps> = ({
   value,
   label,
   icon,
@@ -249,14 +249,12 @@ export const StatCard: React.FC<StatCardProps> = ({
 // Time Ago - 时间显示
 // ============================================================================
 
-import { formatTimeAgo } from '@/lib/date';
-
 interface TimeAgoProps {
   date: string | Date;
   className?: string;
 }
 
-export const TimeAgo: React.FC<TimeAgoProps> = ({ date, className = '' }) => {
+export const TimeAgo: FC<TimeAgoProps> = ({ date, className = '' }) => {
   return (
     <span className={`text-xs text-zinc-500 dark:text-zinc-400 ${className}`}>
       {formatTimeAgo(date)}

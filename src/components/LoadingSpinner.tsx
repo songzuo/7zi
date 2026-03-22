@@ -6,8 +6,8 @@
  * @module components/LoadingSpinner
  */
 
-import React from 'react';
 import { cn } from '@/lib/utils';
+import type { FC, CSSProperties } from 'react';
 
 /**
  * Loading spinner variant types
@@ -37,7 +37,7 @@ interface LoadingSpinnerProps {
   /** Custom class name */
   className?: string;
   /** Additional inline styles */
-  style?: React.CSSProperties;
+  style?: CSSProperties;
   /** Custom label text */
   label?: string;
   /** Label position ('top', 'bottom', 'hidden') */
@@ -71,7 +71,7 @@ const COLOR_CONFIG: Record<LoadingColor, string> = {
 /**
  * Spin variant - rotating spinner
  */
-const SpinVariant: React.FC<{ size: LoadingSize; color: LoadingColor }> = ({ size, color }) => (
+const SpinVariant: FC<{ size: LoadingSize; color: LoadingColor }> = ({ size, color }) => (
   <div
     className={cn(
       'animate-spin rounded-full border-2',
@@ -85,7 +85,7 @@ const SpinVariant: React.FC<{ size: LoadingSize; color: LoadingColor }> = ({ siz
 /**
  * Pulse variant - pulsing circle
  */
-const PulseVariant: React.FC<{ size: LoadingSize; color: LoadingColor }> = ({ size, color }) => (
+const PulseVariant: FC<{ size: LoadingSize; color: LoadingColor }> = ({ size, color }) => (
   <div className={cn('relative', SIZE_CONFIG[size])}>
     <div
       className={cn(
@@ -107,7 +107,7 @@ const PulseVariant: React.FC<{ size: LoadingSize; color: LoadingColor }> = ({ si
 /**
  * Bounce variant - bouncing dots
  */
-const BounceVariant: React.FC<{ size: LoadingSize; color: LoadingColor }> = ({ size, color }) => (
+const BounceVariant: FC<{ size: LoadingSize; color: LoadingColor }> = ({ size, color }) => (
   <div className={cn('flex items-center space-x-1', SIZE_CONFIG[size])}>
     {[0, 1, 2].map((i) => (
       <div
@@ -130,7 +130,7 @@ const BounceVariant: React.FC<{ size: LoadingSize; color: LoadingColor }> = ({ s
 /**
  * Dots variant - pulsing dots
  */
-const DotsVariant: React.FC<{ size: LoadingSize; color: LoadingColor }> = ({ size, color }) => {
+const DotsVariant: FC<{ size: LoadingSize; color: LoadingColor }> = ({ size, color }) => {
   const dotSize = size === 'xs' ? 'w-1 h-1' : size === 'sm' ? 'w-1.5 h-1.5' : size === 'md' ? 'w-2 h-2' : size === 'lg' ? 'w-2.5 h-2.5' : 'w-3 h-3';
   return (
     <div className="flex items-center space-x-2">
@@ -156,7 +156,7 @@ const DotsVariant: React.FC<{ size: LoadingSize; color: LoadingColor }> = ({ siz
 /**
  * Bars variant - pulsing bars
  */
-const BarsVariant: React.FC<{ size: LoadingSize; color: LoadingColor }> = ({ size, color }) => {
+const BarsVariant: FC<{ size: LoadingSize; color: LoadingColor }> = ({ size, color }) => {
   const barHeight = size === 'xs' ? 'h-4' : size === 'sm' ? 'h-6' : size === 'md' ? 'h-8' : size === 'lg' ? 'h-12' : 'h-16';
   return (
     <div className={cn('flex items-end space-x-1', barHeight)}>
@@ -181,7 +181,7 @@ const BarsVariant: React.FC<{ size: LoadingSize; color: LoadingColor }> = ({ siz
 /**
  * Wave variant - wave animation
  */
-const WaveVariant: React.FC<{ size: LoadingSize; color: LoadingColor }> = ({ size, color }) => {
+const WaveVariant: FC<{ size: LoadingSize; color: LoadingColor }> = ({ size, color }) => {
   const barHeight = size === 'xs' ? 'h-4' : size === 'sm' ? 'h-6' : size === 'md' ? 'h-8' : size === 'lg' ? 'h-12' : 'h-16';
   return (
     <div className={cn('flex items-end space-x-1', barHeight)}>
@@ -210,7 +210,7 @@ const WaveVariant: React.FC<{ size: LoadingSize; color: LoadingColor }> = ({ siz
 /**
  * Main LoadingSpinner component
  */
-export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
+export const LoadingSpinner: FC<LoadingSpinnerProps> = ({
   variant = 'spin',
   size = 'md',
   color = 'primary',

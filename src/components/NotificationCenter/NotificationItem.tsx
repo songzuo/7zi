@@ -5,8 +5,8 @@
 
 'use client';
 
-import React from 'react';
 import type { NotificationItemProps, NotificationType } from './types';
+import type { FC } from 'react';
 
 /** 类型对应的颜色配置 */
 const typeColors: Record<NotificationType, { bg: string; text: string; icon: string }> = {
@@ -50,7 +50,7 @@ const formatRelativeTime = (date: Date): string => {
 };
 
 /** 通知项组件 */
-export const NotificationItem: React.FC<NotificationItemProps> = ({
+export const NotificationItem: FC<NotificationItemProps> = ({
   notification,
   onMarkAsRead,
   onDelete,
@@ -67,12 +67,12 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
     }
   };
 
-  const handleMarkAsRead = (e: React.MouseEvent) => {
+  const handleMarkAsRead = (e: MouseEvent) => {
     e.stopPropagation();
     onMarkAsRead?.(notification.id);
   };
 
-  const handleDelete = (e: React.MouseEvent) => {
+  const handleDelete = (e: MouseEvent) => {
     e.stopPropagation();
     onDelete?.(notification.id);
   };
