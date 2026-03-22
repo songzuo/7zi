@@ -99,77 +99,69 @@ const nextConfig: NextConfig = {
       config.optimization.splitChunks = {
         chunks: 'all',
         cacheGroups: {
-          // 🚀 Three.js 独立打包 (最高优先级)
+          // 🚀 Three.js 独立打包 (最高优先级 - 大型库)
           three: {
             test: /[\\/]node_modules[\\/](three|@react-three\/fiber|@react-three\/drei)[\\/]/,
             name: 'three-bundle',
             priority: 50,
             reuseExistingChunk: true,
             enforce: true,
+            minSize: 30000,  // Three.js 较大，设置更高的 minSize
           },
-          // 🚀 Excel 工具独立打包
+          // 🚀 Excel 工具独立打包 (大型库)
           excel: {
             test: /[\\/]node_modules[\\/]xlsx[\\/]/,
             name: 'excel-utils',
             priority: 45,
             reuseExistingChunk: true,
             enforce: true,
+            minSize: 30000,  // XLSX 较大
           },
-          // React 核心库单独打包
-          react: {
-            test: /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/,
-            name: 'react-core',
+          // 📦 核心框架合并 (React + Next.js)
+          framework: {
+            test: /[\\/]node_modules[\\/](react|react-dom|scheduler|next|next-intl)[\\/]/,
+            name: 'framework',
             priority: 40,
             reuseExistingChunk: true,
+            minSize: 30000,
           },
-          // Next.js 核心单独打包
-          next: {
-            test: /[\\/]node_modules[\\/](next|next-intl)[\\/]/,
-            name: 'next-core',
+          // 🧩 UI 组件库合并 (Lucide + Radix)
+          ui: {
+            test: /[\\/]node_modules[\\/](lucide-react|@radix-ui|class-variance-authority)[\\/]/,
+            name: 'ui-components',
             priority: 35,
             reuseExistingChunk: true,
           },
-          // 状态管理库
-          state: {
-            test: /[\\/]node_modules[\\/](zustand|immer|redux)[\\/]/,
-            name: 'state-management',
+          // 📊 状态管理 + 工具库合并 (Zustand + 工具)
+          utils: {
+            test: /[\\/]node_modules[\\/](zustand|immer|uuid|clsx|date-fns)[\\/]/,
+            name: 'utils-state',
             priority: 30,
             reuseExistingChunk: true,
           },
-          // UI 组件库
-          ui: {
-            test: /[\\/]node_modules[\\/](lucide-react|@radix-ui)[\\/]/,
-            name: 'ui-components',
-            priority: 25,
-            reuseExistingChunk: true,
-          },
-          // 实用工具库
-          utils: {
-            test: /[\\/]node_modules[\\/](uuid|clsx|class-variance-authority|date-fns)[\\/]/,
-            name: 'utils',
-            priority: 20,
-            reuseExistingChunk: true,
-          },
-          // 其他 vendor
-          vendor: {
+          // 🔧 其他小型工具库合并
+          misc: {
             test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            priority: 15,
+            name: 'vendors-misc',
+            priority: 10,
+            minChunks: 1,
             reuseExistingChunk: true,
           },
           // 公共模块
           common: {
             minChunks: 2,
-            priority: 10,
+            priority: 5,
             reuseExistingChunk: true,
           },
         },
-        // 更细粒度的 chunk 控制
-        maxInitialRequests: 30,  // 增加到 30
-        maxAsyncRequests: 30,    // 增加异步请求数
-        minSize: 10240,        // 减小到 10KB
-        maxSize: 244000,       // 最大 chunk 大小 244KB
+        // 优化 chunk 控制参数
+        maxInitialRequests: 25,  // 减少到 25 (原来 30)
+        maxAsyncRequests: 25,    // 减少到 25 (原来 30)
+        minSize: 20000,          // ⬆️ 增加到 20KB (原来 10KB) - 合并小 chunks
+        maxSize: 244000,         // 最大 chunk 大小 244KB
         minChunks: 1,
+        // 自动合并小 chunks
+        enforceSizeThreshold: 50000,  // 50KB 以上才强制分割
       };
 
       // Tree shaking 优化
