@@ -12,12 +12,15 @@
  * - 自动刷新 (30 秒)
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { MemberCard } from '@/components/MemberCard';
-import { TaskBoard } from '@/components/TaskBoard';
-import { ActivityLog } from '@/components/ActivityLog';
-import { RealtimeDashboard } from '@/components/RealtimeDashboard';
-import { TeamActivityTracker } from '@/components/TeamActivityTracker';
+import {
+  LazyTaskBoard,
+  LazyActivityLog,
+  LazyRealtimeDashboard,
+  LazyTeamActivityTracker,
+  LoadingFallback,
+} from '@/components/LazyComponents';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Link } from '@/i18n/routing';
@@ -322,27 +325,35 @@ export default function DashboardClient({ locale }: DashboardClientProps) {
 
           {/* 中间：任务看板 */}
           <div className="lg:col-span-1 order-1 lg:order-2">
-            <TaskBoard issues={issues} />
+            <Suspense fallback={<LoadingFallback message="加载任务看板..." className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700" />}>
+              <LazyTaskBoard issues={issues} />
+            </Suspense>
           </div>
 
           {/* 右侧：活动日志 */}
           <div className="lg:col-span-1 order-3">
-            <ActivityLog activities={activities} />
+            <Suspense fallback={<LoadingFallback message="加载活动日志..." className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700" />}>
+              <LazyActivityLog activities={activities} />
+            </Suspense>
           </div>
         </div>
 
         {/* 新增：实时仪表盘和团队活动追踪 */}
         <div className="mt-6 sm:mt-8 space-y-6">
           {/* 实时仪表盘 */}
-          <RealtimeDashboard locale={locale} />
+          <Suspense fallback={<LoadingFallback message="加载实时仪表盘..." className="bg-zinc-900 rounded-xl" />}>
+            <LazyRealtimeDashboard locale={locale} />
+          </Suspense>
 
           {/* 团队活动追踪 */}
-          <TeamActivityTracker 
-            locale={locale} 
-            maxItems={50}
-            showFilters={true}
-            showStats={true}
-          />
+          <Suspense fallback={<LoadingFallback message="加载团队活动追踪..." className="bg-white dark:bg-zinc-800 rounded-xl" />}>
+            <LazyTeamActivityTracker
+              locale={locale}
+              maxItems={50}
+              showFilters={true}
+              showStats={true}
+            />
+          </Suspense>
         </div>
       </main>
     </div>

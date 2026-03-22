@@ -6,6 +6,8 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
+  openAnalyzer: false, // 不自动打开浏览器，适合 CI/CD 环境
+  analyzerMode: 'static', // 生成静态 HTML 报告
 });
 
 const nextConfig: NextConfig = {
@@ -91,7 +93,7 @@ const nextConfig: NextConfig = {
   ],
 
   // Webpack 配置优化
-  webpack: (config, { isServer, dev }) => {
+  webpack: (config, { isServer, dev, webpack }) => {
     // 生产环境优化
     if (!isServer && !dev) {
       // 客户端包拆分
@@ -99,54 +101,69 @@ const nextConfig: NextConfig = {
       config.optimization.splitChunks = {
         chunks: 'all',
         cacheGroups: {
-          // 🚀 Three.js 独立打包 (最高优先级 - 大型库)
-          three: {
-            test: /[\\/]node_modules[\\/](three|@react-three\/fiber|@react-three\/drei)[\\/]/,
-            name: 'three-bundle',
+          // 🚀 大型库独立打包 (最高优先级)
+          'chart-libs': {
+            test: /[\\/]node_modules[\\/](recharts|chart\.js|react-chartjs-2|d3|vis-network|vis-data|@visx)[\\/]/,
+            name: 'chart-libs',
             priority: 50,
             reuseExistingChunk: true,
             enforce: true,
-            minSize: 30000,  // Three.js 较大，设置更高的 minSize
+            minSize: 30000,
           },
-          // 🚀 Excel 工具独立打包 (大型库)
-          excel: {
-            test: /[\\/]node_modules[\\/]xlsx[\\/]/,
-            name: 'excel-utils',
+
+          // 📊 实时通信库
+          'realtime-libs': {
+            test: /[\\/]node_modules[\\/](socket\.io-client|@socket\.io|engine\.io-client|eventemitter3)[\\/]/,
+            name: 'realtime-libs',
             priority: 45,
             reuseExistingChunk: true,
             enforce: true,
-            minSize: 30000,  // XLSX 较大
+            minSize: 30000,
           },
+
+          // 🎨 UI 组件库独立打包
+          'ui-libs': {
+            test: /[\\/]node_modules[\\/](@radix-ui|lucide-react|framer-motion|class-variance-authority|clsx|tailwind-merge)[\\/]/,
+            name: 'ui-libs',
+            priority: 40,
+            reuseExistingChunk: true,
+            enforce: true,
+          },
+
           // 📦 核心框架合并 (React + Next.js)
           framework: {
             test: /[\\/]node_modules[\\/](react|react-dom|scheduler|next|next-intl)[\\/]/,
             name: 'framework',
-            priority: 40,
+            priority: 35,
             reuseExistingChunk: true,
             minSize: 30000,
           },
-          // 🧩 UI 组件库合并 (Lucide + Radix)
-          ui: {
-            test: /[\\/]node_modules[\\/](lucide-react|@radix-ui|class-variance-authority)[\\/]/,
-            name: 'ui-components',
-            priority: 35,
-            reuseExistingChunk: true,
-          },
-          // 📊 状态管理 + 工具库合并 (Zustand + 工具)
-          utils: {
-            test: /[\\/]node_modules[\\/](zustand|immer|uuid|clsx|date-fns)[\\/]/,
-            name: 'utils-state',
+
+          // 🔧 工具库合并
+          'vendor-utils': {
+            test: /[\\/]node_modules[\\/](zustand|immer|uuid|date-fns|lodash|lodash-es)[\\/]/,
+            name: 'vendor-utils',
             priority: 30,
             reuseExistingChunk: true,
           },
-          // 🔧 其他小型工具库合并
-          misc: {
+
+          // 📝 表单和验证库
+          'forms-libs': {
+            test: /[\\/]node_modules[\\/](zod|react-hook-form|@hookform)[\\/]/,
+            name: 'forms-libs',
+            priority: 25,
+            reuseExistingChunk: true,
+          },
+
+          // 🧩 其他小型工具库合并
+          vendors: {
             test: /[\\/]node_modules[\\/]/,
-            name: 'vendors-misc',
+            name: 'vendors',
             priority: 10,
             minChunks: 1,
             reuseExistingChunk: true,
           },
+
           // 公共模块
           common: {
             minChunks: 2,
@@ -167,12 +184,27 @@ const nextConfig: NextConfig = {
       // Tree shaking 优化
       config.optimization.usedExports = true;
       config.optimization.sideEffects = false;
+
+      // 减少包体积
+      config.optimization = config.optimization || {};
+      config.optimization.providedExports = true;
+      config.optimization.usedExports = true;
+      config.optimization.sideEffects = true;
     }
 
     // 优化模块解析
     config.resolve = config.resolve || {};
     config.resolve.alias = config.resolve.alias || {};
     config.resolve.alias['@'] = __dirname + '/src';
+
+    // 性能提示 - 生产环境启用
+    if (!dev) {
+      config.performance = {
+        maxEntrypointSize: 512000, // 500KB
+        maxAssetSize: 512000,
+        hints: process.env.NODE_ENV === 'production' ? 'warning' : false,
+      };
+    }
 
     return config;
   },
