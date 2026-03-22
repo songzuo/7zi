@@ -320,7 +320,7 @@ describe('API Routes Response Headers', () => {
   it('should return JSON content type for all API routes', async () => {
     const routes = [
       () => import('@/app/api/status/route').then(m => m.GET(createMockRequest('http://localhost:3000/api/status'))),
-      () => import('@/app/api/health/route').then(m => m.GET()),
+      () => import('@/app/api/health/route').then(m => m.GET(createMockRequest('http://localhost:3000/api/health'))),
       () => import('@/app/api/health/live/route').then(m => m.GET()),
       () => import('@/app/api/health/ready/route').then(m => m.GET()),
       () => import('@/app/api/health/detailed/route').then(m => m.GET()),
@@ -347,7 +347,7 @@ describe('API Routes Performance', () => {
     // Test health endpoint
     const healthStart = Date.now()
     const { GET: getHealth } = await import('@/app/api/health/route')
-    await getHealth()
+    await getHealth(/** @type {*} */ (createMockRequest('http://localhost:3000/api/health')))
     expect(Date.now() - healthStart).toBeLessThan(maxResponseTime)
 
     // Test liveness (should be very fast)

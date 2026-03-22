@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, memo } from 'react';
+import React, { useState, memo, useDeferredValue, useMemo } from 'react';
 import Image from 'next/image';
 import { GitHubIssue } from '@/types';
 import { formatTimeAgo } from '@/lib/date';
@@ -13,10 +13,14 @@ interface TaskBoardProps {
 export const TaskBoard: React.FC<TaskBoardProps> = ({ issues }) => {
   const [filter, setFilter] = useState<'all' | 'open' | 'closed'>('open');
 
-  const filteredIssues = issues.filter(issue => {
-    if (filter === 'all') return true;
-    return issue.state === filter;
-  });
+  // 使用 useDeferredValue 优化筛选操作（React 19 优化）
+  const deferredFilter = useDeferredValue(filter);
+
+  // 使用 useMemo 优化筛选结果
+  const filteredIssues = useMemo(() => issues.filter(issue => {
+    if (deferredFilter === 'all') return true;
+    return issue.state === deferredFilter;
+  }), [issues, deferredFilter]);
 
   const openIssues = issues.filter(i => i.state === 'open');
   const closedIssues = issues.filter(i => i.state === 'closed');

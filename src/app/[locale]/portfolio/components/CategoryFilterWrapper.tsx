@@ -1,14 +1,16 @@
 'use client';
 
 import CategoryFilter from './CategoryFilter';
-import { useMemo } from 'react';
+import { useMemo, useTransition } from 'react';
 
 interface CategoryFilterWrapperProps {
   locale: string;
   activeCategory: string;
+  onCategoryChange?: (category: string) => void;
 }
 
-export function CategoryFilterWrapper({ locale, activeCategory }: CategoryFilterWrapperProps) {
+export function CategoryFilterWrapper({ locale, activeCategory, onCategoryChange }: CategoryFilterWrapperProps) {
+  // 使用 useMemo 优化标签计算
   const labels = useMemo(() => ({
     all: locale === 'zh' ? '全部' : 'All',
     website: locale === 'zh' ? '网站' : 'Website',
@@ -17,10 +19,23 @@ export function CategoryFilterWrapper({ locale, activeCategory }: CategoryFilter
     design: locale === 'zh' ? '设计' : 'Design',
   }), [locale]);
 
+  // 使用 useTransition 优化切换交互（React 19 优化）
+  const [isPending, startTransition] = useTransition();
+
+  const handleCategoryChange = (category: string) => {
+    if (onCategoryChange) {
+      startTransition(() => {
+        onCategoryChange(category);
+      });
+    }
+  };
+
   return (
-    <CategoryFilter 
-      activeCategory={activeCategory as 'all' | 'website' | 'app' | 'ai' | 'design'} 
-      labels={labels} 
-    />
+    <div className={isPending ? 'opacity-50 transition-opacity' : ''}>
+      <CategoryFilter 
+        activeCategory={activeCategory as 'all' | 'website' | 'app' | 'ai' | 'design'} 
+        labels={labels} 
+      />
+    </div>
   );
 }

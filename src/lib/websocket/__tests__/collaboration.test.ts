@@ -19,7 +19,7 @@ import type {
 } from '../types';
 import {
   transform,
-  applyOperation as applyOperationToContent,
+  applyOperationToContent,
   composeOperations,
 } from '@/lib/collaboration/manager';
 
@@ -71,7 +71,7 @@ describe('Cursor Synchronization', () => {
       },
     };
 
-    expect(cursorUpdate.selection?.start).toBeLessThan(cursorUpdate.selection?.end);
+    expect(cursorUpdate.selection?.start ?? 0).toBeLessThan(cursorUpdate.selection?.end ?? 0);
   });
 
   it('should handle reversed selection', () => {
@@ -229,7 +229,7 @@ describe('Document Operations', () => {
 
     const result = applyOperationToContent(content, operation);
 
-   -userExpect(result).toBe('Hello world');
+    expect(result).toBe('Hello world');
   });
 
   it('should handle insert at end', () => {

@@ -1,0 +1,44 @@
+# 7zi Studio - robots.txt
+# https://7zi.studio/robots.txt
+
+# 允许所有搜索引擎
+User-agent: *
+Allow: /
+
+# 网站地图
+Sitemap: https://7zi.studio/sitemap.xml
+
+# 爬取延迟（避免服务器过载）
+Crawl-delay: 1
+
+# Google 特定设置
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+# Google Images
+User-agent: Googlebot-Image
+Allow: /
+
+# Google Mobile
+User-agent: Googlebot-Mobile
+Allow: /
+
+# Bing
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# 百度
+User-agent: Baiduspider
+Allow: /
+Crawl-delay: 2
+
+# 禁止爬取的目录（如有）
+# Disallow: /admin/
+# Disallow: /api/
+# Disallow: /private/
+
+# 禁止爬取的文件类型（可选）
+# Disallow: /*.json$
+# Disallow: /*.xml$

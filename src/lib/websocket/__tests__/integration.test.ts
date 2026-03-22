@@ -19,7 +19,7 @@ import type {
   DocumentOperation,
   CollaborationMessage,
 } from '../types';
-import { transform, applyOperation as applyOperationToContent } from '@/lib/collaboration/manager';
+import { transform, applyOperationToContent } from '@/lib/collaboration/manager';
 
 // ============================================================================
 // Test Setup
@@ -600,7 +600,7 @@ describe('Collaboration Message Types', () => {
       selection: { start: 40, end: 50 },
     };
 
-    expect(validCursor.selection?.start).toBeLessThan(validCursor.selection?.end);
+    expect(validCursor.selection?.start ?? 0).toBeLessThan(validCursor.selection?.end ?? 0);
   });
 
   it('should enforce type safety for selection updates', () => {

@@ -169,28 +169,28 @@ export async function POST(request: NextRequest) {
       body as CreateFeedbackDto;
 
     if (!type || !rating || !title || !description) {
-      const response = createValidationError('type, rating, title, and description are required');
+      const response = await createValidationError('type, rating, title, and description are required');
       logRequestComplete(metadata, response, startTime);
       return response;
     }
 
     // Validate rating
     if (rating < 1 || rating > 5) {
-      const response = createValidationError('Rating must be between 1 and 5');
+      const response = await createValidationError('Rating must be between 1 and 5');
       logRequestComplete(metadata, response, startTime);
       return response;
     }
 
     // Validate title length
     if (title.length > 100) {
-      const response = createValidationError('Title must be less than 100 characters');
+      const response = await createValidationError('Title must be less than 100 characters');
       logRequestComplete(metadata, response, startTime);
       return response;
     }
 
     // Validate description length
     if (description.length > 1000) {
-      const response = createValidationError('Description must be less than 1000 characters');
+      const response = await createValidationError('Description must be less than 1000 characters');
       logRequestComplete(metadata, response, startTime);
       return response;
     }
@@ -209,7 +209,7 @@ export async function POST(request: NextRequest) {
         score: spamCheck.score,
       });
 
-      const response = createUnauthorizedError('Feedback rejected due to spam detection');
+      const response = await createUnauthorizedError('Feedback rejected due to spam detection');
       logRequestComplete(metadata, response, startTime);
       return response;
     }
@@ -307,7 +307,7 @@ export async function GET_FEEDBACK(
       | undefined;
 
     if (!feedback) {
-      const response = createNotFoundError('Feedback not found');
+      const response = await createNotFoundError('Feedback not found');
       logRequestComplete(metadata, response, startTime);
       return response;
     }
@@ -345,7 +345,7 @@ export async function PATCH(
     const isAdmin = body.admin_id === 'admin'; // Placeholder
 
     if (!isAdmin) {
-      const response = createForbiddenError('Admin access required');
+      const response = await createForbiddenError('Admin access required');
       logRequestComplete(metadata, response, startTime);
       return response;
     }
@@ -365,7 +365,7 @@ export async function PATCH(
       | undefined;
 
     if (!existing) {
-      const response = createNotFoundError('Feedback not found');
+      const response = await createNotFoundError('Feedback not found');
       logRequestComplete(metadata, response, startTime);
       return response;
     }
@@ -460,7 +460,7 @@ export async function DELETE_FEEDBACK(
       | undefined;
 
     if (!existing) {
-      const response = createNotFoundError('Feedback not found');
+      const response = await createNotFoundError('Feedback not found');
       logRequestComplete(metadata, response, startTime);
       return response;
     }

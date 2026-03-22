@@ -1,0 +1,130 @@
+# ============================================
+# 7zi-frontend Docker Compose (生产环境 - 优化版)
+# 使用 Dockerfile.production + 多阶段构建 + BuildKit
+# ============================================
+
+version: "3.8"
+
+services:
+  # Next.js Frontend (standalone 模式)
+  7zi-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+      target: runner-alpine  # 或 runner-distroless (最高安全)
+      args:
+        - NODE_ENV=production
+      # 启用 BuildKit 缓存
+      cache_from:
+        - registry.7zi.com/7zi-frontend:latest
+      build_args:
+        - BUILDKIT_INLINE_CACHE=1
+    image: registry.7zi.com/7zi-frontend:${VERSION:-latest}
+    container_name: 7zi-frontend
+    restart: unless-stopped
+    
+    ports:
+      - "${PORT:-3000}:3000"
+    
+    env_file:
+      - .env.production
+    
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+      # 性能优化
+      - NEXT_TELEMETRY_DISABLED=1
+    
+    # 资源限制（基于实际需求调整）
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+    
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    
+    # 日志轮转
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        compress: "true"
+    
+    # 安全配置
+    security_opt:
+      - no-new-privileges:true
+    read_only: true  # 只读文件系统（提高安全性）
+    tmpfs:
+      - /tmp
+    
+    networks:
+      - 7zi-network
+
+  # Nginx 反向代理
+  nginx:
+    image: nginx:alpine
+    container_name: 7zi-nginx
+    restart: unless-stopped
+    
+    ports:
+      - "80:80"
+      - "443:443"
+    
+    volumes:
+      - ./7zi-nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # SSL 证书（根据实际情况调整路径）
+      - /web/ssl_unified:/web/ssl_unified:ro
+      - ./nginx/logs:/var/log/nginx
+      # Let's Encrypt (如果使用)
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    
+    depends_on:
+      7zi-frontend:
+        condition: service_healthy
+    
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 128M
+        reservations:
+          cpus: "0.1"
+          memory: 32M
+    
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+        compress: "true"
+    
+    security_opt:
+      - no-new-privileges:true
+    
+    networks:
+      - 7zi-network
+
+networks:
+  7zi-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16

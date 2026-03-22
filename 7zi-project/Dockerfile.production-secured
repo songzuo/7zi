@@ -1,0 +1,95 @@
+# ============================================
+# 7zi-frontend Dockerfile (生产环境 - 安全加固版)
+# 多阶段构建 + 安全加固（兼容传统 Builder）
+# 版本: 4.1 - 安全加固
+# ============================================
+
+# ============================================
+# Stage 1: 依赖安装 + 构建
+# ============================================
+FROM node:22.12.0-alpine AS builder
+
+# 安装构建依赖
+RUN apk add --no-cache libc6-compat python3 make g++
+
+WORKDIR /app
+
+# 复制依赖描述文件（利用 Docker 缓存层）
+COPY package.json package-lock.json* ./
+
+# 安装所有依赖（生产 + 开发）
+RUN npm ci --legacy-peer-deps && npm cache clean --force
+
+# 复制源代码
+COPY . .
+
+# 构建时环境变量
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+
+# 构建应用（standalone 模式）
+RUN npm run build
+
+# ============================================
+# Stage 2: 生产镜像（Alpine - 推荐）
+# ============================================
+FROM node:22.12.0-alpine AS runner-alpine
+
+WORKDIR /app
+
+# 环境变量
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# 合并安全配置为单层
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# 复制构建产物（仅必需文件）
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# 切换到非 root 用户
+USER nextjs
+
+# 暴露端口
+EXPOSE 3000
+
+# 健康检查（使用 /api/health 端点）
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
+    CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+
+# 启动应用
+CMD ["node", "server.js"]
+
+# ============================================
+# Stage 3: 生产镜像（Distroless - 最高安全）
+# 无 shell，最小攻击面
+# ============================================
+FROM gcr.io/distroless/nodejs22-debian12:nonroot AS runner-distroless
+
+WORKDIR /app
+
+# 环境变量
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# 复制构建产物
+COPY --from=builder --chown=1001:1001 /app/public ./public
+COPY --from=builder --chown=1001:1001 /app/.next/standalone ./
+COPY --from=builder --chown=1001:1001 /app/.next/static ./.next/static
+
+# 暴露端口
+EXPOSE 3000
+
+# 健康检查（使用 /api/health 端点）
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
+    CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+
+# 启动应用（distroless 无 shell）
+CMD ["server.js"]
