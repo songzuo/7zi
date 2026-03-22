@@ -8,12 +8,12 @@ import {
   debounce,
   throttle,
   memoize,
-  formatFileSize,
-  formatTimeAgo,
-  optimizeImageUrl,
   prefersReducedMotion,
   prefersDarkMode,
 } from '@/lib/utils';
+import { formatFileSize } from '@/lib/utils/format';
+import { formatTimeAgo } from '@/lib/date';
+import { optimizeImageUrl } from '@/lib/utils';
 
 describe('utils - 边界条件测试', () => {
   beforeEach(() => {

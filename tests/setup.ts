@@ -6,6 +6,7 @@
 
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
+import React from 'react';
 
 // Mock Next.js router
 vi.mock('next/navigation', () => ({
@@ -31,29 +32,29 @@ vi.mock('next/navigation', () => ({
 // Mock Next.js Link
 vi.mock('next/link', () => ({
   default({ children, href }: { children: React.ReactNode; href: string }) {
-    return <a href={href}>{children}</a>;
+    return React.createElement('a', { href }, children);
   },
 }));
 
 // Mock Next.js Image
 vi.mock('next/image', () => ({
   default({ src, alt, ...props }: any) {
-    return <img src={src as string} alt={alt} {...props} />;
+    return React.createElement('img', { src, alt, ...props });
   },
 }));
 
 // Mock lucide-react icons
 vi.mock('lucide-react', () => ({
-  Bell: () => <span data-testid="icon-bell" />,
-  Settings: () => <span data-testid="icon-settings" />,
-  User: () => <span data-testid="icon-user" />,
-  X: () => <span data-testid="icon-x" />,
-  Check: () => <span data-testid="icon-check" />,
-  AlertTriangle: () => <span data-testid="icon-alert" />,
-  Info: () => <span data-testid="icon-info" />,
-  Search: () => <span data-testid="icon-search" />,
-  Plus: () => <span data-testid="icon-plus" />,
-  Trash: () => <span data-testid="icon-trash" />,
+  Bell: () => React.createElement('span', { 'data-testid': 'icon-bell' }),
+  Settings: () => React.createElement('span', { 'data-testid': 'icon-settings' }),
+  User: () => React.createElement('span', { 'data-testid': 'icon-user' }),
+  X: () => React.createElement('span', { 'data-testid': 'icon-x' }),
+  Check: () => React.createElement('span', { 'data-testid': 'icon-check' }),
+  AlertTriangle: () => React.createElement('span', { 'data-testid': 'icon-alert' }),
+  Info: () => React.createElement('span', { 'data-testid': 'icon-info' }),
+  Search: () => React.createElement('span', { 'data-testid': 'icon-search' }),
+  Plus: () => React.createElement('span', { 'data-testid': 'icon-plus' }),
+  Trash: () => React.createElement('span', { 'data-testid': 'icon-trash' }),
 }));
 
 // Mock WebSocket
@@ -79,7 +80,7 @@ class MockWebSocket {
   }
 }
 
-global.WebSocket = MockWebSocket as any;
+(global as any).WebSocket = MockWebSocket;
 
 // Mock IntersectionObserver
 class MockIntersectionObserver {
@@ -88,7 +89,7 @@ class MockIntersectionObserver {
   unobserve = vi.fn();
 }
 
-global.IntersectionObserver = MockIntersectionObserver as any;
+(global as any).IntersectionObserver = MockIntersectionObserver;
 
 // Mock ResizeObserver
 class MockResizeObserver {
@@ -97,7 +98,7 @@ class MockResizeObserver {
   unobserve = vi.fn();
 }
 
-global.ResizeObserver = MockResizeObserver as any;
+(global as any).ResizeObserver = MockResizeObserver;
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -124,7 +125,10 @@ const localStorageMock = (() => {
   };
 })();
 
-global.localStorage = localStorageMock as any;
+Object.defineProperty(global, 'localStorage', {
+  value: localStorageMock,
+  writable: true,
+});
 
 // Mock sessionStorage
 const sessionStorageMock = (() => {
@@ -144,7 +148,10 @@ const sessionStorageMock = (() => {
   };
 })();
 
-global.sessionStorage = sessionStorageMock as any;
+Object.defineProperty(global, 'sessionStorage', {
+  value: sessionStorageMock,
+  writable: true,
+});
 
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {

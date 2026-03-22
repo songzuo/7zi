@@ -1,0 +1,79 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#1e1b4b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#312e81;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#a855f7;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGradient)"/>
+  
+  <!-- Decorative Circles -->
+  <circle cx="100" cy="100" r="200" fill="#06b6d4" opacity="0.1"/>
+  <circle cx="1100" cy="530" r="300" fill="#a855f7" opacity="0.1"/>
+  <circle cx="600" cy="315" r="400" fill="#ec4899" opacity="0.05"/>
+  
+  <!-- Grid Pattern -->
+  <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.05"/>
+  </pattern>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  
+  <!-- Main Content Container -->
+  <g transform="translate(100, 180)">
+    <!-- Logo/Icon -->
+    <g filter="url(#glow)">
+      <rect x="0" y="0" width="80" height="80" rx="20" fill="url(#accentGradient)"/>
+      <text x="40" y="55" text-anchor="middle" fill="white" font-size="40" font-weight="bold" font-family="system-ui">7</text>
+    </g>
+    
+    <!-- Title -->
+    <text x="0" y="150" fill="white" font-size="72" font-weight="bold" font-family="system-ui">
+      7zi Studio
+    </text>
+    
+    <!-- Subtitle with gradient effect simulated -->
+    <text x="0" y="210" fill="#06b6d4" font-size="32" font-weight="500" font-family="system-ui">
+      AI 驱动的创新数字工作室
+    </text>
+    
+    <!-- Description -->
+    <text x="0" y="270" fill="#94a3b8" font-size="24" font-family="system-ui">
+      网站开发 · 品牌设计 · 营销推广
+    </text>
+    
+    <!-- Bottom accent line -->
+    <rect x="0" y="310" width="300" height="4" rx="2" fill="url(#accentGradient)"/>
+  </g>
+  
+  <!-- Bottom Right Badge -->
+  <g transform="translate(900, 480)">
+    <rect x="0" y="0" width="250" height="80" rx="12" fill="#ffffff" opacity="0.1"/>
+    <text x="125" y="35" text-anchor="middle" fill="#06b6d4" font-size="18" font-weight="600" font-family="system-ui">
+      11 位 AI 专家团队
+    </text>
+    <text x="125" y="60" text-anchor="middle" fill="#94a3b8" font-size="14" font-family="system-ui">
+      7×24 小时高效服务
+    </text>
+  </g>
+  
+  <!-- Website URL -->
+  <text x="600" y="590" text-anchor="middle" fill="#64748b" font-size="16" font-family="system-ui">
+    https://7zi.studio
+  </text>
+</svg>

@@ -1,0 +1,147 @@
+/**
+ * Global Middleware for Next.js
+ *
+ * Implements:
+ * - CORS (Cross-Origin Resource Sharing)
+ * - Security headers enforcement
+ * - Request logging
+ * - Path-based access control
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
+
+// Allowed origins for CORS
+const ALLOWED_ORIGINS = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  process.env.NEXT_PUBLIC_APP_URL,
+  process.env.NEXT_PUBLIC_API_URL,
+].filter(Boolean) as string[];
+
+// Sensitive endpoints that require additional security checks
+const SENSITIVE_ENDPOINTS = [
+  '/api/backup',
+  '/api/database/optimize',
+  '/api/database/restore',
+  '/api/a2a',
+  '/api/multimodal',
+  '/api/auth',
+  '/api/admin',
+  '/api/settings',
+];
+
+/**
+ * Check if origin is allowed
+ */
+function isOriginAllowed(origin: string | null): boolean {
+  if (!origin) return true; // Allow requests with no origin (e.g., mobile apps, curl)
+  if (ALLOWED_ORIGINS.includes(origin)) return true;
+  
+  // Allow same origin
+  if (process.env.NEXT_PUBLIC_APP_URL && origin === new URL(process.env.NEXT_PUBLIC_APP_URL).origin) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Check if path is sensitive
+ */
+function isSensitivePath(pathname: string): boolean {
+  return SENSITIVE_ENDPOINTS.some(endpoint => pathname.startsWith(endpoint));
+}
+
+/**
+ * Add CORS headers to response
+ */
+function addCorsHeaders(response: NextResponse, origin?: string | null): NextResponse {
+  if (origin && isOriginAllowed(origin)) {
+    response.headers.set('Access-Control-Allow-Origin', origin);
+  }
+  
+  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-CSRF-Token, X-Requested-With');
+  response.headers.set('Access-Control-Allow-Credentials', 'true');
+  response.headers.set('Access-Control-Max-Age', '86400'); // 24 hours
+  
+  return response;
+}
+
+/**
+ * Handle OPTIONS requests (CORS preflight)
+ */
+function handleOptionsRequest(request: NextRequest): NextResponse {
+  const response = new NextResponse(null, { status: 204 });
+  return addCorsHeaders(response, request.headers.get('origin'));
+}
+
+/**
+ * Main middleware function
+ */
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const origin = request.headers.get('origin');
+  const method = request.method;
+
+  // Skip middleware for static files and Next.js internals
+  if (
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/static') ||
+    pathname.startsWith('/favicon') ||
+    pathname.startsWith('/images') ||
+    pathname.endsWith('.ico') ||
+    pathname.endsWith('.png') ||
+    pathname.endsWith('.jpg') ||
+    pathname.endsWith('.jpeg') ||
+    pathname.endsWith('.gif') ||
+    pathname.endsWith('.svg') ||
+    pathname.endsWith('.webp')
+  ) {
+    return NextResponse.next();
+  }
+
+  // Handle CORS preflight requests
+  if (method === 'OPTIONS') {
+    return handleOptionsRequest(request);
+  }
+
+  const response = NextResponse.next();
+
+  // Add CORS headers
+  addCorsHeaders(response, origin);
+
+  // Log requests to sensitive endpoints
+  if (isSensitivePath(pathname)) {
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
+              request.headers.get('x-real-ip') ||
+              'unknown';
+
+    logger.info('Sensitive endpoint accessed', {
+      path: pathname,
+      method,
+      ip,
+      origin,
+      userAgent: request.headers.get('user-agent'),
+    });
+  }
+
+  return response;
+}
+
+/**
+ * Configure middleware paths
+ */
+export const config = {
+  matcher: [
+    /*
+     * Match all request paths except:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public folder files
+     */
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)).*)',
+  ],
+};

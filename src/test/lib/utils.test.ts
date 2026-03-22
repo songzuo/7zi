@@ -4,8 +4,10 @@ import {
   debounce,
   throttle,
   memoize,
-  formatFileSize,
-  formatTimeAgo,
+} from '@/lib/utils'
+import { formatFileSize } from '@/lib/utils/format'
+import { formatTimeAgo } from '@/lib/date'
+import {
   optimizeImageUrl,
   prefersReducedMotion,
   prefersDarkMode,

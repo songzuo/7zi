@@ -5,10 +5,11 @@
  */
 
 import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest'
+import { NextRequest } from 'next/server'
 
 // Helper function to create a mock Next.js Request object
-function createMockRequest(url: string = 'http://localhost:3000/api/test'): Request {
-  return new Request(url, {
+function createMockRequest(url: string = 'http://localhost:3000/api/test'): NextRequest {
+  return new NextRequest(url, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -117,7 +118,7 @@ describe('API Routes Integration Tests', () => {
   describe('/api/health', () => {
     it('should return healthy status when memory is within limits', async () => {
       const { GET } = await import('@/app/api/health/route')
-      const response = await GET()
+      const response = await GET(createMockRequest('http://localhost:3000/api/health'))
       const data = await response.json()
 
       // Health returns { success: true, data: { status, timestamp, uptime, ... } }
@@ -132,7 +133,7 @@ describe('API Routes Integration Tests', () => {
 
     it('should include memory check', async () => {
       const { GET } = await import('@/app/api/health/route')
-      const response = await GET()
+      const response = await GET(createMockRequest('http://localhost:3000/api/health'))
       const data = await response.json()
       const healthData = data.data || data;
 
@@ -146,7 +147,7 @@ describe('API Routes Integration Tests', () => {
 
     it('should include node check', async () => {
       const { GET } = await import('@/app/api/health/route')
-      const response = await GET()
+      const response = await GET(createMockRequest('http://localhost:3000/api/health'))
       const data = await response.json()
       const healthData = data.data || data;
 
@@ -157,7 +158,7 @@ describe('API Routes Integration Tests', () => {
 
     it('should return correct status code based on health', async () => {
       const { GET } = await import('@/app/api/health/route')
-      const response = await GET()
+      const response = await GET(createMockRequest('http://localhost:3000/api/health'))
       const data = await response.json()
       const healthData = data.data || data;
 
@@ -170,7 +171,7 @@ describe('API Routes Integration Tests', () => {
 
     it('should have valid uptime value', async () => {
       const { GET } = await import('@/app/api/health/route')
-      const response = await GET()
+      const response = await GET(createMockRequest('http://localhost:3000/api/health'))
       const data = await response.json()
       const healthData = data.data || data;
 
@@ -191,7 +192,7 @@ describe('API Routes Integration Tests', () => {
 
     it('should respond quickly (liveness probe requirement)', async () => {
       const { GET } = await import('@/app/api/health/live/route')
-      
+
       const start = Date.now()
       await GET()
       const duration = Date.now() - start
@@ -275,11 +276,11 @@ describe('API Routes Integration Tests', () => {
           const checkResult = check as { status: string; latency?: number; message?: string }
           expect(checkResult).toHaveProperty('status')
           expect(['ok', 'error']).toContain(checkResult.status)
-          
+
           if (checkResult.latency !== undefined) {
             expect(typeof checkResult.latency).toBe('number')
           }
-          
+
           if (checkResult.message !== undefined) {
             expect(typeof checkResult.message).toBe('string')
           }
@@ -293,8 +294,8 @@ describe('API Routes Error Handling', () => {
   it('should handle errors gracefully in health endpoint', async () => {
     // This tests that the health endpoint has proper try-catch
     const { GET } = await import('@/app/api/health/route')
-    const response = await GET()
-    
+    const response = await GET(createMockRequest('http://localhost:3000/api/health'))
+
     // Should always return a response, never throw
     expect(response).toBeDefined()
     expect(response.status).toBeGreaterThanOrEqual(200)
@@ -306,7 +307,7 @@ describe('API Routes Response Headers', () => {
   it('should return JSON content type for all API routes', async () => {
     const routes = [
       () => import('@/app/api/status/route').then(m => m.GET(createMockRequest('http://localhost:3000/api/status'))),
-      () => import('@/app/api/health/route').then(m => m.GET()),
+      () => import('@/app/api/health/route').then(m => m.GET(createMockRequest('http://localhost:3000/api/health'))),
       () => import('@/app/api/health/live/route').then(m => m.GET()),
       () => import('@/app/api/health/ready/route').then(m => m.GET()),
       () => import('@/app/api/health/detailed/route').then(m => m.GET()),
@@ -333,7 +334,7 @@ describe('API Routes Performance', () => {
     // Test health endpoint
     const healthStart = Date.now()
     const { GET: getHealth } = await import('@/app/api/health/route')
-    await getHealth()
+    await getHealth(createMockRequest('http://localhost:3000/api/health'))
     expect(Date.now() - healthStart).toBeLessThan(maxResponseTime)
 
     // Test liveness (should be very fast)

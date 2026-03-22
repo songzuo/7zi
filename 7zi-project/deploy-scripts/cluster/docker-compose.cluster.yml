@@ -1,0 +1,366 @@
+# ============================================
+# 7zi AI Team Management Platform - 8服务器集群部署
+# ============================================
+# 架构说明：
+# - 3个应用节点（app1, app2, app3）：Next.js 前端应用
+# - 3个Redis节点（redis-master, redis-replica1, redis-replica2）：Redis集群
+# - 1个负载均衡节点（nginx）：Nginx 负载均衡器
+# - 1个监控节点（monitor）：健康检查和自动故障转移
+# ============================================
+
+version: "3.8"
+
+services:
+  # ============================================
+  # 应用节点 1 (Next.js Frontend)
+  # ============================================
+  app1:
+    build:
+      context: ../../
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV=production
+    image: 7zi-frontend:${VERSION:-latest}
+    container_name: 7zi-app1
+    restart: unless-stopped
+    hostname: app1
+    ports:
+      - "${APP1_PORT:-3001}:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+      - APP_ID=app1
+      - REDIS_URL=redis://redis-master:6379
+      - REDIS_CLUSTER=redis://redis-master:6379,redis://redis-replica1:6380,redis://redis-replica2:6381
+    env_file:
+      - ../../.env.production
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1G
+        reservations:
+          cpus: "0.5"
+          memory: 256M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    networks:
+      - 7zi-cluster-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+        tag: "app1/{{.ID}}"
+
+  # ============================================
+  # 应用节点 2 (Next.js Frontend)
+  # ============================================
+  app2:
+    build:
+      context: ../../
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV=production
+    image: 7zi-frontend:${VERSION:-latest}
+    container_name: 7zi-app2
+    restart: unless-stopped
+    hostname: app2
+    ports:
+      - "${APP2_PORT:-3002}:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+      - APP_ID=app2
+      - REDIS_URL=redis://redis-master:6379
+      - REDIS_CLUSTER=redis://redis-master:6379,redis://redis-replica1:6380,redis://redis-replica2:6381
+    env_file:
+      - ../../.env.production
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1G
+        reservations:
+          cpus: "0.5"
+          memory: 256M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    networks:
+      - 7zi-cluster-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+        tag: "app2/{{.ID}}"
+
+  # ============================================
+  # 应用节点 3 (Next.js Frontend)
+  # ============================================
+  app3:
+    build:
+      context: ../../
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV=production
+    image: 7zi-frontend:${VERSION:-latest}
+    container_name: 7zi-app3
+    restart: unless-stopped
+    hostname: app3
+    ports:
+      - "${APP3_PORT:-3003}:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+      - APP_ID=app3
+      - REDIS_URL=redis://redis-master:6379
+      - REDIS_CLUSTER=redis://redis-master:6379,redis://redis-replica1:6380,redis://redis-replica2:6381
+    env_file:
+      - ../../.env.production
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1G
+        reservations:
+          cpus: "0.5"
+          memory: 256M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    networks:
+      - 7zi-cluster-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+        tag: "app3/{{.ID}}"
+
+  # ============================================
+  # Redis Master 主节点
+  # ============================================
+  redis-master:
+    image: redis:7-alpine
+    container_name: 7zi-redis-master
+    restart: unless-stopped
+    hostname: redis-master
+    ports:
+      - "${REDIS_MASTER_PORT:-6379}:6379"
+    volumes:
+      - redis-master-data:/data
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: redis-server /usr/local/etc/redis/redis.conf --appendonly yes --requirepass ${REDIS_PASSWORD:-7zi-redis-password}
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - 7zi-cluster-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+  # ============================================
+  # Redis Replica 1 (从节点)
+  # ============================================
+  redis-replica1:
+    image: redis:7-alpine
+    container_name: 7zi-redis-replica1
+    restart: unless-stopped
+    hostname: redis-replica1
+    ports:
+      - "${REDIS_REPLICA1_PORT:-6380}:6379"
+    volumes:
+      - redis-replica1-data:/data
+      - ./redis/redis-replica.conf:/usr/local/etc/redis/redis.conf:ro
+    command: redis-server /usr/local/etc/redis/redis.conf --appendonly yes --replicaof redis-master 6379 --masterauth ${REDIS_PASSWORD:-7zi-redis-password} --requirepass ${REDIS_PASSWORD:-7zi-redis-password}
+    depends_on:
+      redis-master:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - 7zi-cluster-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+  # ============================================
+  # Redis Replica 2 (从节点)
+  # ============================================
+  redis-replica2:
+    image: redis:7-alpine
+    container_name: 7zi-redis-replica2
+    restart: unless-stopped
+    hostname: redis-replica2
+    ports:
+      - "${REDIS_REPLICA2_PORT:-6381}:6379"
+    volumes:
+      - redis-replica2-data:/data
+      - ./redis/redis-replica.conf:/usr/local/etc/redis/redis.conf:ro
+    command: redis-server /usr/local/etc/redis/redis.conf --appendonly yes --replicaof redis-master 6379 --masterauth ${REDIS_PASSWORD:-7zi-redis-password} --requirepass ${REDIS_PASSWORD:-7zi-redis-password}
+    depends_on:
+      redis-master:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - 7zi-cluster-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+  # ============================================
+  # Nginx 负载均衡器
+  # ============================================
+  nginx:
+    image: nginx:alpine
+    container_name: 7zi-nginx-lb
+    restart: unless-stopped
+    hostname: nginx-lb
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    volumes:
+      - ./nginx/nginx-cluster.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./nginx/logs:/var/log/nginx
+      - ./config/health-check.html:/usr/share/nginx/html/health-check.html:ro
+    depends_on:
+      - app1
+      - app2
+      - app3
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health-check"]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+    networks:
+      - 7zi-cluster-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "5"
+
+  # ============================================
+  # 监控和故障转移节点
+  # ============================================
+  monitor:
+    build:
+      context: ../../
+      dockerfile: Dockerfile
+    image: 7zi-frontend:${VERSION:-latest}
+    container_name: 7zi-monitor
+    restart: unless-stopped
+    hostname: monitor
+    volumes:
+      - ./scripts:/app/scripts:ro
+      - ./config:/app/config:ro
+    environment:
+      - NODE_ENV=production
+      - MONITOR_ENABLED=true
+      - APP_PORTS=${APP1_PORT:-3001},${APP2_PORT:-3002},${APP3_PORT:-3003}
+      - HEALTH_CHECK_INTERVAL=10
+      - FAIL_THRESHOLD=3
+      - AUTO_RECOVERY=true
+    working_dir: /app/scripts
+    command: node monitor-cluster.js
+    depends_on:
+      - nginx
+      - app1
+      - app2
+      - app3
+      - redis-master
+    networks:
+      - 7zi-cluster-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+# ============================================
+# Volumes - 数据持久化
+# ============================================
+volumes:
+  redis-master-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/7zi/data/redis-master
+  redis-replica1-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/7zi/data/redis-replica1
+  redis-replica2-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/7zi/data/redis-replica2
+
+# ============================================
+# Networks - 集群网络
+# ============================================
+networks:
+  7zi-cluster-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.29.0.0/16
+          gateway: 172.29.0.1
+    driver_opts:
+      com.docker.network.bridge.name: br-7zi-cluster

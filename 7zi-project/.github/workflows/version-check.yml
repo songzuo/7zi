@@ -1,0 +1,36 @@
+name: Version Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  version-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          
+      - name: Install semver
+        run: npm install -g semver
+        
+      - name: Check versions
+        run: |
+          echo "=== 版本检查 ==="
+          NEXT=$(grep '"next":' package.json | sed 's/.*"\^*\([0-9.]*\)".*/\1/')
+          NEXT_INTL=$(grep '"next-intl":' package.json | sed 's/.*"\^*\([0-9.]*\)".*/\1/')
+          echo "Next.js: $NEXT"
+          echo "next-intl: $NEXT_INTL"
+          
+          # 检查兼容性
+          if semver gt "$NEXT_INTL" "4.0.0"; then
+            echo "✅ next-intl 版本正常 (>= 4.0.0)"
+          else
+            echo "❌ next-intl 需要 >= 4.0.0"
+            exit 1
+          fi

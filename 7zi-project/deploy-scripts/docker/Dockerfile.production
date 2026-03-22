@@ -1,0 +1,53 @@
+# ==========================================
+# 多阶段构建 - 生产环境 Dockerfile
+# 适用于 Next.js 应用
+# ==========================================
+
+# Stage 1: 构建
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# 复制 package 文件
+COPY package*.json ./
+
+# 安装所有依赖（包括 devDependencies 用于构建）
+RUN npm ci
+
+# 复制源代码
+COPY . .
+
+# 构建应用
+RUN npm run build
+
+# Stage 2: 生产运行
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# 创建非 root 用户（安全最佳实践）
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# 从构建阶段复制文件
+# 注意：需要 next.config.js 中配置 output: 'standalone'
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# 切换到非 root 用户
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD wget -q --spider http://localhost:3000/health || exit 1
+
+CMD ["node", "server.js"]

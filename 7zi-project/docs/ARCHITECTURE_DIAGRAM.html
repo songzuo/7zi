@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7zi-Frontend 架构图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e2e8f0;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            background: linear-gradient(90deg, #06b6d4, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .diagram-section {
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+        .section-title {
+            font-size: 1.25rem;
+            margin-bottom: 20px;
+            color: #94a3b8;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+            padding-bottom: 10px;
+        }
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .tech-item {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(139, 92, 246, 0.1));
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .tech-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(6, 182, 212, 0.2);
+        }
+        .tech-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        .tech-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .tech-version {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 5px;
+        }
+        .layer-diagram {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .layer {
+            background: linear-gradient(90deg, rgba(6, 182, 212, 0.15), rgba(139, 92, 246, 0.15));
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 10px;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .layer-name {
+            font-weight: 600;
+            min-width: 120px;
+        }
+        .layer-content {
+            flex: 1;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .layer-item {
+            background: rgba(6, 182, 212, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        .metric-card {
+            background: rgba(30, 41, 59, 0.6);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #06b6d4, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .metric-label {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-top: 5px;
+        }
+        .metric-status {
+            margin-top: 8px;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            display: inline-block;
+        }
+        .status-good { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .status-warning { background: rgba(234, 179, 8, 0.2); color: #eab308; }
+        .status-error { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .flow-diagram {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .flow-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+        .flow-box {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(139, 92, 246, 0.2));
+            border: 1px solid rgba(6, 182, 212, 0.4);
+            border-radius: 8px;
+            padding: 10px 20px;
+            text-align: center;
+            min-width: 120px;
+        }
+        .flow-arrow {
+            color: #06b6d4;
+            font-size: 1.5rem;
+        }
+        .flow-arrow-down {
+            text-align: center;
+            color: #06b6d4;
+            font-size: 1.5rem;
+            padding: 5px 0;
+        }
+        .health-bar {
+            height: 8px;
+            background: rgba(30, 41, 59, 0.6);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        .health-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #06b6d4, #8b5cf6);
+            transition: width 0.5s ease;
+        }
+        .debt-list {
+            display: grid;
+            gap: 10px;
+        }
+        .debt-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(30, 41, 59, 0.4);
+            padding: 12px 20px;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+        .debt-high { border-color: #ef4444; }
+        .debt-medium { border-color: #eab308; }
+        .debt-low { border-color: #22c55e; }
+        .legend {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .roadmap {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+        .roadmap-phase {
+            min-width: 200px;
+            background: rgba(30, 41, 59, 0.6);
+            border-radius: 12px;
+            padding: 20px;
+            border-top: 4px solid #06b6d4;
+        }
+        .roadmap-phase:nth-child(2) { border-top-color: #8b5cf6; }
+        .roadmap-phase:nth-child(3) { border-top-color: #ec4899; }
+        .roadmap-phase:nth-child(4) { border-top-color: #f97316; }
+        .roadmap-phase:nth-child(5) { border-top-color: #22c55e; }
+        .phase-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .phase-time {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 15px;
+        }
+        .phase-items {
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+        .phase-items li {
+            margin-bottom: 5px;
+            list-style: none;
+            position: relative;
+            padding-left: 15px;
+        }
+        .phase-items li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: #06b6d4;
+        }
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏗️ 7zi-Frontend 架构总览</h1>
+
+        <!-- Tech Stack Section -->
+        <div class="diagram-section">
+            <div class="section-title">📦 技术栈</div>
+            <div class="tech-stack">
+                <div class="tech-item">
+                    <div class="tech-icon">⚡</div>
+                    <div class="tech-name">Next.js</div>
+                    <div class="tech-version">v16.1.6</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-icon">⚛️</div>
+                    <div class="tech-name">React</div>
+                    <div class="tech-version">v19.2.3</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-icon">📘</div>
+                    <div class="tech-name">TypeScript</div>
+                    <div class="tech-version">v5.x</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-icon">🎨</div>
+                    <div class="tech-name">Tailwind CSS</div>
+                    <div class="tech-version">v4.x</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-icon">🌍</div>
+                    <div class="tech-name">next-intl</div>
+                    <div class="tech-version">v4.8.3</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-icon">🧪</div>
+                    <div class="tech-name">Vitest</div>
+                    <div class="tech-version">v4.0.18</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-icon">🎭</div>
+                    <div class="tech-name">Playwright</div>
+                    <div class="tech-version">v1.58.2</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-icon">📊</div>
+                    <div class="tech-name">Sentry</div>
+                    <div class="tech-version">v10.42.0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Layer Architecture -->
+        <div class="diagram-section">
+            <div class="section-title">🏛️ 分层架构</div>
+            <div class="layer-diagram">
+                <div class="layer">
+                    <div class="layer-name">📱 展示层</div>
+                    <div class="layer-content">
+                        <span class="layer-item">Pages (App Router)</span>
+                        <span class="layer-item">Components</span>
+                        <span class="layer-item">Layouts</span>
+                    </div>
+                </div>
+                <div class="layer">
+                    <div class="layer-name">🧩 业务层</div>
+                    <div class="layer-content">
+                        <span class="layer-item">AIChat</span>
+                        <span class="layer-item">GitHubActivity</span>
+                        <span class="layer-item">ProjectDashboard</span>
+                        <span class="layer-item">NotificationCenter</span>
+                    </div>
+                </div>
+                <div class="layer">
+                    <div class="layer-name">🔧 逻辑层</div>
+                    <div class="layer-content">
+                        <span class="layer-item">Hooks</span>
+                        <span class="layer-item">Contexts</span>
+                        <span class="layer-item">Stores (Zustand)</span>
+                    </div>
+                </div>
+                <div class="layer">
+                    <div class="layer-name">🛠️ 工具层</div>
+                    <div class="layer-content">
+                        <span class="layer-item">Utils</span>
+                        <span class="layer-item">Monitoring</span>
+                        <span class="layer-item">Logger</span>
+                        <span class="layer-item">i18n</span>
+                    </div>
+                </div>
+                <div class="layer">
+                    <div class="layer-name">🔌 API 层</div>
+                    <div class="layer-content">
+                        <span class="layer-item">Health Checks</span>
+                        <span class="layer-item">GitHub Proxy</span>
+                        <span class="layer-item">CSRF Token</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Flow -->
+        <div class="diagram-section">
+            <div class="section-title">🔄 数据流</div>
+            <div class="flow-diagram">
+                <div class="flow-row">
+                    <div class="flow-box">👤 用户交互</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box">🪝 Hooks</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box">📦 State</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box">🖼️ UI 渲染</div>
+                </div>
+                <div class="flow-arrow-down">↓</div>
+                <div class="flow-row">
+                    <div class="flow-box">🌐 API 调用</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box">💾 缓存层</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box">📊 数据更新</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metrics -->
+        <div class="diagram-section">
+            <div class="section-title">📊 项目指标</div>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">196</div>
+                    <div class="metric-label">TypeScript 文件</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">~60</div>
+                    <div class="metric-label">组件数量</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">511</div>
+                    <div class="metric-label">测试用例</div>
+                    <div class="metric-status status-warning">20 失败</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">~9ms</div>
+                    <div class="metric-label">TTFB</div>
+                    <div class="metric-status status-good">优秀</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">4/5</div>
+                    <div class="metric-label">架构成熟度</div>
+                    <div class="health-bar">
+                        <div class="health-fill" style="width: 80%"></div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">60%</div>
+                    <div class="metric-label">测试覆盖率</div>
+                    <div class="health-bar">
+                        <div class="health-fill" style="width: 60%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tech Debt -->
+        <div class="diagram-section">
+            <div class="section-title">⚠️ 技术债务</div>
+            <div class="debt-list">
+                <div class="debt-item debt-high">
+                    <span>🔴 测试失败 - 20 个测试用例需要修复</span>
+                    <span>高优先级</span>
+                </div>
+                <div class="debt-item debt-medium">
+                    <span>🟡 状态迁移 - Context → Zustand 未完成</span>
+                    <span>中优先级</span>
+                </div>
+                <div class="debt-item debt-medium">
+                    <span>🟡 路由混合 - [locale] 与扁平路由共存</span>
+                    <span>中优先级</span>
+                </div>
+                <div class="debt-item debt-low">
+                    <span>🟢 Lint 警告 - 30 个未使用变量</span>
+                    <span>低优先级</span>
+                </div>
+                <div class="debt-item debt-low">
+                    <span>🟢 依赖更新 - 5 个包需要更新</span>
+                    <span>低优先级</span>
+                </div>
+            </div>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ef4444"></div>
+                    <span>高优先级 (本周)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #eab308"></div>
+                    <span>中优先级 (本月)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #22c55e"></div>
+                    <span>低优先级 (下季度)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Roadmap -->
+        <div class="diagram-section">
+            <div class="section-title">🚀 技术路线图</div>
+            <div class="roadmap">
+                <div class="roadmap-phase">
+                    <div class="phase-title">Phase 1: 债务清理</div>
+                    <div class="phase-time">2026 Q1 (3月)</div>
+                    <ul class="phase-items">
+                        <li>修复测试失败</li>
+                        <li>状态迁移完成</li>
+                        <li>路由结构统一</li>
+                        <li>安全审计</li>
+                    </ul>
+                </div>
+                <div class="roadmap-phase">
+                    <div class="phase-title">Phase 2: 性能跃升</div>
+                    <div class="phase-time">2026 Q2</div>
+                    <ul class="phase-items">
+                        <li>Turbopack 构建</li>
+                        <li>图片优化</li>
+                        <li>代码分割</li>
+                        <li>缓存策略</li>
+                    </ul>
+                </div>
+                <div class="roadmap-phase">
+                    <div class="phase-title">Phase 3: AI 集成</div>
+                    <div class="phase-time">2026 Q3</div>
+                    <ul class="phase-items">
+                        <li>MCP 集成</li>
+                        <li>Agent 日志</li>
+                        <li>AI 辅助开发</li>
+                        <li>智能组件</li>
+                    </ul>
+                </div>
+                <div class="roadmap-phase">
+                    <div class="phase-title">Phase 4: 架构演进</div>
+                    <div class="phase-time">2026 Q4</div>
+                    <ul class="phase-items">
+                        <li>PPR 采用</li>
+                        <li>Edge Runtime</li>
+                        <li>微前端评估</li>
+                        <li>模块联邦</li>
+                    </ul>
+                </div>
+                <div class="roadmap-phase">
+                    <div class="phase-title">Phase 5: 持续优化</div>
+                    <div class="phase-time">2027 Q1+</div>
+                    <ul class="phase-items">
+                        <li>监控优化</li>
+                        <li>技术更新</li>
+                        <li>文档完善</li>
+                        <li>性能基准</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>生成时间: 2026-03-07 00:51 CET | 架构师 AI Agent</p>
+            <p>项目版本: 0.1.0 | 工作目录: ~/7zi-project/7zi-frontend</p>
+        </footer>
+    </div>
+</body>
+</html>

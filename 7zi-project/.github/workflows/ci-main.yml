@@ -1,0 +1,447 @@
+# ============================================
+# 7zi-frontend CI/CD Pipeline (Optimized v5)
+# ============================================
+# Features:
+# - Smart change detection (skip unnecessary tests)
+# - Multi-layer caching (npm, Next.js turbo, Docker)
+# - Parallel execution (lint, typecheck, tests)
+# - Test sharding (4x parallel unit tests)
+# - Job timeouts (prevent runaway jobs)
+# - Optimized for speed and cost
+# ============================================
+
+name: CI/CD Main
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      skip-tests:
+        description: 'Skip tests (not recommended)'
+        required: false
+        default: false
+        type: boolean
+      run-e2e:
+        description: 'Run E2E tests'
+        required: false
+        default: true
+        type: boolean
+
+# Concurrency: Cancel old runs
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '22'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # ============================================
+  # Job 1: Change Detection
+  # ============================================
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    outputs:
+      src-changed: ${{ steps.changes.outputs.src }}
+      tests-changed: ${{ steps.changes.outputs.tests }}
+      config-changed: ${{ steps.changes.outputs.config }}
+      has-changes: ${{ steps.changes.outputs.any_changed }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get changed files
+        id: changes
+        uses: tj-actions/changed-files@v45
+        with:
+          files: |
+            src/**/*.{ts,tsx,js,jsx}
+            tests/**/*.{ts,tsx,js,jsx}
+            e2e/**/*.spec.ts
+            **/package.json
+            **/Dockerfile*
+            **/*.config.*
+
+  # ============================================
+  # Job 2: Setup & Dependencies
+  # ============================================
+  setup:
+    name: Setup & Cache
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      cache-key: ${{ steps.cache-keys.outputs.key }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js with npm cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
+  # ============================================
+  # Job 3: Security Audit
+  # ============================================
+  security:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [setup]
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
+      - name: Run npm audit
+        run: npm audit --audit-level=moderate || true
+
+      - name: Check for sensitive files
+        run: |
+          echo "Checking for sensitive files..."
+          if grep -r "sk-\|api_key\|secret" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" src/ 2>/dev/null | grep -v "//" | grep -v "/\*" | grep -v "\"secret\""; then
+            echo "⚠️ Potential secrets found in code"
+          else
+            echo "✅ No obvious secrets found"
+          fi
+
+  # ============================================
+  # Job 4: Lint (Parallel)
+  # ============================================
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [setup, changes]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Check formatting
+        run: npm run format:check
+        continue-on-error: true
+
+  # ============================================
+  # Job 5: Type Check (Parallel)
+  # ============================================
+  typecheck:
+    name: Type Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [setup, changes]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
+      - name: TypeScript check
+        run: npm run type-check
+
+  # ============================================
+  # Job 6: Unit Tests (Parallel Sharding)
+  # ============================================
+  test-unit:
+    name: Unit Tests (shard ${{ matrix.shard }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [setup]
+    if: inputs.skip-tests != true
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
+      - name: Run unit tests
+        run: npm run test:run -- --shard=${{ matrix.shard }}/4
+
+      - name: Upload coverage (first shard only)
+        if: matrix.shard == 1
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-unit
+          path: coverage/
+          retention-days: 7
+
+  # ============================================
+  # Job 7: Build
+  # ============================================
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [lint, typecheck, test-unit]
+    outputs:
+      build-hash: ${{ steps.build-info.outputs.hash }}
+      build-size: ${{ steps.build-info.outputs.size }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      # ✅ Next.js Turbo Cache (Incremental builds)
+      - name: Cache Next.js turbo
+        uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: ${{ runner.os }}-nextjs-turbo-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('src/**/*.{ts,tsx,js,jsx}') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-turbo-${{ hashFiles('**/package-lock.json') }}-
+            ${{ runner.os }}-nextjs-turbo-
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
+      - name: Build application
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+          NODE_ENV: production
+
+      - name: Analyze bundle size
+        id: build-info
+        run: |
+          echo "📊 Build Analysis"
+          echo "=================="
+          echo "Total .next/: $(du -sh .next/ | cut -f1)"
+          echo "Static: $(du -sh .next/static/ 2>/dev/null | cut -f1 || echo 'N/A')"
+          echo "Server: $(du -sh .next/server/ 2>/dev/null | cut -f1 || echo 'N/A')"
+
+          BUILD_SIZE=$(du -sm .next/standalone 2>/dev/null | cut -f1 || echo "0")
+          echo "size=${BUILD_SIZE}" >> $GITHUB_OUTPUT
+          echo "hash=${{ github.sha }}" >> $GITHUB_OUTPUT
+
+          if [ "$BUILD_SIZE" -gt 300 ]; then
+            echo "⚠️ Warning: Build size exceeds 300MB"
+          fi
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: |
+            .next/standalone
+            .next/static
+            public
+          retention-days: 1
+
+  # ============================================
+  # Job 8: E2E Tests (Conditional)
+  # ============================================
+  test-e2e:
+    name: E2E Tests (${{ matrix.browser }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [build]
+    if: inputs.run-e2e == true && (github.event_name == 'pull_request' || github.ref == 'refs/heads/main')
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: .
+
+      - name: Run E2E tests
+        run: npm run test:e2e -- --project=${{ matrix.browser }}
+        env:
+          CI: true
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ matrix.browser }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
+  # ============================================
+  # Job 9: Docker Build (Main branch only)
+  # ============================================
+  docker:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [build]
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    outputs:
+      image-tag: ${{ steps.meta.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix=
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=${{ github.run_number }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.optimized
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # ✅ Use GHA cache (more efficient than local)
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NEXT_TELEMETRY_DISABLED=1
+          platforms: linux/amd64,linux/arm64
+
+      - name: Image details
+        run: |
+          echo "🐳 Docker Image Built" >> $GITHUB_STEP_SUMMARY
+          echo "======================" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tags**: ${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================
+  # Job 10: Pre-deployment Checks
+  # ============================================
+  pre-deploy:
+    name: Pre-deployment Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [build]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: .
+
+      - name: Verify build integrity
+        run: |
+          echo "🔍 Running pre-deployment checks..."
+          test -d .next/standalone || { echo "❌ Missing standalone build"; exit 1; }
+          test -d .next/static || { echo "❌ Missing static files"; exit 1; }
+          test -d public || { echo "❌ Missing public directory"; exit 1; }
+          echo "✅ All pre-deployment checks passed!"
+
+  # ============================================
+  # Job 11: Notification Summary
+  # ============================================
+  summary:
+    name: CI/CD Summary
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    needs: [lint, typecheck, test-unit, build, test-e2e, docker, pre-deploy]
+    if: always()
+    steps:
+      - name: Generate summary
+        run: |
+          echo "## 🚀 CI/CD Pipeline Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Workflow Information" >> $GITHUB_STEP_SUMMARY
+          echo "- **Repository**: ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Actor**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Job Status" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint | ${{ needs.lint.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Type Check | ${{ needs.typecheck.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Unit Tests | ${{ needs.test-unit.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build | ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| E2E Tests | ${{ needs.test-e2e.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Docker | ${{ needs.docker.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Pre-deploy | ${{ needs.pre-deploy.result || 'skipped' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.lint.result }}" == "success" ] && \
+             [ "${{ needs.typecheck.result }}" == "success" ] && \
+             [ "${{ needs.test-unit.result }}" == "success" ] && \
+             [ "${{ needs.build.result }}" == "success" ]; then
+            echo "### ✅ All Critical Jobs Passed!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ❌ Some Jobs Failed" >> $GITHUB_STEP_SUMMARY
+          fi

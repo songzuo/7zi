@@ -1,0 +1,96 @@
+name: Production Deployment
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+      skip-tests:
+        description: 'Skip tests (not recommended)'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://7zi.com
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: Run type check
+        run: npm run type-check
+
+      - name: Run tests
+        if: inputs.skip-tests != 'true'
+        run: npm run test:run
+
+      - name: Build application
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+          NODE_ENV: production
+
+      - name: Build Docker image
+        run: |
+          docker build -t 7zi-frontend:${{ github.sha }} .
+          docker tag 7zi-frontend:${{ github.sha }} 7zi-frontend:latest
+
+      - name: Deploy to production
+        run: |
+          echo "Deploying to production..."
+          echo "Commit: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}"
+          # Add your deployment command here
+          # Example for Docker:
+          # docker push ${{ secrets.REGISTRY }}/7zi-frontend:${{ github.sha }}
+          # docker push ${{ secrets.REGISTRY }}/7zi-frontend:latest
+          # Example for SSH deployment:
+          # ssh ${{ secrets.DEPLOY_HOST }} "cd /opt/7zi && docker-compose pull && docker-compose up -d"
+
+      - name: Health check
+        run: |
+          echo "Waiting for deployment to be ready..."
+          sleep 10
+          for i in {1..30}; do
+            if curl -sf https://7zi.com/ > /dev/null 2>&1; then
+              echo "✅ Deployment successful!"
+              exit 0
+            fi
+            echo "Attempt $i failed, retrying..."
+            sleep 5
+          done
+          echo "❌ Health check failed!"
+          exit 1
+
+      - name: Create release tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          RELEASE_TAG="v$(date +%Y%m%d-%H%M%S)"
+          git tag -a "$RELEASE_TAG" -m "Release $(date +%Y-%m-%d) - $RELEASE_TAG"
+          git push origin "$RELEASE_TAG" || true
+          echo "🏷️ Created release tag: $RELEASE_TAG"

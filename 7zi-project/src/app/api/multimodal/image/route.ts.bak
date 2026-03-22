@@ -1,0 +1,99 @@
+/**
+ * Multimodal API - Image Processing Endpoint
+ * POST /api/multimodal/image
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+import { getMultimodalService } from '@/lib/multimodal/multimodal-service';
+import { validateImage, compressImage } from '@/lib/multimodal/image-utils';
+import type { ImageUploadOptions } from '@/lib/multimodal/types';
+import {
+  createValidationError,
+  createErrorResponse,
+} from '@/lib/api/error-handler';
+import { logger } from '@/lib/logger';
+import { createSuccessResponse } from '@/lib/api/utils';
+
+export const runtime = 'nodejs';
+export const maxDuration = 30; // 30 second timeout
+
+export async function POST(request: NextRequest) {
+  try {
+    const formData = await request.formData();
+    const file = formData.get('image') as File;
+
+    if (!file) {
+      return createValidationError('No image file provided');
+    }
+
+    // Parse options
+    const options: ImageUploadOptions = {
+      maxSize: parseInt(formData.get('maxSize') as string) || 10 * 1024 * 1024,
+      compress: formData.get('compress') === 'true',
+      quality: parseFloat(formData.get('quality') as string) || 0.8,
+    };
+
+    // Validate image
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const validation = await validateImage(buffer, options.maxSize);
+
+    if (!validation.valid) {
+      return createValidationError(validation.error || 'Image validation failed');
+    }
+
+    // Compress if requested
+    let processedBuffer: Buffer = buffer;
+    if (options.compress) {
+      processedBuffer = await compressImage(buffer, options.quality);
+    }
+
+    // Get provider
+    const provider = formData.get('provider') as string | null;
+    const service = getMultimodalService();
+
+    // Process image
+    const result = await service.processImage(processedBuffer, options, provider || undefined);
+
+    if (!result.success) {
+      logger.error('Image processing failed', { error: result.error });
+      return createErrorResponse(new Error(result.error || 'Image processing failed'));
+    }
+
+    return createSuccessResponse({
+      data: result.data,
+      metadata: {
+        originalSize: buffer.length,
+        processedSize: processedBuffer.length,
+        filename: file.name,
+        type: file.type,
+      },
+    });
+  } catch (error) {
+    logger.error('Image processing API error', error);
+    return createErrorResponse(error instanceof Error ? error : new Error('Internal server error'));
+  }
+}
+
+/**
+ * GET /api/multimodal/image/providers
+ * Get available image processing providers
+ */
+export async function GET() {
+  try {
+    const service = getMultimodalService();
+    const providers = service.getProviders();
+    const health = await service.healthCheck();
+
+    const providerStatus = providers.map(p => ({
+      ...p,
+      healthy: health[p.name] || false,
+    }));
+
+    return createSuccessResponse({
+      providers: providerStatus,
+    });
+  } catch (error) {
+    logger.error('Provider listing error', error);
+    return createErrorResponse(error instanceof Error ? error : new Error('Internal server error'));
+  }
+}
