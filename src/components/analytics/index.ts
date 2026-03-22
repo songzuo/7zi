@@ -9,9 +9,6 @@ export type { MetricCardProps } from './MetricCard';
 export { AnalyticsChart } from './AnalyticsChart';
 export type { AnalyticsChartProps } from './AnalyticsChart';
 
-export { AnalyticsChartChartJS } from './AnalyticsChartChartJS';
-export type { AnalyticsChartChartJSProps } from './AnalyticsChartChartJS';
-
 export { DateRangePicker } from './DateRangePicker';
 export type { DateRangePickerProps } from './DateRangePicker';
 

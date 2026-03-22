@@ -10,7 +10,6 @@ import { MetricCard } from '@/components/analytics/MetricCard';
 import { DateRangePicker } from '@/components/analytics/DateRangePicker';
 import { FilterPanel } from '@/components/analytics/FilterPanel';
 import { AnalyticsChart } from '@/components/analytics/AnalyticsChart';
-import { AnalyticsChartChartJS } from '@/components/analytics/AnalyticsChartChartJS';
 import { type Statistic, type AnalyticsFilters, type TimeSeriesDataPoint, TimeRange } from '@/lib/types/analytics';
 
 // ============================================================================
@@ -545,66 +544,6 @@ describe('AnalyticsChart', () => {
     fireEvent.click(csvOption);
 
     expect(mockOnExport).toHaveBeenCalledWith('csv');
-  });
-});
-
-// ============================================================================
-// Test Suite: AnalyticsChartChartJS
-// ============================================================================
-
-describe('AnalyticsChartChartJS', () => {
-  const mockData: TimeSeriesDataPoint[] = [
-    { timestamp: '2024-01-01', date: 'Jan 1', agents: 10, users: 50, tasks: 20 },
-    { timestamp: '2024-01-02', date: 'Jan 2', agents: 12, users: 55, tasks: 25 },
-    { timestamp: '2024-01-03', date: 'Jan 3', agents: 8, users: 45, tasks: 18 }
-  ];
-
-  const mockConfig = {
-    type: 'line' as const,
-    title: 'Activity Overview (Chart.js)',
-    data: mockData,
-    metrics: ['agents', 'users'],
-    showLegend: true,
-    showTooltip: true,
-    height: 300
-  };
-
-  it('should render chart with title', () => {
-    render(<AnalyticsChartChartJS config={mockConfig} />);
-
-    expect(screen.getByText('Activity Overview (Chart.js)')).toBeInTheDocument();
-  });
-
-  it('should render canvas for chart', () => {
-    render(<AnalyticsChartChartJS config={mockConfig} />);
-
-    const canvas = document.querySelector('canvas');
-    expect(canvas).toBeInTheDocument();
-  });
-
-  it('should show export dropdown', () => {
-    const mockOnExport = vi.fn();
-    render(<AnalyticsChartChartJS config={mockConfig} onExport={mockOnExport} />);
-
-    const exportButton = screen.getByTestId('export-button');
-    fireEvent.mouseEnter(exportButton);
-
-    expect(screen.getByText('CSV')).toBeInTheDocument();
-    expect(screen.getByText('XLSX')).toBeInTheDocument();
-    expect(screen.getByText('JSON')).toBeInTheDocument();
-  });
-
-  it('should call onExport with format', () => {
-    const mockOnExport = vi.fn();
-    render(<AnalyticsChartChartJS config={mockConfig} onExport={mockOnExport} />);
-
-    const exportButton = screen.getByTestId('export-button');
-    fireEvent.mouseEnter(exportButton);
-
-    const jsonOption = screen.getByText('JSON');
-    fireEvent.click(jsonOption);
-
-    expect(mockOnExport).toHaveBeenCalledWith('json');
   });
 });
 
