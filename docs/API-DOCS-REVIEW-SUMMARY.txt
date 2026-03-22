@@ -1,0 +1,211 @@
+════════════════════════════════════════════════════════════════
+  API DOCUMENTATION REVIEW SUMMARY
+════════════════════════════════════════════════════════════════
+
+Date: 2026-03-22
+Reviewer: AI Subagent
+Documentation: /root/.openclaw/workspace/docs/API-REFERENCE.md
+Source Code: /root/.openclaw/workspace/7zi-project/src/app/api/
+
+════════════════════════════════════════════════════════════════
+  EXECUTIVE SUMMARY
+════════════════════════════════════════════════════════════════
+
+✅ 70% of documented endpoints match actual implementations
+❌ 30% have issues (missing, incorrect parameters, outdated formats)
+
+KEY FINDINGS:
+• 2 documented endpoints are NOT implemented (auth/logout, auth/refresh)
+• Database optimize API has parameter name mismatches
+• Error response format has changed (code → type, new fields added)
+• 25+ undocumented endpoints in the codebase need documentation
+
+════════════════════════════════════════════════════════════════
+  CRITICAL ISSUES (FIX IMMEDIATELY)
+════════════════════════════════════════════════════════════════
+
+1. MISSING ENDPOINTS
+   ❌ POST /api/auth/logout    - No route file exists
+   ❌ POST /api/auth/refresh   - No route file exists
+
+   ACTION: Either implement these or remove from documentation.
+
+2. DATABASE OPTIMIZE PARAMETER MISMATCH
+
+   DOCUMENTED (WRONG):
+   { "actions": ["vacuum", "analyze", "clear-cache"], "daysToKeep": 90 }
+
+   ACTUAL (CORRECT):
+   { "operations": ["vacuum", "analyze", "clear_metrics", "rebuild_indexes"] }
+
+   ACTION: Update docs with correct field names and remove daysToKeep.
+
+3. ERROR RESPONSE FORMAT CHANGED
+
+   DOCUMENTED (WRONG):
+   { "error": { "code": "VALIDATION_ERROR", ... } }
+
+   ACTUAL (CORRECT):
+   { "error": { "type": "VALIDATION_ERROR", "userMessage": "...",
+               "action": "...", "help": "...", "timestamp": "..." },
+     "requestId": "..." }
+
+   ACTION: Replace "code" with "type" and add new fields.
+
+════════════════════════════════════════════════════════════════
+  HIGH PRIORITY ADDITIONS
+════════════════════════════════════════════════════════════════
+
+MISSING API SECTIONS (25+ endpoints):
+
+  • RBAC APIs (10+ endpoints)
+    - /api/rbac/permissions
+    - /api/rbac/roles
+    - /api/rbac/users
+    - /api/rbac/system
+
+  • Extended User Management
+    - /api/users/[userId]/activity
+    - /api/users/[userId]/avatar
+    - /api/users/batch/bulk
+
+  • Performance Monitoring
+    - /api/performance/report
+    - /api/performance/metrics
+    - /api/performance/alerts
+
+  • Backup Extended APIs
+    - /api/backup/schedule
+    - /api/backup/statistics
+    - /api/backup/export
+    - /api/backup/import
+    - /api/backup/restore
+
+  • Analytics APIs
+    - /api/analytics/export
+    - /api/analytics/metrics
+
+  • A2A Extended APIs
+    - /api/a2a/registry
+    - /api/a2a/queue
+
+  • WebSocket & Streaming APIs
+    - /api/ws/stats
+    - /api/ws/broadcast
+    - /api/ws/rooms
+
+  • Data Export/Import
+    - /api/data/export
+    - /api/data/import
+
+  • Search APIs
+    - /api/search/autocomplete
+    - /api/search/history
+
+════════════════════════════════════════════════════════════════
+  CORRECTLY DOCUMENTED ✅
+════════════════════════════════════════════════════════════════
+
+These endpoints match their implementations exactly:
+
+  Authentication:
+  ✅ POST /api/auth/login
+  ✅ POST /api/auth/register
+  ✅ GET /api/auth/me
+
+  GitHub Integration:
+  ✅ GET /api/github/commits
+  ✅ GET /api/github/issues
+
+  Health Checks:
+  ✅ GET /api/health (all variants)
+
+  Database:
+  ✅ GET /api/database/health
+  ⚠️  POST /api/database/optimize (parameter issue noted above)
+
+  Multimodal:
+  ✅ POST /api/multimodal/audio
+  ✅ GET /api/multimodal/audio
+  ✅ POST /api/multimodal/image
+
+  Streaming:
+  ✅ GET /api/stream/analytics
+
+  A2A:
+  ✅ POST /api/a2a/jsonrpc
+
+  Backup:
+  ✅ GET /api/backup
+  ✅ POST /api/backup
+  ✅ GET /api/backup/[id]
+  ✅ DELETE /api/backup/[id]
+
+  CSRF:
+  ✅ GET /api/csrf-token
+
+════════════════════════════════════════════════════════════════
+  DOCUMENTS GENERATED
+════════════════════════════════════════════════════════════════
+
+1. API-DOCUMENTATION-REVIEW.md
+   • Comprehensive detailed review
+   • All discrepancies documented
+   • Full endpoint comparison table
+   • Priority recommendations
+
+2. API-UPDATES-NEEDED.md
+   • Quick reference for developers
+   • Critical fixes clearly listed
+   • Code examples for changes
+   • Actionable items
+
+3. API-DOCS-REVIEW-SUMMARY.txt (this file)
+   • Executive summary
+   • High-level overview
+   • Quick reference
+
+════════════════════════════════════════════════════════════════
+  STATISTICS
+════════════════════════════════════════════════════════════════
+
+  API Route Files Reviewed:     76
+  Documented Endpoints:         ~50
+  Correctly Documented:         35 (70%)
+  Need Updates:                 15 (30%)
+  Missing from Documentation:    25+
+
+════════════════════════════════════════════════════════════════
+  NEXT STEPS
+════════════════════════════════════════════════════════════════
+
+Priority 1 (CRITICAL - Fix Immediately):
+  □ Remove or implement auth/logout and auth/refresh
+  □ Fix database optimize parameter names
+  □ Update all error response examples (code → type)
+
+Priority 2 (HIGH - Complete Documentation):
+  □ Add RBAC APIs section
+  □ Add User Management extended APIs
+  □ Add Performance Monitoring APIs
+  □ Add Backup extended APIs
+  □ Add other missing API sections
+
+Priority 3 (MEDIUM - Enhance):
+  □ Update health check version number
+  □ Add authentication requirements
+  □ Add response examples for all endpoints
+
+════════════════════════════════════════════════════════════════
+  FILES LOCATION
+════════════════════════════════════════════════════════════════
+
+/root/.openclaw/workspace/docs/API-DOCUMENTATION-REVIEW.md  (Full review)
+/root/.openclaw/workspace/docs/API-UPDATES-NEEDED.md         (Quick fixes)
+/root/.openclaw/workspace/docs/API-DOCS-REVIEW-SUMMARY.txt  (This file)
+
+════════════════════════════════════════════════════════════════
+
+Review completed successfully. All findings documented above.
+
+════════════════════════════════════════════════════════════════

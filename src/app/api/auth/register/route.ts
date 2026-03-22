@@ -152,14 +152,14 @@ export async function POST(request: NextRequest) {
     const { email, password, name }: RegisterRequest = body;
 
     if (!email || !password || !name) {
-      const response = createValidationError('Email, password, and name are required');
+      const response = await createValidationError('Email, password, and name are required');
       logRequestComplete(metadata, response, startTime);
       return response;
     }
 
     // Validate email format
     if (!validateEmail(email)) {
-      const response = createValidationError('Invalid email format');
+      const response = await createValidationError('Invalid email format');
       logRequestComplete(metadata, response, startTime);
       return response;
     }
@@ -167,7 +167,7 @@ export async function POST(request: NextRequest) {
     // Validate password strength
     const passwordCheck = validatePasswordStrength(password);
     if (!passwordCheck.isValid) {
-      const response = createWeakPasswordError(passwordCheck.errors[0]);
+      const response = await createWeakPasswordError(passwordCheck.errors[0]);
       logRequestComplete(metadata, response, startTime);
       return response;
     }
@@ -176,7 +176,7 @@ export async function POST(request: NextRequest) {
     const result = await registerUser({ email, password, name, role: body.role });
 
     if (!result.success) {
-      const response = createRegistrationFailedError(result.error || 'Registration failed');
+      const response = await createRegistrationFailedError(result.error || 'Registration failed');
       logRequestComplete(metadata, response, startTime);
       return response;
     }

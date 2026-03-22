@@ -160,7 +160,7 @@ export function applyOperation(document: DocumentState, operation: Operation, us
 /**
  * Apply operation to content string
  */
-function applyOperationToContent(content: string, operation: Operation): string {
+export function applyOperationToContent(content: string, operation: Operation): string {
   switch (operation.type) {
     case 'insert':
       if (operation.content !== undefined) {

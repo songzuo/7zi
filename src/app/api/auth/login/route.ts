@@ -152,14 +152,14 @@ export async function POST(request: NextRequest) {
     const { email, password, rememberMe }: LoginRequest = body;
 
     if (!email || !password) {
-      const response = createValidationError('Email and password are required');
+      const response = await createValidationError('Email and password are required');
       logRequestComplete(metadata, response, startTime);
       return response;
     }
 
     // Validate email format
     if (!validateEmail(email)) {
-      const response = createValidationError('Invalid email format');
+      const response = await createValidationError('Invalid email format');
       logRequestComplete(metadata, response, startTime);
       return response;
     }
@@ -169,7 +169,7 @@ export async function POST(request: NextRequest) {
 
     if (!result.success) {
       logAuthError(metadata, 'authentication', result.error || 'Login failed');
-      const response = createUnauthorizedError(result.error || 'Login failed');
+      const response = await createUnauthorizedError(result.error || 'Login failed');
       logRequestComplete(metadata, response, startTime);
       return response;
     }

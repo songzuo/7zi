@@ -170,14 +170,14 @@ export async function POST(request: NextRequest) {
     } = body as CreateRatingDto;
 
     if (!target_type || !target_id || !rating) {
-      const response = createValidationError('target_type, target_id, and rating are required');
+      const response = await createValidationError('target_type, target_id, and rating are required');
       logRequestComplete(metadata, response, startTime);
       return response;
     }
 
     // Validate rating
     if (rating < 1 || rating > 5) {
-      const response = createValidationError('Rating must be between 1 and 5');
+      const response = await createValidationError('Rating must be between 1 and 5');
       logRequestComplete(metadata, response, startTime);
       return response;
     }
@@ -185,21 +185,21 @@ export async function POST(request: NextRequest) {
     // Validate target_type
     const validTargetTypes = ['agent', 'task', 'feature', 'project', 'overall'];
     if (!validTargetTypes.includes(target_type)) {
-      const response = createValidationError(`Invalid target_type. Must be one of: ${validTargetTypes.join(', ')}`);
+      const response = await createValidationError(`Invalid target_type. Must be one of: ${validTargetTypes.join(', ')}`);
       logRequestComplete(metadata, response, startTime);
       return response;
     }
 
     // Validate title length if provided
     if (title && title.length > 100) {
-      const response = createValidationError('Title must be less than 100 characters');
+      const response = await createValidationError('Title must be less than 100 characters');
       logRequestComplete(metadata, response, startTime);
       return response;
     }
 
     // Validate description length if provided
     if (description && description.length > 1000) {
-      const response = createValidationError('Description must be less than 1000 characters');
+      const response = await createValidationError('Description must be less than 1000 characters');
       logRequestComplete(metadata, response, startTime);
       return response;
     }
@@ -220,7 +220,7 @@ export async function POST(request: NextRequest) {
           score: spamCheck.score,
         });
 
-        const response = createUnauthorizedError('Rating rejected due to spam detection');
+        const response = await createUnauthorizedError('Rating rejected due to spam detection');
         logRequestComplete(metadata, response, startTime);
         return response;
       }
@@ -348,7 +348,7 @@ export async function GET_RATING(
       | undefined;
 
     if (!rating) {
-      const response = createNotFoundError('Rating not found');
+      const response = await createNotFoundError('Rating not found');
       logRequestComplete(metadata, response, startTime);
       return response;
     }
@@ -393,14 +393,14 @@ export async function DELETE_RATING(
       | undefined;
 
     if (!existing) {
-      const response = createNotFoundError('Rating not found');
+      const response = await createNotFoundError('Rating not found');
       logRequestComplete(metadata, response, startTime);
       return response;
     }
 
     // Check if user owns this rating (in production, verify JWT token)
     if (existing.user_id !== userId && userId !== 'admin') {
-      const response = createForbiddenError('You can only delete your own ratings');
+      const response = await createForbiddenError('You can only delete your own ratings');
       logRequestComplete(metadata, response, startTime);
       return response;
     }
@@ -445,7 +445,7 @@ export async function POST_HELPFUL(
     const { is_helpful } = body as { is_helpful: boolean };
 
     if (typeof is_helpful !== 'boolean') {
-      const response = createValidationError('is_helpful must be a boolean');
+      const response = await createValidationError('is_helpful must be a boolean');
       logRequestComplete(metadata, response, startTime);
       return response;
     }
@@ -461,7 +461,7 @@ export async function POST_HELPFUL(
       | undefined;
 
     if (!rating) {
-      const response = createNotFoundError('Rating not found');
+      const response = await createNotFoundError('Rating not found');
       logRequestComplete(metadata, response, startTime);
       return response;
     }

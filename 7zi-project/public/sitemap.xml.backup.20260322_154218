@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  
+  <!-- 首页 / Home -->
+  <url>
+    <loc>https://7zi.studio/zh</loc>
+    <lastmod>2025-03-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://7zi.studio/zh"/>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://7zi.studio/en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://7zi.studio/zh"/>
+  </url>
+  
+  <url>
+    <loc>https://7zi.studio/en</loc>
+    <lastmod>2025-03-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://7zi.studio/zh"/>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://7zi.studio/en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://7zi.studio/zh"/>
+  </url>
+  
+  <!-- 关于我们 / About -->
+  <url>
+    <loc>https://7zi.studio/zh/about</loc>
+    <lastmod>2025-03-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://7zi.studio/zh/about"/>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://7zi.studio/en/about"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://7zi.studio/zh/about"/>
+  </url>
+  
+  <url>
+    <loc>https://7zi.studio/en/about</loc>
+    <lastmod>2025-03-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://7zi.studio/zh/about"/>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://7zi.studio/en/about"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://7zi.studio/zh/about"/>
+  </url>
+  
+  <!-- 团队成员 / Team -->
+  <url>
+    <loc>https://7zi.studio/zh/team</loc>
+    <lastmod>2025-03-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://7zi.studio/zh/team"/>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://7zi.studio/en/team"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://7zi.studio/zh/team"/>
+  </url>
+  
+  <url>
+    <loc>https://7zi.studio/en/team</loc>
+    <lastmod>2025-03-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://7zi.studio/zh/team"/>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://7zi.studio/en/team"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://7zi.studio/zh/team"/>
+  </url>
+  
+  <!-- 博客首页 / Blog -->
+  <url>
+    <loc>https://7zi.studio/zh/blog</loc>
+    <lastmod>2025-03-06</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://7zi.studio/zh/blog"/>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://7zi.studio/en/blog"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://7zi.studio/zh/blog"/>
+  </url>
+  
+  <url>
+    <loc>https://7zi.studio/en/blog</loc>
+    <lastmod>2025-03-06</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://7zi.studio/zh/blog"/>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://7zi.studio/en/blog"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://7zi.studio/zh/blog"/>
+  </url>
+  
+  <!-- 联系我们 / Contact -->
+  <url>
+    <loc>https://7zi.studio/zh/contact</loc>
+    <lastmod>2025-03-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://7zi.studio/zh/contact"/>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://7zi.studio/en/contact"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://7zi.studio/zh/contact"/>
+  </url>
+  
+  <url>
+    <loc>https://7zi.studio/en/contact</loc>
+    <lastmod>2025-03-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://7zi.studio/zh/contact"/>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://7zi.studio/en/contact"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://7zi.studio/zh/contact"/>
+  </url>
+  
+  <!-- Dashboard -->
+  <url>
+    <loc>https://7zi.studio/zh/dashboard</loc>
+    <lastmod>2025-03-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://7zi.studio/zh/dashboard"/>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://7zi.studio/en/dashboard"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://7zi.studio/zh/dashboard"/>
+  </url>
+  
+  <url>
+    <loc>https://7zi.studio/en/dashboard</loc>
+    <lastmod>2025-03-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://7zi.studio/zh/dashboard"/>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://7zi.studio/en/dashboard"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://7zi.studio/zh/dashboard"/>
+  </url>
+  
+  <!-- 博客文章 / Blog Posts -->
+  <url>
+    <loc>https://7zi.studio/zh/blog/ai-agent-future-work</loc>
+    <lastmod>2025-01-15</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://7zi.studio/zh/blog/ai-agent-future-work"/>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://7zi.studio/en/blog/ai-agent-future-work"/>
+  </url>
+  
+  <url>
+    <loc>https://7zi.studio/zh/blog/web-development-trends-2024</loc>
+    <lastmod>2025-01-12</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <url>
+    <loc>https://7zi.studio/zh/blog/design-system-ux</loc>
+    <lastmod>2025-01-10</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <url>
+    <loc>https://7zi.studio/zh/blog/ai-content-marketing</loc>
+    <lastmod>2025-01-08</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <url>
+    <loc>https://7zi.studio/zh/blog/llm-prompt-engineering</loc>
+    <lastmod>2025-01-05</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <url>
+    <loc>https://7zi.studio/zh/blog/seo-strategies-2024</loc>
+    <lastmod>2025-01-03</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <url>
+    <loc>https://7zi.studio/zh/blog/nextjs-14-features</loc>
+    <lastmod>2024-12-28</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <url>
+    <loc>https://7zi.studio/zh/blog/brand-identity-design</loc>
+    <lastmod>2024-12-25</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+</urlset>

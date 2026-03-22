@@ -29,13 +29,13 @@ export async function POST(request: NextRequest) {
     // Validate refresh token format using JWT verification
     // First check basic length to avoid unnecessary JWT verification
     if (!refreshTokenValue || refreshTokenValue.length < 10) {
-      return createValidationError('Invalid refresh token format');
+      return await createValidationError('Invalid refresh token format');
     }
 
     // Verify JWT token structure to ensure it's a valid JWT
     const jwtVerification = await verifyJwtToken(refreshTokenValue);
     if (!jwtVerification) {
-      return createUnauthorizedError('Invalid or expired refresh token');
+      return await createUnauthorizedError('Invalid or expired refresh token');
     }
 
     // Refresh token
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
 
     if (!result.success) {
       // Clear auth cookies on failure
-      const errorResponse = createUnauthorizedError(result.error || 'Token refresh failed');
+      const errorResponse = await createUnauthorizedError(result.error || 'Token refresh failed');
       clearAuthCookies(errorResponse);
       return errorResponse;
     }
