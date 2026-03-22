@@ -395,20 +395,29 @@ export class DataExporter<T extends Record<string, unknown>> {
     const fields = this.getSelectedFields();
     const excelOptions = this.config.excelOptions || {};
 
-    // 动态导入 XLSX
-    const XLSX = await import('xlsx');
+    // 动态导入 ExcelJS
+    const ExcelJS = await import('exceljs');
+    const workbook = new ExcelJS.Workbook();
 
-    // 创建工作簿
-    const workbook = XLSX.utils.book_new();
+    // 创建工作表
+    const worksheet = workbook.addWorksheet(excelOptions.sheetName || this.config.sheetName);
 
-    // 准备数据（包含表头）
-    const sheetData: (string | number | boolean | null)[][] = [];
-
+    // 添加表头
     if (this.config.includeHeader) {
-      sheetData.push(fields.map((f) => f.label));
+      const headerRow = worksheet.addRow(fields.map((f) => f.label));
+      // 设置表头样式
+      if (excelOptions.headerStyle !== false) {
+        headerRow.font = { bold: true };
+        headerRow.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFE0E0E0' },
+        };
+      }
     }
 
-    transformedData.forEach((row) => {
+    // 添加数据行
+    const dataRows = transformedData.map((row) => {
       const values: (string | number | boolean | null)[] = fields.map((f) => {
         const value = row[f.label];
         if (value === null || value === undefined) return '';
@@ -417,51 +426,49 @@ export class DataExporter<T extends Record<string, unknown>> {
         }
         return String(value);
       });
-      sheetData.push(values);
+      return worksheet.addRow(values);
     });
 
-    // 创建工作表
-    const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
-
-    // 设置列宽（支持自动宽度和自定义宽度）
-    const colWidths = fields.map((f, index) => {
+    // 设置列宽
+    fields.forEach((field, index) => {
+      const column = worksheet.getColumn(index + 1);
       // 优先使用字段自定义宽度
-      if (f.width) {
-        return { wch: f.width };
-      }
-      // 检查列样式
-      const colLetter = String.fromCharCode(65 + index);
-      if (excelOptions.columnStyles?.[colLetter]?.width) {
-        return { wch: excelOptions.columnStyles[colLetter].width! };
-      }
-      // 自动计算宽度
-      if (excelOptions.columnStyles?.[colLetter]?.autoWidth !== false) {
+      if (field.width) {
+        column.width = field.width;
+      } else {
+        // 自动计算宽度
         const maxWidth = Math.max(
-          f.label.length * 2,
-          ...sheetData.slice(1).map((row) => String(row[index] ?? '').length)
+          field.label.length,
+          ...transformedData.map((row) => {
+            const value = row[field.label];
+            return String(value ?? '').length;
+          })
         );
-        return { wch: Math.min(Math.max(maxWidth, 10), 50) };
+        column.width = Math.min(Math.max(maxWidth, 10), 50);
       }
-      return { wch: 15 };
     });
-    worksheet['!cols'] = colWidths;
 
     // 设置冻结行
     if (excelOptions.freezeRows && this.config.includeHeader) {
-      worksheet['!freeze'] = { xSplit: 0, ySplit: excelOptions.freezeRows };
+      worksheet.views = [
+        {
+          state: 'frozen',
+          ySplit: excelOptions.freezeRows,
+        },
+      ];
     }
 
     // 设置自动筛选
-    if (excelOptions.autoFilter && sheetData.length > 1) {
-      const endCol = String.fromCharCode(65 + fields.length - 1);
-      worksheet['!autofilter'] = { ref: `A1:${endCol}${sheetData.length}` };
+    if (excelOptions.autoFilter && transformedData.length > 0) {
+      const endColumnLetter = String.fromCharCode(65 + fields.length - 1);
+      worksheet.autoFilter = {
+        from: { row: 1, column: 1 },
+        to: { row: transformedData.length + 1, column: fields.length },
+      };
     }
 
-    // 添加工作表到工作簿
-    XLSX.utils.book_append_sheet(workbook, worksheet, excelOptions.sheetName || this.config.sheetName);
-
     // 生成文件
-    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const excelBuffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([excelBuffer], {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     });
@@ -796,43 +803,46 @@ export async function exportMultiSheet<T extends Record<string, unknown>>(
   config: MultiSheetConfig<T>
 ): Promise<ExportResult> {
   try {
-    // 动态导入 XLSX
-    const XLSX = await import('xlsx');
-    const workbook = XLSX.utils.book_new();
+    // 动态导入 ExcelJS
+    const ExcelJS = await import('exceljs');
+    const workbook = new ExcelJS.Workbook();
 
-    config.sheets.forEach((sheet) => {
-      const sheetData: (string | number | boolean | null)[][] = [];
+    config.sheets.forEach((sheetConfig) => {
+      const worksheet = workbook.addWorksheet(sheetConfig.name);
 
-      // 表头
-      sheetData.push(sheet.fields.map((f) => f.label));
+      // 添加表头
+      const headerRow = worksheet.addRow(sheetConfig.fields.map((f) => f.label));
+      headerRow.font = { bold: true };
+      headerRow.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFE0E0E0' },
+      };
 
-      // 数据行
-      sheet.data.forEach((row) => {
-        const values: (string | number | boolean | null)[] = sheet.fields.map((field) => {
+      // 添加数据行
+      sheetConfig.data.forEach((row) => {
+        const values: (string | number | boolean | null)[] = sheetConfig.fields.map((field) => {
           const value = row[field.key];
           if (field.formatter) {
             return field.formatter(value, row) as string | number | boolean | null;
           }
-          if (value === null || value === undefined) return null;
+          if (value === null || value === undefined) return '';
           if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
             return value;
           }
           return String(value);
         });
-        sheetData.push(values);
+        worksheet.addRow(values);
       });
 
-      const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
-
-      // 列宽
-      worksheet['!cols'] = sheet.fields.map((f) => ({
-        wch: f.width || Math.max(f.label.length * 2, 15),
-      }));
-
-      XLSX.utils.book_append_sheet(workbook, worksheet, sheet.name);
+      // 设置列宽
+      sheetConfig.fields.forEach((field, index) => {
+        const column = worksheet.getColumn(index + 1);
+        column.width = field.width || Math.max(field.label.length * 2, 15);
+      });
     });
 
-    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const excelBuffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([excelBuffer], {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     });

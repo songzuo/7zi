@@ -713,5 +713,6 @@ export async function importData(
   data: string,
   options: ImportOptions
 ): Promise<ImportResult> {
-  return await _importData(data, options);
+  const parsedData: ExportResult = JSON.parse(data);
+  return await _importData(parsedData, options);
 }

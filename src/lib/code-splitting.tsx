@@ -85,10 +85,10 @@ export const OptimizedKnowledgeLatticeScene = dynamic(
 // ============================================
 
 /**
- * SheetJS (xlsx) 库 - 完全动态加载
+ * ExcelJS 库 - 完全动态加载
  */
-export const SheetJS = dynamic<{ children?: React.ReactNode }>(
-  () => import('xlsx').then((mod) => mod as unknown as ComponentType<{ children?: React.ReactNode }>),
+export const ExcelJS = dynamic<{ children?: React.ReactNode }>(
+  () => import('exceljs').then((mod) => mod.default as unknown as ComponentType<{ children?: React.ReactNode }>),
   {
     ssr: false,
     loading: () => null,

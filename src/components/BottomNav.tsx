@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import type { FC } from 'react';
+import type { FC, ReactNode } from 'react';
 import { isAtLeastBreakpoint } from '@/lib/utils/breakpoints';
 
 interface NavItem {

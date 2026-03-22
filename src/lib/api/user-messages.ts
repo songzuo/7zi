@@ -55,11 +55,15 @@ type SyncMessageGetter = string | ((locale: string) => string);
 /**
  * Convert sync message getter to async if needed
  */
-function toAsyncMessage(getter: SyncMessageGetter): MessageGetter {
+function toAsyncMessage(getter: SyncMessageGetter | Record<string, string>): MessageGetter {
   if (typeof getter === 'function') {
     return (locale: string) => Promise.resolve((getter as (locale: string) => string)(locale));
   }
-  return () => Promise.resolve(getter);
+  if (typeof getter === 'string') {
+    return () => Promise.resolve(getter);
+  }
+  // Handle object literal with language keys
+  return (locale: string) => Promise.resolve((getter as Record<string, string>)[locale] || (getter as Record<string, string>)['en'] || '');
 }
 
 /**

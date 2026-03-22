@@ -228,8 +228,8 @@ async function createBackup(options: BackupOptions = {}): Promise<BackupMetadata
       writeStream
     );
   } else if (compression === 'br') {
-    // Compress with brotli
-    const brotli = createBrotliCompress({ params: { [crypto.constants.BROTLI_PARAM_QUALITY]: 4 } });
+    // Compress with brotli (quality 4 = BROTLI_PARAM_QUALITY_4)
+    const brotli = createBrotliCompress({ params: { 2: 4 } });  // 2 = BROTLI_PARAM_QUALITY
     const writeStream = createWriteStream(filePath);
     await pipeline(
       createReadStream(Buffer.from(jsonContent)),

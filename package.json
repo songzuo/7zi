@@ -23,6 +23,10 @@
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:report": "playwright show-report",
     "test:e2e:chromium": "playwright test --project=chromium",
+    "test:e2e:new": "playwright test --config=playwright.tests.config.ts",
+    "test:e2e:new:ui": "playwright test --config=playwright.tests.config.ts --ui",
+    "test:e2e:new:debug": "playwright test --config=playwright.tests.config.ts --debug",
+    "test:e2e:new:report": "playwright show-report tests/e2e/playwright-report",
     "test:all": "npm run test:run && npm run test:e2e"
   },
   "browserslist": [
@@ -40,6 +44,7 @@
     "@sentry/nextjs": "^10.44.0",
     "@testing-library/jest-dom": "^6.9.1",
     "better-sqlite3": "^12.8.0",
+    "exceljs": "^4.4.0",
     "fuse.js": "^7.1.0",
     "glob": "^13.0.6",
     "ioredis": "^5.10.1",
@@ -54,9 +59,9 @@
     "sharp": "^0.34.5",
     "socket.io-client": "^4.8.3",
     "three": "^0.183.2",
+    "undici": "^7.24.5",
     "uuid": "^13.0.0",
     "web-vitals": "^5.1.0",
-    "xlsx": "^0.18.5",
     "zod": "^4.3.6",
     "zustand": "^5.0.12"
   },

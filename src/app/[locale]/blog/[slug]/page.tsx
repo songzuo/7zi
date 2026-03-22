@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArticleSchema } from "@/components/SEO";
 
 const baseUrl = "https://7zi.studio";
 
@@ -147,7 +148,18 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const post = blogPosts.find((p) => p.id === slug) || blogPosts[0];
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black">
+    <>
+      <ArticleSchema
+        title={post.title}
+        description={post.excerpt}
+        url={`${baseUrl}/blog/${post.id}`}
+        datePublished={post.date}
+        dateModified={post.date}
+        author={post.author}
+        tags={post.tags}
+        category={post.category}
+      />
+      <div className="min-h-screen bg-zinc-50 dark:bg-black">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg border-b border-zinc-200 dark:border-zinc-800">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -341,43 +353,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           </div>
         </div>
       </footer>
-
-      {/* Structured Data for Blog Post */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "BlogPosting",
-            headline: post.title,
-            description: post.excerpt,
-            url: `${baseUrl}/blog/${post.id}`,
-            datePublished: post.date,
-            dateModified: post.date,
-            author: {
-              "@type": "Person",
-              name: post.author,
-            },
-            publisher: {
-              "@type": "Organization",
-              name: "7zi Studio",
-              url: baseUrl,
-              logo: {
-                "@type": "ImageObject",
-                url: `${baseUrl}/logo.png`,
-              },
-            },
-            mainEntityOfPage: {
-              "@type": "WebPage",
-              "@id": `${baseUrl}/blog/${post.id}`,
-            },
-            articleBody: post.excerpt,
-            wordCount: post.readTime,
-            keywords: post.tags.join(", "),
-            articleSection: post.category,
-          }),
-        }}
-      />
-    </div>
+      </div>
+    </>
   );
 }

@@ -322,6 +322,3 @@ export async function withErrorHandling<T extends (...args: unknown[]) => Promis
     }
   }) as T;
 }
-
-// Export NextRequest for type checking
-import type { NextRequest } from 'next/server';

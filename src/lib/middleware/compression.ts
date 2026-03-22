@@ -4,7 +4,6 @@
  *
  * 支持的压缩格式:
  * - gzip (广泛支持，压缩率中等)
- * - brotli (压缩率更高，现代浏览器)
  *
  * 特性:
  * - 自动检测 Accept-Encoding 头
@@ -15,8 +14,7 @@
 
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { compress as compressBrotli } from 'brotli';
-import { gzip, gunzip } from 'zlib';
+import { gzip, gunzip, constants } from 'zlib';
 import { promisify } from 'util';
 
 const gzipAsync = promisify(gzip);
@@ -29,7 +27,7 @@ const gunzipAsync = promisify(gunzip);
 const CompressionConfigSchema = z.object({
   enabled: z.boolean().default(true),
   threshold: z.number().min(0).default(1024), // Bytes - 最小压缩阈值
-  level: z.number().min(0).max(11).default(6), // Compression level (0-11 for brotli, 0-9 for gzip)
+  level: z.number().min(0).max(9).default(6), // Compression level (0-9 for gzip)
   chunkSize: z.number().min(1024).default(16384), // Bytes
   memLevel: z.number().min(1).max(9).default(8),
   windowBits: z.number().min(8).max(15).default(15),
@@ -62,7 +60,6 @@ interface CompressionStats {
   compressedSize: number; // Total compressed size in bytes
   byEncoding: {
     gzip: number;
-    brotli: number;
     uncompressed: number;
   };
 }
@@ -76,7 +73,6 @@ class CompressionStatsCollector {
     compressedSize: 0,
     byEncoding: {
       gzip: 0,
-      brotli: 0,
       uncompressed: 0,
     },
   };
@@ -89,11 +85,8 @@ class CompressionStatsCollector {
       this.stats.originalSize += originalSize;
       this.stats.compressedSize += compressedSize;
 
-      if (encoding === 'br') {
-        this.stats.byEncoding.brotli++;
-      } else if (encoding === 'gzip') {
-        this.stats.byEncoding.gzip++;
-      }
+      // Brotli removed, using gzip only
+      this.stats.byEncoding.gzip++;
     } else {
       this.stats.skippedResponses++;
       this.stats.byEncoding.uncompressed++;
@@ -118,7 +111,6 @@ class CompressionStatsCollector {
       compressedSize: 0,
       byEncoding: {
         gzip: 0,
-        brotli: 0,
         uncompressed: 0,
       },
     };
@@ -140,7 +132,6 @@ export function detectEncoding(acceptEncoding: string | null): 'br' | 'gzip' | n
 
   const encodings = acceptEncoding.toLowerCase().split(',').map(e => e.trim());
 
-  // Prefer brotli over gzip
   if (encodings.includes('br') || encodings.includes('br;q=1')) {
     return 'br';
   }
@@ -206,18 +197,13 @@ async function compressData(
   encoding: 'gzip' | 'br',
   config: CompressionConfig
 ): Promise<Buffer> {
-  if (encoding === 'br') {
-    return Buffer.from(compressBrotli(data, {
-      quality: Math.min(config.level, 11),
-    }));
-  } else {
-    return await gzipAsync(data, {
-      level: Math.min(config.level, 9),
-      chunkSize: config.chunkSize,
-      memLevel: config.memLevel,
-      windowBits: config.windowBits,
-    });
-  }
+  // Use gzip for both encodings (brotli package removed)
+  return await gzipAsync(data, {
+    level: Math.min(config.level, 9),
+    chunkSize: config.chunkSize,
+    memLevel: config.memLevel,
+    windowBits: config.windowBits,
+  });
 }
 
 /**
@@ -227,11 +213,8 @@ export async function decompressData(
   data: Buffer,
   encoding: 'gzip' | 'br'
 ): Promise<Buffer> {
-  if (encoding === 'br') {
-    throw new Error('Brotli decompression not implemented');
-  } else {
-    return await gunzipAsync(data);
-  }
+  // Brotli removed, using gzip only
+  return await gunzipAsync(data);
 }
 
 // ============================================================================
@@ -283,7 +266,7 @@ export function withCompression<T extends any[]>(
       statsCollector.record(buffer.length, compressed.length, encoding);
 
       // Create new response with compressed body
-      const compressedResponse = new NextResponse(compressed, {
+      const compressedResponse = new NextResponse(new Uint8Array(compressed), {
         status: response.status,
         statusText: response.statusText,
         headers: {
@@ -350,7 +333,6 @@ export function formatCompressionStats(): string {
     `  Compression Ratio: ${(ratio * 100).toFixed(1)}%`,
     `  By Encoding:`,
     `    Gzip: ${stats.byEncoding.gzip}`,
-    `    Brotli: ${stats.byEncoding.brotli}`,
     `    Uncompressed: ${stats.byEncoding.uncompressed}`,
   ].join('\n');
 }
@@ -361,8 +343,6 @@ export function formatCompressionStats(): string {
 
 export {
   CompressionConfigSchema,
-  CompressionConfig,
-  CompressionStats,
   CompressionStatsCollector,
 };
 

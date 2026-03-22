@@ -6,7 +6,7 @@
 'use client';
 
 import type { NotificationItemProps, NotificationType } from './types';
-import type { FC } from 'react';
+import type { FC, MouseEvent } from 'react';
 
 /** 类型对应的颜色配置 */
 const typeColors: Record<NotificationType, { bg: string; text: string; icon: string }> = {
@@ -67,12 +67,12 @@ export const NotificationItem: FC<NotificationItemProps> = ({
     }
   };
 
-  const handleMarkAsRead = (e: MouseEvent) => {
+  const handleMarkAsRead = (e: React.MouseEvent) => {
     e.stopPropagation();
     onMarkAsRead?.(notification.id);
   };
 
-  const handleDelete = (e: MouseEvent) => {
+  const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
     onDelete?.(notification.id);
   };

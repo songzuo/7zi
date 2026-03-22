@@ -36,10 +36,10 @@ interface WebVitalsConfig {
   // 调试配置
   debug?: boolean;
   verbose?: boolean;
-  
+
   // 优化配置
   onLCP?: (metric: Metric) => void;
-  onFID?: (metric: Metric) => void;
+  // onFID is deprecated, use onINP instead
   onCLS?: (metric: Metric) => void;
   onTTFB?: (metric: Metric) => void;
   onFCP?: (metric: Metric) => void;
@@ -346,7 +346,6 @@ export function initWebVitalsMonitoring(config: WebVitalsConfig = {}) {
     debug = false,
     verbose = false,
     onLCP,
-    onFID,
     onCLS,
     onTTFB,
     onFCP,
@@ -360,7 +359,7 @@ export function initWebVitalsMonitoring(config: WebVitalsConfig = {}) {
   const shouldSample = () => Math.random() < sampleRate;
 
   // Use web-vitals library
-  import('web-vitals').then(({ onLCP: onLCPWeb, onFID: onFIDWeb, onCLS: onCLSWeb, onTTFB: onTTFBWeb, onFCP: onFCPWeb, onINP: onINPWeb }) => {
+  import('web-vitals').then(({ onLCP: onLCPWeb, onCLS: onCLSWeb, onTTFB: onTTFBWeb, onFCP: onFCPWeb, onINP: onINPWeb }) => {
     // Largest Contentful Paint
     onLCPWeb((metric) => {
       const enhancedMetric: Metric = {
@@ -371,27 +370,14 @@ export function initWebVitalsMonitoring(config: WebVitalsConfig = {}) {
 
       logToConsole(enhancedMetric, { enableConsole, debug });
       onLCP?.(enhancedMetric);
-      
+
       if (shouldSample()) {
         reportMetricToAPI(enhancedMetric);
       }
     });
 
-    // First Input Delay
-    onFIDWeb((metric) => {
-      const enhancedMetric: Metric = {
-        ...metric,
-        name: 'FID',
-        rating: getRating('FID', metric.value),
-      };
-
-      logToConsole(enhancedMetric, { enableConsole, debug });
-      onFID?.(enhancedMetric);
-      
-      if (shouldSample()) {
-        reportMetricToAPI(enhancedMetric);
-      }
-    });
+    // First Input Delay (deprecated, using INP instead)
+    // onFIDWeb - FID is deprecated, use onINP instead
 
     // Cumulative Layout Shift
     onCLSWeb((metric) => {
@@ -476,13 +462,13 @@ export async function getCurrentVitals() {
     return null;
   }
 
-  const { onLCP: onLCPWeb, onFID: onFIDWeb, onCLS: onCLSWeb, onTTFB: onTTFBWeb, onINP: onINPWeb } = await import('web-vitals');
+  const { onLCP: onLCPWeb, onCLS: onCLSWeb, onTTFB: onTTFBWeb, onINP: onINPWeb } = await import('web-vitals');
 
   return new Promise<Record<string, number>>((resolve) => {
     const vitals: Record<string, number> = {};
 
     const checkComplete = () => {
-      if (Object.keys(vitals).length >= 5) {
+      if (Object.keys(vitals).length >= 4) {
         resolve(vitals);
       }
     };
@@ -493,7 +479,7 @@ export async function getCurrentVitals() {
     }, 10000);
 
     onLCPWeb((m) => { vitals.LCP = m.value; checkComplete(); });
-    onFIDWeb((m) => { vitals.FID = m.value; checkComplete(); });
+    // FID is deprecated, using INP instead
     onCLSWeb((m) => { vitals.CLS = m.value; checkComplete(); });
     onTTFBWeb((m) => { vitals.TTFB = m.value; checkComplete(); });
     onINPWeb((m) => { vitals.INP = m.value; checkComplete(); });

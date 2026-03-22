@@ -9,9 +9,9 @@
 
 'use client';
 
+import React, { FC, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
-import type { FC } from 'react';
 
 /**
  * Button variant types
@@ -26,7 +26,7 @@ export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 /**
  * Button component props
  */
-export interface ButtonProps extends Omit<JSX.IntrinsicElements['button'], 'size'> {
+export interface ButtonProps extends Omit<React.JSX.IntrinsicElements['button'], 'size'> {
   /** Button variant (default: 'primary') */
   variant?: ButtonVariant;
   /** Size preset (default: 'md') */

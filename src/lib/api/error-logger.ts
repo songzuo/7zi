@@ -208,11 +208,11 @@ export function logApiError(
 
   // Log with appropriate severity level
   if (severity === 'error') {
-    logger.error('API Server Error', error, errorData);
+    logger.error('API Server Error', error, errorData as unknown as Record<string, unknown>);
   } else if (severity === 'warn') {
-    logger.warn('API Client Error', errorData);
+    logger.warn('API Client Error', errorData as unknown as Record<string, unknown>);
   } else {
-    logger.info('API Error', errorData);
+    logger.info('API Error', errorData as unknown as Record<string, unknown>);
   }
 
   // Send to external monitoring if configured
@@ -244,7 +244,7 @@ export function logApiSuccess(
     timestamp: new Date().toISOString(),
   };
 
-  logger.info('API Success', successData);
+  logger.info('API Success', successData as unknown as Record<string, unknown>);
 }
 
 /**

@@ -13,9 +13,15 @@ import {
   hasAnyPermission,
   hasAllPermissions,
   hasRole,
-  hasRoleLevel,
-  withPermissions
-} from '@/lib/permissions';
+  hasAllRoles
+} from '@/lib/permissions/rbac';
+import {
+  withPermissions,
+  withAnyPermission,
+  withRole,
+  withAnyRole
+} from '@/lib/permissions/middleware';
+import { addRolesToUser, removeRolesFromUser } from '@/lib/permissions/repository';
 import { Permission, Role } from '@/lib/permissions/types';
 import { isAdmin } from '@/lib/permissions/rbac';
 import {

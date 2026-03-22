@@ -234,7 +234,7 @@ This release focuses on code quality improvements, test coverage expansion, comp
 ### 📦 Dependencies
 
 - **Updated Dependencies**
-  - Next.js 16.1.7 (latest)
+  - Next.js 16.2.1 (latest)
   - React 19.2.4
   - TypeScript 5.0
   - Tailwind CSS 4
@@ -425,7 +425,7 @@ This release brings significant improvements in code quality, performance optimi
 ### 📦 Dependencies
 
 - **Updated Dependencies**
-  - Next.js 16.1.7
+  - Next.js 16.2.1
   - React 19.2.4
   - TypeScript 5.x
   - Tailwind CSS 4

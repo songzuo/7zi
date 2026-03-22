@@ -17,7 +17,7 @@ import {
   CreateUserRequest,
   UpdateUserRequest,
 } from './types';
-import { hashPassword, verifyPassword } from './password-utils';
+import { hashPassword, verifyPassword } from './repository';
 
 // ============================================================================
 // Cache Key Generation
@@ -348,16 +348,17 @@ function mapRowToUser(row: Record<string, unknown>): User {
   return {
     id: row.id as string,
     email: row.email as string,
+    password: row.password as string,
     name: row.name as string,
     avatar: row.avatar as string | undefined,
     role: row.role as UserRole,
-    roles: row.roles ? JSON.parse(row.roles as string) : [],
+    roles: row.roles ? JSON.parse(row.roles as string || '[]') : [],
     status: row.status as UserStatus,
-    permissions: row.permissions ? JSON.parse(row.permissions as string) : [],
+    permissions: row.permissions ? JSON.parse(row.permissions as string || '[]') : [],
     customPermissions: row.customPermissions
-      ? JSON.parse(row.customPermissions as string)
-      : [],
-    metadata: row.metadata ? JSON.parse(row.metadata as string) : {},
+      ? JSON.parse(row.customPermissions as string || '[]')
+      : undefined,
+    metadata: row.metadata ? JSON.parse(row.metadata as string || '{}') : {},
     createdAt: new Date(row.created_at as string),
     updatedAt: new Date(row.updated_at as string),
     lastLoginAt: row.last_login_at ? new Date(row.last_login_at as string) : undefined,

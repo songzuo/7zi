@@ -15,7 +15,8 @@
  */
 
 import { logger } from '../logger';
-import { createServiceUnavailableError, ErrorType, getLocaleFromRequest, SupportedLocale } from './error-handler';
+import { createServiceUnavailableError, ErrorType } from './error-handler';
+import { getLocaleFromRequest, SupportedLocale } from './user-messages';
 
 /**
  * Timeout error for operation timeouts

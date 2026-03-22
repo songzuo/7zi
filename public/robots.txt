@@ -1,9 +1,39 @@
 # 7zi Studio - robots.txt
 # https://7zi.studio/robots.txt
 
-# 允许所有搜索引擎
+# 允许所有搜索引擎，但排除特定目录
 User-agent: *
 Allow: /
+
+# 禁止爬取后端 API 目录（节省服务器资源，避免重复内容）
+Disallow: /api/
+Disallow: /api/v1/
+Disallow: /api/v2/
+
+# 禁止爬取管理后台（如存在）
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /settings/
+
+# 禁止爬取开发工具和测试页面
+Disallow: /_next/
+Disallow: /test-*
+Disallow: /demo-*
+Disallow: /examples/
+Disallow: /offline/
+Disallow: /sse-demo/
+Disallow: /collaboration-demo/
+Disallow: /undo-redo-example/
+
+# 禁止爬取性能监控和健康检查页面
+Disallow: /performance/
+Disallow: /analytics/
+Disallow: /health-dashboard/
+
+# 禁止爬取敏感路由
+Disallow: /knowledge-lattice/
+Disallow: /portfolio/
+Disallow: /tasks/
 
 # 网站地图
 Sitemap: https://7zi.studio/sitemap.xml
@@ -33,12 +63,3 @@ Crawl-delay: 1
 User-agent: Baiduspider
 Allow: /
 Crawl-delay: 2
-
-# 禁止爬取的目录（如有）
-# Disallow: /admin/
-# Disallow: /api/
-# Disallow: /private/
-
-# 禁止爬取的文件类型（可选）
-# Disallow: /*.json$
-# Disallow: /*.xml$

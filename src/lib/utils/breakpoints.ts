@@ -15,7 +15,7 @@ export const BREAKPOINTS = {
   md: 768,  // Medium screens (tablets)
   lg: 1024, // Large screens (laptops)
   xl: 1280, // Extra large screens (desktops)
-  2xl: 1536, // 2X large screens
+  '2xl': 1536, // 2X large screens
 } as const;
 
 export type BreakpointKey = keyof typeof BREAKPOINTS;

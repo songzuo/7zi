@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { Locale, locales } from '@/i18n/config';
 import { Link } from '@/i18n/routing';
+import { StructuredData } from '@/components/SEO';
 
 type Params = Promise<{ locale: string }>;
 
@@ -153,8 +154,22 @@ export default async function BlogPage({ params }: { params: Params }) {
     copyright: locale === 'zh' ? '版权所有' : 'All rights reserved',
   };
 
+  // 面包屑数据
+  const breadcrumbs = [
+    { name: '首页', nameEn: 'Home', path: '/' },
+    { name: '博客', nameEn: 'Blog', path: '/blog' },
+  ];
+
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black">
+    <>
+      {/* SEO 结构化数据 */}
+      <StructuredData
+        locale={locale as 'zh' | 'en'}
+        schemas={['website', 'organization', 'breadcrumb']}
+        breadcrumbs={breadcrumbs}
+      />
+      
+      <div className="min-h-screen bg-zinc-50 dark:bg-black">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg border-b border-zinc-200 dark:border-zinc-800">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -314,5 +329,6 @@ export default async function BlogPage({ params }: { params: Params }) {
         </div>
       </footer>
     </div>
+    </>
   );
 }

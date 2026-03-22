@@ -1,6 +1,6 @@
 'use client';
 
-import { Children, ReactNode, isValidElement, cloneElement, type FC } from 'react';
+import React, { Children, ReactNode, isValidElement, cloneElement, type FC } from 'react';
 
 interface ResponsiveGridProps {
   children: ReactNode;
@@ -201,7 +201,7 @@ export const ResponsiveText: FC<ResponsiveTextProps> = ({
     small: 'text-xs sm:text-sm md:text-base'
   };
 
-  const Tag = as as keyof JSX.IntrinsicElements;
+  const Tag = as as keyof React.JSX.IntrinsicElements;
 
   return React.createElement(
     Tag,
@@ -272,7 +272,7 @@ export const ResponsiveButton: FC<ResponsiveButtonProps> = ({
  * Responsive Input Component
  * Ensures touch-friendly input heights on mobile
  */
-interface ResponsiveInputProps extends Omit<JSX.IntrinsicElements['input'], 'size'> {
+interface ResponsiveInputProps extends Omit<React.JSX.IntrinsicElements['input'], 'size'> {
   label?: string;
   error?: string;
   helperText?: string;

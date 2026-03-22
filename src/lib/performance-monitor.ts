@@ -58,8 +58,8 @@ export async function getCoreWebVitals(): Promise<MetricData[]> {
 
   try {
     // Dynamic import of web-vitals to avoid SSR issues
-    // web-vitals v4 uses onCLS, onFID, etc. instead of getCLS, getFID
-    const { onCLS, onFID, onFCP, onLCP, onTTFB } = await import('web-vitals');
+    // web-vitals v4 uses onCLS, onFCP, onLCP, onTTFB, onINP (FID is deprecated)
+    const { onCLS, onFCP, onLCP, onTTFB, onINP } = await import('web-vitals');
 
     const recordMetric = (name: string, value: number) => {
       const rating = getMetricRating(name, value);
@@ -67,10 +67,11 @@ export async function getCoreWebVitals(): Promise<MetricData[]> {
     };
 
     onCLS((metric: WebVitalsMetric) => recordMetric('CLS', metric.value));
-    onFID((metric: WebVitalsMetric) => recordMetric('FID', metric.value));
+    // FID is deprecated, using INP instead
     onFCP((metric: WebVitalsMetric) => recordMetric('FCP', metric.value));
     onLCP((metric: WebVitalsMetric) => recordMetric('LCP', metric.value));
     onTTFB((metric: WebVitalsMetric) => recordMetric('TTFB', metric.value));
+    onINP((metric: WebVitalsMetric) => recordMetric('INP', metric.value));
 
     // Wait a bit for metrics to be collected
     await new Promise(resolve => setTimeout(resolve, 100));

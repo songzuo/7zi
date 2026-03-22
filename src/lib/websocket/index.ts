@@ -5,7 +5,6 @@
  */
 
 export {
-  createServer,
   getServer,
   getStats,
   getRoomInfo,
@@ -14,6 +13,8 @@ export {
   broadcastTaskStatusUpdate,
   broadcastTaskStatusToUser,
 } from './server';
+
+export { createServer as createWebSocketServer } from './server';
 
 export type {
   AuthenticatedSocket,

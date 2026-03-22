@@ -6,7 +6,7 @@
 'use client';
 
 import { NotificationType, NotificationPriority } from '@/types/notifications';
-import type { FC } from 'react';
+import type { FC, ChangeEvent } from 'react';
 
 // ============================================================================
 // Types

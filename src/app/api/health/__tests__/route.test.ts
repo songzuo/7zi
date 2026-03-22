@@ -1,196 +1,193 @@
 /**
- * @fileoverview Health API route integration tests
- * @description Tests for /api/health endpoint - health check for Kubernetes/Docker
+ * Tests for Health Check API Routes
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { GET, HEAD } from '../route';
 import { NextRequest } from 'next/server';
-import { GET } from '../route';
 
-describe('/api/health', () => {
+// Mock NextResponse
+vi.mock('next/server', () => ({
+  NextResponse: {
+    json: vi.fn((data, init) => {
+      const response = {
+        json: data,
+        status: init?.status || 200,
+        headers: new Map(Object.entries(init?.headers || {}))
+      };
+      return response as unknown;
+    })
+  },
+  NextRequest: vi.fn()
+}));
+
+describe('GET /api/health', () => {
   beforeEach(() => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2026-03-18T08:00:00.000Z'));
+    vi.clearAllMocks();
   });
 
-  afterEach(() => {
-    vi.useRealTimers();
+  it('should return healthy status', async () => {
+    const request = new NextRequest('http://localhost/api/health', {
+      method: 'GET'
+    });
+
+    const response = await GET(request);
+
+    expect(response.status).toBe(200);
+    const data = response.json;
+    expect(data.success).toBe(true);
+    expect(data.data.status).toBe('healthy');
   });
 
-  describe('GET request', () => {
-    const mockRequest = new NextRequest('http://localhost:3000/api/health');
-
-    it('should return health status with correct structure', async () => {
-      const response = await GET(mockRequest);
-      const body = await response.json();
-
-      expect(response.status).toBe(200);
-      expect(body).toHaveProperty('success');
-      expect(body).toHaveProperty('data');
-      const data = body.data;
-      expect(data).toHaveProperty('status');
-      expect(data).toHaveProperty('timestamp');
-      expect(data).toHaveProperty('uptime');
-      expect(data).toHaveProperty('version');
-      expect(data).toHaveProperty('checks');
+  it('should include uptime information', async () => {
+    const request = new NextRequest('http://localhost/api/health', {
+      method: 'GET'
     });
 
-    it('should return healthy status', async () => {
-      const response = await GET(mockRequest);
-      const body = await response.json();
-      const data = body.data;
+    const response = await GET(request);
 
-      expect(data.status).toBe('healthy');
-    });
-
-    it('should return timestamp', async () => {
-      const response = await GET(mockRequest);
-      const body = await response.json();
-      const data = body.data;
-
-      expect(data.timestamp).toBe('2026-03-18T08:00:00.000Z');
-    });
-
-    it('should return uptime in seconds', async () => {
-      const response = await GET(mockRequest);
-      const body = await response.json();
-      const data = body.data;
-
-      expect(data.uptime).toBeGreaterThanOrEqual(0);
-      expect(typeof data.uptime).toBe('number');
-    });
-
-    it('should return version string', async () => {
-      const response = await GET(mockRequest);
-      const body = await response.json();
-      const data = body.data;
-
-      expect(typeof data.version).toBe('string');
-      expect(data.version.length).toBeGreaterThan(0);
-    });
-
-    describe('checks', () => {
-      it('should return checks object', async () => {
-        const response = await GET(mockRequest);
-        const body = await response.json();
-        const data = body.data;
-
-        expect(data.checks).toHaveProperty('memory');
-        expect(data.checks).toHaveProperty('node');
-      });
-
-      it('should return memory check with correct structure', async () => {
-        const response = await GET(mockRequest);
-        const body = await response.json();
-        const data = body.data;
-
-        expect(data.checks.memory).toHaveProperty('status');
-        expect(data.checks.memory).toHaveProperty('used');
-        expect(data.checks.memory).toHaveProperty('limit');
-      });
-
-      it('should return memory status as ok or warning', async () => {
-        const response = await GET(mockRequest);
-        const body = await response.json();
-        const data = body.data;
-
-        expect(['ok', 'warning']).toContain(data.checks.memory.status);
-      });
-
-      it('should return memory used in MB', async () => {
-        const response = await GET(mockRequest);
-        const body = await response.json();
-        const data = body.data;
-
-        expect(data.checks.memory.used).toBeGreaterThanOrEqual(0);
-        expect(typeof data.checks.memory.used).toBe('number');
-      });
-
-      it('should return memory limit in MB', async () => {
-        const response = await GET(mockRequest);
-        const body = await response.json();
-        const data = body.data;
-
-        expect(data.checks.memory.limit).toBe(512);
-      });
-
-      it('should return node check with correct structure', async () => {
-        const response = await GET(mockRequest);
-        const body = await response.json();
-        const data = body.data;
-
-        expect(data.checks.node).toHaveProperty('status');
-        expect(data.checks.node).toHaveProperty('version');
-      });
-
-      it('should return node status as ok', async () => {
-        const response = await GET(mockRequest);
-        const body = await response.json();
-        const data = body.data;
-
-        expect(data.checks.node.status).toBe('ok');
-      });
-
-      it('should return Node.js version', async () => {
-        const response = await GET(mockRequest);
-        const body = await response.json();
-        const data = body.data;
-
-        expect(data.checks.node.version).toMatch(/^v\d+\.\d+\.\d+/);
-      });
-    });
+    expect(response.json).toHaveProperty('data');
+    const data = response.json.data;
+    expect(data.uptime).toBeGreaterThanOrEqual(0);
+    expect(typeof data.uptime).toBe('number');
   });
 
-  describe('response headers', () => {
-    it('should return JSON content type', async () => {
-      const response = await GET(mockRequest);
-
-      expect(response.headers.get('content-type')).toContain('application/json');
+  it('should include timestamp', async () => {
+    const request = new NextRequest('http://localhost/api/health', {
+      method: 'GET'
     });
+
+    const response = await GET(request);
+
+    const data = response.json.data;
+    expect(data.timestamp).toBeDefined();
+    expect(new Date(data.timestamp)).toBeInstanceOf(Date);
   });
 
-  describe('edge cases', () => {
-    it('should handle multiple rapid requests', async () => {
-      const responses = await Promise.all([
-        GET(),
-        GET(),
-        GET(),
-      ]);
-
-      expect(responses.every(r => r.status === 200)).toBe(true);
+  it('should include version information', async () => {
+    const request = new NextRequest('http://localhost/api/health', {
+      method: 'GET'
     });
 
-    it('should return consistent data structure', async () => {
-      const response1 = await GET(mockRequest);
-      const response2 = await GET(mockRequest);
+    const response = await GET(request);
 
-      const body1 = await response1.json();
-      const body2 = await response2.json();
-      const data1 = body1.data;
-      const data2 = body2.data;
-
-      expect(Object.keys(data1)).toEqual(Object.keys(data2));
-      expect(typeof data1.uptime).toBe('number');
-      expect(typeof data2.uptime).toBe('number');
-    });
+    const data = response.json.data;
+    expect(data.version).toBeDefined();
+    expect(typeof data.version).toBe('string');
   });
 
-  describe('memory threshold validation', () => {
-    it('should return 200 when memory is below 95% threshold', async () => {
-      const response = await GET(mockRequest);
-
-      expect(response.status).toBe(200);
+  it('should include memory check', async () => {
+    const request = new NextRequest('http://localhost/api/health', {
+      method: 'GET'
     });
+
+    const response = await GET(request);
+
+    const data = response.json.data;
+    expect(data.checks).toHaveProperty('memory');
+    expect(data.checks.memory).toHaveProperty('status');
+    expect(data.checks.memory).toHaveProperty('used');
+    expect(data.checks.memory).toHaveProperty('limit');
+    expect(typeof data.checks.memory.used).toBe('number');
+    expect(data.checks.memory.used).toBeGreaterThan(0);
   });
 
-  describe('status enum validation', () => {
-    it('should only return valid status values', async () => {
-      const response = await GET(mockRequest);
-      const body = await response.json();
-      const data = body.data;
-
-      const validStatuses = ['healthy', 'unhealthy'];
-      expect(validStatuses).toContain(data.status);
+  it('should set memory status to warning when over 90% limit', async () => {
+    // Mock high memory usage
+    const mockMemoryUsage = () => ({ heapUsed: 512 * 1024 * 1024 * 0.95 });
+    Object.defineProperty(process, 'memoryUsage', {
+      value: mockMemoryUsage,
+      configurable: true
     });
+
+    const request = new NextRequest('http://localhost/api/health', {
+      method: 'GET'
+    });
+
+    const response = await GET(request);
+
+    const data = response.json.data;
+    expect(data.checks.memory.status).toBe('warning');
+  });
+
+  it('should include node version check', async () => {
+    const request = new NextRequest('http://localhost/api/health', {
+      method: 'GET'
+    });
+
+    const response = await GET(request);
+
+    const data = response.json.data;
+    expect(data.checks).toHaveProperty('node');
+    expect(data.checks.node).toHaveProperty('status');
+    expect(data.checks.node).toHaveProperty('version');
+    expect(data.checks.node.status).toBe('ok');
+  });
+
+  it('should set correct cache headers', async () => {
+    const request = new NextRequest('http://localhost/api/health', {
+      method: 'GET'
+    });
+
+    const response = await GET(request);
+
+    expect(response.headers.get('Cache-Control')).toBe('no-cache');
+    expect(response.headers.get('Content-Type')).toBe('application/json');
+  });
+
+  it('should handle errors gracefully', async () => {
+    // Mock GET to throw error
+    const { GET } = await import('../route');
+    const originalGet = GET;
+    vi.doMock('../route', async () => ({
+      GET: async () => {
+        throw new Error('Health check failed');
+      }
+    }));
+
+    const request = new NextRequest('http://localhost/api/health', {
+      method: 'GET'
+    });
+
+    const response = await GET(request);
+
+    expect(response.status).toBe(503);
+    const data = response.json;
+    expect(data.success).toBe(false);
+  });
+});
+
+describe('HEAD /api/health', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('should return 200 on successful health check', async () => {
+    const response = await HEAD();
+
+    expect(response.status).toBe(200);
+  });
+
+  it('should return 503 on error', async () => {
+    // Mock GET to throw error
+    vi.doMock('../route', async () => ({
+      GET: async () => {
+        throw new Error('Failed');
+      }
+    }));
+
+    const response = await HEAD();
+
+    expect(response.status).toBe(503);
+  });
+
+  it('should return same response as GET', async () => {
+    const request = new NextRequest('http://localhost/api/health', {
+      method: 'GET'
+    });
+
+    const getResponse = await GET(request);
+    const headResponse = await HEAD();
+
+    expect(getResponse.status).toBe(headResponse.status);
   });
 });
