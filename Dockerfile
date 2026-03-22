@@ -85,9 +85,9 @@ USER nextjs
 # 暴露端口
 EXPOSE 3000
 
-# 健康检查（使用 node 而非 wget，更轻量）
+# 健康检查（使用 /api/health 端点而不是根路径）
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+  CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
 # 启动应用
 CMD ["node", "server.js"]

@@ -70,16 +70,16 @@ describe('API Error Handler', () => {
   });
 
   describe('createErrorResponse', () => {
-    it('should create error response from ApiError', () => {
+    it('should create error response from ApiError', async () => {
       const apiError = new ApiError(ErrorType.VALIDATION, 'Invalid input', 400, {
         field: 'email',
       });
-      const response = createErrorResponse(apiError);
+      const response = await createErrorResponse(apiError);
 
       expect(response.status).toBe(400);
 
-      const body = response.json();
-      expect(body).resolves.toMatchObject({
+      const body = await response.json();
+      expect(body).toMatchObject({
         success: false,
         error: {
           type: ErrorType.VALIDATION,
@@ -92,7 +92,7 @@ describe('API Error Handler', () => {
 
     it('should create error response from generic Error', async () => {
       const genericError = new Error('Something went wrong');
-      const response = createErrorResponse(genericError);
+      const response = await createErrorResponse(genericError);
 
       expect(response.status).toBe(500);
 
@@ -111,7 +111,7 @@ describe('API Error Handler', () => {
       vi.stubEnv('NODE_ENV', 'development');
 
       const genericError = new Error('Specific error details');
-      const response = createErrorResponse(genericError);
+      const response = await createErrorResponse(genericError);
 
       const body = await response.json();
       expect(body.error.details).toEqual({
@@ -123,22 +123,22 @@ describe('API Error Handler', () => {
       vi.stubEnv('NODE_ENV', 'production');
 
       const genericError = new Error('Specific error details');
-      const response = createErrorResponse(genericError);
+      const response = await createErrorResponse(genericError);
 
       const body = await response.json();
       expect(body.error.details).toBeUndefined();
     });
 
-    it('should use ApiError status code (custom param not supported)', () => {
+    it('should use ApiError status code (custom param not supported)', async () => {
       const apiError = new ApiError(ErrorType.VALIDATION, 'Invalid input', 400);
-      const response = createErrorResponse(apiError);
+      const response = await createErrorResponse(apiError);
 
       expect(response.status).toBe(400);
     });
 
     it('should handle string errors', async () => {
       const stringError = 'String error message';
-      const response = createErrorResponse(stringError as unknown as Error);
+      const response = await createErrorResponse(stringError as unknown as Error);
 
       expect(response.status).toBe(500);
 

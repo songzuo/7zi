@@ -5,7 +5,8 @@ import { generatePerformanceReport, type PerformanceReport } from '@/lib/db/perf
 import { getCacheStats } from '@/lib/db/cache';
 import { logger } from '@/lib/logger';
 import { createSuccessResponse } from '@/lib/api/utils';
-import { createErrorResponse, ErrorType, getLocaleFromRequest } from '@/lib/api/error-handler';
+import { createErrorResponse, ErrorType } from '@/lib/api/error-handler';
+import { getLocaleFromRequest } from '@/lib/api/user-messages';
 import { createApiContext, logApiError } from '@/lib/api/error-logger';
 import { withRateLimit } from '@/lib/middleware/rate-limit';
 import { withCors } from '@/middleware/cors';

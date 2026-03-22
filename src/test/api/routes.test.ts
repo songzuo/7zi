@@ -117,7 +117,8 @@ describe('API Routes Integration Tests', () => {
   describe('/api/health', () => {
     it('should return healthy status when memory is within limits', async () => {
       const { GET } = await import('@/app/api/health/route')
-      const response = await GET()
+      // @ts-ignore
+      const response = await GET(createMockRequest("http://localhost:3000/api/health"))
       const data = await response.json()
 
       // Health returns { success: true, data: { status, timestamp, uptime, ... } }
@@ -132,7 +133,8 @@ describe('API Routes Integration Tests', () => {
 
     it('should include memory check', async () => {
       const { GET } = await import('@/app/api/health/route')
-      const response = await GET()
+      // @ts-ignore
+      const response = await GET(createMockRequest("http://localhost:3000/api/health"))
       const data = await response.json()
       const healthData = data.data || data;
 
@@ -146,7 +148,8 @@ describe('API Routes Integration Tests', () => {
 
     it('should include node check', async () => {
       const { GET } = await import('@/app/api/health/route')
-      const response = await GET()
+      // @ts-ignore
+      const response = await GET(createMockRequest("http://localhost:3000/api/health"))
       const data = await response.json()
       const healthData = data.data || data;
 
@@ -157,7 +160,8 @@ describe('API Routes Integration Tests', () => {
 
     it('should return correct status code based on health', async () => {
       const { GET } = await import('@/app/api/health/route')
-      const response = await GET()
+      // @ts-ignore
+      const response = await GET(createMockRequest("http://localhost:3000/api/health"))
       const data = await response.json()
       const healthData = data.data || data;
 
@@ -170,7 +174,8 @@ describe('API Routes Integration Tests', () => {
 
     it('should have valid uptime value', async () => {
       const { GET } = await import('@/app/api/health/route')
-      const response = await GET()
+      // @ts-ignore
+      const response = await GET(createMockRequest("http://localhost:3000/api/health"))
       const data = await response.json()
       const healthData = data.data || data;
 
@@ -182,7 +187,8 @@ describe('API Routes Integration Tests', () => {
   describe('/api/health/live', () => {
     it('should always return alive status', async () => {
       const { GET } = await import('@/app/api/health/live/route')
-      const response = await GET()
+      // @ts-ignore
+      const response = await GET(createMockRequest("http://localhost:3000/api/health"))
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -193,7 +199,8 @@ describe('API Routes Integration Tests', () => {
       const { GET } = await import('@/app/api/health/live/route')
       
       const start = Date.now()
-      await GET()
+      // @ts-ignore
+      await GET(mockRequest)
       const duration = Date.now() - start
 
       // Liveness probe should respond within 100ms
@@ -204,7 +211,8 @@ describe('API Routes Integration Tests', () => {
   describe('/api/health/ready', () => {
     it('should return health status with checks', async () => {
       const { GET } = await import('@/app/api/health/ready/route')
-      const response = await GET()
+      // @ts-ignore
+      const response = await GET(createMockRequest("http://localhost:3000/api/health"))
       const data = await response.json()
 
       expect(data).toHaveProperty('status')
@@ -217,7 +225,8 @@ describe('API Routes Integration Tests', () => {
 
     it('should return correct status code based on readiness', async () => {
       const { GET } = await import('@/app/api/health/ready/route')
-      const response = await GET()
+      // @ts-ignore
+      const response = await GET(createMockRequest("http://localhost:3000/api/health"))
       const data = await response.json()
 
       if (data.status === 'ok') {
@@ -231,7 +240,8 @@ describe('API Routes Integration Tests', () => {
 
     it('should include dependency checks when available', async () => {
       const { GET } = await import('@/app/api/health/ready/route')
-      const response = await GET()
+      // @ts-ignore
+      const response = await GET(createMockRequest("http://localhost:3000/api/health"))
       const data = await response.json()
 
       // Checks may or may not be present depending on configuration
@@ -244,7 +254,8 @@ describe('API Routes Integration Tests', () => {
   describe('/api/health/detailed', () => {
     it('should return detailed health status', async () => {
       const { GET } = await import('@/app/api/health/detailed/route')
-      const response = await GET()
+      // @ts-ignore
+      const response = await GET(createMockRequest("http://localhost:3000/api/health"))
       const data = await response.json()
 
       expect(data).toHaveProperty('status')
@@ -257,7 +268,8 @@ describe('API Routes Integration Tests', () => {
 
     it('should include external service checks', async () => {
       const { GET } = await import('@/app/api/health/detailed/route')
-      const response = await GET()
+      // @ts-ignore
+      const response = await GET(createMockRequest("http://localhost:3000/api/health"))
       const data = await response.json()
 
       // Should have checks object
@@ -267,7 +279,8 @@ describe('API Routes Integration Tests', () => {
 
     it('should have correct check result structure', async () => {
       const { GET } = await import('@/app/api/health/detailed/route')
-      const response = await GET()
+      // @ts-ignore
+      const response = await GET(createMockRequest("http://localhost:3000/api/health"))
       const data = await response.json()
 
       if (data.checks) {
@@ -293,7 +306,8 @@ describe('API Routes Error Handling', () => {
   it('should handle errors gracefully in health endpoint', async () => {
     // This tests that the health endpoint has proper try-catch
     const { GET } = await import('@/app/api/health/route')
-    const response = await GET()
+    // @ts-ignore
+      const response = await GET(createMockRequest("http://localhost:3000/api/health"))
     
     // Should always return a response, never throw
     expect(response).toBeDefined()

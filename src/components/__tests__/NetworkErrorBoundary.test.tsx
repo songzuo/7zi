@@ -8,11 +8,14 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NetworkErrorBoundary } from '../NetworkErrorBoundary';
 
-// Mock fetch with proper typing for vitest
-const mockFetch = vi.fn() as unknown as ReturnType<typeof vi.fn> & {
-  mockResolvedValue: (value: Response) => void;
-  mockRejectedValue: (error: Error) => void;
-  mockImplementation: (fn: () => Promise<Response>) => void;
+// Mock fetch
+const mockFetch = vi.fn() as unknown as (
+  input: RequestInfo | URL,
+  init?: RequestInit
+) => Promise<Response> & {
+  mockResolvedValue: (value: Response) => typeof mockFetch;
+  mockRejectedValue: (error: Error) => typeof mockFetch;
+  mockImplementation: (fn: () => Promise<Response>) => typeof mockFetch;
 };
 global.fetch = mockFetch;
 
@@ -30,13 +33,19 @@ Object.defineProperty(window, 'navigator', {
 });
 
 describe('NetworkErrorBoundary', () => {
-  let mockOnRetry: ReturnType<typeof vi.fn>;
+  let mockOnRetry: ReturnType<typeof vi.fn> & {
+    mockResolvedValue: (value: void) => typeof mockOnRetry;
+  };
 
   beforeEach(() => {
-    mockOnRetry = vi.fn().mockResolvedValue(undefined);
+    mockOnRetry = vi.fn().mockResolvedValue(undefined) as any;
     vi.clearAllMocks();
     // Reset navigator state
-    window.navigator.onLine = true;
+    Object.defineProperty(window.navigator, 'onLine', {
+      writable: true,
+      configurable: true,
+      value: true,
+    });
   });
 
   afterEach(() => {
@@ -45,10 +54,10 @@ describe('NetworkErrorBoundary', () => {
 
   describe('在线状态', () => {
     it('在线时应该渲染子组件', () => {
-      window.navigator.onLine = true;
+      Object.defineProperty(window.navigator, 'onLine', { writable: true, configurable: true, value: true });
 
       render(
-        <NetworkErrorBoundary onRetry={mockOnRetry}>
+        <NetworkErrorBoundary onRetry={mockOnRetry as any}>
           <div>子组件内容</div>
         </NetworkErrorBoundary>
       );
@@ -57,10 +66,10 @@ describe('NetworkErrorBoundary', () => {
     });
 
     it('离线时应该显示网络错误界面', () => {
-      window.navigator.onLine = false;
+      Object.defineProperty(window.navigator, 'onLine', { writable: true, configurable: true, value: false });
 
       render(
-        <NetworkErrorBoundary onRetry={mockOnRetry}>
+        <NetworkErrorBoundary onRetry={mockOnRetry as any}>
           <div>子组件内容</div>
         </NetworkErrorBoundary>
       );
@@ -72,7 +81,7 @@ describe('NetworkErrorBoundary', () => {
 
   describe('网络检测', () => {
     it('健康检查成功应该认为在线', async () => {
-      global.fetch.mockResolvedValue({
+      (global.fetch as any).mockResolvedValue({
         ok: true,
         status: 200,
       });
@@ -91,7 +100,7 @@ describe('NetworkErrorBoundary', () => {
     });
 
     it('健康检查 5xx 错误应该认为离线', async () => {
-      global.fetch.mockResolvedValue({
+      (global.fetch as any).mockResolvedValue({
         ok: false,
         status: 503,
       });
@@ -106,7 +115,7 @@ describe('NetworkErrorBoundary', () => {
       );
 
       // 离线状态时应该显示错误界面
-      window.navigator.onLine = false;
+      Object.defineProperty(window.navigator, 'onLine', { writable: true, configurable: true, value: false });
       render(
         <NetworkErrorBoundary
           onRetry={mockOnRetry}
@@ -120,7 +129,7 @@ describe('NetworkErrorBoundary', () => {
     });
 
     it('健康检查 4xx 错误应该认为在线', async () => {
-      global.fetch.mockResolvedValue({
+      (global.fetch as any).mockResolvedValue({
         ok: false,
         status: 404,
       });
@@ -141,7 +150,7 @@ describe('NetworkErrorBoundary', () => {
     it('健康检查超时应该认为离线', async () => {
       const abortError = new Error('Request aborted');
       abortError.name = 'AbortError';
-      global.fetch.mockRejectedValue(abortError);
+      (global.fetch as any).mockRejectedValue(abortError);
 
       render(
         <NetworkErrorBoundary
@@ -153,7 +162,7 @@ describe('NetworkErrorBoundary', () => {
       );
 
       // 离线状态时
-      window.navigator.onLine = false;
+      Object.defineProperty(window.navigator, 'onLine', { writable: true, configurable: true, value: false });
 
       render(
         <NetworkErrorBoundary
@@ -169,9 +178,9 @@ describe('NetworkErrorBoundary', () => {
     });
 
     it('网络错误应该认为离线', async () => {
-      global.fetch.mockRejectedValue(new Error('Network error'));
+      (global.fetch as any).mockRejectedValue(new Error('Network error'));
 
-      window.navigator.onLine = false;
+      Object.defineProperty(window.navigator, 'onLine', { writable: true, configurable: true, value: false });
 
       render(
         <NetworkErrorBoundary
@@ -188,16 +197,16 @@ describe('NetworkErrorBoundary', () => {
 
   describe('重试功能', () => {
     it('点击重试应该检测网络', async () => {
-      global.fetch.mockResolvedValue({
+      (global.fetch as any).mockResolvedValue({
         ok: true,
         status: 200,
       });
 
       // 先设置为离线
-      window.navigator.onLine = false;
+      Object.defineProperty(window.navigator, 'onLine', { writable: true, configurable: true, value: false });
 
       render(
-        <NetworkErrorBoundary onRetry={mockOnRetry}>
+        <NetworkErrorBoundary onRetry={mockOnRetry as any}>
           <div>子组件内容</div>
         </NetworkErrorBoundary>
       );
@@ -213,7 +222,7 @@ describe('NetworkErrorBoundary', () => {
     });
 
     it('重试成功应该恢复在线状态', async () => {
-      global.fetch.mockResolvedValue({
+      (global.fetch as any).mockResolvedValue({
         ok: true,
         status: 200,
       });
@@ -222,7 +231,7 @@ describe('NetworkErrorBoundary', () => {
       Object.assign(window.navigator, { onLine: false });
 
       render(
-        <NetworkErrorBoundary onRetry={mockOnRetry}>
+        <NetworkErrorBoundary onRetry={mockOnRetry as any}>
           <div>子组件内容</div>
         </NetworkErrorBoundary>
       );
@@ -248,16 +257,16 @@ describe('NetworkErrorBoundary', () => {
     });
 
     it('重试失败应该保持离线状态', async () => {
-      global.fetch.mockResolvedValue({
+      (global.fetch as any).mockResolvedValue({
         ok: false,
         status: 503,
       });
 
       // 先设置为离线
-      window.navigator.onLine = false;
+      Object.defineProperty(window.navigator, 'onLine', { writable: true, configurable: true, value: false });
 
       render(
-        <NetworkErrorBoundary onRetry={mockOnRetry}>
+        <NetworkErrorBoundary onRetry={mockOnRetry as any}>
           <div>子组件内容</div>
         </NetworkErrorBoundary>
       );
@@ -280,13 +289,13 @@ describe('NetworkErrorBoundary', () => {
     it('重试超时应该保持离线状态', async () => {
       const abortError = new Error('Request aborted');
       abortError.name = 'AbortError';
-      global.fetch.mockRejectedValue(abortError);
+      (global.fetch as any).mockRejectedValue(abortError);
 
       // 先设置为离线
-      window.navigator.onLine = false;
+      Object.defineProperty(window.navigator, 'onLine', { writable: true, configurable: true, value: false });
 
       render(
-        <NetworkErrorBoundary onRetry={mockOnRetry}>
+        <NetworkErrorBoundary onRetry={mockOnRetry as any}>
           <div>子组件内容</div>
         </NetworkErrorBoundary>
       );
@@ -305,10 +314,10 @@ describe('NetworkErrorBoundary', () => {
   describe('网络事件监听', () => {
     it('online 事件应该更新在线状态', () => {
       // 先设置为离线
-      window.navigator.onLine = false;
+      Object.defineProperty(window.navigator, 'onLine', { writable: true, configurable: true, value: false });
 
       render(
-        <NetworkErrorBoundary onRetry={mockOnRetry}>
+        <NetworkErrorBoundary onRetry={mockOnRetry as any}>
           <div>子组件内容</div>
         </NetworkErrorBoundary>
       );
@@ -324,7 +333,7 @@ describe('NetworkErrorBoundary', () => {
 
     it('offline 事件应该更新离线状态', () => {
       render(
-        <NetworkErrorBoundary onRetry={mockOnRetry}>
+        <NetworkErrorBoundary onRetry={mockOnRetry as any}>
           <div>子组件内容</div>
         </NetworkErrorBoundary>
       );
@@ -341,14 +350,14 @@ describe('NetworkErrorBoundary', () => {
 
   describe('检测状态', () => {
     it('检测中应该显示检测状态', async () => {
-      global.fetch.mockImplementation(
+      (global.fetch as any).mockImplementation(
         () => new Promise((resolve) => setTimeout(() => resolve({ ok: true, status: 200 }), 100))
       );
 
-      window.navigator.onLine = false;
+      Object.defineProperty(window.navigator, 'onLine', { writable: true, configurable: true, value: false });
 
       render(
-        <NetworkErrorBoundary onRetry={mockOnRetry}>
+        <NetworkErrorBoundary onRetry={mockOnRetry as any}>
           <div>子组件内容</div>
         </NetworkErrorBoundary>
       );
@@ -367,15 +376,15 @@ describe('NetworkErrorBoundary', () => {
     });
 
     it('检测完成后应该更新状态', async () => {
-      global.fetch.mockResolvedValue({
+      (global.fetch as any).mockResolvedValue({
         ok: true,
         status: 200,
       });
 
-      window.navigator.onLine = false;
+      Object.defineProperty(window.navigator, 'onLine', { writable: true, configurable: true, value: false });
 
       render(
-        <NetworkErrorBoundary onRetry={mockOnRetry}>
+        <NetworkErrorBoundary onRetry={mockOnRetry as any}>
           <div>子组件内容</div>
         </NetworkErrorBoundary>
       );
@@ -397,12 +406,12 @@ describe('NetworkErrorBoundary', () => {
 
   describe('自定义配置', () => {
     it('应该使用自定义的 pingUrl', async () => {
-      global.fetch.mockResolvedValue({
+      (global.fetch as any).mockResolvedValue({
         ok: true,
         status: 200,
       });
 
-      window.navigator.onLine = false;
+      Object.defineProperty(window.navigator, 'onLine', { writable: true, configurable: true, value: false });
 
       render(
         <NetworkErrorBoundary
@@ -422,7 +431,7 @@ describe('NetworkErrorBoundary', () => {
     });
 
     it('onRetry 失败不应该影响网络状态', async () => {
-      global.fetch.mockResolvedValue({
+      (global.fetch as any).mockResolvedValue({
         ok: true,
         status: 200,
       });
@@ -474,7 +483,7 @@ describe('NetworkErrorBoundary', () => {
 
   describe('错误恢复', () => {
     it('在线检测成功且之前有错误时应该恢复', async () => {
-      global.fetch.mockResolvedValue({
+      (global.fetch as any).mockResolvedValue({
         ok: true,
         status: 200,
       });
@@ -483,7 +492,7 @@ describe('NetworkErrorBoundary', () => {
       Object.assign(window.navigator, { onLine: false });
 
       const { rerender } = render(
-        <NetworkErrorBoundary onRetry={mockOnRetry}>
+        <NetworkErrorBoundary onRetry={mockOnRetry as any}>
           <div>子组件内容</div>
         </NetworkErrorBoundary>
       );
@@ -510,13 +519,13 @@ describe('NetworkErrorBoundary', () => {
     });
 
     it('在线检测成功且之前无错误时不应该调用 onRetry', async () => {
-      global.fetch.mockResolvedValue({
+      (global.fetch as any).mockResolvedValue({
         ok: true,
         status: 200,
       });
 
       render(
-        <NetworkErrorBoundary onRetry={mockOnRetry}>
+        <NetworkErrorBoundary onRetry={mockOnRetry as any}>
           <div>子组件内容</div>
         </NetworkErrorBoundary>
       );
@@ -531,10 +540,10 @@ describe('NetworkErrorBoundary', () => {
 
   describe('按钮显示', () => {
     it('应该显示重试按钮', () => {
-      window.navigator.onLine = false;
+      Object.defineProperty(window.navigator, 'onLine', { writable: true, configurable: true, value: false });
 
       render(
-        <NetworkErrorBoundary onRetry={mockOnRetry}>
+        <NetworkErrorBoundary onRetry={mockOnRetry as any}>
           <div>子组件内容</div>
         </NetworkErrorBoundary>
       );
@@ -543,10 +552,10 @@ describe('NetworkErrorBoundary', () => {
     });
 
     it('应该显示返回首页按钮', () => {
-      window.navigator.onLine = false;
+      Object.defineProperty(window.navigator, 'onLine', { writable: true, configurable: true, value: false });
 
       render(
-        <NetworkErrorBoundary onRetry={mockOnRetry}>
+        <NetworkErrorBoundary onRetry={mockOnRetry as any}>
           <div>子组件内容</div>
         </NetworkErrorBoundary>
       );
@@ -555,10 +564,10 @@ describe('NetworkErrorBoundary', () => {
     });
 
     it('应该显示刷新页面按钮', () => {
-      window.navigator.onLine = false;
+      Object.defineProperty(window.navigator, 'onLine', { writable: true, configurable: true, value: false });
 
       render(
-        <NetworkErrorBoundary onRetry={mockOnRetry}>
+        <NetworkErrorBoundary onRetry={mockOnRetry as any}>
           <div>子组件内容</div>
         </NetworkErrorBoundary>
       );
@@ -567,10 +576,10 @@ describe('NetworkErrorBoundary', () => {
     });
 
     it('点击返回首页应该跳转', () => {
-      window.navigator.onLine = false;
+      Object.defineProperty(window.navigator, 'onLine', { writable: true, configurable: true, value: false });
 
       render(
-        <NetworkErrorBoundary onRetry={mockOnRetry}>
+        <NetworkErrorBoundary onRetry={mockOnRetry as any}>
           <div>子组件内容</div>
         </NetworkErrorBoundary>
       );
@@ -583,10 +592,10 @@ describe('NetworkErrorBoundary', () => {
     });
 
     it('点击刷新页面应该刷新', () => {
-      window.navigator.onLine = false;
+      Object.defineProperty(window.navigator, 'onLine', { writable: true, configurable: true, value: false });
 
       render(
-        <NetworkErrorBoundary onRetry={mockOnRetry}>
+        <NetworkErrorBoundary onRetry={mockOnRetry as any}>
           <div>子组件内容</div>
         </NetworkErrorBoundary>
       );

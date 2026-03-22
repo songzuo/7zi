@@ -101,8 +101,8 @@ describe('DataExporter', () => {
       });
     });
 
-    it('应该成功导出 Excel 文件', () => {
-      const result = exporter.export(testUsers);
+    it('应该成功导出 Excel 文件', async () => {
+      const result = await exporter.export(testUsers);
 
       expect(result.success).toBe(true);
       expect(result.filename).toBe('test-users.xlsx');
@@ -112,8 +112,8 @@ describe('DataExporter', () => {
       );
     });
 
-    it('应该生成正确大小的 Blob', () => {
-      const result = exporter.export(testUsers);
+    it('应该生成正确大小的 Blob', async () => {
+      const result = await exporter.export(testUsers);
 
       // Excel 文件应该有一定大小（至少 1KB）
       expect(result.blob?.size).toBeGreaterThan(1000);
@@ -129,8 +129,8 @@ describe('DataExporter', () => {
       });
     });
 
-    it('应该成功导出 CSV 文件', () => {
-      const result = exporter.export(testUsers);
+    it('应该成功导出 CSV 文件', async () => {
+      const result = await exporter.export(testUsers);
 
       expect(result.success).toBe(true);
       expect(result.filename).toBe('test-users.csv');
@@ -139,7 +139,7 @@ describe('DataExporter', () => {
     });
 
     it('CSV 应该包含 BOM 头', async () => {
-      const result = exporter.export(testUsers);
+      const result = await exporter.export(testUsers);
 
       // 读取 Blob 内容
       const text = await result.blob?.text();
@@ -148,12 +148,12 @@ describe('DataExporter', () => {
       expect(result.success).toBe(true);
     });
 
-    it('应该正确转义包含逗号的值', () => {
+    it('应该正确转义包含逗号的值', async () => {
       const dataWithComma: TestUser[] = [
         { ...testUsers[0], name: '张, 三' },
       ];
 
-      const result = exporter.export(dataWithComma);
+      const result = await exporter.export(dataWithComma);
       expect(result.success).toBe(true);
     });
   });
@@ -167,8 +167,8 @@ describe('DataExporter', () => {
       });
     });
 
-    it('应该成功导出 JSON 文件', () => {
-      const result = exporter.export(testUsers);
+    it('应该成功导出 JSON 文件', async () => {
+      const result = await exporter.export(testUsers);
 
       expect(result.success).toBe(true);
       expect(result.filename).toBe('test-users.json');
@@ -177,7 +177,7 @@ describe('DataExporter', () => {
     });
 
     it('应该生成有效的 JSON', async () => {
-      const result = exporter.export(testUsers);
+      const result = await exporter.export(testUsers);
 
       const text = await result.blob?.text();
       const parsed = JSON.parse(text!);
@@ -200,7 +200,7 @@ describe('DataExporter', () => {
     });
 
     it('应该只导出选中的字段', async () => {
-      const result = exporter.export(testUsers);
+      const result = await exporter.export(testUsers);
 
       const text = await result.blob?.text();
       const parsed = JSON.parse(text!);
@@ -223,7 +223,7 @@ describe('DataExporter', () => {
         fields: fieldsWithDefaults,
       });
 
-      const result = exporter.export(testUsers);
+      const result = await exporter.export(testUsers);
       const text = await result.blob?.text();
       const parsed = JSON.parse(text!);
 
@@ -240,7 +240,7 @@ describe('DataExporter', () => {
         transform: (data) => data.filter((u) => u.active),
       });
 
-      const result = exporter.export(testUsers);
+      const result = await exporter.export(testUsers);
       const text = await result.blob?.text();
       const parsed = JSON.parse(text!);
 
@@ -249,26 +249,26 @@ describe('DataExporter', () => {
   });
 
   describe('错误处理', () => {
-    it('应该处理空数据', () => {
+    it('应该处理空数据', async () => {
       exporter = new DataExporter({
         filename: 'test',
         format: 'xlsx',
         fields: testFields,
       });
 
-      const result = exporter.export([]);
+      const result = await exporter.export([]);
 
       expect(result.success).toBe(true);
     });
 
-    it('应该处理不支持的格式', () => {
+    it('应该处理不支持的格式', async () => {
       exporter = new DataExporter({
         filename: 'test',
         format: 'pdf' as never,
         fields: testFields,
       });
 
-      const result = exporter.export(testUsers);
+      const result = await exporter.export(testUsers);
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('不支持的导出格式');
@@ -453,7 +453,7 @@ describe('边界情况', () => {
       fields: testFields,
     });
 
-    const result = exporter.export(specialData);
+    const result = await exporter.export(specialData);
     expect(result.success).toBe(true);
 
     const text = await result.blob?.text();
@@ -478,7 +478,7 @@ describe('边界情况', () => {
       fields: testFields,
     });
 
-    const result = exporter.export(nullData);
+    const result = await exporter.export(nullData);
     expect(result.success).toBe(true);
 
     const text = await result.blob?.text();
@@ -488,7 +488,7 @@ describe('边界情况', () => {
     expect(parsed[0]['邮箱']).toBe(null);
   });
 
-  it('应该处理大数据量', () => {
+  it('应该处理大数据量', async () => {
     // 生成 10000 条测试数据
     const largeData: TestUser[] = Array.from({ length: 10000 }, (_, i) => ({
       id: i + 1,
@@ -506,7 +506,7 @@ describe('边界情况', () => {
     });
 
     const startTime = Date.now();
-    const result = exporter.export(largeData);
+    const result = await exporter.export(largeData);
     const endTime = Date.now();
 
     expect(result.success).toBe(true);
@@ -663,7 +663,7 @@ describe('导出模板', () => {
     expect(getTemplate('to-delete')).toBeUndefined();
   });
 
-  it('应该使用模板导出', () => {
+  it('应该使用模板导出', async () => {
     registerTemplate({
       id: 'export-template',
       name: '导出模板',
@@ -679,7 +679,7 @@ describe('导出模板', () => {
     expect(result.filename).toBe('导出模板.xlsx');
   });
 
-  it('应该处理不存在的模板', () => {
+  it('应该处理不存在的模板', async () => {
     const result = exportWithTemplate(testUsers, 'non-existent');
     expect(result.success).toBe(false);
     expect(result.error).toContain('不存在');
@@ -691,7 +691,7 @@ describe('导出模板', () => {
 // ============================================================================
 
 describe('多工作表导出', () => {
-  it('应该导出多工作表 Excel', () => {
+  it('应该导出多工作表 Excel', async () => {
     const result = exportMultiSheet({
       filename: 'multi-sheet-test',
       sheets: [
@@ -827,7 +827,7 @@ describe('增强导出结果', () => {
       fields: testFields,
     });
 
-    const result = exporter.export(testUsers);
+    const result = await exporter.export(testUsers);
     expect(result.rowCount).toBe(3);
     expect(result.columnCount).toBe(6);
   });
@@ -847,7 +847,7 @@ describe('增强导出结果', () => {
       },
     });
 
-    const result = exporter.export(testUsers);
+    const result = await exporter.export(testUsers);
     expect(result.success).toBe(true);
   });
 
@@ -866,7 +866,7 @@ describe('增强导出结果', () => {
       ],
     });
 
-    const result = exporter.export(invalidData);
+    const result = await exporter.export(invalidData);
     // 检查 null 值的必填验证
     expect(result.validationErrors).toBeDefined();
     expect(result.validationErrors?.length).toBeGreaterThanOrEqual(1);

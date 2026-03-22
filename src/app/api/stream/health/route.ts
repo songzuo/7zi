@@ -28,8 +28,8 @@ import {
   createValidationError,
   createServiceUnavailableError,
   ErrorType,
-  getLocaleFromRequest,
 } from '@/lib/api/error-handler';
+import { getLocaleFromRequest } from '@/lib/api/user-messages';
 import { createApiContext, logApiError, logApiSuccess } from '@/lib/api/error-logger';
 import { logger } from '@/lib/logger';
 

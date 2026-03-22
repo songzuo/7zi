@@ -208,6 +208,96 @@ export default async function HomePage({ params }: { params: Params }) {
 
 
 
+  // 首页 FAQ 数据（常见问题）
+
+  const faqs = locale === 'zh' ? [
+
+    {
+
+      question: '7zi Studio 是什么？',
+
+      answer: '7zi Studio 是由 11 位专业 AI 代理组成的创新数字工作室，提供网站开发、品牌设计、营销推广等全方位数字化服务。我们的 AI 团队可以高效协作，为您打造卓越的数字产品。',
+
+    },
+
+    {
+
+      question: 'AI 团队能提供哪些服务？',
+
+      answer: '我们的 AI 团队提供：网站开发（前端/后端/全栈）、UI/UX 设计、品牌设计、SEO 优化、内容营销、项目管理、测试调试、运维部署、财务咨询、媒体宣传、销售客服等一站式服务。',
+
+    },
+
+    {
+
+      question: 'AI 服务和传统服务有什么区别？',
+
+      answer: 'AI 服务具有以下优势：24/7 在线、高效响应、成本更低、快速迭代、专业分工、数据驱动决策。相比传统服务，我们可以更快速地完成项目，并提供更专业的建议。',
+
+    },
+
+    {
+
+      question: '如何开始项目合作？',
+
+      answer: '您可以通过我们的官网联系页面发起咨询，我们会安排专业的销售客服与您沟通需求，然后由架构师制定方案，最终由执行团队完成项目交付。全程透明，高效沟通。',
+
+    },
+
+    {
+
+      question: '服务收费如何计算？',
+
+      answer: '我们提供灵活的收费模式：项目制（按项目需求报价）、包月制（持续服务）、按需定制（灵活选择）。具体价格根据项目复杂度和工作量确定，欢迎咨询获取详细报价。',
+
+    },
+
+  ] : [
+
+    {
+
+      question: 'What is 7zi Studio?',
+
+      answer: '7zi Studio is an innovative digital studio powered by 11 professional AI agents, providing comprehensive digital services including web development, brand design, and marketing. Our AI team collaborates efficiently to create outstanding digital products for you.',
+
+    },
+
+    {
+
+      question: 'What services can the AI team provide?',
+
+      answer: 'Our AI team offers: web development (frontend/backend/full-stack), UI/UX design, brand design, SEO optimization, content marketing, project management, testing, deployment, financial consulting, media promotion, and customer support as a one-stop service.',
+
+    },
+
+    {
+
+      question: 'What\'s the difference between AI services and traditional services?',
+
+      answer: 'AI services have these advantages: 24/7 availability, efficient response, lower cost, rapid iteration, professional division of labor, and data-driven decisions. Compared to traditional services, we can complete projects faster and provide more professional recommendations.',
+
+    },
+
+    {
+
+      question: 'How do I start a project collaboration?',
+
+      answer: 'You can initiate a consultation through our contact page. We will arrange a professional sales representative to discuss your needs, then our architect will create a plan, and finally our execution team will deliver the project. Full transparency and efficient communication.',
+
+    },
+
+    {
+
+      question: 'How are service fees calculated?',
+
+      answer: 'We offer flexible pricing models: project-based (quoted based on requirements), monthly (ongoing service), and on-demand (flexible choice). Specific prices depend on project complexity and workload. Feel free to contact us for a detailed quote.',
+
+    },
+
+  ];
+
+
+
   return (
 
       <div className="min-h-screen bg-zinc-50 dark:bg-black transition-colors duration-300">
@@ -218,7 +308,9 @@ export default async function HomePage({ params }: { params: Params }) {
 
           locale={locale as 'zh' | 'en'}
 
-          schemas={['website', 'organization']}
+          schemas={['website', 'organization', 'faq']}
+
+          faqs={faqs}
 
           customSchemas={[
 
