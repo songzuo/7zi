@@ -5,31 +5,21 @@
 # ============================================
 
 # ============================================
-# Stage 1: 依赖安装（利用 Docker 层缓存）
-# ============================================
-FROM node:22-alpine AS deps
-
-WORKDIR /app
-
-# 安装系统依赖（Alpine 兼容性）
-RUN apk add --no-cache libc6-compat
-
-# 先复制依赖描述文件（最大化缓存利用）
-COPY package.json package-lock.json* ./
-
-# 安装依赖（包括 devDependencies，构建需要）
-RUN npm ci --legacy-peer-deps && \
-    npm cache clean --force
-
-# ============================================
-# Stage 2: 构建阶段
+# Stage 1: 依赖安装 + 构建（合并阶段以避免重复安装）
 # ============================================
 FROM node:22-alpine AS builder
 
+# 安装系统依赖
+RUN apk add --no-cache libc6-compat
+
 WORKDIR /app
 
-# 从 deps 阶段复制 node_modules
-COPY --from=deps /app/node_modules ./node_modules
+# 使用 BuildKit 缓存挂载（缓存 npm 下载）
+# 仅在 package.json 变化时重新安装
+COPY package.json package-lock.json* ./
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --legacy-peer-deps && \
+    npm cache clean --force
 
 # 复制源代码
 COPY . .
@@ -38,14 +28,14 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
-# 构建应用（standalone 输出）
+# 构建应用（standalone 模式）
 RUN npm run build
 
 # ============================================
-# Stage 3: 生产镜像（Alpine - 推荐）
+# Stage 2: 生产镜像（Alpine - 推荐）
 # 最小化镜像，非 root 用户，只读文件系统
 # ============================================
-FROM node:22-alpine AS runner
+FROM node:22-alpine AS runner-alpine
 
 WORKDIR /app
 
@@ -78,3 +68,28 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
 
 # 启动应用
 CMD ["node", "server.js"]
+
+# ============================================
+# Stage 3: 生产镜像（Distroless - 最高安全）
+# 无 shell，最小攻击面
+# ============================================
+FROM gcr.io/distroless/nodejs22-debian12:latest AS runner-distroless
+
+WORKDIR /app
+
+# 环境变量
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# 复制构建产物
+COPY --from=builder --chown=1001:1001 /app/public ./public
+COPY --from=builder --chown=1001:1001 /app/.next/standalone ./
+COPY --from=builder --chown=1001:1001 /app/.next/static ./.next/static
+
+# 暴露端口
+EXPOSE 3000
+
+# 启动应用（distroless 无 shell）
+CMD ["server.js"]
