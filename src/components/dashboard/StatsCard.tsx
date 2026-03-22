@@ -98,10 +98,10 @@ export const StatsCard: FC<StatsCardProps> = ({
 
   if (loading) {
     return (
-      <div className={`${sizes.padding} bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-700/30 rounded-xl border border-gray-200 dark:border-gray-700 ${className}`}>
+      <div className={`${sizes.padding} bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-700/30 rounded-xl border border-zinc-200 dark:border-zinc-700 ${className}`}>
         <div className="animate-pulse space-y-2">
-          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+          <div className="h-4 bg-zinc-200 dark:bg-zinc-700 rounded w-1/2"></div>
+          <div className="h-8 bg-zinc-200 dark:bg-zinc-700 rounded w-3/4"></div>
         </div>
       </div>
     );
@@ -109,7 +109,7 @@ export const StatsCard: FC<StatsCardProps> = ({
 
   const trendValue = trend?.value ?? 0;
   const TrendIcon = trendValue > 0 ? TrendingUp : trendValue < 0 ? TrendingDown : Minus;
-  const trendColor = trendValue > 0 ? 'text-green-600 dark:text-green-400' : trendValue < 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-500';
+  const trendColor = trendValue > 0 ? 'text-green-600 dark:text-green-400' : trendValue < 0 ? 'text-red-600 dark:text-red-400' : 'text-zinc-500';
 
   return (
     <div
@@ -132,7 +132,7 @@ export const StatsCard: FC<StatsCardProps> = ({
         {/* 顶部：标题和图标 */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <h3 className={`${sizes.title} font-medium text-gray-600 dark:text-gray-400 truncate`}>
+            <h3 className={`${sizes.title} font-medium text-zinc-600 dark:text-zinc-400 truncate`}>
               {title}
             </h3>
           </div>
@@ -156,7 +156,7 @@ export const StatsCard: FC<StatsCardProps> = ({
               {trend.value > 0 ? '+' : ''}{trend.value}%
             </span>
             {trend.period && (
-              <span className="text-xs text-gray-500 dark:text-gray-400">
+              <span className="text-xs text-zinc-500 dark:text-zinc-400">
                 ({trend.period})
               </span>
             )}

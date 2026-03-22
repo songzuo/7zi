@@ -328,7 +328,7 @@ export default async function AboutPage({ params }: { params: Params }) {
 
           <div className="max-w-4xl mx-auto">
 
-            <div className="bg-white dark:bg-zinc-900 rounded-3xl p-8 md:p-12 shadow-2xl border border-zinc-200 dark:border-zinc-800 hover:border-cyan-500/50 transition-colors duration-500">
+            <div className="bg-white dark:bg-zinc-900 rounded-2xl p-8 md:p-12 shadow-2xl border border-zinc-200 dark:border-zinc-800 hover:border-cyan-500/50 transition-colors duration-500">
 
               <div className="flex items-center gap-3 mb-8">
 
@@ -510,7 +510,7 @@ export default async function AboutPage({ params }: { params: Params }) {
 
                   key={member.id}
 
-                  className="group relative bg-zinc-50 dark:bg-black rounded-3xl p-8 hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 overflow-hidden border border-zinc-200 dark:border-zinc-800 hover:border-transparent"
+                  className="group relative bg-zinc-50 dark:bg-black rounded-2xl p-8 hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 overflow-hidden border border-zinc-200 dark:border-zinc-800 hover:border-transparent"
 
                   style={{ animationDelay: `${index * 100}ms` }}
 
@@ -518,9 +518,9 @@ export default async function AboutPage({ params }: { params: Params }) {
 
                   <div className={`absolute inset-0 bg-gradient-to-br ${member.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`} aria-hidden="true" />
 
-                  <div className={`absolute inset-0 rounded-3xl bg-gradient-to-r ${member.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-sm`} aria-hidden="true" />
+                  <div className={`absolute inset-0 rounded-2xl bg-gradient-to-r ${member.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-sm`} aria-hidden="true" />
 
-                  <div className="absolute inset-[2px] rounded-3xl bg-zinc-50 dark:bg-black group-hover:bg-white dark:group-hover:bg-zinc-900 transition-colors duration-500 -z-10" aria-hidden="true" />
+                  <div className="absolute inset-[2px] rounded-2xl bg-zinc-50 dark:bg-black group-hover:bg-white dark:group-hover:bg-zinc-900 transition-colors duration-500 -z-10" aria-hidden="true" />
 
                   
 

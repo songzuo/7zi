@@ -354,15 +354,15 @@ export default async function TeamPage({ params }: { params: Params }) {
 
                   key={member.id}
 
-                  className="group relative bg-white dark:bg-zinc-900 rounded-3xl p-8 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2"
+                  className="group relative bg-white dark:bg-zinc-900 rounded-2xl p-8 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2"
 
                 >
 
                   {/* Gradient border effect */}
 
-                  <div className={`absolute inset-0 rounded-3xl bg-gradient-to-r ${member.color} opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 blur-sm`} aria-hidden="true" />
+                  <div className={`absolute inset-0 rounded-2xl bg-gradient-to-r ${member.color} opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 blur-sm`} aria-hidden="true" />
 
-                  <div className="absolute inset-0 rounded-3xl bg-white dark:bg-zinc-900 group-hover:bg-zinc-50 dark:group-hover:bg-zinc-800 transition-colors duration-300 -z-10" aria-hidden="true" />
+                  <div className="absolute inset-0 rounded-2xl bg-white dark:bg-zinc-900 group-hover:bg-zinc-50 dark:group-hover:bg-zinc-800 transition-colors duration-300 -z-10" aria-hidden="true" />
 
                   
 

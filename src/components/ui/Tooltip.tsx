@@ -150,8 +150,8 @@ export const Tooltip: React.FC<TooltipProps> = ({
         <div
           className={cn(
             'absolute z-50 pointer-events-none',
-            'bg-gray-900 dark:bg-gray-100',
-            'text-white dark:text-gray-900',
+            'bg-zinc-900 dark:bg-zinc-100',
+            'text-white dark:text-zinc-900',
             'rounded-lg shadow-lg',
             'whitespace-nowrap',
             'animate-in fade-in zoom-in-95 duration-200',
@@ -242,7 +242,7 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({
       <button
         className={cn(
           'inline-flex items-center justify-center rounded-full',
-          'text-gray-400 hover:text-blue-600 dark:text-gray-500 dark:hover:text-blue-400',
+          'text-zinc-400 hover:text-blue-600 dark:text-zinc-500 dark:hover:text-blue-400',
           'transition-colors',
           iconSizes[iconSize]
         )}

@@ -18,8 +18,9 @@ describe('/api/health', () => {
   });
 
   describe('GET request', () => {
+    const mockRequest = new NextRequest('http://localhost:3000/api/health');
+
     it('should return health status with correct structure', async () => {
-      const mockRequest = new NextRequest('http://localhost:3000/api/health');
       const response = await GET(mockRequest);
       const body = await response.json();
 

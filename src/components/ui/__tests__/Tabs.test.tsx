@@ -114,7 +114,7 @@ describe('Tabs Component', () => {
         </Tabs>
       );
       const list = screen.getByRole('tablist');
-      expect(list).toHaveClass('bg-gray-100');
+      expect(list).toHaveClass('bg-zinc-100');
     });
 
     it('applies soft-rounded variant', () => {

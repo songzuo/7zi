@@ -84,8 +84,8 @@ interface CustomTooltipProps {
 const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-gray-200 dark:border-zinc-700 p-3">
-        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{label}</p>
+      <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-zinc-200 dark:border-zinc-700 p-3">
+        <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-2">{label}</p>
         {payload.map((entry, index: number) => (
           <p key={index} className="text-sm flex items-center gap-2" style={{ color: entry.color }}>
             <span className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
@@ -148,29 +148,29 @@ export const ActivityChart: React.FC<ActivityChartProps> = ({
   };
 
   return (
-    <div className={`bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-700 p-4 sm:p-6 ${className}`}>
+    <div className={`bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-4 sm:p-6 ${className}`}>
       {/* 标题区域 */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
             <Activity className="w-5 h-5 text-purple-600" />
             {title}
           </h3>
           {subtitle && (
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{subtitle}</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">{subtitle}</p>
           )}
         </div>
 
         {/* 图表类型切换 */}
-        <div className="flex items-center gap-2 bg-gray-100 dark:bg-zinc-700 rounded-lg p-1">
+        <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-700 rounded-lg p-1">
           {(['area', 'line', 'bar'] as const).map((type) => (
             <button
               key={type}
               onClick={() => setSelectedMetric(null)} // 重置指标选择
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                 chartType === type && selectedMetric === null
-                  ? 'bg-white dark:bg-zinc-600 text-gray-900 dark:text-white shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                  ? 'bg-white dark:bg-zinc-600 text-zinc-900 dark:text-white shadow-sm'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
               }`}
             >
               {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -194,7 +194,7 @@ export const ActivityChart: React.FC<ActivityChartProps> = ({
             >
               <div className="flex items-center gap-2 mb-1">
                 <Icon className={`w-4 h-4 text-${metric === 'errors' ? 'red' : metric === 'agents' ? 'blue' : metric === 'users' ? 'green' : metric === 'tokens' ? 'orange' : 'purple'}-600`} />
-                <p className="text-xs text-gray-600 dark:text-gray-400 truncate">{colorConfig.label}</p>
+                <p className="text-xs text-zinc-600 dark:text-zinc-400 truncate">{colorConfig.label}</p>
               </div>
               <p className={`text-lg font-bold text-${metric === 'errors' ? 'red' : metric === 'agents' ? 'blue' : metric === 'users' ? 'green' : metric === 'tokens' ? 'orange' : 'purple'}-700 dark:text-${metric === 'errors' ? 'red' : metric === 'agents' ? 'blue' : metric === 'users' ? 'green' : metric === 'tokens' ? 'orange' : 'purple'}-300 mt-1`}>
                 {formatValue(stats[metric]?.total || 0, metric)}
@@ -212,11 +212,11 @@ export const ActivityChart: React.FC<ActivityChartProps> = ({
               <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-zinc-700" />
               <XAxis
                 dataKey="displayDate"
-                className="text-xs text-gray-500 dark:text-gray-400"
+                className="text-xs text-zinc-500 dark:text-zinc-400"
                 tick={{ fontSize: 12 }}
               />
               <YAxis
-                className="text-xs text-gray-500 dark:text-gray-400"
+                className="text-xs text-zinc-500 dark:text-zinc-400"
                 tickFormatter={(value) => formatValue(value, 'default')}
                 tick={{ fontSize: 12 }}
               />
@@ -243,11 +243,11 @@ export const ActivityChart: React.FC<ActivityChartProps> = ({
               <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-zinc-700" />
               <XAxis
                 dataKey="displayDate"
-                className="text-xs text-gray-500 dark:text-gray-400"
+                className="text-xs text-zinc-500 dark:text-zinc-400"
                 tick={{ fontSize: 12 }}
               />
               <YAxis
-                className="text-xs text-gray-500 dark:text-gray-400"
+                className="text-xs text-zinc-500 dark:text-zinc-400"
                 tickFormatter={(value) => formatValue(value, 'default')}
                 tick={{ fontSize: 12 }}
               />
@@ -274,11 +274,11 @@ export const ActivityChart: React.FC<ActivityChartProps> = ({
               <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-zinc-700" />
               <XAxis
                 dataKey="displayDate"
-                className="text-xs text-gray-500 dark:text-gray-400"
+                className="text-xs text-zinc-500 dark:text-zinc-400"
                 tick={{ fontSize: 12 }}
               />
               <YAxis
-                className="text-xs text-gray-500 dark:text-gray-400"
+                className="text-xs text-zinc-500 dark:text-zinc-400"
                 tickFormatter={(value) => formatValue(value, 'default')}
                 tick={{ fontSize: 12 }}
               />
@@ -302,8 +302,8 @@ export const ActivityChart: React.FC<ActivityChartProps> = ({
       </div>
 
       {/* 底部说明 */}
-      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-zinc-700">
-        <p className="text-xs text-gray-500 dark:text-gray-400">
+      <div className="mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-700">
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
           {locale === 'zh' ? '点击上方卡片可聚焦查看单个指标' : 'Click cards above to focus on a single metric'}
         </p>
       </div>

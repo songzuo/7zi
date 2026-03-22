@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 
 interface BugReportProps {
   onSubmit: (bug: BugReportData) => Promise<void> | void;
@@ -24,7 +24,7 @@ export interface BugReportData {
 }
 
 const PRIORITIES = [
-  { value: 'low', label: '低', color: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300' },
+  { value: 'low', label: '低', color: 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300' },
   { value: 'medium', label: '中', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' },
   { value: 'high', label: '高', color: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300' },
   { value: 'critical', label: '紧急', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' },
@@ -42,7 +42,7 @@ export const BugReportForm: React.FC<BugReportProps> = ({
   const [priority, setPriority] = useState<BugReportData['priority']>('medium');
   const [url, setUrl] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!summary.trim() || !steps.trim()) {
@@ -68,20 +68,20 @@ export const BugReportForm: React.FC<BugReportProps> = ({
     setActual('');
     setUrl('');
     setPriority('medium');
-  };
+  }, [onSubmit]); // 只依赖 onSubmit
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+    <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-sm border border-zinc-200 dark:border-zinc-700">
       {showTitle && (
-        <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center gap-3 px-6 py-4 border-b border-zinc-200 dark:border-zinc-700">
           <div className="flex items-center justify-center w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30">
             <span className="text-xl">🐛</span>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">
               问题报告
             </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
               快速提交您遇到的问题
             </p>
           </div>
@@ -93,7 +93,7 @@ export const BugReportForm: React.FC<BugReportProps> = ({
         <div>
           <label
             htmlFor="bug-summary"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
           >
             问题摘要 <span className="text-red-500">*</span>
           </label>
@@ -103,18 +103,18 @@ export const BugReportForm: React.FC<BugReportProps> = ({
             value={summary}
             onChange={(e) => setSummary(e.target.value)}
             placeholder="简要描述问题，例如：登录后无法访问仪表盘"
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-800 dark:text-white"
+            className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-zinc-800 dark:text-white"
             required
             maxLength={200}
           />
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
             {summary.length}/200
           </p>
         </div>
 
         {/* Priority */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
             优先级
           </label>
           <div className="flex flex-wrap gap-2">
@@ -125,7 +125,7 @@ export const BugReportForm: React.FC<BugReportProps> = ({
                 onClick={() => setPriority(p.value as BugReportData['priority'])}
                 className={`
                   px-4 py-2 rounded-lg text-sm font-medium transition-all
-                  ${priority === p.value ? p.color + ' ring-2 ring-offset-2 ring-' + p.value : 'bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'}
+                  ${priority === p.value ? p.color + ' ring-2 ring-offset-2 ring-' + p.value : 'bg-zinc-50 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700'}
                 `}
               >
                 {p.label}
@@ -138,7 +138,7 @@ export const BugReportForm: React.FC<BugReportProps> = ({
         <div>
           <label
             htmlFor="bug-url"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
           >
             问题页面链接（可选）
           </label>
@@ -148,7 +148,7 @@ export const BugReportForm: React.FC<BugReportProps> = ({
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://example.com/page"
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-800 dark:text-white"
+            className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-zinc-800 dark:text-white"
           />
         </div>
 
@@ -156,7 +156,7 @@ export const BugReportForm: React.FC<BugReportProps> = ({
         <div>
           <label
             htmlFor="bug-steps"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
           >
             复现步骤 <span className="text-red-500">*</span>
           </label>
@@ -166,11 +166,11 @@ export const BugReportForm: React.FC<BugReportProps> = ({
             onChange={(e) => setSteps(e.target.value)}
             placeholder="1. 访问登录页面&#10;2. 输入用户名和密码&#10;3. 点击登录按钮&#10;4. 观察到错误..."
             rows={4}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-800 dark:text-white resize-none font-mono text-sm"
+            className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-zinc-800 dark:text-white resize-none font-mono text-sm"
             required
             maxLength={1000}
           />
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
             {steps.length}/1000
           </p>
         </div>
@@ -179,7 +179,7 @@ export const BugReportForm: React.FC<BugReportProps> = ({
         <div>
           <label
             htmlFor="bug-expected"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
           >
             期望行为
           </label>
@@ -189,10 +189,10 @@ export const BugReportForm: React.FC<BugReportProps> = ({
             onChange={(e) => setExpected(e.target.value)}
             placeholder="您期望发生什么？"
             rows={2}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-800 dark:text-white resize-none"
+            className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-zinc-800 dark:text-white resize-none"
             maxLength={500}
           />
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
             {expected.length}/500
           </p>
         </div>
@@ -201,7 +201,7 @@ export const BugReportForm: React.FC<BugReportProps> = ({
         <div>
           <label
             htmlFor="bug-actual"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
           >
             实际行为
           </label>
@@ -211,10 +211,10 @@ export const BugReportForm: React.FC<BugReportProps> = ({
             onChange={(e) => setActual(e.target.value)}
             placeholder="实际发生了什么？"
             rows={2}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-800 dark:text-white resize-none"
+            className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-zinc-800 dark:text-white resize-none"
             maxLength={500}
           />
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
             {actual.length}/500
           </p>
         </div>

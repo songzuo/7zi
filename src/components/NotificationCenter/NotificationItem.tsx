@@ -79,7 +79,7 @@ export const NotificationItem: FC<NotificationItemProps> = ({
 
   return (
     <li
-      className={`relative px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer ${
+      className={`relative px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors cursor-pointer ${
         !notification.read ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''
       }`}
       onClick={handleClick}
@@ -105,8 +105,8 @@ export const NotificationItem: FC<NotificationItemProps> = ({
             <p
               className={`text-sm font-medium truncate ${
                 notification.read
-                  ? 'text-gray-700 dark:text-gray-300'
-                  : 'text-gray-900 dark:text-white'
+                  ? 'text-zinc-700 dark:text-zinc-300'
+                  : 'text-zinc-900 dark:text-white'
               }`}
             >
               {notification.title}
@@ -116,11 +116,11 @@ export const NotificationItem: FC<NotificationItemProps> = ({
             )}
           </div>
 
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2">
             {notification.message}
           </p>
 
-          <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+          <p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">
             {formattedTime}
           </p>
         </div>
@@ -130,7 +130,7 @@ export const NotificationItem: FC<NotificationItemProps> = ({
           {!notification.read && onMarkAsRead && (
             <button
               onClick={handleMarkAsRead}
-              className="p-1 text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+              className="p-1 text-zinc-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
               title="标记已读"
               aria-label="标记已读"
             >
@@ -152,7 +152,7 @@ export const NotificationItem: FC<NotificationItemProps> = ({
           {onDelete && (
             <button
               onClick={handleDelete}
-              className="p-1 text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+              className="p-1 text-zinc-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
               title="删除通知"
               aria-label="删除通知"
             >

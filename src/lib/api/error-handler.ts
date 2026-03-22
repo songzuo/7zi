@@ -14,8 +14,9 @@
  * }
  */
 
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { logger } from '../logger';
+import { getUserFriendlyError, getLocaleFromRequest, createUserErrorExtension, SupportedLocale } from './user-messages';
 
 /**
  * Error types for different error categories
@@ -59,9 +60,17 @@ export interface ErrorResponse {
   error: {
     type: ErrorType;
     message: string;
+    /** User-friendly message (all environments) */
+    userMessage?: string;
+    /** Suggested action for the user */
+    action?: string;
+    /** Additional help text */
+    help?: string;
     details?: Record<string, unknown>;
     timestamp: string;
   };
+  /** Request ID for tracking */
+  requestId?: string;
 }
 
 /**
@@ -96,24 +105,33 @@ export function createSuccessResponse<T = unknown>(
  * Create standardized error response
  * This is the recommended way to create error responses in API routes
  */
-export function createErrorResponse(
+export async function createErrorResponse(
   error: Error | ApiError,
   statusCode?: number,
-  details?: Record<string, unknown>
-): NextResponse<ErrorResponse> {
+  details?: Record<string, unknown>,
+  locale: SupportedLocale = 'zh',
+  requestId?: string
+): Promise<NextResponse<ErrorResponse>> {
   const timestamp = new Date().toISOString();
+  const isDevelopment = process.env.NODE_ENV === 'development';
 
   // If it's already an ApiError, use it directly
   if (error instanceof ApiError) {
+    const userErrorExtension = await createUserErrorExtension(error.type, locale);
+
     return NextResponse.json(
       {
         success: false,
         error: {
           type: error.type,
-          message: error.message,
-          details: error.details,
+          message: isDevelopment ? error.message : 'An error occurred',
+          userMessage: userErrorExtension.userMessage,
+          action: userErrorExtension.userAction,
+          help: userErrorExtension.userHelp,
+          details: isDevelopment ? error.details : undefined,
           timestamp,
         },
+        requestId,
       },
       { status: error.statusCode }
     );
@@ -124,19 +142,24 @@ export function createErrorResponse(
 
   const errorType = ErrorType.INTERNAL;
   const status = statusCode ?? 500;
+  const userErrorExtension = await createUserErrorExtension(errorType, locale);
 
   return NextResponse.json(
     {
       success: false,
       error: {
         type: errorType,
-        message: 'An internal error occurred',
+        message: isDevelopment ? (error.message || 'An internal error occurred') : 'An error occurred',
+        userMessage: userErrorExtension.userMessage,
+        action: userErrorExtension.userAction,
+        help: userErrorExtension.userHelp,
         // Only include details in development, and sanitize them
-        details: process.env.NODE_ENV === 'development'
+        details: isDevelopment
           ? { originalMessage: error.message }
           : undefined,
         timestamp,
       },
+      requestId,
     },
     { status }
   );
@@ -145,106 +168,126 @@ export function createErrorResponse(
 /**
  * Create validation error response (400)
  */
-export function createValidationError(
+export async function createValidationError(
   message: string,
-  details?: Record<string, unknown>
-): NextResponse<ErrorResponse> {
+  details?: Record<string, unknown>,
+  locale: SupportedLocale = 'zh',
+  requestId?: string
+): Promise<NextResponse<ErrorResponse>> {
   const error = new ApiError(ErrorType.VALIDATION, message, 400, details);
-  return createErrorResponse(error);
+  return createErrorResponse(error, undefined, details, locale, requestId);
 }
 
 /**
  * Create not found error response (404)
  */
-export function createNotFoundError(
+export async function createNotFoundError(
   message: string,
-  details?: Record<string, unknown>
-): NextResponse<ErrorResponse> {
+  details?: Record<string, unknown>,
+  locale: SupportedLocale = 'zh',
+  requestId?: string
+): Promise<NextResponse<ErrorResponse>> {
   const error = new ApiError(ErrorType.NOT_FOUND, message, 404, details);
-  return createErrorResponse(error);
+  return createErrorResponse(error, undefined, details, locale, requestId);
 }
 
 /**
  * Create unauthorized error response (401)
  */
-export function createUnauthorizedError(
-  message: string = 'Unauthorized access'
-): NextResponse<ErrorResponse> {
+export async function createUnauthorizedError(
+  message: string = 'Unauthorized access',
+  locale: SupportedLocale = 'zh',
+  requestId?: string
+): Promise<NextResponse<ErrorResponse>> {
   const error = new ApiError(ErrorType.UNAUTHORIZED, message, 401);
-  return createErrorResponse(error);
+  return createErrorResponse(error, undefined, undefined, locale, requestId);
 }
 
 /**
  * Create forbidden error response (403)
  */
-export function createForbiddenError(
-  message: string = 'Access forbidden'
-): NextResponse<ErrorResponse> {
+export async function createForbiddenError(
+  message: string = 'Access forbidden',
+  locale: SupportedLocale = 'zh',
+  requestId?: string
+): Promise<NextResponse<ErrorResponse>> {
   const error = new ApiError(ErrorType.FORBIDDEN, message, 403);
-  return createErrorResponse(error);
+  return createErrorResponse(error, undefined, undefined, locale, requestId);
 }
 
 /**
  * Create rate limit error response (429)
  */
-export function createRateLimitError(
-  message: string = 'Rate limit exceeded'
-): NextResponse<ErrorResponse> {
+export async function createRateLimitError(
+  message: string = 'Rate limit exceeded',
+  locale: SupportedLocale = 'zh',
+  requestId?: string
+): Promise<NextResponse<ErrorResponse>> {
   const error = new ApiError(ErrorType.RATE_LIMIT, message, 429);
-  return createErrorResponse(error);
+  return createErrorResponse(error, undefined, undefined, locale, requestId);
 }
 
 /**
  * Create service unavailable error response (503)
  */
-export function createServiceUnavailableError(
-  message: string = 'Service temporarily unavailable'
-): NextResponse<ErrorResponse> {
+export async function createServiceUnavailableError(
+  message: string = 'Service temporarily unavailable',
+  locale: SupportedLocale = 'zh',
+  requestId?: string
+): Promise<NextResponse<ErrorResponse>> {
   const error = new ApiError(ErrorType.SERVICE_UNAVAILABLE, message, 503);
-  return createErrorResponse(error);
+  return createErrorResponse(error, undefined, undefined, locale, requestId);
 }
 
 /**
  * Create registration failed error response (400)
  */
-export function createRegistrationFailedError(
+export async function createRegistrationFailedError(
   message: string = 'Registration failed',
-  details?: Record<string, unknown>
-): NextResponse<ErrorResponse> {
+  details?: Record<string, unknown>,
+  locale: SupportedLocale = 'zh',
+  requestId?: string
+): Promise<NextResponse<ErrorResponse>> {
   const error = new ApiError(ErrorType.REGISTRATION_FAILED, message, 400, details);
-  return createErrorResponse(error);
+  return createErrorResponse(error, undefined, details, locale, requestId);
 }
 
 /**
  * Create weak password error response (400)
  */
-export function createWeakPasswordError(
+export async function createWeakPasswordError(
   message: string = 'Password is too weak',
-  details?: Record<string, unknown>
-): NextResponse<ErrorResponse> {
+  details?: Record<string, unknown>,
+  locale: SupportedLocale = 'zh',
+  requestId?: string
+): Promise<NextResponse<ErrorResponse>> {
   const error = new ApiError(ErrorType.WEAK_PASSWORD, message, 400, details);
-  return createErrorResponse(error);
+  return createErrorResponse(error, undefined, details, locale, requestId);
 }
 
 /**
  * Create bad request error response (400)
  */
-export function createBadRequestError(
+export async function createBadRequestError(
   message: string = 'Bad request',
-  details?: Record<string, unknown>
-): NextResponse<ErrorResponse> {
+  details?: Record<string, unknown>,
+  locale: SupportedLocale = 'zh',
+  requestId?: string
+): Promise<NextResponse<ErrorResponse>> {
   const error = new ApiError(ErrorType.BAD_REQUEST, message, 400, details);
-  return createErrorResponse(error);
+  return createErrorResponse(error, undefined, details, locale, requestId);
 }
 
 /**
  * Create missing token error response (401)
  */
-export function createMissingTokenError(
-  message: string = 'Authentication token is missing'
-): NextResponse<ErrorResponse> {
+export async function createMissingTokenError(
+  message: string = 'Authentication token is missing',
+  locale: SupportedLocale = 'zh',
+  requestId?: string
+): Promise<NextResponse<ErrorResponse>> {
   const error = new ApiError(ErrorType.MISSING_TOKEN, message, 401);
-  return createErrorResponse(error);
+  return createErrorResponse(error, undefined, undefined, locale, requestId);
 }
 
 /**
@@ -257,14 +300,28 @@ export function createMissingTokenError(
  *   return createSuccessResponse(data);
  * });
  */
-export function withErrorHandling<T extends (...args: unknown[]) => Promise<NextResponse<unknown>>>(
+export async function withErrorHandling<T extends (...args: unknown[]) => Promise<NextResponse<unknown>>>(
   handler: T
-): T {
+): Promise<T> {
   return (async (...args: unknown[]) => {
     try {
       return await handler(...(args as Parameters<T>));
     } catch (error) {
-      return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
+      // Try to extract locale and request ID from the request
+      const request = args[0] as Request | NextRequest | undefined;
+      const locale = request ? getLocaleFromRequest(request) : 'zh';
+      const requestId = request?.headers ? (request.headers as Headers).get('x-request-id') || undefined : undefined;
+
+      return await createErrorResponse(
+        error instanceof Error ? error : new Error(String(error)),
+        undefined,
+        undefined,
+        locale,
+        requestId
+      );
     }
-  }) as unknown as T;
+  }) as T;
 }
+
+// Export NextRequest for type checking
+import type { NextRequest } from 'next/server';

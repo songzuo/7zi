@@ -143,7 +143,7 @@ describe('SegmentedProgress', () => {
   it('should render correct number of segments', () => {
     render(<SegmentedProgress segments={5} current={2} />);
     
-    const segments = document.querySelectorAll('[class*="rounded-full bg-gray-200"]');
+    const segments = document.querySelectorAll('[class*="rounded-full bg-zinc-200"]');
     expect(segments).toHaveLength(5);
   });
 

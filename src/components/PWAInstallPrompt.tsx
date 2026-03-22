@@ -152,7 +152,7 @@ export function PWAInstallPrompt() {
 
   return (
     <div className="fixed bottom-4 right-4 z-50 max-w-sm animate-in fade-in slide-in-from-bottom-4 duration-300">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-700 overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-cyan-600 to-cyan-700 px-4 py-3">
           <div className="flex items-center justify-between">
@@ -185,7 +185,7 @@ export function PWAInstallPrompt() {
 
             {/* Content */}
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-gray-700 dark:text-gray-300">
+              <p className="text-sm text-zinc-700 dark:text-zinc-300">
                 {isIOS
                   ? '在 iOS 设备上，通过 Safari 的分享菜单添加到主屏幕。'
                   : '将我们的应用安装到您的设备上，获得更好的体验和离线访问功能。'}
@@ -195,19 +195,19 @@ export function PWAInstallPrompt() {
 
           {/* Features */}
           <div className="mt-3 flex gap-2">
-            <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+            <div className="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400">
               <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
               <span>离线访问</span>
             </div>
-            <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+            <div className="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400">
               <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
               <span>更快的启动</span>
             </div>
-            <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+            <div className="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400">
               <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
@@ -226,7 +226,7 @@ export function PWAInstallPrompt() {
           </button>
           <button
             onClick={handleInstallLater}
-            className="flex-1 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="flex-1 px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg transition-colors"
           >
             稍后再说
           </button>
@@ -242,7 +242,7 @@ export function PWAInstallPrompt() {
 function IOSInstallGuide({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-sm mx-4 overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl max-w-sm mx-4 overflow-hidden animate-in zoom-in-95 duration-200">
         {/* Header */}
         <div className="bg-gradient-to-r from-cyan-600 to-cyan-700 px-4 py-3">
           <div className="flex items-center justify-between">
@@ -268,12 +268,12 @@ function IOSInstallGuide({ onClose }: { onClose: () => void }) {
                 1
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                <p className="text-sm font-medium text-zinc-900 dark:text-white">
                   点击底部的分享按钮
                 </p>
                 <div className="mt-1 flex justify-center">
-                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-2 py-1">
-                    <svg className="w-6 h-6 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="bg-zinc-100 dark:bg-zinc-700 rounded-lg px-2 py-1">
+                    <svg className="w-6 h-6 text-zinc-600 dark:text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                     </svg>
                   </div>
@@ -285,7 +285,7 @@ function IOSInstallGuide({ onClose }: { onClose: () => void }) {
                 2
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                <p className="text-sm font-medium text-zinc-900 dark:text-white">
                   向下滚动并点击"添加到主屏幕"
                 </p>
               </div>
@@ -295,7 +295,7 @@ function IOSInstallGuide({ onClose }: { onClose: () => void }) {
                 3
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                <p className="text-sm font-medium text-zinc-900 dark:text-white">
                   点击"添加"完成安装
                 </p>
               </div>

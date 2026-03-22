@@ -31,9 +31,9 @@ import { SkeletonBase } from '@/components/Skeleton';
  */
 export default function PageLoading() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
       {/* Navigation Skeleton */}
-      <nav className="sticky top-0 z-50 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
+      <nav className="sticky top-0 z-50 bg-white dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 p-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Logo */}
           <Skeleton.Avatar size="lg" className="rounded-lg" />
@@ -88,7 +88,7 @@ export default function PageLoading() {
  */
 export function MinimalPageLoading() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-900">
       <LoadingSpinner
         variant="spin"
         size="xl"
@@ -191,7 +191,7 @@ export function ListLoading() {
  */
 export function DashboardLoading() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -208,18 +208,18 @@ export function DashboardLoading() {
 
         {/* Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+          <div className="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 p-6">
             <SkeletonBase className="h-6 w-1/4 mb-6 rounded-lg" />
             <SkeletonBase className="h-64 w-full rounded-lg" />
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+          <div className="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 p-6">
             <SkeletonBase className="h-6 w-1/4 mb-6 rounded-lg" />
             <SkeletonBase className="h-64 w-full rounded-lg" />
           </div>
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 p-6">
           <SkeletonBase className="h-6 w-1/4 mb-6 rounded-lg" />
           <Skeleton.List items={5} showAvatar />
         </div>
@@ -235,7 +235,7 @@ export function DashboardLoading() {
  */
 export function TasksLoading() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -256,7 +256,7 @@ export function TasksLoading() {
           {['Todo', 'In Progress', 'Done'].map((column) => (
             <div
               key={column}
-              className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4"
+              className="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 p-4"
             >
               <SkeletonBase className="h-6 w-20 mb-4 rounded-lg" />
               <div className="space-y-3">

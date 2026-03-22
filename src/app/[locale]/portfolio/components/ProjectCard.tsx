@@ -67,13 +67,13 @@ function ProjectCard({ project, locale, labels }: ProjectCardProps) {
           {project.techStack.slice(0, 3).map((tech) => (
             <span
               key={tech}
-              className="text-xs px-2 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400"
+              className="text-xs px-2 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400"
             >
               {tech}
             </span>
           ))}
           {project.techStack.length > 3 && (
-            <span className="text-xs px-2 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
+            <span className="text-xs px-2 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
               +{project.techStack.length - 3}
             </span>
           )}

@@ -197,7 +197,7 @@ export function AudioUploader({
           {isTranscribing && (
             <div className="mt-2 flex items-center justify-center">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mr-2" />
-              <span className="text-sm text-gray-600 dark:text-gray-400">{t('transcribing')}</span>
+              <span className="text-sm text-zinc-600 dark:text-zinc-400">{t('transcribing')}</span>
             </div>
           )}
         </div>
@@ -209,7 +209,7 @@ export function AudioUploader({
             onDrop={handleDrop}
             className={`
               border-2 border-dashed rounded-lg p-8 text-center transition-colors
-              ${isDragging ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/10' : 'border-gray-300 dark:border-gray-600'}
+              ${isDragging ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/10' : 'border-zinc-300 dark:border-zinc-600'}
               ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-blue-400'}
             `}
           >
@@ -223,7 +223,7 @@ export function AudioUploader({
             />
             <label htmlFor="audio-upload" className="cursor-pointer">
               <svg
-                className="mx-auto h-12 w-12 text-gray-400"
+                className="mx-auto h-12 w-12 text-zinc-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -235,17 +235,17 @@ export function AudioUploader({
                   d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
                 />
               </svg>
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+              <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
                 {placeholder || t('uploadAudioPlaceholder')}
               </p>
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-zinc-500">
                 {t('audioSizeLimit', { maxSize: Math.round(maxSize / 1024 / 1024) })}
               </p>
             </label>
 
             {enableRecording && (
-              <div className="mt-4 border-t border-gray-200 dark:border-gray-700 pt-4">
-                <p className="text-xs text-gray-500 mb-2">{t('or')}</p>
+              <div className="mt-4 border-t border-zinc-200 dark:border-zinc-700 pt-4">
+                <p className="text-xs text-zinc-500 mb-2">{t('or')}</p>
                 <button
                   onClick={isRecording ? stopRecording : startRecording}
                   disabled={disabled}

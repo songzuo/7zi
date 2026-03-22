@@ -88,7 +88,7 @@ export const StarRating: React.FC<StarRatingProps> = ({
               className={`${SIZE_CLASSES[size]} ${
                 displayRating >= starNumber
                   ? 'text-yellow-400 fill-yellow-400'
-                  : 'text-gray-300 dark:text-gray-600'
+                  : 'text-zinc-300 dark:text-zinc-600'
               }`}
               fill="currentColor"
               viewBox="0 0 20 20"
@@ -102,14 +102,14 @@ export const StarRating: React.FC<StarRatingProps> = ({
 
       {/* Labels */}
       {showLabels && displayRating > 0 && (
-        <span className="text-sm text-gray-600 dark:text-gray-400">
+        <span className="text-sm text-zinc-600 dark:text-zinc-400">
           {STAR_LABELS.find((l) => l.rating === displayRating)?.label}
         </span>
       )}
 
       {/* Number display */}
       {!showLabels && (
-        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+        <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
           {rating.toFixed(1)} / 5.0
         </span>
       )}

@@ -99,10 +99,10 @@ export function VirtualizedTable<T>({
   const headerHeight = 50;
 
   return (
-    <div className={`border border-gray-200 dark:border-zinc-700 rounded-lg overflow-hidden ${className}`}>
+    <div className={`border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden ${className}`}>
       {/* Header */}
       <div
-        className="bg-gray-50 dark:bg-zinc-800 border-b border-gray-200 dark:border-zinc-700 grid items-center px-4"
+        className="bg-zinc-50 dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 grid items-center px-4"
         style={{
           gridTemplateColumns: columns.map((col) => col.width || '1fr').join(' '),
           height: headerHeight
@@ -111,7 +111,7 @@ export function VirtualizedTable<T>({
         {columns.map((col) => (
           <div
             key={col.key}
-            className="text-sm font-semibold text-gray-900 dark:text-white"
+            className="text-sm font-semibold text-zinc-900 dark:text-white"
           >
             {col.header}
           </div>
@@ -123,7 +123,7 @@ export function VirtualizedTable<T>({
         items={data}
         renderItem={(row) => (
           <div
-            className="grid items-center px-4 border-b border-gray-100 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors"
+            className="grid items-center px-4 border-b border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
             style={{
               gridTemplateColumns: columns.map((col) => col.width || '1fr').join(' '),
               height: rowHeight
@@ -132,7 +132,7 @@ export function VirtualizedTable<T>({
             {columns.map((col) => (
               <div
                 key={`${(row as any).id}-${col.key}`}
-                className="text-sm text-gray-700 dark:text-gray-300"
+                className="text-sm text-zinc-700 dark:text-zinc-300"
               >
                 {col.render
                   ? col.render((row as any)[col.key], row)

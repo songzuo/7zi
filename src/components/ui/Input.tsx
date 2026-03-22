@@ -26,7 +26,7 @@ export function Input({ label, labelKey, placeholderKey, required, className = '
       <input
         {...props}
         placeholder={placeholderText}
-        className={`border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-white ${className}`}
+        className={`border border-zinc-300 dark:border-zinc-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:text-white ${className}`}
       />
     </div>
   );

@@ -76,8 +76,8 @@ const CustomTooltip = ({ active, payload, label, locale }: CustomTooltipProps) =
     };
 
     return (
-      <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-gray-200 dark:border-zinc-700 p-3">
-        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{label}</p>
+      <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-zinc-200 dark:border-zinc-700 p-3">
+        <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-2">{label}</p>
         {payload.map((entry, index: number) => (
           <p key={index} className="text-sm" style={{ color: entry.color }}>
             {entry.name}: {formatCurrency(entry.value)}
@@ -135,31 +135,31 @@ export const RevenueChart: React.FC<RevenueChartProps> = ({
   };
 
   return (
-    <div className={`bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-700 p-4 sm:p-6 ${className}`}>
+    <div className={`bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-4 sm:p-6 ${className}`}>
       {/* 标题区域 */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-blue-600" />
             {title}
           </h3>
           {subtitle && (
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{subtitle}</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">{subtitle}</p>
           )}
         </div>
 
         {/* 操作按钮 */}
         <div className="flex items-center gap-2">
           {/* 时间范围选择 */}
-          <div className="hidden sm:flex items-center bg-gray-100 dark:bg-zinc-700 rounded-lg p-1">
+          <div className="hidden sm:flex items-center bg-zinc-100 dark:bg-zinc-700 rounded-lg p-1">
             {(['7d', '30d', '90d', '1y'] as const).map((range) => (
               <button
                 key={range}
                 onClick={() => setTimeRange(range)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                   timeRange === range
-                    ? 'bg-white dark:bg-zinc-600 text-gray-900 dark:text-white shadow-sm'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                    ? 'bg-white dark:bg-zinc-600 text-zinc-900 dark:text-white shadow-sm'
+                    : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
                 }`}
               >
                 {range}
@@ -170,7 +170,7 @@ export const RevenueChart: React.FC<RevenueChartProps> = ({
           {/* 图表类型切换 */}
           <button
             onClick={toggleChartType}
-            className="p-2 rounded-lg bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-zinc-600 transition-colors"
+            className="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-600 transition-colors"
             title={chartType === 'line' ? 'Switch to Bar Chart' : 'Switch to Line Chart'}
           >
             {chartType === 'line' ? (
@@ -222,11 +222,11 @@ export const RevenueChart: React.FC<RevenueChartProps> = ({
               <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-zinc-700" />
               <XAxis
                 dataKey="date"
-                className="text-xs text-gray-500 dark:text-gray-400"
+                className="text-xs text-zinc-500 dark:text-zinc-400"
                 tick={{ fontSize: 12 }}
               />
               <YAxis
-                className="text-xs text-gray-500 dark:text-gray-400"
+                className="text-xs text-zinc-500 dark:text-zinc-400"
                 tickFormatter={formatCurrency}
                 tick={{ fontSize: 12 }}
               />
@@ -269,11 +269,11 @@ export const RevenueChart: React.FC<RevenueChartProps> = ({
               <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-zinc-700" />
               <XAxis
                 dataKey="date"
-                className="text-xs text-gray-500 dark:text-gray-400"
+                className="text-xs text-zinc-500 dark:text-zinc-400"
                 tick={{ fontSize: 12 }}
               />
               <YAxis
-                className="text-xs text-gray-500 dark:text-gray-400"
+                className="text-xs text-zinc-500 dark:text-zinc-400"
                 tickFormatter={formatCurrency}
                 tick={{ fontSize: 12 }}
               />

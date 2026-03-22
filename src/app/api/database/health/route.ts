@@ -5,7 +5,8 @@ import { generatePerformanceReport, type PerformanceReport } from '@/lib/db/perf
 import { getCacheStats } from '@/lib/db/cache';
 import { logger } from '@/lib/logger';
 import { createSuccessResponse } from '@/lib/api/utils';
-import { createErrorResponse } from '@/lib/api/error-handler';
+import { createErrorResponse, ErrorType, getLocaleFromRequest } from '@/lib/api/error-handler';
+import { createApiContext, logApiError } from '@/lib/api/error-logger';
 import { withRateLimit } from '@/lib/middleware/rate-limit';
 import { withCors } from '@/middleware/cors';
 
@@ -24,7 +25,12 @@ interface CacheStats {
 /**
  * GET /api/database/health - 获取数据库健康状态
  */
-async function GETHandler() {
+async function GETHandler(request: Request) {
+  const startTime = Date.now();
+  const requestId = (request.headers as Headers).get('x-request-id') || crypto.randomUUID();
+  const locale = getLocaleFromRequest(request);
+  const context = createApiContext(request);
+
   try {
     const db = await getDatabaseAsync();
 
@@ -38,6 +44,9 @@ async function GETHandler() {
     };
 
     if (!connectionHealth.connected || !connectionHealth.isOpen) {
+      const error = new Error('Database connection failed');
+      logApiError(error, { ...context, requestId, duration: Date.now() - startTime });
+
       return NextResponse.json(
         {
           success: false,
@@ -47,6 +56,7 @@ async function GETHandler() {
             message: 'Database connection failed',
             timestamp: new Date().toISOString(),
           },
+          requestId,
         },
         { status: 503 }
       );
@@ -109,13 +119,16 @@ async function GETHandler() {
       },
     });
   } catch (error) {
-    logger.error('Failed to check database health', error);
-    return createErrorResponse(error instanceof Error ? error : new Error('Failed to check database health'));
+    const errorObj = error instanceof Error ? error : new Error('Failed to check database health');
+    const duration = Date.now() - startTime;
+
+    logApiError(errorObj, { ...context, requestId, duration });
+    return await createErrorResponse(errorObj, undefined, undefined, locale, requestId);
   }
 }
 
 export const GET = withCors(
-  withRateLimit(GETHandler, { windowMs: 60000, maxRequests: 50 })
+  withRateLimit((request: Request) => GETHandler(request), { windowMs: 60000, maxRequests: 50 })
 );
 
 /**

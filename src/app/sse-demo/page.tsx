@@ -34,9 +34,9 @@ export default function SSEDemoPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-zinc-50 p-8">
       <div className="max-w-6xl mx-auto space-y-6">
-        <h1 className="text-3xl font-bold text-gray-900">
+        <h1 className="text-3xl font-bold text-zinc-900">
           SSE Implementation Demo
         </h1>
 
@@ -59,7 +59,7 @@ export default function SSEDemoPage() {
               </span>
             </p>
             {healthSSE.data && (
-              <pre className="bg-gray-100 p-4 rounded overflow-auto max-h-64 text-sm">
+              <pre className="bg-zinc-100 p-4 rounded overflow-auto max-h-64 text-sm">
                 {JSON.stringify(healthSSE.data, null, 2)}
               </pre>
             )}
@@ -85,7 +85,7 @@ export default function SSEDemoPage() {
               </span>
             </p>
             {analyticsSSE.data && (
-              <pre className="bg-gray-100 p-4 rounded overflow-auto max-h-64 text-sm">
+              <pre className="bg-zinc-100 p-4 rounded overflow-auto max-h-64 text-sm">
                 {JSON.stringify(analyticsSSE.data, null, 2)}
               </pre>
             )}
@@ -103,9 +103,9 @@ export default function SSEDemoPage() {
               Clear Log
             </button>
           </div>
-          <div className="bg-gray-900 text-green-400 p-4 rounded font-mono text-sm h-64 overflow-auto">
+          <div className="bg-zinc-900 text-green-400 p-4 rounded font-mono text-sm h-64 overflow-auto">
             {logs.length === 0 ? (
-              <p className="text-gray-500">Waiting for events...</p>
+              <p className="text-zinc-500">Waiting for events...</p>
             ) : (
               logs.map((log, index) => (
                 <div key={index} className="mb-1">
@@ -150,7 +150,7 @@ export default function SSEDemoPage() {
         {/* Instructions */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
           <h2 className="text-xl font-semibold mb-4">Testing Instructions</h2>
-          <ol className="list-decimal list-inside space-y-2 text-gray-700">
+          <ol className="list-decimal list-inside space-y-2 text-zinc-700">
             <li>Open browser DevTools Network tab</li>
             <li>Look for connections to `/api/stream/health` and `/api/stream/analytics`</li>
             <li>Verify the connection type is `eventsource`</li>

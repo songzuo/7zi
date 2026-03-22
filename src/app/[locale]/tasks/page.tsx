@@ -15,6 +15,7 @@ import { Card } from '@/components/shared';
 import { TaskCardMobile } from '@/components/mobile/TaskCardMobile';
 import type { GitHubIssue } from '@/types';
 import { logger } from '@/lib/logger';
+import { isBelowBreakpoint, BREAKPOINTS } from '@/lib/utils/breakpoints';
 
 type ViewMode = 'list' | 'kanban' | 'mobile';
 
@@ -24,10 +25,10 @@ export default function TasksPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [isMobile, setIsMobile] = useState(false);
 
-  // Detect mobile screen size
+  // Detect mobile screen size (using unified breakpoints)
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      setIsMobile(isBelowBreakpoint('md'));
     };
 
     checkMobile();
@@ -178,7 +179,7 @@ export default function TasksPage() {
               <div className="flex items-center bg-zinc-100 dark:bg-zinc-800 rounded-lg p-1">
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                     viewMode === 'list'
                       ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm'
                       : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
@@ -189,7 +190,7 @@ export default function TasksPage() {
                 </button>
                 <button
                   onClick={() => setViewMode('kanban')}
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                     viewMode === 'kanban'
                       ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm'
                       : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'

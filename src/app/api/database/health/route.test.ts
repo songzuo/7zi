@@ -5,12 +5,20 @@
 
 import {describe, it, expect, vi, beforeEach} from 'vitest';
 import { GET } from '../health/route';
+import { NextRequest } from 'next/server';
 
 // Mock database functions
 vi.mock('@/lib/db', () => ({
   getDatabaseAsync: vi.fn(),
   getDatabaseStats: vi.fn(),
 }));
+
+// Helper to create a mock request
+function createMockRequest(url: string = 'http://localhost:3000/api/database/health') {
+  return new Request(url, {
+    headers: new Headers(),
+  }) as unknown as NextRequest;
+}
 
 // Mock migration functions
 vi.mock('@/lib/db/migrations', () => ({
@@ -86,7 +94,7 @@ describe('/api/database/health', () => {
 
   describe('GET request', () => {
     it('should return database health status', async () => {
-      const response = await GET();
+      const response = await GET(createMockRequest());
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -98,7 +106,7 @@ describe('/api/database/health', () => {
     });
 
     it('should return connection status', async () => {
-      const response = await GET();
+      const response = await GET(createMockRequest());
       const data = await response.json();
 
       expect(data.data.connection).toBeDefined();
@@ -107,7 +115,7 @@ describe('/api/database/health', () => {
     });
 
     it('should return database size information', async () => {
-      const response = await GET();
+      const response = await GET(createMockRequest());
       const data = await response.json();
 
       expect(data.data.database).toBeDefined();
@@ -119,7 +127,7 @@ describe('/api/database/health', () => {
     });
 
     it('should return performance metrics', async () => {
-      const response = await GET();
+      const response = await GET(createMockRequest());
       const data = await response.json();
 
       expect(data.data.performance).toBeDefined();
@@ -129,7 +137,7 @@ describe('/api/database/health', () => {
     });
 
     it('should return cache statistics', async () => {
-      const response = await GET();
+      const response = await GET(createMockRequest());
       const data = await response.json();
 
       expect(data.data.cache).toBeDefined();
@@ -140,7 +148,7 @@ describe('/api/database/health', () => {
     });
 
     it('should return recommendations', async () => {
-      const response = await GET();
+      const response = await GET(createMockRequest());
       const data = await response.json();
 
       expect(data.data.recommendations).toBeDefined();
@@ -163,7 +171,7 @@ describe('/api/database/health', () => {
         ],
       });
 
-      const response = await GET();
+      const response = await GET(createMockRequest());
       const data = await response.json();
 
       expect(data.data.details).toBeDefined();
@@ -179,7 +187,7 @@ describe('/api/database/health', () => {
         totalSize: 1024000,
       });
 
-      const response = await GET();
+      const response = await GET(createMockRequest());
       const data = await response.json();
 
       expect(data.data.cache.hitRatePercent).toBe(85.0);
@@ -191,7 +199,7 @@ describe('/api/database/health', () => {
         totalSize: 2048000,
       });
 
-      const response = await GET();
+      const response = await GET(createMockRequest());
       const data = await response.json();
 
       expect(data.data.cache.totalSizeMB).toBeCloseTo(1.95, 2);
@@ -203,7 +211,7 @@ describe('/api/database/health', () => {
         totalSize: 0,
       });
 
-      const response = await GET();
+      const response = await GET(createMockRequest());
       const data = await response.json();
 
       expect(data.data.cache.status).toBe('good');
@@ -215,7 +223,7 @@ describe('/api/database/health', () => {
         totalSize: 0,
       });
 
-      const response = await GET();
+      const response = await GET(createMockRequest());
       const data = await response.json();
 
       expect(data.data.cache.status).toBe('fair');
@@ -227,7 +235,7 @@ describe('/api/database/health', () => {
         totalSize: 0,
       });
 
-      const response = await GET();
+      const response = await GET(createMockRequest());
       const data = await response.json();
 
       expect(data.data.cache.status).toBe('poor');
@@ -253,7 +261,7 @@ describe('/api/database/health', () => {
         totalSize: 0,
       });
 
-      const response = await GET();
+      const response = await GET(createMockRequest());
       const data = await response.json();
 
       expect(data.data.health).toBe('healthy');
@@ -280,7 +288,7 @@ describe('/api/database/health', () => {
         totalSize: 0,
       });
 
-      const response = await GET();
+      const response = await GET(createMockRequest());
       const data = await response.json();
 
       expect(data.data.health).toBe('degraded');
@@ -308,7 +316,7 @@ describe('/api/database/health', () => {
         totalSize: 0,
       });
 
-      const response = await GET();
+      const response = await GET(createMockRequest());
       const data = await response.json();
 
       expect(data.data.health).toBe('unhealthy');
@@ -338,7 +346,7 @@ describe('/api/database/health', () => {
         totalSize: 0,
       });
 
-      const response = await GET();
+      const response = await GET(createMockRequest());
       const data = await response.json();
 
       expect(data.data.recommendations.some((r: string) => r.includes('慢查询'))).toBe(true);
@@ -367,7 +375,7 @@ describe('/api/database/health', () => {
         totalSize: 0,
       });
 
-      const response = await GET();
+      const response = await GET(createMockRequest());
       const data = await response.json();
 
       expect(data.data.recommendations.some((r: string) => r.includes('缺失的索引'))).toBe(true);
@@ -381,7 +389,7 @@ describe('/api/database/health', () => {
         needsMigration: true,
       });
 
-      const response = await GET();
+      const response = await GET(createMockRequest());
       const data = await response.json();
 
       expect(data.data.recommendations.some((r: string) => r.includes('迁移'))).toBe(true);
@@ -393,7 +401,7 @@ describe('/api/database/health', () => {
         totalSize: 0,
       });
 
-      const response = await GET();
+      const response = await GET(createMockRequest());
       const data = await response.json();
 
       expect(data.data.recommendations.some((r: string) => r.includes('缓存命中率'))).toBe(true);
@@ -409,7 +417,7 @@ describe('/api/database/health', () => {
         isMemoryDatabase: false,
       });
 
-      const response = await GET();
+      const response = await GET(createMockRequest());
       const data = await response.json();
 
       expect(response.status).toBe(503);
@@ -426,7 +434,7 @@ describe('/api/database/health', () => {
         isMemoryDatabase: false,
       });
 
-      const response = await GET();
+      const response = await GET(createMockRequest());
       const data = await response.json();
 
       expect(response.status).toBe(503);
@@ -437,7 +445,7 @@ describe('/api/database/health', () => {
     it('should handle unexpected errors', async () => {
       (getDatabaseAsync as any).mockRejectedValue(new Error('Unexpected error'));
 
-      const response = await GET();
+      const response = await GET(createMockRequest());
       const data = await response.json();
 
       expect(response.status).toBe(500);

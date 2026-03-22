@@ -216,11 +216,11 @@ const Toast: React.FC<ToastProps> = ({ toast, onClose }) => {
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-gray-900 dark:text-white">
+          <p className="text-sm font-medium text-zinc-900 dark:text-white">
             {displayTitle}
           </p>
           {displayMessage && (
-            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
               {displayMessage}
             </p>
           )}
@@ -230,7 +230,7 @@ const Toast: React.FC<ToastProps> = ({ toast, onClose }) => {
         {toast.closable && (
           <button
             onClick={onClose}
-            className="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+            className="flex-shrink-0 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
             aria-label={t('success')}
           >
             <svg

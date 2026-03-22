@@ -1,7 +1,7 @@
 /**
  * @fileoverview AI 聊天组件 - 响应式优化版
  * @description 7zi Studio 的 AI 助手聊天窗口，针对移动端优化
- * 
+ *
  * 优化点:
  * 1. 小屏幕自动全屏
  * 2. 触摸目标尺寸优化
@@ -23,6 +23,7 @@ import {
   QuickActions,
   useChat,
 } from '../chat';
+import { isBelowBreakpoint } from '@/lib/utils/breakpoints';
 
 /**
  * 优化的 AI 聊天组件
@@ -55,12 +56,12 @@ export function AIChatOptimized() {
   // 在线成员数量
   const onlineCount = teamMembers.filter((m) => m.status === 'online').length;
 
-  // 检测屏幕尺寸决定是否全屏
+  // 检测屏幕尺寸决定是否全屏（使用统一断点工具）
   useEffect(() => {
     const checkFullscreen = () => {
-      setIsFullscreen(window.innerWidth < 480);
+      setIsFullscreen(isBelowBreakpoint('sm'));
     };
-    
+
     checkFullscreen();
     window.addEventListener('resize', checkFullscreen);
     return () => window.removeEventListener('resize', checkFullscreen);

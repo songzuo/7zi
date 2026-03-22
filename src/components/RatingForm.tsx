@@ -4,7 +4,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, memo } from 'react';
 import { StarRating } from './StarRating';
 import { CreateRatingDto } from '@/types/feedback';
 
@@ -18,7 +18,7 @@ interface RatingFormProps {
   isLoading?: boolean;
 }
 
-export const RatingForm: React.FC<RatingFormProps> = ({
+const RatingFormBase: React.FC<RatingFormProps> = ({
   targetType,
   targetId,
   targetName,
@@ -33,7 +33,7 @@ export const RatingForm: React.FC<RatingFormProps> = ({
   const [images, setImages] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const validFiles = files.filter(file => file.type.startsWith('image/'));
 
@@ -50,18 +50,18 @@ export const RatingForm: React.FC<RatingFormProps> = ({
 
     setImages(prev => [...prev, ...validFiles]);
     setPreviewImages(prev => [...prev, ...previews]);
-  };
+  }, [images.length]);
 
-  const handleRemoveImage = (index: number) => {
+  const handleRemoveImage = useCallback((index: number) => {
     setImages(prev => prev.filter((_, i) => i !== index));
     setPreviewImages(prev => {
       const newPreviews = [...prev];
       URL.revokeObjectURL(newPreviews[index]);
       return newPreviews.filter((_, i) => i !== index);
     });
-  };
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (rating < 1 || rating > 5) {
@@ -82,7 +82,7 @@ export const RatingForm: React.FC<RatingFormProps> = ({
 
     // Clean up preview URLs
     previewImages.forEach(url => URL.revokeObjectURL(url));
-  };
+  }, [rating, targetType, targetId, title, description, images, onSubmit, previewImages]);
 
   const targetLabels: Record<typeof targetType, string> = {
     agent: '智能体',
@@ -104,7 +104,7 @@ export const RatingForm: React.FC<RatingFormProps> = ({
 
       {/* Rating */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
           您的评分 <span className="text-red-500">*</span>
         </label>
         <StarRating
@@ -119,7 +119,7 @@ export const RatingForm: React.FC<RatingFormProps> = ({
       <div>
         <label
           htmlFor="rating-title"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
         >
           标题（可选）
         </label>
@@ -129,11 +129,11 @@ export const RatingForm: React.FC<RatingFormProps> = ({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="简要总结您的评价..."
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-white transition-all"
+          className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:text-white transition-all"
           maxLength={100}
         />
         <div className="flex justify-between mt-1">
-          <span className="text-xs text-gray-500 dark:text-gray-400">
+          <span className="text-xs text-zinc-500 dark:text-zinc-400">
             {title.length}/100
           </span>
         </div>
@@ -143,7 +143,7 @@ export const RatingForm: React.FC<RatingFormProps> = ({
       <div>
         <label
           htmlFor="rating-description"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
         >
           详细评价（可选）
         </label>
@@ -153,11 +153,11 @@ export const RatingForm: React.FC<RatingFormProps> = ({
           onChange={(e) => setDescription(e.target.value)}
           placeholder="分享您的使用体验..."
           rows={4}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-white resize-none transition-all"
+          className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:text-white resize-none transition-all"
           maxLength={1000}
         />
         <div className="flex justify-between mt-1">
-          <span className="text-xs text-gray-500 dark:text-gray-400">
+          <span className="text-xs text-zinc-500 dark:text-zinc-400">
             {description.length}/1000
           </span>
         </div>
@@ -165,10 +165,10 @@ export const RatingForm: React.FC<RatingFormProps> = ({
 
       {/* Image Upload */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
           图片上传（可选）
         </label>
-        <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4">
+        <div className="border-2 border-dashed border-zinc-300 dark:border-zinc-600 rounded-lg p-4">
           <input
             type="file"
             id="rating-images"
@@ -182,7 +182,7 @@ export const RatingForm: React.FC<RatingFormProps> = ({
             className="flex flex-col items-center justify-center cursor-pointer"
           >
             <svg
-              className="w-12 h-12 text-gray-400"
+              className="w-12 h-12 text-zinc-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -194,10 +194,10 @@ export const RatingForm: React.FC<RatingFormProps> = ({
                 d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
               />
             </svg>
-            <span className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            <span className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
               点击或拖拽上传图片
             </span>
-            <span className="text-xs text-gray-500 dark:text-gray-500">
+            <span className="text-xs text-zinc-500 dark:text-zinc-500">
               最多上传5张，每张不超过5MB
             </span>
           </label>
@@ -211,7 +211,7 @@ export const RatingForm: React.FC<RatingFormProps> = ({
                 <img
                   src={preview}
                   alt={`Preview ${index + 1}`}
-                  className="w-full h-24 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                  className="w-full h-24 object-cover rounded-lg border border-zinc-200 dark:border-zinc-700"
                 />
                 <button
                   type="button"
@@ -235,7 +235,7 @@ export const RatingForm: React.FC<RatingFormProps> = ({
             type="button"
             onClick={onCancel}
             disabled={isLoading}
-            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             取消
           </button>
@@ -336,7 +336,7 @@ export const RatingDisplay: React.FC<RatingDisplayProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+    <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-4">
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1">
           {/* Header */}
@@ -352,21 +352,21 @@ export const RatingDisplay: React.FC<RatingDisplayProps> = ({
                 ✓ 已验证用户
               </span>
             )}
-            <span className="text-xs text-gray-500 dark:text-gray-400">
+            <span className="text-xs text-zinc-500 dark:text-zinc-400">
               {formatDate(rating.created_at)}
             </span>
           </div>
 
           {/* Title */}
           {rating.title && (
-            <h4 className="text-base font-semibold text-gray-900 dark:text-white mb-2">
+            <h4 className="text-base font-semibold text-zinc-900 dark:text-white mb-2">
               {rating.title}
             </h4>
           )}
 
           {/* Description */}
           {rating.description && (
-            <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap mb-3">
+            <p className="text-sm text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap mb-3">
               {rating.description}
             </p>
           )}
@@ -385,7 +385,7 @@ export const RatingDisplay: React.FC<RatingDisplayProps> = ({
                   ${
                     isHelpful === true
                       ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                      : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                      : 'bg-zinc-100 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-600'
                   }
                   disabled:opacity-50 disabled:cursor-not-allowed
                 `}
@@ -404,7 +404,7 @@ export const RatingDisplay: React.FC<RatingDisplayProps> = ({
                   ${
                     isHelpful === false
                       ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-                      : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                      : 'bg-zinc-100 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-600'
                   }
                   disabled:opacity-50 disabled:cursor-not-allowed
                 `}
@@ -421,5 +421,17 @@ export const RatingDisplay: React.FC<RatingDisplayProps> = ({
     </div>
   );
 };
+
+// 使用 React.memo 优化 RatingForm，避免不必要的重渲染
+export const RatingForm = memo(RatingFormBase, (prevProps, nextProps) => {
+  return (
+    prevProps.targetId === nextProps.targetId &&
+    prevProps.targetType === nextProps.targetType &&
+    prevProps.targetName === nextProps.targetName &&
+    prevProps.isLoading === nextProps.isLoading
+  );
+});
+
+RatingForm.displayName = 'RatingForm';
 
 export default RatingForm;

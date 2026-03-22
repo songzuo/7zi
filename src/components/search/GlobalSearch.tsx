@@ -279,7 +279,7 @@ export function GlobalSearch({
       case 'agent':
         return 'text-orange-600 dark:text-orange-400';
       default:
-        return 'text-gray-600 dark:text-gray-400';
+        return 'text-zinc-600 dark:text-zinc-400';
     }
   };
 
@@ -287,8 +287,8 @@ export function GlobalSearch({
     <div ref={searchRef} className={`relative ${className}`}>
       {/* Search Input */}
       <div className="relative">
-        <div className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent transition-all">
-          <Search className="w-5 h-5 text-gray-400 ml-3 flex-shrink-0" />
+        <div className="flex items-center gap-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent transition-all">
+          <Search className="w-5 h-5 text-zinc-400 ml-3 flex-shrink-0" />
 
           <input
             ref={inputRef}
@@ -298,13 +298,13 @@ export function GlobalSearch({
             onFocus={() => setIsOpen(true)}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
-            className="flex-1 px-3 py-3 bg-transparent outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500"
+            className="flex-1 px-3 py-3 bg-transparent outline-none text-zinc-900 dark:text-zinc-100 placeholder-gray-500"
           />
 
           {query && (
             <button
               onClick={clearSearch}
-              className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              className="p-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -313,7 +313,7 @@ export function GlobalSearch({
           {showFilters && (
             <button
               onClick={() => setShowAdvanced(!showAdvanced)}
-              className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors border-l border-gray-300 dark:border-gray-600"
+              className="p-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors border-l border-zinc-300 dark:border-zinc-600"
             >
               <Filter className="w-5 h-5" />
             </button>
@@ -323,7 +323,7 @@ export function GlobalSearch({
           <select
             value={target}
             onChange={(e) => setTarget(e.target.value as 'all' | 'tasks' | 'projects' | 'members' | 'agents')}
-            className="px-3 py-3 bg-gray-100 dark:bg-gray-700 border-l border-gray-300 dark:border-gray-600 outline-none text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer"
+            className="px-3 py-3 bg-zinc-100 dark:bg-zinc-700 border-l border-zinc-300 dark:border-zinc-600 outline-none text-sm font-medium text-zinc-700 dark:text-zinc-300 cursor-pointer"
           >
             <option value="all">All</option>
             <option value="tasks">Tasks</option>
@@ -335,13 +335,13 @@ export function GlobalSearch({
 
         {/* Advanced Filters */}
         {showAdvanced && (
-          <div className="mt-2 p-4 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg">
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+          <div className="mt-2 p-4 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg">
+            <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-3">
               Advanced Filters
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">
+                <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1">
                   Status
                 </label>
                 <select
@@ -352,7 +352,7 @@ export function GlobalSearch({
                       status: e.target.value ? [e.target.value] : [],
                     }))
                   }
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-transparent outline-none"
+                  className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-transparent outline-none"
                 >
                   <option value="">All</option>
                   <option value="open">Open</option>
@@ -362,7 +362,7 @@ export function GlobalSearch({
               </div>
 
               <div>
-                <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">
+                <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1">
                   Priority
                 </label>
                 <select
@@ -373,7 +373,7 @@ export function GlobalSearch({
                       priority: e.target.value ? [e.target.value] : [],
                     }))
                   }
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-transparent outline-none"
+                  className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-transparent outline-none"
                 >
                   <option value="">All</option>
                   <option value="high">High</option>
@@ -383,7 +383,7 @@ export function GlobalSearch({
               </div>
 
               <div>
-                <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">
+                <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1">
                   Assignee
                 </label>
                 <input
@@ -396,7 +396,7 @@ export function GlobalSearch({
                     }))
                   }
                   placeholder="Filter by assignee"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-transparent outline-none"
+                  className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-transparent outline-none"
                 />
               </div>
             </div>
@@ -406,21 +406,21 @@ export function GlobalSearch({
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-xl z-50 max-h-[500px] overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg shadow-xl z-50 max-h-[500px] overflow-y-auto">
           {/* Suggestions */}
           {query.trim() && suggestions.length > 0 && (
-            <div className="p-2 border-b border-gray-200 dark:border-gray-700">
-              <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+            <div className="p-2 border-b border-zinc-200 dark:border-zinc-700">
+              <div className="px-3 py-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                 Suggestions
               </div>
               {suggestions.map((suggestion, index) => (
                 <button
                   key={index}
                   onClick={() => handleSelectResult(suggestion as unknown as SearchResultItem)}
-                  className="w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md flex items-center gap-3 transition-colors"
+                  className="w-full px-3 py-2 text-left hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg flex items-center gap-3 transition-colors"
                 >
                   {suggestion.type === 'history' && (
-                    <Clock className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                    <Clock className="w-4 h-4 text-zinc-400 flex-shrink-0" />
                   )}
                   {suggestion.type === 'entity' && (
                     <span className="text-lg flex-shrink-0">
@@ -442,8 +442,8 @@ export function GlobalSearch({
 
           {/* History */}
           {!query.trim() && showHistory && history.length > 0 && (
-            <div className="p-2 border-b border-gray-200 dark:border-gray-700">
-              <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-2">
+            <div className="p-2 border-b border-zinc-200 dark:border-zinc-700">
+              <div className="px-3 py-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider flex items-center gap-2">
                 <Clock className="w-4 h-4" />
                 Recent Searches
               </div>
@@ -451,13 +451,13 @@ export function GlobalSearch({
                 <button
                   key={index}
                   onClick={() => handleSelectHistory(entry)}
-                  className="w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md flex items-center gap-3 transition-colors"
+                  className="w-full px-3 py-2 text-left hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg flex items-center gap-3 transition-colors"
                 >
-                  <Clock className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                  <span className="flex-1 truncate text-gray-700 dark:text-gray-300">
+                  <Clock className="w-4 h-4 text-zinc-400 flex-shrink-0" />
+                  <span className="flex-1 truncate text-zinc-700 dark:text-zinc-300">
                     {entry.query}
                   </span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-zinc-500">
                     {entry.resultCount} results
                   </span>
                 </button>
@@ -468,7 +468,7 @@ export function GlobalSearch({
           {/* Results */}
           {query.trim() && results.length > 0 && (
             <div className="p-2">
-              <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center justify-between">
+              <div className="px-3 py-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider flex items-center justify-between">
                 <span>Results</span>
                 {isLoading && <span className="text-blue-500">Loading...</span>}
               </div>
@@ -476,7 +476,7 @@ export function GlobalSearch({
                 <button
                   key={index}
                   onClick={() => handleSelectResult(result)}
-                  className="w-full px-3 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors border-b border-gray-100 dark:border-gray-700 last:border-0"
+                  className="w-full px-3 py-3 text-left hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg transition-colors border-b border-zinc-100 dark:border-zinc-700 last:border-0"
                 >
                   <div className="flex items-start gap-3">
                     <span className="text-lg flex-shrink-0 mt-0.5">
@@ -484,7 +484,7 @@ export function GlobalSearch({
                     </span>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="font-medium text-gray-900 dark:text-gray-100 truncate">
+                        <span className="font-medium text-zinc-900 dark:text-zinc-100 truncate">
                           {result.entity?.name}
                         </span>
                         {result.entity?.type && (
@@ -494,7 +494,7 @@ export function GlobalSearch({
                         )}
                       </div>
                       {result.entity?.description && (
-                        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                        <p className="text-sm text-zinc-600 dark:text-zinc-400 line-clamp-2">
                           {result.entity.description}
                         </p>
                       )}
@@ -507,8 +507,8 @@ export function GlobalSearch({
 
           {/* No results */}
           {query.trim() && !isLoading && results.length === 0 && suggestions.length === 0 && (
-            <div className="p-8 text-center text-gray-500 dark:text-gray-400">
-              <Search className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
+            <div className="p-8 text-center text-zinc-500 dark:text-zinc-400">
+              <Search className="w-12 h-12 mx-auto mb-3 text-zinc-300 dark:text-zinc-600" />
               <p>No results found for "{query}"</p>
               <p className="text-sm mt-1">Try different keywords or filters</p>
             </div>
@@ -516,8 +516,8 @@ export function GlobalSearch({
 
           {/* Loading */}
           {isLoading && results.length === 0 && (
-            <div className="p-8 text-center text-gray-500 dark:text-gray-400">
-              <div className="inline-block w-8 h-8 border-2 border-gray-300 dark:border-gray-600 border-t-blue-500 rounded-full animate-spin" />
+            <div className="p-8 text-center text-zinc-500 dark:text-zinc-400">
+              <div className="inline-block w-8 h-8 border-2 border-zinc-300 dark:border-zinc-600 border-t-blue-500 rounded-full animate-spin" />
               <p className="mt-3">Searching...</p>
             </div>
           )}

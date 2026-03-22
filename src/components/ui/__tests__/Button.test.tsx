@@ -28,19 +28,19 @@ describe('Button Component', () => {
 
     it('applies secondary variant', () => {
       render(<Button variant="secondary">Secondary</Button>);
-      expect(screen.getByRole('button')).toHaveClass('bg-gray-600');
+      expect(screen.getByRole('button')).toHaveClass('bg-zinc-600');
     });
 
     it('applies outline variant', () => {
       render(<Button variant="outline">Outline</Button>);
       const button = screen.getByRole('button');
       expect(button).toHaveClass('border-2');
-      expect(button).toHaveClass('border-gray-300');
+      expect(button).toHaveClass('border-zinc-300');
     });
 
     it('applies ghost variant', () => {
       render(<Button variant="ghost">Ghost</Button>);
-      expect(screen.getByRole('button')).toHaveClass('hover:bg-gray-100');
+      expect(screen.getByRole('button')).toHaveClass('hover:bg-zinc-100');
     });
 
     it('applies danger variant', () => {
@@ -202,7 +202,7 @@ describe('Button Component', () => {
     it('applies dark mode classes', () => {
       render(<Button variant="outline">Button</Button>);
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('dark:border-gray-600');
+      expect(button).toHaveClass('dark:border-zinc-600');
     });
   });
 });

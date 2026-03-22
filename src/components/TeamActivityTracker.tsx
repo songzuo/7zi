@@ -96,7 +96,7 @@ const activityConfig: Record<ActivityType, { icon: string; label: string; color:
   review: { icon: '👀', label: '代码审查', color: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
   deploy: { icon: '🚀', label: '部署', color: 'bg-orange-50 text-orange-700 border-orange-200' },
   task_assigned: { icon: '📌', label: '任务分配', color: 'bg-cyan-50 text-cyan-700 border-cyan-200' },
-  status_change: { icon: '🔄', label: '状态变更', color: 'bg-gray-50 text-gray-700 border-gray-200' }
+  status_change: { icon: '🔄', label: '状态变更', color: 'bg-zinc-50 text-zinc-700 border-zinc-200' }
 };
 
 // ============================================================================
@@ -297,7 +297,7 @@ export const TeamActivityTracker: React.FC<TeamActivityTrackerProps> = memo(({
     <div className={`space-y-4 ${className}`}>
       {/* 头部 */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+        <h2 className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
           📊 {t.title}
         </h2>
         <div className="flex items-center gap-2">
@@ -307,7 +307,7 @@ export const TeamActivityTracker: React.FC<TeamActivityTrackerProps> = memo(({
               className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
                 showFilterPanel || filter.types.length > 0 || filter.members.length > 0
                   ? 'bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-300'
-                  : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 dark:bg-zinc-800 dark:border-zinc-700 dark:text-gray-300'
+                  : 'bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-50 dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-300'
               }`}
             >
               🔍 {t.filter}
@@ -320,7 +320,7 @@ export const TeamActivityTracker: React.FC<TeamActivityTrackerProps> = memo(({
           )}
           <button
             onClick={() => {/* 导出功能 */}}
-            className="px-3 py-1.5 text-sm rounded-lg border bg-white border-gray-200 text-gray-700 hover:bg-gray-50 dark:bg-zinc-800 dark:border-zinc-700 dark:text-gray-300"
+            className="px-3 py-1.5 text-sm rounded-lg border bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-50 dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-300"
           >
             📤 {t.export}
           </button>
@@ -329,10 +329,10 @@ export const TeamActivityTracker: React.FC<TeamActivityTrackerProps> = memo(({
 
       {/* 过滤面板 */}
       {showFilterPanel && showFilters && (
-        <div className="bg-white dark:bg-zinc-800 rounded-lg border border-gray-200 dark:border-zinc-700 p-4 space-y-4">
+        <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-4 space-y-4">
           {/* 类型过滤 */}
           <div>
-            <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t.allTypes}</p>
+            <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">{t.allTypes}</p>
             <div className="flex flex-wrap gap-2">
               {(Object.keys(activityConfig) as ActivityType[]).map(type => (
                 <button
@@ -341,7 +341,7 @@ export const TeamActivityTracker: React.FC<TeamActivityTrackerProps> = memo(({
                   className={`px-2 py-1 text-xs rounded border transition-all ${
                     filter.types.includes(type)
                       ? 'ring-2 ring-blue-500 ring-offset-1'
-                      : 'hover:bg-gray-50 dark:hover:bg-zinc-700'
+                      : 'hover:bg-zinc-50 dark:hover:bg-zinc-700'
                   } ${activityConfig[type].color}`}
                 >
                   {activityConfig[type].icon} {activityConfig[type].label}
@@ -352,7 +352,7 @@ export const TeamActivityTracker: React.FC<TeamActivityTrackerProps> = memo(({
 
           {/* 成员过滤 */}
           <div>
-            <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t.allMembers}</p>
+            <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">{t.allMembers}</p>
             <div className="flex flex-wrap gap-2">
               {stats.map(member => (
                 <button
@@ -361,7 +361,7 @@ export const TeamActivityTracker: React.FC<TeamActivityTrackerProps> = memo(({
                   className={`px-2 py-1 text-xs rounded border transition-all ${
                     filter.members.includes(member.memberId)
                       ? 'bg-blue-50 border-blue-300 text-blue-700 dark:bg-blue-900/30 dark:border-blue-700 dark:text-blue-300'
-                      : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100 dark:bg-zinc-700 dark:border-zinc-600 dark:text-gray-300'
+                      : 'bg-zinc-50 border-zinc-200 text-zinc-700 hover:bg-zinc-100 dark:bg-zinc-700 dark:border-zinc-600 dark:text-zinc-300'
                   }`}
                 >
                   {member.memberName} ({member.totalActivities})
@@ -386,22 +386,22 @@ export const TeamActivityTracker: React.FC<TeamActivityTrackerProps> = memo(({
         {/* 统计面板 */}
         {showStats && (
           <div className="lg:col-span-1">
-            <div className="bg-white dark:bg-zinc-800 rounded-lg border border-gray-200 dark:border-zinc-700 p-4">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+            <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-4">
+              <h3 className="text-sm font-semibold text-zinc-900 dark:text-white mb-3 flex items-center gap-2">
                 📈 {t.stats}
               </h3>
               <div className="space-y-3">
                 {stats.slice(0, 5).map((member, index) => (
                   <div key={member.memberId} className="flex items-center gap-3">
-                    <span className="text-lg font-bold text-gray-400 w-5">#{index + 1}</span>
+                    <span className="text-lg font-bold text-zinc-400 w-5">#{index + 1}</span>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                        <span className="text-sm font-medium text-zinc-900 dark:text-white truncate">
                           {member.memberName}
                         </span>
-                        <span className="text-xs text-gray-500">({member.totalActivities})</span>
+                        <span className="text-xs text-zinc-500">({member.totalActivities})</span>
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
+                      <div className="flex items-center gap-2 text-xs text-zinc-500 mt-0.5">
                         {member.commits > 0 && <span>💻{member.commits}</span>}
                         {member.issuesClosed > 0 && <span>✅{member.issuesClosed}</span>}
                         {member.reviews > 0 && <span>👀{member.reviews}</span>}
@@ -416,17 +416,17 @@ export const TeamActivityTracker: React.FC<TeamActivityTrackerProps> = memo(({
 
         {/* 活动列表 */}
         <div className={showStats ? 'lg:col-span-3' : 'lg:col-span-4'}>
-          <div className="bg-white dark:bg-zinc-800 rounded-lg border border-gray-200 dark:border-zinc-700 overflow-hidden">
-            <div className="px-4 py-3 border-b border-gray-200 dark:border-zinc-700 bg-gradient-to-r from-zinc-50 to-white dark:from-zinc-800 dark:to-zinc-800">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+          <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 overflow-hidden">
+            <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-700 bg-gradient-to-r from-zinc-50 to-white dark:from-zinc-800 dark:to-zinc-800">
+              <h3 className="text-sm font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
                 ⚡ {t.recentActivities}
-                <span className="text-xs text-gray-500">({filteredActivities.length})</span>
+                <span className="text-xs text-zinc-500">({filteredActivities.length})</span>
               </h3>
             </div>
 
             <div className="divide-y divide-gray-100 dark:divide-zinc-700 max-h-[600px] overflow-y-auto">
               {filteredActivities.length === 0 ? (
-                <div className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                <div className="px-6 py-12 text-center text-zinc-500 dark:text-zinc-400">
                   <p className="text-lg mb-2">📭</p>
                   <p>{t.noActivities}</p>
                 </div>
@@ -475,7 +475,7 @@ const ActivityItem = memo<ActivityItemProps>(({ activity, config }) => {
   };
 
   return (
-    <div className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-zinc-700/50 transition-colors group">
+    <div className="px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-700/50 transition-colors group">
       <div className="flex items-start gap-3">
         {/* 头像 */}
         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-zinc-700 dark:to-zinc-600 flex items-center justify-center text-sm overflow-hidden">
@@ -496,21 +496,21 @@ const ActivityItem = memo<ActivityItemProps>(({ activity, config }) => {
             <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${config.color}`}>
               {config.icon} {config.label}
             </span>
-            <span className="text-xs text-gray-400">{formatTimeAgo(activity.timestamp)}</span>
+            <span className="text-xs text-zinc-400">{formatTimeAgo(activity.timestamp)}</span>
           </div>
 
-          <p className="text-sm text-gray-900 dark:text-white">
+          <p className="text-sm text-zinc-900 dark:text-white">
             <span className="font-medium">{activity.actor.name}</span>
             {' · '}
             {activity.title}
           </p>
 
           {activity.description && (
-            <p className="text-xs text-gray-500 mt-1">{activity.description}</p>
+            <p className="text-xs text-zinc-500 mt-1">{activity.description}</p>
           )}
 
           {activity.metadata && (
-            <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+            <div className="flex items-center gap-3 mt-2 text-xs text-zinc-500">
               {activity.metadata.filesChanged && (
                 <span>📁 {activity.metadata.filesChanged} 文件</span>
               )}

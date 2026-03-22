@@ -3,24 +3,25 @@
  * Tests for /api/users endpoint with search and pagination
  */
 
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import type { Mock } from 'vitest';
 import { GET, POST } from '../route';
 import { createUser, getAllUsers, getUserByEmail } from '@/lib/auth/repository';
 import { UserStatus, UserRole } from '@/lib/auth/types';
 import { NextRequest } from 'next/server';
 
 // Mock dependencies
-jest.mock('@/lib/auth/repository');
-jest.mock('@/lib/db/audit-log');
-jest.mock('@/lib/logger');
+vi.mock('@/lib/auth/repository');
+vi.mock('@/lib/db/audit-log');
+vi.mock('@/lib/logger');
 
 describe('User Management API - /api/users', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe('GET /api/users - List users with search and pagination', () => {
@@ -48,7 +49,7 @@ describe('User Management API - /api/users', () => {
         },
       ];
 
-      (getAllUsers as jest.Mock).mockResolvedValue(mockUsers);
+      (getAllUsers as Mock).mockResolvedValue(mockUsers);
 
       const request = new NextRequest(
         'http://localhost:3000/api/users?page=1&limit=10'
@@ -86,7 +87,7 @@ describe('User Management API - /api/users', () => {
         },
       ];
 
-      (getAllUsers as jest.Mock).mockResolvedValue(mockUsers);
+      (getAllUsers as Mock).mockResolvedValue(mockUsers);
 
       const request = new NextRequest(
         'http://localhost:3000/api/users?search=john'
@@ -121,7 +122,7 @@ describe('User Management API - /api/users', () => {
         },
       ];
 
-      (getAllUsers as jest.Mock).mockResolvedValue([mockUsers[0]]);
+      (getAllUsers as Mock).mockResolvedValue([mockUsers[0]]);
 
       const request = new NextRequest(
         'http://localhost:3000/api/users?status=active'
@@ -147,7 +148,7 @@ describe('User Management API - /api/users', () => {
         },
       ];
 
-      (getAllUsers as jest.Mock).mockResolvedValue(mockUsers);
+      (getAllUsers as Mock).mockResolvedValue(mockUsers);
 
       const request = new NextRequest(
         'http://localhost:3000/api/users?role=admin'
@@ -220,7 +221,7 @@ describe('User Management API - /api/users', () => {
         },
       ];
 
-      (getAllUsers as jest.Mock).mockResolvedValue(mockUsers);
+      (getAllUsers as Mock).mockResolvedValue(mockUsers);
 
       const request = new NextRequest(
         'http://localhost:3000/api/users?sort_by=name&sort_order=asc'
@@ -251,8 +252,8 @@ describe('User Management API - /api/users', () => {
         updatedAt: new Date(),
       };
 
-      (getUserByEmail as jest.Mock).mockResolvedValue(null);
-      (createUser as jest.Mock).mockResolvedValue(mockCreatedUser);
+      (getUserByEmail as Mock).mockResolvedValue(null);
+      (createUser as Mock).mockResolvedValue(mockCreatedUser);
 
       const request = new NextRequest('http://localhost:3000/api/users', {
         method: 'POST',
@@ -337,7 +338,7 @@ describe('User Management API - /api/users', () => {
         updatedAt: new Date(),
       };
 
-      (getUserByEmail as jest.Mock).mockResolvedValue(existingUser);
+      (getUserByEmail as Mock).mockResolvedValue(existingUser);
 
       const request = new NextRequest('http://localhost:3000/api/users', {
         method: 'POST',
@@ -357,7 +358,7 @@ describe('User Management API - /api/users', () => {
     });
 
     it('should validate role if provided', async () => {
-      (getUserByEmail as jest.Mock).mockResolvedValue(null);
+      (getUserByEmail as Mock).mockResolvedValue(null);
 
       const request = new NextRequest('http://localhost:3000/api/users', {
         method: 'POST',

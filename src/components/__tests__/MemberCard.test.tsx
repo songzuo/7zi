@@ -151,7 +151,7 @@ describe('MemberCard', () => {
         <MemberCard member={mockMember} isSelectionMode isSelected={false} />
       );
 
-      const checkbox = container.querySelector('.border-gray-300');
+      const checkbox = container.querySelector('.border-zinc-300');
       expect(checkbox).toBeInTheDocument();
     });
 
@@ -281,7 +281,7 @@ describe('MemberCard', () => {
       const idleMember = { ...mockMember, status: 'idle' as const };
       const { container } = render(<MemberCard member={idleMember} />);
 
-      const statusDot = container.querySelector('.bg-gray-400');
+      const statusDot = container.querySelector('.bg-zinc-400');
       expect(statusDot).toBeInTheDocument();
     });
 
@@ -289,7 +289,7 @@ describe('MemberCard', () => {
       const offlineMember = { ...mockMember, status: 'offline' as const };
       const { container } = render(<MemberCard member={offlineMember} />);
 
-      const statusDot = container.querySelector('.bg-gray-300');
+      const statusDot = container.querySelector('.bg-zinc-300');
       expect(statusDot).toBeInTheDocument();
     });
   });

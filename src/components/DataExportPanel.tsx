@@ -173,7 +173,7 @@ export function DataExportPanel() {
     <Card className="p-6 space-y-6">
       <div>
         <h3 className="text-lg font-semibold mb-2">Data Export & Backup</h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">
           Export your data or create a full database backup for safekeeping.
         </p>
       </div>
@@ -224,12 +224,12 @@ export function DataExportPanel() {
 
       {/* Filters for Tasks */}
       {exportType === 'tasks' && (
-        <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+        <div className="space-y-4 p-4 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
           <h4 className="text-sm font-medium">Filters (Optional)</h4>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs text-gray-600 dark:text-gray-400">Status</label>
+              <label className="text-xs text-zinc-600 dark:text-zinc-400">Status</label>
               <Select
                 value={filters.status}
                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFilters({ ...filters, status: e.target.value })}
@@ -244,7 +244,7 @@ export function DataExportPanel() {
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs text-gray-600 dark:text-gray-400">Priority</label>
+              <label className="text-xs text-zinc-600 dark:text-zinc-400">Priority</label>
               <Select
                 value={filters.priority}
                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFilters({ ...filters, priority: e.target.value })}
@@ -259,7 +259,7 @@ export function DataExportPanel() {
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs text-gray-600 dark:text-gray-400">Assignee</label>
+              <label className="text-xs text-zinc-600 dark:text-zinc-400">Assignee</label>
               <Input
                 type="text"
                 value={filters.assignee}
@@ -270,7 +270,7 @@ export function DataExportPanel() {
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs text-gray-600 dark:text-gray-400">Tags</label>
+              <label className="text-xs text-zinc-600 dark:text-zinc-400">Tags</label>
               <Input
                 type="text"
                 value={filters.tags}
@@ -281,7 +281,7 @@ export function DataExportPanel() {
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs text-gray-600 dark:text-gray-400">Start Date</label>
+              <label className="text-xs text-zinc-600 dark:text-zinc-400">Start Date</label>
               <Input
                 type="date"
                 value={filters.startDate}
@@ -291,7 +291,7 @@ export function DataExportPanel() {
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs text-gray-600 dark:text-gray-400">End Date</label>
+              <label className="text-xs text-zinc-600 dark:text-zinc-400">End Date</label>
               <Input
                 type="date"
                 value={filters.endDate}
@@ -305,11 +305,11 @@ export function DataExportPanel() {
 
       {/* Filters for Projects */}
       {exportType === 'projects' && (
-        <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+        <div className="space-y-4 p-4 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
           <h4 className="text-sm font-medium">Filters (Optional)</h4>
 
           <div className="space-y-1">
-            <label className="text-xs text-gray-600 dark:text-gray-400">Category</label>
+            <label className="text-xs text-zinc-600 dark:text-zinc-400">Category</label>
             <Select
               value={filters.category}
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFilters({ ...filters, category: e.target.value })}
@@ -330,11 +330,11 @@ export function DataExportPanel() {
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
             <span className="font-medium">{progress.status}</span>
-            <span className="text-gray-600 dark:text-gray-400">
+            <span className="text-zinc-600 dark:text-zinc-400">
               {progress.progress}%
             </span>
           </div>
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+          <div className="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-2">
             <div
               className="bg-blue-600 h-2 rounded-full transition-all duration-300"
               style={{ width: `${progress.progress}%` }}

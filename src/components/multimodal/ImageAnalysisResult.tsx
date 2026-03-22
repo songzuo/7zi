@@ -17,30 +17,30 @@ export function ImageAnalysisResult({ data, className = '' }: ImageAnalysisResul
   const t = useTranslations('multimodal');
 
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 ${className}`}>
-      <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+    <div className={`bg-white dark:bg-zinc-800 rounded-lg shadow-md p-6 ${className}`}>
+      <h3 className="text-lg font-semibold mb-4 text-zinc-900 dark:text-white">
         {t('analysisResults')}
       </h3>
 
       {/* Detected Objects */}
       {data.objects && data.objects.length > 0 && (
         <div className="mb-6">
-          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+          <h4 className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
             {t('detectedObjects')}
           </h4>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {data.objects.map((obj, index) => (
               <div
                 key={index}
-                className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 border border-gray-200 dark:border-gray-600"
+                className="bg-zinc-50 dark:bg-zinc-700 rounded-lg p-3 border border-zinc-200 dark:border-zinc-600"
               >
-                <div className="font-medium text-gray-900 dark:text-white text-sm">
+                <div className="font-medium text-zinc-900 dark:text-white text-sm">
                   {obj.label}
                 </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
                   {t('confidence')}: {(obj.confidence * 100).toFixed(1)}%
                 </div>
-                <div className="mt-2 bg-gray-200 dark:bg-gray-600 rounded-full h-2">
+                <div className="mt-2 bg-zinc-200 dark:bg-zinc-600 rounded-full h-2">
                   <div
                     className="bg-blue-500 h-2 rounded-full transition-all duration-300"
                     style={{ width: `${obj.confidence * 100}%` }}
@@ -55,11 +55,11 @@ export function ImageAnalysisResult({ data, className = '' }: ImageAnalysisResul
       {/* OCR Text */}
       {data.text && data.text.trim().length > 0 && (
         <div className="mb-6">
-          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+          <h4 className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
             {t('extractedText')}
           </h4>
-          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
-            <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
+          <div className="bg-zinc-50 dark:bg-zinc-700 rounded-lg p-4 border border-zinc-200 dark:border-zinc-600">
+            <p className="text-sm text-zinc-800 dark:text-zinc-200 whitespace-pre-wrap">
               {data.text}
             </p>
           </div>
@@ -69,7 +69,7 @@ export function ImageAnalysisResult({ data, className = '' }: ImageAnalysisResul
       {/* Tags */}
       {data.tags && data.tags.length > 0 && (
         <div className="mb-6">
-          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+          <h4 className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
             {t('tags')}
           </h4>
           <div className="flex flex-wrap gap-2">
@@ -86,16 +86,16 @@ export function ImageAnalysisResult({ data, className = '' }: ImageAnalysisResul
       )}
 
       {/* Overall Confidence */}
-      <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+      <div className="pt-4 border-t border-zinc-200 dark:border-zinc-700">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
             {t('overallConfidence')}
           </span>
-          <span className="text-sm font-semibold text-gray-900 dark:text-white">
+          <span className="text-sm font-semibold text-zinc-900 dark:text-white">
             {(data.confidence * 100).toFixed(1)}%
           </span>
         </div>
-        <div className="bg-gray-200 dark:bg-gray-600 rounded-full h-3">
+        <div className="bg-zinc-200 dark:bg-zinc-600 rounded-full h-3">
           <div
             className="bg-green-500 h-3 rounded-full transition-all duration-300"
             style={{ width: `${data.confidence * 100}%` }}
@@ -104,10 +104,10 @@ export function ImageAnalysisResult({ data, className = '' }: ImageAnalysisResul
       </div>
 
       {/* Actions */}
-      <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700 flex gap-3">
+      <div className="mt-6 pt-4 border-t border-zinc-200 dark:border-zinc-700 flex gap-3">
         <button
           onClick={() => navigator.clipboard.writeText(JSON.stringify(data, null, 2))}
-          className="flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+          className="flex-1 px-4 py-2 bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-lg text-sm font-medium hover:bg-zinc-200 dark:hover:bg-zinc-600 transition-colors"
         >
           {t('copyData')}
         </button>

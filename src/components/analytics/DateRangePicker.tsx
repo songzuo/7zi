@@ -99,16 +99,16 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
       {/* Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors min-w-[180px] justify-between"
+        className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors min-w-[180px] justify-between"
       >
         <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-          <span className="text-sm text-gray-700 dark:text-gray-300 truncate">
+          <Calendar className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
+          <span className="text-sm text-zinc-700 dark:text-zinc-300 truncate">
             {getSelectedLabel()}
           </span>
         </div>
         <ChevronDown
-          className={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform ${
+          className={`w-4 h-4 text-zinc-500 dark:text-zinc-400 transition-transform ${
             isOpen ? 'rotate-180' : ''
           }`}
         />
@@ -116,7 +116,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-72 bg-white dark:bg-zinc-800 rounded-lg shadow-xl border border-gray-200 dark:border-zinc-700 z-50">
+        <div className="absolute top-full left-0 mt-2 w-72 bg-white dark:bg-zinc-800 rounded-lg shadow-xl border border-zinc-200 dark:border-zinc-700 z-50">
           <div className="p-2">
             {/* Quick Selection */}
             <div className="space-y-1">
@@ -124,9 +124,9 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
                 <button
                   key={option.value}
                   onClick={() => handleSelect(option.value)}
-                  className="w-full flex items-center justify-between px-3 py-2 text-sm rounded-md transition-colors hover:bg-gray-100 dark:hover:bg-zinc-700"
+                  className="w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700"
                 >
-                  <span className="text-gray-700 dark:text-gray-300">
+                  <span className="text-zinc-700 dark:text-zinc-300">
                     {option.label[t]}
                   </span>
                   {selectedRange === option.value && (
@@ -138,32 +138,32 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 
             {/* Custom Range */}
             {tempRange === 'custom' && (
-              <div className="mt-3 pt-3 border-t border-gray-200 dark:border-zinc-700 space-y-3">
+              <div className="mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-700 space-y-3">
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                     {locale === 'zh' ? '开始日期' : 'Start Date'}
                   </label>
                   <input
                     type="date"
                     value={tempCustomRange.start}
                     onChange={(e) => setTempCustomRange({ ...tempCustomRange, start: e.target.value })}
-                    className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:text-white"
+                    className="w-full px-3 py-2 text-sm bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:text-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                     {locale === 'zh' ? '结束日期' : 'End Date'}
                   </label>
                   <input
                     type="date"
                     value={tempCustomRange.end}
                     onChange={(e) => setTempCustomRange({ ...tempCustomRange, end: e.target.value })}
-                    className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:text-white"
+                    className="w-full px-3 py-2 text-sm bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:text-white"
                   />
                 </div>
                 <button
                   onClick={handleCustomRangeApply}
-                  className="w-full px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
+                  className="w-full px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   {locale === 'zh' ? '应用' : 'Apply'}
                 </button>

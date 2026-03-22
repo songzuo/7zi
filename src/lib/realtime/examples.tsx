@@ -83,7 +83,7 @@ export function BasicWebSocketExample() {
         </button>
       </div>
       {lastMessage && (
-        <div className="mt-2 p-2 bg-gray-100 rounded">
+        <div className="mt-2 p-2 bg-zinc-100 rounded">
           <pre>{JSON.stringify(lastMessage, null, 2)}</pre>
         </div>
       )}
@@ -279,13 +279,13 @@ export function EnhancedWebSocketExample() {
         <button onClick={handleSend} disabled={!isConnected} className="px-2 py-1 bg-cyan-500 text-white rounded mr-2">
           发送消息
         </button>
-        <button onClick={handleShowOfflineQueue} className="px-2 py-1 bg-gray-500 text-white rounded">
+        <button onClick={handleShowOfflineQueue} className="px-2 py-1 bg-zinc-500 text-white rounded">
           查看离线队列
         </button>
       </div>
 
       {lastMessage && (
-        <div className="mt-2 p-2 bg-gray-100 rounded">
+        <div className="mt-2 p-2 bg-zinc-100 rounded">
           <h3 className="font-bold mb-1">最新消息:</h3>
           <pre className="text-xs">{JSON.stringify(lastMessage, null, 2)}</pre>
         </div>
@@ -406,7 +406,7 @@ export function NotificationServiceExample() {
       </div>
 
       {offlineQueue.length > 0 && (
-        <div className="mt-2 p-2 bg-gray-100 rounded">
+        <div className="mt-2 p-2 bg-zinc-100 rounded">
           <h3 className="font-bold mb-1">离线队列 ({offlineQueue.length}):</h3>
           <ul className="text-sm">
             {offlineQueue.map((entry, index) => (
@@ -438,25 +438,25 @@ export function WebSocketDashboard() {
       <div className="mb-4">
         <button
           onClick={() => setActiveTab('basic')}
-          className={`px-4 py-2 rounded mr-2 ${activeTab === 'basic' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+          className={`px-4 py-2 rounded mr-2 ${activeTab === 'basic' ? 'bg-blue-500 text-white' : 'bg-zinc-200'}`}
         >
           基础 WebSocket
         </button>
         <button
           onClick={() => setActiveTab('enhanced')}
-          className={`px-4 py-2 rounded mr-2 ${activeTab === 'enhanced' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+          className={`px-4 py-2 rounded mr-2 ${activeTab === 'enhanced' ? 'bg-blue-500 text-white' : 'bg-zinc-200'}`}
         >
           增强 WebSocket
         </button>
         <button
           onClick={() => setActiveTab('chat')}
-          className={`px-4 py-2 rounded mr-2 ${activeTab === 'chat' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+          className={`px-4 py-2 rounded mr-2 ${activeTab === 'chat' ? 'bg-blue-500 text-white' : 'bg-zinc-200'}`}
         >
           实时聊天
         </button>
         <button
           onClick={() => setActiveTab('notifications')}
-          className={`px-4 py-2 rounded ${activeTab === 'notifications' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+          className={`px-4 py-2 rounded ${activeTab === 'notifications' ? 'bg-blue-500 text-white' : 'bg-zinc-200'}`}
         >
           通知服务
         </button>

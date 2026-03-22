@@ -263,7 +263,7 @@ const ErrorPlaceholder: React.FC<ErrorPlaceholderProps> = memo(({
             px-3 py-1 text-xs
             bg-zinc-200 dark:bg-zinc-700
             hover:bg-zinc-300 dark:hover:bg-zinc-600
-            rounded-md transition-colors
+            rounded-lg transition-colors
           "
         >
           重试
@@ -313,7 +313,7 @@ export const LazyLoadImage: React.FC<LazyLoadImageProps> = memo(({
   const roundedClasses = useMemo(() => ({
     none: '',
     sm: 'rounded-sm',
-    md: 'rounded-md',
+    md: 'rounded-lg',
     lg: 'rounded-lg',
     xl: 'rounded-xl',
     full: 'rounded-full',

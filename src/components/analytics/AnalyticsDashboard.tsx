@@ -306,12 +306,12 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
             <Cpu className="w-6 h-6 text-purple-600" />
             {t.title}
           </h1>
           {lastUpdated && (
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
               {t.lastUpdated}: {lastUpdated.toLocaleString(locale === 'zh' ? 'zh-CN' : 'en-US')}
             </p>
           )}
@@ -329,49 +329,49 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           {/* Toggle Filters */}
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="p-2 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors"
+            className="p-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors"
             title={t.export}
           >
-            <Settings className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+            <Settings className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
           </button>
 
           {/* Refresh */}
           <button
             onClick={fetchData}
             disabled={loading}
-            className="p-2 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors disabled:opacity-50"
+            className="p-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors disabled:opacity-50"
             title={t.refresh}
           >
-            <RefreshCw className={`w-4 h-4 text-gray-500 dark:text-gray-400 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-4 h-4 text-zinc-500 dark:text-zinc-400 ${loading ? 'animate-spin' : ''}`} />
           </button>
 
           {/* Export */}
           <button
             onClick={() => handleExport('csv')}
-            className="p-2 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors"
+            className="p-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors"
             title={t.export}
           >
-            <Download className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+            <Download className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
           </button>
 
           {/* Save Layout */}
           <button
             onClick={saveLayout}
-            className="p-2 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors"
+            className="p-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors"
             title={t.saveLayout}
           >
-            <Save className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+            <Save className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
           </button>
 
           {/* Auto Refresh Toggle */}
-          <label className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg cursor-pointer">
+          <label className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg cursor-pointer">
             <input
               type="checkbox"
               checked={autoRefresh}
               onChange={(e) => setAutoRefresh(e.target.checked)}
-              className="w-4 h-4 rounded border-gray-300 dark:border-zinc-600 text-blue-600 focus:ring-blue-500"
+              className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-600 text-blue-600 focus:ring-blue-500"
             />
-            <span className="text-xs text-gray-600 dark:text-gray-400">{t.autoRefresh}</span>
+            <span className="text-xs text-zinc-600 dark:text-zinc-400">{t.autoRefresh}</span>
           </label>
         </div>
       </div>
@@ -397,7 +397,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                 {locale === 'zh' ? '加载失败' : 'Failed to Load'}
               </p>
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{error}</p>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">{error}</p>
             <button
               onClick={fetchData}
               className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
@@ -509,8 +509,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
 
       {/* Pagination Controls */}
       {pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between gap-4 p-4 bg-white dark:bg-zinc-800 rounded-lg border border-gray-200 dark:border-zinc-700">
-          <div className="text-sm text-gray-600 dark:text-gray-400">
+        <div className="flex items-center justify-between gap-4 p-4 bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700">
+          <div className="text-sm text-zinc-600 dark:text-zinc-400">
             {locale === 'zh' ? '第' : 'Page'} {pagination.page} {locale === 'zh' ? '页，共' : 'of'} {pagination.totalPages} {locale === 'zh' ? '页' : 'pages'}
             <span className="mx-2">•</span>
             {locale === 'zh' ? '总计' : 'Total'} {pagination.total} {locale === 'zh' ? '条记录' : 'records'}
@@ -519,7 +519,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
             <button
               onClick={() => setPagination(prev => ({ ...prev, page: Math.max(1, prev.page - 1) }))}
               disabled={pagination.page === 1}
-              className="px-3 py-1 bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed rounded text-sm text-gray-700 dark:text-gray-300 transition-colors"
+              className="px-3 py-1 bg-zinc-100 dark:bg-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed rounded text-sm text-zinc-700 dark:text-zinc-300 transition-colors"
             >
               {locale === 'zh' ? '上一页' : 'Previous'}
             </button>
@@ -529,7 +529,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
             <button
               onClick={() => setPagination(prev => ({ ...prev, page: Math.min(prev.totalPages, prev.page + 1) }))}
               disabled={pagination.page === pagination.totalPages}
-              className="px-3 py-1 bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed rounded text-sm text-gray-700 dark:text-gray-300 transition-colors"
+              className="px-3 py-1 bg-zinc-100 dark:bg-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed rounded text-sm text-zinc-700 dark:text-zinc-300 transition-colors"
             >
               {locale === 'zh' ? '下一页' : 'Next'}
             </button>
@@ -539,29 +539,29 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
 
       {/* Footer */}
       {metrics && (
-        <div className="mt-6 p-4 bg-gray-50 dark:bg-zinc-800/50 rounded-lg border border-gray-200 dark:border-zinc-700">
+        <div className="mt-6 p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg border border-zinc-200 dark:border-zinc-700">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
-              <p className="text-gray-500 dark:text-gray-400">{locale === 'zh' ? '任务完成率' : 'Task Completion Rate'}</p>
-              <p className="text-lg font-semibold text-gray-900 dark:text-white">
+              <p className="text-zinc-500 dark:text-zinc-400">{locale === 'zh' ? '任务完成率' : 'Task Completion Rate'}</p>
+              <p className="text-lg font-semibold text-zinc-900 dark:text-white">
                 {metrics.tasks.completionRate.toFixed(1)}%
               </p>
             </div>
             <div>
-              <p className="text-gray-500 dark:text-gray-400">{locale === 'zh' ? '系统正常运行时间' : 'System Uptime'}</p>
-              <p className="text-lg font-semibold text-gray-900 dark:text-white">
+              <p className="text-zinc-500 dark:text-zinc-400">{locale === 'zh' ? '系统正常运行时间' : 'System Uptime'}</p>
+              <p className="text-lg font-semibold text-zinc-900 dark:text-white">
                 {metrics.performance.uptime.toFixed(2)}%
               </p>
             </div>
             <div>
-              <p className="text-gray-500 dark:text-gray-400">{locale === 'zh' ? '缓存命中率' : 'Cache Hit Rate'}</p>
-              <p className="text-lg font-semibold text-gray-900 dark:text-white">
+              <p className="text-zinc-500 dark:text-zinc-400">{locale === 'zh' ? '缓存命中率' : 'Cache Hit Rate'}</p>
+              <p className="text-lg font-semibold text-zinc-900 dark:text-white">
                 {metrics.performance.cacheHitRate.toFixed(1)}%
               </p>
             </div>
             <div>
-              <p className="text-gray-500 dark:text-gray-400">{locale === 'zh' ? '错误率' : 'Error Rate'}</p>
-              <p className="text-lg font-semibold text-gray-900 dark:text-white">
+              <p className="text-zinc-500 dark:text-zinc-400">{locale === 'zh' ? '错误率' : 'Error Rate'}</p>
+              <p className="text-lg font-semibold text-zinc-900 dark:text-white">
                 {metrics.performance.errorRate.toFixed(2)}%
               </p>
             </div>

@@ -145,12 +145,12 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   };
 
   return (
-    <div className={`bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-700 ${className}`}>
+    <div className={`bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 ${className}`}>
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-zinc-700">
+      <div className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-700">
         <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+          <Filter className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
+          <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">
             {t === 'zh' ? '筛选' : 'Filters'}
           </h3>
           {getActiveFiltersCount() > 0 && (
@@ -164,19 +164,19 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           {getActiveFiltersCount() > 0 && (
             <button
               onClick={clearAllFilters}
-              className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+              className="text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"
             >
               {t === 'zh' ? '清除全部' : 'Clear All'}
             </button>
           )}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="p-1 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded transition-colors"
+            className="p-1 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded transition-colors"
           >
             {isOpen ? (
-              <ChevronUp className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              <ChevronUp className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
             ) : (
-              <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              <ChevronDown className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
             )}
           </button>
         </div>
@@ -190,10 +190,10 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
             const selectedValues = filters[section.id as keyof AnalyticsFilters] as string[] || [];
 
             return (
-              <div key={section.id} className="border-b border-gray-100 dark:border-zinc-700/50 last:border-0 pb-4 last:pb-0">
+              <div key={section.id} className="border-b border-zinc-100 dark:border-zinc-700/50 last:border-0 pb-4 last:pb-0">
                 <button
                   onClick={() => toggleSection(section.id)}
-                  className="w-full flex items-center justify-between text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                  className="w-full flex items-center justify-between text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white"
                 >
                   {sectionTitle}
                   {expandedSections[section.id] ? (
@@ -210,15 +210,15 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                       return (
                         <label
                           key={option.value}
-                          className="flex items-center gap-3 p-2 hover:bg-gray-50 dark:hover:bg-zinc-700/50 rounded-md cursor-pointer"
+                          className="flex items-center gap-3 p-2 hover:bg-zinc-50 dark:hover:bg-zinc-700/50 rounded-lg cursor-pointer"
                         >
                           <input
                             type="checkbox"
                             checked={isChecked}
                             onChange={() => handleCheckboxChange(section.id as keyof AnalyticsFilters, option.value)}
-                            className="w-4 h-4 rounded border-gray-300 dark:border-zinc-600 text-blue-600 focus:ring-blue-500"
+                            className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-600 text-blue-600 focus:ring-blue-500"
                           />
-                          <span className="text-sm text-gray-700 dark:text-gray-300">
+                          <span className="text-sm text-zinc-700 dark:text-zinc-300">
                             {option.label[t]}
                           </span>
                           {isChecked && (

@@ -185,7 +185,7 @@ export function ErrorDisplay({
   if (variant === 'fullscreen') {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-zinc-950 dark:to-zinc-900">
-        <div className="max-w-md w-full mx-4 p-8 bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl text-center">
+        <div className="max-w-md w-full mx-4 p-8 bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl text-center">
           {/* 错误图标 */}
           <div className={`w-20 h-20 mx-auto mb-6 bg-gradient-to-br ${errorStyle.bgColor} rounded-full flex items-center justify-center`}>
             <div className={`w-10 h-10 ${errorStyle.iconColor}`}>

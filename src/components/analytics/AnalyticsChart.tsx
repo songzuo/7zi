@@ -96,9 +96,9 @@ interface CustomTooltipProps {
 const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-gray-200 dark:border-zinc-700 p-3 min-w-[150px]">
+      <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-zinc-200 dark:border-zinc-700 p-3 min-w-[150px]">
         {label && (
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 font-medium">
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-2 font-medium">
             {label}
           </p>
         )}
@@ -108,8 +108,8 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
               className="w-2 h-2 rounded-full flex-shrink-0"
               style={{ backgroundColor: entry.color }}
             />
-            <span className="text-gray-600 dark:text-gray-300">{entry.name}:</span>
-            <span className="font-semibold text-gray-900 dark:text-white ml-auto">
+            <span className="text-zinc-600 dark:text-zinc-300">{entry.name}:</span>
+            <span className="font-semibold text-zinc-900 dark:text-white ml-auto">
               {entry.value.toLocaleString()}
             </span>
           </p>
@@ -135,7 +135,7 @@ const CustomLegend = ({ payload }: { payload?: Array<{ value: string; color: str
             className="w-3 h-3 rounded-full"
             style={{ backgroundColor: entry.color }}
           />
-          <span className="text-xs text-gray-600 dark:text-gray-400">
+          <span className="text-xs text-zinc-600 dark:text-zinc-400">
             {entry.value}
           </span>
         </div>
@@ -195,11 +195,11 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
             <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-zinc-700" />
             <XAxis
               dataKey="displayDate"
-              className="text-xs text-gray-500 dark:text-gray-400"
+              className="text-xs text-zinc-500 dark:text-zinc-400"
               tick={{ fontSize: 12 }}
             />
             <YAxis
-              className="text-xs text-gray-500 dark:text-gray-400"
+              className="text-xs text-zinc-500 dark:text-zinc-400"
               tickFormatter={(value) => formatValue(value, 'default')}
               tick={{ fontSize: 12 }}
             />
@@ -226,11 +226,11 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
             <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-zinc-700" />
             <XAxis
               dataKey="displayDate"
-              className="text-xs text-gray-500 dark:text-gray-400"
+              className="text-xs text-zinc-500 dark:text-zinc-400"
               tick={{ fontSize: 12 }}
             />
             <YAxis
-              className="text-xs text-gray-500 dark:text-gray-400"
+              className="text-xs text-zinc-500 dark:text-zinc-400"
               tickFormatter={(value) => formatValue(value, 'default')}
               tick={{ fontSize: 12 }}
             />
@@ -257,11 +257,11 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
             <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-zinc-700" />
             <XAxis
               dataKey="displayDate"
-              className="text-xs text-gray-500 dark:text-gray-400"
+              className="text-xs text-zinc-500 dark:text-zinc-400"
               tick={{ fontSize: 12 }}
             />
             <YAxis
-              className="text-xs text-gray-500 dark:text-gray-400"
+              className="text-xs text-zinc-500 dark:text-zinc-400"
               tickFormatter={(value) => formatValue(value, 'default')}
               tick={{ fontSize: 12 }}
             />
@@ -314,9 +314,9 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
         return (
           <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
             <PolarGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-zinc-700" />
-            <PolarAngleAxis dataKey="displayDate" className="text-xs text-gray-500 dark:text-gray-400" />
+            <PolarAngleAxis dataKey="displayDate" className="text-xs text-zinc-500 dark:text-zinc-400" />
             <PolarRadiusAxis
-              className="text-xs text-gray-500 dark:text-gray-400"
+              className="text-xs text-zinc-500 dark:text-zinc-400"
               tickFormatter={(value) => formatValue(value, 'default')}
               tick={{ fontSize: 12 }}
             />
@@ -336,16 +336,16 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
         );
 
       default:
-        return <div className="flex items-center justify-center h-full text-gray-500">Unsupported chart type</div>;
+        return <div className="flex items-center justify-center h-full text-zinc-500">Unsupported chart type</div>;
     }
   };
 
   return (
-    <div className={`bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-700 p-4 sm:p-6 ${className}`}>
+    <div className={`bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-4 sm:p-6 ${className}`}>
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
             <StatIcon className="w-5 h-5 text-purple-600" />
             {title}
           </h3>
@@ -353,17 +353,17 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
 
         <div className="flex items-center gap-2">
           {/* Chart Type Selector */}
-          <div className="flex items-center gap-1 bg-gray-100 dark:bg-zinc-700 rounded-lg p-1">
+          <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-700 rounded-lg p-1">
             {(['line', 'area', 'bar', 'pie', 'radar'] as ChartType[]).map((chartTypeOption) => {
               const Icon = chartTypeIcons[chartTypeOption] as React.ComponentType<{ className?: string }>;
               return (
                 <button
                   key={chartTypeOption}
                   onClick={() => setActiveChartType(chartTypeOption)}
-                  className={`p-2 rounded-md transition-colors ${
+                  className={`p-2 rounded-lg transition-colors ${
                     activeChartType === chartTypeOption
-                      ? 'bg-white dark:bg-zinc-600 text-gray-900 dark:text-white shadow-sm'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                      ? 'bg-white dark:bg-zinc-600 text-zinc-900 dark:text-white shadow-sm'
+                      : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
                   }`}
                   title={chartTypeOption}
                 >
@@ -376,15 +376,15 @@ export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
           {/* Export Button */}
           {onExport && (
             <div className="relative group">
-              <button className="p-2 bg-gray-100 dark:bg-zinc-700 rounded-lg hover:bg-gray-200 dark:hover:bg-zinc-600 transition-colors">
-                <Download className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <button className="p-2 bg-zinc-100 dark:bg-zinc-700 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-600 transition-colors">
+                <Download className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
               </button>
-              <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-gray-200 dark:border-zinc-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+              <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-zinc-200 dark:border-zinc-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
                 {['csv', 'xlsx', 'json'].map((format) => (
                   <button
                     key={format}
                     onClick={() => onExport(format as 'csv' | 'xlsx' | 'json')}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-700 first:rounded-t-lg last:rounded-b-lg"
+                    className="block w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 first:rounded-t-lg last:rounded-b-lg"
                   >
                     {format.toUpperCase()}
                   </button>

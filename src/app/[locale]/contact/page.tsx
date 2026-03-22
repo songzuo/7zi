@@ -278,7 +278,7 @@ export default async function ContactPage({ params }: { params: Params }) {
 
               {/* Contact Form */}
 
-              <div className="bg-white dark:bg-zinc-900 rounded-3xl p-8 md:p-12 shadow-xl">
+              <div className="bg-white dark:bg-zinc-900 rounded-2xl p-8 md:p-12 shadow-xl">
 
                 <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-6">
 
@@ -298,7 +298,7 @@ export default async function ContactPage({ params }: { params: Params }) {
 
                 {/* Email Cards */}
 
-                <div className="bg-white dark:bg-zinc-900 rounded-3xl p-8 md:p-12 shadow-xl">
+                <div className="bg-white dark:bg-zinc-900 rounded-2xl p-8 md:p-12 shadow-xl">
 
                   <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-6">
 
@@ -354,7 +354,7 @@ export default async function ContactPage({ params }: { params: Params }) {
 
                 {/* Social Links */}
 
-                <div className="bg-white dark:bg-zinc-900 rounded-3xl p-8 md:p-12 shadow-xl">
+                <div className="bg-white dark:bg-zinc-900 rounded-2xl p-8 md:p-12 shadow-xl">
 
                   <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-6">
 
@@ -370,7 +370,7 @@ export default async function ContactPage({ params }: { params: Params }) {
 
                 {/* Response Time */}
 
-                <div className="bg-gradient-to-r from-cyan-500 to-purple-600 rounded-3xl p-8 text-white">
+                <div className="bg-gradient-to-r from-cyan-500 to-purple-600 rounded-2xl p-8 text-white">
 
                   <h3 className="text-xl font-bold mb-2">{tContact('response.title')}</h3>
 

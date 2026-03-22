@@ -216,7 +216,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       {/* Article Content */}
       <section className="py-12 px-6">
         <div className="max-w-3xl mx-auto">
-          <article className="bg-white dark:bg-zinc-900 rounded-3xl p-8 md:p-12 shadow-xl">
+          <article className="bg-white dark:bg-zinc-900 rounded-2xl p-8 md:p-12 shadow-xl">
             <div 
               className="prose prose-lg dark:prose-invert max-w-none
                 prose-headings:font-bold prose-headings:text-zinc-900 dark:prose-headings:text-white

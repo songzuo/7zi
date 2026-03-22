@@ -155,10 +155,10 @@ export function SearchHistory({
   };
 
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 ${className}`}>
+    <div className={`bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 ${className}`}>
       {/* Header */}
-      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-        <h2 className="font-semibold text-gray-900 dark:text-gray-100">Search History</h2>
+      <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-700 flex items-center justify-between">
+        <h2 className="font-semibold text-zinc-900 dark:text-zinc-100">Search History</h2>
 
         {showDelete && history.length > 0 && (
           <button
@@ -172,7 +172,7 @@ export function SearchHistory({
       </div>
 
       {/* Tabs */}
-      <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700 flex gap-2">
+      <div className="px-4 py-2 border-b border-zinc-200 dark:border-zinc-700 flex gap-2">
         {tabs.map(tab => (
           <button
             key={tab.id}
@@ -180,7 +180,7 @@ export function SearchHistory({
             className={`px-3 py-1.5 text-sm font-medium rounded-full transition-colors flex items-center gap-1.5 ${
               activeTab === tab.id
                 ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700'
             }`}
           >
             {tab.icon}
@@ -193,7 +193,7 @@ export function SearchHistory({
       <div className="p-4">
         {loading ? (
           <div className="flex items-center justify-center py-8">
-            <div className="inline-block w-6 h-6 border-2 border-gray-300 dark:border-gray-600 border-t-blue-500 rounded-full animate-spin" />
+            <div className="inline-block w-6 h-6 border-2 border-zinc-300 dark:border-zinc-600 border-t-blue-500 rounded-full animate-spin" />
           </div>
         ) : history.length > 0 ? (
           <div className="space-y-2">
@@ -201,14 +201,14 @@ export function SearchHistory({
               <button
                 key={index}
                 onClick={() => onSelectHistory?.(entry)}
-                className="w-full px-3 py-2 text-left rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-3 group"
+                className="w-full px-3 py-2 text-left rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors flex items-center gap-3 group"
               >
                 <span className="text-lg">{getTargetIcon(entry.target)}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900 dark:text-gray-100 truncate">
+                  <p className="font-medium text-zinc-900 dark:text-zinc-100 truncate">
                     {entry.query}
                   </p>
-                  <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
                     <span>{getTargetLabel(entry.target)}</span>
                     <span>•</span>
                     <span>{entry.resultCount} results</span>
@@ -220,7 +220,7 @@ export function SearchHistory({
                 {showDelete && (
                   <button
                     onClick={(e) => deleteEntry(entry.query, e)}
-                    className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="p-1.5 text-zinc-400 hover:text-red-600 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -229,8 +229,8 @@ export function SearchHistory({
             ))}
           </div>
         ) : (
-          <div className="py-8 text-center text-gray-500 dark:text-gray-400">
-            <Clock className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
+          <div className="py-8 text-center text-zinc-500 dark:text-zinc-400">
+            <Clock className="w-12 h-12 mx-auto mb-3 text-zinc-300 dark:text-zinc-600" />
             <p>No search history yet</p>
             <p className="text-sm mt-1">Start searching to see your history here</p>
           </div>

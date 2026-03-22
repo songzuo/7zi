@@ -175,19 +175,19 @@ export const EnhancedFeedbackModal: React.FC<EnhancedFeedbackModalProps> = ({
 
       {/* Modal */}
       <div className="flex min-h-full items-center justify-center p-4">
-        <div className="relative w-full max-w-2xl transform rounded-xl bg-white dark:bg-gray-900 shadow-2xl transition-all">
+        <div className="relative w-full max-w-2xl transform rounded-xl bg-white dark:bg-zinc-900 shadow-2xl transition-all">
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+          <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-700 px-6 py-4">
             <h3
               id="modal-title"
-              className="text-lg font-semibold text-gray-900 dark:text-white"
+              className="text-lg font-semibold text-zinc-900 dark:text-white"
             >
               提交反馈
             </h3>
             <button
               type="button"
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-md p-1 transition-colors"
+              className="text-zinc-400 hover:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg p-1 transition-colors"
               aria-label="关闭"
             >
               <svg
@@ -212,7 +212,7 @@ export const EnhancedFeedbackModal: React.FC<EnhancedFeedbackModalProps> = ({
             <div>
               <label
                 htmlFor="feedback-type"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
+                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3"
               >
                 反馈类型
               </label>
@@ -227,12 +227,12 @@ export const EnhancedFeedbackModal: React.FC<EnhancedFeedbackModalProps> = ({
                       ${
                         type === ft.value
                           ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                          : 'border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600'
                       }
                     `}
                   >
                     <span className="text-2xl">{ft.icon}</span>
-                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                    <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
                       {ft.label}
                     </span>
                   </button>
@@ -242,7 +242,7 @@ export const EnhancedFeedbackModal: React.FC<EnhancedFeedbackModalProps> = ({
 
             {/* Rating */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                 您的评分
               </label>
               <StarRating
@@ -257,7 +257,7 @@ export const EnhancedFeedbackModal: React.FC<EnhancedFeedbackModalProps> = ({
             <div>
               <label
                 htmlFor="feedback-title"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
               >
                 标题 <span className="text-red-500">*</span>
               </label>
@@ -267,12 +267,12 @@ export const EnhancedFeedbackModal: React.FC<EnhancedFeedbackModalProps> = ({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="简要描述您的反馈..."
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-white transition-all"
+                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:text-white transition-all"
                 required
                 maxLength={100}
               />
               <div className="flex justify-between mt-1">
-                <span className="text-xs text-gray-500 dark:text-gray-400">
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">
                   {title.length}/100
                 </span>
               </div>
@@ -282,7 +282,7 @@ export const EnhancedFeedbackModal: React.FC<EnhancedFeedbackModalProps> = ({
             <div>
               <label
                 htmlFor="feedback-description"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
               >
                 详细描述 <span className="text-red-500">*</span>
               </label>
@@ -292,12 +292,12 @@ export const EnhancedFeedbackModal: React.FC<EnhancedFeedbackModalProps> = ({
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="请详细描述您的问题或建议..."
                 rows={5}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-white resize-none transition-all"
+                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:text-white resize-none transition-all"
                 required
                 maxLength={1000}
               />
               <div className="flex justify-between mt-1">
-                <span className="text-xs text-gray-500 dark:text-gray-400">
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">
                   {description.length}/1000
                 </span>
               </div>
@@ -307,7 +307,7 @@ export const EnhancedFeedbackModal: React.FC<EnhancedFeedbackModalProps> = ({
             <div>
               <label
                 htmlFor="feedback-email"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
               >
                 邮箱（可选）
               </label>
@@ -317,16 +317,16 @@ export const EnhancedFeedbackModal: React.FC<EnhancedFeedbackModalProps> = ({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="如果您希望收到回复，请留下邮箱"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-white transition-all"
+                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:text-white transition-all"
               />
             </div>
 
             {/* Image Upload */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                 图片上传（可选）
               </label>
-              <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4">
+              <div className="border-2 border-dashed border-zinc-300 dark:border-zinc-600 rounded-lg p-4">
                 <input
                   type="file"
                   id="feedback-images"
@@ -340,7 +340,7 @@ export const EnhancedFeedbackModal: React.FC<EnhancedFeedbackModalProps> = ({
                   className="flex flex-col items-center justify-center cursor-pointer"
                 >
                   <svg
-                    className="w-12 h-12 text-gray-400"
+                    className="w-12 h-12 text-zinc-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -352,10 +352,10 @@ export const EnhancedFeedbackModal: React.FC<EnhancedFeedbackModalProps> = ({
                       d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                     />
                   </svg>
-                  <span className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                  <span className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
                     点击或拖拽上传图片
                   </span>
-                  <span className="text-xs text-gray-500 dark:text-gray-500">
+                  <span className="text-xs text-zinc-500 dark:text-zinc-500">
                     最多上传5张，每张不超过5MB
                   </span>
                 </label>
@@ -369,7 +369,7 @@ export const EnhancedFeedbackModal: React.FC<EnhancedFeedbackModalProps> = ({
                       <img
                         src={preview}
                         alt={`Preview ${index + 1}`}
-                        className="w-full h-24 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                        className="w-full h-24 object-cover rounded-lg border border-zinc-200 dark:border-zinc-700"
                       />
                       <button
                         type="button"
@@ -388,12 +388,12 @@ export const EnhancedFeedbackModal: React.FC<EnhancedFeedbackModalProps> = ({
           </form>
 
           {/* Footer */}
-          <div className="flex justify-end gap-3 border-t border-gray-200 dark:border-gray-700 px-6 py-4">
+          <div className="flex justify-end gap-3 border-t border-zinc-200 dark:border-zinc-700 px-6 py-4">
             <button
               type="button"
               onClick={onClose}
               disabled={isLoading}
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               取消
             </button>

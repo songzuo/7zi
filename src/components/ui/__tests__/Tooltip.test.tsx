@@ -422,8 +422,8 @@ describe('Tooltip Component', () => {
       }, { timeout: 500 });
 
       const tooltip = screen.getByRole('tooltip');
-      expect(tooltip).toHaveClass('dark:bg-gray-100');
-      expect(tooltip).toHaveClass('dark:text-gray-900');
+      expect(tooltip).toHaveClass('dark:bg-zinc-100');
+      expect(tooltip).toHaveClass('dark:text-zinc-900');
     });
   });
 });

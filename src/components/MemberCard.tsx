@@ -44,16 +44,16 @@ const MemberCardBase: React.FC<MemberCardProps> = ({
   const statusColors: Record<MemberStatus, string> = {
     working: 'bg-green-500',
     busy: 'bg-yellow-500',
-    idle: 'bg-gray-400',
-    offline: 'bg-gray-300',
+    idle: 'bg-zinc-400',
+    offline: 'bg-zinc-300',
     online: 'bg-green-500'
   };
 
   const statusBgColors: Record<MemberStatus, string> = {
     working: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
     busy: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300',
-    idle: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300',
-    offline: 'bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-400',
+    idle: 'bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300',
+    offline: 'bg-zinc-100 text-zinc-400 dark:bg-zinc-700 dark:text-zinc-400',
     online: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
   };
 
@@ -83,7 +83,7 @@ const MemberCardBase: React.FC<MemberCardProps> = ({
         className={`flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
           isSelected
             ? 'bg-blue-600 border-blue-600'
-            : 'border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-700'
+            : 'border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700'
         }`}
       >
         {isSelected && (
@@ -115,7 +115,7 @@ const MemberCardBase: React.FC<MemberCardProps> = ({
       <div
         onClick={handleClick}
         className={`px-4 py-3 transition-all duration-200 cursor-pointer group ${
-          isSelectionMode ? 'hover:bg-blue-50 dark:hover:bg-blue-900/20' : 'hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:translate-x-1'
+          isSelectionMode ? 'hover:bg-blue-50 dark:hover:bg-blue-900/20' : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:translate-x-1'
         } ${isSelected ? 'bg-blue-50 dark:bg-blue-900/20' : ''} ${selectedRingClass}`}
       >
         <div className="flex items-center gap-3">
@@ -139,7 +139,7 @@ const MemberCardBase: React.FC<MemberCardProps> = ({
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-900 dark:text-white">
+              <span className="text-sm font-medium text-zinc-900 dark:text-white">
                 {member.emoji} {member.name}
               </span>
               <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${statusBgColors[member.status]}`}>
@@ -147,9 +147,9 @@ const MemberCardBase: React.FC<MemberCardProps> = ({
               </span>
             </div>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-xs text-gray-500 dark:text-gray-400">{member.role}</span>
-              <span className="text-xs text-gray-400">·</span>
-              <span className="text-xs text-gray-500 dark:text-gray-400">{member.provider}</span>
+              <span className="text-xs text-zinc-500 dark:text-zinc-400">{member.role}</span>
+              <span className="text-xs text-zinc-400">·</span>
+              <span className="text-xs text-zinc-500 dark:text-zinc-400">{member.provider}</span>
             </div>
             {member.currentTask && (
               <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 truncate">
@@ -158,8 +158,8 @@ const MemberCardBase: React.FC<MemberCardProps> = ({
             )}
           </div>
           <div className="text-right flex-shrink-0">
-            <p className="text-xs font-medium text-gray-700 dark:text-gray-300">{member.completedTasks}</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">完成任务</p>
+            <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300">{member.completedTasks}</p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">完成任务</p>
           </div>
         </div>
       </div>
@@ -196,23 +196,23 @@ const MemberCardBase: React.FC<MemberCardProps> = ({
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
-            <h4 className="text-base font-semibold text-gray-900 dark:text-white">
+            <h4 className="text-base font-semibold text-zinc-900 dark:text-white">
               {member.emoji} {member.name}
             </h4>
             <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${statusBgColors[status]}`}>
               {statusLabels[status]}
             </span>
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">{member.role}</p>
-          <p className="text-xs text-gray-400 dark:text-gray-500 mb-2">提供商：{member.provider}</p>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-2">{member.role}</p>
+          <p className="text-xs text-zinc-400 dark:text-zinc-500 mb-2">提供商：{member.provider}</p>
           {member.currentTask && (
             <div className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded mb-2">
               📌 {member.currentTask}
             </div>
           )}
           <div className="flex items-center gap-4 text-sm">
-            <span className="text-gray-600 dark:text-gray-300">
-              <strong className="text-gray-900 dark:text-white">{member.completedTasks}</strong> 完成任务
+            <span className="text-zinc-600 dark:text-zinc-300">
+              <strong className="text-zinc-900 dark:text-white">{member.completedTasks}</strong> 完成任务
             </span>
           </div>
         </div>

@@ -231,7 +231,7 @@ export function ServiceWorkerRegistration() {
             <div className="flex items-center gap-2">
               <button
                 onClick={handleUpdate}
-                className="px-3 py-1.5 text-xs font-medium text-cyan-600 bg-white hover:bg-cyan-50 rounded-md transition-colors"
+                className="px-3 py-1.5 text-xs font-medium text-cyan-600 bg-white hover:bg-cyan-50 rounded-lg transition-colors"
               >
                 立即更新
               </button>
@@ -250,7 +250,7 @@ export function ServiceWorkerRegistration() {
 
       {/* Online/Offline Indicator (small) */}
       {!isOnline && (
-        <div className="fixed bottom-4 left-4 z-50 bg-gray-900 text-white px-3 py-2 rounded-lg shadow-lg flex items-center gap-2 text-xs">
+        <div className="fixed bottom-4 left-4 z-50 bg-zinc-900 text-white px-3 py-2 rounded-lg shadow-lg flex items-center gap-2 text-xs">
           <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
           <span>离线模式</span>
         </div>
@@ -258,7 +258,7 @@ export function ServiceWorkerRegistration() {
 
       {/* Debug info (only in development) */}
       {process.env.NODE_ENV === 'development' && (
-        <div className="fixed bottom-4 right-4 z-50 bg-gray-800 text-white px-3 py-2 rounded-lg shadow-lg text-xs opacity-75 hover:opacity-100 transition-opacity">
+        <div className="fixed bottom-4 right-4 z-50 bg-zinc-800 text-white px-3 py-2 rounded-lg shadow-lg text-xs opacity-75 hover:opacity-100 transition-opacity">
           <div>SW Version: {swVersion || 'unknown'}</div>
           <div>Status: {isOnline ? '🟢 在线' : '🔴 离线'}</div>
           <div>Update Available: {updateAvailable ? '是' : '否'}</div>

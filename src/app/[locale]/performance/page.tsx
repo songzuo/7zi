@@ -133,7 +133,7 @@ function RatingBadge({ rating }: { rating: 'good' | 'needs-improvement' | 'poor'
 
 function SeverityBadge({ severity }: { severity: 'low' | 'medium' | 'high' | 'critical' }) {
   const config = {
-    low: { color: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200' },
+    low: { color: 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200' },
     medium: { color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' },
     high: { color: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' },
     critical: { color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' },
@@ -149,7 +149,7 @@ function SeverityBadge({ severity }: { severity: 'low' | 'medium' | 'high' | 'cr
 function TrendIndicator({ trend, percentage }: { trend: 'improving' | 'stable' | 'degrading'; percentage: number }) {
   const config = {
     improving: { color: 'text-green-600', icon: TrendingDown },
-    stable: { color: 'text-gray-600', icon: Minus },
+    stable: { color: 'text-zinc-600', icon: Minus },
     degrading: { color: 'text-red-600', icon: TrendingUp },
   };
 
@@ -173,7 +173,7 @@ function MetricCard({ name, stats, trend, trendPercentage }: { name: string; sta
     <Card className="p-6">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{config?.label || name}</h3>
+          <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">{config?.label || name}</h3>
           <p className="text-3xl font-bold mt-2">
             {stats.avg.toFixed(0)}{unit}
           </p>
@@ -183,23 +183,23 @@ function MetricCard({ name, stats, trend, trendPercentage }: { name: string; sta
 
       <div className="grid grid-cols-3 gap-4 mt-4">
         <div>
-          <p className="text-xs text-gray-500 dark:text-gray-400">Good</p>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">Good</p>
           <p className="text-lg font-semibold text-green-600">{goodPercentage}%</p>
         </div>
         <div>
-          <p className="text-xs text-gray-500 dark:text-gray-400">Needs Improvement</p>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">Needs Improvement</p>
           <p className="text-lg font-semibold text-yellow-600">
             {((stats.needsImprovement / stats.count) * 100).toFixed(0)}%
           </p>
         </div>
         <div>
-          <p className="text-xs text-gray-500 dark:text-gray-400">Poor</p>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">Poor</p>
           <p className="text-lg font-semibold text-red-600">{poorPercentage}%</p>
         </div>
       </div>
 
-      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-        <div className="grid grid-cols-2 gap-2 text-xs text-gray-500 dark:text-gray-400">
+      <div className="mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-700">
+        <div className="grid grid-cols-2 gap-2 text-xs text-zinc-500 dark:text-zinc-400">
           <div>P50: {stats.p50.toFixed(0)}{unit}</div>
           <div>P90: {stats.p90.toFixed(0)}{unit}</div>
           <div>P95: {stats.p95.toFixed(0)}{unit}</div>
@@ -334,14 +334,14 @@ export default function PerformanceDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Performance Dashboard</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Monitor your application's performance in real-time</p>
+          <p className="text-zinc-500 dark:text-zinc-400 mt-1">Monitor your application's performance in real-time</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <select
               value={selectedPeriod}
               onChange={(e) => setSelectedPeriod(e.target.value as '1h' | '6h' | '24h' | '7d' | '30d')}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm"
+              className="px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-sm"
             >
               <option value="1h">Last 1 Hour</option>
               <option value="6h">Last 6 Hours</option>
@@ -370,13 +370,13 @@ export default function PerformanceDashboard() {
             </div>
             <div>
               <h2 className="text-2xl font-bold capitalize">{overallRating} Performance</h2>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-zinc-600 dark:text-zinc-400">
                 {overallRating === 'good' ? 'All metrics are within healthy ranges' : overallRating === 'needs-improvement' ? 'Some metrics need attention' : 'Critical performance issues detected'}
               </p>
             </div>
           </div>
           <div className="text-right">
-            <p className="text-sm text-gray-500 dark:text-gray-400">Active Alerts</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">Active Alerts</p>
             <p className={`text-3xl font-bold ${sortedAlerts.length > 0 ? 'text-red-600' : 'text-green-600'}`}>
               {sortedAlerts.length}
             </p>
@@ -399,9 +399,9 @@ export default function PerformanceDashboard() {
                   <div className="flex items-center gap-2 mb-1">
                     <SeverityBadge severity={alert.severity} />
                     <span className="text-sm font-medium">{alert.metric}</span>
-                    <span className="text-xs text-gray-500">{new Date(alert.timestamp).toLocaleString()}</span>
+                    <span className="text-xs text-zinc-500">{new Date(alert.timestamp).toLocaleString()}</span>
                   </div>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">{alert.message}</p>
+                  <p className="text-sm text-zinc-700 dark:text-zinc-300">{alert.message}</p>
                 </div>
                 <Button
                   variant="ghost"
@@ -440,7 +440,7 @@ export default function PerformanceDashboard() {
             <select
               value={selectedMetric || ''}
               onChange={(e) => setSelectedMetric(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm"
+              className="px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-sm"
             >
               {Object.keys(report).map((name) => (
                 <option key={name} value={name}>
@@ -459,8 +459,8 @@ export default function PerformanceDashboard() {
 
       {loading && (
         <div className="text-center py-12">
-          <RefreshCw className="w-8 h-8 animate-spin mx-auto text-gray-400" />
-          <p className="text-gray-500 mt-4">Loading performance data...</p>
+          <RefreshCw className="w-8 h-8 animate-spin mx-auto text-zinc-400" />
+          <p className="text-zinc-500 mt-4">Loading performance data...</p>
         </div>
       )}
     </div>

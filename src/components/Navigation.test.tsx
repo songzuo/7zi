@@ -129,7 +129,7 @@ describe('Navigation', () => {
       
       const dashboardLinks = screen.getAllByRole('link', { name: /实时看板/ });
       const hasDefaultStyle = dashboardLinks.some(link => 
-        link.className.includes('text-gray-600') || link.className.includes('text-zinc-600')
+        link.className.includes('text-zinc-600') || link.className.includes('text-zinc-600')
       );
       expect(hasDefaultStyle).toBe(true);
     });

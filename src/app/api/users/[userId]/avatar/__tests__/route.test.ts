@@ -3,22 +3,23 @@
  * Tests for /api/users/[userId]/avatar endpoint
  */
 
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import type { Mock } from 'vitest';
 import { POST, DELETE } from '../route';
 import { getUserById, updateUser } from '@/lib/auth/repository';
 import { UserStatus, UserRole } from '@/lib/auth/types';
 import { NextRequest } from 'next/server';
 
 // Mock dependencies
-jest.mock('@/lib/auth/repository');
-jest.mock('@/lib/db/audit-log');
-jest.mock('@/lib/logger');
-jest.mock('fs/promises', () => ({
-  writeFile: jest.fn(),
-  mkdir: jest.fn(),
+vi.mock('@/lib/auth/repository');
+vi.mock('@/lib/db/audit-log');
+vi.mock('@/lib/logger');
+vi.mock('fs/promises', () => ({
+  writeFile: vi.fn(),
+  mkdir: vi.fn(),
 }));
-jest.mock('fs', () => ({
-  existsSync: jest.fn(),
+vi.mock('fs', () => ({
+  existsSync: vi.fn(),
 }));
 
 describe('User Avatar API - /api/users/[userId]/avatar', () => {
@@ -39,17 +40,17 @@ describe('User Avatar API - /api/users/[userId]/avatar', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe('POST /api/users/[userId]/avatar - Upload avatar', () => {
     it('should upload avatar successfully', async () => {
-      (getUserById as jest.Mock).mockResolvedValue(mockUser);
-      (updateUser as jest.Mock).mockResolvedValue({
+      (getUserById as Mock).mockResolvedValue(mockUser);
+      (updateUser as Mock).mockResolvedValue({
         ...mockUser,
         avatar: '/uploads/avatars/test.jpg',
       });
@@ -73,7 +74,7 @@ describe('User Avatar API - /api/users/[userId]/avatar', () => {
     });
 
     it('should return 404 if user not found', async () => {
-      (getUserById as jest.Mock).mockResolvedValue(null);
+      (getUserById as Mock).mockResolvedValue(null);
 
       const formData = new FormData();
       const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
@@ -94,7 +95,7 @@ describe('User Avatar API - /api/users/[userId]/avatar', () => {
     });
 
     it('should return 400 if no file uploaded', async () => {
-      (getUserById as jest.Mock).mockResolvedValue(mockUser);
+      (getUserById as Mock).mockResolvedValue(mockUser);
 
       const formData = new FormData();
 
@@ -113,7 +114,7 @@ describe('User Avatar API - /api/users/[userId]/avatar', () => {
     });
 
     it('should validate file type', async () => {
-      (getUserById as jest.Mock).mockResolvedValue(mockUser);
+      (getUserById as Mock).mockResolvedValue(mockUser);
 
       const formData = new FormData();
       const file = new File(['test'], 'test.pdf', { type: 'application/pdf' });
@@ -135,7 +136,7 @@ describe('User Avatar API - /api/users/[userId]/avatar', () => {
     });
 
     it('should validate file size', async () => {
-      (getUserById as jest.Mock).mockResolvedValue(mockUser);
+      (getUserById as Mock).mockResolvedValue(mockUser);
 
       const formData = new FormData();
       const largeFile = new File(['x'.repeat(6 * 1024 * 1024)], 'large.jpg', { type: 'image/jpeg' });
@@ -157,8 +158,8 @@ describe('User Avatar API - /api/users/[userId]/avatar', () => {
     });
 
     it('should allow PNG files', async () => {
-      (getUserById as jest.Mock).mockResolvedValue(mockUser);
-      (updateUser as jest.Mock).mockResolvedValue({
+      (getUserById as Mock).mockResolvedValue(mockUser);
+      (updateUser as Mock).mockResolvedValue({
         ...mockUser,
         avatar: '/uploads/avatars/test.png',
       });
@@ -179,8 +180,8 @@ describe('User Avatar API - /api/users/[userId]/avatar', () => {
     });
 
     it('should allow GIF files', async () => {
-      (getUserById as jest.Mock).mockResolvedValue(mockUser);
-      (updateUser as jest.Mock).mockResolvedValue({
+      (getUserById as Mock).mockResolvedValue(mockUser);
+      (updateUser as Mock).mockResolvedValue({
         ...mockUser,
         avatar: '/uploads/avatars/test.gif',
       });
@@ -201,8 +202,8 @@ describe('User Avatar API - /api/users/[userId]/avatar', () => {
     });
 
     it('should allow WebP files', async () => {
-      (getUserById as jest.Mock).mockResolvedValue(mockUser);
-      (updateUser as jest.Mock).mockResolvedValue({
+      (getUserById as Mock).mockResolvedValue(mockUser);
+      (updateUser as Mock).mockResolvedValue({
         ...mockUser,
         avatar: '/uploads/avatars/test.webp',
       });
@@ -226,8 +227,8 @@ describe('User Avatar API - /api/users/[userId]/avatar', () => {
   describe('DELETE /api/users/[userId]/avatar - Remove avatar', () => {
     it('should remove avatar successfully', async () => {
       const userWithAvatar = { ...mockUser, avatar: '/uploads/avatars/old.jpg' };
-      (getUserById as jest.Mock).mockResolvedValue(userWithAvatar);
-      (updateUser as jest.Mock).mockResolvedValue({
+      (getUserById as Mock).mockResolvedValue(userWithAvatar);
+      (updateUser as Mock).mockResolvedValue({
         ...userWithAvatar,
         avatar: '',
       });
@@ -247,7 +248,7 @@ describe('User Avatar API - /api/users/[userId]/avatar', () => {
     });
 
     it('should return 404 if user not found', async () => {
-      (getUserById as jest.Mock).mockResolvedValue(null);
+      (getUserById as Mock).mockResolvedValue(null);
 
       const request = new NextRequest('http://localhost:3000/api/users/nonexistent/avatar', {
         method: 'DELETE',
@@ -263,7 +264,7 @@ describe('User Avatar API - /api/users/[userId]/avatar', () => {
     });
 
     it('should return 404 if user has no avatar', async () => {
-      (getUserById as jest.Mock).mockResolvedValue(mockUser);
+      (getUserById as Mock).mockResolvedValue(mockUser);
 
       const request = new NextRequest('http://localhost:3000/api/users/user-123/avatar', {
         method: 'DELETE',

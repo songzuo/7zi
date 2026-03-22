@@ -69,11 +69,11 @@ const CloseIcon: React.FC<{ onClick: () => void }> = ({ onClick }) => {
   return (
     <button
       onClick={onClick}
-      className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+      className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
       aria-label={t('close')}
     >
       <svg
-        className="w-5 h-5 text-gray-500 dark:text-gray-400"
+        className="w-5 h-5 text-zinc-500 dark:text-zinc-400"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -184,7 +184,7 @@ export const Modal: React.FC<ModalProps> = ({
       <div
         ref={modalRef}
         className={cn(
-          'relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl',
+          'relative bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl',
           'w-full',
           SIZE_CONFIG[size],
           'animate-in zoom-in-95 duration-200',
@@ -195,11 +195,11 @@ export const Modal: React.FC<ModalProps> = ({
       >
         {/* Header */}
         {(title || showCloseButton) && (
-          <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-800">
+          <div className="flex items-center justify-between p-6 border-b border-zinc-200 dark:border-zinc-800">
             {title && (
               <h2
                 id="modal-title"
-                className="text-xl font-semibold text-gray-900 dark:text-white"
+                className="text-xl font-semibold text-zinc-900 dark:text-white"
               >
                 {title}
               </h2>
@@ -215,7 +215,7 @@ export const Modal: React.FC<ModalProps> = ({
 
         {/* Footer */}
         {footer && (
-          <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-800">
+          <div className="flex items-center justify-end gap-3 p-6 border-t border-zinc-200 dark:border-zinc-800">
             {footer}
           </div>
         )}
@@ -276,7 +276,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         </>
       }
     >
-      <p className="text-gray-700 dark:text-gray-300">{message || tModal('confirmMessage')}</p>
+      <p className="text-zinc-700 dark:text-zinc-300">{message || tModal('confirmMessage')}</p>
     </Modal>
   );
 };

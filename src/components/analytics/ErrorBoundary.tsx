@@ -90,21 +90,21 @@ export class AnalyticsErrorBoundary extends Component<Props, State> {
               <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-full">
                 <AlertCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
               </div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">
                 Something went wrong
               </h2>
             </div>
 
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-zinc-600 dark:text-zinc-400 mb-4">
               We encountered an error while loading the analytics dashboard. Please try again or contact support if the problem persists.
             </p>
 
             {process.env.NODE_ENV === 'development' && this.state.error && (
               <details className="mb-4">
-                <summary className="cursor-pointer text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 mb-2">
+                <summary className="cursor-pointer text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 mb-2">
                   Error Details (Development Only)
                 </summary>
-                <div className="bg-gray-100 dark:bg-zinc-900 rounded p-3 text-xs text-gray-800 dark:text-gray-200 overflow-auto max-h-48">
+                <div className="bg-zinc-100 dark:bg-zinc-900 rounded p-3 text-xs text-zinc-800 dark:text-zinc-200 overflow-auto max-h-48">
                   <pre className="whitespace-pre-wrap font-mono">
                     {this.state.error.toString()}
                   </pre>
@@ -127,7 +127,7 @@ export class AnalyticsErrorBoundary extends Component<Props, State> {
               </button>
               <button
                 onClick={this.handleGoHome}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 dark:bg-zinc-700 hover:bg-gray-300 dark:hover:bg-zinc-600 text-gray-900 dark:text-white rounded-lg transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 dark:hover:bg-zinc-600 text-zinc-900 dark:text-white rounded-lg transition-colors"
               >
                 <Home className="w-4 h-4" />
                 Go Home

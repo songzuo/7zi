@@ -235,9 +235,9 @@ export const ResponsiveButton: FC<ResponsiveButtonProps> = ({
 }) => {
   const variants = {
     primary: 'bg-cyan-600 text-white hover:bg-cyan-700 active:bg-cyan-800',
-    secondary: 'bg-gray-600 text-white hover:bg-gray-700 active:bg-gray-800',
+    secondary: 'bg-zinc-600 text-white hover:bg-zinc-700 active:bg-zinc-800',
     outline: 'border-2 border-cyan-600 text-cyan-600 hover:bg-cyan-50 dark:hover:bg-cyan-900/20',
-    ghost: 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800'
+    ghost: 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'
   };
 
   const sizes = {
@@ -290,7 +290,7 @@ export const ResponsiveInput: FC<ResponsiveInputProps> = ({
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2">
+        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1 sm:mb-2">
           {label}
         </label>
       )}
@@ -306,9 +306,9 @@ export const ResponsiveInput: FC<ResponsiveInputProps> = ({
           focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent
           ${error
             ? 'border-red-500 focus:ring-red-500'
-            : 'border-gray-300 dark:border-zinc-600 focus:border-cyan-500'
+            : 'border-zinc-300 dark:border-zinc-600 focus:border-cyan-500'
           }
-          ${props.disabled ? 'bg-gray-100 dark:bg-zinc-800 cursor-not-allowed' : 'bg-white dark:bg-zinc-900'}
+          ${props.disabled ? 'bg-zinc-100 dark:bg-zinc-800 cursor-not-allowed' : 'bg-white dark:bg-zinc-900'}
           ${className}
         `}
         {...props}
@@ -319,7 +319,7 @@ export const ResponsiveInput: FC<ResponsiveInputProps> = ({
         </p>
       )}
       {helperText && !error && (
-        <p className="mt-1 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+        <p className="mt-1 text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
           {helperText}
         </p>
       )}

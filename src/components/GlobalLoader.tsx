@@ -132,26 +132,26 @@ export const GlobalLoader: React.FC<GlobalLoaderProps> = ({
         aria-label={state.message || 'Loading...'}
         aria-busy="true"
       >
-        <div className="flex flex-col items-center gap-6 p-8 bg-white/90 dark:bg-gray-900/90 rounded-2xl shadow-2xl">
+        <div className="flex flex-col items-center gap-6 p-8 bg-white/90 dark:bg-zinc-900/90 rounded-2xl shadow-2xl">
           <LoadingSpinner
             variant={spinnerVariant}
             size="xl"
             color={spinnerColor}
           />
           {state.message && (
-            <p className="text-lg font-medium text-gray-900 dark:text-gray-100 animate-pulse">
+            <p className="text-lg font-medium text-zinc-900 dark:text-zinc-100 animate-pulse">
               {state.message}
             </p>
           )}
           {showProgress && state.progress > 0 && (
             <div className="w-full max-w-xs">
-              <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div className="h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-300 ease-out"
                   style={{ width: `${state.progress}%` }}
                 />
               </div>
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 text-center">
+              <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400 text-center">
                 {Math.round(state.progress)}%
               </p>
             </div>
@@ -167,8 +167,8 @@ export const GlobalLoader: React.FC<GlobalLoaderProps> = ({
       <div
         className={cn(
           'flex items-center justify-center gap-3 p-4',
-          'bg-gray-50 dark:bg-gray-800/50',
-          'border border-gray-200 dark:border-gray-700',
+          'bg-zinc-50 dark:bg-zinc-800/50',
+          'border border-zinc-200 dark:border-zinc-700',
           'rounded-lg',
           className
         )}
@@ -182,12 +182,12 @@ export const GlobalLoader: React.FC<GlobalLoaderProps> = ({
           color={spinnerColor}
         />
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+          <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
             {state.message || 'Loading...'}
           </p>
           {showProgress && state.progress > 0 && (
             <div className="mt-2">
-              <div className="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div className="h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-blue-600 transition-all duration-300 ease-out"
                   style={{ width: `${state.progress}%` }}
@@ -217,12 +217,12 @@ export const GlobalLoader: React.FC<GlobalLoaderProps> = ({
         color={spinnerColor}
       />
       {state.message && (
-        <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+        <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
           {state.message}
         </p>
       )}
       {showProgress && state.progress > 0 && (
-        <p className="text-xs text-gray-500 dark:text-gray-400">
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
           {Math.round(state.progress)}%
         </p>
       )}

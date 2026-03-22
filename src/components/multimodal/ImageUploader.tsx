@@ -159,7 +159,7 @@ export function ImageUploader({
         onDrop={handleDrop}
         className={`
           border-2 border-dashed rounded-lg p-8 text-center transition-colors
-          ${isDragging ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/10' : 'border-gray-300 dark:border-gray-600'}
+          ${isDragging ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/10' : 'border-zinc-300 dark:border-zinc-600'}
           ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-blue-400'}
         `}
       >
@@ -173,7 +173,7 @@ export function ImageUploader({
         />
         <label htmlFor="image-upload" className="cursor-pointer">
           <svg
-            className="mx-auto h-12 w-12 text-gray-400"
+            className="mx-auto h-12 w-12 text-zinc-400"
             stroke="currentColor"
             fill="none"
             viewBox="0 0 48 48"
@@ -185,10 +185,10 @@ export function ImageUploader({
               strokeLinejoin="round"
             />
           </svg>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
             {placeholder || t('uploadPlaceholder')}
           </p>
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 text-xs text-zinc-500">
             {t('fileSizeLimit', { maxSize: Math.round(maxSize / 1024 / 1024) })}
           </p>
         </label>

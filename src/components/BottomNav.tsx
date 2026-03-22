@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import type { FC } from 'react';
+import { isAtLeastBreakpoint } from '@/lib/utils/breakpoints';
 
 interface NavItem {
   href: string;
@@ -46,14 +47,14 @@ export const BottomNav: FC<BottomNavProps> = ({ locale }) => {
   const pathname = usePathname();
   const t = useTranslations('nav');
 
-  // Only show on mobile (screens below lg breakpoint)
-  if (typeof window !== 'undefined' && window.innerWidth >= 641) {
+  // Only show on mobile (screens below md breakpoint: 768px)
+  if (typeof window !== 'undefined' && isAtLeastBreakpoint('md')) {
     return null;
   }
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 h-16 md:hidden bg-white dark:bg-zinc-900 border-t border-gray-200 dark:border-zinc-700 z-40"
+      className="fixed bottom-0 left-0 right-0 h-16 md:hidden bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-700 z-40"
       role="navigation"
       aria-label="底部导航"
       style={{
@@ -75,7 +76,7 @@ export const BottomNav: FC<BottomNavProps> = ({ locale }) => {
                 transition-all duration-200
                 ${isActive
                   ? 'text-cyan-600 dark:text-cyan-400'
-                  : 'text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-300'
+                  : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300'
                 }
               `}
               aria-label={t(item.labelKey)}

@@ -97,16 +97,16 @@ export const FeedbackWidget: React.FC<FeedbackWidgetProps> = ({
 
           {/* Modal */}
           <div className="flex min-h-full items-center justify-center p-4">
-            <div className="relative w-full max-w-lg transform rounded-lg bg-white dark:bg-gray-900 shadow-xl transition-all">
+            <div className="relative w-full max-w-lg transform rounded-lg bg-white dark:bg-zinc-900 shadow-xl transition-all">
               {/* Header */}
-              <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-700 px-6 py-4">
+                <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">
                   {mode === 'menu' ? '反馈帮助' : mode === 'feedback' ? '提交反馈' : '报告问题'}
                 </h3>
                 <button
                   type="button"
                   onClick={handleClose}
-                  className="text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-md p-1"
+                  className="text-zinc-400 hover:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg p-1"
                   aria-label="关闭"
                 >
                   <svg
@@ -189,15 +189,15 @@ const Menu: React.FC<MenuProps> = memo(({ onSelect }) => {
         >
           <span className="text-3xl">{option.icon}</span>
           <div className="flex-1">
-            <h4 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
+            <h4 className="text-base font-semibold text-zinc-900 dark:text-white mb-1">
               {option.title}
             </h4>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">
               {option.description}
             </p>
           </div>
           <svg
-            className="w-5 h-5 text-gray-400 mt-0.5"
+            className="w-5 h-5 text-zinc-400 mt-0.5"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

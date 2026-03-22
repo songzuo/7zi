@@ -6,6 +6,8 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { POST } from '../route';
 import { createMockRequest } from '@/test/mocks/api-mocks';
+import { Role } from '@/lib/permissions/types';
+import { UserRole } from '@/lib/auth/types';
 
 // Mock dependencies
 vi.mock('@/lib/auth/service');
@@ -26,15 +28,18 @@ describe('/api/auth/login', () => {
       id: 'user-123',
       email: testUser.email,
       name: testUser.name,
-      role: 'member',
+      role: UserRole.MEMBER,
+      roles: [Role.MEMBER],
       status: 'active',
+      permissions: [],
+      metadata: {},
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     },
     token: 'jwt-access-token',
     refreshToken: 'refresh-token-123',
     expiresAt: new Date(Date.now() + 3600000),
-  };
+  } as const;
 
   beforeEach(() => {
     vi.clearAllMocks();

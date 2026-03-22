@@ -164,12 +164,12 @@ export function TaskEditorCollaboration({
     <div className="flex flex-col h-full">
       {/* Collaboration Header */}
       {showCollaboration && (
-        <div className="flex items-center justify-between p-3 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+        <div className="flex items-center justify-between p-3 border-b dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50">
           <div className="flex items-center gap-4">
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+            <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
               {task.title}
             </h3>
-            <span className="text-xs text-gray-500 dark:text-gray-400">
+            <span className="text-xs text-zinc-500 dark:text-zinc-400">
               #{task.number}
             </span>
           </div>
@@ -199,7 +199,7 @@ export function TaskEditorCollaboration({
           onSelect={handleCursorChange}
           onKeyUp={handleCursorChange}
           onClick={handleCursorChange}
-          className="w-full h-full p-4 resize-none border-none focus:outline-none dark:bg-gray-800 dark:text-white font-mono text-sm"
+          className="w-full h-full p-4 resize-none border-none focus:outline-none dark:bg-zinc-800 dark:text-white font-mono text-sm"
           placeholder="Add task description..."
           disabled={showCollaboration && (!collaboration.isConnected || !collaboration.isInRoom)}
         />
@@ -220,8 +220,8 @@ export function TaskEditorCollaboration({
 
       {/* Footer */}
       {showCollaboration && (
-        <div className="p-3 border-t dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex items-center justify-between">
-          <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+        <div className="p-3 border-t dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 flex items-center justify-between">
+          <div className="flex items-center gap-4 text-xs text-zinc-500 dark:text-zinc-400">
             {collaboration.document && (
               <>
                 <span>Revision: {collaboration.document.revision}</span>
@@ -272,11 +272,11 @@ export function CollaborationToggle({
       className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
         isCollaborating
           ? 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400'
-          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300'
+          : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-300'
       }`}
       title={isCollaborating ? 'Disable collaboration' : 'Enable collaboration'}
     >
-      <span className={`w-2 h-2 rounded-full ${isCollaborating ? 'bg-green-500' : 'bg-gray-400'}`} />
+      <span className={`w-2 h-2 rounded-full ${isCollaborating ? 'bg-green-500' : 'bg-zinc-400'}`} />
       <span>
         {isCollaborating ? `Collaborating (${userCount})` : 'Enable Collaboration'}
       </span>

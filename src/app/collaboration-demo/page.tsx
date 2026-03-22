@@ -94,18 +94,18 @@ export default function CollaborationDemoPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900 p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">WebSocket Collaboration Demo</h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-zinc-600 dark:text-zinc-400">
             Test real-time collaboration features with multiple users
           </p>
         </div>
 
         {/* Connection Controls */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+        <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">Connection Configuration</h2>
 
           <div className="grid grid-cols-2 gap-4 mb-4">
@@ -115,7 +115,7 @@ export default function CollaborationDemoPage() {
                 type="text"
                 value={config.url}
                 onChange={(e) => setConfig({ ...config, url: e.target.value })}
-                className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+                className="w-full px-3 py-2 border rounded dark:bg-zinc-700 dark:border-zinc-600"
                 placeholder="ws://localhost:3000"
               />
             </div>
@@ -126,7 +126,7 @@ export default function CollaborationDemoPage() {
                 type="text"
                 value={config.token}
                 onChange={(e) => setConfig({ ...config, token: e.target.value })}
-                className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+                className="w-full px-3 py-2 border rounded dark:bg-zinc-700 dark:border-zinc-600"
                 placeholder="your-jwt-token"
               />
             </div>
@@ -137,7 +137,7 @@ export default function CollaborationDemoPage() {
                 type="text"
                 value={config.userId}
                 onChange={(e) => setConfig({ ...config, userId: e.target.value })}
-                className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+                className="w-full px-3 py-2 border rounded dark:bg-zinc-700 dark:border-zinc-600"
                 placeholder="user-123"
               />
             </div>
@@ -148,7 +148,7 @@ export default function CollaborationDemoPage() {
                 type="text"
                 value={config.userName}
                 onChange={(e) => setConfig({ ...config, userName: e.target.value })}
-                className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+                className="w-full px-3 py-2 border rounded dark:bg-zinc-700 dark:border-zinc-600"
                 placeholder="John Doe"
               />
             </div>
@@ -158,7 +158,7 @@ export default function CollaborationDemoPage() {
               <select
                 value={config.roomType}
                 onChange={(e) => setConfig({ ...config, roomType: e.target.value as RoomType })}
-                className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+                className="w-full px-3 py-2 border rounded dark:bg-zinc-700 dark:border-zinc-600"
               >
                 <option value="task">Task</option>
                 <option value="project">Project</option>
@@ -173,7 +173,7 @@ export default function CollaborationDemoPage() {
                 type="text"
                 value={config.roomId}
                 onChange={(e) => setConfig({ ...config, roomId: e.target.value })}
-                className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+                className="w-full px-3 py-2 border rounded dark:bg-zinc-700 dark:border-zinc-600"
                 placeholder="task:123"
               />
             </div>
@@ -207,7 +207,7 @@ export default function CollaborationDemoPage() {
         </div>
 
         {/* Room Controls */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+        <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">Room Controls</h2>
 
           <div className="flex items-center justify-between mb-4">
@@ -245,21 +245,21 @@ export default function CollaborationDemoPage() {
 
           {/* Room Stats */}
           {isInRoom && (
-            <div className="grid grid-cols-4 gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded">
+            <div className="grid grid-cols-4 gap-4 p-4 bg-zinc-50 dark:bg-zinc-700 rounded">
               <div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Total Users</div>
+                <div className="text-sm text-zinc-600 dark:text-zinc-400">Total Users</div>
                 <div className="text-2xl font-bold">{users.length}</div>
               </div>
               <div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Typing Users</div>
+                <div className="text-sm text-zinc-600 dark:text-zinc-400">Typing Users</div>
                 <div className="text-2xl font-bold">{typingUsers.length}</div>
               </div>
               <div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Active Cursors</div>
+                <div className="text-sm text-zinc-600 dark:text-zinc-400">Active Cursors</div>
                 <div className="text-2xl font-bold">{cursors.size}</div>
               </div>
               <div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Document Revision</div>
+                <div className="text-sm text-zinc-600 dark:text-zinc-400">Document Revision</div>
                 <div className="text-2xl font-bold">{document?.revision || 0}</div>
               </div>
             </div>
@@ -267,7 +267,7 @@ export default function CollaborationDemoPage() {
         </div>
 
         {/* Document Editor */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+        <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">Document Editor</h2>
 
           <div className="mb-4">
@@ -277,7 +277,7 @@ export default function CollaborationDemoPage() {
                 setContent(e.target.value);
                 setTyping(true);
               }}
-              className="w-full h-32 px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+              className="w-full h-32 px-3 py-2 border rounded dark:bg-zinc-700 dark:border-zinc-600"
               placeholder="Type a message to add to the document..."
               disabled={!isConnected || !isInRoom}
             />
@@ -295,7 +295,7 @@ export default function CollaborationDemoPage() {
           {document && (
             <div className="mt-6">
               <h3 className="text-lg font-semibold mb-2">Document Content</h3>
-              <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded border dark:border-gray-600">
+              <div className="p-4 bg-zinc-50 dark:bg-zinc-700 rounded border dark:border-zinc-600">
                 <pre className="whitespace-pre-wrap text-sm">{document.content || '(empty)'}</pre>
               </div>
             </div>
@@ -303,12 +303,12 @@ export default function CollaborationDemoPage() {
         </div>
 
         {/* Activity Log */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+        <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Activity Log</h2>
             <button
               onClick={handleClearLogs}
-              className="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+              className="px-3 py-1 text-sm bg-zinc-200 dark:bg-zinc-700 rounded hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-colors"
             >
               Clear Logs
             </button>
@@ -316,7 +316,7 @@ export default function CollaborationDemoPage() {
 
           <div className="h-64 overflow-y-auto">
             {logs.length === 0 ? (
-              <p className="text-gray-500 dark:text-gray-400">No activity yet. Connect and start collaborating!</p>
+              <p className="text-zinc-500 dark:text-zinc-400">No activity yet. Connect and start collaborating!</p>
             ) : (
               <div className="space-y-1">
                 {logs.map((log, index) => (
@@ -332,7 +332,7 @@ export default function CollaborationDemoPage() {
         {/* Testing Instructions */}
         <div className="mt-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6">
           <h2 className="text-xl font-semibold mb-4">Testing Instructions</h2>
-          <ol className="list-decimal list-inside space-y-2 text-gray-700 dark:text-gray-300">
+          <ol className="list-decimal list-inside space-y-2 text-zinc-700 dark:text-zinc-300">
             <li>Open this page in multiple browser tabs or windows</li>
             <li>Configure different user IDs and names for each tab</li>
             <li>Connect to the WebSocket server</li>

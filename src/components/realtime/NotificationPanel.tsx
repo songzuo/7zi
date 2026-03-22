@@ -50,7 +50,7 @@ function NotificationIcon({ category, type }: { category?: NotificationCategory;
 
 function PriorityBadge({ priority }: { priority: string }) {
   const variants = {
-    low: 'bg-gray-100 text-gray-600',
+    low: 'bg-zinc-100 text-zinc-600',
     normal: 'bg-blue-100 text-blue-600',
     high: 'bg-orange-100 text-orange-600',
     urgent: 'bg-red-100 text-red-600',
@@ -79,10 +79,10 @@ function NotificationItem({
   return (
     <div
       className={`
-        relative p-4 border-b border-gray-100 dark:border-gray-700
+        relative p-4 border-b border-zinc-100 dark:border-zinc-700
         transition-all duration-200
         ${notification.read ? 'opacity-60' : 'opacity-100'}
-        ${!notification.read ? 'bg-blue-50 dark:bg-blue-900/10' : 'bg-white dark:bg-gray-800'}
+        ${!notification.read ? 'bg-blue-50 dark:bg-blue-900/10' : 'bg-white dark:bg-zinc-800'}
         ${hovered ? 'shadow-md' : ''}
       `}
       onMouseEnter={() => setHovered(true)}
@@ -103,12 +103,12 @@ function NotificationItem({
             <PriorityBadge priority={notification.priority} />
           </div>
 
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+          <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-2">
             {notification.message}
           </p>
 
           <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1">
+            <span className="text-xs text-zinc-400 dark:text-zinc-500 flex items-center gap-1">
               <Clock className="w-3 h-3" />
               {formatTime(notification.timestamp)}
             </span>
@@ -126,7 +126,7 @@ function NotificationItem({
                 )}
                 <button
                   onClick={() => onClear(notification.id)}
-                  className="text-xs text-gray-400 hover:text-red-600 dark:text-gray-500 dark:hover:text-red-400"
+                  className="text-xs text-zinc-400 hover:text-red-600 dark:text-zinc-500 dark:hover:text-red-400"
                   title="Clear"
                 >
                   <X className="w-4 h-4" />
@@ -248,19 +248,19 @@ export function NotificationPanel({
       ref={panelRef}
       className={`
         fixed ${positionStyles[position]} w-96 max-h-[600px]
-        bg-white dark:bg-gray-800 rounded-lg shadow-xl
-        border border-gray-200 dark:border-gray-700
+        bg-white dark:bg-zinc-800 rounded-lg shadow-xl
+        border border-zinc-200 dark:border-zinc-700
         flex flex-col
         animate-in fade-in slide-in-from-top-2
         z-50
       `}
     >
       {/* Header */}
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="p-4 border-b border-zinc-200 dark:border-zinc-700">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Bell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+            <Bell className="w-5 h-5 text-zinc-600 dark:text-zinc-400" />
+            <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">
               Notifications
             </h3>
             {unreadCount > 0 && (
@@ -300,7 +300,7 @@ export function NotificationPanel({
         {/* Connection Status */}
         <div className="flex items-center gap-2 text-xs">
           <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
-          <span className="text-gray-500 dark:text-gray-400">
+          <span className="text-zinc-500 dark:text-zinc-400">
             {isConnected ? 'Real-time connected' : 'Reconnecting...'}
           </span>
           {!isConnected && (
@@ -312,9 +312,9 @@ export function NotificationPanel({
       </div>
 
       {/* Filters */}
-      <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
-        <Filter className="w-4 h-4 text-gray-400" />
-        <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+      <div className="px-4 py-2 border-b border-zinc-200 dark:border-zinc-700 flex items-center gap-2">
+        <Filter className="w-4 h-4 text-zinc-400" />
+        <label className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
           <input
             type="checkbox"
             checked={filter.showUnreadOnly}
@@ -328,11 +328,11 @@ export function NotificationPanel({
       {/* Notifications List */}
       <div className="flex-1 overflow-y-auto">
         {loading ? (
-          <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+          <div className="p-8 text-center text-zinc-500 dark:text-zinc-400">
             Loading notifications...
           </div>
         ) : visibleNotifications.length === 0 ? (
-          <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+          <div className="p-8 text-center text-zinc-500 dark:text-zinc-400">
             <Bell className="w-12 h-12 mx-auto mb-2 opacity-50" />
             <p>No notifications</p>
           </div>
@@ -350,7 +350,7 @@ export function NotificationPanel({
 
       {/* Footer */}
       {filteredNotifications.length > maxVisible && (
-        <div className="p-3 border-t border-gray-200 dark:border-gray-700 text-center">
+        <div className="p-3 border-t border-zinc-200 dark:border-zinc-700 text-center">
           <Button
             variant="link"
             size="sm"

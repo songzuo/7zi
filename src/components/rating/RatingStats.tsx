@@ -47,7 +47,7 @@ export function RatingStats({
   };
 
   return (
-    <div className={cn('bg-white rounded-lg border border-gray-200 p-6', className)}>
+    <div className={cn('bg-white rounded-lg border border-zinc-200 p-6', className)}>
       {/* Average Rating */}
       <div className="flex items-center gap-6 mb-6">
         {/* Big Number */}
@@ -63,12 +63,12 @@ export function RatingStats({
                   'w-4 h-4',
                   i < Math.round(stats.average_rating)
                     ? 'fill-yellow-400 text-yellow-400'
-                    : 'text-gray-300'
+                    : 'text-zinc-300'
                 )}
               />
             ))}
           </div>
-          <div className="text-sm text-gray-500 mt-1">
+          <div className="text-sm text-zinc-500 mt-1">
             {stats.total} {stats.total === 1 ? 'rating' : 'ratings'}
           </div>
         </div>
@@ -83,10 +83,10 @@ export function RatingStats({
               return (
                 <div key={rating} className="flex items-center gap-3">
                   <div className="flex items-center gap-1 w-12 text-sm">
-                    <span className="text-gray-600">{rating}</span>
+                    <span className="text-zinc-600">{rating}</span>
                     <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
                   </div>
-                  <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="flex-1 h-2 bg-zinc-200 rounded-full overflow-hidden">
                     <div
                       className={cn(
                         'h-full rounded-full transition-all duration-500',
@@ -95,7 +95,7 @@ export function RatingStats({
                       style={{ width: `${percentage}%` }}
                     />
                   </div>
-                  <div className="w-12 text-sm text-gray-600 text-right">{count}</div>
+                  <div className="w-12 text-sm text-zinc-600 text-right">{count}</div>
                 </div>
               );
             })}
@@ -104,7 +104,7 @@ export function RatingStats({
       </div>
 
       {/* Additional Stats */}
-      <div className="grid grid-cols-3 gap-4 pt-6 border-t border-gray-200">
+      <div className="grid grid-cols-3 gap-4 pt-6 border-t border-zinc-200">
         {/* Helpful Ratio */}
         <div className="text-center">
           <div className="flex items-center justify-center gap-1 text-blue-500 mb-1">
@@ -113,7 +113,7 @@ export function RatingStats({
               {(stats.helpful_ratio * 100).toFixed(0)}%
             </span>
           </div>
-          <div className="text-xs text-gray-500">Helpful</div>
+          <div className="text-xs text-zinc-500">Helpful</div>
         </div>
 
         {/* Total Ratings */}
@@ -122,7 +122,7 @@ export function RatingStats({
             <TrendingUp className="w-4 h-4" />
             <span className="text-2xl font-bold">{stats.total}</span>
           </div>
-          <div className="text-xs text-gray-500">Total</div>
+          <div className="text-xs text-zinc-500">Total</div>
         </div>
 
         {/* Average Rating (small) */}
@@ -131,19 +131,19 @@ export function RatingStats({
             <Star className="w-4 h-4 fill-current" />
             <span className="text-2xl font-bold">{stats.average_rating.toFixed(1)}</span>
           </div>
-          <div className="text-xs text-gray-500">Average</div>
+          <div className="text-xs text-zinc-500">Average</div>
         </div>
       </div>
 
       {/* By Target Type */}
       {showByTargetType && Object.keys(stats.by_target_type).length > 0 && (
-        <div className="mt-6 pt-6 border-t border-gray-200">
-          <h4 className="text-sm font-semibold text-gray-900 mb-3">Ratings by Type</h4>
+        <div className="mt-6 pt-6 border-t border-zinc-200">
+          <h4 className="text-sm font-semibold text-zinc-900 mb-3">Ratings by Type</h4>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {Object.entries(stats.by_target_type).map(([type, count]) => (
-              <div key={type} className="bg-gray-50 rounded-lg p-3">
-                <div className="text-lg font-semibold text-gray-900">{count}</div>
-                <div className="text-xs text-gray-500 capitalize">{type}</div>
+              <div key={type} className="bg-zinc-50 rounded-lg p-3">
+                <div className="text-lg font-semibold text-zinc-900">{count}</div>
+                <div className="text-xs text-zinc-500 capitalize">{type}</div>
               </div>
             ))}
           </div>

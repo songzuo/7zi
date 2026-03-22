@@ -399,42 +399,42 @@ export default function UIComponentExamples() {
       <div className="max-w-6xl mx-auto p-8 space-y-12">
         <header>
           <h1 className="text-4xl font-bold mb-2">UI Component Examples</h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-zinc-600 dark:text-zinc-400">
             Examples and usage patterns for all UI components
           </p>
         </header>
 
         <section>
           <h2 className="text-2xl font-bold mb-6">Button Component</h2>
-          <div className="p-6 bg-white dark:bg-gray-800 rounded-lg">
+          <div className="p-6 bg-white dark:bg-zinc-800 rounded-lg">
             <ButtonExamples />
           </div>
         </section>
 
         <section>
           <h2 className="text-2xl font-bold mb-6">Modal Component</h2>
-          <div className="p-6 bg-white dark:bg-gray-800 rounded-lg">
+          <div className="p-6 bg-white dark:bg-zinc-800 rounded-lg">
             <ModalExamples />
           </div>
         </section>
 
         <section>
           <h2 className="text-2xl font-bold mb-6">Tabs Component</h2>
-          <div className="p-6 bg-white dark:bg-gray-800 rounded-lg">
+          <div className="p-6 bg-white dark:bg-zinc-800 rounded-lg">
             <TabsExamples />
           </div>
         </section>
 
         <section>
           <h2 className="text-2xl font-bold mb-6">Toast Component</h2>
-          <div className="p-6 bg-white dark:bg-gray-800 rounded-lg">
+          <div className="p-6 bg-white dark:bg-zinc-800 rounded-lg">
             <ToastExamples />
           </div>
         </section>
 
         <section>
           <h2 className="text-2xl font-bold mb-6">Tooltip Component</h2>
-          <div className="p-6 bg-white dark:bg-gray-800 rounded-lg">
+          <div className="p-6 bg-white dark:bg-zinc-800 rounded-lg">
             <TooltipExamples />
           </div>
         </section>

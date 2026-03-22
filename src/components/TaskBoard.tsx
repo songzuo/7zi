@@ -38,7 +38,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ issues }) => {
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value as 'open' | 'closed' | 'all')}
-              className="text-sm border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm focus:border-cyan-500 focus:ring-cyan-500 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white"
+              className="text-sm border-zinc-300 dark:border-zinc-600 rounded-lg shadow-sm focus:border-cyan-500 focus:ring-cyan-500 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white"
             >
               <option value="open">进行中</option>
               <option value="closed">已完成</option>

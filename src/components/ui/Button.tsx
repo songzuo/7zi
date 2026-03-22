@@ -54,9 +54,9 @@ export interface ButtonProps extends Omit<JSX.IntrinsicElements['button'], 'size
  */
 const VARIANT_CONFIG: Record<ButtonVariant, string> = {
   primary: 'bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg focus:ring-blue-500',
-  secondary: 'bg-gray-600 hover:bg-gray-700 text-white shadow-md hover:shadow-lg focus:ring-gray-500',
-  outline: 'border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 focus:ring-blue-500',
-  ghost: 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:ring-gray-500',
+  secondary: 'bg-zinc-600 hover:bg-zinc-700 text-white shadow-md hover:shadow-lg focus:ring-zinc-500',
+  outline: 'border-2 border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-300 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 focus:ring-blue-500',
+  ghost: 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:ring-zinc-500',
   danger: 'bg-red-600 hover:bg-red-700 text-white shadow-md hover:shadow-lg focus:ring-red-500',
   link: 'text-blue-600 dark:text-blue-400 hover:underline focus:ring-blue-500',
 };
@@ -128,7 +128,7 @@ export const Button: FC<ButtonProps> = ({
       className={cn(
         // Base styles
         'inline-flex items-center justify-center font-medium rounded-lg',
-        'focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900',
+        'focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-zinc-900',
         'transition-all duration-200',
         'disabled:opacity-50 disabled:cursor-not-allowed',
         'active:scale-95',
@@ -201,10 +201,10 @@ export const IconButton: FC<IconButtonProps> = ({
     <button
       className={cn(
         'inline-flex items-center justify-center rounded-lg',
-        'focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900',
+        'focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-zinc-900',
         'transition-all duration-200',
         'disabled:opacity-50 disabled:cursor-not-allowed',
-        'hover:bg-gray-100 dark:hover:bg-gray-800',
+        'hover:bg-zinc-100 dark:hover:bg-zinc-800',
         VARIANT_CONFIG.ghost,
         SIZE_CONFIG[size],
         className

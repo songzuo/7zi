@@ -201,7 +201,7 @@ export default async function BlogPage({ params }: { params: Params }) {
               <Link
                 key={post.id}
                 href={`/blog/${post.slug}`}
-                className="group bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2"
+                className="group bg-white dark:bg-zinc-900 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2"
               >
                 <div className="h-40 bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center">
                   <span className="text-5xl text-white/50">📝</span>
@@ -265,7 +265,7 @@ export default async function BlogPage({ params }: { params: Params }) {
             {blogPosts.map((post) => (
               <article
                 key={post.id}
-                className="group bg-zinc-50 dark:bg-zinc-800 rounded-3xl p-8 hover:shadow-xl transition-all duration-300"
+                className="group bg-zinc-50 dark:bg-zinc-800 rounded-2xl p-8 hover:shadow-xl transition-all duration-300"
               >
                 <div className="flex items-center gap-4 text-sm text-zinc-500 mb-4">
                   <span className="px-3 py-1 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 rounded-full">

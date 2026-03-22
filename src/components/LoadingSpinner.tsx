@@ -60,7 +60,7 @@ const SIZE_CONFIG: Record<LoadingSize, string> = {
  */
 const COLOR_CONFIG: Record<LoadingColor, string> = {
   primary: 'text-blue-600 dark:text-blue-400',
-  secondary: 'text-gray-600 dark:text-gray-400',
+  secondary: 'text-zinc-600 dark:text-zinc-400',
   success: 'text-green-600 dark:text-green-400',
   warning: 'text-yellow-600 dark:text-yellow-400',
   error: 'text-red-600 dark:text-red-400',
@@ -246,11 +246,11 @@ export const LoadingSpinner: FC<LoadingSpinnerProps> = ({
       aria-label={label || 'Loading...'}
     >
       {labelPosition === 'top' && label && (
-        <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</p>
+        <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{label}</p>
       )}
       {renderSpinner()}
       {labelPosition === 'bottom' && label && (
-        <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</p>
+        <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{label}</p>
       )}
     </div>
   );

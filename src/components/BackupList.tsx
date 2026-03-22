@@ -140,7 +140,7 @@ export function BackupList({ refreshTrigger }: BackupListProps) {
   if (backups.length === 0) {
     return (
       <Card className="p-6">
-        <div className="text-center text-gray-600 dark:text-gray-400">
+        <div className="text-center text-zinc-600 dark:text-zinc-400">
           <p className="font-medium">No backups available</p>
           <p className="text-sm mt-1">
             Create your first backup using the export panel above.
@@ -155,7 +155,7 @@ export function BackupList({ refreshTrigger }: BackupListProps) {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold">Available Backups</h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">
             {backups.length} backup{backups.length !== 1 ? 's' : ''} available
           </p>
         </div>
@@ -168,7 +168,7 @@ export function BackupList({ refreshTrigger }: BackupListProps) {
         {backups.map((backup) => (
           <div
             key={backup.id}
-            className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            className="border border-zinc-200 dark:border-zinc-700 rounded-lg p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
           >
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 space-y-2">
@@ -179,7 +179,7 @@ export function BackupList({ refreshTrigger }: BackupListProps) {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-gray-600 dark:text-gray-400">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-zinc-600 dark:text-zinc-400">
                   <div>
                     <span className="font-medium">Created:</span>{' '}
                     {formatDate(backup.createdAt)}
@@ -203,18 +203,18 @@ export function BackupList({ refreshTrigger }: BackupListProps) {
 
                 {backup.tables.length > 0 && (
                   <div className="mt-2">
-                    <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                       Tables:
                     </p>
                     <div className="flex flex-wrap gap-1">
                       {backup.tables.map((table) => (
                         <span
                           key={table}
-                          className="text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded"
+                          className="text-xs px-2 py-0.5 bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded"
                         >
                           {table}
                           {backup.recordCounts[table] && (
-                            <span className="ml-1 text-gray-500 dark:text-gray-400">
+                            <span className="ml-1 text-zinc-500 dark:text-zinc-400">
                               ({backup.recordCounts[table]})
                             </span>
                           )}

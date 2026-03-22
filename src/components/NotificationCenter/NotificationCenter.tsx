@@ -73,14 +73,14 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
       {/* 触发按钮 */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+        className="relative p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
         aria-label="通知中心"
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
         {/* 铃铛图标 */}
         <svg
-          className="w-6 h-6 text-gray-600 dark:text-gray-300"
+          className="w-6 h-6 text-zinc-600 dark:text-zinc-300"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -110,10 +110,10 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
           />
 
           {/* 通知面板 */}
-          <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-gray-900 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
+          <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-zinc-900 rounded-lg shadow-xl border border-zinc-200 dark:border-zinc-700 z-50 overflow-hidden">
             {/* 头部 */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-200 dark:border-zinc-700">
+              <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">
                 通知中心
               </h3>
               <div className="flex gap-2">
@@ -139,9 +139,9 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
             {/* 通知列表 */}
             <div className="max-h-96 overflow-y-auto">
               {sortedNotifications.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-8 text-gray-500 dark:text-gray-400">
+                <div className="flex flex-col items-center justify-center py-8 text-zinc-500 dark:text-zinc-400">
                   <svg
-                    className="w-12 h-12 mb-2 text-gray-300 dark:text-gray-600"
+                    className="w-12 h-12 mb-2 text-zinc-300 dark:text-zinc-600"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -171,7 +171,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
 
             {/* 底部 */}
             {notifications.length > maxVisible && (
-              <div className="px-4 py-2 text-center text-sm text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+              <div className="px-4 py-2 text-center text-sm text-zinc-500 dark:text-zinc-400 border-t border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800">
                 还有 {notifications.length - maxVisible} 条通知
               </div>
             )}

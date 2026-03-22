@@ -401,7 +401,7 @@ export default function UserProfile({ userId }: { userId: string }) {
                   user.status === 'active'
                     ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
                     : user.status === 'inactive'
-                    ? 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400'
+                    ? 'bg-zinc-100 text-zinc-800 dark:bg-zinc-900/30 dark:text-zinc-400'
                     : user.status === 'suspended'
                     ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
                     : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'

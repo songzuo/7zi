@@ -101,19 +101,19 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
 
       {/* Modal */}
       <div className="flex min-h-full items-center justify-center p-4">
-        <div className="relative w-full max-w-lg transform rounded-lg bg-white dark:bg-gray-900 shadow-xl transition-all">
+        <div className="relative w-full max-w-lg transform rounded-lg bg-white dark:bg-zinc-900 shadow-xl transition-all">
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+          <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-700 px-6 py-4">
             <h3
               id="modal-title"
-              className="text-lg font-semibold text-gray-900 dark:text-white"
+              className="text-lg font-semibold text-zinc-900 dark:text-white"
             >
               提交反馈
             </h3>
             <button
               type="button"
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-md p-1"
+              className="text-zinc-400 hover:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg p-1"
               aria-label="关闭"
             >
               <svg
@@ -138,7 +138,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
             <div>
               <label
                 htmlFor="feedback-type"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
               >
                 反馈类型
               </label>
@@ -153,12 +153,12 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
                       ${
                         type === ft.value
                           ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                          : 'border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600'
                       }
                     `}
                   >
                     <span className="text-2xl">{ft.icon}</span>
-                    <span className="text-xs text-gray-700 dark:text-gray-300">
+                    <span className="text-xs text-zinc-700 dark:text-zinc-300">
                       {ft.label}
                     </span>
                   </button>
@@ -168,7 +168,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
 
             {/* Rating */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                 您的评分
               </label>
               <StarRating
@@ -183,7 +183,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
             <div>
               <label
                 htmlFor="feedback-title"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
               >
                 标题 <span className="text-red-500">*</span>
               </label>
@@ -193,11 +193,11 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="简要描述您的反馈..."
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-white"
+                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:text-white"
                 required
                 maxLength={100}
               />
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                 {title.length}/100
               </p>
             </div>
@@ -206,7 +206,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
             <div>
               <label
                 htmlFor="feedback-description"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
               >
                 详细描述 <span className="text-red-500">*</span>
               </label>
@@ -216,11 +216,11 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="请详细描述您的问题或建议..."
                 rows={5}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-white resize-none"
+                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:text-white resize-none"
                 required
                 maxLength={1000}
               />
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                 {description.length}/1000
               </p>
             </div>
@@ -229,7 +229,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
             <div>
               <label
                 htmlFor="feedback-email"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
               >
                 邮箱（可选）
               </label>
@@ -239,18 +239,18 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="如果您希望收到回复，请留下邮箱"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-white"
+                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:text-white"
               />
             </div>
           </form>
 
           {/* Footer */}
-          <div className="flex justify-end gap-3 border-t border-gray-200 dark:border-gray-700 px-6 py-4">
+          <div className="flex justify-end gap-3 border-t border-zinc-200 dark:border-zinc-700 px-6 py-4">
             <button
               type="button"
               onClick={onClose}
               disabled={isLoading}
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               取消
             </button>

@@ -150,7 +150,7 @@ export function PerformanceMonitor() {
     <div className="fixed bottom-4 left-4 z-[9999] bg-black/90 text-white text-xs p-4 rounded-lg shadow-2xl font-mono max-w-xs">
       <div className="flex justify-between items-center mb-2">
         <span className="font-bold text-cyan-400">Performance Monitor</span>
-        <button onClick={() => setIsVisible(false)} className="text-gray-400 hover:text-white">
+        <button onClick={() => setIsVisible(false)} className="text-zinc-400 hover:text-white">
           ✕
         </button>
       </div>
@@ -163,7 +163,7 @@ export function PerformanceMonitor() {
 
           return (
             <div key={key} className="flex justify-between">
-              <span className="text-gray-400">{name}:</span>
+              <span className="text-zinc-400">{name}:</span>
               <span className={color}>
                 {typeof value === 'number' ? value.toFixed(2) : value}
                 {key === 'cls' ? '' : 'ms'}
@@ -172,7 +172,7 @@ export function PerformanceMonitor() {
           );
         })}
       </div>
-      <div className="mt-2 pt-2 border-t border-gray-700 text-gray-500 text-[10px]">
+      <div className="mt-2 pt-2 border-t border-zinc-700 text-zinc-500 text-[10px]">
         Press Ctrl+Shift+P to toggle
       </div>
     </div>

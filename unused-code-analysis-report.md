@@ -1,15 +1,15 @@
 # 未使用代码分析报告
 
-生成时间: 2026/3/20 21:42:55
+生成时间: 2026/3/22 11:22:23
 
 ## 📊 摘要
 
 | 指标 | 数量 |
 |------|------|
-| 总文件数 | 589 |
-| 包含未使用导入的文件 | 60 |
-| 包含未使用导出的文件 | 250 |
-| 可能包含死代码的文件 | 229 |
+| 总文件数 | 897 |
+| 包含未使用导入的文件 | 107 |
+| 包含未使用导出的文件 | 376 |
+| 可能包含死代码的文件 | 362 |
 
 ## 📥 未使用的导入
 
@@ -24,6 +24,14 @@
 - `import { LanguageSwitcher } from '@/components/LanguageSwitcher'`
 - `import { ThemeToggle } from '@/components/ThemeToggle'`
 - `import { StructuredData } from '@/components/SEO'`
+
+### src/app/[locale]/analytics/page.tsx
+
+- `import { LazyAnalyticsDashboard } from '@/components/LazyComponents'`
+
+### src/app/[locale]/analytics/test/page.tsx
+
+- `import { AnalyticsChart, DateRangePicker, FilterPanel, MetricCard } from '@/components/analytics'`
 
 ### src/app/[locale]/blog/[slug]/page.tsx
 
@@ -59,6 +67,7 @@
 
 ### src/app/[locale]/layout.tsx
 
+- `import PerformanceOptimizer from '@/components/PerformanceOptimizer'`
 - `import { useGlobalLoading } from '@/hooks/useGlobalLoading'`
 - `import { getMessages, setRequestLocale } from 'next-intl/server'`
 - `import { notFound } from 'next/navigation'`
@@ -74,6 +83,12 @@
 - `import { LanguageSwitcher } from '@/components/LanguageSwitcher'`
 - `import { ThemeToggle } from '@/components/ThemeToggle'`
 - `import { StructuredData } from '@/components/SEO'`
+
+### src/app/[locale]/performance/page.tsx
+
+- `import { LineChart, Line, BarChart, Bar, Legend, Cell } from 'recharts'`
+- `import { Download, Filter, Bell, Shield } from 'lucide-react'`
+- `import { Button } from '@/components/ui/Button'`
 
 ### src/app/[locale]/portfolio/[slug]/page.tsx
 
@@ -108,25 +123,25 @@
 
 ### src/app/api/a2a/jsonrpc/route.ts
 
-- `import { NextRequest, NextResponse } from 'next/server'`
-- `import { createRequestHandler } from '@/lib/a2a/jsonrpc-handler'`
-- `import { getTaskStore } from '@/lib/a2a/task-store'`
-- `import { createSevenZiExecutor } from '@/lib/a2a/executor'`
-- `import { getAgentCard, getExtendedAgentCard } from '@/lib/a2a/agent-card'`
-- `import { JsonRpcRequest, JsonRpcResponse } from '@/lib/a2a/types'`
-- `import { jsonRpcRequestSchema, jsonRpcBatchRequestSchema, validateBody, formatValidationErrors } from '@/lib/api/validation'`
 - `import { createValidationError, createErrorResponse, ErrorType } from '@/lib/api/error-handler'`
-- `import { logger } from '@/lib/logger'`
+
+### src/app/api/a2a/registry/route.ts
+
+- `import { validateBody, formatValidationErrors } from '@/lib/api/validation'`
+
+### src/app/api/analytics/export/route.ts
+
+- `import { type ExportOptions, type ExportFormat, type AnalyticsFilters, type TimeSeriesDataPoint, type AnalyticsResponse } from '@/lib/types/analytics'`
+
+### src/app/api/analytics/metrics/route.ts
+
+- `import { type AnalyticsMetrics, type AnalyticsFilters, type TimeSeriesDataPoint, type AnalyticsResponse, type PaginatedResponse } from '@/lib/types/analytics'`
 
 ### src/app/api/auth/login/route.ts
 
 - `import { NextResponse } from 'next/server'`
 
 ### src/app/api/auth/logout/route.ts
-
-- `import { NextResponse } from 'next/server'`
-
-### src/app/api/auth/me/route.ts
 
 - `import { NextResponse } from 'next/server'`
 
@@ -139,13 +154,49 @@
 - `import { NextResponse } from 'next/server'`
 - `import { sanitizeUrlForLogging } from '@/lib/api/api-logger'`
 
+### src/app/api/backup/export/route.ts
+
+- `import { NextResponse } from 'next/server'`
+- `import { ExportFormat } from '@/lib/backup/types'`
+
+### src/app/api/backup/import/route.ts
+
+- `import { ExportFormat } from '@/lib/backup/types'`
+- `import { createBadRequestError } from '@/lib/api/error-handler'`
+
+### src/app/api/backup/restore/route.ts
+
+- `import { BackupStatus } from '@/lib/backup/types'`
+
 ### src/app/api/backup/route.ts
 
 - `import { ErrorType } from '@/lib/api/error-handler'`
 
+### src/app/api/backup/schedule/[id]/route.ts
+
+- `import { NextResponse } from 'next/server'`
+- `import { createBadRequestError } from '@/lib/api/error-handler'`
+
+### src/app/api/backup/schedule/[id]/trigger/route.ts
+
+- `import { NextResponse } from 'next/server'`
+
+### src/app/api/backup/schedule/route.ts
+
+- `import { NextResponse } from 'next/server'`
+- `import { BackupFrequency, CompressionAlgorithm, EncryptionAlgorithm } from '@/lib/backup/types'`
+
 ### src/app/api/csrf-token/route.ts
 
 - `import { ApiError } from '@/lib/api/error-handler'`
+
+### src/app/api/data/export/route.ts
+
+- `import { _exportData, type ExportFormat, type ExportOptions } from '@/lib/data-import-export'`
+
+### src/app/api/data/import/route.ts
+
+- `import { _importData, type ImportMode, type ImportOptions, type ExportResult } from '@/lib/data-import-export'`
 
 ### src/app/api/database/health/route.ts
 
@@ -155,6 +206,10 @@
 ### src/app/api/database/optimize/route.ts
 
 - `import { type PoolConfig } from '@/lib/db/connection-pool'`
+
+### src/app/api/feedback/route.ts
+
+- `import { NextResponse } from 'next/server'`
 
 ### src/app/api/github/commits/route.ts
 
@@ -170,10 +225,6 @@
 - `import { createValidationError, createUnauthorizedError, createNotFoundError, createRateLimitError } from '@/lib/api/error-handler'`
 - `import { logger } from '@/lib/logger'`
 
-### src/app/api/health/route.ts
-
-- `import { createSuccessResponse } from '@/lib/api/utils'`
-
 ### src/app/api/multimodal/audio/route.ts
 
 - `import { NextResponse } from 'next/server'`
@@ -187,106 +238,57 @@
 
 - `import { createErrorResponse } from '@/lib/api/error-handler'`
 
-### src/app/api/performance/report/route.ts
+### src/app/api/ratings/[id]/helpful/route.ts
 
 - `import { NextResponse } from 'next/server'`
-- `import { ErrorType } from '@/lib/api/error-handler'`
+- `import { logger } from '@/lib/logger'`
+
+### src/app/api/ratings/route.ts
+
+- `import { NextResponse } from 'next/server'`
+
+### src/app/api/rbac/roles/[roleId]/route.ts
+
+- `import { removePermissionsFromRole } from '@/lib/permissions/repository'`
+- `import { getRoleDefinition } from '@/lib/permissions/rbac'`
+
+### src/app/api/rbac/roles/route.ts
+
+- `import { updateRole, deleteRole, assignPermissionsToRole, getPermissionsByRole } from '@/lib/permissions/repository'`
+- `import { getRoleDefinition } from '@/lib/permissions/rbac'`
+
+### src/app/api/rbac/users/[userId]/permissions/route.ts
+
+- `import { hasPermission, hasRole } from '@/lib/permissions/rbac'`
+
+### src/app/api/rbac/users/[userId]/roles/route.ts
+
+- `import { getAllRolesWithCount } from '@/lib/permissions/repository'`
 
 ### src/app/api/stream/analytics/route.ts
 
 - `import { createUnauthorizedError } from '@/lib/api/error-handler'`
+
+### src/app/api/users/batch/route.ts
+
+- `import { getAllUsers } from '@/lib/auth/repository'`
+- `import { batchInsert, batchUpdate, batchDelete } from '@/lib/db/batch-operations'`
+
+### src/app/api/users/route.optimized.ts
+
+- `import { NextResponse } from 'next/server'`
+- `import { getUsersByStatus, getUsersByRole, searchUsers, getUserStatistics } from '@/lib/auth/repository-optimized'`
+
+### src/app/api/users/route.ts
+
+- `import { NextResponse } from 'next/server'`
 
 ### src/app/collaboration-demo/page.tsx
 
 - `import { useCollaboration } from '@/lib/websocket'`
 - `import { ConnectionStatus, UserList } from '@/components/collaboration/ConnectionStatus'`
 
-### src/app/page.tsx
-
-- `import { defaultLocale } from '@/i18n/config'`
-
-### src/components/AIChat.tsx
-
-- `import { useCallback } from 'react'`
-
-### src/components/Analytics.tsx
-
-- `import { useEffect } from 'react'`
-
-### src/components/ClientProviders.tsx
-
-- `import { useGlobalLoading } from '@/hooks/useGlobalLoading'`
-
-### src/components/Footer.tsx
-
-- `import { useMemo } from 'react'`
-
-### src/components/LanguageSwitcher.tsx
-
-- `import React from 'react'`
-- `import { type Locale } from '@/i18n/config'`
-
-### src/components/MemberCard.tsx
-
-- `import { MEMBER_STATUS_CONFIG } from '@/types/members'`
-
-### src/components/SEO.tsx
-
-- `import Script from 'next/script'`
-
-### src/components/SettingsPanel.tsx
-
-- `import { type Locale } from '@/i18n/config'`
-
-### src/components/TeamActivityTracker.tsx
-
-- `import { LoadingSpinner } from '@/components/LoadingSpinner'`
-
-### src/components/ThemeToggle.tsx
-
-- `import React from 'react'`
-
-### src/components/collaboration/ConnectionStatus.tsx
-
-- `import React from 'react'`
-
-### src/components/meeting/MeetingRoom.tsx
-
-- `import { UseWebRTCMeetingOptions } from '@/hooks/useWebRTCMeeting'`
-
-### src/components/monitoring/MetricsDashboard.tsx
-
-- `import { Database } from 'lucide-react'`
-
-### src/components/multimodal/ImageAnalysisResult.tsx
-
-- `import React from 'react'`
-
-### src/hooks/useLongPress.ts
-
-- `import { RefObject, useEffect } from 'react'`
-
-### src/lib/a2a/executor.ts
-
-- `import { v4 } from 'uuid'`
-
-### src/lib/a2a/jsonrpc-handler.ts
-
-- `import { v4 } from 'uuid'`
-
-### src/lib/a2a/task-store.ts
-
-- `import { v4 } from 'uuid'`
-
-### src/lib/agents/middleware.ts
-
-- `import { hasAllPermissions } from '@/lib/agents/auth-service'`
-
-### src/lib/api/api-logger.ts
-
-- `import { v4 } from 'uuid'`
-
-*... 还有 10 个文件 *
+*... 还有 57 个文件 *
 
 
 ## 📤 未使用的导出
@@ -311,9 +313,21 @@
 
 - 命名导出: `POST`, `OPTIONS`
 
-### src/app/api/database/optimize/route.ts
+### src/app/api/analytics/export/route.ts
 
-- 命名导出: `PUT`
+- 命名导出: `POST`, `GET`
+
+### src/app/api/backup/route.optimized.ts
+
+- 命名导出: `GET_BACKUP`
+
+### src/app/api/feedback/route.ts
+
+- 命名导出: `GET_FEEDBACK`, `DELETE_FEEDBACK`
+
+### src/app/api/health/route.ts
+
+- 命名导出: `HEAD`
 
 ### src/app/api/multimodal/audio/route.ts
 
@@ -323,9 +337,17 @@
 
 - 命名导出: `runtime`
 
+### src/app/api/ratings/route.ts
+
+- 命名导出: `POST_HELPFUL`
+
 ### src/app/api/users/rbac-example-route.ts
 
-- 命名导出: `PATCH`, `GET_ROLES`
+- 命名导出: `GET_ROLES`
+
+### src/app/api/ws/route.ts
+
+- 命名导出: `GET_STATS`
 
 ### src/app/viewport.tsx
 
@@ -344,6 +366,10 @@
 - 默认导出: `AnimatedProgressBar`
 - 命名导出: `WaveProgress`, `SegmentedProgress`, `GradientProgress`, `StepProgress`
 
+### src/components/BackupList.tsx
+
+- 命名导出: `BackupList`
+
 ### src/components/BottomNav.tsx
 
 - 命名导出: `BottomNav`, `BottomNavWrapper`
@@ -356,6 +382,19 @@
 ### src/components/ClientProviders.tsx
 
 - 命名导出: `ClientProviders`
+
+### src/components/DataExportImport/index.tsx
+
+- 命名导出: `DataExportImport`
+
+### src/components/DataExportPanel.tsx
+
+- 命名导出: `DataExportPanel`
+
+### src/components/EnhancedFeedbackModal.tsx
+
+- 默认导出: `EnhancedFeedbackModal`
+- 命名导出: `EnhancedFeedbackModal`
 
 ### src/components/ErrorBoundaryWrapper.tsx
 
@@ -406,7 +445,7 @@
 
 ### src/components/LazyComponents.tsx
 
-- 命名导出: `LazyViewportWrapper`, `LazyHero3D`, `LazyNotificationCenter`, `LazySettingsPanel`, `LazyTaskBoard`, `LazyContactForm`, `LazyUserSettingsPage`, `LazyPWAInstallPrompt`, `preloadComponents`
+- 命名导出: `LazyViewportWrapper`, `LazyHero3D`, `LazyKnowledgeLatticeScene`, `LazyNotificationCenter`, `LazySettingsPanel`, `LazyTaskBoard`, `LazyContactForm`, `LazyUserSettingsPage`, `LazyPWAInstallPrompt`, `LazyAnalyticsDashboard`, `LazyMeetingRoom`, `preloadComponents`
 
 ### src/components/LazyLoadImage.tsx
 
@@ -436,6 +475,11 @@
 - 默认导出: `NotificationCenter`
 - 命名导出: `NotificationCenter`
 
+### src/components/NotificationCenter/NotificationFilter.tsx
+
+- 默认导出: `NotificationFilter`
+- 命名导出: `NotificationFilter`
+
 ### src/components/NotificationCenter/NotificationItem.tsx
 
 - 默认导出: `NotificationItem`
@@ -457,70 +501,23 @@
 
 ### src/components/PageLoadingTemplate.tsx
 
-- 默认导出: `PageLoading`
-- 命名导出: `MinimalPageLoading`, `CardGridLoading`, `TableLoading`, `ListLoading`, `DashboardLoading`
+- 命名导出: `MinimalPageLoading`, `TableLoading`, `ListLoading`, `DashboardLoading`, `TasksLoading`
 
 ### src/components/PerformanceMonitor.tsx
 
 - 默认导出: `PerformanceMonitor`
 - 命名导出: `PerformanceMonitor`, `ResourceTimingMonitor`
 
+### src/components/PerformanceOptimizer.tsx
+
+- 默认导出: `PerformanceOptimizer`
+- 命名导出: `PerformanceOptimizer`, `useComponentRenderTiming`, `useApiTiming`, `useResourceTiming`
+
 ### src/components/ProjectDashboard.tsx
 
 - 命名导出: `ProjectDashboard`
 
-### src/components/RealtimeDashboard.tsx
-
-- 默认导出: `RealtimeDashboard`
-- 命名导出: `RealtimeDashboard`
-
-### src/components/ResponsiveComponents.tsx
-
-- 命名导出: `ResponsiveGrid`, `ResponsiveCard`, `ResponsiveContainer`, `ResponsiveText`, `ResponsiveButton`, `ResponsiveInput`
-
-### src/components/SEO.tsx
-
-- 命名导出: `ArticleSchema`, `ServiceSchema`, `ProductSchema`, `Breadcrumbs`, `CanonicalUrl`, `HreflangLinks`
-
-### src/components/SettingsButton.tsx
-
-- 默认导出: `SettingsButton`
-- 命名导出: `SettingsButton`
-
-### src/components/SettingsPanel.tsx
-
-- 命名导出: `SettingsPanelCompact`
-
-### src/components/Skeleton.tsx
-
-- 默认导出: `SkeletonComponents`
-- 命名导出: `SkeletonBase`, `SkeletonText`, `SkeletonAvatar`, `SkeletonCard`, `SkeletonList`, `SkeletonTable`, `SkeletonStatCard`, `SkeletonNav`, `SkeletonPage`
-
-### src/components/SocialLinks.tsx
-
-- 默认导出: `SocialLinks`
-- 命名导出: `SocialLinks`
-
-### src/components/StarRating.tsx
-
-- 默认导出: `StarRating`
-- 命名导出: `StarRating`
-
-### src/components/TaskBoard.tsx
-
-- 命名导出: `TaskBoard`
-
-### src/components/TeamActivityTracker.tsx
-
-- 默认导出: `TeamActivityTracker`
-- 命名导出: `TeamActivityTracker`
-
-### src/components/UserSettings/UserSettingsPage.tsx
-
-- 默认导出: `UserSettingsPage`
-- 命名导出: `UserSettingsPage`
-
-*... 还有 200 个文件 *
+*... 还有 326 个文件 *
 
 
 ## 💀 潜在的死代码
@@ -542,7 +539,31 @@
 
 ### src/app/api/a2a/jsonrpc/route.ts
 
-- 未使用的函数: `getHandler`, `processSingleRequest`, `processBatchRequest`, `POST`, `determineErrorStatusCode`, `OPTIONS`
+- 未使用的函数: `POST`, `OPTIONS`
+
+### src/app/api/a2a/queue/route.ts
+
+- 未使用的函数: `GET`, `POST`, `DELETE`
+
+### src/app/api/a2a/registry/[id]/heartbeat/route.ts
+
+- 未使用的函数: `POST`
+
+### src/app/api/a2a/registry/[id]/route.ts
+
+- 未使用的函数: `GET`, `PUT`, `DELETE`, `PATCH`
+
+### src/app/api/a2a/registry/route.ts
+
+- 未使用的函数: `GET`, `POST`
+
+### src/app/api/analytics/export/route.ts
+
+- 未使用的函数: `POST`, `GET`
+
+### src/app/api/analytics/metrics/route.ts
+
+- 未使用的函数: `GET`, `POST`
 
 ### src/app/api/auth/login/route.ts
 
@@ -568,89 +589,64 @@
 
 - 未使用的函数: `GET`, `DELETE`
 
+### src/app/api/backup/export/download/[filename]/route.ts
+
+- 未使用的函数: `GET`
+
+### src/app/api/backup/export/route.ts
+
+- 未使用的函数: `GET`, `POST`
+
+### src/app/api/backup/import/route.ts
+
+- 未使用的函数: `POST`
+
+### src/app/api/backup/jobs/route.ts
+
+- 未使用的函数: `GET`
+
+### src/app/api/backup/restore/route.ts
+
+- 未使用的函数: `POST`
+
+### src/app/api/backup/route.optimized.ts
+
+- 未使用的函数: `GET_BACKUP`
+- 未使用的常量: `GET`, `POST`
+
 ### src/app/api/backup/route.ts
 
 - 未使用的常量: `GET`, `POST`
+
+### src/app/api/backup/schedule/[id]/route.ts
+
+- 未使用的函数: `PATCH`, `DELETE`
+
+### src/app/api/backup/schedule/[id]/trigger/route.ts
+
+- 未使用的函数: `POST`
+
+### src/app/api/backup/schedule/route.ts
+
+- 未使用的函数: `GET`, `POST`
+
+### src/app/api/backup/statistics/route.ts
+
+- 未使用的函数: `GET`
+
+### src/app/api/csp-violation/route.ts
+
+- 未使用的函数: `POST`, `GET`
 
 ### src/app/api/csrf-token/route.ts
 
 - 未使用的函数: `GET`, `POST`
 
-### src/app/api/database/health/route.ts
+### src/app/api/data/export/route.ts
 
-- 未使用的函数: `GET`
+- 未使用的函数: `GET`, `POST`
 
-### src/app/api/database/optimize/route.ts
-
-- 未使用的函数: `GET`, `POST`, `PUT`
-
-### src/app/api/example/route.ts
-
-- 未使用的常量: `GET`, `POST`
-
-### src/app/api/github/commits/route.ts
-
-- 未使用的函数: `GET`, `parseTotalFromLinkHeader`
-- 未使用的常量: `GITHUB_API_BASE`
-
-### src/app/api/github/issues/route.ts
-
-- 未使用的函数: `GET`, `parseTotalFromLinkHeader`
-- 未使用的常量: `GITHUB_API_BASE`
-
-### src/app/api/health/detailed/route.ts
-
-- 未使用的函数: `GET`
-
-### src/app/api/health/live/route.ts
-
-- 未使用的常量: `GET`
-
-### src/app/api/health/ready/route.ts
-
-- 未使用的常量: `GET`
-
-### src/app/api/health/route.ts
-
-- 未使用的函数: `GET`
-
-### src/app/api/metrics/performance/route.ts
-
-- 未使用的函数: `GET`
-
-### src/app/api/metrics/prometheus/route.ts
-
-- 未使用的函数: `GET`
-
-### src/app/api/multimodal/audio/route.ts
-
-- 未使用的函数: `POST`, `GET`
-
-### src/app/api/multimodal/image/route.ts
-
-- 未使用的函数: `POST`, `GET`
-
-### src/app/api/performance/clear/route.ts
-
-- 未使用的函数: `POST`
-
-### src/app/api/performance/report/route.ts
-
-- 未使用的函数: `GET`, `DELETE`
-
-### src/app/api/status/route.ts
-
-- 未使用的函数: `GET`
-
-### src/app/api/stream/analytics/route.ts
-
-- 未使用的函数: `GET`
-
-### src/app/api/stream/health/route.ts
-
-- 未使用的函数: `GET`
-
-*... 还有 199 个文件 *
+*... 还有 332 个文件 *
 
 
 ## ⚠️ 注意事项

@@ -105,7 +105,7 @@ export function ReviewItem({
   };
 
   return (
-    <div className={cn('border-b border-gray-200 py-6', className)}>
+    <div className={cn('border-b border-zinc-200 py-6', className)}>
       {/* Review Header */}
       <div className="flex items-start gap-4">
         {/* Avatar */}
@@ -119,7 +119,7 @@ export function ReviewItem({
           <div className="flex items-center justify-between mb-2">
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-gray-900">
+                <span className="font-semibold text-zinc-900">
                   {rating.user_id.substring(0, 8)}
                 </span>
                 {rating.verified && (
@@ -137,12 +137,12 @@ export function ReviewItem({
                         'w-4 h-4',
                         i < Math.floor(rating.rating)
                           ? 'fill-yellow-400 text-yellow-400'
-                          : 'text-gray-300'
+                          : 'text-zinc-300'
                       )}
                     />
                   ))}
                 </div>
-                <span className="text-sm text-gray-500">{formattedDate}</span>
+                <span className="text-sm text-zinc-500">{formattedDate}</span>
               </div>
             </div>
 
@@ -163,7 +163,7 @@ export function ReviewItem({
                   variant="ghost"
                   size="sm"
                   onClick={handleFlag}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-zinc-500 hover:text-zinc-700"
                 >
                   <Flag className="w-4 h-4" />
                 </Button>
@@ -173,12 +173,12 @@ export function ReviewItem({
 
           {/* Title */}
           {rating.title && (
-            <h4 className="font-medium text-gray-900 mb-2">{rating.title}</h4>
+            <h4 className="font-medium text-zinc-900 mb-2">{rating.title}</h4>
           )}
 
           {/* Description */}
           {rating.description && (
-            <div className="text-gray-700 mb-4">
+            <div className="text-zinc-700 mb-4">
               {displayText}
               {isLongText && !showFullText && (
                 <button
@@ -207,7 +207,7 @@ export function ReviewItem({
                   key={index}
                   src={image}
                   alt={`Review image ${index + 1}`}
-                  className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                  className="w-20 h-20 object-cover rounded-lg border border-zinc-200"
                 />
               ))}
             </div>
@@ -224,7 +224,7 @@ export function ReviewItem({
                 'gap-1.5',
                 rating.is_helpful
                   ? 'text-blue-600 bg-blue-50 hover:bg-blue-100'
-                  : 'text-gray-600 hover:text-gray-900'
+                  : 'text-zinc-600 hover:text-zinc-900'
               )}
             >
               <ThumbsUp className={cn('w-4 h-4', rating.is_helpful && 'fill-current')} />
@@ -236,7 +236,7 @@ export function ReviewItem({
               variant="ghost"
               size="sm"
               onClick={() => handleHelpful(false)}
-              className="text-gray-600 hover:text-gray-900 gap-1.5"
+              className="text-zinc-600 hover:text-zinc-900 gap-1.5"
             >
               <ThumbsUp className="w-4 h-4 rotate-180" />
               <span className="text-sm">{rating.not_helpful_count}</span>
@@ -248,7 +248,7 @@ export function ReviewItem({
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsReplying(!isReplying)}
-                className="text-gray-600 hover:text-gray-900 gap-1.5"
+                className="text-zinc-600 hover:text-zinc-900 gap-1.5"
               >
                 <MessageCircle className="w-4 h-4" />
                 <span className="text-sm">Reply</span>
@@ -258,7 +258,7 @@ export function ReviewItem({
 
           {/* Reply Form */}
           {isReplying && onReply && (
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+            <div className="mt-4 p-4 bg-zinc-50 rounded-lg">
               <textarea
                 placeholder="Write your reply..."
                 value={replyContent}
@@ -296,8 +296,8 @@ export function ReviewItem({
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="font-medium text-sm text-gray-900">Admin</span>
-                    <span className="text-xs text-gray-500">
+                    <span className="font-medium text-sm text-zinc-900">Admin</span>
+                    <span className="text-xs text-zinc-500">
                       {new Date(rating.updated_at).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'short',
@@ -305,7 +305,7 @@ export function ReviewItem({
                       })}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-700">
+                  <p className="text-sm text-zinc-700">
                     Thank you for your feedback! We appreciate you taking the time to share your
                     experience.
                   </p>

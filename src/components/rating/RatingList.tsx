@@ -149,9 +149,9 @@ export function RatingList({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-2xl font-bold text-zinc-900">
             Reviews & Ratings
-            {total > 0 && <span className="text-gray-500 font-normal ml-2">({total})</span>}
+            {total > 0 && <span className="text-zinc-500 font-normal ml-2">({total})</span>}
           </h2>
           {averageRating > 0 && (
             <div className="flex items-center gap-2 mt-1">
@@ -163,13 +163,13 @@ export function RatingList({
                       'w-4 h-4',
                       i < Math.round(averageRating)
                         ? 'fill-yellow-400 text-yellow-400'
-                        : 'text-gray-300'
+                        : 'text-zinc-300'
                     )}
                   />
                 ))}
               </div>
               <span className="text-sm font-medium">{averageRating}</span>
-              <span className="text-sm text-gray-500">average</span>
+              <span className="text-sm text-zinc-500">average</span>
             </div>
           )}
         </div>
@@ -191,10 +191,10 @@ export function RatingList({
 
       {/* Filters Panel */}
       {showFilters && (
-        <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-4">
+        <div className="p-4 bg-zinc-50 rounded-lg border border-zinc-200 space-y-4">
           {/* Search */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
+            <label className="block text-sm font-medium text-zinc-700 mb-1">Search</label>
             <Input
               placeholder="Search reviews..."
               value={searchQuery}
@@ -206,7 +206,7 @@ export function RatingList({
           {/* Rating Range */}
           <div className="flex gap-4 items-end">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Min Rating</label>
+              <label className="block text-sm font-medium text-zinc-700 mb-1">Min Rating</label>
               <select
                 value={ratingMin?.toString() || 'all'}
                 onChange={(e) => setRatingMin(e.target.value === 'all' ? undefined : parseInt(e.target.value))}
@@ -222,7 +222,7 @@ export function RatingList({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Max Rating</label>
+              <label className="block text-sm font-medium text-zinc-700 mb-1">Max Rating</label>
               <select
                 value={ratingMax?.toString() || 'all'}
                 onChange={(e) => setRatingMax(e.target.value === 'all' ? undefined : parseInt(e.target.value))}
@@ -246,7 +246,7 @@ export function RatingList({
 
       {/* Sort Controls */}
       <div className="flex items-center gap-2">
-        <span className="text-sm text-gray-600">Sort by:</span>
+        <span className="text-sm text-zinc-600">Sort by:</span>
         <Button
           variant={sortBy === 'created_at' ? 'primary' : 'ghost'}
           size="sm"
@@ -285,7 +285,7 @@ export function RatingList({
       {/* Loading State */}
       {loading && (
         <div className="flex items-center justify-center py-12">
-          <div className="text-gray-500">Loading reviews...</div>
+          <div className="text-zinc-500">Loading reviews...</div>
         </div>
       )}
 
@@ -299,9 +299,9 @@ export function RatingList({
       {/* Empty State */}
       {!loading && !error && ratings.length === 0 && (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <Star className="w-16 h-16 text-gray-300 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No reviews yet</h3>
-          <p className="text-gray-500 max-w-md">
+          <Star className="w-16 h-16 text-zinc-300 mb-4" />
+          <h3 className="text-lg font-medium text-zinc-900 mb-2">No reviews yet</h3>
+          <p className="text-zinc-500 max-w-md">
             Be the first to share your experience! Your feedback helps others make better decisions.
           </p>
         </div>
@@ -328,8 +328,8 @@ export function RatingList({
 
       {/* Pagination */}
       {!loading && !error && totalPages > 1 && (
-        <div className="flex items-center justify-between pt-6 border-t border-gray-200">
-          <div className="text-sm text-gray-600">
+        <div className="flex items-center justify-between pt-6 border-t border-zinc-200">
+          <div className="text-sm text-zinc-600">
             Showing {((page - 1) * perPage) + 1} to {Math.min(page * perPage, total)} of {total} reviews
           </div>
 

@@ -5,6 +5,7 @@
 
 'use client';
 
+import React, { memo } from 'react';
 import { LucideIcon, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { type Statistic } from '@/lib/types/analytics';
 import type { FC, CSSProperties } from 'react';
@@ -126,10 +127,10 @@ function formatValue(
 }
 
 // ============================================================================
-// Main Component
+// Main Component - 使用 React.memo 优化
 // ============================================================================
 
-export const MetricCard: FC<MetricCardProps> = ({
+const MetricCardBase: FC<MetricCardProps> = ({
   statistic,
   icon: Icon,
   color = 'blue',
@@ -144,11 +145,11 @@ export const MetricCard: FC<MetricCardProps> = ({
   if (loading) {
     return (
       <div
-        className={`${sizes.padding} bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-700/30 rounded-xl border border-gray-200 dark:border-gray-700 ${className}`}
+        className={`${sizes.padding} bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-700/30 rounded-xl border border-zinc-200 dark:border-zinc-700 ${className}`}
       >
         <div className="animate-pulse space-y-2">
-          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+          <div className="h-4 bg-zinc-200 dark:bg-zinc-700 rounded w-1/2"></div>
+          <div className="h-8 bg-zinc-200 dark:bg-zinc-700 rounded w-3/4"></div>
         </div>
       </div>
     );
@@ -159,7 +160,7 @@ export const MetricCard: FC<MetricCardProps> = ({
 
   const changeValue = change?.value ?? 0;
   const TrendIcon = changeValue > 0 ? TrendingUp : changeValue < 0 ? TrendingDown : Minus;
-  const trendColor = changeValue > 0 ? 'text-green-600 dark:text-green-400' : changeValue < 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-500';
+  const trendColor = changeValue > 0 ? 'text-green-600 dark:text-green-400' : changeValue < 0 ? 'text-red-600 dark:text-red-400' : 'text-zinc-500';
 
   return (
     <div
@@ -182,7 +183,7 @@ export const MetricCard: FC<MetricCardProps> = ({
         {/* Top: Title and Icon */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <h3 className={`${sizes.title} font-medium text-gray-600 dark:text-gray-400 truncate`}>
+            <h3 className={`${sizes.title} font-medium text-zinc-600 dark:text-zinc-400 truncate`}>
               {label}
             </h3>
           </div>
@@ -208,7 +209,7 @@ export const MetricCard: FC<MetricCardProps> = ({
               {changeValue > 0 ? '+' : ''}{changeValue}%
             </span>
             {change.period && (
-              <span className="text-xs text-gray-500 dark:text-gray-400">
+              <span className="text-xs text-zinc-500 dark:text-zinc-400">
                 ({change.period})
               </span>
             )}
@@ -218,5 +219,40 @@ export const MetricCard: FC<MetricCardProps> = ({
     </div>
   );
 };
+
+// 使用 React.memo 优化 MetricCard，只在关键数据变化时重新渲染
+export const MetricCard = memo(MetricCardBase, (prevProps, nextProps) => {
+  // 比较 loading 状态
+  if (prevProps.loading !== nextProps.loading) return false;
+
+  // 如果 loading 为 true 或 false 都需要比较更多
+  const { statistic: prevStat, ...prevRest } = prevProps;
+  const { statistic: nextStat, ...nextRest } = nextProps;
+
+  // 比较 props 的其他部分
+  if (
+    prevRest.color !== nextRest.color ||
+    prevRest.size !== nextRest.size ||
+    prevRest.onClick !== nextRest.onClick ||
+    prevRest.className !== nextRest.className
+  ) {
+    return false;
+  }
+
+  // 比较 statistic 的关键字段
+  if (
+    prevStat.label !== nextStat.label ||
+    prevStat.value !== nextStat.value ||
+    prevStat.format !== nextStat.format ||
+    prevStat.change?.value !== nextStat.change?.value ||
+    prevStat.change?.period !== nextStat.change?.period
+  ) {
+    return false;
+  }
+
+  return true;
+});
+
+MetricCard.displayName = 'MetricCard';
 
 export default MetricCard;

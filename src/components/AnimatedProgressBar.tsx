@@ -173,7 +173,7 @@ const AnimatedProgressBar = memo(function AnimatedProgressBar({
       {(label || showPercentage) && (
         <div className="flex justify-between items-center mb-2">
           {label && (
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
               {label}
             </span>
           )}
@@ -181,7 +181,7 @@ const AnimatedProgressBar = memo(function AnimatedProgressBar({
             <span className={`text-sm font-bold transition-all duration-300 ${
               isComplete
                 ? 'text-green-500 scale-110'
-                : 'text-gray-900 dark:text-white'
+                : 'text-zinc-900 dark:text-white'
             }`}>
               {Math.round(displayValue)}%
               {isComplete && ' ✓'}
@@ -189,7 +189,7 @@ const AnimatedProgressBar = memo(function AnimatedProgressBar({
           )}
         </div>
       )}
-      <div className={`w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden ${sizeClass}`}>
+      <div className={`w-full bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden ${sizeClass}`}>
         <div
           className={`${sizeClass} ${colorClass} ${striped ? 'bg-stripes' : ''} ${getAnimationClass()} rounded-full transition-all duration-300 ease-out relative overflow-hidden`}
           style={barStyle}
@@ -297,7 +297,7 @@ export const WaveProgress = memo(function WaveProgress({
 
   return (
     <div
-      className="relative rounded-full overflow-hidden border-4 border-gray-200 dark:border-gray-700"
+      className="relative rounded-full overflow-hidden border-4 border-zinc-200 dark:border-zinc-700"
       style={{ width: size, height: size }}
       role="progressbar"
       aria-valuenow={value}
@@ -329,11 +329,11 @@ export const WaveProgress = memo(function WaveProgress({
       {/* 数值显示 */}
       {showValue && (
         <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-          <span className="text-xl font-bold text-gray-900 dark:text-white drop-shadow-sm">
+          <span className="text-xl font-bold text-zinc-900 dark:text-white drop-shadow-sm">
             {Math.round(displayValue)}%
           </span>
           {label && (
-            <span className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+            <span className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">
               {label}
             </span>
           )}
@@ -425,7 +425,7 @@ export const SegmentedProgress = memo(function SegmentedProgress({
           return (
             <div
               key={index}
-              className={`flex-1 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden relative ${sizeClass}`}
+              className={`flex-1 rounded-full bg-zinc-200 dark:bg-zinc-700 overflow-hidden relative ${sizeClass}`}
               title={labels?.[index] || `步骤 ${index + 1}`}
             >
               <div
@@ -447,8 +447,8 @@ export const SegmentedProgress = memo(function SegmentedProgress({
               key={index}
               className={`text-xs transition-colors ${
                 index < Math.round(animatedCurrent)
-                  ? 'text-gray-900 dark:text-white font-medium'
-                  : 'text-gray-500 dark:text-gray-400'
+                  ? 'text-zinc-900 dark:text-white font-medium'
+                  : 'text-zinc-500 dark:text-zinc-400'
               }`}
             >
               {label}
@@ -549,18 +549,18 @@ export const GradientProgress = memo(function GradientProgress({
       {(label || showPercentage) && (
         <div className="flex justify-between items-center mb-2">
           {label && (
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
               {label}
             </span>
           )}
           {showPercentage && (
-            <span className="text-sm font-bold text-gray-900 dark:text-white">
+            <span className="text-sm font-bold text-zinc-900 dark:text-white">
               {Math.round(displayValue)}%
             </span>
           )}
         </div>
       )}
-      <div className={`w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden ${sizeClass}`}>
+      <div className={`w-full bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden ${sizeClass}`}>
         <div
           className={`${sizeClass} rounded-full transition-all duration-300 relative overflow-hidden ${animated ? 'animate-gradient-shift' : ''}`}
           style={gradientStyle}
@@ -616,8 +616,8 @@ export const StepProgress = memo(function StepProgress({
                 isCompleted
                   ? `${colorClass} text-white`
                   : isCurrent
-                  ? 'ring-2 ring-offset-2 ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white'
-                  : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                  ? 'ring-2 ring-offset-2 ring-blue-500 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white'
+                  : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400'
               }`}
             >
               {isCompleted ? (
@@ -638,8 +638,8 @@ export const StepProgress = memo(function StepProgress({
             <span
               className={`text-sm ${
                 isCompleted || isCurrent
-                  ? 'text-gray-900 dark:text-white font-medium'
-                  : 'text-gray-500 dark:text-gray-400'
+                  ? 'text-zinc-900 dark:text-white font-medium'
+                  : 'text-zinc-500 dark:text-zinc-400'
               }`}
             >
               {step.label}
@@ -647,7 +647,7 @@ export const StepProgress = memo(function StepProgress({
 
             {/* 连接线 */}
             {index < steps.length - 1 && isHorizontal && (
-              <div className="flex-1 min-w-[40px] h-0.5 mx-2 bg-gray-200 dark:bg-gray-700 relative">
+              <div className="flex-1 min-w-[40px] h-0.5 mx-2 bg-zinc-200 dark:bg-zinc-700 relative">
                 <div
                   className={`absolute inset-y-0 left-0 ${colorClass} transition-all duration-500`}
                   style={{ width: isCompleted ? '100%' : '0%' }}

@@ -141,7 +141,7 @@ export const FeedbackManagementPanel: React.FC = () => {
   // Priority colors
   const getPriorityColor = (priority: FeedbackPriority): string => {
     const colors: Record<FeedbackPriority, string> = {
-      low: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
+      low: 'bg-zinc-100 text-zinc-800 dark:bg-zinc-700 dark:text-zinc-300',
       medium: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
       high: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
       urgent: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
@@ -190,11 +190,11 @@ export const FeedbackManagementPanel: React.FC = () => {
       )}
 
       {/* Filters */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+      <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Search */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
               搜索
             </label>
             <input
@@ -202,19 +202,19 @@ export const FeedbackManagementPanel: React.FC = () => {
               value={filters.search || ''}
               onChange={(e) => handleFilterChange('search', e.target.value)}
               placeholder="标题或描述..."
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-700 dark:text-white"
             />
           </div>
 
           {/* Type Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
               类型
             </label>
             <select
               value={filters.type || ''}
               onChange={(e) => handleFilterChange('type', e.target.value || undefined)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-700 dark:text-white"
             >
               <option value="">全部类型</option>
               {Object.values(FeedbackType).map(type => (
@@ -225,13 +225,13 @@ export const FeedbackManagementPanel: React.FC = () => {
 
           {/* Status Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
               状态
             </label>
             <select
               value={filters.status || ''}
               onChange={(e) => handleFilterChange('status', e.target.value || undefined)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-700 dark:text-white"
             >
               <option value="">全部状态</option>
               {Object.values(FeedbackStatus).map(status => (
@@ -242,13 +242,13 @@ export const FeedbackManagementPanel: React.FC = () => {
 
           {/* Priority Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
               优先级
             </label>
             <select
               value={filters.priority || ''}
               onChange={(e) => handleFilterChange('priority', e.target.value || undefined)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-700 dark:text-white"
             >
               <option value="">全部优先级</option>
               {Object.values(FeedbackPriority).map(priority => (
@@ -260,30 +260,30 @@ export const FeedbackManagementPanel: React.FC = () => {
       </div>
 
       {/* Feedback List */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-700">
+            <thead className="bg-zinc-50 dark:bg-zinc-700">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   反馈
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   类型
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   评分
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   状态
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   优先级
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   时间
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-6 py-3 text-right text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                   操作
                 </th>
               </tr>
@@ -292,28 +292,28 @@ export const FeedbackManagementPanel: React.FC = () => {
               {feedbacks.map(feedback => (
                 <tr
                   key={feedback.id}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer"
+                  className="hover:bg-zinc-50 dark:hover:bg-zinc-700/50 cursor-pointer"
                   onClick={() => setSelectedFeedback(feedback)}
                 >
                   <td className="px-6 py-4">
                     <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      <p className="text-sm font-medium text-zinc-900 dark:text-white">
                         {feedback.title}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-xs">
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate max-w-xs">
                         {feedback.description}
                       </p>
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="text-xs text-gray-700 dark:text-gray-300">
+                    <span className="text-xs text-zinc-700 dark:text-zinc-300">
                       {feedback.type}
                     </span>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center">
                       <span className="text-yellow-400">⭐</span>
-                      <span className="ml-1 text-sm font-medium text-gray-900 dark:text-white">
+                      <span className="ml-1 text-sm font-medium text-zinc-900 dark:text-white">
                         {feedback.rating}
                       </span>
                     </div>
@@ -328,7 +328,7 @@ export const FeedbackManagementPanel: React.FC = () => {
                       {feedback.priority}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-xs text-gray-500 dark:text-gray-400">
+                  <td className="px-6 py-4 text-xs text-zinc-500 dark:text-zinc-400">
                     {new Date(feedback.created_at).toLocaleDateString('zh-CN')}
                   </td>
                   <td className="px-6 py-4 text-right text-xs font-medium">
@@ -370,11 +370,11 @@ interface StatCardProps {
 }
 
 const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color }) => (
-  <div className={`${color} rounded-lg border border-gray-200 dark:border-gray-700 p-4`}>
+  <div className={`${color} rounded-lg border border-zinc-200 dark:border-zinc-700 p-4`}>
     <div className="flex items-center justify-between">
       <div>
-        <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{title}</p>
-        <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{value}</p>
+        <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">{title}</p>
+        <p className="text-2xl font-bold text-zinc-900 dark:text-white mt-1">{value}</p>
       </div>
       <span className="text-3xl">{icon}</span>
     </div>
@@ -410,15 +410,15 @@ const FeedbackDetailModal: React.FC<FeedbackDetailModalProps> = ({
     <div className="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       <div className="flex min-h-full items-center justify-center p-4">
-        <div className="relative w-full max-w-3xl transform rounded-xl bg-white dark:bg-gray-900 shadow-2xl">
+        <div className="relative w-full max-w-3xl transform rounded-xl bg-white dark:bg-zinc-900 shadow-2xl">
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-700 px-6 py-4">
+            <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">
               反馈详情
             </h3>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-500 p-1"
+              className="text-zinc-400 hover:text-zinc-500 p-1"
             >
               <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -434,9 +434,9 @@ const FeedbackDetailModal: React.FC<FeedbackDetailModalProps> = ({
                 {feedback.user_id.charAt(0).toUpperCase()}
               </div>
               <div>
-                <p className="font-medium text-gray-900 dark:text-white">用户ID: {feedback.user_id}</p>
+                <p className="font-medium text-zinc-900 dark:text-white">用户ID: {feedback.user_id}</p>
                 {feedback.email && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{feedback.email}</p>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-400">{feedback.email}</p>
                 )}
               </div>
             </div>
@@ -444,15 +444,15 @@ const FeedbackDetailModal: React.FC<FeedbackDetailModalProps> = ({
             {/* Feedback Content */}
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">标题</label>
-                <p className="mt-1 text-gray-900 dark:text-white">{feedback.title}</p>
+                <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">标题</label>
+                <p className="mt-1 text-zinc-900 dark:text-white">{feedback.title}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">描述</label>
-                <p className="mt-1 text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{feedback.description}</p>
+                <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">描述</label>
+                <p className="mt-1 text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap">{feedback.description}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">评分</label>
+                <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">评分</label>
                 <div className="flex items-center gap-1 mt-1">
                   {'⭐'.repeat(feedback.rating)}
                 </div>
@@ -462,15 +462,15 @@ const FeedbackDetailModal: React.FC<FeedbackDetailModalProps> = ({
             {/* Metadata */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">类型</label>
-                <p className="mt-1 text-gray-900 dark:text-white">{feedback.type}</p>
+                <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">类型</label>
+                <p className="mt-1 text-zinc-900 dark:text-white">{feedback.type}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">状态</label>
+                <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">状态</label>
                 <select
                   value={feedback.status}
                   onChange={(e) => onUpdate(feedback.id, { status: e.target.value as FeedbackStatus })}
-                  className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white"
+                  className="mt-1 w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg dark:bg-zinc-800 dark:text-white"
                 >
                   {Object.values(FeedbackStatus).map(status => (
                     <option key={status} value={status}>{status}</option>
@@ -478,11 +478,11 @@ const FeedbackDetailModal: React.FC<FeedbackDetailModalProps> = ({
                 </select>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">优先级</label>
+                <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">优先级</label>
                 <select
                   value={feedback.priority}
                   onChange={(e) => onUpdate(feedback.id, { priority: e.target.value as FeedbackPriority })}
-                  className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white"
+                  className="mt-1 w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg dark:bg-zinc-800 dark:text-white"
                 >
                   {Object.values(FeedbackPriority).map(priority => (
                     <option key={priority} value={priority}>{priority}</option>
@@ -490,8 +490,8 @@ const FeedbackDetailModal: React.FC<FeedbackDetailModalProps> = ({
                 </select>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">提交时间</label>
-                <p className="mt-1 text-gray-900 dark:text-white">
+                <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">提交时间</label>
+                <p className="mt-1 text-zinc-900 dark:text-white">
                   {new Date(feedback.created_at).toLocaleString('zh-CN')}
                 </p>
               </div>
@@ -499,12 +499,12 @@ const FeedbackDetailModal: React.FC<FeedbackDetailModalProps> = ({
 
             {/* Admin Notes */}
             <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">管理员备注</label>
+              <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">管理员备注</label>
               <textarea
                 value={adminNotes}
                 onChange={(e) => setAdminNotes(e.target.value)}
                 rows={3}
-                className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white resize-none"
+                className="mt-1 w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg dark:bg-zinc-800 dark:text-white resize-none"
                 placeholder="添加管理员备注..."
               />
               <button
@@ -518,7 +518,7 @@ const FeedbackDetailModal: React.FC<FeedbackDetailModalProps> = ({
           </div>
 
           {/* Footer */}
-          <div className="flex justify-end gap-3 border-t border-gray-200 dark:border-gray-700 px-6 py-4">
+          <div className="flex justify-end gap-3 border-t border-zinc-200 dark:border-zinc-700 px-6 py-4">
             <button
               onClick={() => onDelete(feedback.id)}
               className="px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"

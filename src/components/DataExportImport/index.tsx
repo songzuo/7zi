@@ -208,21 +208,21 @@ export const DataExportImport = memo(function DataExportImport() {
         <div className="flex items-center gap-3">
           <Database className="h-6 w-6 text-blue-600" />
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Data Export & Import</h2>
-            <p className="text-sm text-gray-600">Manage database data export and import operations</p>
+            <h2 className="text-2xl font-bold text-zinc-900">Data Export & Import</h2>
+            <p className="text-sm text-zinc-600">Manage database data export and import operations</p>
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-gray-200">
+      <div className="flex gap-2 border-b border-zinc-200">
         <button
           onClick={() => setActiveTab('export')}
           className={cn(
             'flex items-center gap-2 px-4 py-3 border-b-2 font-medium transition-colors',
             activeTab === 'export'
               ? 'border-blue-600 text-blue-600'
-              : 'border-transparent text-gray-600 hover:text-gray-900',
+              : 'border-transparent text-zinc-600 hover:text-zinc-900',
           )}
         >
           <Download className="h-4 w-4" />
@@ -234,7 +234,7 @@ export const DataExportImport = memo(function DataExportImport() {
             'flex items-center gap-2 px-4 py-3 border-b-2 font-medium transition-colors',
             activeTab === 'import'
               ? 'border-blue-600 text-blue-600'
-              : 'border-transparent text-gray-600 hover:text-gray-900',
+              : 'border-transparent text-zinc-600 hover:text-zinc-900',
           )}
         >
           <Upload className="h-4 w-4" />
@@ -264,7 +264,7 @@ export const DataExportImport = memo(function DataExportImport() {
           {/* Table Selection */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-gray-700">Select Tables</label>
+              <label className="text-sm font-medium text-zinc-700">Select Tables</label>
               <div className="flex gap-2">
                 <button
                   onClick={selectAll}
@@ -274,7 +274,7 @@ export const DataExportImport = memo(function DataExportImport() {
                 </button>
                 <button
                   onClick={selectNone}
-                  className="text-xs px-2 py-1 text-gray-600 hover:text-gray-700 hover:bg-gray-50 rounded"
+                  className="text-xs px-2 py-1 text-zinc-600 hover:text-zinc-700 hover:bg-zinc-50 rounded"
                 >
                   Select None
                 </button>
@@ -284,17 +284,17 @@ export const DataExportImport = memo(function DataExportImport() {
               {SUPPORTED_TABLES.map(table => (
                 <label
                   key={table.id}
-                  className="flex items-start gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                  className="flex items-start gap-3 p-3 border border-zinc-200 rounded-lg hover:bg-zinc-50 cursor-pointer transition-colors"
                 >
                   <input
                     type="checkbox"
                     checked={selectedTables.includes(table.id)}
                     onChange={() => toggleTable(table.id)}
-                    className="mt-0.5 h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                    className="mt-0.5 h-4 w-4 text-blue-600 rounded border-zinc-300 focus:ring-blue-500"
                   />
                   <div className="flex-1">
-                    <div className="font-medium text-gray-900">{table.name}</div>
-                    <div className="text-xs text-gray-500">{table.description}</div>
+                    <div className="font-medium text-zinc-900">{table.name}</div>
+                    <div className="text-xs text-zinc-500">{table.description}</div>
                   </div>
                 </label>
               ))}
@@ -303,7 +303,7 @@ export const DataExportImport = memo(function DataExportImport() {
 
           {/* Format Selection */}
           <div className="space-y-3">
-            <label className="text-sm font-medium text-gray-700">Export Format</label>
+            <label className="text-sm font-medium text-zinc-700">Export Format</label>
             <div className="grid grid-cols-2 gap-3">
               {EXPORT_FORMATS.map(format => {
                 const Icon = format.icon;
@@ -315,16 +315,16 @@ export const DataExportImport = memo(function DataExportImport() {
                       'flex items-center gap-3 p-4 border-2 rounded-lg transition-all',
                       selectedFormat === format.id
                         ? 'border-blue-600 bg-blue-50'
-                        : 'border-gray-200 hover:border-gray-300',
+                        : 'border-zinc-200 hover:border-zinc-300',
                     )}
                   >
                     <Icon className={cn(
                       'h-6 w-6',
-                      selectedFormat === format.id ? 'text-blue-600' : 'text-gray-400',
+                      selectedFormat === format.id ? 'text-blue-600' : 'text-zinc-400',
                     )} />
                     <div className="text-left">
-                      <div className="font-medium text-gray-900">{format.name}</div>
-                      <div className="text-xs text-gray-500">{format.description}</div>
+                      <div className="font-medium text-zinc-900">{format.name}</div>
+                      <div className="text-xs text-zinc-500">{format.description}</div>
                     </div>
                   </button>
                 );
@@ -339,9 +339,9 @@ export const DataExportImport = memo(function DataExportImport() {
               id="includeSchema"
               checked={includeSchema}
               onChange={(e) => setIncludeSchema(e.target.checked)}
-              className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+              className="h-4 w-4 text-blue-600 rounded border-zinc-300 focus:ring-blue-500"
             />
-            <label htmlFor="includeSchema" className="text-sm text-gray-700">
+            <label htmlFor="includeSchema" className="text-sm text-zinc-700">
               Include table schema in export
             </label>
           </div>
@@ -353,7 +353,7 @@ export const DataExportImport = memo(function DataExportImport() {
             className={cn(
               'flex items-center justify-center gap-2 w-full py-3 px-4 rounded-lg font-medium transition-colors',
               isExporting || selectedTables.length === 0
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                ? 'bg-zinc-300 text-zinc-500 cursor-not-allowed'
                 : 'bg-blue-600 text-white hover:bg-blue-700',
             )}
           >
@@ -396,20 +396,20 @@ export const DataExportImport = memo(function DataExportImport() {
               <div className="space-y-2 text-sm">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <span className="text-gray-600">Total Rows:</span>{' '}
+                    <span className="text-zinc-600">Total Rows:</span>{' '}
                     <span className="font-medium">{importResult.totalRows ?? 0}</span>
                   </div>
                   {importResult.backup && (
                     <div>
-                      <span className="text-gray-600">Backup:</span>{' '}
+                      <span className="text-zinc-600">Backup:</span>{' '}
                       <span className="font-medium">{importResult.backup}</span>
                     </div>
                   )}
                 </div>
                 {Object.entries(importResult.stats.tables || {}).map(([table, stats]: [string, { inserted: number; updated: number; skipped: number; errors: number }]) => (
-                  <div key={table} className="pl-4 border-l-2 border-gray-200">
+                  <div key={table} className="pl-4 border-l-2 border-zinc-200">
                     <div className="font-medium">{table}</div>
-                    <div className="grid grid-cols-2 gap-2 text-xs text-gray-600 mt-1">
+                    <div className="grid grid-cols-2 gap-2 text-xs text-zinc-600 mt-1">
                       <span>Inserted: {stats.inserted}</span>
                       <span>Updated: {stats.updated}</span>
                       <span>Skipped: {stats.skipped}</span>
@@ -444,8 +444,8 @@ export const DataExportImport = memo(function DataExportImport() {
 
           {/* File Upload */}
           <div className="space-y-3">
-            <label className="text-sm font-medium text-gray-700">Import File</label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-gray-400 transition-colors">
+            <label className="text-sm font-medium text-zinc-700">Import File</label>
+            <div className="border-2 border-dashed border-zinc-300 rounded-lg p-6 hover:border-zinc-400 transition-colors">
               <input
                 type="file"
                 accept=".json,.csv"
@@ -457,11 +457,11 @@ export const DataExportImport = memo(function DataExportImport() {
                 htmlFor="importFile"
                 className="flex flex-col items-center justify-center cursor-pointer"
               >
-                <Upload className="h-8 w-8 text-gray-400 mb-2" />
-                <span className="text-sm text-gray-600">
+                <Upload className="h-8 w-8 text-zinc-400 mb-2" />
+                <span className="text-sm text-zinc-600">
                   {importFile ? importFile.name : 'Click to upload JSON or CSV file'}
                 </span>
-                <span className="text-xs text-gray-400 mt-1">
+                <span className="text-xs text-zinc-400 mt-1">
                   Supports .json and .csv files
                 </span>
               </label>
@@ -470,7 +470,7 @@ export const DataExportImport = memo(function DataExportImport() {
 
           {/* Import Mode */}
           <div className="space-y-3">
-            <label className="text-sm font-medium text-gray-700">Import Mode</label>
+            <label className="text-sm font-medium text-zinc-700">Import Mode</label>
             <div className="grid grid-cols-2 gap-3">
               {IMPORT_MODES.map(mode => (
                 <button
@@ -480,11 +480,11 @@ export const DataExportImport = memo(function DataExportImport() {
                     'p-3 border-2 rounded-lg transition-all text-left',
                     importMode === mode.id
                       ? 'border-blue-600 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300',
+                      : 'border-zinc-200 hover:border-zinc-300',
                   )}
                 >
-                  <div className="font-medium text-gray-900">{mode.name}</div>
-                  <div className="text-xs text-gray-500 mt-1">{mode.description}</div>
+                  <div className="font-medium text-zinc-900">{mode.name}</div>
+                  <div className="text-xs text-zinc-500 mt-1">{mode.description}</div>
                 </button>
               ))}
             </div>
@@ -492,34 +492,34 @@ export const DataExportImport = memo(function DataExportImport() {
 
           {/* Import Options */}
           <div className="space-y-3">
-            <label className="text-sm font-medium text-gray-700">Options</label>
+            <label className="text-sm font-medium text-zinc-700">Options</label>
             <div className="space-y-2">
               <label className="flex items-center gap-3">
                 <input
                   type="checkbox"
                   checked={dryRun}
                   onChange={(e) => setDryRun(e.target.checked)}
-                  className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                  className="h-4 w-4 text-blue-600 rounded border-zinc-300 focus:ring-blue-500"
                 />
-                <span className="text-sm text-gray-700">Dry run (preview without importing)</span>
+                <span className="text-sm text-zinc-700">Dry run (preview without importing)</span>
               </label>
               <label className="flex items-center gap-3">
                 <input
                   type="checkbox"
                   checked={skipDuplicates}
                   onChange={(e) => setSkipDuplicates(e.target.checked)}
-                  className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                  className="h-4 w-4 text-blue-600 rounded border-zinc-300 focus:ring-blue-500"
                 />
-                <span className="text-sm text-gray-700">Skip duplicate records</span>
+                <span className="text-sm text-zinc-700">Skip duplicate records</span>
               </label>
               <label className="flex items-center gap-3">
                 <input
                   type="checkbox"
                   checked={createBackup}
                   onChange={(e) => setCreateBackup(e.target.checked)}
-                  className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                  className="h-4 w-4 text-blue-600 rounded border-zinc-300 focus:ring-blue-500"
                 />
-                <span className="text-sm text-gray-700">Create backup before import</span>
+                <span className="text-sm text-zinc-700">Create backup before import</span>
               </label>
             </div>
           </div>
@@ -531,7 +531,7 @@ export const DataExportImport = memo(function DataExportImport() {
             className={cn(
               'flex items-center justify-center gap-2 w-full py-3 px-4 rounded-lg font-medium transition-colors',
               isImporting || !importData
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                ? 'bg-zinc-300 text-zinc-500 cursor-not-allowed'
                 : 'bg-blue-600 text-white hover:bg-blue-700',
             )}
           >

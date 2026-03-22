@@ -3,16 +3,17 @@
  * Tests for /api/users/[userId] endpoint
  */
 
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import type { Mock } from 'vitest';
 import { GET, PATCH, DELETE } from '../route';
 import { getUserById, updateUser, deleteUser } from '@/lib/auth/repository';
 import { UserStatus, UserRole } from '@/lib/auth/types';
 import { NextRequest } from 'next/server';
 
 // Mock dependencies
-jest.mock('@/lib/auth/repository');
-jest.mock('@/lib/db/audit-log');
-jest.mock('@/lib/logger');
+vi.mock('@/lib/auth/repository');
+vi.mock('@/lib/db/audit-log');
+vi.mock('@/lib/logger');
 
 describe('Single User API - /api/users/[userId]', () => {
   const mockUser = {
@@ -32,16 +33,16 @@ describe('Single User API - /api/users/[userId]', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe('GET /api/users/[userId] - Get user details', () => {
     it('should return user details', async () => {
-      (getUserById as jest.Mock).mockResolvedValue(mockUser);
+      (getUserById as Mock).mockResolvedValue(mockUser);
 
       const request = new NextRequest('http://localhost:3000/api/users/user-123');
       const params = Promise.resolve({ userId: 'user-123' });
@@ -57,7 +58,7 @@ describe('Single User API - /api/users/[userId]', () => {
     });
 
     it('should return 404 if user not found', async () => {
-      (getUserById as jest.Mock).mockResolvedValue(null);
+      (getUserById as Mock).mockResolvedValue(null);
 
       const request = new NextRequest('http://localhost:3000/api/users/nonexistent');
       const params = Promise.resolve({ userId: 'nonexistent' });
@@ -74,8 +75,8 @@ describe('Single User API - /api/users/[userId]', () => {
   describe('PATCH /api/users/[userId] - Update user', () => {
     it('should update user name', async () => {
       const updatedUser = { ...mockUser, name: 'Updated Name' };
-      (getUserById as jest.Mock).mockResolvedValue(mockUser);
-      (updateUser as jest.Mock).mockResolvedValue(updatedUser);
+      (getUserById as Mock).mockResolvedValue(mockUser);
+      (updateUser as Mock).mockResolvedValue(updatedUser);
 
       const request = new NextRequest('http://localhost:3000/api/users/user-123', {
         method: 'PATCH',
@@ -94,8 +95,8 @@ describe('Single User API - /api/users/[userId]', () => {
 
     it('should update user avatar', async () => {
       const updatedUser = { ...mockUser, avatar: '/uploads/avatars/test.jpg' };
-      (getUserById as jest.Mock).mockResolvedValue(mockUser);
-      (updateUser as jest.Mock).mockResolvedValue(updatedUser);
+      (getUserById as Mock).mockResolvedValue(mockUser);
+      (updateUser as Mock).mockResolvedValue(updatedUser);
 
       const request = new NextRequest('http://localhost:3000/api/users/user-123', {
         method: 'PATCH',
@@ -113,8 +114,8 @@ describe('Single User API - /api/users/[userId]', () => {
 
     it('should update user status', async () => {
       const updatedUser = { ...mockUser, status: UserStatus.INACTIVE };
-      (getUserById as jest.Mock).mockResolvedValue(mockUser);
-      (updateUser as jest.Mock).mockResolvedValue(updatedUser);
+      (getUserById as Mock).mockResolvedValue(mockUser);
+      (updateUser as Mock).mockResolvedValue(updatedUser);
 
       const request = new NextRequest('http://localhost:3000/api/users/user-123', {
         method: 'PATCH',
@@ -131,7 +132,7 @@ describe('Single User API - /api/users/[userId]', () => {
     });
 
     it('should validate role', async () => {
-      (getUserById as jest.Mock).mockResolvedValue(mockUser);
+      (getUserById as Mock).mockResolvedValue(mockUser);
 
       const request = new NextRequest('http://localhost:3000/api/users/user-123', {
         method: 'PATCH',
@@ -147,7 +148,7 @@ describe('Single User API - /api/users/[userId]', () => {
     });
 
     it('should validate status', async () => {
-      (getUserById as jest.Mock).mockResolvedValue(mockUser);
+      (getUserById as Mock).mockResolvedValue(mockUser);
 
       const request = new NextRequest('http://localhost:3000/api/users/user-123', {
         method: 'PATCH',
@@ -163,7 +164,7 @@ describe('Single User API - /api/users/[userId]', () => {
     });
 
     it('should validate password length', async () => {
-      (getUserById as jest.Mock).mockResolvedValue(mockUser);
+      (getUserById as Mock).mockResolvedValue(mockUser);
 
       const request = new NextRequest('http://localhost:3000/api/users/user-123', {
         method: 'PATCH',
@@ -179,7 +180,7 @@ describe('Single User API - /api/users/[userId]', () => {
     });
 
     it('should return 404 if user not found', async () => {
-      (getUserById as jest.Mock).mockResolvedValue(null);
+      (getUserById as Mock).mockResolvedValue(null);
 
       const request = new NextRequest('http://localhost:3000/api/users/nonexistent', {
         method: 'PATCH',
@@ -198,8 +199,8 @@ describe('Single User API - /api/users/[userId]', () => {
 
   describe('DELETE /api/users/[userId] - Delete user', () => {
     it('should delete user', async () => {
-      (getUserById as jest.Mock).mockResolvedValue(mockUser);
-      (deleteUser as jest.Mock).mockResolvedValue(true);
+      (getUserById as Mock).mockResolvedValue(mockUser);
+      (deleteUser as Mock).mockResolvedValue(true);
 
       const request = new NextRequest('http://localhost:3000/api/users/user-123', {
         method: 'DELETE',
@@ -216,7 +217,7 @@ describe('Single User API - /api/users/[userId]', () => {
     });
 
     it('should return 404 if user not found', async () => {
-      (getUserById as jest.Mock).mockResolvedValue(null);
+      (getUserById as Mock).mockResolvedValue(null);
 
       const request = new NextRequest('http://localhost:3000/api/users/nonexistent', {
         method: 'DELETE',
@@ -232,8 +233,8 @@ describe('Single User API - /api/users/[userId]', () => {
     });
 
     it('should handle deletion failure', async () => {
-      (getUserById as jest.Mock).mockResolvedValue(mockUser);
-      (deleteUser as jest.Mock).mockResolvedValue(false);
+      (getUserById as Mock).mockResolvedValue(mockUser);
+      (deleteUser as Mock).mockResolvedValue(false);
 
       const request = new NextRequest('http://localhost:3000/api/users/user-123', {
         method: 'DELETE',

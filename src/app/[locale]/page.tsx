@@ -762,7 +762,7 @@ export default async function HomePage({ params }: { params: Params }) {
 
                   key={service.title}
 
-                  className="group relative bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 overflow-hidden"
+                  className="group relative bg-white dark:bg-zinc-900 rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 overflow-hidden"
 
                   role="listitem"
 
@@ -770,7 +770,7 @@ export default async function HomePage({ params }: { params: Params }) {
 
                 >
 
-                  <div className={`absolute inset-0 rounded-3xl bg-gradient-to-r ${service.color} opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 blur-xl`} aria-hidden="true" />
+                  <div className={`absolute inset-0 rounded-2xl bg-gradient-to-r ${service.color} opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 blur-xl`} aria-hidden="true" />
 
                   
 

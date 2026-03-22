@@ -78,7 +78,7 @@ export const NotificationFilter: FC<NotificationFilterProps> = ({
       <select
         value={filter.type || 'all'}
         onChange={handleTypeChange}
-        className="px-2 py-1 text-xs bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="px-2 py-1 text-xs bg-white dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
         <option value="all">所有类型</option>
         {Object.values(NotificationType).map((type) => (
@@ -92,7 +92,7 @@ export const NotificationFilter: FC<NotificationFilterProps> = ({
       <select
         value={filter.priority || 'all'}
         onChange={handlePriorityChange}
-        className="px-2 py-1 text-xs bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="px-2 py-1 text-xs bg-white dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
         <option value="all">所有优先级</option>
         {Object.values(NotificationPriority).map((priority) => (
@@ -106,7 +106,7 @@ export const NotificationFilter: FC<NotificationFilterProps> = ({
       {hasActiveFilters && (
         <button
           onClick={handleClear}
-          className="px-2 py-1 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300 transition-colors"
+          className="px-2 py-1 text-xs text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-300 transition-colors"
         >
           清除筛选
         </button>

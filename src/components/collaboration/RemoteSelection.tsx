@@ -288,7 +288,7 @@ export function TypingIndicator({
           />
         ))}
       </div>
-      <span className="text-sm text-gray-600 dark:text-gray-400">
+      <span className="text-sm text-zinc-600 dark:text-zinc-400">
         {othersTyping.length === 1
           ? `${othersTyping[0].userName} is typing...`
           : `${othersTyping.length} people are typing...`}

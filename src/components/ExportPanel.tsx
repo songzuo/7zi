@@ -158,7 +158,7 @@ export function ExportPanel<T extends Record<string, unknown>>({
               type="text"
               value={filename}
               onChange={(e) => setFilename(e.target.value)}
-              className="flex-1 px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md 
+              className="flex-1 px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg 
                          focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500
                          bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white"
               placeholder="输入文件名"
@@ -179,7 +179,7 @@ export function ExportPanel<T extends Record<string, unknown>>({
               <button
                 key={f}
                 onClick={() => setFormat(f)}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
                   ${
                     format === f
                       ? 'bg-cyan-600 text-white'
@@ -210,7 +210,7 @@ export function ExportPanel<T extends Record<string, unknown>>({
               {fields.map((field) => (
                 <label
                   key={String(field.key)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer transition-colors
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors
                     ${
                       selectedFields.has(field.key as string)
                         ? 'bg-cyan-100 dark:bg-cyan-900/30 border border-cyan-300 dark:border-cyan-700'
@@ -236,7 +236,7 @@ export function ExportPanel<T extends Record<string, unknown>>({
             <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
               数据预览 (前 {previewRows} 条)
             </label>
-            <div className="overflow-x-auto hide-scrollbar border border-zinc-200 dark:border-zinc-700 rounded-md">
+            <div className="overflow-x-auto hide-scrollbar border border-zinc-200 dark:border-zinc-700 rounded-lg">
               <table className="min-w-full divide-y divide-zinc-200 dark:divide-zinc-700">
                 <thead className="bg-zinc-50 dark:bg-zinc-700/50">
                   <tr>
@@ -282,7 +282,7 @@ export function ExportPanel<T extends Record<string, unknown>>({
 
         {/* 错误提示 */}
         {error && (
-          <div className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-md">
+          <div className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg">
             <p className="text-sm text-red-600 dark:text-red-400">❌ {error}</p>
           </div>
         )}
@@ -292,7 +292,7 @@ export function ExportPanel<T extends Record<string, unknown>>({
           <button
             onClick={handleExport}
             disabled={isExporting || selectedFields.size === 0}
-            className={`px-6 py-2.5 rounded-md text-sm font-medium transition-colors
+            className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-colors
               ${
                 isExporting || selectedFields.size === 0
                   ? 'bg-zinc-300 dark:bg-zinc-600 text-zinc-500 dark:text-zinc-400 cursor-not-allowed'
@@ -391,7 +391,7 @@ export function QuickExportButton<T extends Record<string, unknown>>({
     <button
       onClick={handleExport}
       disabled={isExporting}
-      className={`inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium
+      className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium
         bg-cyan-600 hover:bg-cyan-700 disabled:bg-cyan-400 text-white transition-colors
         ${className}`}
     >

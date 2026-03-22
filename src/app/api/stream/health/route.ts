@@ -24,7 +24,13 @@ import { performanceCollector } from '@/lib/monitoring/performance.monitor';
 import { detailedHealthCheck } from '@/lib/monitoring/health';
 import { getGlobalStreamManager } from '@/lib/sse/stream';
 import { getSSEHeaders, isValidSSEConnection } from '@/lib/sse/utils';
-import { createValidationError, createServiceUnavailableError, ErrorType } from '@/lib/api/error-handler';
+import {
+  createValidationError,
+  createServiceUnavailableError,
+  ErrorType,
+  getLocaleFromRequest,
+} from '@/lib/api/error-handler';
+import { createApiContext, logApiError, logApiSuccess } from '@/lib/api/error-logger';
 import { logger } from '@/lib/logger';
 
 /**
@@ -210,17 +216,17 @@ function safeClearInterval(intervalId: NodeJS.Timeout, context: { clientId: stri
  * SSE endpoint for real-time health metrics
  */
 export async function GET(request: NextRequest) {
-  const requestId = crypto.randomUUID();
+  const startTime = Date.now();
+  const requestId = request.headers.get('x-request-id') || crypto.randomUUID();
+  const locale = getLocaleFromRequest(request);
+  const context = createApiContext(request);
 
   try {
     // Validate SSE request
     if (!isValidSSEConnection(request)) {
-      logger.warn('Invalid SSE connection attempt', {
-        requestId,
-        userAgent: request.headers.get('user-agent'),
-        category: 'stream',
-      });
-      return createValidationError('Invalid SSE connection request - requires text/event-stream accept header');
+      const validationError = new Error('Invalid SSE connection request - requires text/event-stream accept header');
+      logApiError(validationError, { ...context, requestId });
+      return await createValidationError('Invalid SSE connection request - requires text/event-stream accept header', undefined, locale, requestId);
     }
 
     // Check stream manager availability
@@ -228,11 +234,9 @@ export async function GET(request: NextRequest) {
     try {
       streamManager = getGlobalStreamManager();
     } catch (error) {
-      logger.error('Failed to get stream manager', error, {
-        requestId,
-        category: 'stream',
-      });
-      return createServiceUnavailableError('Streaming service temporarily unavailable');
+      const streamError = error instanceof Error ? error : new Error(String(error));
+      logApiError(streamError, { ...context, requestId });
+      return await createServiceUnavailableError('Streaming service temporarily unavailable', locale, requestId);
     }
 
     const clientId = crypto.randomUUID();
@@ -431,10 +435,10 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    logger.error('SSE health stream initialization failed', error, {
-      requestId,
-      category: 'stream',
-    });
+    const errorObj = error instanceof Error ? error : new Error(String(error));
+    const duration = Date.now() - startTime;
+
+    logApiError(errorObj, { ...context, requestId, duration });
 
     if (error instanceof SSEStreamError) {
       return new Response(
@@ -446,6 +450,7 @@ export async function GET(request: NextRequest) {
             details: error.details,
             timestamp: new Date().toISOString(),
           },
+          requestId,
         }),
         { status: error.statusCode }
       );
@@ -459,6 +464,7 @@ export async function GET(request: NextRequest) {
           message: 'Failed to initialize health stream',
           timestamp: new Date().toISOString(),
         },
+        requestId,
       }),
       { status: 500 }
     );

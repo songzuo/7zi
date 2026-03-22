@@ -40,7 +40,7 @@ export default async function AnalyticsPage({ params }: { params: Params }) {
 
   setRequestLocale(locale);
 
-  return <AnalyticsDashboard locale={locale} />;
+  return <LazyAnalyticsDashboard locale={locale} />;
 }
 
 // ============================================================================

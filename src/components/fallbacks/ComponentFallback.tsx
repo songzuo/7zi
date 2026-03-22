@@ -108,7 +108,7 @@ function ErrorFallback({
       {showRetry && onRetry && (
         <button
           onClick={onRetry}
-          className="mt-4 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors text-sm font-medium"
+          className="mt-4 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors text-sm font-medium"
         >
           重试
         </button>
@@ -133,7 +133,7 @@ function CompactErrorFallback({
 }) {
   return (
     <div
-      className={`flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md ${className}`}
+      className={`flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg ${className}`}
     >
       <svg
         className="w-5 h-5 text-red-500 flex-shrink-0"

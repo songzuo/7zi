@@ -25,24 +25,24 @@ export default function RealtimeDashboardExample() {
   const userId = 'user-123';
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+      <header className="bg-white dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
               Real-time Dashboard
             </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
               WebSocket-powered notifications and updates
             </p>
           </div>
 
           <div className="flex items-center gap-4">
             {/* Connection Status */}
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-full">
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-100 dark:bg-zinc-700 rounded-full">
               <Wifi className="w-4 h-4 text-green-500" />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
                 Connected
               </span>
             </div>
@@ -87,13 +87,13 @@ export default function RealtimeDashboardExample() {
               <CardContent>
                 <div className="space-y-4 mb-6">
                   <div className="flex items-center gap-4">
-                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
                       Project:
                     </label>
                     <select
                       value={selectedProject || ''}
                       onChange={(e) => setSelectedProject(e.target.value || null)}
-                      className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      className="flex-1 px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
                     >
                       <option value="">All Projects</option>
                       <option value="project-1">Project Alpha</option>
@@ -103,13 +103,13 @@ export default function RealtimeDashboardExample() {
                   </div>
 
                   <div className="flex items-center gap-4">
-                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
                       Task:
                     </label>
                     <select
                       value={selectedTask || ''}
                       onChange={(e) => setSelectedTask(e.target.value || null)}
-                      className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                      className="flex-1 px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
                     >
                       <option value="">All Tasks</option>
                       <option value="task-1">Task 1: Design Homepage</option>
@@ -136,38 +136,38 @@ export default function RealtimeDashboardExample() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  <div className="p-4 bg-zinc-50 dark:bg-zinc-700 rounded-lg">
+                    <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
                       1,234
                     </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                    <div className="text-sm text-zinc-500 dark:text-zinc-400">
                       Messages Sent
                     </div>
                   </div>
 
-                  <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  <div className="p-4 bg-zinc-50 dark:bg-zinc-700 rounded-lg">
+                    <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
                       5,678
                     </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                    <div className="text-sm text-zinc-500 dark:text-zinc-400">
                       Messages Received
                     </div>
                   </div>
 
-                  <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  <div className="p-4 bg-zinc-50 dark:bg-zinc-700 rounded-lg">
+                    <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
                       12
                     </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                    <div className="text-sm text-zinc-500 dark:text-zinc-400">
                       Reconnections
                     </div>
                   </div>
 
-                  <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  <div className="p-4 bg-zinc-50 dark:bg-zinc-700 rounded-lg">
+                    <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
                       45m
                     </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                    <div className="text-sm text-zinc-500 dark:text-zinc-400">
                       Connected For
                     </div>
                   </div>
@@ -186,36 +186,36 @@ export default function RealtimeDashboardExample() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <div className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-700 rounded-lg">
                     <div>
-                      <div className="font-medium text-gray-900 dark:text-gray-100">
+                      <div className="font-medium text-zinc-900 dark:text-zinc-100">
                         Project Alpha
                       </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                      <div className="text-xs text-zinc-500 dark:text-zinc-400">
                         5 users online
                       </div>
                     </div>
                     <div className="w-2 h-2 bg-green-500 rounded-full" />
                   </div>
 
-                  <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <div className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-700 rounded-lg">
                     <div>
-                      <div className="font-medium text-gray-900 dark:text-gray-100">
+                      <div className="font-medium text-zinc-900 dark:text-zinc-100">
                         Task #123
                       </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                      <div className="text-xs text-zinc-500 dark:text-zinc-400">
                         2 users online
                       </div>
                     </div>
                     <div className="w-2 h-2 bg-green-500 rounded-full" />
                   </div>
 
-                  <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <div className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-700 rounded-lg">
                     <div>
-                      <div className="font-medium text-gray-900 dark:text-gray-100">
+                      <div className="font-medium text-zinc-900 dark:text-zinc-100">
                         General Chat
                       </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                      <div className="text-xs text-zinc-500 dark:text-zinc-400">
                         12 users online
                       </div>
                     </div>

@@ -69,10 +69,10 @@ export const ResponsiveMemberList: React.FC<ResponsiveMemberListProps> = ({
                 placeholder={t('searchPlaceholder') || '搜索成员...'}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-3 pl-10 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all min-h-[44px] text-base"
+                className="w-full px-4 py-3 pl-10 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-white placeholder-gray-500 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all min-h-[44px] text-base"
               />
               <svg
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -98,7 +98,7 @@ export const ResponsiveMemberList: React.FC<ResponsiveMemberListProps> = ({
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-all min-h-[40px] touch-active ${
                     statusFilter === status
                       ? 'bg-cyan-500 text-white'
-                      : 'bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 hover:bg-gray-200 dark:hover:bg-zinc-700'
+                      : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'
                   }`}
                 >
                   {status === 'all' && (t('all') || '全部')}
@@ -115,7 +115,7 @@ export const ResponsiveMemberList: React.FC<ResponsiveMemberListProps> = ({
       )}
 
       {/* 成员数量显示 */}
-      <div className="mb-4 text-sm text-gray-600 dark:text-zinc-400">
+      <div className="mb-4 text-sm text-zinc-600 dark:text-zinc-400">
         {t('showingMembers', {
           count: filteredMembers.length,
           total: members.length,
@@ -142,7 +142,7 @@ export const ResponsiveMemberList: React.FC<ResponsiveMemberListProps> = ({
       {/* 空状态 */}
       {filteredMembers.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-gray-500 dark:text-zinc-400 text-lg">
+          <p className="text-zinc-500 dark:text-zinc-400 text-lg">
             {t('noResults') || '没有找到匹配的成员'}
           </p>
         </div>

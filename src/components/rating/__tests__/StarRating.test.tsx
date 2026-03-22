@@ -102,7 +102,7 @@ describe('StarRating', () => {
     render(<StarRating rating={5} maxRating={5} />);
     const stars = screen.getAllByRole('button');
     stars.forEach((star) => {
-      expect(star).not.toHaveClass('text-gray-200');
+      expect(star).not.toHaveClass('text-zinc-200');
     });
   });
 

@@ -58,7 +58,7 @@ export const Navigation: React.FC = () => {
       ${
         isActive
           ? 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400 shadow-sm ring-1 ring-cyan-500 dark:ring-cyan-400'
-          : 'text-gray-600 dark:text-zinc-400 hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-gray-900 dark:hover:text-zinc-100'
+          : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100'
       }
       hover:scale-105 active:scale-95
       touch-active
@@ -133,7 +133,7 @@ export const Navigation: React.FC = () => {
   }, []);
 
   return (
-    <nav className="bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-700 sticky top-0 z-50">
+    <nav className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo - Large touch target */}
@@ -142,7 +142,7 @@ export const Navigation: React.FC = () => {
             className="flex items-center gap-2 touch-active rounded-lg p-2 min-h-[44px] min-w-[44px] active:scale-95 transition-transform"
           >
             <span className="text-2xl" aria-hidden="true">🤖</span>
-            <span className="font-bold text-gray-900 dark:text-white hidden sm:inline">
+            <span className="font-bold text-zinc-900 dark:text-white hidden sm:inline">
               {t('siteNameShort')}
             </span>
           </Link>
@@ -172,7 +172,7 @@ export const Navigation: React.FC = () => {
             {/* Mobile Hamburger Menu Button - Optimized Touch Target */}
             <button
               onClick={toggleMenu}
-              className="md:hidden p-3 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-xl transition-colors min-w-[48px] min-h-[48px] flex items-center justify-center touch-active active:scale-95"
+              className="md:hidden p-3 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors min-w-[48px] min-h-[48px] flex items-center justify-center touch-active active:scale-95"
               aria-label={isMobileMenuOpen ? t('mobileMenu.close') : t('mobileMenu.open')}
               aria-expanded={isMobileMenuOpen}
               aria-controls="mobile-menu"

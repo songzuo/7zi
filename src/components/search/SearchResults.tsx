@@ -105,8 +105,8 @@ export function SearchResults({
     return (
       <div className="mt-2">
         {result.highlights.slice(0, 2).map((highlight: { field: string; text: string }, index: number) => (
-          <p key={index} className="text-sm text-gray-600 dark:text-gray-400">
-            <span className="font-medium text-gray-500 dark:text-gray-500">
+          <p key={index} className="text-sm text-zinc-600 dark:text-zinc-400">
+            <span className="font-medium text-zinc-500 dark:text-zinc-500">
               {highlight.field}:
             </span>{' '}
             <span
@@ -131,14 +131,14 @@ export function SearchResults({
     return (
       <div
         key={item.id}
-        className="p-4 border-b border-gray-200 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
+        className="p-4 border-b border-zinc-200 dark:border-zinc-700 last:border-0 hover:bg-zinc-50 dark:hover:bg-zinc-700/50 transition-colors cursor-pointer"
         onClick={() => onResultClick?.(result)}
       >
         <div className="flex items-start gap-3">
           <span className="text-2xl flex-shrink-0">{typeInfo.icon}</span>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">
+              <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 truncate">
                 {item.name}
               </h3>
               <span
@@ -151,7 +151,7 @@ export function SearchResults({
                   className={`text-xs px-2 py-0.5 rounded-full ${
                     item.status === 'open'
                       ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                      : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300'
                   }`}
                 >
                   {item.status}
@@ -173,14 +173,14 @@ export function SearchResults({
             </div>
 
             {item.description && (
-              <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-2">
+              <p className="text-sm text-zinc-600 dark:text-zinc-400 line-clamp-2 mb-2">
                 {item.description}
               </p>
             )}
 
             {renderHighlights(result)}
 
-            <div className="mt-2 flex items-center gap-4 text-xs text-gray-500 dark:text-gray-500">
+            <div className="mt-2 flex items-center gap-4 text-xs text-zinc-500 dark:text-zinc-500">
               {result.score !== undefined && (
                 <span>Relevance: {(result.score * 100).toFixed(0)}%</span>
               )}
@@ -209,24 +209,24 @@ export function SearchResults({
     const isExpanded = expandedTypes[type];
 
     return (
-      <div key={type} className="border-b border-gray-200 dark:border-gray-700 last:border-0">
+      <div key={type} className="border-b border-zinc-200 dark:border-zinc-700 last:border-0">
         <button
           onClick={() => toggleExpanded(type)}
-          className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+          className="w-full px-4 py-3 flex items-center justify-between hover:bg-zinc-50 dark:hover:bg-zinc-700/50 transition-colors"
         >
           <div className="flex items-center gap-2">
             <span className="text-xl">{typeInfo.icon}</span>
-            <span className="font-semibold text-gray-900 dark:text-gray-100">
+            <span className="font-semibold text-zinc-900 dark:text-zinc-100">
               {typeInfo.label}
             </span>
-            <span className="text-sm text-gray-500 dark:text-gray-400">
+            <span className="text-sm text-zinc-500 dark:text-zinc-400">
               ({items.length})
             </span>
           </div>
           {isExpanded ? (
-            <ChevronUp className="w-5 h-5 text-gray-400" />
+            <ChevronUp className="w-5 h-5 text-zinc-400" />
           ) : (
-            <ChevronDown className="w-5 h-5 text-gray-400" />
+            <ChevronDown className="w-5 h-5 text-zinc-400" />
           )}
         </button>
 
@@ -238,13 +238,13 @@ export function SearchResults({
   return (
     <div className={className}>
       {/* Header */}
-      <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+      <div className="px-4 py-3 bg-zinc-50 dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Search className="w-5 h-5 text-gray-500" />
-          <h2 className="font-semibold text-gray-900 dark:text-gray-100">
+          <Search className="w-5 h-5 text-zinc-500" />
+          <h2 className="font-semibold text-zinc-900 dark:text-zinc-100">
             Search Results
           </h2>
-          <span className="text-sm text-gray-500 dark:text-gray-400">
+          <span className="text-sm text-zinc-500 dark:text-zinc-400">
             {total !== undefined ? total : filteredTotal} found
           </span>
         </div>
@@ -258,7 +258,7 @@ export function SearchResults({
                 className={`px-3 py-1 text-sm rounded-full transition-colors ${
                   selectedTypes.has(type)
                     ? `bg-${info.color}-100 dark:bg-${info.color}-900 text-${info.color}-700 dark:text-${info.color}-300`
-                    : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                    : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400'
                 }`}
               >
                 {info.icon} {info.label}
@@ -274,9 +274,9 @@ export function SearchResults({
           Object.keys(filteredGroupedResults).map(renderTypeSection)
         ) : (
           <div className="p-12 text-center">
-            <Search className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
-            <p className="text-gray-500 dark:text-gray-400">No results found</p>
-            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+            <Search className="w-16 h-16 mx-auto mb-4 text-zinc-300 dark:text-zinc-600" />
+            <p className="text-zinc-500 dark:text-zinc-400">No results found</p>
+            <p className="text-sm text-zinc-400 dark:text-zinc-500 mt-1">
               Try adjusting your search or filters
             </p>
           </div>
@@ -285,17 +285,17 @@ export function SearchResults({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
+        <div className="px-4 py-3 bg-zinc-50 dark:bg-zinc-800 border-t border-zinc-200 dark:border-zinc-700 flex items-center justify-between">
           <button
             onClick={() => onPageChange?.(page - 1)}
             disabled={page === 1}
-            className="px-4 py-2 text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            className="px-4 py-2 text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
           >
             Previous
           </button>
 
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600 dark:text-gray-400">
+            <span className="text-sm text-zinc-600 dark:text-zinc-400">
               Page {page} of {totalPages}
             </span>
           </div>
@@ -303,7 +303,7 @@ export function SearchResults({
           <button
             onClick={() => onPageChange?.(page + 1)}
             disabled={page === totalPages}
-            className="px-4 py-2 text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            className="px-4 py-2 text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
           >
             Next
           </button>

@@ -25,6 +25,7 @@ import {
 import { ChatProvider, useChatContext } from '@/contexts/ChatContext';
 import { UnifiedTeamMember } from '@/types/members';
 import { Message } from './chat/types';
+import { isBelowBreakpoint, BREAKPOINTS } from '@/lib/utils/breakpoints';
 
 // 导入聊天数据
 import { teamMembers, quickActions } from './chat/data';
@@ -56,10 +57,10 @@ function AIChatContent() {
 
   // 在线成员数量现在从 context 获取，不再需要手动计算
 
-  // 检测屏幕尺寸决定是否全屏
+  // 检测屏幕尺寸决定是否全屏（使用统一断点工具）
   useEffect(() => {
     const checkFullscreen = () => {
-      setIsFullscreen(window.innerWidth < 480);
+      setIsFullscreen(isBelowBreakpoint('sm'));
     };
 
     checkFullscreen();

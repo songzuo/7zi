@@ -34,11 +34,11 @@ export function ConnectionStatus({
       case 'reconnecting':
         return 'bg-yellow-500';
       case 'disconnected':
-        return 'bg-gray-400';
+        return 'bg-zinc-400';
       case 'error':
         return 'bg-red-500';
       default:
-        return 'bg-gray-400';
+        return 'bg-zinc-400';
     }
   };
 
@@ -68,7 +68,7 @@ export function ConnectionStatus({
       {/* Status indicator */}
       <div className="flex items-center gap-2">
         <div className={`w-2 h-2 rounded-full ${getStatusColor()} animate-pulse`} />
-        <span className="text-gray-600 dark:text-gray-400">
+        <span className="text-zinc-600 dark:text-zinc-400">
           {getStatusText()}
         </span>
       </div>
@@ -76,9 +76,9 @@ export function ConnectionStatus({
       {/* Room info */}
       {isInRoom && (
         <>
-          <span className="text-gray-300 dark:text-gray-700">|</span>
+          <span className="text-zinc-300 dark:text-zinc-700">|</span>
           <div className="flex items-center gap-2">
-            <span className="text-gray-600 dark:text-gray-400">
+            <span className="text-zinc-600 dark:text-zinc-400">
               {activeUsers.length} {activeUsers.length === 1 ? 'user' : 'users'}
             </span>
           </div>
@@ -88,7 +88,7 @@ export function ConnectionStatus({
       {/* Typing indicator */}
       {typingUsers.length > 0 && (
         <>
-          <span className="text-gray-300 dark:text-gray-700">|</span>
+          <span className="text-zinc-300 dark:text-zinc-700">|</span>
           <div className="flex items-center gap-2">
             <div className="flex gap-1">
               {[0, 1, 2].map((i) => (
@@ -102,7 +102,7 @@ export function ConnectionStatus({
                 />
               ))}
             </div>
-            <span className="text-gray-600 dark:text-gray-400">
+            <span className="text-zinc-600 dark:text-zinc-400">
               {typingUsers.length === 1
                 ? `${typingUsers[0]} is typing...`
                 : `${typingUsers.length} people are typing...`}

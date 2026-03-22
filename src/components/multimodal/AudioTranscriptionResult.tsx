@@ -19,34 +19,34 @@ export function AudioTranscriptionResult({ data, className = '' }: AudioTranscri
   const [activeSegment, setActiveSegment] = useState<number | null>(null);
 
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 ${className}`}>
-      <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+    <div className={`bg-white dark:bg-zinc-800 rounded-lg shadow-md p-6 ${className}`}>
+      <h3 className="text-lg font-semibold mb-4 text-zinc-900 dark:text-white">
         {t('transcriptionResults')}
       </h3>
 
       {/* Metadata */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+        <div className="bg-zinc-50 dark:bg-zinc-700 rounded-lg p-3">
+          <div className="text-xs text-zinc-500 dark:text-zinc-400 mb-1">
             {t('language')}
           </div>
-          <div className="text-sm font-semibold text-gray-900 dark:text-white">
+          <div className="text-sm font-semibold text-zinc-900 dark:text-white">
             {data.language}
           </div>
         </div>
-        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+        <div className="bg-zinc-50 dark:bg-zinc-700 rounded-lg p-3">
+          <div className="text-xs text-zinc-500 dark:text-zinc-400 mb-1">
             {t('duration')}
           </div>
-          <div className="text-sm font-semibold text-gray-900 dark:text-white">
+          <div className="text-sm font-semibold text-zinc-900 dark:text-white">
             {Math.floor(data.duration / 60)}:{Math.floor(data.duration % 60).toString().padStart(2, '0')}
           </div>
         </div>
-        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+        <div className="bg-zinc-50 dark:bg-zinc-700 rounded-lg p-3">
+          <div className="text-xs text-zinc-500 dark:text-zinc-400 mb-1">
             {t('confidence')}
           </div>
-          <div className="text-sm font-semibold text-gray-900 dark:text-white">
+          <div className="text-sm font-semibold text-zinc-900 dark:text-white">
             {(data.confidence * 100).toFixed(1)}%
           </div>
         </div>
@@ -54,11 +54,11 @@ export function AudioTranscriptionResult({ data, className = '' }: AudioTranscri
 
       {/* Full Text */}
       <div className="mb-6">
-        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+        <h4 className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
           {t('fullText')}
         </h4>
-        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
-          <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
+        <div className="bg-zinc-50 dark:bg-zinc-700 rounded-lg p-4 border border-zinc-200 dark:border-zinc-600">
+          <p className="text-sm text-zinc-800 dark:text-zinc-200 whitespace-pre-wrap">
             {data.text}
           </p>
         </div>
@@ -67,7 +67,7 @@ export function AudioTranscriptionResult({ data, className = '' }: AudioTranscri
       {/* Segments with Timestamps */}
       {data.segments && data.segments.length > 0 && (
         <div className="mb-6">
-          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+          <h4 className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
             {t('segments')}
           </h4>
           <div className="space-y-2 max-h-96 overflow-y-auto">
@@ -79,13 +79,13 @@ export function AudioTranscriptionResult({ data, className = '' }: AudioTranscri
                   rounded-lg p-3 border cursor-pointer transition-colors
                   ${activeSegment === index
                     ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500'
-                    : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 hover:border-blue-300'
+                    : 'bg-zinc-50 dark:bg-zinc-700 border-zinc-200 dark:border-zinc-600 hover:border-blue-300'
                   }
                 `}
               >
                 <div className="flex items-start gap-3">
                   {/* Timestamp */}
-                  <div className="text-xs font-mono text-gray-500 dark:text-gray-400 min-w-[80px]">
+                  <div className="text-xs font-mono text-zinc-500 dark:text-zinc-400 min-w-[80px]">
                     {formatTime(segment.start)} - {formatTime(segment.end)}
                   </div>
 
@@ -98,42 +98,42 @@ export function AudioTranscriptionResult({ data, className = '' }: AudioTranscri
 
                   {/* Text */}
                   <div className="flex-1">
-                    <p className="text-sm text-gray-800 dark:text-gray-200">
+                    <p className="text-sm text-zinc-800 dark:text-zinc-200">
                       {segment.text}
                     </p>
                   </div>
 
                   {/* Confidence */}
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                  <div className="text-xs text-zinc-500 dark:text-zinc-400">
                     {(segment.confidence * 100).toFixed(0)}%
                   </div>
                 </div>
 
                 {/* Expanded details */}
                 {activeSegment === index && (
-                  <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+                  <div className="mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-600">
                     <div className="grid grid-cols-2 gap-4 text-xs">
                       <div>
-                        <span className="text-gray-500 dark:text-gray-400">
+                        <span className="text-zinc-500 dark:text-zinc-400">
                           {t('startTime')}:
                         </span>
                         <span className="ml-2 font-mono">{segment.start.toFixed(2)}s</span>
                       </div>
                       <div>
-                        <span className="text-gray-500 dark:text-gray-400">
+                        <span className="text-zinc-500 dark:text-zinc-400">
                           {t('endTime')}:
                         </span>
                         <span className="ml-2 font-mono">{segment.end.toFixed(2)}s</span>
                       </div>
                       <div>
-                        <span className="text-gray-500 dark:text-gray-400">
+                        <span className="text-zinc-500 dark:text-zinc-400">
                           {t('segmentConfidence')}:
                         </span>
                         <span className="ml-2">{(segment.confidence * 100).toFixed(1)}%</span>
                       </div>
                       {segment.speaker && (
                         <div>
-                          <span className="text-gray-500 dark:text-gray-400">
+                          <span className="text-zinc-500 dark:text-zinc-400">
                             {t('speaker')}:
                           </span>
                           <span className="ml-2">{segment.speaker}</span>
@@ -149,10 +149,10 @@ export function AudioTranscriptionResult({ data, className = '' }: AudioTranscri
       )}
 
       {/* Actions */}
-      <div className="pt-4 border-t border-gray-200 dark:border-gray-700 flex gap-3">
+      <div className="pt-4 border-t border-zinc-200 dark:border-zinc-700 flex gap-3">
         <button
           onClick={() => navigator.clipboard.writeText(data.text)}
-          className="flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+          className="flex-1 px-4 py-2 bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-lg text-sm font-medium hover:bg-zinc-200 dark:hover:bg-zinc-600 transition-colors"
         >
           {t('copyText')}
         </button>

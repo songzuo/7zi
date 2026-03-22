@@ -191,12 +191,12 @@ export const RealtimeDashboard: React.FC<RealtimeDashboardProps> = memo(({
     <div className={`space-y-6 ${className}`}>
       {/* 头部 - 连接状态 */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+        <h2 className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
           📊 {t.title}
         </h2>
         <div className="flex items-center gap-2">
           <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
-          <span className="text-sm text-gray-600 dark:text-gray-400">
+          <span className="text-sm text-zinc-600 dark:text-zinc-400">
             {isConnected ? t.connected : t.disconnected}
           </span>
         </div>
@@ -229,7 +229,7 @@ export const RealtimeDashboard: React.FC<RealtimeDashboardProps> = memo(({
 
       {/* 性能指标 */}
       <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+        <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4 flex items-center gap-2">
           ⚡ {t.performance}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -242,7 +242,7 @@ export const RealtimeDashboard: React.FC<RealtimeDashboardProps> = memo(({
       {/* 团队效率 */}
       {efficiency && (
         <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-4">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4 flex items-center gap-2">
             👥 {t.efficiency}
           </h3>
           
@@ -276,7 +276,7 @@ export const RealtimeDashboard: React.FC<RealtimeDashboardProps> = memo(({
 
             {/* 本周趋势图 */}
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{t.weeklyTrend}</p>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-2">{t.weeklyTrend}</p>
               <TrendChart data={efficiency.weeklyTrend} />
             </div>
           </div>
@@ -303,13 +303,13 @@ const StatusCard = memo<StatusCardProps>(({ label, value, icon, highlight }) => 
   <div className={`p-3 rounded-lg border ${
     highlight 
       ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' 
-      : 'bg-gray-50 dark:bg-zinc-700/50 border-gray-200 dark:border-zinc-600'
+      : 'bg-zinc-50 dark:bg-zinc-700/50 border-zinc-200 dark:border-zinc-600'
   }`}>
     <div className="flex items-center gap-2 mb-1">
       <span>{icon}</span>
-      <span className="text-xs text-gray-600 dark:text-gray-400">{label}</span>
+      <span className="text-xs text-zinc-600 dark:text-zinc-400">{label}</span>
     </div>
-    <p className={`text-lg font-bold ${highlight ? 'text-green-700 dark:text-green-300' : 'text-gray-900 dark:text-white'}`}>
+    <p className={`text-lg font-bold ${highlight ? 'text-green-700 dark:text-green-300' : 'text-zinc-900 dark:text-white'}`}>
       {value}
     </p>
   </div>
@@ -332,28 +332,28 @@ const MetricCard = memo<MetricCardProps>(({ metric, t }) => {
   const trendColor = {
     up: metric.name.includes('响应') || metric.name.includes('CPU') ? 'text-red-500' : 'text-green-500',
     down: metric.name.includes('响应') || metric.name.includes('CPU') ? 'text-green-500' : 'text-red-500',
-    stable: 'text-gray-500'
+    stable: 'text-zinc-500'
   };
 
   return (
-    <div className="p-4 rounded-lg bg-gradient-to-br from-gray-50 to-gray-100 dark:from-zinc-700 dark:to-zinc-600 border border-gray-200 dark:border-zinc-500">
+    <div className="p-4 rounded-lg bg-gradient-to-br from-gray-50 to-gray-100 dark:from-zinc-700 dark:to-zinc-600 border border-zinc-200 dark:border-zinc-500">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{metric.name}</span>
+        <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{metric.name}</span>
         <span className={trendColor[metric.trend]}>{trendIcon[metric.trend]}</span>
       </div>
       
       <div className="flex items-baseline gap-1">
-        <span className="text-2xl font-bold text-gray-900 dark:text-white">{metric.value}</span>
-        <span className="text-sm text-gray-500">{metric.unit}</span>
+        <span className="text-2xl font-bold text-zinc-900 dark:text-white">{metric.value}</span>
+        <span className="text-sm text-zinc-500">{metric.unit}</span>
       </div>
 
       {metric.target && (
         <div className="mt-2">
-          <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+          <div className="flex items-center justify-between text-xs text-zinc-500 mb-1">
             <span>{t.target}: {metric.target}%</span>
             <span>{Math.round((metric.value / metric.target) * 100)}%</span>
           </div>
-          <div className="h-1.5 bg-gray-200 dark:bg-zinc-500 rounded-full overflow-hidden">
+          <div className="h-1.5 bg-zinc-200 dark:bg-zinc-500 rounded-full overflow-hidden">
             <div 
               className={`h-full transition-all duration-500 ${
                 metric.value >= metric.target ? 'bg-red-500' : 'bg-green-500'
@@ -390,10 +390,10 @@ const EfficiencyBar = memo<EfficiencyBarProps>(({ label, value, color }) => {
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</span>
-        <span className="text-lg font-bold text-gray-900 dark:text-white">{value}%</span>
+        <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{label}</span>
+        <span className="text-lg font-bold text-zinc-900 dark:text-white">{value}%</span>
       </div>
-      <div className="h-3 bg-gray-200 dark:bg-zinc-600 rounded-full overflow-hidden">
+      <div className="h-3 bg-zinc-200 dark:bg-zinc-600 rounded-full overflow-hidden">
         <div 
           className={`h-full ${colorClasses[color]} transition-all duration-700 ease-out`}
           style={{ width: `${value}%` }}
@@ -412,10 +412,10 @@ interface StatItemProps {
 }
 
 const StatItem = memo<StatItemProps>(({ label, value, icon }) => (
-  <div className="text-center p-3 rounded-lg bg-gray-50 dark:bg-zinc-700/50">
+  <div className="text-center p-3 rounded-lg bg-zinc-50 dark:bg-zinc-700/50">
     <span className="text-xl">{icon}</span>
-    <p className="text-lg font-bold text-gray-900 dark:text-white mt-1">{value}</p>
-    <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
+    <p className="text-lg font-bold text-zinc-900 dark:text-white mt-1">{value}</p>
+    <p className="text-xs text-zinc-500 dark:text-zinc-400">{label}</p>
   </div>
 ));
 
@@ -443,7 +443,7 @@ const TrendChart = memo<TrendChartProps>(({ data }) => {
               style={{ height: `${height}%` }}
               title={`${value}%`}
             />
-            <span className="text-xs text-gray-500">{days[index]}</span>
+            <span className="text-xs text-zinc-500">{days[index]}</span>
           </div>
         );
       })}

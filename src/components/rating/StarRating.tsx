@@ -102,7 +102,7 @@ export function StarRating({
   };
 
   const starColor = readonly ? 'text-yellow-500' : 'text-yellow-400';
-  const emptyStarColor = readonly ? 'text-gray-300' : 'text-gray-200';
+  const emptyStarColor = readonly ? 'text-zinc-300' : 'text-zinc-200';
   const hoverColor = interactive ? 'hover:text-yellow-500 cursor-pointer' : '';
 
   return (

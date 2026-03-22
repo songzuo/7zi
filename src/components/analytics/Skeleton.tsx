@@ -19,12 +19,12 @@ export const Skeleton: FC<SkeletonProps> = ({
   height,
   animation = 'pulse'
 }) => {
-  const baseClasses = 'bg-gray-200 dark:bg-zinc-700';
+  const baseClasses = 'bg-zinc-200 dark:bg-zinc-700';
 
   const variantClasses = {
     text: 'h-4 rounded w-full',
     circular: 'rounded-full',
-    rectangular: 'rounded-md'
+    rectangular: 'rounded-lg'
   };
 
   const animationClasses = {
@@ -51,7 +51,7 @@ export const Skeleton: FC<SkeletonProps> = ({
 
 // Metric Card Skeleton
 export const MetricCardSkeleton: FC = () => (
-  <div className="bg-white dark:bg-zinc-800 rounded-lg border border-gray-200 dark:border-zinc-700 p-6">
+  <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6">
     <div className="flex items-center justify-between mb-4">
       <Skeleton variant="circular" width={40} height={40} />
       <Skeleton variant="text" width={60} height={20} />
@@ -66,11 +66,11 @@ import { RefreshCw } from 'lucide-react';
 
 // Chart Skeleton
 export const ChartSkeleton: FC<{ height?: number }> = ({ height = 350 }) => (
-  <div className="bg-white dark:bg-zinc-800 rounded-lg border border-gray-200 dark:border-zinc-700 p-6" style={{ height }}>
+  <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6" style={{ height }}>
     <Skeleton variant="text" width={150} height={24} className="mb-6" />
     <div className="flex items-center justify-center h-full min-h-[250px]">
       <div className="text-center">
-        <RefreshCw className="w-8 h-8 text-gray-400 animate-spin mx-auto mb-2" />
+        <RefreshCw className="w-8 h-8 text-zinc-400 animate-spin mx-auto mb-2" />
         <Skeleton variant="text" width={100} height={20} className="mx-auto" />
       </div>
     </div>
@@ -81,8 +81,8 @@ export const ChartSkeleton: FC<{ height?: number }> = ({ height = 350 }) => (
 export const LoadingOverlay: FC<{ message?: string }> = ({ message }) => (
   <div className="flex items-center justify-center py-12">
     <div className="text-center">
-      <RefreshCw className="w-8 h-8 text-gray-400 animate-spin mx-auto" />
-      <p className="mt-2 text-gray-500 dark:text-gray-400">{message || 'Loading...'}</p>
+      <RefreshCw className="w-8 h-8 text-zinc-400 animate-spin mx-auto" />
+      <p className="mt-2 text-zinc-500 dark:text-zinc-400">{message || 'Loading...'}</p>
     </div>
   </div>
 );

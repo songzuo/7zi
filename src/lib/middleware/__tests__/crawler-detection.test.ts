@@ -3,6 +3,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { vi } from 'vitest';
+import type { Mock } from 'vitest';
 import {
   withCrawlerDetection,
   getFrequencyStats,
@@ -26,7 +28,7 @@ import { logger as mockedLogger } from '@/lib/logger';
 
 describe('Crawler Detection Middleware', () => {
   let mockRequest: NextRequest;
-  let mockHandler: ReturnType<typeof vi.fn>;
+  let mockHandler: Mock<(req: NextRequest) => Promise<NextResponse>>;
 
   beforeEach(() => {
     vi.clearAllMocks();

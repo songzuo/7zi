@@ -162,10 +162,10 @@ export function TaskEditor({
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b dark:border-gray-700">
+      <div className="flex items-center justify-between p-4 border-b dark:border-zinc-700">
         <div>
           <h2 className="text-xl font-semibold">{taskTitle}</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
             Task ID: {taskId}
           </p>
         </div>
@@ -211,7 +211,7 @@ export function TaskEditor({
           onSelect={handleCursorChange}
           onKeyUp={handleCursorChange}
           onClick={handleCursorChange}
-          className="w-full h-full p-4 resize-none border-none focus:outline-none dark:bg-gray-800 dark:text-white font-mono text-sm leading-relaxed"
+          className="w-full h-full p-4 resize-none border-none focus:outline-none dark:bg-zinc-800 dark:text-white font-mono text-sm leading-relaxed"
           placeholder="Start typing to edit the task..."
           disabled={!isConnected || !isInRoom}
           style={{
@@ -257,7 +257,7 @@ export function TaskEditor({
 
         {/* Typing indicator */}
         {typingUsers.length > 0 && (
-          <div className="absolute bottom-4 right-4 bg-white dark:bg-gray-700 rounded-lg shadow-lg px-3 py-2">
+          <div className="absolute bottom-4 right-4 bg-white dark:bg-zinc-700 rounded-lg shadow-lg px-3 py-2">
             <div className="flex items-center gap-2">
               <div className="flex gap-1">
                 {[0, 1, 2].map((i) => (
@@ -271,7 +271,7 @@ export function TaskEditor({
                   />
                 ))}
               </div>
-              <span className="text-sm text-gray-600 dark:text-gray-300">
+              <span className="text-sm text-zinc-600 dark:text-zinc-300">
                 {typingUsers.length === 1
                   ? `${typingUsers[0]} is typing...`
                   : `${typingUsers.length} people are typing...`}
@@ -282,8 +282,8 @@ export function TaskEditor({
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t dark:border-gray-700 flex items-center justify-between">
-        <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+      <div className="p-4 border-t dark:border-zinc-700 flex items-center justify-between">
+        <div className="flex items-center gap-4 text-sm text-zinc-500 dark:text-zinc-400">
           {document && (
             <>
               <span>Revision: {document.revision}</span>
