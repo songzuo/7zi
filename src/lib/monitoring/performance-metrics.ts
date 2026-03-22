@@ -187,15 +187,11 @@ export function initPerformanceMonitoring() {
   });
 
   // Import and initialize Web Vitals monitoring
-  import('web-vitals').then(({ onLCP, onFID, onCLS, onTTFB, onFCP, onINP }) => {
+  import('web-vitals').then(({ onLCP, onCLS, onTTFB, onFCP, onINP }) => {
     onLCP((metric) => {
       const rating = metric.value <= 2500 ? 'good' : metric.value <= 4000 ? 'needsImprovement' : 'poor';
       queueMetric('LCP', metric.value, rating);
     });
-
-    onFID((metric) => {
-      const rating = metric.value <= 100 ? 'good' : metric.value <= 300 ? 'needsImprovement' : 'poor';
-      queueMetric('FID', metric.value, rating);
     });
 
     onCLS((metric) => {
