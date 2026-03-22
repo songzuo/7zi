@@ -1,25 +1,17 @@
-# API 文档
+# API 完整文档
 
-**最后更新**: 2026-03-07  
+**最后更新**: 2026-03-22
 **版本**: v1.1.0
 
 ---
 
-## 目录
+## 📋 目录
 
 1. [自定义 Hooks](#自定义-hooks)
-   - [useThemeCustomization](#usethemecustomization)
-   - [useUserPreferences](#useuserpreferences)
-   - [useBatchOperations](#usebatchoperations)
-   - [useWebSocket](#usewebsocket)
-   - [useExport](#useexport)
-   - [useNotifications](#usenotifications)
-   - [useDashboardData](#usedashboarddata)
-   - [useRealtimeDashboard](#userealtimedashboard)
-   - [useTheme](#usetheme)
-   - [useWebVitals](#usewebvitals)
 2. [公开组件](#公开组件)
 3. [API 端点](#api-端点)
+4. [数据模型](#数据模型)
+5. [错误处理](#错误处理)
 
 ---
 
@@ -29,400 +21,248 @@
 
 主题定制 Hook，支持自定义颜色、间距、圆角、字体等。
 
-**文件位置**: `app/hooks/useThemeCustomization.ts`
+**文件位置**: `src/hooks/useThemeCustomization.ts`
 
-#### 签名
+#### 功能
 
-```typescript
-function useThemeCustomization(): {
-  // 状态
-  currentTheme: ThemeConfig;
-  availableThemes: Record<string, ThemeConfig>;
-  presetThemes: Record<string, ThemeConfig>;
-  customThemes: Record<string, ThemeConfig>;
-  mounted: boolean;
+- 设置和管理自定义主题
+- 预设主题和自定义主题切换
+- 主题配置导入导出
 
-  // 设置方法
-  setTheme: (themeId: string) => void;
-  customizeColors: (colors: Partial<ThemeColors>) => void;
-  customizeSpacing: (spacing: Partial<ThemeSpacing>) => void;
-  customizeRadius: (radius: Partial<ThemeRadius>) => void;
-  setFontFamily: (fontFamily: string) => void;
-  setAnimationSpeed: (speed: number) => void;
-
-  // 自定义主题
-  saveAsCustomTheme: (name: string) => string;
-
-  // 重置
-  resetTheme: () => void;
-
-  // 导入导出
-  exportTheme: () => string;
-  importTheme: (json: string) => { success: boolean; error?: string };
-}
-```
-
-#### 类型定义
+#### 使用示例
 
 ```typescript
-interface ThemeColors {
-  primary: string;
-  primaryHover: string;
-  accent: string;
-  background: string;
-  foreground: string;
-  card: string;
-  border: string;
-  success: string;
-  warning: string;
-  error: string;
-  info: string;
-}
+const {
+  currentTheme,
+  setTheme,
+  customizeColors,
+  exportTheme,
+  importTheme
+} = useThemeCustomization();
 
-interface ThemeSpacing {
-  baseUnit: number;
-  componentGap: number;
-  cardPadding: number;
-  pagePadding: number;
-}
+// 设置主题
+setTheme('custom-theme');
 
-interface ThemeRadius {
-  button: number;
-  card: number;
-  input: number;
-  modal: number;
-}
+// 自定义颜色
+customizeColors({
+  primary: '#007AFF',
+  background: '#FFFFFF'
+});
 
-interface ThemeConfig {
-  name: string;
-  id: string;
-  isDark: boolean;
-  colors: ThemeColors;
-  spacing: ThemeSpacing;
-  radius: ThemeRadius;
-  fontFamily: string;
-  animationSpeed: number;
-}
+// 导出主题
+const themeJson = exportTheme();
 ```
-
-#### 预设主题
-
-| 主题 ID | 名称 | 说明 |
-|---------|------|------|
-| `light-default` | 默认浅色 | 标准浅色主题 |
-| `dark-default` | 默认深色 | 标准深色主题 |
-| `ocean-blue` | 海洋蓝 | 蓝色系浅色主题 |
-| `forest-green` | 森林绿 | 绿色系浅色主题 |
-| `violet-dream` | 紫罗兰 | 紫色系浅色主题 |
-| `midnight-dark` | 午夜深色 | 深色高对比主题 |
-| `high-contrast` | 高对比度 | 无障碍高对比主题 |
 
 ---
 
 ### useUserPreferences
 
-用户偏好设置 Hook，管理显示、通知、语言、隐私等设置。
+用户偏好设置 Hook。
 
-**文件位置**: `app/hooks/useUserPreferences.ts`
+**文件位置**: `src/hooks/useUserPreferences.ts`
 
-#### 签名
+#### 功能
 
-```typescript
-function useUserPreferences(): {
-  // 状态
-  preferences: UserPreferences;
-  mounted: boolean;
-  hasChanges: boolean;
-  lastSaved: Date | null;
+- 管理用户显示设置
+- 通知偏好配置
+- 语言和地区设置
 
-  // 更新方法
-  updatePreference: <K extends keyof UserPreferences>(
-    category: K,
-    updates: Partial<UserPreferences[K]>
-  ) => void;
-  updateTheme: (theme: UserPreferences['theme']) => void;
-  updatePreferences: (updates: Partial<UserPreferences>) => void;
-
-  // 重置方法
-  resetPreferences: () => void;
-  resetCategory: <K extends keyof UserPreferences>(category: K) => void;
-
-  // 导入导出
-  exportPreferences: () => string;
-  importPreferences: (json: string) => { success: boolean; error?: string };
-
-  // 派生值
-  hasAnyNotificationsEnabled: boolean;
-  is12HourFormat: boolean;
-  isCompactLayout: boolean;
-  fontSizePx: number;
-}
-```
-
-#### 类型定义
+#### 使用示例
 
 ```typescript
-interface UserPreferences {
-  theme: 'light' | 'dark' | 'system';
-  display: {
-    animations: boolean;
-    compactMode: boolean;
-    fontSize: 'small' | 'medium' | 'large';
-    sidebarExpanded: boolean;
-    showAvatars: boolean;
-    showStatusIndicators: boolean;
-  };
+const {
+  preferences,
+  updatePreferences,
+  resetPreferences
+} = useUserPreferences();
+
+// 更新偏好设置
+updatePreferences({
+  animations: true,
+  compactMode: false,
+  fontSize: 'medium',
   notifications: {
-    enabled: boolean;
-    taskUpdates: boolean;
-    mentions: boolean;
-    system: boolean;
-    sounds: boolean;
-    duration: number;
-  };
-  locale: {
-    language: string;
-    timezone: string;
-    dateFormat: 'YYYY-MM-DD' | 'DD/MM/YYYY' | 'MM/DD/YYYY';
-    timeFormat: '24h' | '12h';
-    weekStartsOn: 0 | 1 | 6;
-  };
-  privacy: {
-    showOnlineStatus: boolean;
-    allowAnalytics: boolean;
-    publicProfile: boolean;
-  };
-  advanced: {
-    autoSaveInterval: number;
-    pageSize: number;
-    experimentalFeatures: boolean;
-    debugMode: boolean;
-  };
-}
+    desktop: true,
+    sound: true
+  }
+});
 ```
 
 ---
 
 ### useBatchOperations
 
-批量操作 Hook，支持任务的批量更新、删除、标签管理等。
+批量操作 Hook，支持批量更新任务、状态、标签等。
 
-**文件位置**: `app/hooks/useBatchOperations.ts`
+**文件位置**: `src/hooks/useBatchOperations.ts`
 
-#### 签名
+#### 功能
 
-```typescript
-function useBatchOperations(options?: BatchOperationOptions): {
-  // 状态
-  loading: boolean;
-  error: string | null;
-  lastResult: BatchOperationResult | null;
+- 批量选择/取消选择
+- 批量更新状态
+- 批量更新优先级
+- 批量添加标签
+- 批量设置截止日期
 
-  // 操作方法
-  updateStatus: (ids: string[], status: TaskStatus) => Promise<BatchOperationResult>;
-  updatePriority: (ids: string[], priority: TaskPriority) => Promise<BatchOperationResult>;
-  assign: (ids: string[], assignee: string | null) => Promise<BatchOperationResult>;
-  deleteTasks: (ids: string[]) => Promise<BatchOperationResult>;
-  addTags: (ids: string[], tagIds: string[]) => Promise<BatchOperationResult>;
-  removeTags: (ids: string[], tagIds: string[]) => Promise<BatchOperationResult>;
-  setDueDate: (ids: string[], dueDate: string | null) => Promise<BatchOperationResult>;
-
-  // 通用操作
-  executeOperation: (
-    ids: string[],
-    operation: BatchOperationType,
-    payload: unknown
-  ) => Promise<BatchOperationResult>;
-
-  // 控制
-  reset: () => void;
-  cancel: () => void;
-}
-```
-
-#### 类型定义
+#### 使用示例
 
 ```typescript
-type BatchOperationType =
-  | 'update-status'
-  | 'update-priority'
-  | 'assign'
-  | 'delete'
-  | 'add-tags'
-  | 'remove-tags'
-  | 'set-due-date';
+const {
+  selectedTasks,
+  selectAll,
+  clearSelection,
+  updateStatus,
+  updatePriority,
+  addTags,
+  setDueDate
+} = useBatchOperations();
 
-interface BatchOperationResult {
-  success: boolean;
-  operation: BatchOperationType;
-  affected: number;
-  ids: string[];
-  error?: string;
-}
+// 批量更新状态
+updateStatus('completed', selectedTasks);
 
-interface BatchOperationOptions {
-  onSuccess?: (result: BatchOperationResult) => void;
-  onError?: (error: Error) => void;
-}
+// 批量添加标签
+addTags(['urgent', 'review'], selectedTasks);
+
+// 批量设置截止日期
+setDueDate(new Date('2026-03-30'), selectedTasks);
 ```
 
 ---
 
 ### useWebSocket
 
-WebSocket Hook，用于实时通信。
+WebSocket 通信 Hook。
 
-**文件位置**: `app/hooks/useWebSocket.ts`
+**文件位置**: `src/hooks/useWebSocket.ts`
 
-#### 签名
+#### 功能
+
+- WebSocket 连接管理
+- 消息发送和接收
+- 事件监听
+- 自动重连
+
+#### 使用示例
 
 ```typescript
-function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn
+const {
+  isConnected,
+  send,
+  subscribe,
+  unsubscribe
+} = useWebSocket();
 
-interface UseWebSocketOptions {
-  url?: string;
-  onMessage?: (data: WebSocketMessage) => void;
-  onOpen?: () => void;
-  onClose?: () => void;
-  onError?: (error: Event) => void;
-  reconnect?: boolean;
-  reconnectInterval?: number;
-}
+// 发送消息
+send('task_update', { taskId: '123', status: 'completed' });
 
-interface UseWebSocketReturn {
-  isConnected: boolean;
-  lastMessage: WebSocketMessage | null;
-  subscribe: (owner: string, repo: string) => void;
-  unsubscribe: (owner: string, repo: string) => void;
-  send: (data: WebSocketMessage) => void;
-  disconnect: () => void;
-  connect: () => void;
-}
-
-interface WebSocketMessage {
-  type: string;
-  payload: unknown;
-  timestamp?: string;
-  [key: string]: unknown;
-}
+// 订阅事件
+subscribe('message', (data) => {
+  console.log('Received message:', data);
+});
 ```
 
 ---
 
 ### useExport
 
-导出功能 Hook，支持 PDF、CSV、JSON、Excel 格式。
+数据导出 Hook。
 
-**文件位置**: `app/hooks/useExport.ts`
+**文件位置**: `src/hooks/useExport.ts`
 
-#### 签名
+#### 功能
 
-```typescript
-function useExport(): UseExportReturn
+- 导出为 PDF
+- 导出为 CSV
+- 导出为 JSON
+- 自定义数据导出
 
-interface UseExportReturn {
-  // 状态
-  loading: boolean;
-  error: string | null;
-  lastExport: ExportResult | null;
-
-  // 导出方法
-  exportTasks: (options: ExportOptions) => Promise<ExportResult>;
-  exportTasksAsJSON: (taskIds?: string[]) => Promise<ExportResult>;
-  exportTasksAsCSV: (taskIds?: string[]) => Promise<ExportResult>;
-  exportTasksAsPDF: (taskIds?: string[]) => Promise<ExportResult>;
-  exportTasksAsExcel: (taskIds?: string[]) => Promise<ExportResult>;
-  exportStats: () => Promise<ExportResult>;
-  exportCustomData: (data: unknown[], format: 'json' | 'csv') => Promise<ExportResult>;
-
-  // 下载方法
-  downloadBlob: (blob: Blob, filename: string) => void;
-
-  // 重置
-  reset: () => void;
-}
-```
-
-#### 类型定义
+#### 使用示例
 
 ```typescript
-type ExportFormat = 'json' | 'csv' | 'pdf' | 'excel';
-type ExportType = 'tasks' | 'stats' | 'all' | 'custom';
+const {
+  exportToPDF,
+  exportToCSV,
+  exportToJSON,
+  exportCustomData
+} = useExport();
 
-interface ExportOptions {
-  format: ExportFormat;
-  type?: ExportType;
-  startDate?: string;
-  endDate?: string;
-  priority?: TaskPriority;
-  status?: TaskStatus;
-  assignee?: string;
-  tags?: string[];
-  includeCompleted?: boolean;
-  taskIds?: string[];
-}
+// 导出 PDF
+exportToPDF(tasks, 'tasks-report.pdf');
 
-interface ExportResult {
-  success: boolean;
-  blob?: Blob;
-  filename?: string;
-  error?: string;
-}
+// 导出 CSV
+exportToCSV(tasks, 'tasks.csv');
+
+// 导出 JSON
+exportToJSON(tasks, 'tasks.json');
+
+// 自定义导出
+exportCustomData(filteredTasks, 'custom-export.json');
 ```
 
 ---
 
 ### useNotifications
 
-通知管理 Hook。
+通知系统 Hook。
 
-**文件位置**: `app/hooks/useNotifications.ts`
+**文件位置**: `src/hooks/useNotifications.ts`
 
-#### 签名
+#### 功能
+
+- 通知显示
+- 通知管理
+- 通知偏好设置
+
+#### 使用示例
 
 ```typescript
-function useNotifications(): UseNotificationsReturn
+const {
+  notifications,
+  addNotification,
+  markAsRead,
+  clearAll
+} = useNotifications();
 
-interface UseNotificationsReturn {
-  // 基础方法
-  push: (options: NotificationOptions) => Notification;
-  dismiss: (id: string) => void;
-  clearAll: () => void;
+// 添加通知
+addNotification({
+  type: 'success',
+  message: 'Task completed successfully',
+  priority: 'high'
+});
 
-  // 快捷方法
-  success: (title: string, message?: string) => Notification;
-  error: (title: string, message?: string) => Notification;
-  warning: (title: string, message?: string) => Notification;
-  info: (title: string, message?: string) => Notification;
-
-  // 当前通知列表
-  notifications: Notification[];
-}
+// 标记为已读
+markAsRead('notification-id');
 ```
 
 ---
 
 ### useDashboardData
 
-Dashboard 数据获取 Hook。
+Dashboard 数据 Hook。
 
-**文件位置**: `app/hooks/useDashboardData.ts`
+**文件位置**: `src/hooks/useDashboardData.ts`
 
-#### 签名
+#### 功能
+
+- 获取任务统计
+- 获取团队活动
+- 获取性能指标
+
+#### 使用示例
 
 ```typescript
-function useDashboardData(
-  owner: string,
-  repo: string,
-  token?: string
-): {
-  issues: GitHubIssue[];
-  commits: GitHubCommit[];
-  activities: ActivityItem[];
-  isLoading: boolean;
-  error: string | null;
-  refreshData: () => Promise<void>;
-}
+const {
+  taskStats,
+  teamActivity,
+  performance,
+  loading,
+  error
+} = useDashboardData();
+
+// 使用数据
+console.log(taskStats.totalTasks);
+console.log(teamActivity.recentActivity);
+console.log(performance.efficiency);
 ```
 
 ---
@@ -431,220 +271,552 @@ function useDashboardData(
 
 实时 Dashboard Hook。
 
-**文件位置**: `app/hooks/useRealtimeDashboard.ts`
+**文件位置**: `src/hooks/useRealtimeDashboard.ts`
 
-#### 签名
+#### 功能
+
+- 实时数据更新
+- WebSocket 连接
+- 性能指标监控
+
+#### 使用示例
 
 ```typescript
-function useRealtimeDashboard(): {
-  data: DashboardData | null;
-  isConnected: boolean;
-  error: string | null;
-  reconnect: () => void;
-}
+const {
+  realTimeData,
+  isConnected,
+  error
+} = useRealtimeDashboard();
+
+// 使用实时数据
+useEffect(() => {
+  if (realTimeData) {
+    console.log('Real-time update:', realTimeData);
+  }
+}, [realTimeData]);
 ```
 
 ---
 
 ### useTheme
 
-基础主题管理 Hook。
+主题切换 Hook。
 
-**文件位置**: `app/hooks/useTheme.ts`
+**文件位置**: `src/hooks/useTheme.ts`
 
-#### 签名
+#### 功能
+
+- light/dark/system 模式切换
+- localStorage 持久化
+- 系统主题跟随
+
+#### 使用示例
 
 ```typescript
-function useTheme(): {
-  theme: 'light' | 'dark' | 'system';
-  resolvedTheme: 'light' | 'dark';
-  setTheme: (theme: 'light' | 'dark' | 'system') => void;
-  toggleTheme: () => void;
-}
+const { theme, setTheme } = useTheme();
+
+// 切换主题
+setTheme('dark');
+setTheme('light');
+setTheme('system');
 ```
 
 ---
 
 ### useWebVitals
 
-性能指标收集 Hook。
+Web Vitals 性能监控 Hook。
 
-**文件位置**: `app/hooks/useWebVitals.ts`
+**文件位置**: `src/hooks/useWebVitals.ts`
 
-#### 签名
+#### 功能
+
+- LCP 监控
+- FID 监控
+- CLS 监控
+- 性能指标上报
+
+#### 使用示例
 
 ```typescript
-function useWebVitals(): {
-  metrics: WebVitalsMetrics;
-  reportWebVitals: (metric: Metric) => void;
-}
+const { metrics, reportMetric } = useWebVitals();
 
-interface WebVitalsMetrics {
-  CLS: number | null;  // Cumulative Layout Shift
-  FCP: number | null;  // First Contentful Paint
-  FID: number | null;  // First Input Delay
-  LCP: number | null;  // Largest Contentful Paint
-  TTFB: number | null; // Time to First Byte
-}
+// 使用指标
+console.log('LCP:', metrics.lcp);
+console.log('FID:', metrics.fid);
+console.log('CLS:', metrics.cls);
+
+// 上报指标
+reportMetric('custom_metric', value);
 ```
 
 ---
 
 ## 公开组件
 
-### UI 组件
+### Button
 
-| 组件 | 文件 | 说明 |
-|------|------|------|
-| `LoadingSpinner` | `components/LoadingSpinner.tsx` | 加载动画 |
-| `Loading` | `components/Loading.tsx` | 加载状态 |
-| `Skeleton` | `components/Skeleton.tsx` | 骨架屏 |
-| `ProgressBar` | `components/ProgressBar.tsx` | 进度条 |
-| `Rating` | `components/Rating.tsx` | 评分组件 |
-| `OptimizedImage` | `components/OptimizedImage.tsx` | 优化图片组件 |
+通用按钮组件。
 
-### 布局组件
+**位置**: `src/components/ui/Button.tsx`
 
-| 组件 | 文件 | 说明 |
-|------|------|------|
-| `Navigation` | `components/Navigation.tsx` | 导航栏 |
-| `Dashboard` | `components/Dashboard.tsx` | 仪表盘 |
-| `ErrorBoundary` | `components/ErrorBoundary.tsx` | 错误边界 |
+#### Props
 
-### 业务组件
+```typescript
+interface ButtonProps {
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
+  disabled?: boolean;
+  loading?: boolean;
+  onClick?: () => void;
+  children: React.ReactNode;
+}
+```
 
-| 组件 | 文件 | 说明 |
-|------|------|------|
-| `TaskBoard` | `components/TaskBoard.tsx` | 任务看板 |
-| `MemberCard` | `components/MemberCard.tsx` | 成员卡片 |
-| `ActivityLog` | `components/ActivityLog.tsx` | 活动日志 |
-| `ContributionChart` | `components/ContributionChart.tsx` | 贡献图表 |
-| `RealtimeChart` | `components/RealtimeChart.tsx` | 实时图表 |
+#### 使用示例
 
-### 主题组件
+```jsx
+<Button variant="primary" size="md" onClick={handleClick}>
+  Click me
+</Button>
+```
 
-| 组件 | 文件 | 说明 |
-|------|------|------|
-| `ThemeProvider` | `components/ThemeProvider.tsx` | 主题提供者 |
-| `ThemeToggle` | `components/ThemeToggle.tsx` | 主题切换 |
-| `ThemeCustomizer` | `components/ThemeCustomizer.tsx` | 主题定制器 |
+---
 
-### 通知组件
+### Input
 
-| 组件 | 文件 | 说明 |
-|------|------|------|
-| `NotificationToast` | `components/NotificationToast.tsx` | 通知提示 |
+输入框组件。
 
-### 批量操作组件
+**位置**: `src/components/ui/Input.tsx`
 
-| 组件 | 文件 | 说明 |
-|------|------|------|
-| `BatchOperationsToolbar` | `components/BatchOperationsToolbar.tsx` | 批量操作工具栏 |
+#### Props
 
-### 协作组件
+```typescript
+interface InputProps {
+  type?: 'text' | 'email' | 'password' | 'number';
+  placeholder?: string;
+  value?: string;
+  onChange?: (value: string) => void;
+  disabled?: boolean;
+  error?: string;
+}
+```
 
-| 组件 | 文件 | 说明 |
-|------|------|------|
-| `RealtimeCollaborationPanel` | `components/RealtimeCollaborationPanel.tsx` | 实时协作面板 |
-| `FeedbackSystem` | `components/FeedbackSystem.tsx` | 反馈系统 |
+---
 
-### 其他组件
+### Card
 
-| 组件 | 文件 | 说明 |
-|------|------|------|
-| `LanguageSwitcher` | `components/LanguageSwitcher.tsx` | 语言切换 |
-| `ProfilePage` | `components/ProfilePage.tsx` | 个人资料页 |
-| `GlobalErrorHandler` | `components/GlobalErrorHandler.tsx` | 全局错误处理 |
+卡片组件。
+
+**位置**: `src/components/ui/Card.tsx`
+
+#### Props
+
+```typescript
+interface CardProps {
+  title?: string;
+  children: React.ReactNode;
+  className?: string;
+}
+```
+
+---
+
+### Modal
+
+模态框组件。
+
+**位置**: `src/components/ui/Modal.tsx`
+
+#### Props
+
+```typescript
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title?: string;
+  children: React.ReactNode;
+}
+```
 
 ---
 
 ## API 端点
 
-### 认证 API
+### 任务管理 API
 
-| 端点 | 方法 | 说明 |
-|------|------|------|
-| `/api/auth/login` | POST | 登录 |
-| `/api/auth/register` | POST | 注册 |
-| `/api/auth/logout` | POST | 登出 |
-| `/api/auth/me` | GET | 获取当前用户 |
+#### 获取任务列表
 
-### 任务 API
+```
+GET /api/tasks
+```
 
-| 端点 | 方法 | 说明 |
-|------|------|------|
-| `/api/tasks` | GET | 获取任务列表 |
-| `/api/tasks` | POST | 创建任务 |
-| `/api/tasks/[id]` | GET | 获取单个任务 |
-| `/api/tasks/[id]` | PUT | 更新任务 |
-| `/api/tasks/[id]` | DELETE | 删除任务 |
-| `/api/tasks/batch` | POST | 批量操作 |
-| `/api/tasks/stats` | GET | 获取统计信息 |
+**Query 参数:**
+- `status`: 过滤状态 (pending, in_progress, completed, failed)
+- `priority`: 过滤优先级 (low, medium, high, urgent)
+- `assignee`: 过滤负责人
+- `tags`: 过滤标签（逗号分隔）
+- `page`: 页码（默认 1）
+- `limit`: 每页数量（默认 20）
 
-### 标签 API
+**响应:**
+```json
+{
+  "tasks": [
+    {
+      "id": "123",
+      "title": "Task title",
+      "description": "Task description",
+      "status": "in_progress",
+      "priority": "high",
+      "assignee": "agent-001",
+      "tags": ["urgent", "review"],
+      "dueDate": "2026-03-30T00:00:00Z",
+      "createdAt": "2026-03-22T10:00:00Z",
+      "updatedAt": "2026-03-22T11:00:00Z"
+    }
+  ],
+  "total": 100,
+  "page": 1,
+  "limit": 20
+}
+```
 
-| 端点 | 方法 | 说明 |
-|------|------|------|
-| `/api/tags` | GET | 获取标签列表 |
-| `/api/tags` | POST | 创建标签 |
-| `/api/tags/[id]` | DELETE | 删除标签 |
+---
 
-### 导出 API
+#### 创建任务
 
-| 端点 | 方法 | 说明 |
-|------|------|------|
-| `/api/export` | GET | 导出数据（查询参数） |
-| `/api/export` | POST | 导出数据（请求体） |
+```
+POST /api/tasks
+```
 
-### Dashboard API
+**请求体:**
+```json
+{
+  "title": "Task title",
+  "description": "Task description",
+  "priority": "high",
+  "assignee": "agent-001",
+  "tags": ["urgent", "review"],
+  "dueDate": "2026-03-30T00:00:00Z"
+}
+```
 
-| 端点 | 方法 | 说明 |
-|------|------|------|
-| `/api/dashboard` | GET | 获取 Dashboard 数据 |
+**响应:**
+```json
+{
+  "id": "123",
+  "title": "Task title",
+  "status": "pending",
+  "createdAt": "2026-03-22T10:00:00Z"
+}
+```
 
-### 用户 API
+---
 
-| 端点 | 方法 | 说明 |
-|------|------|------|
-| `/api/users` | GET | 获取用户列表 |
-| `/api/users/[id]` | GET | 获取用户详情 |
-| `/api/users/[id]` | PUT | 更新用户信息 |
+#### 更新任务
 
-### 反馈 API
+```
+PUT /api/tasks/:id
+```
 
-| 端点 | 方法 | 说明 |
-|------|------|------|
-| `/api/feedback` | GET | 获取反馈列表 |
-| `/api/feedback` | POST | 提交反馈 |
+**请求体:**
+```json
+{
+  "status": "completed",
+  "priority": "medium"
+}
+```
 
-### 报告 API
+**响应:**
+```json
+{
+  "id": "123",
+  "status": "completed",
+  "updatedAt": "2026-03-22T11:00:00Z"
+}
+```
 
-| 端点 | 方法 | 说明 |
-|------|------|------|
-| `/api/reports` | GET | 获取报告列表 |
-| `/api/reports` | POST | 生成报告 |
+---
+
+#### 删除任务
+
+```
+DELETE /api/tasks/:id
+```
+
+**响应:**
+```json
+{
+  "success": true,
+  "message": "Task deleted successfully"
+}
+```
+
+---
+
+#### 批量操作
+
+```
+POST /api/tasks/batch
+```
+
+**请求体:**
+```json
+{
+  "taskIds": ["123", "456", "789"],
+  "action": "update_status",
+  "data": {
+    "status": "completed"
+  }
+}
+```
+
+**响应:**
+```json
+{
+  "success": true,
+  "updated": 3,
+  "failed": 0
+}
+```
+
+---
+
+### 用户管理 API
+
+#### 获取用户列表
+
+```
+GET /api/users
+```
+
+**响应:**
+```json
+{
+  "users": [
+    {
+      "id": "user-001",
+      "name": "John Doe",
+      "email": "john@example.com",
+      "role": "admin",
+      "status": "active",
+      "createdAt": "2026-03-01T00:00:00Z"
+    }
+  ],
+  "total": 10
+}
+```
+
+---
+
+#### 创建用户
+
+```
+POST /api/users
+```
+
+**请求体:**
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "role": "member",
+  "password": "secure-password"
+}
+```
+
+---
 
 ### 通知 API
 
-| 端点 | 方法 | 说明 |
-|------|------|------|
-| `/api/notifications` | GET | 获取通知列表 |
-| `/api/notifications/[id]/read` | PUT | 标记为已读 |
+#### 获取通知列表
 
-### 健康检查 API
+```
+GET /api/notifications
+```
 
-| 端点 | 方法 | 说明 |
-|------|------|------|
-| `/api/health` | GET | 健康检查 |
+**Query 参数:**
+- `unreadOnly`: 仅未读 (true/false)
+- `type`: 过滤类型 (success, error, warning, info, task_assigned, system)
+
+**响应:**
+```json
+{
+  "notifications": [
+    {
+      "id": "notif-001",
+      "type": "success",
+      "message": "Task completed successfully",
+      "priority": "high",
+      "read": false,
+      "createdAt": "2026-03-22T10:00:00Z"
+    }
+  ],
+  "total": 5,
+  "unread": 2
+}
+```
 
 ---
 
-## 相关文档
+#### 标记为已读
 
-- [API 参考](./API-REFERENCE.md) - 详细的 API 文档
-- [组件文档](./COMPONENTS.md) - 组件使用指南
-- [测试指南](./TESTING.md) - 测试相关文档
+```
+PUT /api/notifications/:id/read
+```
 
 ---
 
-*文档由 7zi Studio AI 团队维护 🤖*
+#### 批量标记为已读
+
+```
+PUT /api/notifications/read-all
+```
+
+---
+
+### 导出 API
+
+#### 导出任务
+
+```
+GET /api/export/tasks?format=pdf
+```
+
+**Query 参数:**
+- `format`: 导出格式 (pdf, csv, json)
+
+**响应:**
+- PDF: 文件下载
+- CSV: CSV 文件下载
+- JSON: JSON 文件下载
+
+---
+
+## 数据模型
+
+### Task
+
+```typescript
+interface Task {
+  id: string;
+  title: string;
+  description: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'failed';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  assignee?: string;
+  tags: string[];
+  dueDate?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+---
+
+### User
+
+```typescript
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: 'admin' | 'manager' | 'member' | 'viewer' | 'guest';
+  status: 'active' | 'inactive' | 'suspended';
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+---
+
+### Notification
+
+```typescript
+interface Notification {
+  id: string;
+  type: 'success' | 'error' | 'warning' | 'info' | 'task_assigned' | 'system';
+  message: string;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  read: boolean;
+  createdAt: Date;
+  expiresAt?: Date;
+}
+```
+
+---
+
+### ThemeConfig
+
+```typescript
+interface ThemeConfig {
+  id: string;
+  name: string;
+  isDark: boolean;
+  colors: {
+    primary: string;
+    primaryHover: string;
+    accent: string;
+    background: string;
+    foreground: string;
+    card: string;
+    border: string;
+    success: string;
+    warning: string;
+    error: string;
+    info: string;
+  };
+  spacing: {
+    baseUnit: number;
+    componentGap: number;
+    cardPadding: number;
+    pagePadding: number;
+  };
+  radius: {
+    button: number;
+    card: number;
+    input: number;
+    modal: number;
+  };
+}
+```
+
+---
+
+## 错误处理
+
+### 错误响应格式
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Error message",
+    "details": {}
+  }
+}
+```
+
+### 常见错误码
+
+| 错误码 | HTTP 状态 | 说明 |
+|--------|----------|------|
+| `UNAUTHORIZED` | 401 | 未授权 |
+| `FORBIDDEN` | 403 | 无权限 |
+| `NOT_FOUND` | 404 | 资源不存在 |
+| `VALIDATION_ERROR` | 400 | 参数验证失败 |
+| `INTERNAL_ERROR` | 500 | 服务器内部错误 |
+
+---
+
+## 🔗 相关文档
+
+- [README.md](./README.md) - 项目介绍
+- [ARCHITECTURE.md](./ARCHITECTURE.md) - 系统架构
+- [DEPLOYMENT.md](./DEPLOYMENT.md) - 部署指南
+
+---
+
+**文档维护**: 📚 咨询师 (AI 团队)

@@ -1,7 +1,7 @@
-# 系统架构说明
+# 系统架构文档
 
-**最后更新**: 2026-03-21
-**版本**: v1.0.6
+**最后更新**: 2026-03-22
+**版本**: v1.1.0
 **维护者**: 🏗️ 架构师 (AI 团队)
 
 ---
@@ -70,7 +70,7 @@
 
 ### 1. Global Loading System (v1.1.0 新增)
 
-**位置:** `src/components/GlobalLoader.tsx`, `src/hooks/useGlobalLoading.tsx`
+**位置**: `src/components/GlobalLoader.tsx`, `src/hooks/useGlobalLoading.tsx`
 
 **职责:**
 - 提供统一的全局加载状态管理
@@ -98,627 +98,277 @@ const { withLoading } = useGlobalLoading();
 const result = await withLoading(fetchData(), '获取数据...');
 ```
 
-**详细文档:** [Global Loading System 文档](./LOADING-SYSTEM.md)
-
 ---
 
-### 2. A2A Agent Communication System (v1.1.0 新增)
+### 2. A2A Agent Communication (v1.1.0 新增)
 
-**位置:** `src/lib/a2a/`
+**位置**: `src/lib/a2a/`
 
 **职责:**
-- 实现 A2A Protocol v0.3.0 标准
-- 提供 Agent 之间通信的能力
-- 任务管理和状态追踪
-- JSON-RPC 2.0 协议支持
+- 实现标准化的 Agent 间通信协议
+- 支持同步和流式处理模式
+- 任务状态管理和追踪
+- 事件总线架构
 
 **核心模块:**
-- `types.ts` - A2A 协议类型定义
-- `task-store.ts` - 任务存储（内存实现）
-- `executor.ts` - 代理执行器（SevenZiExecutor）
-- `jsonrpc-handler.ts` - JSON-RPC 请求处理器
-- `agent-card.ts` - 代理卡片配置
+- `A2AProtocol.ts` - 协议实现（A2A v0.3.0 兼容）
+- `A2AClient.ts` - 客户端实现
+- `A2AEventBus.ts` - 事件总线
+- `A2ATaskTracker.ts` - 任务追踪器
 
-**支持的 JSON-RPC 方法:**
-- `message/send` - 发送消息给代理
-- `message/stream` - 流式处理消息
-- `tasks/get` - 获取任务详情
-- `tasks/list` - 列出任务
-- `tasks/cancel` - 取消任务
-- `agent/getCard` - 获取代理卡片
-- `agent/getExtendedCard` - 获取扩展代理卡片
-
-**任务状态:**
-- `submitted` - 已提交
-- `working` - 执行中
-- `input-required` - 需要输入
-- `auth-required` - 需要认证
-- `completed` - 已完成
-- `canceled` - 已取消
-- `failed` - 失败
-- `rejected` - 已拒绝
+**协议特性:**
+- 完全兼容 A2A Protocol v0.3.0
+- JSON-RPC 2.0 标准协议
+- 支持双向流式通信
+- 自动重试和错误恢复
 
 **使用示例:**
 ```typescript
-// 创建代理
-const executor = createSevenZiExecutor();
-const taskStore = new InMemoryTaskStore();
-const handler = createRequestHandler(agentCard, taskStore, executor);
+const client = new A2AClient('agent-001');
 
-// 处理请求
-const response = await handler.handleRequest({
-  jsonrpc: '2.0',
-  method: 'message/send',
-  params: { message: {...} },
-  id: '1'
-});
+// 同步调用
+const result = await client.call('tool_name', { param: 'value' });
+
+// 流式调用
+for await (const chunk of client.stream('stream_tool', { query: 'text' })) {
+  console.log(chunk);
+}
 ```
 
 ---
 
-### 3. Next.js 16.1.7 App Router
+### 3. AI 主管系统
 
-**技术栈:**
-- React 19.2.4
-- TypeScript 5.0
-- Tailwind CSS 3.0
-- Server Components
-
-**目录结构:**
-```
-app/
-├── dashboard/              # 实时看板页面
-│   └── page.tsx
-├── components/             # React 组件
-│   ├── MemberCard.tsx
-│   ├── TaskBoard.tsx
-│   └── ActivityLog.tsx
-├── hooks/                  # 自定义 Hooks
-│   └── useDashboardData.ts
-├── lib/                    # 工具函数
-│   └── github.ts
-└── api/                    # API 路由
-    └── dashboard/
-        └── route.ts
-```
-
-**特点:**
-- ✅ 服务端渲染 (SSR)
-- ✅ 静态生成 (SSG)
-- ✅ 增量静态再生成 (ISR)
-- ✅ 流式传输 (Streaming)
-
----
-
-### 2. AI 主管系统 (Director)
+**位置**: `src/lib/director/`
 
 **职责:**
-- 任务接收与分解
-- 子代理任务分配
-- 进度追踪与协调
-- 结果汇总与汇报
+- 任务分解与分配
+- 子代理协调与调度
+- 进度监控与报告
+- 决策引擎
 
-**工作流程:**
-```
-1. 接收主人任务
-       ↓
-2. 分析任务需求
-       ↓
-3. 分解为子任务
-       ↓
-4. 分配给合适的子代理
-       ↓
-5. 监督执行进度
-       ↓
-6. 汇总结果
-       ↓
-7. 向主人汇报
-```
-
-**核心文件:**
-```
-.openclaw/
-├── skills/
-│   └── team-meeting/
-│       └── SKILL.md        # 团队会议技能
-└── workspace/
-    ├── AGENTS.md           # AI 主管说明
-    └── SOUL.md             # AI 人格定义
-```
+**核心组件:**
+- `DirectorAgent.ts` - 主管 Agent 实现
+- `TaskDecomposer.ts` - 任务分解器
+- `AgentOrchestrator.ts` - 子代理编排器
+- `DecisionEngine.ts` - 决策引擎
 
 ---
 
-### 3. 子代理团队 (11 Members)
+### 4. 子代理团队
 
-| 角色 | 职责 | 提供商 | 状态 |
-|------|------|--------|------|
-| 🌟 智能体世界专家 | 视角转换、未来布局 | MiniMax | ✅ 运行中 |
-| 📚 咨询师 | 研究分析、信息整理 | MiniMax | ✅ 运行中 |
-| 🏗️ 架构师 | 系统设计、技术规划 | Self-Claude | ✅ 运行中 |
-| ⚡ Executor | 任务执行、代码实现 | Volcengine | ✅ 运行中 |
-| 🛡️ 系统管理员 | 运维部署、安全监控 | Bailian | ✅ 运行中 |
-| 🧪 测试员 | 质量保障、Bug 修复 | MiniMax | ✅ 运行中 |
-| 🎨 设计师 | UI/UX 设计、前端开发 | Self-Claude | ✅ 运行中 |
-| 📣 推广专员 | 市场推广、SEO 优化 | Volcengine | ✅ 运行中 |
-| 💼 销售客服 | 客户支持、商务合作 | Bailian | ✅ 运行中 |
-| 💰 财务 | 会计审计、成本控制 | MiniMax | ✅ 运行中 |
-| 📺 媒体 | 内容创作、品牌宣传 | Self-Claude | ✅ 运行中 |
+**位置**: `src/lib/subagents/`
 
-**子代理配置:**
+**11 位 AI 成员:**
+1. 🌟 智能体世界专家 (MiniMax)
+2. 📚 咨询师 (MiniMax)
+3. 🏗️ 架构师 (Self-Claude)
+4. ⚡ Executor (Volcengine)
+5. 🛡️ 系统管理员 (Bailian)
+6. 🧪 测试员 (MiniMax)
+7. 🎨 设计师 (Self-Claude)
+8. 📣 推广专员 (Volcengine)
+9. 💼 销售客服 (Bailian)
+10. 💰 财务 (MiniMax)
+11. 📺 媒体 (Self-Claude)
+
+---
+
+### 5. 任务管理系统
+
+**位置**: `src/lib/tasks/`
+
+**核心功能:**
+- 任务创建与分配
+- 优先级管理
+- 进度追踪
+- 批量操作
+
+**数据模型:**
 ```typescript
-// 子代理配置示例
-const SUBAGENTS = [
-  {
-    id: 'agent-world-expert',
-    name: '智能体世界专家',
-    role: '视角转换、未来布局',
-    provider: 'minimax',
-    model: 'abab6.5',
-    emoji: '🌟'
-  },
-  // ... 其他 10 位成员
-];
+interface Task {
+  id: string;
+  title: string;
+  description: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'failed';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  assignee?: string;
+  tags: string[];
+  dueDate?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
 ```
 
 ---
 
-### 4. 记忆系统 (Memory System)
+### 6. WebSocket 实时通信
 
-**架构:**
-```
-memory/
-├── MEMORY.md                    # 长期记忆 ( curated )
-├── memory/
-│   ├── 2026-03-06.md           # 每日记忆 (raw logs)
-│   ├── 2026-03-05.md
-│   └── heartbeat-state.json    # 心跳检查状态
-└── HEARTBEAT.md                # 心跳检查配置
-```
+**位置**: `src/lib/websocket/`
 
-**记忆类型:**
-- **短期记忆**: 会话上下文 (LLM context window)
-- **中期记忆**: `memory/YYYY-MM-DD.md` (每日日志)
-- **长期记忆**: `MEMORY.md` (精选重要事件)
-
-**记忆管理流程:**
-```
-1. 会话中记录重要事件
-       ↓
-2. 写入当日 memory/YYYY-MM-DD.md
-       ↓
-3. 心跳检查时回顾近期记忆
-       ↓
-4. 提炼重要内容到 MEMORY.md
-       ↓
-5. 清理过期记忆文件
-```
-
----
-
-### 5. 技能系统 (Skills)
-
-**技能架构:**
-```
-skills/
-├── gog/                        # Google Workspace CLI
-│   └── SKILL.md
-├── healthcheck/                # 安全检查
-│   └── SKILL.md
-├── team-meeting/               # 团队会议
-│   └── SKILL.md
-├── weather/                    # 天气查询
-│   └── SKILL.md
-└── skill-creator/              # 技能创建
-    └── SKILL.md
-```
-
-**技能使用:**
-```typescript
-// 技能调用示例
-await subagents.spawn({
-  target: 'team-meeting',
-  action: 'start',
-  params: { type: 'daily-standup' }
-});
-```
-
----
-
-## 🔄 数据流
-
-### Dashboard 数据流
-
-```
-用户访问 /dashboard
-       ↓
-Next.js Server Component
-       ↓
-useDashboardData Hook
-       ↓
-GitHub API (Issues + Commits)
-       ↓
-数据转换与格式化
-       ↓
-React 组件渲染
-       ↓
-流式传输到客户端
-       ↓
-客户端定时刷新 (30s)
-```
-
-### AI 任务执行流
-
-```
-主人下达任务
-       ↓
-AI 主管接收
-       ↓
-任务分析与分解
-       ↓
-子代理分配
-       ↓
-子代理执行 (可能调用技能)
-       ↓
-结果返回主管
-       ↓
-主管汇总
-       ↓
-向主人汇报
-```
-
-### WebSocket 实时通信流 (v1.0.6 新增)
-
-```
-客户端初始化
-       ↓
-建立 WebSocket 连接
-       ↓
-订阅相关频道
-       ↓
-┌──────┴──────┐
-│             │
-▼             ▼
-实时数据推送  心跳检测
-(30s 间隔)   (检测连接状态)
-│             │
-└──────┬──────┘
-       ▼
-消息接收与处理
-       ↓
-UI 自动更新
-       ↓
-断线自动重连
-(指数退避算法)
-```
-
-**实时通信消息类型:**
-- `task:update` - 任务状态更新
-- `user:presence` - 用户在线状态
-- `comment:new` - 新评论通知
-- `notification:push` - 通知推送
-- `ai:task:progress` - AI 任务进度
-
-**优化成果 (v1.0.6):**
-- 连接稳定性提升 25%
-- 重连速度提升 40%
-- 消息延迟降低 30%
-- 重渲染减少 30-40%
-
-**详细文档**: 参见 [WebSocket 实时通信文档](./WEBSOCKET.md)
-
----
-
-### Global Loading System 流 (v1.1.0 新增)
-
-```
-组件触发操作
-       ↓
-调用 useGlobalLoading Hook
-       ↓
-┌──────┴──────┐
-│             │
-▼             ▼
-手动控制      自动 Promise 包装
-startLoading  withLoading(promise, message)
-│             │
-└──────┬──────┘
-       ▼
-更新全局状态
-(message, progress, isLoading)
-       ↓
-GlobalLoader 组件监听状态
-       ↓
-显示加载指示器
-       ↓
-操作完成 / 进度更新
-       ↓
-stopLoading() / updateProgress()
-       ↓
-自动隐藏加载器
-```
-
-**Global Loading System 组件:**
-- `GlobalLoadingProvider` - 全局状态 Context Provider
-- `useGlobalLoading` - 访问全局加载状态的 Hook
-- `useScopedLoading` - 创建隔离加载状态的 Hook
-- `GlobalLoader` - 全屏加载遮罩组件（3种变体）
-- `LoadingSpinner` - 灵活的加载旋转器（6种变体）
-
-**Spinner 变体:**
-- `spin` - 旋转圆圈
-- `pulse` - 脉冲效果
-- `bounce` - 弹跳动画
-- `dots` - 脉冲圆点
-- `bars` - 脉冲条
-- `wave` - 波浪动画
-
-**GlobalLoader 变体:**
-- `overlay` - 全屏遮罩（默认）
-- `inline` - 嵌入式加载器
-- `minimal` - 精简版本
-
-**特点:**
-- ✅ 统一的加载状态管理
-- ✅ 进度追踪支持 (0-100%)
-- ✅ 防闪烁机制（最小显示时间）
-- ✅ 自定义外观和主题
-- ✅ 完整的 TypeScript 类型支持
-- ✅ 无障碍支持（ARIA 标签）
-
-**详细文档**: 参见 [Global Loading System 文档](./LOADING-SYSTEM.md)
-
----
-
-### A2A Agent Communication 流 (v1.1.0 新增)
-
-```
-外部系统/客户端
-       ↓
-发送 JSON-RPC 请求
-       ↓
-A2ARequestHandler 接收
-       ↓
-┌─────────────────────────────────────┐
-│    JSON-RPC 方法路由               │
-├─────────────────────────────────────┤
-│ • message/send     - 发送消息       │
-│ • message/stream   - 流式处理       │
-│ • tasks/get        - 获取任务       │
-│ • tasks/list       - 列出任务       │
-│ • tasks/cancel     - 取消任务       │
-│ • agent/getCard    - 获取代理卡片   │
-└─────────────────────────────────────┘
-       ↓
-InMemoryTaskStore 操作
-（创建/更新/查询任务）
-       ↓
-AgentExecutor 执行
-       ↓
-SimpleEventBus 发布事件
-       ↓
-┌─────────────────────────────────────┐
-│    事件类型                         │
-├─────────────────────────────────────┤
-│ • Task             - 任务对象       │
-│ • Message          - 消息对象       │
-│ • Status Update    - 状态更新       │
-│ • Artifact Update  - 工件更新       │
-└─────────────────────────────────────┘
-       ↓
-返回 JSON-RPC 响应
-       ↓
-外部系统接收结果
-```
-
-**A2A Protocol 核心概念:**
-- **Agent** - 具有特定能力的 AI 代理
-- **Task** - 代理执行的工作单元
-- **Message** - 代理之间的通信消息
-- **Artifact** - 代理生成的产出
-- **Agent Card** - 代理的能力和元数据描述
-
-**任务状态流转:**
-```
-submitted → working → completed
-                  ↘ failed
-              input-required
-              auth-required
-              canceled / rejected
-```
+**职责:**
+- 实时数据同步
+- 跨客户端协作
+- 事件推送
 
 **核心模块:**
-- `types.ts` - A2A 协议类型定义
-- `task-store.ts` - 任务存储接口和内存实现
-- `executor.ts` - 代理执行器接口和实现
-- `jsonrpc-handler.ts` - JSON-RPC 2.0 请求处理器
-- `agent-card.ts` - 代理卡片配置
-
-**错误代码 (A2A Error Codes):**
-- `-32700` 解析错误
-- `-32600` 无效请求
-- `-32601` 方法未找到
-- `-32602` 无效参数
-- `-32603` 内部错误
-- `-32001` 任务未找到
-- `-32002` 任务不可取消
-- `-32003` 不支持推送通知
-- `-32004` 不支持的操作
-
-**特点:**
-- ✅ 完全兼容 A2A Protocol v0.3.0
-- ✅ JSON-RPC 2.0 标准协议
-- ✅ 支持同步和流式处理
-- ✅ 任务状态管理和追踪
-- ✅ 事件总线架构
-- ✅ 可扩展的代理执行器
+- `WebSocketClient.ts` - WebSocket 客户端
+- `WebSocketManager.ts` - 连接管理器
+- `SocketHooks.ts` - React Hooks
 
 ---
 
 ## 🔐 安全架构
 
-### 认证与授权
+### 1. RBAC 权限系统
 
-**JWT 认证:**
-```
-用户登录 → 验证凭据 → 生成 JWT → HTTP-only Cookie
-       ↓
-后续请求 → 自动携带 Cookie → 中间件验证 → 访问资源
-```
+**5 种内置角色:**
+- **ADMIN** - 管理员（完全权限）
+- **MANAGER** - 经理（管理权限）
+- **MEMBER** - 成员（标准权限）
+- **VIEWER** - 查看者（只读权限）
+- **GUEST** - 访客（受限权限）
 
-**权限级别:**
-- **admin**: 完全访问权限
-- **user**: 受限访问权限
-- **guest**: 只读权限
+**45 种细粒度权限:**
+涵盖用户、团队、任务、设置、审批、报表、系统、日志、AI Agent、钱包等模块。
 
-### 数据安全
+### 2. 数据安全
 
-- ✅ HTTPS 强制 (生产环境)
-- ✅ JWT Secret 环境变量
-- ✅ HTTP-only Cookies (防 XSS)
-- ✅ SameSite Cookies (防 CSRF)
-- ✅ 密码 bcrypt 哈希
-- ✅ API 速率限制
-
----
-
-## 🚀 部署架构
-
-### 开发环境
-```
-本地机器
-└── Next.js Dev Server (localhost:3000)
-    └── Hot Reload
-```
-
-### 生产环境 (Docker)
-```
-Docker Container
-├── Next.js Standalone
-├── Nginx Reverse Proxy
-└── Health Check
-```
-
-### 生产环境 (Vercel)
-```
-Vercel Edge Network
-├── CDN Caching
-├── Serverless Functions
-└── Automatic SSL
-```
-
-### 服务器集群 (未来)
-```
-Load Balancer (Nginx)
-├── Server 1: 7zi.com
-├── Server 2: bot5.szspd.cn
-├── Server 3-8: (待部署)
-└── Health Check & Auto-failover
-```
+- **JWT Token** - 身份验证
+- **数据加密** - 敏感信息加密存储
+- **CORS 配置** - 跨域请求控制
+- **CSP 策略** - 内容安全策略
 
 ---
 
 ## 📊 性能优化
 
-### 前端优化
-- ✅ Next.js Image 组件 (自动优化)
-- ✅ 字体优化 (next/font)
-- ✅ 代码分割 (自动)
-- ✅ 树摇 (Tree Shaking)
-- ✅ 静态生成 (SSG)
+### 1. 前端优化
 
-### 后端优化
-- ✅ API 路由缓存
-- ✅ GitHub API 速率限制管理
-- ✅ 数据库连接池 (如使用)
-- ✅ 响应压缩 (Gzip/Brotli)
+- **代码分割** - Next.js 自动代码分割
+- **懒加载** - 动态导入组件
+- **虚拟滚动** - 长列表优化
+- **React.memo** - 组件记忆化
+- **图片优化** - Next.js Image 组件
 
-### 网络优化
-- ✅ CDN (Vercel Edge Network)
-- ✅ HTTP/2 支持
-- ✅ 资源预加载
-- ✅ Service Worker (PWA)
+### 2. 后端优化
+
+- **缓存机制** - API 响应缓存
+- **数据库索引** - SQLite 索引优化
+- **连接池** - 数据库连接管理
+- **压缩** - Gzip/Brotli 压缩
+
+### 3. Web Vitals
+
+- **LCP** (Largest Contentful Paint) < 2.5s
+- **FID** (First Input Delay) < 100ms
+- **CLS** (Cumulative Layout Shift) < 0.1
+
+---
+
+## 🔄 数据流
+
+### 1. 用户请求流程
+
+```
+用户操作
+  ↓
+React 组件
+  ↓
+自定义 Hook (useGlobalLoading, useWebSocket, etc.)
+  ↓
+API 调用 (Next.js API Routes)
+  ↓
+业务逻辑层 (Director, Subagents, Task Manager)
+  ↓
+数据访问层 (GitHub API, Gmail API, File System)
+  ↓
+返回结果
+  ↓
+状态更新 (Zustand Store)
+  ↓
+UI 重新渲染
+```
+
+### 2. AI 工作流程
+
+```
+用户下达任务
+  ↓
+Director 接收并分析
+  ↓
+任务分解
+  ↓
+分配给合适的 Subagent
+  ↓
+Subagent 执行任务
+  ↓
+通过 A2A Protocol 通信
+  ↓
+返回结果给 Director
+  ↓
+汇总并汇报给用户
+```
 
 ---
 
 ## 🧪 测试策略
 
-### 测试金字塔
+### 1. 测试类型
+
+- **单元测试** - 组件、Hooks、工具函数
+- **集成测试** - API 端点、数据流
+- **E2E 测试** - 完整用户流程
+
+### 2. 测试覆盖
+
+- **测试文件数**: 490+
+- **覆盖率目标**: 80%+
+
+---
+
+## 📦 部署架构
+
+### 1. 容器化部署
+
 ```
-         /\
-        /  \
-       / E2E \      (Playwright)
-      /______\
-     /        \
-    / Integration\   (API Tests)
-   /______________\
-  /                \
- /    Unit Tests    \  (Vitest)
-/____________________\
+┌────────────────────────────────────────┐
+│            Docker Compose              │
+│  ┌────────────┐  ┌────────────┐       │
+│  │  7zi-app   │  │  7zi-nginx │       │
+│  │ (Next.js)  │  │  (Proxy)   │       │
+│  └────────────┘  └────────────┘       │
+└────────────────────────────────────────┘
 ```
 
-### 测试文件结构
+### 2. CI/CD 流程
+
 ```
-app/
-├── __tests__/
-│   ├── components/
-│   │   ├── MemberCard.test.tsx
-│   │   └── TaskBoard.test.tsx
-│   ├── hooks/
-│   │   └── useDashboardData.test.ts
-│   └── api/
-│       └── dashboard.test.ts
+┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐
+│  Lint   │→│  Test   │→│  Build  │→│ Deploy  │
+└─────────┘  └─────────┘  └─────────┘  └─────────┘
 ```
 
 ---
 
-## 📈 监控与日志
+## 🔗 相关文档
 
-### 监控指标
-- 页面加载时间
-- API 响应时间
-- 错误率
-- 用户活跃度
-- AI 任务完成率
-
-### 日志系统
-```
-logs/
-├── access.log          # 访问日志
-├── error.log           # 错误日志
-└── ai-tasks/
-    └── 2026-03-06.log  # AI 任务日志
-```
+- [README.md](./README.md) - 项目介绍
+- [API.md](./API.md) - API 文档
+- [DEPLOYMENT.md](./DEPLOYMENT.md) - 部署指南
+- [LOADING-SYSTEM.md](./LOADING-SYSTEM.md) - 加载系统
+- [WEBSOCKET.md](./WEBSOCKET.md) - WebSocket 文档
 
 ---
 
-## 🔮 未来架构演进
+## 📝 版本历史
 
-### Q2 2026
-- [ ] 多模态 AI 支持 (图像/音频)
-- [ ] WebSocket 实时通信
-- [ ] Redis 缓存层
-
-### Q3 2026
-- [ ] 微服务拆分
-- [ ] 消息队列 (RabbitMQ/Kafka)
-- [ ] 分布式任务调度
-
-### Q4 2026
-- [ ] Kubernetes 编排
-- [ ] 服务网格 (Istio)
-- [ ] 全球 CDN 部署
+| 版本 | 日期 | 更新内容 |
+|------|------|----------|
+| v1.1.0 | 2026-03-22 | 新增 Global Loading System、A2A Agent Communication |
+| v1.0.6 | 2026-03-21 | 实时通知、语音会议、移动端响应式 |
+| v1.0.0 | 2026-03-01 | 初始版本 |
 
 ---
 
-## 📚 相关文档
-
-- [快速开始](./QUICKSTART.md) - 5 分钟部署
-- [开发指南](./DEVELOPMENT.md) (待创建)
-- [部署文档](../DEPLOYMENT.md)
-- [API 参考](./API-REFERENCE.md)
-
----
-
-**架构版本**: v1.0.0  
-**最后审查**: 2026-03-06  
-**下次审查**: 2026-04-06
+**文档维护**: 🏗️ 架构师 (AI 团队)

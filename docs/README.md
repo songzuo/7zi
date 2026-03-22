@@ -1,40 +1,148 @@
-# 7zi Studio Documentation
+# 🚀 7zi Studio - AI 驱动的团队管理平台
 
-欢迎来到 7zi Studio 官方文档中心。这里包含了项目的所有技术文档、架构说明和开发指南。
+> **11 位 AI 成员 · 24/7 自主工作 · 实时协作**
 
-**最后更新**: 2026-03-18
-**项目版本**: v1.1.0
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/songzuo/7zi)
+[![CI Status](https://github.com/songzuo/7zi/workflows/CI%20-%20Pull%20Request%20Checks/badge.svg)](https://github.com/songzuo/7zi/actions/workflows/ci-pr.yml)
+[![Deploy Status](https://github.com/songzuo/7zi/workflows/Deploy%20-%20Main%20Branch/badge.svg)](https://github.com/songzuo/7zi/actions/workflows/deploy-main.yml)
+[![Next.js](https://img.shields.io/badge/Next.js-16.1.7-black?logo=next.js)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19.2.4-blue?logo=react)](https://react.dev/)
 
 ---
 
-## 📚 文档导航
+## 📖 项目简介
 
-### 🚀 快速开始
+**7zi Studio** 是一个革命性的 AI 驱动团队管理平台，由 **11 位专业 AI 成员** 组成完整的组织架构。我们重新定义了团队协作的可能性 —— 不再是人类管理工具，而是 **AI 团队自主工作**，人类只需制定战略方向。
 
-- **[QUICKSTART.md](./QUICKSTART.md)** - 5 分钟快速部署指南
-- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - 部署文档（生产环境配置）
-- **[I18N.md](./I18N.md)** - 国际化 (i18n) 实现指南
+### 🌟 核心特性
+
+- **🤖 AI 主管系统** - 智能任务分配与协调
+- **⚡ 24/7 不间断工作** - 无需休息，持续产出
+- **📊 实时 Dashboard** - 透明化所有工作进展
+- **🔄 自主决策** - 在授权范围内独立完成任务
+- **🎯 目标驱动** - 专注于结果而非过程
+
+---
+
+## 🔥 最新进展 (v1.1.0 - 2026-03-22)
+
+### 新增功能
+
+- **Global Loading System** - 全局加载状态管理系统
+  - 统一的加载指示器管理
+  - 支持多种动画变体（spin, pulse, bounce, dots, bars, wave）
+  - 进度追踪支持（0-100%）
+  - 防闪烁机制
+  - 完整的 TypeScript 类型支持
+
+- **A2A Agent Communication** - Agent 间通信系统
+  - 完全兼容 A2A Protocol v0.3.0
+  - JSON-RPC 2.0 标准协议
+  - 支持同步和流式处理
+  - 任务状态管理和追踪
+  - 事件总线架构
+
+### 代码质量
+
+| 指标 | 状态 |
+|------|------|
+| **版本** | v1.1.0 |
+| **测试文件数** | 490+ ✅ |
+| **API 端点数** | 65+ ✅ |
+| **API 模块数** | 26 ✅ |
+| **TypeScript 编译** | 0 错误 ✅ |
+| **ESLint** | 0 警告 ✅ |
+| **构建状态** | 成功 ✅ |
+
+---
+
+## 🚀 快速开始
+
+### 前置要求
+
+- **Node.js** 22.x LTS 或更高版本
+- **pnpm** 9.x 或更高版本
+- **Git**
+
+### 安装步骤
+
+```bash
+# 1. 克隆仓库
+git clone https://github.com/songzuo/7zi.git
+cd 7zi
+
+# 2. 安装依赖
+pnpm install
+
+# 3. 配置环境变量
+cp .env.example .env.local
+
+# 4. 启动开发服务器
+pnpm dev
+```
+
+访问 http://localhost:3000 查看应用。
+
+### 环境变量配置
+
+在 `.env.local` 中配置必要的环境变量：
+
+```bash
+# 应用配置
+NODE_ENV=development
+PORT=3000
+
+# OpenClaw 配置
+OPENCLAW_API_KEY=your_openclaw_api_key
+
+# AI 模型提供商
+MINIMAX_API_KEY=your_minimax_api_key
+BAILIAN_API_KEY=your_bailian_api_key
+VOLCENGINE_API_KEY=your_volcengine_api_key
+ANTHROPIC_API_KEY=your_anthropic_api_key
+
+# 邮件服务（可选）
+RESEND_API_KEY=re_xxxxxxxx
+```
+
+详细配置请参考 [DEPLOYMENT.md](./DEPLOYMENT.md)。
+
+---
+
+## 📚 完整文档
+
+### 📖 文档导航
+
+- **[README.md](./README.md)** - 项目介绍和快速开始（本文档）
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - 系统架构总览
+- **[API.md](./API.md)** - API 完整文档
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - 部署指南
+- **[QUICKSTART.md](./QUICKSTART.md)** - 5 分钟快速部署
+- **[CHANGELOG.md](./CHANGELOG.md)** - 版本变更日志
 
 ### 🏗️ 架构文档
 
-- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - 系统架构总览（核心文档）
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - 系统架构总览 ⭐
   - 架构概览和分层设计
-  - 核心组件说明（包括 Global Loading System 和 A2A Agent Communication）
+  - 核心组件说明
   - 数据流和通信模式
   - 安全架构和性能优化
-  - 部署架构和测试策略
 
 - **[ARCHITECTURE_DIAGRAMS.md](./ARCHITECTURE_DIAGRAMS.md)** - 架构图解
 - **[ARCHITECTURE_REVIEW.md](./ARCHITECTURE_REVIEW.md)** - 架构审查报告
-- **[MICROSERVICE-DESIGN.md](./microservice-design.md)** - 微服务设计
-- **[MCP-SERVER-ARCHITECTURE.md](./mcp-server-architecture.md)** - MCP 服务器架构
+- **[microservice-design.md](./microservice-design.md)** - 微服务设计
 
 ### 🔌 API 文档
 
-- **[API.md](./API.md)** - API 接口概述
+- **[API.md](./API.md)** - API 完整文档 ⭐
+  - 自定义 Hooks
+  - 公开组件
+  - API 端点列表
+
 - **[API-REFERENCE.md](./API-REFERENCE.md)** - API 参考手册
 - **[REST-API.md](./REST-API.md)** - REST API 规范
-- **[UTILS_API.md](./UTILS_API.md)** - 工具函数 API
+- **[API-ENDPOINTS.md](./API-ENDPOINTS.md)** - API 端点列表
 
 ### 🧩 组件文档
 
@@ -45,277 +153,199 @@
 ### 🎨 设计与优化
 
 - **[DESIGN_OPTIMIZATION.md](./DESIGN_OPTIMIZATION.md)** - 设计优化指南
-- **[RESPONSIVE_IMPLEMENTATION_GUIDE.md](./RESPONSIVE_IMPLEMENTATION_GUIDE.md)** - 响应式实现
-- **[RESPONSIVE_OPTIMIZATION_REPORT.md](./RESPONSIVE_OPTIMIZATION_REPORT.md)** - 响应式优化报告
 - **[PERFORMANCE_OPTIMIZATION.md](./PERFORMANCE_OPTIMIZATION.md)** - 性能优化
-- **[PERFORMANCE_AUDIT.md](./PERFORMANCE_AUDIT.md)** - 性能审计
-- **[PERFORMANCE_MONITORING.md](./PERFORMANCE_MONITORING.md)** - 性能监控
-- **[OPTIMIZATION_REPORT.md](./OPTIMIZATION_REPORT.md)** - 优化总结报告
+- **[PERFORMANCE.md](./PERFORMANCE.md)** - 性能指标
 
 ### 🔄 通信与集成
 
-- **[WEBSOCKET.md](./WEBSOCKET.md)** - WebSocket 实时通信（v1.0.6 新增）
-- **[LOADING-SYSTEM.md](./LOADING-SYSTEM.md)** - 全局加载系统（v1.1.0 新增）
+- **[WEBSOCKET.md](./WEBSOCKET.md)** - WebSocket 实时通信 ⭐
+- **[LOADING-SYSTEM.md](./LOADING-SYSTEM.md)** - 全局加载系统 ⭐ (v1.1.0 新增)
 - **[GITHUB-INTEGRATION.md](./GITHUB-INTEGRATION.md)** - GitHub 集成
-- **[GMAIL-INTEGRATION.md](./GMAIL-INTEGRATION.md)** - Gmail 集成
-- **[TELEGRAM-BOT.md](./TELEGRAM-BOT.md)** - Telegram 机器人
-
-### 🤖 AI 与代理系统
-
-- **[DIRECTOR.md](./DIRECTOR.md)** - AI 主管系统
-- **[SUBAGENTS.md](./SUBAGENTS.md)** - 子代理团队
-- **[TEAM-MEETING.md](./TEAM-MEETING.md)** - 团队会议系统
-- **[STATE_MANAGEMENT_ANALYSIS-summary.md](./STATE_MANAGEMENT_ANALYSIS-summary.md)** - 状态管理分析
-- **[STATE_MANAGEMENT_MIGRATION.md](./STATE_MANAGEMENT_MIGRATION.md)** - 状态管理迁移
 
 ### 🧪 测试与开发
 
 - **[TESTING.md](./TESTING.md)** - 测试策略和指南
 - **[DEVELOPMENT.md](./DEVELOPMENT.md)** - 开发指南
 - **[CODE_STYLE.md](./CODE_STYLE.md)** - 代码风格规范
-- **[ERROR-HANDLING.md](./ERROR-HANDLING.md)** - 错误处理
 
 ### 🔒 安全与运维
 
 - **[SECURITY-AUDIT-REPORT.md](./SECURITY-AUDIT-REPORT.md)** - 安全审计报告
 - **[MONITORING.md](./MONITORING.md)** - 监控系统
-- **[MONITORING_DESIGN.md](./MONITORING_DESIGN.md)** - 监控设计
-- **[MONITORING_SUMMARY.md](./MONITORING_SUMMARY.md)** - 监控总结
 - **[OPERATIONS_MANUAL.md](./OPERATIONS_MANUAL.md)** - 运维手册
-- **[PERMISSIONS.md](./PERMISSIONS.md)** - 权限管理
-- **[CI-CD-SETUP.md](./CI-CD-SETUP.md)** - CI/CD 配置
-- **[BACKUP-POLICY.md](./BACKUP-POLICY.md)** - 备份策略
-- **[CACHE_CONFIG.md](./CACHE_CONFIG.md)** - 缓存配置
-- **[I18N_ARCHITECTURE.md](./I18N_ARCHITECTURE.md)** - 国际化架构
-- **[PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md)** - 项目总结
-- **[SERVERS.md](./SERVERS.md)** - 服务器配置
-- **[SSH-SETUP.md](./SSH-SETUP.md)** - SSH 设置
-- **[SSH-TROUBLESHOOTING.md](./SSH-TROUBLESHOOTING.md)** - SSH 故障排除
-- **[技术栈升级建议报告.md](./技术栈升级建议报告.md)** - 技术栈升级建议
-
-### 📖 示例与参考
-
-- **[EXAMPLES.md](./EXAMPLES.md)** - 使用示例
-- **[INDEX.md](./INDEX.md)** - 文档索引
-
-### 🛣️ 路线图
-
-- **[ROADMAP.md](./ROADMAP.md)** - 功能路线图
-- **[FEATURE-ROADMAP.md](./feature-roadmap.md)** - 功能规划
-- **[FUTURE-ROADMAP.md](./future-roadmap.md)** - 未来规划
-- **[TECH-EVOLUTION.md](./tech-evolution.md)** - 技术演进
-
-### 📊 分析与报告
-
-- **[COMPETITION_ANALYSIS.md](./COMPETITION_ANALYSIS.md)** - 竞争分析
-- **[COMPETITOR_ANALYSIS.md](./COMPETITOR_ANALYSIS.md)** - 竞争对手分析
-- **[STATE-MANAGEMENT-ANALYSIS-detailed.md](./state-management-analysis-detailed.md)** - 详细状态管理分析
-- **[UX-ANALYSIS.md](./ux-analysis.md)** - UX 分析
-- **[UI_REVIEW.md](./UI_REVIEW.md)** - UI 审查
-- **[UI-REVIEW-2026-03-07.md](./UI-REVIEW-2026-03-07.md)** - UI/UX 优化审查报告 (2026-03-07)
-- **[PERFORMANCE-OPTIMIZATION-REPORT.md](./PERFORMANCE-OPTIMIZATION-REPORT.md)** - 性能优化报告
-- **[PORTFOLIO_OPTIMIZATION_REPORT.md](./PORTFOLIO_OPTIMIZATION_REPORT.md)** - Portfolio 组件性能优化
-- **[DEPENDENCY-AUDIT.md](./dependency-audit.md)** - 依赖审计
-- **[SECURITY_AUDIT_REPORT.md](./SECURITY_AUDIT_REPORT.md)** - 安全审查报告
-- **[TECH_DEBT.md](./TECH_DEBT.md)** - 技术债务分析
-- **[THEME_PERSISTENCE_IMPLEMENTATION.md](./THEME_PERSISTENCE_IMPLEMENTATION.md)** - 主题持久化实现报告
-- **[VERIFICATION_REPORT.md](./VERIFICATION_REPORT.md)** - 最终验证报告
-- **[TEST_ANALYSIS_REPORT.md](./TEST_ANALYSIS_REPORT.md)** - 测试分析与改进
-- **[TEST_COVERAGE_REPORT.md](./TEST_COVERAGE_REPORT.md)** - 测试覆盖率报告
-
-### 🎯 专项功能
-
-- **[SEARCH-ENHANCEMENT.md](./SEARCH-ENHANCEMENT.md)** - 搜索增强
-- **[ANIMATED_PROGRESS_BAR.md](./ANIMATED_PROGRESS_BAR.md)** - 动画进度条
-- **[PORTFOLIO-ARCHITECTURE.md](./portfolio-architecture.md)** - 作品集架构
 
 ---
 
-## 🆕 最新更新
+## 👥 团队介绍
 
-### v1.1.0 (2026-03-18)
+### 11 位 AI 成员
 
-#### 新增功能
-
-- **Global Loading System** - 全局加载状态管理系统
-  - 统一的加载指示器管理
-  - 支持多种动画变体（spin, pulse, bounce, dots, bars, wave）
-  - 进度追踪支持（0-100%）
-  - 防闪烁机制
-  - 完整的 TypeScript 类型支持
-  - 详细文档: [LOADING-SYSTEM.md](./LOADING-SYSTEM.md)
-
-- **A2A Agent Communication** - Agent 间通信系统
-  - 完全兼容 A2A Protocol v0.3.0
-  - JSON-RPC 2.0 标准协议
-  - 支持同步和流式处理
-  - 任务状态管理和追踪
-  - 事件总线架构
-  - 详细文档见 [ARCHITECTURE.md](./ARCHITECTURE.md) 中的 A2A Agent Communication 部分
-
-#### 文档更新
-
-- ✅ 更新 [ARCHITECTURE.md](./ARCHITECTURE.md) - 添加 Global Loading System 和 A2A Agent Communication 内容
-- ✅ 更新 `src/app/[locale]/layout.tsx` - 添加全局加载状态 Provider 的文档注释
-- ✅ 更新 `src/components/ClientProviders.tsx` - 添加 GlobalLoadingProvider 的文档注释
-- ✅ 创建本文档 - 文档目录结构概述
+| 角色 | 职责 | 提供商 |
+|------|------|--------|
+| 🌟 **智能体世界专家** | 视角转换、未来布局 | MiniMax |
+| 📚 **咨询师** | 研究分析、信息整理 | MiniMax |
+| 🏗️ **架构师** | 系统设计、技术规划 | Self-Claude |
+| ⚡ **Executor** | 任务执行、代码实现 | Volcengine |
+| 🛡️ **系统管理员** | 运维部署、安全监控 | Bailian |
+| 🧪 **测试员** | 质量保障、Bug 修复 | MiniMax |
+| 🎨 **设计师** | UI/UX 设计、前端开发 | Self-Claude |
+| 📣 **推广专员** | 市场推广、SEO 优化 | Volcengine |
+| 💼 **销售客服** | 客户支持、商务合作 | Bailian |
+| 💰 **财务** | 会计审计、成本控制 | MiniMax |
+| 📺 **媒体** | 内容创作、品牌宣传 | Self-Claude |
 
 ---
 
-## 📂 文档结构
+## 🛠️ 技术栈
 
-```
-docs/
-├── 📖 快速开始
-│   ├── QUICKSTART.md              # 5 分钟快速部署
-│   ├── DEPLOYMENT.md              # 部署文档
-│   └── I18N.md                    # 国际化指南
-│
-├── 🏗️ 架构
-│   ├── ARCHITECTURE.md            # 系统架构总览 ⭐
-│   ├── ARCHITECTURE_DIAGRAMS.md   # 架构图解
-│   ├── ARCHITECTURE_REVIEW.md     # 架构审查
-│   ├── microservice-design.md     # 微服务设计
-│   └── mcp-server-architecture.md # MCP 服务器架构
-│
-├── 🔌 API
-│   ├── API.md                     # API 概述
-│   ├── API-REFERENCE.md           # API 参考
-│   ├── REST-API.md                # REST API 规范
-│   └── UTILS_API.md               # 工具函数 API
-│
-├── 🧩 组件
-│   ├── COMPONENTS.md              # React 组件库
-│   ├── HOOKS.md                   # 自定义 Hooks
-│   └── PAGE-STRUCTURE.md          # 页面结构
-│
-├── 🎨 设计与优化
-│   ├── DESIGN_OPTIMIZATION.md     # 设计优化
-│   ├── RESPONSIVE_IMPLEMENTATION_GUIDE.md # 响应式实现
-│   ├── RESPONSIVE_OPTIMIZATION_REPORT.md  # 响应式优化报告
-│   ├── PERFORMANCE_OPTIMIZATION.md        # 性能优化
-│   ├── PERFORMANCE_AUDIT.md              # 性能审计
-│   ├── PERFORMANCE_MONITORING.md          # 性能监控
-│   └── OPTIMIZATION_REPORT.md             # 优化总结
-│
-├── 🔄 通信与集成
-│   ├── WEBSOCKET.md               # WebSocket 实时通信 ⭐
-│   ├── LOADING-SYSTEM.md          # 全局加载系统 ⭐ (v1.1.0 新增)
-│   ├── GITHUB-INTEGRATION.md      # GitHub 集成
-│   ├── GMAIL-INTEGRATION.md       # Gmail 集成
-│   └── TELEGRAM-BOT.md            # Telegram 机器人
-│
-├── 🤖 AI 与代理
-│   ├── DIRECTOR.md                # AI 主管
-│   ├── SUBAGENTS.md               # 子代理团队
-│   ├── TEAM-MEETING.md            # 团队会议
-│   ├── STATE_MANAGEMENT_ANALYSIS-summary.md # 状态管理分析
-│   └── STATE_MANAGEMENT_MIGRATION.md       # 状态管理迁移
-│
-├── 🧪 测试与开发
-│   ├── TESTING.md                 # 测试策略
-│   ├── DEVELOPMENT.md             # 开发指南
-│   ├── CODE_STYLE.md              # 代码风格
-│   └── ERROR-HANDLING.md          # 错误处理
-│
-├── 🔒 安全与运维
-│   ├── SECURITY-AUDIT-REPORT.md   # 安全审计
-│   ├── MONITORING.md              # 监控系统
-│   ├── MONITORING_DESIGN.md       # 监控设计
-│   ├── MONITORING_SUMMARY.md      # 监控总结
-│   ├── OPERATIONS_MANUAL.md       # 运维手册
-│   └── PERMISSIONS.md             # 权限管理
-│
-├── 📖 示例与参考
-│   ├── EXAMPLES.md                # 使用示例
-│   └── INDEX.md                   # 文档索引
-│
-├── 🛣️ 路线图
-│   ├── ROADMAP.md                 # 功能路线图
-│   ├── feature-roadmap.md         # 功能规划
-│   ├── future-roadmap.md          # 未来规划
-│   └── tech-evolution.md          # 技术演进
-│
-├── 📊 分析与报告
-│   ├── COMPETITION_ANALYSIS.md    # 竞争分析
-│   ├── COMPETITOR_ANALYSIS.md     # 竞争对手分析
-│   ├── state-management-analysis-detailed.md # 详细状态管理分析
-│   ├── ux-analysis.md             # UX 分析
-│   ├── UI_REVIEW.md               # UI 审查
-│   ├── PERFORMANCE-OPTIMIZATION-REPORT.md   # 性能优化报告
-│   └── dependency-audit.md         # 依赖审计
-│
-└── 🎯 专项功能
-    ├── SEARCH-ENHANCEMENT.md      # 搜索增强
-    ├── ANIMATED_PROGRESS_BAR.md   # 动画进度条
-    └── portfolio-architecture.md  # 作品集架构
+### 前端技术
+
+| 技术 | 版本 | 用途 |
+|------|------|------|
+| **Next.js** | 16.1.7 | React 全栈框架 (App Router) |
+| **React** | 19.2.4 | UI 库 |
+| **TypeScript** | 5.x | 类型安全 |
+| **Tailwind CSS** | 4.x | 原子化 CSS |
+| **Socket.IO Client** | 4.8.3 | WebSocket 通信 |
+| **Zustand** | 5.0.12 | 状态管理 |
+| **Lucide React** | 0.577.0 | 图标库 |
+
+### 后端技术
+
+| 技术 | 版本 | 用途 |
+|------|------|------|
+| **Node.js** | 22.x LTS | 运行时环境 |
+| **OpenClaw** | 最新 | AI 代理框架 |
+| **Socket.IO** | 4.8.3 | 实时通信 |
+| **better-sqlite3** | 11.10.0 | 数据库 |
+
+### AI 模型提供商
+
+| 提供商 | 模型 | 用途 |
+|--------|------|------|
+| **MiniMax** | MiniMax-M2.5 | 智能体专家、咨询师、测试员、财务 |
+| **Bailian** | Qwen3.5-Plus | 系统管理员、销售客服 |
+| **Volcengine** | 豆包 | Executor、推广专员 |
+| **Self-Claude** | Claude 3.5 | 架构师、设计师、媒体 |
+
+### 测试工具
+
+| 工具 | 版本 | 用途 |
+|------|------|------|
+| **Vitest** | 4.1.0 | 单元测试框架 |
+| **Testing Library** | 16.x | 组件测试 |
+| **JSDOM** | 28.x | 浏览器环境模拟 |
+| **Playwright** | 1.58.2 | E2E 测试 |
+
+---
+
+## 🧪 测试
+
+### 运行测试
+
+```bash
+# 运行所有测试 (监视模式)
+pnpm test
+
+# 单次运行测试
+pnpm run test:run
+
+# 生成覆盖率报告
+pnpm run test:coverage
+
+# E2E 测试
+pnpm run test:e2e
 ```
 
 ---
 
-## 🎯 推荐阅读顺序
+## 🚀 部署
 
-### 新手入门
-1. [QUICKSTART.md](./QUICKSTART.md) - 快速了解项目
-2. [ARCHITECTURE.md](./ARCHITECTURE.md) - 理解整体架构
-3. [DEVELOPMENT.md](./DEVELOPMENT.md) - 开始开发
+### 部署选项
 
-### 前端开发
-1. [COMPONENTS.md](./COMPONENTS.md) - 了解组件库
-2. [HOOKS.md](./HOOKS.md) - 使用自定义 Hooks
-3. [LOADING-SYSTEM.md](./LOADING-SYSTEM.md) - 全局加载系统（v1.1.0 新增）
-4. [WEBSOCKET.md](./WEBSOCKET.md) - 实时通信
+项目支持多种部署方式：
 
-### 后端开发
-1. [API.md](./API.md) - API 概览
-2. [API-REFERENCE.md](./API-REFERENCE.md) - API 参考
-3. [ARCHITECTURE.md](./ARCHITECTURE.md) - 架构理解
+- **🐳 Docker** - 使用 Dockerfile 和 docker-compose.yml 容器化部署
+- **☁️ Vercel** - Next.js 原生支持，配置 `vercel.json` 即可
+- **🐙 GitHub Actions** - 自动化 CI/CD 流程
 
-### DevOps / 运维
-1. [DEPLOYMENT.md](./DEPLOYMENT.md) - 部署配置
-2. [MONITORING.md](./MONITORING.md) - 监控系统
-3. [SECURITY-AUDIT-REPORT.md](./SECURITY-AUDIT-REPORT.md) - 安全审计
+### Docker 部署
 
-### AI / 代理开发
-1. [DIRECTOR.md](./DIRECTOR.md) - AI 主管系统
-2. [SUBAGENTS.md](./SUBAGENTS.md) - 子代理团队
-3. [ARCHITECTURE.md](./ARCHITECTURE.md) - A2A Agent Communication（v1.1.0 新增）
+```bash
+# 构建并启动
+docker-compose up -d
+
+# 生产环境
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+### Vercel 部署
+
+```bash
+# 登录 Vercel
+vercel login
+
+# 部署
+vercel
+
+# 生产环境
+vercel --prod
+```
+
+详细部署指南请参考 [DEPLOYMENT.md](./DEPLOYMENT.md)。
+
+---
+
+## 📄 许可证
+
+**双模式许可**
+
+- **开源版本**: MIT License - 适用于个人和非商业项目
+- **商业版本**: 商业许可证 - 适用于企业部署和商业用途
 
 ---
 
 ## 🤝 贡献指南
 
-欢迎贡献文档！请遵循以下指南：
+我们欢迎所有形式的贡献！请阅读以下指南：
 
-1. 使用清晰的 Markdown 格式
-2. 添加代码示例时使用语法高亮
-3. 保持与现有文档风格一致
-4. 更新相关的文档索引
-5. 提交前进行拼写检查和格式化
+### 如何贡献
 
----
+1. **Fork 项目** - 点击右上角 Fork 按钮
+2. **创建分支** - `git checkout -b feature/amazing-feature`
+3. **提交更改** - `git commit -m 'feat: add amazing feature'`
+4. **推送分支** - `git push origin feature/amazing-feature`
+5. **提交 PR** - 在 GitHub 上创建 Pull Request
 
-## 📝 文档维护
+### 代码规范
 
-- **维护者**: 🏗️ 架构师 (AI 团队)
-- **最后审查**: 2026-03-18
-- **下次审查**: 2026-04-18
-- **文档版本**: v1.1.0
+- 遵循 [Conventional Commits](https://www.conventionalcommits.org/) 规范
+- 代码必须通过 ESLint 和 TypeScript 检查
+- 新功能需要添加测试用例
+- 测试覆盖率不低于 80%
 
----
-
-## 🔗 相关链接
-
-- **项目主页**: https://7zi.studio
-- **GitHub 仓库**: (待添加)
-- **问题反馈**: (待添加)
-- **变更日志**: (待添加)
+详细贡献指南请参考 [CONTRIBUTING.md](./CONTRIBUTING.md)。
 
 ---
 
-**快速链接**:
-- [返回首页](../README.md)
-- [快速开始](./QUICKSTART.md)
-- [架构文档](./ARCHITECTURE.md)
-- [API 参考](./API-REFERENCE.md)
-- [开发指南](./DEVELOPMENT.md)
+## 🙏 致谢
+
+感谢以下项目和团队：
+- [OpenClaw](https://github.com/openclaw) - AI 代理框架
+- [Next.js](https://nextjs.org/) - React 框架
+- [Tailwind CSS](https://tailwindcss.com/) - CSS 框架
+- 所有 AI 模型提供商
+
+---
+
+<div align="center">
+
+**🌟 如果这个项目对你有帮助，请给个 Star！**
+
+[⭐ Star on GitHub](https://github.com/songzuo/7zi/stargazers)
+| [📋 提交 Issue](https://github.com/songzuo/7zi/issues)
+| [🍴 Fork 项目](https://github.com/songzuo/7zi/fork)
+
+**Made with ❤️ by 11 AI Members & 🧑 宋琢环球旅行**
+
+</div>

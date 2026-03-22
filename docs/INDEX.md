@@ -1,491 +1,360 @@
-# 📚 7zi Platform 文档中心
+# 📚 7zi Studio 文档中心索引
 
-> 完整的项目文档和使用指南
-
-**最后更新**: 2026-03-21
-
----
-
-## 🚀 快速开始
-
-如果你是新用户，建议按以下顺序阅读：
-
-1. **[../README.md](../README.md)** - 项目介绍和快速开始
-2. **[QUICKSTART.md](./QUICKSTART.md)** - 5 分钟快速上手指南
-3. **[DEPLOYMENT-GUIDE.md](./DEPLOYMENT-GUIDE.md)** - 如何部署 7zi Platform
-4. **[ENVIRONMENT-VARIABLES.md](./ENVIRONMENT-VARIABLES.md)** - 配置环境变量
-5. **[COMPONENTS-USAGE-GUIDE.md](./COMPONENTS-USAGE-GUIDE.md)** - 组件使用说明
+**最后更新**: 2026-03-22
+**版本**: v1.1.0
 
 ---
 
-## 📖 文档分类
+## 📖 文档导航
 
-### 🚀 快速入门
+### 🚀 快速开始
 
-| 文档 | 状态 | 说明 |
-|------|------|------|
-| [../README.md](../README.md) | ✅ 最新 | 项目介绍、功能特性、快速开始 |
-| [QUICKSTART.md](./QUICKSTART.md) | ✅ 最新 | 5 分钟快速上手指南 |
-| [../DEPLOY.md](../DEPLOY.md) | ✅ 最新 | Vercel 部署配置 |
-| [DEV_QUICK_START.md](./DEV_QUICK_START.md) | ✅ 最新 | 开发环境快速开始 |
+- **[README.md](./README.md)** - 项目介绍和快速开始 ⭐
+- **[QUICKSTART.md](./QUICKSTART.md)** - 5 分钟快速部署
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - 部署文档（生产环境配置）
+- **[CHANGELOG.md](../CHANGELOG.md)** - 版本变更日志
 
-### 🏗️ 架构设计
+### 🏗️ 架构文档
 
-| 文档 | 状态 | 说明 |
-|------|------|------|
-| [ARCHITECTURE.md](./ARCHITECTURE.md) | ✅ 最新 | 系统架构设计 |
-| [ARCHITECTURE-MAIN.md](./ARCHITECTURE-MAIN.md) | ✅ 最新 | 架构主要文档 |
-| [ARCHITECTURE_SUMMARY.md](./ARCHITECTURE_SUMMARY.md) | ✅ 最新 | 架构总结 |
-| [ARCHITECTURE_DIAGRAMS.md](./ARCHITECTURE_DIAGRAMS.md) | ✅ 最新 | 架构图和设计图 |
-| [ARCHITECTURE_REVIEW.md](./ARCHITECTURE_REVIEW.md) | ✅ 最新 | 架构评审报告 |
-| [portfolio-architecture.md](./portfolio-architecture.md) | 📝 草稿 | Portfolio 架构设计 |
-| [microservice-design.md](./microservice-design.md) | 📝 草稿 | 微服务架构设计 |
-| [mcp-server-architecture.md](./mcp-server-architecture.md) | 📝 草稿 | MCP 服务器架构 |
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - 系统架构总览 ⭐
+  - 架构概览和分层设计
+  - 核心组件说明
+  - 数据流和通信模式
+  - 安全架构和性能优化
 
-### 💻 开发指南
+- **[ARCHITECTURE_DIAGRAMS.md](./ARCHITECTURE_DIAGRAMS.md)** - 架构图解
+- **[ARCHITECTURE_REVIEW.md](./ARCHITECTURE_REVIEW.md)** - 架构审查报告
+- **[microservice-design.md](./microservice-design.md)** - 微服务设计
+- **[mcp-server-architecture.md](./mcp-server-architecture.md)** - MCP 服务器架构
 
-| 文档 | 状态 | 说明 |
-|------|------|------|
-| [DEVELOPMENT.md](./DEVELOPMENT.md) | ✅ 最新 | 开发环境搭建和开发指南 |
-| [CODE_STYLE.md](./CODE_STYLE.md) | ✅ 最新 | 代码风格和规范 |
-| [COMPONENTS.md](./COMPONENTS.md) | ✅ 最新 | 组件开发指南 |
-| [COMPONENTS-MAIN.md](./COMPONENTS-MAIN.md) | ✅ 最新 | 组件主要文档 |
-| [COMPONENTS-MAIN-UPDATED.md](./COMPONENTS-MAIN-UPDATED.md) | ✅ 最新 | 组件文档更新版 |
-| [HOOKS.md](./HOOKS.md) | ✅ 最新 | 自定义 Hooks 使用指南 |
-| [SUBAGENTS.md](./SUBAGENTS.md) | ✅ 最新 | Subagent 开发指南 |
+### 🔌 API 文档
+
+- **[API.md](./API.md)** - API 完整文档 ⭐
+  - 自定义 Hooks
+  - 公开组件
+  - API 端点列表
+
+- **[API-REFERENCE.md](./API-REFERENCE.md)** - API 参考手册
+- **[REST-API.md](./REST-API.md)** - REST API 规范
+- **[API-ENDPOINTS.md](./API-ENDPOINTS.md)** - API 端点列表
+- **[API-COMPLETE-REFERENCE.md](./API-COMPLETE-REFERENCE.md)** - API 完整参考
+- **[API-DOCUMENTATION.md](./API-DOCUMENTATION.md)** - API 文档
+- **[API-MAIN.md](./API-MAIN.md)** - API 主要文档
 
 ### 🧩 组件文档
 
-| 文档 | 状态 | 说明 |
-|------|------|------|
-| [COMPONENTS-USAGE-GUIDE.md](./COMPONENTS-USAGE-GUIDE.md) | ✅ 最新 | ⭐ 完整的组件使用指南 |
-| [COMPONENTS.md](./COMPONENTS.md) | ✅ 最新 | 组件详细说明 |
-| [PAGE-STRUCTURE.md](./PAGE-STRUCTURE.md) | ✅ 最新 | 页面结构说明 |
-| [ui-components.md](./ui-components.md) | 📝 草稿 | UI 组件详细说明 |
-| [ANIMATED_PROGRESS_BAR.md](./ANIMATED_PROGRESS_BAR.md) | ✅ 最新 | 动画进度条组件 |
+- **[COMPONENTS.md](./COMPONENTS.md)** - React 组件库
+- **[HOOKS.md](./HOOKS.md)** - 自定义 Hooks
+- **[PAGE-STRUCTURE.md](./PAGE-STRUCTURE.md)** - 页面结构说明
+- **[COMPONENTS-MAIN.md](./COMPONENTS-MAIN.md)** - 组件主要文档
+- **[COMPONENTS-USAGE-GUIDE.md](./COMPONENTS-USAGE-GUIDE.md)** - 组件使用指南
+- **[COMPONENTS-MAIN-UPDATED.md](./COMPONENTS-MAIN-UPDATED.md)** - 组件更新文档
 
-### 📡 API 文档
+### 🎨 设计与优化
 
-| 文档 | 状态 | 说明 |
-|------|------|------|
-| [API-COMPLETE-REFERENCE.md](./API-COMPLETE-REFERENCE.md) | ✅ 最新 | ⭐ 完整的 API 参考文档 |
-| [API-REFERENCE.md](./API-REFERENCE.md) | ✅ 最新 | API 接口说明 |
-| [API-MAIN.md](./API-MAIN.md) | ✅ 最新 | API 主要文档 |
-| [API-ENDPOINTS.md](./API-ENDPOINTS.md) | ✅ 最新 | API 端点列表 |
-| [REST-API.md](./REST-API.md) | ✅ 最新 | REST API 规范 |
-| [UTILS_API.md](./UTILS_API.md) | ✅ 最新 | 工具函数 API |
-| [API.md](./API.md) | ✅ 最新 | API 基础文档 |
-| [API-DOCUMENTATION.md](./API-DOCUMENTATION.md) | ✅ 最新 | API 文档说明 |
-| [API_REFACTORING.md](./API_REFACTORING.md) | ✅ 最新 | API 重构报告 |
-| [API_REFACTORING_SUMMARY.md](./API_REFACTORING_SUMMARY.md) | ✅ 最新 | API 重构总结 |
-| [api-optimization-analysis.md](./api-optimization-analysis.md) | ✅ 最新 | API 优化分析 |
-| [api-optimization-final-report.md](./api-optimization-final-report.md) | ✅ 最新 | API 优化最终报告 |
-| [api-optimization-summary.md](./api-optimization-summary.md) | ✅ 最新 | API 优化总结 |
+- **[DESIGN_OPTIMIZATION.md](./DESIGN_OPTIMIZATION.md)** - 设计优化指南
+- **[PERFORMANCE_OPTIMIZATION.md](./PERFORMANCE_OPTIMIZATION.md)** - 性能优化
+- **[PERFORMANCE.md](./PERFORMANCE.md)** - 性能指标
+- **[PERFORMANCE_AUDIT.md](./PERFORMANCE_AUDIT.md)** - 性能审计
+- **[PERFORMANCE_MONITORING.md](./PERFORMANCE_MONITORING.md)** - 性能监控
+- **[PERFORMANCE_REPORT.md](./PERFORMANCE_REPORT.md)** - 性能报告
+- **[OPTIMIZATION_REPORT.md](./OPTIMIZATION_REPORT.md)** - 优化总结报告
 
-### 🏗️ 部署指南
+### 🔄 通信与集成
 
-| 文档 | 状态 | 说明 |
-|------|------|------|
-| [DEPLOYMENT-GUIDE.md](./DEPLOYMENT-GUIDE.md) | ✅ 最新 | ⭐ 完整的部署指南 |
-| [DEPLOYMENT.md](./DEPLOYMENT.md) | ✅ 最新 | 基础部署文档 |
-| [deployment.md](./deployment.md) | ✅ 最新 | 部署配置说明 |
-| [CI-CD-SETUP.md](./CI-CD-SETUP.md) | ✅ 最新 | CI/CD 配置指南 |
-| [DOCKER-SETUP.md](./DOCKER-SETUP.md) | ✅ 最新 | Docker 部署配置 |
-| [CI_CD_MIGRATION_GUIDE.md](./CI_CD_MIGRATION_GUIDE.md) | ✅ 最新 | CI/CD 迁移指南 |
-| [CI_CD_REPORT.md](./CI_CD_REPORT.md) | ✅ 最新 | CI/CD 报告 |
-| [CI_CD_SUMMARY.md](./CI_CD_SUMMARY.md) | ✅ 最新 | CI/CD 总结 |
+- **[WEBSOCKET.md](./WEBSOCKET.md)** - WebSocket 实时通信 ⭐
+- **[LOADING-SYSTEM.md](./LOADING-SYSTEM.md)** - 全局加载系统 ⭐ (v1.1.0 新增)
+- **[GITHUB-INTEGRATION.md](./GITHUB-INTEGRATION.md)** - GitHub 集成
+- **[GMAIL-INTEGRATION.md](./GMAIL-INTEGRATION.md)** - Gmail 集成
+- **[TELEGRAM-BOT.md](./TELEGRAM-BOT.md)** - Telegram 机器人
 
-### 🔐 配置文档
+### 🤖 AI 与代理系统
 
-| 文档 | 状态 | 说明 |
-|------|------|------|
-| [ENVIRONMENT-VARIABLES.md](./ENVIRONMENT-VARIABLES.md) | ✅ 最新 | ⭐ 环境变量完整配置 |
-| [ENVIRONMENT.md](./ENVIRONMENT.md) | ✅ 最新 | 环境配置指南 |
-| [../GCP-CONFIG.md](../GCP-CONFIG.md) | ✅ 最新 | Google Cloud 配置 |
-| [GITHUB-INTEGRATION.md](./GITHUB-INTEGRATION.md) | ✅ 最新 | GitHub 集成配置 |
-| [GMAIL-INTEGRATION.md](./GMAIL-INTEGRATION.md) | ✅ 最新 | Gmail 集成配置 |
-| [SSH-SETUP.md](./SSH-SETUP.md) | ✅ 最新 | SSH 配置指南 |
-| [SSH-TROUBLESHOOTING.md](./SSH-TROUBLESHOOTING.md) | ✅ 最新 | SSH 故障排查 |
-| [CACHE_CONFIG.md](./CACHE_CONFIG.md) | ✅ 最新 | 缓存配置 |
+- **[DIRECTOR.md](./DIRECTOR.md)** - AI 主管系统
+- **[SUBAGENTS.md](./SUBAGENTS.md)** - 子代理团队
+- **[TEAM-MEETING.md](./TEAM-MEETING.md)** - 团队会议系统
+- **[STATE_MANAGEMENT_ANALYSIS-summary.md](./STATE_MANAGEMENT_ANALYSIS-summary.md)** - 状态管理分析
+- **[STATE_MANAGEMENT_MIGRATION.md](./STATE_MANAGEMENT_MIGRATION.md)** - 状态管理迁移
 
-### 🧪 测试文档
+### 🧪 测试与开发
 
-| 文档 | 状态 | 说明 |
-|------|------|------|
-| [TESTING.md](./TESTING.md) | ✅ 最新 | 测试指南 |
-| [TEST_ANALYSIS_REPORT.md](./TEST_ANALYSIS_REPORT.md) | ✅ 最新 | 测试分析报告 |
-| [TEST_COVERAGE_REPORT.md](./TEST_COVERAGE_REPORT.md) | ✅ 最新 | 测试覆盖率报告 |
-| [E2E_TESTING_STRATEGY.md](./E2E_TESTING_STRATEGY.md) | ✅ 最新 | E2E 测试策略 |
+- **[TESTING.md](./TESTING.md)** - 测试策略和指南
+- **[DEVELOPMENT.md](./DEVELOPMENT.md)** - 开发指南
+- [TESTING_GUIDE.md](../TESTING_GUIDE.md) - 测试指南
+- [CODE_STYLE.md](./CODE_STYLE.md) - 代码风格规范
+- [ERROR-HANDLING.md](./ERROR-HANDLING.md) - 错误处理
+- [ERROR_HANDLING.md](./ERROR_HANDLING.md) - 错误处理指南
+- [ERROR_HANDLING_GUIDE.md](./ERROR_HANDLING_GUIDE.md) - 错误处理完整指南
+- [E2E_TESTING_STRATEGY.md](./E2E_TESTING_STRATEGY.md) - E2E 测试策略
+- [TEST_ANALYSIS_REPORT.md](../TEST_ANALYSIS_REPORT.md) - 测试分析报告
+- [TEST_COVERAGE_REPORT.md](../TEST_COVERAGE_REPORT.md) - 测试覆盖率报告
 
-### 📊 监控与性能
+### 🔒 安全与运维
 
-| 文档 | 状态 | 说明 |
-|------|------|------|
-| [MONITORING.md](./MONITORING.md) | ✅ 最新 | 监控指南 |
-| [MONITORING_DESIGN.md](./MONITORING_DESIGN.md) | ✅ 最新 | 监控设计文档 |
-| [MONITORING_SUMMARY.md](./MONITORING_SUMMARY.md) | ✅ 最新 | 监控总结 |
-| [PERFORMANCE_MONITORING.md](./PERFORMANCE_MONITORING.md) | ✅ 最新 | 性能监控 |
-| [PERFORMANCE.md](./PERFORMANCE.md) | ✅ 最新 | 性能基础文档 |
-| [PERFORMANCE_OPTIMIZATION.md](./PERFORMANCE_OPTIMIZATION.md) | ✅ 最新 | 性能优化 |
-| [PERFORMANCE_REPORT.md](./PERFORMANCE_REPORT.md) | ✅ 最新 | 性能报告 |
-| [PERFORMANCE-OPTIMIZATION-REPORT.md](./PERFORMANCE-OPTIMIZATION-REPORT.md) | ✅ 最新 | 性能优化报告 |
-| [PERFORMANCE_AUDIT.md](./PERFORMANCE_AUDIT.md) | ✅ 最新 | 性能审计 |
-| [OPTIMIZATION_REPORT.md](./OPTIMIZATION_REPORT.md) | ✅ 最新 | 优化报告 |
-| [WEB_VITALS_OPTIMIZATION.md](./WEB_VITALS_OPTIMIZATION.md) | ✅ 最新 | Web Vitals 优化 |
-| [WEB_VITALS_IMPLEMENTATION_SUMMARY.md](./WEB_VITALS_IMPLEMENTATION_SUMMARY.md) | ✅ 最新 | Web Vitals 实现总结 |
+- **[SECURITY-AUDIT-REPORT.md](./SECURITY-AUDIT-REPORT.md)** - 安全审计报告
+- **[MONITORING.md](./MONITORING.md)** - 监控系统
+- **[MONITORING_DESIGN.md](./MONITORING_DESIGN.md)** - 监控设计
+- **[MONITORING_SUMMARY.md](./MONITORING_SUMMARY.md)** - 监控总结
+- **[OPERATIONS_MANUAL.md](./OPERATIONS_MANUAL.md)** - 运维手册
+- **[PERMISSIONS.md](./PERMISSIONS.md)** - 权限管理
+- **[RBAC_IMPLEMENTATION.md](./RBAC_IMPLEMENTATION.md)** - RBAC 实现文档
+- **[RBAC_QUICK_REFERENCE.md](./RBAC_QUICK_REFERENCE.md)** - RBAC 快速参考
+- **[RBAC_CHANGELOG.md](./RBAC_CHANGELOG.md)** - RBAC 变更日志
 
-### 🔒 安全文档
+### 📦 部署与 CI/CD
 
-| 文档 | 状态 | 说明 |
-|------|------|------|
-| [ERROR-HANDLING.md](./ERROR-HANDLING.md) | ✅ 最新 | 错误处理指南 |
-| [ERROR_HANDLING.md](./ERROR_HANDLING.md) | ⚠️ 需更新 | 错误处理（旧版） |
-| [ERROR_HANDLING_REVIEW.md](./ERROR_HANDLING_REVIEW.md) | ✅ 最新 | 错误处理评审 |
-| [PERMISSIONS.md](./PERMISSIONS.md) | ✅ 最新 | 权限系统说明 |
-| [SECURITY-AUDIT-REPORT.md](./SECURITY-AUDIT-REPORT.md) | ✅ 最新 | 安全审计报告 |
-| [SECURITY_AUDIT_REPORT.md](./SECURITY_AUDIT_REPORT.md) | ✅ 最新 | 安全审计报告 |
-| [CSP_CONFIGURATION_GUIDE.md](./CSP_CONFIGURATION_GUIDE.md) | ✅ 最新 | CSP 配置指南 |
-| [CSP_IMPLEMENTATION_REPORT.md](./CSP_IMPLEMENTATION_REPORT.md) | ✅ 最新 | CSP 实现报告 |
+- **[DEPLOYMENT-GUIDE.md](./DEPLOYMENT-GUIDE.md)** - 部署指南
+- **[CI-CD-SETUP.md](./CI-CD-SETUP.md)** - CI/CD 配置
+- **[CI_CD_MIGRATION_GUIDE.md](./CI_CD_MIGRATION_GUIDE.md)** - CI/CD 迁移指南
+- **[CI_CD_REPORT.md](./CI_CD_REPORT.md)** - CI/CD 报告
+- **[CI_CD_SUMMARY.md](./CI_CD_SUMMARY.md)** - CI/CD 总结
+- **[ENVIRONMENT.md](./ENVIRONMENT.md)** - 环境配置
+- **[ENVIRONMENT-VARIABLES.md](./ENVIRONMENT-VARIABLES.md)** - 环境变量文档
+- **[BACKUP-POLICY.md](./BACKUP-POLICY.md)** - 备份策略
 
-### 🌍 国际化
+### 🌍 国际化与本地化
 
-| 文档 | 状态 | 说明 |
-|------|------|------|
-| [I18N.md](./I18N.md) | ✅ 最新 | 国际化配置 |
-| [I18N_ARCHITECTURE.md](./I18N_ARCHITECTURE.md) | ✅ 最新 | 国际化架构 |
+- **[I18N.md](./I18N.md)** - 国际化指南
+- **[I18N_ARCHITECTURE.md](./I18N_ARCHITECTURE.md)** - 国际化架构
+
+### 📊 监控与分析
+
+- **[ANALYTICS_DASHBOARD.md](./ANALYTICS_DASHBOARD.md)** - 分析仪表板
+- **[NOTIFICATION_SYSTEM.md](./NOTIFICATION_SYSTEM.md)** - 通知系统
+
+### 🎯 专项功能
+
+- **[SEARCH-ENHANCEMENT.md](./SEARCH-ENHANCEMENT.md)** - 搜索增强
+- **[ANIMATED_PROGRESS_BAR.md](./ANIMATED_PROGRESS_BAR.md)** - 动画进度条
+- **[LOADING-SYSTEM.md](./LOADING-SYSTEM.md)** - 加载系统
+- **[portfolio-architecture.md](./portfolio-architecture.md)** - 作品集架构
 
 ### 🎨 UI/UX
 
-| 文档 | 状态 | 说明 |
-|------|------|------|
-| [UI_REVIEW.md](./UI_REVIEW.md) | ✅ 最新 | UI 评审 |
-| [UI-REVIEW-2026-03-07.md](./UI-REVIEW-2026-03-07.md) | ✅ 最新 | UI 评审记录 |
-| [RESPONSIVE_IMPLEMENTATION_GUIDE.md](./RESPONSIVE_IMPLEMENTATION_GUIDE.md) | ✅ 最新 | 响应式实现指南 |
-| [RESPONSIVE_OPTIMIZATION_REPORT.md](./RESPONSIVE_OPTIMIZATION_REPORT.md) | ✅ 最新 | 响应式优化报告 |
-| [RESPONSIVE_OPTIMIZATION_REPORT_DRAFT.md](./RESPONSIVE_OPTIMIZATION_REPORT_DRAFT.md) | 📝 草稿 | 响应式优化报告草稿 |
-| [MOBILE-RESPONSIVE-AUDIT.md](./MOBILE-RESPONSIVE-AUDIT.md) | ✅ 最新 | 移动端响应式审计 |
-| [mobile-responsive-spec.md](./mobile-responsive-spec.md) | 📝 草稿 | 移动端响应式规范 |
-| [ux-analysis.md](./ux-analysis.md) | 📝 草稿 | UX 分析 |
+- **[RESPONSIVE_IMPLEMENTATION_GUIDE.md](./RESPONSIVE_IMPLEMENTATION_GUIDE.md)** - 响应式实现
+- **[RESPONSIVE_OPTIMIZATION_REPORT.md](./RESPONSIVE_OPTIMIZATION_REPORT.md)** - 响应式优化报告
+- **[MOBILE-RESPONSIVE-AUDIT.md](./MOBILE-RESPONSIVE-AUDIT.md)** - 移动端响应式审计
+- **[UI_REVIEW.md](./UI_REVIEW.md)** - UI 审查
+- **[UX-ANALYSIS.md](./ux-analysis.md)** - UX 分析
+- **[UI_IMPROVEMENT_PROPOSAL.md](../UI_IMPROVEMENT_PROPOSAL.md)** - UI 改进提案
 
-### 🔌 集成文档
+### 📊 数据库优化
 
-| 文档 | 状态 | 说明 |
-|------|------|------|
-| [TELEGRAM-BOT.md](./TELEGRAM-BOT.md) | ✅ 最新 | Telegram Bot 集成 |
-| [WEBSOCKET.md](./WEBSOCKET.md) | ✅ 最新 | WebSocket 实时通信 |
-| [websocket-integration.md](./websocket-integration.md) | ✅ 最新 | WebSocket 集成文档 |
-| [websocket-implementation-summary.md](./websocket-implementation-summary.md) | ✅ 最新 | WebSocket 实现总结 |
-| [websocket-status.md](./websocket-status.md) | ✅ 最新 | WebSocket 状态 |
-| [LOADING-SYSTEM.md](./LOADING-SYSTEM.md) | ✅ 最新 | 加载系统 |
-| [NOTIFICATION_SYSTEM.md](./NOTIFICATION_SYSTEM.md) | ✅ 最新 | 实时通知系统文档 |
+- **[DATABASE_OPTIMIZATIONS.md](./DATABASE_OPTIMIZATIONS.md)** - 数据库优化
+- **[DATABASE_OPTIMIZATION_IMPLEMENTATION_GUIDE.md](./DATABASE_OPTIMIZATION_IMPLEMENTATION_GUIDE.md)** - 数据库优化实现指南
+- **[TASK_SUMMARY_DB_OPTIMIZATION.md](./TASK_SUMMARY_DB_OPTIMIZATION.md)** - 数据库优化任务总结
 
-### 📈 项目管理
+### 🔄 状态管理
 
-| 文档 | 状态 | 说明 |
-|------|------|------|
-| [PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md) | ✅ 最新 | 项目总结 |
-| [ROADMAP.md](./ROADMAP.md) | ✅ 最新 | 开发路线图 |
-| [FEATURE-ROADMAP.md](./feature-roadmap.md) | ✅ 最新 | 功能路线图 |
-| [FUTURE-ROADMAP.md](./future-roadmap.md) | ✅ 最新 | 未来规划 |
-| [TEAM-MEETING.md](./TEAM-MEETING.md) | ✅ 最新 | 团队会议记录 |
-| [../CONTRIBUTING.md](../CONTRIBUTING.md) | ✅ 最新 | 贡献指南 |
-| [BACKUP-POLICY.md](./BACKUP-POLICY.md) | ✅ 最新 | 备份策略 |
-| [TECH_DEBT.md](./TECH_DEBT.md) | ✅ 最新 | 技术债务 |
+- **[state-management-analysis-detailed.md](./state-management-analysis-detailed.md)** - 详细状态管理分析
+- **[STATE_MANAGEMENT_MIGRATION.md](./STATE_MANAGEMENT_MIGRATION.md)** - 状态管理迁移
 
-### 🔧 工具和脚本
+### 🛣️ 路线图
 
-| 文档 | 状态 | 说明 |
-|------|------|------|
-| [DIRECTOR.md](./DIRECTOR.md) | ✅ 最新 | Director 工具说明 |
-| [OPERATIONS_MANUAL.md](./OPERATIONS_MANUAL.md) | ✅ 最新 | 运维手册 |
-| [EXAMPLES.md](./EXAMPLES.md) | ✅ 最新 | 使用示例 |
-| [SERVERS.md](./SERVERS.md) | ✅ 最新 | 服务器配置 |
+- **[ROADMAP.md](./ROADMAP.md)** - 功能路线图
+- **[feature-roadmap.md](./feature-roadmap.md)** - 功能规划
+- **[future-roadmap.md](./future-roadmap.md)** - 未来规划
+- **[tech-evolution.md](./tech-evolution.md)** - 技术演进
 
-### 🗄️ 数据库优化
+### 📊 分析与报告
 
-| 文档 | 状态 | 说明 |
-|------|------|------|
-| [DATABASE_OPTIMIZATION_IMPLEMENTATION_GUIDE.md](./DATABASE_OPTIMIZATION_IMPLEMENTATION_GUIDE.md) | ✅ 最新 | 数据库优化实现指南 |
+- **[COMPETITION_ANALYSIS.md](./COMPETITION_ANALYSIS.md)** - 竞争分析
+- **[COMPETITOR_ANALYSIS.md](./COMPETITOR_ANALYSIS.md)** - 竞争对手分析
+- **[PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md)** - 项目总结
+- **[TECH_DEBT.md](./TECH_DEBT.md)** - 技术债务分析
+- **[PORTFOLIO_OPTIMIZATION_REPORT.md](./PORTFOLIO_OPTIMIZATION_REPORT.md)** - Portfolio 优化报告
+- **[WEB_VITALS_IMPLEMENTATION_SUMMARY.md](./WEB_VITALS_IMPLEMENTATION_SUMMARY.md)** - Web Vitals 实现总结
+- **[WEB_VITALS_OPTIMIZATION.md](./WEB_VITALS_OPTIMIZATION.md)** - Web Vitals 优化
+- **[VERIFICATION_REPORT.md](./VERIFICATION_REPORT.md)** - 验证报告
 
-### 👥 RBAC 权限系统
+### 🔐 错误处理与安全
 
-| 文档 | 状态 | 说明 |
-|------|------|------|
-| [RBAC_IMPLEMENTATION.md](./RBAC_IMPLEMENTATION.md) | ✅ 最新 | RBAC 实现文档 |
-| [RBAC_QUICK_REFERENCE.md](./RBAC_QUICK_REFERENCE.md) | ✅ 最新 | RBAC 快速参考 |
-| [RBAC_CHANGELOG.md](./RBAC_CHANGELOG.md) | ✅ 最新 | RBAC 变更日志 |
+- **[ERROR-IMPLEMENTATION-SUMMARY.md](./ERROR-IMPLEMENTATION-SUMMARY.md)** - 错误处理实现总结
+- **[ERROR_HANDLING_REVIEW.md](./ERROR_HANDLING_REVIEW.md)** - 错误处理审查
+- **[ERROR_HANDLING_GUIDE_COMPLETION_REPORT.md](./ERROR_HANDLING_GUIDE_COMPLETION_REPORT.md)** - 错误处理指南完成报告
+- **[PERFORMANCE-OPTIMIZATION-REPORT.md](./PERFORMANCE-OPTIMIZATION-REPORT.md)** - 性能优化报告
+- **[XLSX_VULNERABILITY_ASSESSMENT.md](./XLSX_VULNERABILITY_ASSESSMENT.md)** - XLSX 漏洞评估
+- **[CSP_CONFIGURATION_GUIDE.md](./CSP_CONFIGURATION_GUIDE.md)** - CSP 配置指南
+- **[CSP_IMPLEMENTATION_REPORT.md](./CSP_IMPLEMENTATION_REPORT.md)** - CSP 实现报告
 
-### 🔍 搜索与分析
+### 📖 示例与参考
 
-| 文档 | 状态 | 说明 |
-|------|------|------|
-| [SEARCH-ENHANCEMENT.md](./SEARCH-ENHANCEMENT.md) | ✅ 最新 | 搜索增强功能 |
+- **[EXAMPLES.md](./EXAMPLES.md)** - 使用示例
+- **[FEATURES.md](../FEATURES.md)** - 功能列表
+- **[SCRIPTS.md](../SCRIPTS.md)** - 脚本文档
 
-### 📊 竞争分析
+### 🌐 其他
 
-| 文档 | 状态 | 说明 |
-|------|------|------|
-| [COMPETITION_ANALYSIS.md](./COMPETITION_ANALYSIS.md) | ✅ 最新 | 竞争分析 |
-| [COMPETITOR_ANALYSIS.md](./COMPETITOR_ANALYSIS.md) | ✅ 最新 | 竞争对手分析 |
+- **[API_QUICK_REFERENCE.ts](./API_QUICK_REFERENCE.ts)** - API 快速参考（TypeScript）
+- **[API_STRUCTURE_DIAGRAM.ts](./API_STRUCTURE_DIAGRAM.ts)** - API 结构图（TypeScript）
+- **[ARCHITECTURE_SUMMARY.md](./ARCHITECTURE_SUMMARY.md)** - 架构总结
+- **[API_REFACTORING.md](./API_REFACTORING.md)** - API 重构文档
+- **[API_REFACTORING_SUMMARY.md](./API_REFACTORING_SUMMARY.md)** - API 重构总结
+- **[ALERT_RULES.yaml](./ALERT_RULES.yaml)** - 告警规则
+- **[CACHE_CONFIG.md](./CACHE_CONFIG.md)** - 缓存配置
+- **[SERVERS.md](./SERVERS.md)** - 服务器配置
+- **[SSH-SETUP.md](./SSH-SETUP.md)** - SSH 设置
+- **[SSH-TROUBLESHOOTING.md](./SSH-TROUBLESHOOTING.md)** - SSH 故障排除
+- **[dependency-audit.md](./dependency-audit.md)** - 依赖审计
 
-### 🎯 其他功能
+### 🔄 WebSocket 相关
 
-| 文档 | 状态 | 说明 |
-|------|------|------|
-| [THEME_PERSISTENCE_IMPLEMENTATION.md](./THEME_PERSISTENCE_IMPLEMENTATION.md) | ✅ 最新 | 主题持久化实现 |
-| [DESIGN_OPTIMIZATION.md](./DESIGN_OPTIMIZATION.md) | ✅ 最新 | 设计优化 |
-| [VERIFICATION_REPORT.md](./VERIFICATION_REPORT.md) | ✅ 最新 | 验证报告 |
-| [dependency-audit.md](./dependency-audit.md) | ✅ 最新 | 依赖审计 |
-| [tech-evolution.md](./tech-evolution.md) | 📝 草稿 | 技术演进规划 |
-| [技术栈升级建议报告.md](./技术栈升级建议报告.md) | 📝 草稿 | 技术栈升级建议 |
-| [voice-meeting-spec.md](./voice-meeting-spec.md) | 📝 草稿 | 语音会议规范 |
+- **[WEBSOCKET.md](./WEBSOCKET.md)** - WebSocket 文档
+- **[WEBSOCKET_TESTING_GUIDE.md](./WEBSOCKET_TESTING_GUIDE.md)** - WebSocket 测试指南
+- **[WEBSOCKET_UI_INTEGRATION.md](./WEBSOCKET_UI_INTEGRATION.md)** - WebSocket UI 集成
+- **[websocket-integration.md](./websocket-integration.md)** - WebSocket 集成
+- **[websocket-status.md](./websocket-status.md)** - WebSocket 状态
+- **[websocket-implementation-summary.md](./websocket-implementation-summary.md)** - WebSocket 实现总结
 
-### 🧠 状态管理
+### 📊 报告（归档）
 
-| 文档 | 状态 | 说明 |
-|------|------|------|
-| [STATE_MANAGEMENT_MIGRATION.md](./STATE_MANAGEMENT_MIGRATION.md) | ✅ 最新 | 状态管理迁移 |
-| [STATE_MANAGEMENT_ANALYSIS-summary.md](./STATE_MANAGEMENT_ANALYSIS-summary.md) | ✅ 最新 | 状态管理分析总结 |
-| [state-management-analysis-detailed.md](./state-management-analysis-detailed.md) | ✅ 最新 | 状态管理详细分析 |
-
-### 📱 Portfolio 优化
-
-| 文档 | 状态 | 说明 |
-|------|------|------|
-| [PORTFOLIO_OPTIMIZATION_REPORT.md](./PORTFOLIO_OPTIMIZATION_REPORT.md) | ✅ 最新 | Portfolio 优化报告 |
-
-### 📝 其他文档
-
-| 文档 | 状态 | 说明 |
-|------|------|------|
-| [INDEX.md](./INDEX.md) | ✅ 最新 | 文档索引（本文件） |
-| [README.md](./README.md) | ✅ 最新 | docs 目录 README |
+以下报告已移至 `archive/` 目录：
+- API 优化报告
+- 性能测试报告
+- 测试覆盖率报告
+- 代码清理报告
+- 安全审计报告
+- 数据库优化报告
+- 其他临时性报告
 
 ---
 
-## 📂 项目根目录重要文档
+## 🎯 推荐阅读顺序
 
-| 文档 | 状态 | 说明 |
-|------|------|------|
-| [../README.md](../README.md) | ✅ 最新 | 项目主 README |
-| [../CHANGELOG.md](../CHANGELOG.md) | ✅ 最新 | 变更日志 |
-| [../FEATURES.md](../FEATURES.md) | ✅ 最新 | 功能特性列表 |
-| [../DEPLOY.md](../DEPLOY.md) | ✅ 最新 | 部署配置 |
-| [../CONTRIBUTING.md](../CONTRIBUTING.md) | ✅ 最新 | 贡献指南 |
-| [../AGENTS.md](../AGENTS.md) | ✅ 最新 | Agent 配置文档 |
-| [../GCP-CONFIG.md](../GCP-CONFIG.md) | ✅ 最新 | GCP 配置 |
-| [../API.md](../API.md) | ✅ 最新 | API 文档 |
+### 新手入门
+1. [README.md](./README.md) - 快速了解项目
+2. [ARCHITECTURE.md](./ARCHITECTURE.md) - 理解整体架构
+3. [QUICKSTART.md](./QUICKSTART.md) - 快速部署
+4. [DEVELOPMENT.md](./DEVELOPMENT.md) - 开始开发
 
----
+### 前端开发
+1. [COMPONENTS.md](./COMPONENTS.md) - 了解组件库
+2. [HOOKS.md](./HOOKS.md) - 使用自定义 Hooks
+3. [LOADING-SYSTEM.md](./LOADING-SYSTEM.md) - 全局加载系统
+4. [WEBSOCKET.md](./WEBSOCKET.md) - 实时通信
+5. [API.md](./API.md) - API 文档
 
-## 🎯 按角色查看文档
+### 后端开发
+1. [API.md](./API.md) - API 概览
+2. [API-REFERENCE.md](./API-REFERENCE.md) - API 参考
+3. [ARCHITECTURE.md](./ARCHITECTURE.md) - 架构理解
+4. [DEPLOYMENT.md](./DEPLOYMENT.md) - 部署配置
 
-### 👨‍💻 开发者
+### DevOps / 运维
+1. [DEPLOYMENT.md](./DEPLOYMENT.md) - 部署配置
+2. [MONITORING.md](./MONITORING.md) - 监控系统
+3. [SECURITY-AUDIT-REPORT.md](./SECURITY-AUDIT-REPORT.md) - 安全审计
+4. [CI-CD-SETUP.md](./CI-CD-SETUP.md) - CI/CD 配置
 
-**必读**：
-- [../README.md](../README.md) - 项目介绍
-- [DEVELOPMENT.md](./DEVELOPMENT.md) - 开发指南
-- [CODE_STYLE.md](./CODE_STYLE.md) - 代码规范
-- [COMPONENTS-USAGE-GUIDE.md](./COMPONENTS-USAGE-GUIDE.md) - 组件使用
-
-**推荐**：
-- [ARCHITECTURE.md](./ARCHITECTURE.md) - 系统架构
-- [API-COMPLETE-REFERENCE.md](./API-COMPLETE-REFERENCE.md) - API 文档
-- [TESTING.md](./TESTING.md) - 测试指南
-- [HOOKS.md](./HOOKS.md) - Hooks 使用
-
-### 🔧 运维人员
-
-**必读**：
-- [DEPLOYMENT-GUIDE.md](./DEPLOYMENT-GUIDE.md) - 部署指南
-- [ENVIRONMENT-VARIABLES.md](./ENVIRONMENT-VARIABLES.md) - 环境配置
-- [MONITORING.md](./MONITORING.md) - 监控指南
-
-**推荐**：
-- [CI-CD-SETUP.md](./CI-CD-SETUP.md) - CI/CD 配置
-- [SSH-SETUP.md](./SSH-SETUP.md) - SSH 配置
-- [BACKUP-POLICY.md](./BACKUP-POLICY.md) - 备份策略
-- [OPERATIONS_MANUAL.md](./OPERATIONS_MANUAL.md) - 运维手册
-
-### 📊 产品经理/设计师
-
-**必读**：
-- [../README.md](../README.md) - 项目介绍
-- [../FEATURES.md](../FEATURES.md) - 功能列表
-- [ROADMAP.md](./ROADMAP.md) - 开发路线图
-
-**推荐**：
-- [UI_REVIEW.md](./UI_REVIEW.md) - UI 评审
-- [COMPONENTS.md](./COMPONENTS.md) - 组件说明
-- [PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md) - 项目总结
-
-### 🧪 测试工程师
-
-**必读**：
-- [TESTING.md](./TESTING.md) - 测试指南
-- [TEST_ANALYSIS_REPORT.md](./TEST_ANALYSIS_REPORT.md) - 测试报告
-
-**推荐**：
-- [ERROR-HANDLING.md](./ERROR-HANDLING.md) - 错误处理
-- [API-COMPLETE-REFERENCE.md](./API-COMPLETE-REFERENCE.md) - API 文档
+### AI / 代理开发
+1. [DIRECTOR.md](./DIRECTOR.md) - AI 主管系统
+2. [SUBAGENTS.md](./SUBAGENTS.md) - 子代理团队
+3. [ARCHITECTURE.md](./ARCHITECTURE.md) - A2A Agent Communication
 
 ---
 
-## 🔍 文档搜索技巧
+## 📂 文档结构
 
-### 按主题搜索
-
-- **部署相关**：搜索 `DEPLOY`, `DOCKER`, `CI/CD`
-- **开发相关**：搜索 `DEVELOP`, `COMPONENT`, `API`
-- **配置相关**：搜索 `CONFIG`, `ENV`, `SETUP`
-- **测试相关**：搜索 `TEST`, `COVERAGE`
-- **性能相关**：搜索 `PERFORMANCE`, `MONITOR`
-- **安全相关**：搜索 `SECURITY`, `AUTH`, `PERMISSION`
-
-### 按文件类型
-
-- `.md` - Markdown 文档
-- `.yaml` - 配置文件
-- `.html` - 架构图（交互式）
-
----
-
-## 📊 文档统计
-
-### 按类别统计
-
-| 类别 | 文档数量 |
-|------|----------|
-| 📖 核心文档 | 4 |
-| 🏗️ 架构设计 | 8 |
-| 💻 开发指南 | 7 |
-| 🧩 组件文档 | 5 |
-| 📡 API 文档 | 13 |
-| 🏗️ 部署指南 | 8 |
-| 🔐 配置文档 | 8 |
-| 🧪 测试文档 | 4 |
-| 📊 监控性能 | 12 |
-| 🔒 安全文档 | 8 |
-| 🌍 国际化 | 2 |
-| 🎨 UI/UX | 8 |
-| 🔌 集成文档 | 7 |
-| 📈 项目管理 | 7 |
-| 🔧 工具脚本 | 4 |
-| 🗄️ 数据库优化 | 1 |
-| 👥 RBAC 权限系统 | 3 |
-| 🔍 搜索与分析 | 2 |
-| 📊 竞争分析 | 2 |
-| 🎯 其他功能 | 6 |
-| 🧠 状态管理 | 3 |
-| 📱 Portfolio 优化 | 1 |
-| 📝 其他文档 | 2 |
-| 📂 根目录重要文档 | 8 |
-
-**总计**：120 个文档
-
-### API 端点统计
-
-| 指标 | 数量 |
-|------|------|
-| **API 端点总数** | 65+ |
-| **API 模块数** | 26 |
-| **路由文件数** | 65+ |
-
-### 按状态统计
-
-| 状态 | 数量 |
-|------|------|
-| ✅ 最新 | 110+ |
-| ⚠️ 需更新 | 1 |
-| 📝 草稿 | 8 |
+```
+docs/
+├── README.md                    # 项目介绍和快速开始 ⭐
+├── INDEX.md                     # 文档索引（本文档）
+├── QUICKSTART.md                # 5 分钟快速部署
+├── ARCHITECTURE.md              # 系统架构总览 ⭐
+├── API.md                       # API 完整文档 ⭐
+├── DEPLOYMENT.md                # 部署指南
+├── CHANGELOG.md                 # 版本变更日志
+├── ARCHITECTURE_DIAGRAMS.md     # 架构图解
+├── ARCHITECTURE_REVIEW.md       # 架构审查
+├── microservice-design.md       # 微服务设计
+├── mcp-server-architecture.md   # MCP 服务器架构
+├── API-REFERENCE.md             # API 参考
+├── API-ENDPOINTS.md             # API 端点列表
+├── REST-API.md                  # REST API 规范
+├── COMPONENTS.md                # React 组件库
+├── HOOKS.md                     # 自定义 Hooks
+├── PAGE-STRUCTURE.md            # 页面结构
+├── DESIGN_OPTIMIZATION.md       # 设计优化
+├── PERFORMANCE.md               # 性能指标
+├── PERFORMANCE_OPTIMIZATION.md  # 性能优化
+├── WEBSOCKET.md                 # WebSocket 文档
+├── LOADING-SYSTEM.md            # 加载系统
+├── GITHUB-INTEGRATION.md        # GitHub 集成
+├── GMAIL-INTEGRATION.md         # Gmail 集成
+├── TELEGRAM-BOT.md              # Telegram 机器人
+├── DIRECTOR.md                  # AI 主管
+├── SUBAGENTS.md                 # 子代理团队
+├── TEAM-MEETING.md              # 团队会议
+├── TESTING.md                   # 测试策略
+├── DEVELOPMENT.md               # 开发指南
+├── CODE_STYLE.md                # 代码风格
+├── ERROR-HANDLING.md            # 错误处理
+├── SECURITY-AUDIT-REPORT.md     # 安全审计
+├── MONITORING.md                # 监控系统
+├── MONITORING_DESIGN.md         # 监控设计
+├── MONITORING_SUMMARY.md        # 监控总结
+├── OPERATIONS_MANUAL.md         # 运维手册
+├── PERMISSIONS.md               # 权限管理
+├── RBAC_IMPLEMENTATION.md       # RBAC 实现
+├── RBAC_QUICK_REFERENCE.md      # RBAC 快速参考
+├── CI-CD-SETUP.md               # CI/CD 配置
+├── ENVIRONMENT.md               # 环境配置
+├── ENVIRONMENT-VARIABLES.md     # 环境变量文档
+├── BACKUP-POLICY.md             # 备份策略
+├── I18N.md                      # 国际化指南
+├── I18N_ARCHITECTURE.md         # 国际化架构
+├── ROADMAP.md                   # 功能路线图
+├── feature-roadmap.md           # 功能规划
+├── future-roadmap.md            # 未来规划
+├── tech-evolution.md            # 技术演进
+├── EXAMPLES.md                  # 使用示例
+└── archive/                     # 归档报告
+    ├── A2A_*.md                 # A2A 协议相关
+    └── ...其他归档文档
+```
 
 ---
 
-## 🔄 最近更新
+## 🆕 最新更新
 
-### 2026-03-21 今日更新
+### v1.1.0 (2026-03-22)
 
-- ✅ 新增实时通知系统文档 (NOTIFICATION_SYSTEM.md)
-- ✅ 更新 README.md 至 v1.0.6，添加实时通知系统特性说明
-- ✅ 更新文档索引，新增通知系统文档条目
-- ✅ 之前更新：WebSocket 文档集、Web Vitals 优化、CSP 安全配置、架构文档
+#### 新增功能
 
-### 2026-03-20 之前更新
+- **Global Loading System** - 全局加载状态管理系统
+- **A2A Agent Communication** - Agent 间通信系统
 
-- ✨ 新增 [API-COMPLETE-REFERENCE.md](./API-COMPLETE-REFERENCE.md) - 完整 API 文档
-- ✨ 新增 [COMPONENTS-USAGE-GUIDE.md](./COMPONENTS-USAGE-GUIDE.md) - 组件使用指南
-- ✨ 新增 [DEPLOYMENT-GUIDE.md](./DEPLOYMENT-GUIDE.md) - 完整部署指南
-- ✨ 新增 [ENVIRONMENT-VARIABLES.md](./ENVIRONMENT-VARIABLES.md) - 环境变量配置
+#### 文档更新
 
----
-
-## 📊 文档健康状态
-
-### ✅ 健康状态概览
-
-- **总文档数**: 119
-- **最新文档**: 110+ (92%+)
-- **需更新文档**: 1 (ERROR_HANDLING.md - 旧版)
-- **草稿文档**: 8 (规划中的功能)
-
-### ⚠️ 需要注意的文档
-
-- [ERROR_HANDLING.md](./ERROR_HANDLING.md) - 旧版错误处理文档，建议合并或删除
-
-### 📝 草稿文档列表
-
-这些文档是功能规划阶段的草稿，待实现后更新为正式文档：
-
-1. [portfolio-architecture.md](./portfolio-architecture.md) - Portfolio 架构
-2. [microservice-design.md](./microservice-design.md) - 微服务设计
-3. [mcp-server-architecture.md](./mcp-server-architecture.md) - MCP 服务器
-4. [ui-components.md](./ui-components.md) - UI 组件详细说明
-5. [mobile-responsive-spec.md](./mobile-responsive-spec.md) - 移动端规范
-6. [ux-analysis.md](./ux-analysis.md) - UX 分析
-7. [voice-meeting-spec.md](./voice-meeting-spec.md) - 语音会议
-8. [tech-evolution.md](./tech-evolution.md) - 技术演进
+- ✅ 创建/更新 [README.md](./README.md) - 项目介绍和快速开始
+- ✅ 创建/更新 [ARCHITECTURE.md](./ARCHITECTURE.md) - 系统架构总览
+- ✅ 创建/更新 [API.md](./API.md) - API 完整文档
+- ✅ 创建 [INDEX.md](./INDEX.md) - 文档索引
+- ✅ 归档临时性报告文档
 
 ---
 
-## 🆘 获取帮助
+## 📝 文档维护
 
-### 文档问题
-
-- 📧 Email: docs@7zi.com
-- 🐛 GitHub Issues: https://github.com/songzuo/7zi/issues
-
-### 技术支持
-
-- 📧 Email: support@7zi.com
-- 💬 Telegram: @7zi_support
-
-### 商务咨询
-
-- 📧 Email: business@7zi.com
+- **维护者**: 📚 咨询师 (AI 团队)
+- **最后审查**: 2026-03-22
+- **下次审查**: 2026-04-22
+- **文档版本**: v1.1.0
 
 ---
 
-## 📚 外部资源
+## 🔗 相关链接
 
-### 官方文档
-
-- [Next.js](https://nextjs.org/docs)
-- [React](https://react.dev)
-- [TypeScript](https://www.typescriptlang.org/docs)
-- [Tailwind CSS](https://tailwindcss.com/docs)
-- [OpenClaw](https://github.com/openclaw)
-
-### 相关工具
-
-- [Vitest](https://vitest.dev)
-- [Playwright](https://playwright.dev)
-- [Docker](https://docs.docker.com)
-- [PM2](https://pm2.keymetrics.io/docs)
+- **项目主页**: https://7zi.studio
+- **GitHub 仓库**: (待添加)
+- **问题反馈**: (待添加)
+- **变更日志**: [CHANGELOG.md](../CHANGELOG.md)
 
 ---
 
-**最后更新：2026-03-21**
-
-**文档总数：119**
-
-**Made with ❤️ by 7zi AI Team**
+**快速链接**:
+- [返回项目根目录](../README.md)
+- [快速开始](./QUICKSTART.md)
+- [架构文档](./ARCHITECTURE.md)
+- [API 参考](./API.md)
+- [开发指南](./DEVELOPMENT.md)
