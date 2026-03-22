@@ -12,7 +12,6 @@
  */
 
 import { logger } from '../logger';
-import * as XLSX from 'xlsx';
 
 // ============================================================================
 // 类型定义
@@ -193,7 +192,7 @@ export class DataExporter<T extends Record<string, unknown>> {
   /**
    * 执行导出（增强版）
    */
-  export(data: T[]): ExportResult {
+  async export(data: T[]): Promise<ExportResult> {
     try {
       // 重置警告和验证错误
       this.warnings = [];
@@ -224,7 +223,7 @@ export class DataExporter<T extends Record<string, unknown>> {
           break;
         case 'xlsx':
         case 'excel':
-          result = this.exportExcel(processedData);
+          result = await this.exportExcel(processedData);
           break;
         default:
           return { success: false, error: `不支持的导出格式: ${this.config.format}` };
@@ -391,10 +390,13 @@ export class DataExporter<T extends Record<string, unknown>> {
   /**
    * 导出为 Excel（增强版）
    */
-  private exportExcel(data: T[]): ExportResult {
+  private async exportExcel(data: T[]): Promise<ExportResult> {
     const transformedData = this.transformData(data);
     const fields = this.getSelectedFields();
     const excelOptions = this.config.excelOptions || {};
+
+    // 动态导入 XLSX
+    const XLSX = await import('xlsx');
 
     // 创建工作簿
     const workbook = XLSX.utils.book_new();
@@ -486,12 +488,12 @@ export class DataExporter<T extends Record<string, unknown>> {
 /**
  * 快速导出数据
  */
-export function exportData<T extends Record<string, unknown>>(
+export async function exportData<T extends Record<string, unknown>>(
   data: T[],
   config: ExportConfig<T>
-): ExportResult {
+): Promise<ExportResult> {
   const exporter = new DataExporter(config);
-  return exporter.export(data);
+  return await exporter.export(data);
 }
 
 /**
@@ -759,11 +761,11 @@ export function deleteTemplate(id: string): boolean {
 /**
  * 使用模板导出
  */
-export function exportWithTemplate<T extends Record<string, unknown>>(
+export async function exportWithTemplate<T extends Record<string, unknown>>(
   data: T[],
   templateId: string,
   overrides?: Partial<ExportConfig<T>>
-): ExportResult {
+): Promise<ExportResult> {
   const template = templateStore.get(templateId);
   if (!template) {
     return { success: false, error: `模板 ${templateId} 不存在` };
@@ -780,7 +782,7 @@ export function exportWithTemplate<T extends Record<string, unknown>>(
     ...overrides,
   };
 
-  return exportData(data, config);
+  return await exportData(data, config);
 }
 
 // ============================================================================
@@ -790,10 +792,12 @@ export function exportWithTemplate<T extends Record<string, unknown>>(
 /**
  * 导出多工作表 Excel
  */
-export function exportMultiSheet<T extends Record<string, unknown>>(
+export async function exportMultiSheet<T extends Record<string, unknown>>(
   config: MultiSheetConfig<T>
-): ExportResult {
+): Promise<ExportResult> {
   try {
+    // 动态导入 XLSX
+    const XLSX = await import('xlsx');
     const workbook = XLSX.utils.book_new();
 
     config.sheets.forEach((sheet) => {

@@ -30,30 +30,26 @@ vi.mock('next/navigation', () => ({
 
 // Mock Next.js Link
 vi.mock('next/link', () => ({
-  default({ children, href }: { children: React.ReactNode; href: string }) {
-    return <a href={href}>{children}</a>;
-  },
+  default: vi.fn(),
 }));
 
 // Mock Next.js Image
 vi.mock('next/image', () => ({
-  default({ src, alt, ...props }: any) {
-    return <img src={src as string} alt={alt} {...props} />;
-  },
+  default: vi.fn(),
 }));
 
 // Mock lucide-react icons
 vi.mock('lucide-react', () => ({
-  Bell: () => <span data-testid="icon-bell" />,
-  Settings: () => <span data-testid="icon-settings" />,
-  User: () => <span data-testid="icon-user" />,
-  X: () => <span data-testid="icon-x" />,
-  Check: () => <span data-testid="icon-check" />,
-  AlertTriangle: () => <span data-testid="icon-alert" />,
-  Info: () => <span data-testid="icon-info" />,
-  Search: () => <span data-testid="icon-search" />,
-  Plus: () => <span data-testid="icon-plus" />,
-  Trash: () => <span data-testid="icon-trash" />,
+  Bell: vi.fn(() => null),
+  Settings: vi.fn(() => null),
+  User: vi.fn(() => null),
+  X: vi.fn(() => null),
+  Check: vi.fn(() => null),
+  AlertTriangle: vi.fn(() => null),
+  Info: vi.fn(() => null),
+  Search: vi.fn(() => null),
+  Plus: vi.fn(() => null),
+  Trash: vi.fn(() => null),
 }));
 
 // Mock WebSocket
@@ -146,20 +142,22 @@ const sessionStorageMock = (() => {
 
 global.sessionStorage = sessionStorageMock as any;
 
-// Mock matchMedia
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: vi.fn().mockImplementation((query) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  })),
-});
+// Mock matchMedia (only in jsdom environment)
+if (typeof window !== 'undefined') {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: vi.fn().mockImplementation((query) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
+  });
+}
 
 // Suppress console warnings for React 18 strict mode
 const originalError = console.error;
