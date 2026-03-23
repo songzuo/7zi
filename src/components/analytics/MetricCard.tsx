@@ -3,8 +3,6 @@
  * 分析指标卡片组件
  */
 
-'use client';
-
 import React, { memo } from 'react';
 import { LucideIcon, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { type Statistic } from '@/lib/types/analytics';
