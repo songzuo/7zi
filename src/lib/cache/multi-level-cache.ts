@@ -197,7 +197,7 @@ export class MultiLevelCache<T = unknown> {
    */
   async exists(key: string): Promise<boolean> {
     // Check L1 first
-    const l1Exists = await this.l1.exists(key);
+    const l1Exists = await this.l1.has(key);
 
     if (l1Exists) {
       return true;
@@ -375,8 +375,8 @@ export class MultiLevelCache<T = unknown> {
     this.writeBehindQueue.forEach((timeout) => clearTimeout(timeout));
     this.writeBehindQueue.clear();
 
-    // Stop L1 cleanup interval
-    this.l1.stopCleanup();
+    // Destroy L1 cache
+    this.l1.destroy();
   }
 }
 
