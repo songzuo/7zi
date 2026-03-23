@@ -7,15 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { withUserAuth } from '@/lib/auth/middleware-rbac';
 import { Permission, Role } from '@/lib/permissions/types';
 import { getUserRoles } from '@/lib/permissions/repository';
-import {
-  hasPermission,
-  hasAnyPermission,
-  hasAllPermissions,
-  hasRole,
-  hasAnyRole,
-  hasAllRoles,
-  getPermissionsForRoles,
-} from '@/lib/permissions/rbac';
+import { hasAnyPermission, hasAllPermissions, hasAnyRole, hasAllRoles, getPermissionsForRoles,  } from '@/lib/permissions/rbac';
 import { logger } from '@/lib/logger';
 
 interface RouteContext {

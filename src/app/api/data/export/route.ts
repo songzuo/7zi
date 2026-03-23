@@ -5,15 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import {
-  _exportData as exportData,
-  exportToCSV,
-  exportToJSON,
-  getSupportedTables,
-  getExportFileName,
-  type ExportFormat,
-  type ExportOptions,
-} from '@/lib/data-import-export';
+import { exportToCSV, exportToJSON, getSupportedTables, getExportFileName, type ExportFormat, type ExportOptions,  } from '@/lib/data-import-export';
 import { logger } from '@/lib/logger';
 
 /**

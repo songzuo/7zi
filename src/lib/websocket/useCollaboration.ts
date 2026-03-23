@@ -9,7 +9,7 @@
 
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
-import type { Operation, Cursor, Presence } from '@/lib/collaboration/manager';
+import type { Operation, Cursor } from '@/lib/collaboration/manager';
 import { logger } from '@/lib/logger';
 import {
   ReconnectionManager,

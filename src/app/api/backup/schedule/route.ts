@@ -6,11 +6,11 @@
  * POST /api/backup/schedule - Create a new schedule
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { logger } from '@/lib/logger';
 import { withUserAuth, RBACUserContext } from '@/lib/auth/middleware-rbac';
 import { BackupManager } from '@/lib/backup/manager';
-import { BackupConfigSchema, BackupFrequency, CompressionAlgorithm, EncryptionAlgorithm } from '@/lib/backup/types';
+import { BackupConfigSchema } from '@/lib/backup/types';
 import { createSuccessResponse } from '@/lib/api/utils';
 import { createBadRequestError, createErrorResponse } from '@/lib/api/error-handler';
 

@@ -36,7 +36,7 @@ describe('Users Batch API - GET', () => {
       { id: 'user2', email: 'user2@test.com', name: 'User 2' },
     ];
 
-    vi.mocked(getUserById).mockImplementation((id: string) => {
+    getUserById.mockImplementation((id: string) => {
       const user = mockUsers.find(u => u.id === id);
       return Promise.resolve(user || null);
     });
@@ -77,7 +77,7 @@ describe('Users Batch API - GET', () => {
   });
 
   it('should handle not found users gracefully', async () => {
-    vi.mocked(getUserById).mockResolvedValue(null);
+    getUserById.mockResolvedValue(null);
 
     const request = new NextRequest(
       'http://localhost:3000/api/users/batch?ids=nonexistent1,nonexistent2'
@@ -94,7 +94,7 @@ describe('Users Batch API - GET', () => {
 
   it('should handle mixed success and failure cases', async () => {
     const mockUser = { id: 'user1', email: 'user1@test.com', name: 'User 1' };
-    vi.mocked(getUserById).mockImplementation((id: string) => {
+    getUserById.mockImplementation((id: string) => {
       if (id === 'user1') return Promise.resolve(mockUser);
       return Promise.resolve(null);
     });
@@ -129,8 +129,8 @@ describe('Users Batch API - POST', () => {
       },
     ];
 
-    vi.mocked(getUserByEmail).mockResolvedValue(null);
-    vi.mocked(createUser).mockImplementation((data: any) =>
+    getUserByEmail.mockResolvedValue(null);
+    createUser.mockImplementation((data: any) =>
       Promise.resolve({
         id: `user_${Date.now()}`,
         ...data,
@@ -255,7 +255,7 @@ describe('Users Batch API - POST', () => {
       },
     ];
 
-    vi.mocked(getUserByEmail).mockResolvedValue(existingUser);
+    getUserByEmail.mockResolvedValue(existingUser);
 
     const request = new NextRequest('http://localhost:3000/api/users/batch', {
       method: 'POST',
@@ -276,7 +276,7 @@ describe('Users Batch API - PATCH', () => {
       { id: 'user2', role: 'admin' },
     ];
 
-    vi.mocked(updateUser).mockImplementation((id: string, data: any) =>
+    updateUser.mockImplementation((id: string, data: any) =>
       Promise.resolve({
         id,
         email: `${id}@test.com`,
@@ -359,7 +359,7 @@ describe('Users Batch API - PATCH', () => {
   });
 
   it('should handle non-existent user IDs', async () => {
-    vi.mocked(updateUser).mockResolvedValue(null);
+    updateUser.mockResolvedValue(null);
 
     const updates = [{ id: 'nonexistent', name: 'Updated Name' }];
 
@@ -377,7 +377,7 @@ describe('Users Batch API - PATCH', () => {
   });
 
   it('should handle mixed success and failure updates', async () => {
-    vi.mocked(updateUser).mockImplementation((id: string, data: any) => {
+    updateUser.mockImplementation((id: string, data: any) => {
       if (id === 'user1') {
         return Promise.resolve({
           id,
@@ -417,11 +417,11 @@ describe('Users Batch API - DELETE', () => {
       { id: 'user2', email: 'user2@test.com', name: 'User 2' },
     ];
 
-    vi.mocked(getUserById).mockImplementation((id: string) => {
+    getUserById.mockImplementation((id: string) => {
       const user = mockUsers.find(u => u.id === id);
       return Promise.resolve(user || null);
     });
-    vi.mocked(deleteUser).mockResolvedValue(true);
+    deleteUser.mockResolvedValue(true);
 
     const request = new NextRequest(
       'http://localhost:3000/api/users/batch?ids=user1,user2'
@@ -457,7 +457,7 @@ describe('Users Batch API - DELETE', () => {
   });
 
   it('should handle non-existent user IDs', async () => {
-    vi.mocked(getUserById).mockResolvedValue(null);
+    getUserById.mockResolvedValue(null);
 
     const request = new NextRequest(
       'http://localhost:3000/api/users/batch?ids=nonexistent1,nonexistent2'
@@ -473,11 +473,11 @@ describe('Users Batch API - DELETE', () => {
   it('should handle mixed success and failure deletions', async () => {
     const mockUser = { id: 'user1', email: 'user1@test.com', name: 'User 1' };
 
-    vi.mocked(getUserById).mockImplementation((id: string) => {
+    getUserById.mockImplementation((id: string) => {
       if (id === 'user1') return Promise.resolve(mockUser);
       return Promise.resolve(null);
     });
-    vi.mocked(deleteUser).mockResolvedValue(true);
+    deleteUser.mockResolvedValue(true);
 
     const request = new NextRequest(
       'http://localhost:3000/api/users/batch?ids=user1,nonexistent'

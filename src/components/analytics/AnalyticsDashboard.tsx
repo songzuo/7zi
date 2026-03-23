@@ -12,14 +12,14 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { RefreshCw, Download, LayoutGrid, Settings, Save, RotateCcw, AlertCircle } from 'lucide-react';
+
 import { DateRangePicker } from './DateRangePicker';
 import { FilterPanel } from './FilterPanel';
 import { MetricCard } from './MetricCard';
 import { AnalyticsChart } from './AnalyticsChart';
 import { AnalyticsErrorBoundary } from './ErrorBoundary';
 import { MetricCardSkeleton, ChartSkeleton, LoadingOverlay, MetricsGridSkeleton } from './Skeleton';
-import { Activity, Users, CheckCircle, DollarSign, Cpu } from 'lucide-react';
+
 import {
   type AnalyticsMetrics,
   type AnalyticsFilters,

@@ -39,8 +39,8 @@ describe('/api/auth/register', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(getUserByEmail).mockResolvedValue(null);
-    vi.mocked(registerUser).mockResolvedValue({
+    getUserByEmail.mockResolvedValue(null);
+    registerUser.mockResolvedValue({
       success: true,
       user: mockCreatedUser,
     });
@@ -68,7 +68,7 @@ describe('/api/auth/register', () => {
       expect(data.data.user.role).toBe('member');
       expect(data.data.user.status).toBe('active');
       expect(data.data.user).not.toHaveProperty('password');
-      expect(vi.mocked(registerUser)).toHaveBeenCalledWith({
+      expect(registerUser).toHaveBeenCalledWith({
         email: testUser.email,
         password: testUser.password,
         name: testUser.name,
@@ -425,7 +425,7 @@ describe('/api/auth/register', () => {
 
   describe('POST /api/auth/register - Duplicate email', () => {
     it('should reject duplicate email registration', async () => {
-      vi.mocked(registerUser).mockResolvedValue({
+      registerUser.mockResolvedValue({
         success: false,
         error: 'Email already exists',
       });
@@ -445,7 +445,7 @@ describe('/api/auth/register', () => {
     });
 
     it('should reject registration with existing email', async () => {
-      vi.mocked(getUserByEmail).mockResolvedValue(mockCreatedUser);
+      getUserByEmail.mockResolvedValue(mockCreatedUser);
 
       const request = createMockRequest('http://localhost:3000/api/auth/register', {
         method: 'POST',
@@ -462,7 +462,7 @@ describe('/api/auth/register', () => {
 
   describe('POST /api/auth/register - Error handling', () => {
     it('should handle service errors gracefully', async () => {
-      vi.mocked(registerUser).mockRejectedValue(new Error('Database connection failed'));
+      registerUser.mockRejectedValue(new Error('Database connection failed'));
 
       const request = createMockRequest('http://localhost:3000/api/auth/register', {
         method: 'POST',

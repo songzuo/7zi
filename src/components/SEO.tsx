@@ -6,7 +6,7 @@
  * 不需要手动传递 nonce 属性
  */
 
-import Script from 'next/script';
+
 import { useMemo } from 'react';
 import { generateOrganizationSchema, generateWebSiteSchema, generateBreadcrumbSchema, generateFAQSchema } from '@/lib/seo-metadata';
 

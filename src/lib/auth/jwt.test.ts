@@ -163,7 +163,7 @@ describe('JWT Functions', () => {
         type: 'user',
       };
 
-      vi.mocked(jwtVerify).mockResolvedValue({
+      jwtVerify.mockResolvedValue({
         payload: mockPayload,
         protectedHeader: { alg: 'HS256' },
         key: new Uint8Array(),
@@ -180,7 +180,7 @@ describe('JWT Functions', () => {
     });
 
     it('should return null for invalid token', async () => {
-      vi.mocked(jwtVerify).mockRejectedValue(new Error('Invalid token'));
+      jwtVerify.mockRejectedValue(new Error('Invalid token'));
 
       const { verifyJwtToken } = await import('../jwt');
 
@@ -195,7 +195,7 @@ describe('JWT Functions', () => {
         type: 'agent', // Wrong type
       };
 
-      vi.mocked(jwtVerify).mockResolvedValue({
+      jwtVerify.mockResolvedValue({
         payload: mockPayload,
         protectedHeader: { alg: 'HS256' },
         key: new Uint8Array(),
@@ -216,7 +216,7 @@ describe('JWT Functions', () => {
         type: 'user',
       };
 
-      vi.mocked(jwtVerify).mockResolvedValue({
+      jwtVerify.mockResolvedValue({
         payload: mockPayload,
         protectedHeader: { alg: 'HS256' },
         key: new Uint8Array(),
@@ -244,7 +244,7 @@ describe('JWT Functions', () => {
         type: 'user',
       };
 
-      vi.mocked(jwtVerify).mockResolvedValue({
+      jwtVerify.mockResolvedValue({
         payload: mockPayload,
         protectedHeader: { alg: 'HS256' },
         key: new Uint8Array(),
@@ -275,7 +275,7 @@ describe('JWT Functions', () => {
         type: 'user',
       };
 
-      vi.mocked(jwtVerify).mockResolvedValue({
+      jwtVerify.mockResolvedValue({
         payload: mockPayload,
         protectedHeader: { alg: 'HS256' },
         key: new Uint8Array(),
@@ -300,7 +300,7 @@ describe('JWT Functions', () => {
         type: 'user',
       };
 
-      vi.mocked(jwtVerify).mockResolvedValue({
+      jwtVerify.mockResolvedValue({
         payload: mockPayload,
         protectedHeader: { alg: 'HS256' },
         key: new Uint8Array(),
@@ -324,7 +324,7 @@ describe('JWT Functions', () => {
         type: 'user',
       };
 
-      vi.mocked(jwtVerify).mockResolvedValue({
+      jwtVerify.mockResolvedValue({
         payload: mockPayload,
         protectedHeader: { alg: 'HS256' },
         key: new Uint8Array(),
@@ -341,7 +341,7 @@ describe('JWT Functions', () => {
 
   describe('JWT Error Handling', () => {
     it('should handle token expiration errors', async () => {
-      vi.mocked(jwtVerify).mockRejectedValue(new Error('Token expired'));
+      jwtVerify.mockRejectedValue(new Error('Token expired'));
 
       const { verifyJwtToken } = await import('../jwt');
 
@@ -351,7 +351,7 @@ describe('JWT Functions', () => {
     });
 
     it('should handle signature verification errors', async () => {
-      vi.mocked(jwtVerify).mockRejectedValue(new Error('Invalid signature'));
+      jwtVerify.mockRejectedValue(new Error('Invalid signature'));
 
       const { verifyJwtToken } = await import('../jwt');
 
@@ -361,7 +361,7 @@ describe('JWT Functions', () => {
     });
 
     it('should handle malformed token errors', async () => {
-      vi.mocked(jwtVerify).mockRejectedValue(new Error('Malformed token'));
+      jwtVerify.mockRejectedValue(new Error('Malformed token'));
 
       const { verifyJwtToken } = await import('../jwt');
 

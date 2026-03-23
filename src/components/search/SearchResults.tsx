@@ -6,7 +6,7 @@
  */
 
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, Search, Filter, ExternalLink } from 'lucide-react';
+import { ChevronDown, ChevronUp, Search } from 'lucide-react';
 import type { SearchResult, UnifiedEntity } from '@/lib/search/types';
 
 interface SearchResultsProps {

@@ -5,7 +5,7 @@
 
 import { logger } from '../logger';
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyAgentToken, hasPermission, hasAllPermissions } from '@/lib/agents/auth-service';
+import { verifyAgentToken, hasPermission } from '@/lib/agents/auth-service';
 import { updateAgentLastActive } from '@/lib/agents/repository';
 import { AgentApiResponse } from '@/lib/agent/types';
 

@@ -5,7 +5,7 @@
  * POST /api/backup/schedule/[id]/trigger - Trigger a backup
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { logger } from '@/lib/logger';
 import { withUserAuth, RBACUserContext } from '@/lib/auth/middleware-rbac';
 import { BackupManager } from '@/lib/backup/manager';

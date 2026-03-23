@@ -21,9 +21,15 @@ import {
 import { getDatabaseAsync } from '../index';
 
 // Mock dependencies
-vi.mock('../index', () => ({
-  getDatabaseAsync: vi.fn(),
-}));
+const mockGetDatabaseAsync = vi.fn();
+
+vi.mock('../index', async () => {
+  const actual = await vi.importActual<typeof import('../index')>('../index');
+  return {
+    ...actual,
+    getDatabaseAsync: mockGetDatabaseAsync,
+  };
+});
 
 vi.mock('../../logger', () => ({
   logger: {
@@ -75,7 +81,7 @@ describe('audit-log', () => {
     mockDb.prepare.mockReturnValue(mockStmt);
 
     // Mock getDatabaseAsync
-    vi.mocked(getDatabaseAsync).mockResolvedValue(mockDb);
+    mockGetDatabaseAsync.mockResolvedValue(mockDb);
   });
 
   afterEach(() => {

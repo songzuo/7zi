@@ -10,7 +10,6 @@
  */
 
 import { useTheme } from '@/contexts/SettingsContext';
-import type { FC } from 'react';
 
 interface ThemeToggleProps {
   className?: string;

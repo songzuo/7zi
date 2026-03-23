@@ -5,7 +5,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
-import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Request metadata interface

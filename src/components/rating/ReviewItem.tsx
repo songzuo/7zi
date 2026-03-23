@@ -4,12 +4,11 @@
  */
 
 import React, { useState } from 'react';
-import { Star, ThumbsUp, MessageCircle, Flag, Trash2, ChevronDown, ChevronUp, User } from 'lucide-react';
+import { Star, ThumbsUp, MessageCircle, Flag, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui';
-import { Input } from '@/components/ui';
-import { Rating, HelpfulVote } from '@/types/feedback';
 
+import { Rating } from '@/types/feedback';
 export interface ReviewItemProps {
   rating: Rating;
   isOwner?: boolean;

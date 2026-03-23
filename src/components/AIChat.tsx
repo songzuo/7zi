@@ -25,8 +25,7 @@ import {
 import { ChatProvider, useChatContext } from '@/contexts/ChatContext';
 import { UnifiedTeamMember } from '@/types/members';
 import { Message } from './chat/types';
-import { isBelowBreakpoint, BREAKPOINTS } from '@/lib/utils/breakpoints';
-
+import { isBelowBreakpoint } from '@/lib/utils/breakpoints';
 // 导入聊天数据
 import { teamMembers, quickActions } from './chat/data';
 

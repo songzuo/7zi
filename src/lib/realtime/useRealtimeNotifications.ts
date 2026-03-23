@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useEnhancedWebSocket } from './useEnhancedWebSocket';
 import { notificationService } from './notification-service';
 import type { RealtimeNotification, RealtimeNotificationType } from './types';

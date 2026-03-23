@@ -8,11 +8,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { withAuth, authenticateRequest, RATE_LIMIT_CONFIG } from '@/middleware/auth';
+import { withAuth, authenticateRequest } from '@/middleware/auth';
 import { getDatabase } from '@/lib/db';
 import logger from '@/lib/logger';
-import { createAppError, ErrorCodes, formatErrorMessage } from '@/lib/errors';
-
+import { ErrorCodes, formatErrorMessage } from '@/lib/errors';
 // ============================================================================
 // Types
 // ============================================================================

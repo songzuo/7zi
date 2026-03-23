@@ -12,7 +12,7 @@ import { getDatabaseSize } from '@/lib/db';
 import { logger } from '@/lib/logger';
 import { withRateLimit } from '@/lib/middleware/rate-limit';
 import { withCors } from '@/middleware/cors';
-import { createErrorResponse, createServiceUnavailableError, ErrorType } from '@/lib/api/error-handler';
+import { createErrorResponse, createServiceUnavailableError } from '@/lib/api/error-handler';
 import { createSuccessResponse } from '@/lib/api/utils';
 import fs from 'fs/promises';
 import path from 'path';

@@ -14,7 +14,7 @@
 
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { gzip, gunzip, constants } from 'zlib';
+import { gzip, gunzip } from 'zlib';
 import { promisify } from 'util';
 
 const gzipAsync = promisify(gzip);

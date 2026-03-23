@@ -15,17 +15,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import {
-  Activity,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  Database,
-  Server,
-  TrendingUp,
-  XCircle,
-} from 'lucide-react';
-
+import { Activity, AlertTriangle, CheckCircle, Clock, Server, TrendingUp, XCircle,  } from 'lucide-react';
 // ============================================
 // 类型定义
 // ============================================

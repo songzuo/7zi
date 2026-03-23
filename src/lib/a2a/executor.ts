@@ -9,7 +9,6 @@ import {
   TaskArtifactUpdateEvent,
   Artifact,
 } from './types';
-import { v4 as uuidv4 } from 'uuid';
 
 export interface RequestContext {
   taskId: string;

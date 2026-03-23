@@ -4,7 +4,6 @@ import { useRouter, usePathname } from '@/i18n/routing';
 import { useLocale } from 'next-intl';
 import { locales, type Locale } from '@/i18n/config';
 import { useUserPreferences } from '@/lib/user-preferences';
-import type { FC } from 'react';
 
 const languageNames: Record<Locale, { name: string; flag: string }> = {
   zh: { name: '中文', flag: '🇨🇳' },

@@ -3,7 +3,6 @@
 import React, { memo } from 'react';
 import Image from 'next/image';
 import type { UnifiedTeamMember, MemberStatus } from '@/types/members';
-import { MEMBER_STATUS_CONFIG } from '@/types/members';
 
 // 重新导出统一类型，保持向后兼容
 export type AIMember = UnifiedTeamMember;

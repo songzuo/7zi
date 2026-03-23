@@ -106,7 +106,7 @@ describe('GET /api/rbac/roles', () => {
 
   it('should handle empty role list', async () => {
     const { getAllRoles } = await import('@/lib/permissions/repository');
-    vi.mocked(getAllRoles).mockReturnValueOnce([]);
+    getAllRoles.mockReturnValueOnce([]);
 
     const request = new NextRequest('http://localhost/api/rbac/roles');
     const response = await GET(request);
@@ -174,7 +174,7 @@ describe('POST /api/rbac/roles', () => {
 
   it('should reject duplicate role IDs', async () => {
     const { getRoleById } = await import('@/lib/permissions/repository');
-    vi.mocked(getRoleById).mockResolvedValueOnce({ id: 'existing-role', name: 'Existing' });
+    getRoleById.mockResolvedValueOnce({ id: 'existing-role', name: 'Existing' });
 
     const roleData = {
       id: 'existing-role',
@@ -273,7 +273,7 @@ describe('POST /api/rbac/roles', () => {
 
   it('should handle errors gracefully', async () => {
     const { createRole } = await import('@/lib/permissions/repository');
-    vi.mocked(createRole).mockRejectedValueOnce(new Error('Database error'));
+    createRole.mockRejectedValueOnce(new Error('Database error'));
 
     const roleData = {
       id: 'error-role',

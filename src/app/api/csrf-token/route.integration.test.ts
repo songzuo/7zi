@@ -27,7 +27,7 @@ describe('/api/csrf-token Integration Tests', () => {
       get: vi.fn().mockReturnValue(undefined),
       set: vi.fn(),
     };
-    vi.mocked(cookies).mockImplementation(() => Promise.resolve(mockCookieStore as any));
+    cookies.mockImplementation(() => Promise.resolve(mockCookieStore as any));
   });
 
   afterEach(() => {

@@ -6,11 +6,11 @@
  * POST /api/backup/export - Create a new export
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { logger } from '@/lib/logger';
 import { withUserAuth, RBACUserContext } from '@/lib/auth/middleware-rbac';
 import { BackupManager } from '@/lib/backup/manager';
-import { ExportOptionsSchema, ExportFormat } from '@/lib/backup/types';
+import { ExportOptionsSchema } from '@/lib/backup/types';
 import { createSuccessResponse } from '@/lib/api/utils';
 import { createBadRequestError, createErrorResponse } from '@/lib/api/error-handler';
 

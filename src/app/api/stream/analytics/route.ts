@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getGlobalStreamManager } from '@/lib/sse/stream';
 import { getSSEHeaders, isValidSSEConnection } from '@/lib/sse/utils';
-import { createValidationError, createUnauthorizedError } from '@/lib/api/error-handler';
+import { createValidationError } from '@/lib/api/error-handler';
 import { logger } from '@/lib/logger';
 import { withUserAuth, RBACUserContext } from '@/lib/auth/middleware-rbac';
 
