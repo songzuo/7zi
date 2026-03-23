@@ -57,4 +57,19 @@ coverage-*.json
 # Temporary files
 *.tmp
 *.temp
+*.bak
 tsconfig.tsbuildinfo
+
+# Deployment files
+deploy-*.tar.gz
+DEPLOYMENT_MANIFEST.txt
+7zi-deploy.tar.gz
+deploy-*.tar.gz
+
+# Test reports and documentation (temporary)
+BULL_QUEUE_TEST_CASES.md
+BULL_QUEUE_TEST_REPORT.md
+TEST-IMPROVEMENT-SUMMARY.md
+*_TEST_REPORT.md
+*_TEST_CASES.md
+*_IMPLEMENTATION_REPORT.md
