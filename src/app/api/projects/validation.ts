@@ -24,16 +24,16 @@ import {
  */
 function validateProjectName(name: unknown): asserts name is string {
   if (typeof name !== 'string') {
-    throw createAppError('Project name must be a string', ErrorCodes.VALIDATION_ERROR, 400);
+    throw createAppError('project name must be a string', ErrorCodes.VALIDATION_ERROR, 400);
   }
 
   const trimmed = name.trim();
   if (trimmed.length === 0) {
-    throw createAppError('Project name cannot be empty', ErrorCodes.VALIDATION_ERROR, 400);
+    throw createAppError('project name cannot be empty', ErrorCodes.VALIDATION_ERROR, 400);
   }
 
   if (trimmed.length > 100) {
-    throw createAppError('Project name cannot exceed 100 characters', ErrorCodes.VALIDATION_ERROR, 400);
+    throw createAppError('project name cannot exceed 100 characters', ErrorCodes.VALIDATION_ERROR, 400);
   }
 }
 
@@ -42,11 +42,11 @@ function validateProjectName(name: unknown): asserts name is string {
  */
 function validateProjectDescription(description: unknown): asserts description is string {
   if (typeof description !== 'string') {
-    throw createAppError('Project description must be a string', ErrorCodes.VALIDATION_ERROR, 400);
+    throw createAppError('project description must be a string', ErrorCodes.VALIDATION_ERROR, 400);
   }
 
   if (description.length > 1000) {
-    throw createAppError('Project description cannot exceed 1000 characters', ErrorCodes.VALIDATION_ERROR, 400);
+    throw createAppError('project description cannot exceed 1000 characters', ErrorCodes.VALIDATION_ERROR, 400);
   }
 }
 

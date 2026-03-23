@@ -167,7 +167,7 @@ function executeAll(sql: string, params: unknown[]): DbRow[] {
         const colMatch = condition.match(/(\w+)\s+like\s*\?/i);
         if (colMatch && typeof params[paramIndex] === 'string') {
           const colName = colMatch[1];
-          const pattern = params[paramIndex].replace(/%/g, '.*');
+          const pattern = (params[paramIndex] as string).replace(/%/g, '.*');
           const regex = new RegExp(pattern, 'i');
           results = results.filter(row => regex.test(String(row[colName] || '')));
           paramIndex++;
@@ -192,7 +192,7 @@ function executeAll(sql: string, params: unknown[]): DbRow[] {
           results = results.filter(row => {
             const rowVal = row[colName];
             if (rowVal === undefined || rowVal === null) return false;
-            return new Date(String(rowVal)) < new Date(String(value));
+            return new Date(String(rowVal)) < new Date(String(value as string | number | Date));
           });
           paramIndex++;
         }
@@ -206,7 +206,7 @@ function executeAll(sql: string, params: unknown[]): DbRow[] {
           results = results.filter(row => {
             const rowVal = row[colName];
             if (rowVal === undefined || rowVal === null) return true;
-            return new Date(String(rowVal)) > new Date(String(value));
+            return new Date(String(rowVal)) > new Date(String(value as string | number | Date));
           });
           paramIndex++;
         }
@@ -386,6 +386,31 @@ function executeRun(sql: string, params: unknown[]): DatabaseResult {
         timestampCounter += 1000; // Add 1 second between inserts
         value = new Date(timestampCounter).toISOString();
       }
+// Mock jose (JWT library) BEFORE mocking auth modules that depend on it
+vi.mock('jose', () => ({
+  SignJWT: vi.fn().mockImplementation(function() {
+    return {
+      setProtectedHeader: vi.fn().mockReturnThis(),
+      setIssuedAt: vi.fn().mockReturnThis(),
+      setExpirationTime: vi.fn().mockReturnThis(),
+      setIssuer: vi.fn().mockReturnThis(),
+      setAudience: vi.fn().mockReturnThis(),
+      sign: vi.fn().mockResolvedValue('mock-jwt-token'),
+    };
+  }),
+  jwtVerify: vi.fn().mockResolvedValue({
+    payload: {
+      sub: 'test-user-id',
+      email: 'test@example.com',
+      role: 'admin',
+      roles: ['admin'],
+      permissions: ['admin:all'],
+      customPermissions: [],
+      type: 'user',
+    },
+  }),
+}));
+
 
       newRow[col] = value;
     });

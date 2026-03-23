@@ -9,29 +9,24 @@
  Detected additional lockfiles: 
    * /root/.openclaw/workspace/7zi-project/pnpm-lock.yaml
 
-Warning: Custom Cache-Control headers detected for the following routes:
-  - /_next/static/:path*
-
-Setting a custom Cache-Control header can break Next.js development behavior.
 ▲ Next.js 16.2.1 (Turbopack)
 - Environments: .env.production
 - Experiments (use with caution):
-  ✓ optimizeCss
   · optimizePackageImports
 
   Creating an optimized production build ...
-✓ Compiled successfully in 43s
+✓ Compiled successfully in 31.9s
   Running TypeScript ...
 Failed to type check.
 
-./src/test/vi-mocks.ts:227:76
-Type error: This regular expression flag is only available when targeting 'es2018' or later.
+./src/lib/cache/l2-cache.ts:148:30
+Type error: A function whose declared type is neither 'undefined', 'void', nor 'any' must return a value.
 
-  [90m225 |[0m
-  [90m226 |[0m   [90m// Extract WHERE clause for condition parsing[0m
-[31m[1m>[0m [90m227 |[0m   [36mconst[0m whereMatch = sql.match([35m/WHERE\s+(.+?)(?:\s+ORDER\s+BY|\s+LIMIT|$)/is[0m);
-  [90m    |[0m                                                                            [31m[1m^[0m
-  [90m228 |[0m   [36mconst[0m whereClause = whereMatch ? whereMatch[[35m1[0m].trim() : [32m''[0m;
-  [90m229 |[0m
-  [90m230 |[0m   [90m// Check for OR conditions in LIKE queries (special case for search)[0m
+  [90m146 |[0m [90m   * Delete value from Redis cache[0m
+  [90m147 |[0m [90m   */[0m
+[31m[1m>[0m [90m148 |[0m   [36masync[0m [36mdelete[0m(key: string): [33mPromise[0m<boolean> {
+  [90m    |[0m                              [31m[1m^[0m
+  [90m149 |[0m     [36mconst[0m redisKey = [36mthis[0m.buildKey(key);
+  [90m150 |[0m
+  [90m151 |[0m     [36mconst[0m result = [36mawait[0m redisCommand([36masync[0m () => {
 Next.js build worker exited with code: 1 and signal: null
