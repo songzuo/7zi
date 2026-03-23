@@ -9,8 +9,8 @@ import { createMockRequest } from '@/test/mocks/api-mocks';
 import { Role } from '@/lib/permissions/types';
 import { UserRole } from '@/lib/auth/types';
 
-// Mock dependencies
-vi.mock('@/lib/auth/service');
+// Mock dependencies - use vi-mocks.ts global mocks instead
+// vi.mock('@/lib/auth/service'); // Already mocked in vi-mocks.ts
 vi.mock('@/lib/logger');
 
 import { loginUser } from '@/lib/auth/service';

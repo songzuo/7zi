@@ -36,13 +36,13 @@ export interface UserRateLimitEntry {
 
 // Role-based rate limits
 const ROLE_BASED_LIMITS: Record<string, UserRateLimitConfig> = {
-  admin: { windowMs: 60 * 1000, maxRequests: 1000 },
-  moderator: { windowMs: 60 * 1000, maxRequests: 500 },
-  user: { windowMs: 60 * 1000, maxRequests: 60 },
-  guest: { windowMs: 60 * 1000, maxRequests: 30 },
-  agent: { windowMs: 60 * 1000, maxRequests: 200 },
-  worker: { windowMs: 60 * 1000, maxRequests: 100 },
-  executor: { windowMs: 60 * 1000, maxRequests: 80 },
+  admin: { windowMs: 60 * 1000, maxRequests: 1000, role: 'admin' },
+  moderator: { windowMs: 60 * 1000, maxRequests: 500, role: 'moderator' },
+  user: { windowMs: 60 * 1000, maxRequests: 60, role: 'user' },
+  guest: { windowMs: 60 * 1000, maxRequests: 30, role: 'guest' },
+  agent: { windowMs: 60 * 1000, maxRequests: 200, role: 'agent' },
+  worker: { windowMs: 60 * 1000, maxRequests: 100, role: 'worker' },
+  executor: { windowMs: 60 * 1000, maxRequests: 80, role: 'executor' },
 };
 
 // In-memory store for user-based rate limiting
@@ -84,12 +84,8 @@ export async function getUserIdFromToken(token: string): Promise<{ userId: strin
 export function getUserIdFromApiKey(request: NextRequest): string | null {
   const authHeader = request.headers.get('authorization');
 
-  if (!authHeader) {
-    return null;
-  }
-
-  // Check for Bearer token
-  if (authHeader.startsWith('Bearer ')) {
+  // Check for Bearer token first
+  if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.substring(7);
 
     // Check if it's an API key format

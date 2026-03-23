@@ -16,6 +16,7 @@ export const PROTECTED_PATHS = [
   '/api/backup',
   '/api/export',
   '/api/status',
+  '/api/tasks',
 ];
 
 // 公开路径（不需要认证）

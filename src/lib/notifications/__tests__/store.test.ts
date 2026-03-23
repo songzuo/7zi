@@ -210,8 +210,8 @@ describe('Notification Store', () => {
         useNotificationStore.getState().clearAll();
       });
 
-      const { notifications, unreadCount } = useNotificationStore.getState();
-      expect(notifications).toHaveLength(0);
+      const { notifications: allNotifications, unreadCount } = useNotificationStore.getState();
+      expect(allNotifications).toHaveLength(0);
       expect(unreadCount).toBe(0);
     });
   });

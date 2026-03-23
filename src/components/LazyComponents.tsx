@@ -42,6 +42,45 @@ export const LoadingFallback: React.FC<LoadingFallbackProps> = ({
 // ============================================================================
 
 /**
+ * AI 聊天组件
+ * - 大小: ~AIChat.tsx
+ * - 用途: AI 助手聊天窗口
+ */
+export const LazyAIChat = dynamic(
+  () => import('@/components/AIChat').then(mod => ({ default: mod.default })),
+  {
+    loading: () => <LoadingFallback message="加载 AI 助手..." size="md" />,
+    ssr: false,
+  }
+);
+
+/**
+ * GitHub 活动组件
+ * - 大小: ~GitHubActivity.tsx
+ * - 用途: GitHub 活动展示
+ */
+export const LazyGitHubActivity = dynamic(
+  () => import('@/components/GitHubActivity').then(mod => ({ default: mod.GitHubActivity })),
+  {
+    loading: () => <LoadingFallback message="加载 GitHub 活动..." size="md" />,
+    ssr: false,
+  }
+);
+
+/**
+ * 项目仪表盘组件
+ * - 大小: ~ProjectDashboard.tsx
+ * - 用途: 项目概览仪表盘
+ */
+export const LazyProjectDashboard = dynamic(
+  () => import('@/components/ProjectDashboard').then(mod => ({ default: mod.ProjectDashboard })),
+  {
+    loading: () => <LoadingFallback message="加载项目仪表盘..." size="md" />,
+    ssr: false,
+  }
+);
+
+/**
  * 任务看板组件
  * - 大小: ~300 行
  * - 用途: 显示 GitHub Issues 任务列表
@@ -152,12 +191,31 @@ export const LazyMetricsDashboard = dynamic(
 // ============================================================================
 
 /**
+ * 知识图谱 3D 场景组件
+ * - 大小: ~3873 行
+ * - 用途: 交互式 3D 知识图谱可视化
+ */
+export const LazyKnowledgeLatticeScene = dynamic(
+  () => import('@/components/knowledge-lattice/KnowledgeLatticeScene'),
+  {
+    loading: () => (
+      <LoadingFallback
+        message="加载知识图谱..."
+        size="lg"
+        className="bg-zinc-900 rounded-lg"
+      />
+    ),
+    ssr: false,
+  }
+);
+
+/**
  * 会议房间组件
  * - 大小: ~575 行
  * - 用途: 实时协作会议
  */
 export const LazyMeetingRoom = dynamic(
-  () => import('@/components/meeting/MeetingRoom').then(mod => ({ default: mod.MeetingRoom })),
+  () => import('@/components/meeting/MeetingRoom').then(mod => ({ default: mod.default })),
   {
     loading: () => (
       <LoadingFallback
@@ -174,20 +232,21 @@ export const LazyMeetingRoom = dynamic(
  * 协作组件
  * - 大小: ~349 行
  * - 用途: 实时协作编辑
+ * @deprecated 使用 ConnectionStatus 和 UserList 组件替代
  */
-export const LazyCollaboration = dynamic(
-  () => import('@/components/collaboration/OptimizedComponents').then(mod => ({ default: mod.default })),
-  {
-    loading: () => (
-      <LoadingFallback
-        message="加载协作组件..."
-        size="md"
-        className="bg-white dark:bg-zinc-800 rounded-xl"
-      />
-    ),
-    ssr: false,
-  }
-);
+// export const LazyCollaboration = dynamic(
+//   () => import('@/components/collaboration/OptimizedComponents').then(mod => ({ default: mod.default })),
+//   {
+//     loading: () => (
+//       <LoadingFallback
+//         message="加载协作组件..."
+//         size="md"
+//         className="bg-white dark:bg-zinc-800 rounded-xl"
+//       />
+//     ),
+//     ssr: false,
+//   }
+// );
 
 // ============================================================================
 // 功能组件动态导入
@@ -199,7 +258,7 @@ export const LazyCollaboration = dynamic(
  * - 用途: 数据备份和恢复
  */
 export const LazyDataExportImport = dynamic(
-  () => import('@/components/DataExportImport').then(mod => ({ default: mod.default })),
+  () => import('@/components/DataExportImport/index').then(mod => ({ default: mod.DataExportImport })),
   {
     loading: () => (
       <LoadingFallback
@@ -317,40 +376,42 @@ export const LazyLazyLoadImage = dynamic(
  * - 大小: ~332 行
  * - 来源: 7zi-frontend 项目
  * - 用途: 性能监控指标
+ * @deprecated PerformanceDashboard 组件不存在，使用 PerformanceMonitor 替代
  */
-export const LazyPerformanceDashboard = dynamic(
-  () => import('@/components/PerformanceDashboard').then(mod => ({ default: mod.PerformanceDashboard })),
-  {
-    loading: () => (
-      <LoadingFallback
-        message="加载性能仪表盘..."
-        size="lg"
-        className="bg-zinc-900 rounded-lg"
-      />
-    ),
-    ssr: false,
-  }
-);
+// export const LazyPerformanceDashboard = dynamic(
+//   () => import('@/components/PerformanceDashboard').then(mod => ({ default: mod.PerformanceDashboard })),
+//   {
+//     loading: () => (
+//       <LoadingFallback
+//         message="加载性能仪表盘..."
+//         size="lg"
+//         className="bg-zinc-900 rounded-lg"
+//       />
+//     ),
+//     ssr: false,
+//   }
+// );
 
 /**
  * 简化性能仪表盘组件
  * - 大小: ~100 行
  * - 来源: 7zi-frontend 项目
  * - 用途: 轻量级性能监控
+ * @deprecated SimplePerformanceDashboard 组件不存在
  */
-export const LazySimplePerformanceDashboard = dynamic(
-  () => import('@/components/SimplePerformanceDashboard').then(mod => ({ default: mod.SimplePerformanceDashboard })),
-  {
-    loading: () => (
-      <LoadingFallback
-        message="加载监控..."
-        size="sm"
-        className="bg-zinc-900 rounded-lg"
-      />
-    ),
-    ssr: false,
-  }
-);
+// export const LazySimplePerformanceDashboard = dynamic(
+//   () => import('@/components/SimplePerformanceDashboard').then(mod => ({ default: mod.SimplePerformanceDashboard })),
+//   {
+//     loading: () => (
+//       <LoadingFallback
+//         message="加载监控..."
+//         size="sm"
+//         className="bg-zinc-900 rounded-lg"
+//       />
+//     ),
+//     ssr: false,
+//   }
+// );
 
 // ============================================================================
 // 工具函数

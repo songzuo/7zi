@@ -10,8 +10,8 @@ import { createUser, getAllUsers, getUserByEmail } from '@/lib/auth/repository';
 import { UserStatus, UserRole } from '@/lib/auth/types';
 import { NextRequest } from 'next/server';
 
-// Mock dependencies
-vi.mock('@/lib/auth/repository');
+// Mock dependencies - use vi-mocks.ts global mocks instead of local mocks
+// vi.mock('@/lib/auth/repository'); // Already mocked in vi-mocks.ts
 vi.mock('@/lib/db/audit-log');
 vi.mock('@/lib/logger');
 

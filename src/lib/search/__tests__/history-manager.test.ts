@@ -167,7 +167,7 @@ describe('SearchHistoryManager', () => {
   });
 
   describe('getTrending', () => {
-    it('should return recent and frequent searches', () => {
+    it('should return recent and frequent searches', async () => {
       const now = Date.now();
 
       // Add recent searches (within 7 days)
