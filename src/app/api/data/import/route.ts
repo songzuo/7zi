@@ -5,16 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import {
-  _importData as importData,
-  parseCSV,
-  parseJSON,
-  validateImportOptions,
-  createBackup,
-  type ImportMode,
-  type ImportOptions,
-  type ExportResult,
-} from '@/lib/data-import-export';
+import { parseCSV, parseJSON, validateImportOptions, createBackup, type ImportMode, type ImportOptions, type ExportResult,  } from '@/lib/data-import-export';
 import { logger } from '@/lib/logger';
 
 // ========================================

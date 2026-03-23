@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, memo } from 'react';
+import { useState, memo } from 'react';
 import { Download, Upload, FileJson, FileSpreadsheet, Loader2, AlertCircle, CheckCircle2, Database } from 'lucide-react';
 import { cn } from '@/lib/utils';
 

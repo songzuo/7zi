@@ -2,8 +2,7 @@
  * @fileoverview Long press gesture hook for mobile interactions
  */
 
-import { RefObject, useCallback, useRef, useState, useEffect } from 'react';
-
+import { useCallback, useRef, useState } from 'react';
 interface UseLongPressOptions {
   delay?: number;
   threshold?: number; // Max movement allowed (pixels)

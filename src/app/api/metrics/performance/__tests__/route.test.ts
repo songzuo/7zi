@@ -245,7 +245,7 @@ describe('GET /api/metrics/performance', () => {
   describe('error handling', () => {
     it('should handle errors gracefully', async () => {
       // Mock getApiPerformanceReport to throw an error
-      vi.mocked(getApiPerformanceReport).mockImplementationOnce(() => {
+      getApiPerformanceReport.mockImplementationOnce(() => {
         throw new Error('Test error');
       });
 

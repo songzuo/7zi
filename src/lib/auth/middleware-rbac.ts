@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authenticateToken } from './service';
 import { UserContext } from './types';
 import { Permission, Role } from '@/lib/permissions/types';
-import { hasPermission, hasAllPermissions, hasAnyPermission, hasRole, hasAnyRole, hasAllRoles } from '@/lib/permissions/rbac';
+import { hasAllPermissions, hasAnyPermission, hasRole, hasAnyRole } from '@/lib/permissions/rbac';
 import { getUserPermissionContext } from '@/lib/permissions/repository';
 import { logger } from '../logger';
 

@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Search, X, Clock, TrendingUp, Filter, ChevronDown } from 'lucide-react';
+import { Search, X, Clock, Filter } from 'lucide-react';
 import type { UnifiedEntity } from '@/lib/search/types';
 
 /**

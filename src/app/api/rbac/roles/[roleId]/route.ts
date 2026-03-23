@@ -6,15 +6,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withAdmin } from '@/lib/auth/middleware-rbac';
 import { Role, Permission } from '@/lib/permissions/types';
-import {
-  getRoleById,
-  updateRole,
-  deleteRole,
-  assignPermissionsToRole,
-  removePermissionsFromRole,
-  getPermissionsByRole,
-} from '@/lib/permissions/repository';
-import { getRoleDefinition } from '@/lib/permissions/rbac';
+import { getRoleById, updateRole, deleteRole, assignPermissionsToRole, getPermissionsByRole,  } from '@/lib/permissions/repository';
+
 import { logger } from '@/lib/logger';
 
 interface RouteContext {

@@ -35,12 +35,12 @@ import {
 describe('/api/data/export', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(getSupportedTables).mockReturnValue([
+    getSupportedTables.mockReturnValue([
       'agents',
       'agent_tokens',
       'user_preferences',
     ]);
-    vi.mocked(getExportFileName).mockReturnValue('test-export.json');
+    getExportFileName.mockReturnValue('test-export.json');
   });
 
   afterEach(() => {
@@ -65,7 +65,7 @@ describe('/api/data/export', () => {
     });
 
     it('should handle errors gracefully', async () => {
-      vi.mocked(getSupportedTables).mockImplementation(() => {
+      getSupportedTables.mockImplementation(() => {
         throw new Error('Database error');
       });
 
@@ -93,8 +93,8 @@ describe('/api/data/export', () => {
         exportedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      vi.mocked(exportData).mockResolvedValue(mockExportResult);
-      vi.mocked(exportToJSON).mockReturnValue('{"format":"json"}');
+      exportData.mockResolvedValue(mockExportResult);
+      exportToJSON.mockReturnValue('{"format":"json"}');
 
       const request = new NextRequest('http://localhost/api/data/export', {
         method: 'POST',
@@ -131,9 +131,9 @@ describe('/api/data/export', () => {
         exportedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      vi.mocked(exportData).mockResolvedValue(mockExportResult);
-      vi.mocked(exportToCSV).mockReturnValue('id,name\nagent-1,Agent 1');
-      vi.mocked(getExportFileName).mockReturnValue('test-export.csv');
+      exportData.mockResolvedValue(mockExportResult);
+      exportToCSV.mockReturnValue('id,name\nagent-1,Agent 1');
+      getExportFileName.mockReturnValue('test-export.csv');
 
       const request = new NextRequest('http://localhost/api/data/export', {
         method: 'POST',
@@ -186,7 +186,7 @@ describe('/api/data/export', () => {
     });
 
     it('should handle export errors', async () => {
-      vi.mocked(exportData).mockRejectedValue(new Error('Export failed'));
+      exportData.mockRejectedValue(new Error('Export failed'));
 
       const request = new NextRequest('http://localhost/api/data/export', {
         method: 'POST',
@@ -213,8 +213,8 @@ describe('/api/data/export', () => {
         exportedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      vi.mocked(exportData).mockResolvedValue(mockExportResult);
-      vi.mocked(exportToJSON).mockReturnValue('{"format":"json"}');
+      exportData.mockResolvedValue(mockExportResult);
+      exportToJSON.mockReturnValue('{"format":"json"}');
 
       const request = new NextRequest('http://localhost/api/data/export', {
         method: 'POST',
@@ -258,8 +258,8 @@ describe('/api/data/export', () => {
         exportedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      vi.mocked(exportData).mockResolvedValue(mockExportResult);
-      vi.mocked(exportToJSON).mockReturnValue('{"format":"json"}');
+      exportData.mockResolvedValue(mockExportResult);
+      exportToJSON.mockReturnValue('{"format":"json"}');
 
       const request = new NextRequest('http://localhost/api/data/export', {
         method: 'POST',

@@ -143,9 +143,9 @@ describe('/api/data/import', () => {
         importedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      vi.mocked(parseJSON).mockReturnValue(parsedData);
-      vi.mocked(validateImportOptions).mockReturnValue({ valid: true, errors: [] });
-      vi.mocked(importData).mockResolvedValue(importResult);
+      parseJSON.mockReturnValue(parsedData);
+      validateImportOptions.mockReturnValue({ valid: true, errors: [] });
+      importData.mockResolvedValue(importResult);
 
       const requestBody = {
         format: 'json',
@@ -206,9 +206,9 @@ describe('/api/data/import', () => {
         importedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      vi.mocked(parseJSON).mockReturnValue(parsedData);
-      vi.mocked(validateImportOptions).mockReturnValue({ valid: true, errors: [] });
-      vi.mocked(importData).mockResolvedValue(importResult);
+      parseJSON.mockReturnValue(parsedData);
+      validateImportOptions.mockReturnValue({ valid: true, errors: [] });
+      importData.mockResolvedValue(importResult);
 
       const request = new NextRequest('http://localhost:3000/api/data/import', {
         method: 'POST',
@@ -259,9 +259,9 @@ describe('/api/data/import', () => {
         importedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      vi.mocked(parseCSV).mockReturnValue(parsedDataResult);
-      vi.mocked(validateImportOptions).mockReturnValue({ valid: true, errors: [] });
-      vi.mocked(importData).mockResolvedValue(importResult);
+      parseCSV.mockReturnValue(parsedDataResult);
+      validateImportOptions.mockReturnValue({ valid: true, errors: [] });
+      importData.mockResolvedValue(importResult);
 
       const request = new NextRequest('http://localhost:3000/api/data/import', {
         method: 'POST',
@@ -302,9 +302,9 @@ describe('/api/data/import', () => {
         importedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      vi.mocked(parseCSV).mockReturnValue(parsedDataResult);
-      vi.mocked(validateImportOptions).mockReturnValue({ valid: true, errors: [] });
-      vi.mocked(importData).mockResolvedValue(importResult);
+      parseCSV.mockReturnValue(parsedDataResult);
+      validateImportOptions.mockReturnValue({ valid: true, errors: [] });
+      importData.mockResolvedValue(importResult);
 
       const request = new NextRequest('http://localhost:3000/api/data/import', {
         method: 'POST',
@@ -346,9 +346,9 @@ describe('/api/data/import', () => {
         importedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      vi.mocked(parseJSON).mockReturnValue(parsedData);
-      vi.mocked(validateImportOptions).mockReturnValue({ valid: true, errors: [] });
-      vi.mocked(importData).mockResolvedValue(importResult);
+      parseJSON.mockReturnValue(parsedData);
+      validateImportOptions.mockReturnValue({ valid: true, errors: [] });
+      importData.mockResolvedValue(importResult);
 
       const request = new NextRequest('http://localhost:3000/api/data/import', {
         method: 'POST',
@@ -384,9 +384,9 @@ describe('/api/data/import', () => {
         importedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      vi.mocked(parseJSON).mockReturnValue(parsedData);
-      vi.mocked(validateImportOptions).mockReturnValue({ valid: true, errors: [] });
-      vi.mocked(importData).mockResolvedValue(importResult);
+      parseJSON.mockReturnValue(parsedData);
+      validateImportOptions.mockReturnValue({ valid: true, errors: [] });
+      importData.mockResolvedValue(importResult);
 
       const request = new NextRequest('http://localhost:3000/api/data/import', {
         method: 'POST',
@@ -422,9 +422,9 @@ describe('/api/data/import', () => {
         importedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      vi.mocked(parseJSON).mockReturnValue(parsedData);
-      vi.mocked(validateImportOptions).mockReturnValue({ valid: true, errors: [] });
-      vi.mocked(importData).mockResolvedValue(importResult);
+      parseJSON.mockReturnValue(parsedData);
+      validateImportOptions.mockReturnValue({ valid: true, errors: [] });
+      importData.mockResolvedValue(importResult);
 
       const request = new NextRequest('http://localhost:3000/api/data/import', {
         method: 'POST',
@@ -466,9 +466,9 @@ describe('/api/data/import', () => {
         importedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      vi.mocked(parseJSON).mockReturnValue(parsedData);
-      vi.mocked(validateImportOptions).mockReturnValue({ valid: true, errors: [] });
-      vi.mocked(importData).mockResolvedValue(importResult);
+      parseJSON.mockReturnValue(parsedData);
+      validateImportOptions.mockReturnValue({ valid: true, errors: [] });
+      importData.mockResolvedValue(importResult);
 
       const request = new NextRequest('http://localhost:3000/api/data/import', {
         method: 'POST',
@@ -508,9 +508,9 @@ describe('/api/data/import', () => {
         importedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      vi.mocked(parseJSON).mockReturnValue(parsedData);
-      vi.mocked(validateImportOptions).mockReturnValue({ valid: true, errors: [] });
-      vi.mocked(importData).mockResolvedValue(importResult);
+      parseJSON.mockReturnValue(parsedData);
+      validateImportOptions.mockReturnValue({ valid: true, errors: [] });
+      importData.mockResolvedValue(importResult);
 
       const request = new NextRequest('http://localhost:3000/api/data/import', {
         method: 'POST',
@@ -553,10 +553,10 @@ describe('/api/data/import', () => {
         importedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      vi.mocked(parseJSON).mockReturnValue(parsedData);
-      vi.mocked(validateImportOptions).mockReturnValue({ valid: true, errors: [] });
-      vi.mocked(createBackup).mockResolvedValue('backup-20240101-120000');
-      vi.mocked(importData).mockResolvedValue(importResult);
+      parseJSON.mockReturnValue(parsedData);
+      validateImportOptions.mockReturnValue({ valid: true, errors: [] });
+      createBackup.mockResolvedValue('backup-20240101-120000');
+      importData.mockResolvedValue(importResult);
 
       const request = new NextRequest('http://localhost:3000/api/data/import', {
         method: 'POST',
@@ -595,10 +595,10 @@ describe('/api/data/import', () => {
         importedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      vi.mocked(parseJSON).mockReturnValue(parsedData);
-      vi.mocked(validateImportOptions).mockReturnValue({ valid: true, errors: [] });
-      vi.mocked(createBackup).mockResolvedValue('my-custom-backup');
-      vi.mocked(importData).mockResolvedValue(importResult);
+      parseJSON.mockReturnValue(parsedData);
+      validateImportOptions.mockReturnValue({ valid: true, errors: [] });
+      createBackup.mockResolvedValue('my-custom-backup');
+      importData.mockResolvedValue(importResult);
 
       const request = new NextRequest('http://localhost:3000/api/data/import', {
         method: 'POST',
@@ -654,8 +654,8 @@ describe('/api/data/import', () => {
         exportedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      vi.mocked(parseJSON).mockReturnValue(parsedData);
-      vi.mocked(validateImportOptions).mockReturnValue({
+      parseJSON.mockReturnValue(parsedData);
+      validateImportOptions.mockReturnValue({
         valid: false,
         errors: ['Invalid batch size: must be between 1 and 1000'],
       });
@@ -702,9 +702,9 @@ describe('/api/data/import', () => {
         exportedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      vi.mocked(parseJSON).mockReturnValue(parsedData);
-      vi.mocked(validateImportOptions).mockReturnValue({ valid: true, errors: [] });
-      vi.mocked(importData).mockRejectedValue(new Error('Database import failed'));
+      parseJSON.mockReturnValue(parsedData);
+      validateImportOptions.mockReturnValue({ valid: true, errors: [] });
+      importData.mockRejectedValue(new Error('Database import failed'));
 
       const request = new NextRequest('http://localhost:3000/api/data/import', {
         method: 'POST',
@@ -746,9 +746,9 @@ describe('/api/data/import', () => {
         importedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      vi.mocked(parseJSON).mockReturnValue(parsedData);
-      vi.mocked(validateImportOptions).mockReturnValue({ valid: true, errors: [] });
-      vi.mocked(importData).mockResolvedValue(importResult);
+      parseJSON.mockReturnValue(parsedData);
+      validateImportOptions.mockReturnValue({ valid: true, errors: [] });
+      importData.mockResolvedValue(importResult);
 
       const request = new NextRequest('http://localhost:3000/api/data/import', {
         method: 'POST',
@@ -793,9 +793,9 @@ describe('/api/data/import', () => {
         importedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      vi.mocked(parseJSON).mockReturnValue(parsedData);
-      vi.mocked(validateImportOptions).mockReturnValue({ valid: true, errors: [] });
-      vi.mocked(importData).mockResolvedValue(importResult);
+      parseJSON.mockReturnValue(parsedData);
+      validateImportOptions.mockReturnValue({ valid: true, errors: [] });
+      importData.mockResolvedValue(importResult);
 
       const request = new NextRequest('http://localhost:3000/api/data/import', {
         method: 'POST',
@@ -832,9 +832,9 @@ describe('/api/data/import', () => {
         importedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      vi.mocked(parseJSON).mockReturnValue(parsedData);
-      vi.mocked(validateImportOptions).mockReturnValue({ valid: true, errors: [] });
-      vi.mocked(importData).mockResolvedValue(importResult);
+      parseJSON.mockReturnValue(parsedData);
+      validateImportOptions.mockReturnValue({ valid: true, errors: [] });
+      importData.mockResolvedValue(importResult);
 
       const request = new NextRequest('http://localhost:3000/api/data/import', {
         method: 'POST',

@@ -35,7 +35,7 @@ import {
 describe('/api/data/import', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(validateImportOptions).mockReturnValue({
+    validateImportOptions.mockReturnValue({
       valid: true,
       errors: [],
     });
@@ -103,8 +103,8 @@ describe('/api/data/import', () => {
         exportedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      vi.mocked(parseJSON).mockReturnValue(mockExportData);
-      vi.mocked(importData).mockResolvedValue(mockImportResult);
+      parseJSON.mockReturnValue(mockExportData);
+      importData.mockResolvedValue(mockImportResult);
 
       const request = new NextRequest('http://localhost/api/data/import', {
         method: 'POST',
@@ -149,13 +149,13 @@ describe('/api/data/import', () => {
 
       const csvData = '# Table: agents\n\nid,name\nagent-1,Agent 1\nagent-2,Agent 2\n';
 
-      vi.mocked(parseCSV).mockReturnValue({
+      parseCSV.mockReturnValue({
         agents: [
           { id: 'agent-1', name: 'Agent 1' },
           { id: 'agent-2', name: 'Agent 2' },
         ],
       });
-      vi.mocked(importData).mockResolvedValue(mockImportResult);
+      importData.mockResolvedValue(mockImportResult);
 
       const request = new NextRequest('http://localhost/api/data/import', {
         method: 'POST',
@@ -197,15 +197,15 @@ describe('/api/data/import', () => {
         importedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      vi.mocked(parseJSON).mockReturnValue({
+      parseJSON.mockReturnValue({
         format: 'json' as const,
         tables: [],
         data: {},
         stats: { totalRows: 0, tables: {} },
         exportedAt: '2024-01-01T00:00:00.000Z',
       });
-      vi.mocked(importData).mockResolvedValue(mockImportResult);
-      vi.mocked(createBackup).mockResolvedValue('backup-test');
+      importData.mockResolvedValue(mockImportResult);
+      createBackup.mockResolvedValue('backup-test');
 
       const request = new NextRequest('http://localhost/api/data/import', {
         method: 'POST',
@@ -240,14 +240,14 @@ describe('/api/data/import', () => {
         importedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      vi.mocked(parseJSON).mockReturnValue({
+      parseJSON.mockReturnValue({
         format: 'json' as const,
         tables: ['agents'],
         data: { agents: [{ id: 'agent-1', name: 'Agent 1' }] },
         stats: { totalRows: 1, tables: { agents: 1 } },
         exportedAt: '2024-01-01T00:00:00.000Z',
       });
-      vi.mocked(importData).mockResolvedValue(mockImportResult);
+      importData.mockResolvedValue(mockImportResult);
 
       const request = new NextRequest('http://localhost/api/data/import', {
         method: 'POST',
@@ -272,7 +272,7 @@ describe('/api/data/import', () => {
     });
 
     it('should handle validation errors', async () => {
-      vi.mocked(validateImportOptions).mockReturnValue({
+      validateImportOptions.mockReturnValue({
         valid: false,
         errors: ['Invalid mode'],
       });
@@ -296,7 +296,7 @@ describe('/api/data/import', () => {
     });
 
     it('should handle JSON parse errors', async () => {
-      vi.mocked(parseJSON).mockImplementation(() => {
+      parseJSON.mockImplementation(() => {
         throw new Error('Invalid JSON');
       });
 
@@ -332,14 +332,14 @@ describe('/api/data/import', () => {
         importedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      vi.mocked(parseJSON).mockReturnValue({
+      parseJSON.mockReturnValue({
         format: 'json' as const,
         tables: ['agents'],
         data: { agents: [{ id: 'agent-1' }, { id: 'agent-1' }] },
         stats: { totalRows: 2, tables: { agents: 2 } },
         exportedAt: '2024-01-01T00:00:00.000Z',
       });
-      vi.mocked(importData).mockResolvedValue(mockImportResult);
+      importData.mockResolvedValue(mockImportResult);
 
       const request = new NextRequest('http://localhost/api/data/import', {
         method: 'POST',
@@ -388,15 +388,15 @@ describe('/api/data/import', () => {
         importedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      vi.mocked(parseJSON).mockReturnValue({
+      parseJSON.mockReturnValue({
         format: 'json' as const,
         tables: [],
         data: {},
         stats: { totalRows: 0, tables: {} },
         exportedAt: '2024-01-01T00:00:00.000Z',
       });
-      vi.mocked(importData).mockResolvedValue(mockImportResult);
-      vi.mocked(createBackup).mockResolvedValue('my-custom-backup');
+      importData.mockResolvedValue(mockImportResult);
+      createBackup.mockResolvedValue('my-custom-backup');
 
       const request = new NextRequest('http://localhost/api/data/import', {
         method: 'POST',
@@ -427,14 +427,14 @@ describe('/api/data/import', () => {
         importedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      vi.mocked(parseJSON).mockReturnValue({
+      parseJSON.mockReturnValue({
         format: 'json' as const,
         tables: [],
         data: {},
         stats: { totalRows: 0, tables: {} },
         exportedAt: '2024-01-01T00:00:00.000Z',
       });
-      vi.mocked(importData).mockResolvedValue(mockImportResult);
+      importData.mockResolvedValue(mockImportResult);
 
       const request = new NextRequest('http://localhost/api/data/import', {
         method: 'POST',

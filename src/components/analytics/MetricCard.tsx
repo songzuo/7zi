@@ -8,8 +8,7 @@
 import React, { memo } from 'react';
 import { LucideIcon, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { type Statistic } from '@/lib/types/analytics';
-import type { FC, CSSProperties } from 'react';
-
+import type { FC } from 'react';
 // ============================================================================
 // Type Definitions
 // ============================================================================

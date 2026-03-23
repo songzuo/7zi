@@ -30,7 +30,7 @@ import {
   ErrorType,
 } from '@/lib/api/error-handler';
 import { getLocaleFromRequest } from '@/lib/api/user-messages';
-import { createApiContext, logApiError, logApiSuccess } from '@/lib/api/error-logger';
+import { createApiContext, logApiError } from '@/lib/api/error-logger';
 import { logger } from '@/lib/logger';
 
 /**

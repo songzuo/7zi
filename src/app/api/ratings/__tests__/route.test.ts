@@ -89,7 +89,7 @@ const { getDatabaseAsync } = await import('@/lib/db/index');
 describe('GET /api/ratings', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(getDatabaseAsync).mockResolvedValue(mockDb);
+    getDatabaseAsync.mockResolvedValue(mockDb);
   });
 
   it('should return ratings list', async () => {
@@ -169,7 +169,7 @@ describe('GET /api/ratings', () => {
 describe('POST /api/ratings', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(getDatabaseAsync).mockResolvedValue(mockDb);
+    getDatabaseAsync.mockResolvedValue(mockDb);
   });
 
   it('should create a new rating', async () => {
@@ -342,7 +342,7 @@ describe('POST /api/ratings', () => {
 describe('GET_RATING /api/ratings/[id]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(getDatabaseAsync).mockResolvedValue(mockDb);
+    getDatabaseAsync.mockResolvedValue(mockDb);
   });
 
   it('should return single rating', async () => {
@@ -371,7 +371,7 @@ describe('GET_RATING /api/ratings/[id]', () => {
 describe('DELETE_RATING /api/ratings/[id]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(getDatabaseAsync).mockResolvedValue(mockDb);
+    getDatabaseAsync.mockResolvedValue(mockDb);
   });
 
   it('should delete rating owned by user', async () => {
@@ -439,7 +439,7 @@ describe('DELETE_RATING /api/ratings/[id]', () => {
 describe('POST_HELPFUL /api/ratings/[id]/helpful', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(getDatabaseAsync).mockResolvedValue(mockDb);
+    getDatabaseAsync.mockResolvedValue(mockDb);
   });
 
   it('should mark rating as helpful', async () => {

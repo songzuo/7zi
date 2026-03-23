@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useWebRTCMeeting, MeetingParticipant, UseWebRTCMeetingOptions } from '@/hooks/useWebRTCMeeting';
+import { useWebRTCMeeting, MeetingParticipant } from '@/hooks/useWebRTCMeeting';
 import { Mic, MicOff, Phone, Users, Settings, Copy, Check } from 'lucide-react';
 
 // ============================================================================

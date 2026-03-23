@@ -3,9 +3,9 @@
  * Mark rating as helpful or not helpful
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getDatabaseAsync } from '@/lib/db/index';
-import { logger } from '@/lib/logger';
+
 import {
   createSuccessResponse,
   createErrorResponse,

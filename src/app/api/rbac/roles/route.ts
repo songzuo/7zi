@@ -6,17 +6,8 @@
 import { NextRequest } from 'next/server';
 import { withAdmin } from '@/lib/auth/middleware-rbac';
 import { Role, Permission } from '@/lib/permissions/types';
-import {
-  getAllRoles,
-  getAllRolesWithCount,
-  getRoleById,
-  createRole,
-  updateRole,
-  deleteRole,
-  assignPermissionsToRole,
-  getPermissionsByRole,
-} from '@/lib/permissions/repository';
-import { getRoleDefinition } from '@/lib/permissions/rbac';
+import { getAllRoles, getAllRolesWithCount, getRoleById, createRole,  } from '@/lib/permissions/repository';
+
 import { logger } from '@/lib/logger';
 import { createSuccessResponse, createErrorResponse, createValidationError } from '@/lib/api/error-handler';
 

@@ -19,7 +19,7 @@ import {
   validateBody,
   formatValidationErrors,
 } from '@/lib/api/validation';
-import { createValidationError, createErrorResponse, ErrorType } from '@/lib/api/error-handler';
+
 import { logger } from '@/lib/logger';
 
 // Initialize handler (singleton pattern)

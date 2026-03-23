@@ -14,7 +14,7 @@ describe('WebSocketStatusIndicator', () => {
   });
 
   it('should render status dot', () => {
-    vi.mocked(useWebSocket).mockReturnValue({
+    useWebSocket.mockReturnValue({
       state: {
         connected: true,
         authenticated: true,
@@ -30,7 +30,7 @@ describe('WebSocketStatusIndicator', () => {
   });
 
   it('should show green dot when connected and authenticated', () => {
-    vi.mocked(useWebSocket).mockReturnValue({
+    useWebSocket.mockReturnValue({
       state: {
         connected: true,
         authenticated: true,
@@ -46,7 +46,7 @@ describe('WebSocketStatusIndicator', () => {
   });
 
   it('should show yellow dot when connecting', () => {
-    vi.mocked(useWebSocket).mockReturnValue({
+    useWebSocket.mockReturnValue({
       state: {
         connected: false,
         authenticated: false,
@@ -62,7 +62,7 @@ describe('WebSocketStatusIndicator', () => {
   });
 
   it('should show red dot when error', () => {
-    vi.mocked(useWebSocket).mockReturnValue({
+    useWebSocket.mockReturnValue({
       state: {
         connected: false,
         authenticated: false,
@@ -78,7 +78,7 @@ describe('WebSocketStatusIndicator', () => {
   });
 
   it('should show detailed view when detailed prop is true', () => {
-    vi.mocked(useWebSocket).mockReturnValue({
+    useWebSocket.mockReturnValue({
       state: {
         connected: true,
         authenticated: true,
@@ -95,7 +95,7 @@ describe('WebSocketStatusIndicator', () => {
   });
 
   it('should show reconnect button when disconnected', () => {
-    vi.mocked(useWebSocket).mockReturnValue({
+    useWebSocket.mockReturnValue({
       state: {
         connected: false,
         authenticated: false,

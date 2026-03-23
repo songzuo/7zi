@@ -13,7 +13,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useCollaboration } from '@/lib/websocket';
 import { ConnectionStatus, UserList, RemoteCursor } from './ConnectionStatus';
-import type { Operation } from '@/lib/collaboration/manager';
 
 interface TaskEditorProps {
   taskId: string;

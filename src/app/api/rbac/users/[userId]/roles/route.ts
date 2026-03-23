@@ -6,12 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withManagerOrAdmin } from '@/lib/auth/middleware-rbac';
 import { Role } from '@/lib/permissions/types';
-import {
-  getUserRoles,
-  addRolesToUser,
-  removeRolesFromUser,
-  getAllRolesWithCount,
-} from '@/lib/permissions/repository';
+import { getUserRoles, addRolesToUser, removeRolesFromUser,  } from '@/lib/permissions/repository';
 import { getPermissionsForRoles } from '@/lib/permissions/rbac';
 import { logger } from '@/lib/logger';
 

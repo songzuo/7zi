@@ -3,11 +3,11 @@
  * @description Enhanced dashboard store with undo-redo functionality
  */
 
-import { create } from 'zustand';
-import { devtools } from 'zustand/middleware';
-import { undoRedo } from '@/lib/undo-redo/middleware';
+
+
+
 import type { UnifiedTeamMember } from '@/types/members';
-import type { GitHubIssue, GitHubCommit } from '@/types/common';
+import type { GitHubIssue } from '@/types/common';
 import type { HistoryState } from '@/lib/undo-redo/types';
 
 // ============================================================================

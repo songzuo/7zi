@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { useEnhancedWebSocket } from '@/lib/realtime/useEnhancedWebSocket';
 import type {
   TaskStatusChangedPayload,

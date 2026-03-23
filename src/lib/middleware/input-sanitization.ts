@@ -10,7 +10,6 @@
  * - Command injection prevention
  */
 
-import DOMPurify from 'isomorphic-dompurify';
 
 /**
  * Sanitization options

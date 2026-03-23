@@ -2,7 +2,7 @@
  * A2A Message Queue - Priority-based message queuing system
  */
 
-import { v4 as uuidv4 } from 'uuid';
+
 import { QueueMessage, MessageQueue, TaskPriority, QueueConfig, QueueEvent } from './types';
 
 export interface QueueListener {

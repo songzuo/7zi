@@ -8,7 +8,6 @@ import { logger } from '@/lib/logger';
 import { ExportFormat, ExportOptions, ImportOptions } from './types';
 import fs from 'fs/promises';
 import path from 'path';
-import { v4 as uuidv4 } from 'uuid';
 
 const EXPORT_DIR = path.join(process.cwd(), 'exports');
 

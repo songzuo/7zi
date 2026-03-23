@@ -3,7 +3,6 @@
  */
 
 import { Task, Message, Artifact, TaskState, TaskStatus } from './types';
-import { v4 as uuidv4 } from 'uuid';
 
 export interface TaskWithPriority extends Task {
   priority: 'low' | 'normal' | 'high' | 'critical';

@@ -43,7 +43,7 @@ describe('/api/auth/login', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(loginUser).mockResolvedValue(mockLoginResponse);
+    loginUser.mockResolvedValue(mockLoginResponse);
   });
 
   afterEach(() => {
@@ -71,7 +71,7 @@ describe('/api/auth/login', () => {
       expect(data.data.token).toBeDefined();
       expect(data.data.refreshToken).toBeDefined();
       expect(data.data.expiresAt).toBeDefined();
-      expect(vi.mocked(loginUser)).toHaveBeenCalledWith({
+      expect(loginUser).toHaveBeenCalledWith({
         email: testUser.email,
         password: testUser.password,
         rememberMe: undefined, // Not provided, so undefined
@@ -93,7 +93,7 @@ describe('/api/auth/login', () => {
 
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
-      expect(vi.mocked(loginUser)).toHaveBeenCalledWith({
+      expect(loginUser).toHaveBeenCalledWith({
         email: testUser.email,
         password: testUser.password,
         rememberMe: true,
@@ -267,7 +267,7 @@ describe('/api/auth/login', () => {
 
   describe('POST /api/auth/login - Authentication errors', () => {
     it('should reject login with wrong email', async () => {
-      vi.mocked(loginUser).mockResolvedValue({
+      loginUser.mockResolvedValue({
         success: false,
         error: 'Invalid email or password',
       });
@@ -290,7 +290,7 @@ describe('/api/auth/login', () => {
     });
 
     it('should reject login with wrong password', async () => {
-      vi.mocked(loginUser).mockResolvedValue({
+      loginUser.mockResolvedValue({
         success: false,
         error: 'Invalid email or password',
       });
@@ -312,7 +312,7 @@ describe('/api/auth/login', () => {
     });
 
     it('should reject login for inactive account', async () => {
-      vi.mocked(loginUser).mockResolvedValue({
+      loginUser.mockResolvedValue({
         success: false,
         error: 'Account is inactive',
       });
@@ -333,7 +333,7 @@ describe('/api/auth/login', () => {
     });
 
     it('should reject login for suspended account', async () => {
-      vi.mocked(loginUser).mockResolvedValue({
+      loginUser.mockResolvedValue({
         success: false,
         error: 'Account is suspended',
       });
@@ -356,7 +356,7 @@ describe('/api/auth/login', () => {
 
   describe('POST /api/auth/login - Error handling', () => {
     it('should handle service errors gracefully', async () => {
-      vi.mocked(loginUser).mockRejectedValue(new Error('Database connection failed'));
+      loginUser.mockRejectedValue(new Error('Database connection failed'));
 
       const request = createMockRequest('http://localhost:3000/api/auth/login', {
         method: 'POST',
@@ -509,7 +509,7 @@ describe('/api/auth/login', () => {
 
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
-      expect(vi.mocked(loginUser)).toHaveBeenCalledWith(
+      expect(loginUser).toHaveBeenCalledWith(
         expect.objectContaining({ rememberMe: true })
       );
     });

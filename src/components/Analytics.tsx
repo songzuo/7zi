@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+
 import { initWebVitalsMonitoring } from "@/lib/monitoring/web-vitals";
 import { initPerformanceOptimizations } from "@/lib/performance-optimization";
 import { initLCPOptimizations } from "@/lib/lcp-optimization";

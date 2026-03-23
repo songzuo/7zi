@@ -5,18 +5,12 @@
  * 使用统一的错误处理系统
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { loginUser } from '@/lib/auth/service-unified';
 import { logger } from '@/lib/logger';
-import {
-  createUnifiedErrorResponse,
-  createUnifiedSuccessResponse,
-  createValidationErrorResponse,
-  withUnifiedErrorHandling,
-} from '@/lib/errors/index';
+import { createUnifiedSuccessResponse, createValidationErrorResponse, withUnifiedErrorHandling,  } from '@/lib/errors/index';
 import { validateEmail, setAuthCookies } from '@/lib/api/utils';
-import { logRequestStart, logRequestComplete, logRequestError, logAuthError, sanitizeUrlForLogging } from '@/lib/api/api-logger';
-
+import { logRequestStart, logRequestComplete, logAuthError, sanitizeUrlForLogging } from '@/lib/api/api-logger';
 /**
  * Login endpoint
  *

@@ -203,7 +203,7 @@ describe('Performance Metrics Module', () => {
 
   describe('flushMetrics', () => {
     it('should send queued metrics to API', async () => {
-      vi.mocked(fetch).mockResolvedValueOnce({
+      fetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
       } as Response);
@@ -235,7 +235,7 @@ describe('Performance Metrics Module', () => {
     });
 
     it('should log success when metrics are sent', async () => {
-      vi.mocked(fetch).mockResolvedValueOnce({
+      fetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
       } as Response);
@@ -254,7 +254,7 @@ describe('Performance Metrics Module', () => {
     });
 
     it('should log warning when API call fails', async () => {
-      vi.mocked(fetch).mockResolvedValueOnce({
+      fetch.mockResolvedValueOnce({
         ok: false,
         status: 500,
       } as Response);
@@ -273,7 +273,7 @@ describe('Performance Metrics Module', () => {
     });
 
     it('should log error on network failure', async () => {
-      vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'));
+      fetch.mockRejectedValueOnce(new Error('Network error'));
 
       const mockLogger = require('@/lib/logger').logger;
 
@@ -289,7 +289,7 @@ describe('Performance Metrics Module', () => {
     });
 
     it('should re-queue metrics on error (up to limit)', async () => {
-      vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'));
+      fetch.mockRejectedValueOnce(new Error('Network error'));
 
       queueMetric('LCP', 2500, 'good');
       await flushMetrics();
@@ -306,7 +306,7 @@ describe('Performance Metrics Module', () => {
         json: async () => ({ success: true }),
       };
 
-      vi.mocked(fetch).mockResolvedValueOnce(mockResponse as unknown as Response);
+      fetch.mockResolvedValueOnce(mockResponse as unknown as Response);
 
       queueMetric('Test', 100, 'good');
       await flushMetrics();
@@ -330,7 +330,7 @@ describe('Performance Metrics Module', () => {
     });
 
     it('should flush metrics on beforeunload', async () => {
-      vi.mocked(fetch).mockResolvedValueOnce({
+      fetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
       } as Response);
@@ -354,7 +354,7 @@ describe('Performance Metrics Module', () => {
     });
 
     it('should flush metrics on visibility change to hidden', async () => {
-      vi.mocked(fetch).mockResolvedValueOnce({
+      fetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
       } as Response);
@@ -629,7 +629,7 @@ describe('Performance Metrics Module', () => {
 
   describe('Error Handling', () => {
     it('should handle fetch errors gracefully', async () => {
-      vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'));
+      fetch.mockRejectedValueOnce(new Error('Network error'));
 
       const mockLogger = require('@/lib/logger').logger;
 

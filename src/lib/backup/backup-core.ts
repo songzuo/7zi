@@ -8,7 +8,7 @@ import { logger } from '@/lib/logger';
 import { createHash } from 'crypto';
 import fs from 'fs/promises';
 import path from 'path';
-import { v4 as uuidv4 } from 'uuid';
+
 import {
   BackupMetadata,
   BackupStatus,
@@ -21,7 +21,6 @@ import {
 } from './types';
 import { compressBackup, decompressBackup } from './compression';
 import { encryptBackup, decryptBackup } from './encryption';
-import { createSuccessResponse, createErrorResponse } from '@/lib/api/utils';
 
 const BACKUP_DIR = path.join(process.cwd(), 'backups');
 const EVENTS_FILE = path.join(BACKUP_DIR, 'events.json');

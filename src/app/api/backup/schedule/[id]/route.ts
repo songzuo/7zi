@@ -6,13 +6,12 @@
  * DELETE /api/backup/schedule/[id] - Cancel a schedule
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { logger } from '@/lib/logger';
 import { withUserAuth, RBACUserContext } from '@/lib/auth/middleware-rbac';
 import { BackupManager } from '@/lib/backup/manager';
 import { createSuccessResponse } from '@/lib/api/utils';
-import { createBadRequestError, createNotFoundError, createErrorResponse } from '@/lib/api/error-handler';
-
+import { createNotFoundError, createErrorResponse } from '@/lib/api/error-handler';
 /**
  * PATCH /api/backup/schedule/[id]
  * Update a backup schedule
