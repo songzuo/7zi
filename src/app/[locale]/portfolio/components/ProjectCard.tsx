@@ -1,5 +1,3 @@
-'use client';
-
 import Image from 'next/image';
 import { Link } from '@/i18n/routing';
 import { Project, ProjectCategory } from '../data';
