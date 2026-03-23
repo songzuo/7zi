@@ -42,10 +42,9 @@ import {
 import { logger } from '../logger';
 import {
   UnifiedAppError,
-  UnifiedErrorType,
   isUnifiedError,
 } from '../errors/unified-error';
-import { ErrorCodes } from '../errors/unified-types';
+import { ErrorCodes, UnifiedErrorType } from '../errors/unified-types';
 
 /**
  * Get JWT secret

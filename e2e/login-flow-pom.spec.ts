@@ -4,8 +4,8 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { LoginPage, DashboardPage, NavigationPage } from '../pages';
-import { testData } from '../fixtures/test-data';
+import { LoginPage, DashboardPage, NavigationPage } from './pages';
+import { testData } from './fixtures/test-data';
 
 test.describe('Login Flow - POM', () => {
   let loginPage: LoginPage;

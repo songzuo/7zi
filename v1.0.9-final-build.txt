@@ -1,0 +1,37 @@
+
+> 7zi-frontend@1.0.9 build
+> next build
+
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /root/package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * /root/.openclaw/workspace/7zi-project/pnpm-lock.yaml
+
+Warning: Custom Cache-Control headers detected for the following routes:
+  - /_next/static/:path*
+
+Setting a custom Cache-Control header can break Next.js development behavior.
+▲ Next.js 16.2.1 (Turbopack)
+- Environments: .env.production
+- Experiments (use with caution):
+  ✓ optimizeCss
+  · optimizePackageImports
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 43s
+  Running TypeScript ...
+Failed to type check.
+
+./src/test/vi-mocks.ts:227:76
+Type error: This regular expression flag is only available when targeting 'es2018' or later.
+
+  [90m225 |[0m
+  [90m226 |[0m   [90m// Extract WHERE clause for condition parsing[0m
+[31m[1m>[0m [90m227 |[0m   [36mconst[0m whereMatch = sql.match([35m/WHERE\s+(.+?)(?:\s+ORDER\s+BY|\s+LIMIT|$)/is[0m);
+  [90m    |[0m                                                                            [31m[1m^[0m
+  [90m228 |[0m   [36mconst[0m whereClause = whereMatch ? whereMatch[[35m1[0m].trim() : [32m''[0m;
+  [90m229 |[0m
+  [90m230 |[0m   [90m// Check for OR conditions in LIKE queries (special case for search)[0m
+Next.js build worker exited with code: 1 and signal: null

@@ -1,0 +1,21 @@
+// Lazy Loading Components
+export {
+  LazyAIChat,
+  LazyProjectDashboard,
+  LazyGitHubActivity,
+  LazyTaskBoard,
+  LazyActivityLog,
+  LazyRealtimeDashboard,
+  LazyTeamActivityTracker,
+  LazyAnalyticsDashboard,
+  LazyMetricsDashboard,
+  LazyKnowledgeLatticeScene,
+  LazyMeetingRoom,
+  LazyDataExportImport,
+  LazyGlobalSearch,
+  LazyAnimatedProgressBar,
+  LazyUserSettings,
+  LazyFeedbackManagement,
+  LazyEnhancedFeedbackModal,
+  LazyLazyLoadImage,
+} from './LazyComponents';

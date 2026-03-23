@@ -16,7 +16,7 @@
  * console.log(userError.action);  // "去登录"
  */
 
-import { ErrorType } from './error-handler';
+import { ErrorType } from './error-types';
 
 /**
  * User-friendly error response

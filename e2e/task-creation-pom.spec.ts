@@ -4,7 +4,7 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { DashboardPage, TaskCreationPage } from '../pages';
+import { DashboardPage, TaskCreationPage } from './pages';
 
 test.describe('Task Creation Flow - POM', () => {
   let dashboardPage: DashboardPage;

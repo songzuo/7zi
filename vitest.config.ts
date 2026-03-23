@@ -16,6 +16,7 @@ export default defineConfig({
     vmForks: {
       singleFork: true, // 使用单进程执行以减少内存占用和构建阻塞
       isolate: true,    // 确保 fork 之间的隔离
+      execArgv: ['--max-old-space-size=2048'], // 限制 Node.js 内存使用
     },
   },
 
@@ -58,15 +59,6 @@ export default defineConfig({
 
     // 限制工作线程的生命周期
     workerThreads: false, // 禁用 worker threads，使用 forks
-
-    // 配置工作进程重启策略
-    poolOptions: {
-      vmForks: {
-        singleFork: true,
-        isolate: true,
-        execArgv: ['--max-old-space-size=2048'], // 限制 Node.js 内存使用
-      },
-    },
 
     // 覆盖率配置
     coverage: {

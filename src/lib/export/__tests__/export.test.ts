@@ -820,7 +820,7 @@ describe('增强字段函数', () => {
 // ============================================================================
 
 describe('增强导出结果', () => {
-  it('应该返回行数和列数', () => {
+  it('应该返回行数和列数', async () => {
     const exporter = new DataExporter({
       filename: 'test',
       format: 'xlsx',
@@ -832,7 +832,7 @@ describe('增强导出结果', () => {
     expect(result.columnCount).toBe(6);
   });
 
-  it('应该支持数据验证', () => {
+  it('应该支持数据验证', async () => {
     const exporter = new DataExporter({
       filename: 'test',
       format: 'csv',
@@ -851,7 +851,7 @@ describe('增强导出结果', () => {
     expect(result.success).toBe(true);
   });
 
-  it('应该收集验证错误', () => {
+  it('应该收集验证错误', async () => {
     const invalidData: TestUser[] = [
       { id: 1, name: null as unknown as string, email: '', active: true, createdAt: '', tags: [] },
     ];

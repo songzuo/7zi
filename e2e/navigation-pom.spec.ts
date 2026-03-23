@@ -4,7 +4,7 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { NavigationPage } from '../pages';
+import { NavigationPage } from './pages';
 
 test.describe('Navigation Flow - POM', () => {
   let navigationPage: NavigationPage;
