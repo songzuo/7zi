@@ -11,12 +11,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getRateLimitEnvConfig, mergeRateLimitConfig, RateLimitEnvironmentConfig } from './config';
 import { logger } from '@/lib/logger';
-import { verifyJWT } from '@/lib/auth';
+import { verifyJwtToken } from '@/lib/auth';
 
 /**
- * 限流器缓存
+ * 限流器缓存 - 存储 RateLimiter 实例
  */
 const limiterCache = new Map<string, RateLimiter>();
+
+/**
+ * 滑动窗口请求缓存 - 存储请求时间戳
+ */
+const slidingWindowCache = new Map<string, number[]>();
+
+/**
+ * 令牌桶缓存 - 存储令牌桶状态
+ */
+const tokenBucketCache = new Map<string, { tokens: number; capacity: number; lastRefill: number }>();
 
 /**
  * 限流器类
@@ -52,7 +62,7 @@ class RateLimiter {
   /**
    * 从请求中提取用户 ID
    */
-  private extractUserId(request: NextRequest): string | null {
+  private async extractUserId(request: NextRequest): Promise<string | null> {
     try {
       // 从 Authorization header 获取 token
       const authHeader = request.headers.get('authorization');
@@ -61,10 +71,10 @@ class RateLimiter {
       }
 
       const token = authHeader.substring(7);
-      const payload = verifyJWT(token);
+      const context = await verifyJwtToken(token);
 
-      if (payload && payload.userId) {
-        return String(payload.userId);
+      if (context && context.userId) {
+        return String(context.userId);
       }
 
       return null;
@@ -78,7 +88,7 @@ class RateLimiter {
    * 获取存储的请求时间戳
    */
   private getStorage(key: string): number[] {
-    const stored = limiterCache.get(key) as number[] | undefined;
+    const stored = slidingWindowCache.get(key);
     return stored || [];
   }
 
@@ -86,14 +96,14 @@ class RateLimiter {
    * 保存存储的请求时间戳
    */
   private saveStorage(key: string, data: number[]): void {
-    limiterCache.set(key, data);
+    slidingWindowCache.set(key, data);
   }
 
   /**
    * 获取令牌桶
    */
   private getTokenBucket(key: string): { tokens: number; capacity: number; lastRefill: number } {
-    const stored = limiterCache.get(key) as { tokens: number; capacity: number; lastRefill: number } | undefined;
+    const stored = tokenBucketCache.get(key);
     return stored || { tokens: 10, capacity: 10, lastRefill: Date.now() };
   }
 
@@ -101,7 +111,7 @@ class RateLimiter {
    * 保存令牌桶
    */
   private saveTokenBucket(key: string, bucket: { tokens: number; capacity: number; lastRefill: number }): void {
-    limiterCache.set(key, bucket);
+    tokenBucketCache.set(key, bucket);
   }
 
   /**
@@ -130,9 +140,9 @@ class RateLimiter {
   /**
    * 生成限流键
    */
-  private generateKey(request: NextRequest): string {
+  private async generateKey(request: NextRequest): Promise<string> {
     const ip = this.extractIP(request);
-    const userId = this.extractUserId(request);
+    const userId = await this.extractUserId(request);
     const limitBy = this.config.limitBy;
     const safePath = this.path.replace(/\//g, ':');
     const algorithmPrefix = this.algorithm === 'sliding-window' ? 'sw' : 'tb';
@@ -161,7 +171,7 @@ class RateLimiter {
     retryAfter: number;
     algorithm: string;
   }> {
-    const key = this.generateKey(request);
+    const key = await this.generateKey(request);
     const now = Date.now();
     const windowMs = this.config.windowMs;
     const windowStart = now - windowMs;

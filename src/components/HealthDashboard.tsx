@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
-import { useTheme } from '@/contexts/SettingsContext';
+import { useDarkMode } from '@/stores/preferencesStore';
 import { performanceCollector } from '@/lib/monitoring/performance.monitor';
 import { useRealtimeNotificationStore } from '@/lib/realtime/store';
 
@@ -44,7 +44,7 @@ export function HealthDashboard({
   className = '',
   refreshInterval = 5000,
 }: HealthDashboardProps) {
-  const { isDark } = useTheme();
+  const isDark = useDarkMode();
   const { isConnected } = useRealtimeNotificationStore();
 
   const [apiLatency, setApiLatency] = useState<number>(0);

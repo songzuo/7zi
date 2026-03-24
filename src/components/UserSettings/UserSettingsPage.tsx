@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useCallback, useEffect, memo } from 'react';
-import { useTheme } from '@/components/ThemeProvider';
-import { useSettings } from '@/contexts/SettingsContext';
+import { useTheme } from '@/stores/preferencesStore';
+import { useNotificationPreferences as useStoreNotificationPreferences } from '@/stores/preferencesStore';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 // Import types
@@ -73,7 +73,7 @@ interface UserSettingsPageProps {
 
 export const UserSettingsPage = memo(function UserSettingsPage({ className = '' }: UserSettingsPageProps) {
   const { theme, setTheme } = useTheme();
-  const { setNotifications: setAppNotifications } = useSettings();
+  const { setNotifications: setStoreNotifications } = useStoreNotificationPreferences();
 
   // Local storage for user profile
   const [storedProfile, setStoredProfile] = useLocalStorage<UserProfile>('user-profile', {
@@ -207,11 +207,7 @@ export const UserSettingsPage = memo(function UserSettingsPage({ className = '' 
 
   const handleNotificationChange = useCallback((key: keyof NotificationPreferences) => {
     setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
-    // Sync with app settings
-    if (key === 'pushNotifications') {
-      setAppNotifications({ push: !notifications.pushNotifications });
-    }
-  }, [notifications.pushNotifications, setAppNotifications, setNotifications]);
+  }, [setNotifications]);
 
   const handlePrivacyChange = useCallback((key: keyof PrivacySettings, value?: boolean | string) => {
     setPrivacy(prev => ({

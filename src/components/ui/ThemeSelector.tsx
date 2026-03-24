@@ -16,7 +16,7 @@
  */
 
 import React, { useState } from 'react';
-import { useThemeEnhanced } from '@/hooks/useThemeEnhanced';
+import { useTheme } from '@/stores/preferencesStore';
 
 interface ThemeOption {
   value: 'light' | 'dark' | 'system';
@@ -79,13 +79,13 @@ interface ThemeSelectorProps {
 }
 
 export function ThemeSelector({ className = '', variant = 'full' }: ThemeSelectorProps) {
-  const { theme, setTheme, systemPrefersDark } = useThemeEnhanced();
+  const { theme, setTheme, isDark } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
 
   if (variant === 'compact') {
     return (
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => setTheme(isDark ? 'light' : 'dark')}
         className={`
           relative w-12 h-6 rounded-full
           bg-zinc-200 dark:bg-zinc-700
@@ -103,7 +103,7 @@ export function ThemeSelector({ className = '', variant = 'full' }: ThemeSelecto
             from-yellow-400 to-orange-500
             dark:from-cyan-400 dark:to-blue-500
             transition-transform duration-300 shadow-md
-            ${systemPrefersDark ? 'translate-x-6' : 'translate-x-0'}
+            ${isDark ? 'translate-x-6' : 'translate-x-0'}
           `}
         />
         <span className="absolute left-1.5 top-1.5 text-[10px] transition-opacity duration-300 dark:opacity-0">
@@ -136,7 +136,7 @@ export function ThemeSelector({ className = '', variant = 'full' }: ThemeSelecto
         <span className="text-lg">
           {theme === 'light' && '☀️'}
           {theme === 'dark' && '🌙'}
-          {theme === 'system' && (systemPrefersDark ? '🌙' : '☀️')}
+          {theme === 'system' && (isDark ? '🌙' : '☀️')}
         </span>
         <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
           {THEME_OPTIONS.find(opt => opt.value === theme)?.label}
@@ -233,11 +233,11 @@ export function ThemeSelector({ className = '', variant = 'full' }: ThemeSelecto
  * Compact theme toggle button that cycles through themes
  */
 export function ThemeToggleCycle({ className = '' }: { className?: string }) {
-  const { cycleTheme, theme, isDark } = useThemeEnhanced();
+  const { theme, isDark, toggleTheme } = useTheme();
 
   return (
     <button
-      onClick={cycleTheme}
+      onClick={toggleTheme}
       className={`
         relative w-12 h-6 rounded-full
         bg-zinc-200 dark:bg-zinc-700
@@ -246,7 +246,7 @@ export function ThemeToggleCycle({ className = '' }: { className?: string }) {
         focus:ring-offset-2 dark:focus:ring-offset-zinc-900
         ${className}
       `}
-      aria-label={`Current theme: ${theme}. Click to cycle.`}
+      aria-label={`Current theme: ${theme}. Click to toggle.`}
     >
       <span
         className={`

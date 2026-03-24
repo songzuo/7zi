@@ -310,7 +310,7 @@ describe('Dashboard Store', () => {
 
       mockFetch.mockResolvedValue({
         ok: true,
-        json: async () => ({}),
+        json: async () => [],
       });
 
       setConfig('test-owner', 'test-repo');
@@ -339,7 +339,7 @@ describe('Dashboard Store', () => {
 
       mockFetch.mockResolvedValue({
         ok: true,
-        json: async () => ({}),
+        json: async () => [],
       });
 
       setConfig('test-owner', 'test-repo');
@@ -493,11 +493,13 @@ describe('Dashboard Store', () => {
 
       setConfig('test-owner', 'test-repo');
 
-      await expect(fetchAllData()).rejects.toThrow();
+      await fetchAllData();
 
       const state = useDashboardStore.getState();
 
-      expect(state.error).not.toBeNull();
+      // The store catches errors and sets them in state
+      expect(state.error).toBe('API Error');
+      expect(state.isLoading).toBe(false);
     });
 
     it('should handle network errors gracefully', async () => {
@@ -507,7 +509,13 @@ describe('Dashboard Store', () => {
 
       setConfig('test-owner', 'test-repo');
 
-      await expect(fetchAllData()).rejects.toThrow();
+      await fetchAllData();
+
+      const state = useDashboardStore.getState();
+
+      // The store catches errors and sets them in state
+      expect(state.error).toBe('Failed to fetch');
+      expect(state.isLoading).toBe(false);
     });
   });
 
@@ -517,7 +525,7 @@ describe('Dashboard Store', () => {
 
       mockFetch.mockResolvedValue({
         ok: true,
-        json: async () => ({}),
+        json: async () => [],
       });
 
       setConfig('test-owner', 'test-repo');
@@ -532,7 +540,7 @@ describe('Dashboard Store', () => {
 
       mockFetch.mockResolvedValue({
         ok: true,
-        json: async () => ({}),
+        json: async () => [],
       });
 
       setConfig('test-owner', 'test-repo', 'test-token');

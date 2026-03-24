@@ -28,15 +28,19 @@ Object.defineProperty(window, 'localStorage', {
 });
 
 describe('WalletStore', () => {
+  let store: ReturnType<typeof useWalletStore.getState>;
+
   beforeEach(() => {
     // 重置 store
     useWalletStore.getState().reset();
     localStorageMock.clear();
+    // 获取最新的 store 引用
+    store = useWalletStore.getState();
   });
 
   describe('initializeWallets', () => {
     it('应该正确初始化多个智能体钱包', () => {
-      const { initializeWallets, wallets } = useWalletStore.getState();
+      const { initializeWallets } = useWalletStore.getState();
 
       initializeWallets([
         { id: 'agent-1', name: 'Executor', initialBalance: 100 },
@@ -44,6 +48,8 @@ describe('WalletStore', () => {
         { id: 'agent-3', name: 'Architect' }, // 使用默认余额
       ]);
 
+      // 获取更新后的状态
+      const { wallets } = useWalletStore.getState();
       const walletList = Array.from(wallets.values());
       expect(walletList).toHaveLength(3);
       expect(walletList[0].balance).toBe(100);
@@ -52,13 +58,15 @@ describe('WalletStore', () => {
     });
 
     it('应该设置第一个智能体为当前钱包', () => {
-      const { initializeWallets, currentWalletId } = useWalletStore.getState();
+      const { initializeWallets } = useWalletStore.getState();
 
       initializeWallets([
         { id: 'agent-1', name: 'Executor' },
         { id: 'agent-2', name: 'Consultant' },
       ]);
 
+      // 获取更新后的状态
+      const { currentWalletId } = useWalletStore.getState();
       expect(currentWalletId).toBe('agent-1');
     });
   });
@@ -93,7 +101,7 @@ describe('WalletStore', () => {
     });
 
     it('应该成功完成转账', async () => {
-      const { transfer, getWallet, transactions } = useWalletStore.getState();
+      const { transfer, getWallet } = useWalletStore.getState();
 
       const result = await transfer('agent-1', {
         toAgentId: 'agent-2',
@@ -106,8 +114,11 @@ describe('WalletStore', () => {
       expect(result.transaction?.amount).toBe(100);
       expect(result.transaction?.memo).toBe('测试转账');
 
-      const fromWallet = getWallet('agent-1');
-      const toWallet = getWallet('agent-2');
+      // 获取更新后的状态
+      const updatedState = useWalletStore.getState();
+      const fromWallet = updatedState.getWallet('agent-1');
+      const toWallet = updatedState.getWallet('agent-2');
+      const transactions = updatedState.transactions;
 
       // 扣除 100 + 手续费(0.1% = 1)
       expect(fromWallet?.balance).toBe(899);

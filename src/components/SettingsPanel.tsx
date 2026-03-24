@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useSettings } from '@/contexts/SettingsContext';
+import { usePreferencesStore, useTheme, useNotificationPreferences } from '@/stores/preferencesStore';
 import { locales, type Locale } from '@/i18n/config';
 import { useLocale } from 'next-intl';
 import { useRouter, usePathname } from '@/i18n/routing';
@@ -21,8 +21,9 @@ interface SettingsPanelProps {
 }
 
 export function SettingsPanel({ onClose, className = '' }: SettingsPanelProps) {
-  const { settings, setNotifications, resetSettings, setTheme } = useSettings();
-  const theme = settings.theme;
+  const { theme, setTheme } = useTheme();
+  const { notifications, setNotifications } = useNotificationPreferences();
+  const resetSettings = usePreferencesStore((state) => state.resetSettings);
   const currentLocale = useLocale() as Locale;
   const router = useRouter();
   const pathname = usePathname();
@@ -42,9 +43,9 @@ export function SettingsPanel({ onClose, className = '' }: SettingsPanelProps) {
   };
 
   // 切换通知选项
-  const handleNotificationToggle = (key: keyof typeof settings.notifications) => {
+  const handleNotificationToggle = (key: keyof typeof notifications) => {
     setNotifications({
-      [key]: !settings.notifications[key],
+      [key]: !notifications[key],
     });
   };
 
@@ -154,33 +155,33 @@ export function SettingsPanel({ onClose, className = '' }: SettingsPanelProps) {
                 </div>
               </div>
               <ToggleSwitch
-                checked={settings.notifications.enabled}
+                checked={notifications.enabled}
                 onChange={() => handleNotificationToggle('enabled')}
               />
             </div>
 
             {/* 通知子选项 */}
-            {settings.notifications.enabled && (
+            {notifications.enabled && (
               <div className="ml-4 pl-4 border-l-2 border-zinc-200 dark:border-zinc-700 space-y-2">
                 <NotificationToggle
                   icon="🔊"
                   label="声音"
                   description="播放通知声音"
-                  checked={settings.notifications.sound}
+                  checked={notifications.sound}
                   onChange={() => handleNotificationToggle('sound')}
                 />
                 <NotificationToggle
                   icon="📧"
                   label="邮件"
                   description="发送邮件通知"
-                  checked={settings.notifications.email}
+                  checked={notifications.email}
                   onChange={() => handleNotificationToggle('email')}
                 />
                 <NotificationToggle
                   icon="📲"
                   label="推送"
                   description="浏览器推送通知"
-                  checked={settings.notifications.push}
+                  checked={notifications.push}
                   onChange={() => handleNotificationToggle('push')}
                 />
               </div>

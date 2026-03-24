@@ -436,13 +436,13 @@ export const useFilterStore = create<FilterStoreState>()(
               const data = JSON.parse(str);
               // 将数组转回 Map
               if (data.state?.activeFilters) {
-                data.state.activeFilters = new Map(data.state.activeFilters);
+                data.state.activeFilters = new Map(data.state.activeFilters as [string, FiltersState][]);
               }
               if (data.state?.activeSorts) {
-                data.state.activeSorts = new Map(data.state.activeSorts);
+                data.state.activeSorts = new Map(data.state.activeSorts as [string, SortCondition | null][]);
               }
               if (data.state?.activePagination) {
-                data.state.activePagination = new Map(data.state.activePagination);
+                data.state.activePagination = new Map(data.state.activePagination as [string, PaginationState][]);
               }
               return data;
             } catch {
@@ -454,13 +454,13 @@ export const useFilterStore = create<FilterStoreState>()(
             // 将 Map 转为数组存储
             const data = { ...value };
             if (data.state?.activeFilters instanceof Map) {
-              data.state.activeFilters = Array.from(data.state.activeFilters.entries());
+              (data.state as any).activeFilters = Array.from(data.state.activeFilters.entries());
             }
             if (data.state?.activeSorts instanceof Map) {
-              data.state.activeSorts = Array.from(data.state.activeSorts.entries());
+              (data.state as any).activeSorts = Array.from(data.state.activeSorts.entries());
             }
             if (data.state?.activePagination instanceof Map) {
-              data.state.activePagination = Array.from(data.state.activePagination.entries());
+              (data.state as any).activePagination = Array.from(data.state.activePagination.entries());
             }
             try {
               localStorage.setItem(name, JSON.stringify(data));

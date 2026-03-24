@@ -252,7 +252,6 @@ export const useUIStore = create<UIState>()(
         openModal: (modal) => {
           const newModal: Modal = {
             ...DEFAULT_MODAL,
-            content: modal.content,
             ...modal,
             id: generateId('modal'),
             isOpen: true,

@@ -52,7 +52,6 @@
  */
 
 import React, { useEffect } from 'react';
-import { SettingsProvider } from '@/contexts/SettingsContext';
 import { GlobalLoadingProvider } from '@/hooks/useGlobalLoading';
 import { setupBrowserErrorHandlers } from '@/lib/global-error-handlers';
 import { initWebVitalsMonitoring } from '@/lib/monitoring/web-vitals';
@@ -80,10 +79,8 @@ export function ClientProviders({ children }: ClientProvidersProps) {
   }, []);
 
   return (
-    <SettingsProvider>
-      <GlobalLoadingProvider>
-        {children}
-      </GlobalLoadingProvider>
-    </SettingsProvider>
+    <GlobalLoadingProvider>
+      {children}
+    </GlobalLoadingProvider>
   );
 }
