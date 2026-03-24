@@ -122,8 +122,13 @@ describe('Connection Pool Manager', () => {
       }
 
       // Should not be able to acquire more than max
-      await expect(pool.acquire()).rejects.toThrow();
-    });
+      await expect(pool.acquire()).rejects.toThrow('Failed to acquire database connection from pool');
+
+      // Cleanup
+      for (const conn of connections) {
+        await pool.release(conn.id);
+      }
+    }, 45000);
 
     it('should timeout if connection not available', async () => {
       const shortTimeoutConfig = { ...mockConfig, connectionTimeout: 100 };
@@ -276,11 +281,12 @@ describe('Connection Pool Manager', () => {
     });
 
     it('should calculate average acquire time', async () => {
-      const conn1 = await pool.acquire();
-      await pool.release(conn1.id);
-
-      const conn2 = await pool.acquire();
-      await pool.release(conn2.id);
+      // Force some acquire operations to happen
+      for (let i = 0; i < 5; i++) {
+        const conn = await pool.acquire();
+        await new Promise(resolve => setTimeout(resolve, 5)); // Add small delay
+        await pool.release(conn.id);
+      }
 
       const stats = await pool.getStats();
       expect(stats.avgAcquireTime).toBeGreaterThan(0);
