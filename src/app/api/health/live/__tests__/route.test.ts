@@ -24,9 +24,10 @@ describe('GET /api/health/live', () => {
 
   it('should include success status', async () => {
     const response = await GET();
-    const data = response.json;
+    const data = await response.json();
 
     expect(data).toHaveProperty('success');
     expect(data.success).toBe(true);
+    expect(data.status).toBe('alive');
   });
 });

@@ -11,6 +11,8 @@
  */
 
 import { getRedisClient, redisCommand } from '../redis/client';
+import { getMemoryStore } from './memory-store';
+import { shouldUseRedis, getCachedRedisAvailability } from './storage-factory';
 import { logger } from '@/lib/logger';
 
 export interface TokenBucketResult {
@@ -18,6 +20,7 @@ export interface TokenBucketResult {
   remaining: number;
   resetTime: number;
   tokensAvailable: number;
+  storage: 'redis' | 'memory';
 }
 
 export interface TokenBucketConfig {
@@ -25,6 +28,7 @@ export interface TokenBucketConfig {
   capacity: number; // Maximum tokens in bucket (burst limit)
   refillRate: number; // Tokens to add per second
   window: number; // Time window in seconds (for reset time calculation)
+  forceMemory?: boolean; // Force memory storage
 }
 
 /**
@@ -48,94 +52,128 @@ interface TokenBucketState {
 export async function checkTokenBucket(
   config: TokenBucketConfig
 ): Promise<TokenBucketResult> {
-  const { key, capacity, refillRate, window } = config;
+  const { key, capacity, refillRate, window, forceMemory } = config;
   const now = Date.now();
 
-  try {
-    const client = getRedisClient();
+  // 检查是否使用内存存储
+  const useMemory = forceMemory || !shouldUseRedis();
+  const redisAvailable = await getCachedRedisAvailability();
 
-    if (!client) {
-      logger.warn('Redis not available for token bucket check');
-      return {
-        allowed: true,
-        remaining: capacity - 1,
-        resetTime: now + window * 1000,
-        tokensAvailable: capacity,
-      };
+  // 如果应该使用 Redis 且 Redis 可用
+  if (!useMemory && redisAvailable) {
+    try {
+      return await checkTokenBucketRedis(key, capacity, refillRate, window, now);
+    } catch (error) {
+      logger.error('Redis token bucket check failed, falling back to memory', { error, key, capacity, refillRate });
+      // Fall back to memory storage
+      return checkTokenBucketMemory(key, capacity, refillRate, window, now);
     }
-
-    // Lua script for atomic token bucket operations
-    const luaScript = `
-      local key = KEYS[1]
-      local now = tonumber(ARGV[1])
-      local capacity = tonumber(ARGV[2])
-      local refillRate = tonumber(ARGV[3])
-
-      -- Get current state
-      local data = redis.call('HMGET', key, 'tokens', 'lastRefill')
-      local tokens = tonumber(data[1])
-      local lastRefill = tonumber(data[2])
-
-      -- Initialize if first request
-      if tokens == nil then
-        tokens = capacity
-        lastRefill = now
-      end
-
-      -- Refill tokens based on elapsed time
-      local elapsed = (now - lastRefill) / 1000
-      if elapsed > 0 then
-        local newTokens = math.min(capacity, tokens + elapsed * refillRate)
-        tokens = newTokens
-        lastRefill = now
-      end
-
-      -- Check if we have tokens available
-      local allowed = false
-      if tokens >= 1 then
-        tokens = tokens - 1
-        allowed = true
-      end
-
-      -- Update state
-      redis.call('HMSET', key, 'tokens', tokens, 'lastRefill', lastRefill)
-      redis.call('EXPIRE', key, 3600)
-
-      -- Return results
-      return {allowed, tokens, lastRefill}
-    `;
-
-    // Execute Lua script
-    const result = await client.eval(
-      luaScript,
-      1,
-      key,
-      now,
-      capacity,
-      refillRate
-    );
-
-    const [allowed, tokens, lastRefill] = result as [boolean, number, number];
-    const remaining = Math.max(0, Math.floor(tokens));
-    const resetTime = now + window * 1000;
-
-    return {
-      allowed,
-      remaining,
-      resetTime,
-      tokensAvailable: remaining,
-    };
-  } catch (error) {
-    logger.error('Token bucket check failed', { error, key, capacity, refillRate });
-
-    // Fail open - allow request if Redis fails
-    return {
-      allowed: true,
-      remaining: capacity - 1,
-      resetTime: now + window * 1000,
-      tokensAvailable: capacity,
-    };
   }
+
+  // 使用内存存储
+  return checkTokenBucketMemory(key, capacity, refillRate, window, now);
+}
+
+/**
+ * 使用 Redis 检查令牌桶
+ */
+async function checkTokenBucketRedis(
+  key: string,
+  capacity: number,
+  refillRate: number,
+  window: number,
+  now: number
+): Promise<TokenBucketResult> {
+  const client = getRedisClient();
+
+  if (!client) {
+    throw new Error('Redis client not available');
+  }
+
+  // Lua script for atomic token bucket operations
+  const luaScript = `
+    local key = KEYS[1]
+    local now = tonumber(ARGV[1])
+    local capacity = tonumber(ARGV[2])
+    local refillRate = tonumber(ARGV[3])
+
+    -- Get current state
+    local data = redis.call('HMGET', key, 'tokens', 'lastRefill')
+    local tokens = tonumber(data[1])
+    local lastRefill = tonumber(data[2])
+
+    -- Initialize if first request
+    if tokens == nil then
+      tokens = capacity
+      lastRefill = now
+    end
+
+    -- Refill tokens based on elapsed time
+    local elapsed = (now - lastRefill) / 1000
+    if elapsed > 0 then
+      local newTokens = math.min(capacity, tokens + elapsed * refillRate)
+      tokens = newTokens
+      lastRefill = now
+    end
+
+    -- Check if we have tokens available
+    local allowed = false
+    if tokens >= 1 then
+      tokens = tokens - 1
+      allowed = true
+    end
+
+    -- Update state
+    redis.call('HMSET', key, 'tokens', tokens, 'lastRefill', lastRefill)
+    redis.call('EXPIRE', key, 3600)
+
+    -- Return results
+    return {allowed, tokens, lastRefill}
+  `;
+
+  // Execute Lua script
+  const result = await client.eval(
+    luaScript,
+    1,
+    key,
+    now,
+    capacity,
+    refillRate
+  );
+
+  const [allowed, tokens, lastRefill] = result as [boolean, number, number];
+  const remaining = Math.max(0, Math.floor(tokens));
+  const resetTime = now + window * 1000;
+
+  return {
+    allowed,
+    remaining,
+    resetTime,
+    tokensAvailable: remaining,
+    storage: 'redis',
+  };
+}
+
+/**
+ * 使用内存检查令牌桶
+ */
+function checkTokenBucketMemory(
+  key: string,
+  capacity: number,
+  refillRate: number,
+  window: number,
+  now: number
+): TokenBucketResult {
+  const memoryStore = getMemoryStore();
+  const result = memoryStore.checkTokenBucket(key, capacity, refillRate, window);
+
+  return {
+    allowed: result.allowed,
+    remaining: result.remaining,
+    resetTime: result.resetTime,
+    tokensAvailable: result.tokensAvailable,
+    storage: 'memory',
+  };
 }
 
 /**
@@ -143,25 +181,64 @@ export async function checkTokenBucket(
  */
 export async function getTokenBucketStatus(
   key: string
-): Promise<{ tokens: number; lastRefill: number | null; capacity: number }> {
-  const result = await redisCommand(
-    async () => {
-      const client = getRedisClient();
-      if (!client) {
-        return { tokens: 0, lastRefill: null, capacity: 0 };
-      }
+): Promise<{ tokens: number; lastRefill: number | null; capacity: number; storage: 'redis' | 'memory' }> {
+  const useMemory = !shouldUseRedis();
+  const redisAvailable = await getCachedRedisAvailability();
 
-      const data = await client.hmget(key, 'tokens', 'lastRefill', 'capacity');
-      const tokens = parseFloat(data[0] || '0');
-      const lastRefill = data[1] ? parseInt(data[1]) : null;
-      const capacity = parseInt(data[2] || '0');
+  // 如果应该使用 Redis 且 Redis 可用
+  if (!useMemory && redisAvailable) {
+    try {
+      return await getTokenBucketStatusRedis(key);
+    } catch (error) {
+      logger.error('Redis token bucket status check failed, falling back to memory', { error, key });
+      // Fall back to memory storage
+      return getTokenBucketStatusMemory(key);
+    }
+  }
 
-      return { tokens, lastRefill, capacity };
-    },
-    { tokens: 0, lastRefill: null, capacity: 0 }
-  );
+  // 使用内存存储
+  return getTokenBucketStatusMemory(key);
+}
 
-  return result ?? { tokens: 0, lastRefill: null, capacity: 0 };
+/**
+ * 使用 Redis 获取令牌桶状态
+ */
+async function getTokenBucketStatusRedis(
+  key: string
+): Promise<{ tokens: number; lastRefill: number | null; capacity: number; storage: 'redis' | 'memory' }> {
+  const client = getRedisClient();
+
+  if (!client) {
+    throw new Error('Redis client not available');
+  }
+
+  const data = await client.hmget(key, 'tokens', 'lastRefill', 'capacity');
+  const tokens = parseFloat(data[0] || '0');
+  const lastRefill = data[1] ? parseInt(data[1]) : null;
+  const capacity = parseInt(data[2] || '0');
+
+  return { tokens, lastRefill, capacity, storage: 'redis' };
+}
+
+/**
+ * 使用内存获取令牌桶状态
+ */
+function getTokenBucketStatusMemory(
+  key: string
+): { tokens: number; lastRefill: number | null; capacity: number; storage: 'redis' | 'memory' } {
+  const memoryStore = getMemoryStore();
+  const status = memoryStore.getTokenBucketStatus(key);
+
+  if (!status) {
+    return { tokens: 0, lastRefill: null, capacity: 0, storage: 'memory' };
+  }
+
+  return {
+    tokens: status.tokens,
+    lastRefill: status.lastRefill,
+    capacity: status.capacity,
+    storage: 'memory',
+  };
 }
 
 /**

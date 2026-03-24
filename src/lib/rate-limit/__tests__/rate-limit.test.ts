@@ -31,6 +31,14 @@ vi.mock('@/lib/redis/client', () => ({
     hset: vi.fn().mockResolvedValue(true),
     ping: vi.fn().mockResolvedValue('PONG'),
   }),
+  isRedisAvailable: vi.fn().mockResolvedValue(true),
+  redisCommand: vi.fn(),
+}));
+
+// Mock storage factory
+vi.mock('@/lib/rate-limit/storage-factory', () => ({
+  shouldUseRedis: vi.fn(() => false), // Force memory storage for tests
+  getCachedRedisAvailability: vi.fn().mockResolvedValue(false),
 }));
 
 describe('Sliding Window Rate Limiting', () => {

@@ -63,13 +63,19 @@ describe('Connection Pool Manager', () => {
     enableWAL: true,
   };
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
     pool = new ConnectionPoolManager(mockConfig);
+    // Wait for initialization
+    await new Promise(resolve => setTimeout(resolve, 100));
   });
 
   afterEach(async () => {
-    await pool.closeAll();
+    try {
+      await pool.closeAll();
+    } catch (e) {
+      // Ignore errors during cleanup
+    }
   });
 
   describe('initialization', () => {

@@ -207,6 +207,56 @@ if (typeof window !== 'undefined') {
   });
 }
 
+// Mock logger
+vi.mock('@/lib/logger', () => ({
+  logger: {
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    fatal: vi.fn(),
+  },
+}));
+
+// Mock web-vitals
+vi.mock('web-vitals', () => ({
+  onLCP: vi.fn(),
+  onCLS: vi.fn(),
+  onTTFB: vi.fn(),
+  onFCP: vi.fn(),
+  onINP: vi.fn(),
+}));
+
+// Mock Performance API
+if (typeof performance === 'undefined') {
+  global.performance = {} as any;
+}
+
+if (!performance.mark) {
+  performance.mark = vi.fn();
+}
+if (!performance.measure) {
+  performance.measure = vi.fn();
+}
+if (!performance.clearMarks) {
+  performance.clearMarks = vi.fn();
+}
+if (!performance.clearMeasures) {
+  performance.clearMeasures = vi.fn();
+}
+if (!performance.getEntriesByType) {
+  performance.getEntriesByType = vi.fn(() => []);
+}
+if (!performance.getEntries) {
+  performance.getEntries = vi.fn(() => []);
+}
+
+// Mock requestIdleCallback
+if (typeof window !== 'undefined' && !window.requestIdleCallback) {
+  window.requestIdleCallback = vi.fn((cb: any) => setTimeout(cb, 0)) as any;
+  window.cancelIdleCallback = vi.fn(clearTimeout) as any;
+}
+
 // Suppress console warnings for React 18 strict mode
 const originalError = console.error;
 beforeAll(() => {

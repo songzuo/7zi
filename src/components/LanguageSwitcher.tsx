@@ -6,9 +6,13 @@ import { locales, type Locale } from '@/i18n/config';
 import { useUserPreferences } from '@/lib/user-preferences';
 import type { FC } from 'react';
 
-const languageNames: Record<Locale, { name: string; flag: string }> = {
+const languageNames: Partial<Record<Locale, { name: string; flag: string }>> = {
   zh: { name: '中文', flag: '🇨🇳' },
-  en: { name: 'English', flag: '🇺🇸' }
+  en: { name: 'English', flag: '🇺🇸' },
+  ja: { name: '日本語', flag: '🇯🇵' },
+  ko: { name: '한국어', flag: '🇰🇷' },
+  fr: { name: 'Français', flag: '🇫🇷' },
+  de: { name: 'Deutsch', flag: '🇩🇪' }
 };
 
 interface LanguageSwitcherProps {
@@ -56,8 +60,8 @@ export function LanguageSwitcher({ className = '' }: LanguageSwitcherProps) {
               locale === currentLocale ? 'text-cyan-500 font-medium' : 'text-zinc-700 dark:text-zinc-300'
             }`}
           >
-            <span className="text-lg">{languageNames[locale].flag}</span>
-            <span className="text-sm">{languageNames[locale].name}</span>
+            <span className="text-lg">{languageNames[locale]?.flag || locale}</span>
+            <span className="text-sm">{languageNames[locale]?.name || locale}</span>
             {locale === currentLocale && (
               <svg className="w-4 h-4 ml-auto" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />

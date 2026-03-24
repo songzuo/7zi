@@ -490,7 +490,12 @@ const mockDb: DatabaseConnection = {
     return Promise.resolve(results);
   }),
 
-  queryRows: vi.fn(),
+  queryRows: vi.fn((sql: string, params?: unknown[]) => {
+    if (params && params.length > 0) {
+      return executeAll(sql, params);
+    }
+    return executeAll(sql, []);
+  }),
 };
 
 // ============================================================================
@@ -693,6 +698,32 @@ vi.mock('../lib/permissions/repository', () => ({
   getUserRoles: vi.fn().mockResolvedValue([{ id: 'role_admin', name: 'Admin', permissions: ['admin:all'] }]),
   hasPermission: vi.fn().mockReturnValue(true),
   hasRole: vi.fn().mockReturnValue(true),
+}));
+
+// Mock feedback anti-spam module
+vi.mock('../lib/feedback/anti-spam', () => ({
+  detectSpam: vi.fn().mockResolvedValue({
+    is_spam: false,
+    reason: '',
+    score: 0,
+    metadata: { type: 'feedback', checks: ['rate_limit', 'duplicate', 'content'] },
+  }),
+  getAntiSpamConfig: vi.fn().mockResolvedValue({
+    max_feedback_per_hour: 5,
+    max_feedback_per_day: 20,
+    min_time_between_feedback: 60,
+    duplicate_threshold: 0.85,
+    require_email: false,
+    enable_content_filter: true,
+    blocked_words: ['test', '测试', 'abc', '123', 'xxx', 'spam'],
+  }),
+  getSpamStatistics: vi.fn().mockResolvedValue({
+    total_checks: 0,
+    spam_detected: 0,
+    spam_rate: 0,
+    blocked_users: 0,
+    recent_spam: [],
+  }),
 }));
 
 // ============================================================================
@@ -900,4 +931,6 @@ beforeEach(() => {
   dbTables.set('users', []);
   dbTables.set('user_tokens', []);
   dbTables.set('password_reset_tokens', []);
+  dbTables.set('feedbacks', []);
+  dbTables.set('spam_detection_logs', []);
 });

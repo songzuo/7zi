@@ -7,10 +7,6 @@ import { GET, POST, GET_FEEDBACK, PATCH, DELETE_FEEDBACK } from '@/app/api/feedb
 import { NextRequest } from 'next/server';
 
 // Mock dependencies
-vi.mock('@/lib/feedback/anti-spam', () => ({
-  detectSpam: vi.fn(() => Promise.resolve({ is_spam: false, reason: '', score: 0 })),
-}));
-
 vi.mock('@/lib/db/index', () => ({
   getDatabaseAsync: vi.fn(),
 }));

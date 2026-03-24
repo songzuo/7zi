@@ -91,16 +91,28 @@ export function transform(op1: Operation, op2: Operation): { op1: Operation; op2
  * Transform an operation by a retain operation
  */
 function transformOpByRetain(op: Operation, retainPos: number): Operation {
-  if (op.position < retainPos) {
-    // Operation comes before retain, no change
+  const shift = op.type === 'insert' ? (op.content?.length || 0) : -(op.length || 0);
+
+  if (op.type === 'delete') {
+    // For delete operations, shift applies if position >= retainPos
+    if (op.position >= retainPos) {
+      return {
+        ...op,
+        position: op.position + shift,
+      };
+    }
     return op;
   }
 
-  const shift = op.type === 'insert' ? op.content?.length || 0 : -(op.length || 0);
-  return {
-    ...op,
-    position: op.position + shift,
-  };
+  // For insert operations, shift applies if position >= retainPos
+  if (op.position >= retainPos) {
+    return {
+      ...op,
+      position: op.position + shift,
+    };
+  }
+
+  return op;
 }
 
 /**

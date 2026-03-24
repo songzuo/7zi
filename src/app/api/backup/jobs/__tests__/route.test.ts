@@ -150,14 +150,15 @@ describe('/api/backup/jobs', () => {
       const request = createMockNextRequest('http://localhost:3000/api/backup/jobs');
       const response = await GET(request);
 
-      if (response.status === 200 && response.json().data.jobs.length > 0) {
+      if (response.status === 200) {
         const data = await response.json();
-        const job = data.data.jobs[0];
-
-        expect(job).toHaveProperty('id');
-        expect(job).toHaveProperty('configId');
-        expect(job).toHaveProperty('scheduledAt');
-        expect(job).toHaveProperty('status');
+        if (data.data.jobs.length > 0) {
+          const job = data.data.jobs[0];
+          expect(job).toHaveProperty('id');
+          expect(job).toHaveProperty('configId');
+          expect(job).toHaveProperty('scheduledAt');
+          expect(job).toHaveProperty('status');
+        }
       }
     });
 
