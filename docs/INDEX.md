@@ -1,6 +1,6 @@
 # 📚 7zi Studio 文档中心索引
 
-**最后更新**: 2026-03-22
+**最后更新**: 2026-03-24
 **版本**: v1.1.0
 
 ---
@@ -9,10 +9,12 @@
 
 ### 🚀 快速开始
 
-- **[README.md](./README.md)** - 项目介绍和快速开始 ⭐
+- **[README.md](../README.md)** - 项目介绍和快速开始 ⭐
 - **[QUICKSTART.md](./QUICKSTART.md)** - 5 分钟快速部署
 - **[DEPLOYMENT.md](./DEPLOYMENT.md)** - 部署文档（生产环境配置）
 - **[CHANGELOG.md](../CHANGELOG.md)** - 版本变更日志
+- **[RELEASE_NOTES_v1.1.0.md](./RELEASE_NOTES_v1.1.0.md)** - v1.1.0 发布说明 🆕
+- **[RELEASE_NOTES_v1.0.9.md](./RELEASE_NOTES_v1.0.9.md)** - v1.0.9 发布说明
 
 ### 🏗️ 架构文档
 
@@ -192,6 +194,7 @@
 - **[API_REFACTORING_SUMMARY.md](./API_REFACTORING_SUMMARY.md)** - API 重构总结
 - **[ALERT_RULES.yaml](./ALERT_RULES.yaml)** - 告警规则
 - **[CACHE_CONFIG.md](./CACHE_CONFIG.md)** - 缓存配置
+- **[REDIS_CLIENT.md](./REDIS_CLIENT.md)** - Redis 客户端文档 ⭐ (v1.1.0 新增)
 - **[SERVERS.md](./SERVERS.md)** - 服务器配置
 - **[SSH-SETUP.md](./SSH-SETUP.md)** - SSH 设置
 - **[SSH-TROUBLESHOOTING.md](./SSH-TROUBLESHOOTING.md)** - SSH 故障排除
