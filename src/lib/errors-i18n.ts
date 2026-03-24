@@ -23,7 +23,7 @@ export type I18nErrorType =
 /**
  * Error message templates for each locale
  */
-const ERROR_MESSAGES: Record<Locale, Record<I18nErrorType, string>> = {
+const ERROR_MESSAGES: Partial<Record<Locale, Record<I18nErrorType, string>>> = {
   zh: {
     network: '网络连接失败，请检查您的网络设置',
     timeout: '请求超时，请稍后再试',

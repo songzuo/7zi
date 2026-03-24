@@ -502,15 +502,7 @@ class ConnectionPoolManager {
     const id = `conn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     try {
-      const db = new Database(this.config.databasePath, {
-        verbose: process.env.NODE_ENV === 'development'
-          ? ((msg?: unknown, ...args: unknown[]) => {
-              if (typeof msg === 'string') {
-                logger.debug(msg, { category: 'db', additionalArgs: args });
-              }
-            })
-          : undefined,
-      });
+      const db = new Database(this.config.databasePath);
 
       // Apply performance optimizations
       if (this.config.enableWAL) {

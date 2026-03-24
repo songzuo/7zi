@@ -57,7 +57,7 @@ export interface EmailTemplateParams {
 /**
  * 主题映射 - 支持多语言
  */
-export const SUBJECT_MAP: Record<Locale, Record<string, string>> = {
+export const SUBJECT_MAP: Partial<Record<Locale, Record<string, string>>> = {
   zh: {
     project: "项目咨询",
     cooperation: "商务合作",

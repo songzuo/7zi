@@ -123,10 +123,10 @@ export function SettingsPanel({ onClose, className = '' }: SettingsPanelProps) {
                   }
                 `}
               >
-                <span className="text-2xl">{languageNames[locale].flag}</span>
+                <span className="text-2xl">{languageNames[locale]?.flag || locale}</span>
                 <div className="text-left">
-                  <div className="text-sm font-medium">{languageNames[locale].nativeName}</div>
-                  <div className="text-xs text-zinc-500 dark:text-zinc-400">{languageNames[locale].name}</div>
+                  <div className="text-sm font-medium">{languageNames[locale]?.nativeName || locale}</div>
+                  <div className="text-xs text-zinc-500 dark:text-zinc-400">{languageNames[locale]?.name || locale}</div>
                 </div>
                 {currentLocale === locale && (
                   <svg className="w-5 h-5 ml-auto" fill="currentColor" viewBox="0 0 20 20">
