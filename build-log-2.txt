@@ -1,0 +1,145 @@
+
+> 7zi-frontend@1.1.0 build
+> next build
+
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /root/package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * /root/.openclaw/workspace/7zi-project/pnpm-lock.yaml
+   * /root/.openclaw/workspace/package-lock.json
+
+Warning: Custom Cache-Control headers detected for the following routes:
+  - /_next/static/:path*
+
+Setting a custom Cache-Control header can break Next.js development behavior.
+▲ Next.js 16.2.1 (Turbopack)
+- Environments: .env.production
+- Experiments (use with caution):
+  ✓ optimizeCss
+  · optimizePackageImports
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 35.2s
+  Running TypeScript ...
+  Finished TypeScript in 67s ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/70) ...
+  Generating static pages using 3 workers (17/70) 
+  Generating static pages using 3 workers (34/70) 
+  Generating static pages using 3 workers (52/70) 
+✓ Generating static pages using 3 workers (70/70) in 724ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /[locale]
+├ ƒ /[locale]/about
+├ ƒ /[locale]/analytics
+├ ƒ /[locale]/analytics/test
+├ ƒ /[locale]/blog
+├ ƒ /[locale]/blog/[slug]
+├ ƒ /[locale]/contact
+├ ƒ /[locale]/dashboard
+├ ƒ /[locale]/knowledge-lattice
+├ ƒ /[locale]/performance
+├ ƒ /[locale]/portfolio
+├ ƒ /[locale]/portfolio/[slug]
+├ ƒ /[locale]/settings
+├ ƒ /[locale]/tasks
+├ ƒ /[locale]/team
+├ ƒ /api/a2a/jsonrpc
+├ ƒ /api/a2a/queue
+├ ƒ /api/a2a/registry
+├ ƒ /api/a2a/registry/[id]
+├ ƒ /api/a2a/registry/[id]/heartbeat
+├ ƒ /api/analytics/export
+├ ƒ /api/analytics/metrics
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/auth/me
+├ ƒ /api/auth/refresh
+├ ƒ /api/auth/register
+├ ƒ /api/backup
+├ ƒ /api/backup/[id]
+├ ƒ /api/backup/export
+├ ƒ /api/backup/export/download/[filename]
+├ ƒ /api/backup/import
+├ ƒ /api/backup/jobs
+├ ƒ /api/backup/restore
+├ ƒ /api/backup/schedule
+├ ƒ /api/backup/schedule/[id]
+├ ƒ /api/backup/schedule/[id]/trigger
+├ ƒ /api/backup/statistics
+├ ƒ /api/csp-violation
+├ ƒ /api/csrf-token
+├ ƒ /api/data/export
+├ ƒ /api/data/import
+├ ƒ /api/database/health
+├ ƒ /api/database/optimize
+├ ƒ /api/demo/task-status
+├ ƒ /api/example
+├ ƒ /api/feedback
+├ ƒ /api/feedback/[id]
+├ ƒ /api/github/commits
+├ ƒ /api/github/issues
+├ ƒ /api/health
+├ ƒ /api/health/detailed
+├ ƒ /api/health/live
+├ ƒ /api/health/ready
+├ ƒ /api/metrics/performance
+├ ƒ /api/metrics/prometheus
+├ ƒ /api/multimodal/audio
+├ ƒ /api/multimodal/image
+├ ƒ /api/performance/alerts
+├ ƒ /api/performance/clear
+├ ƒ /api/performance/metrics
+├ ƒ /api/performance/report
+├ ƒ /api/projects
+├ ƒ /api/ratings
+├ ƒ /api/ratings/[id]
+├ ƒ /api/ratings/[id]/helpful
+├ ƒ /api/rbac/permissions
+├ ƒ /api/rbac/roles
+├ ƒ /api/rbac/roles/[roleId]
+├ ƒ /api/rbac/roles/[roleId]/permissions
+├ ƒ /api/rbac/system
+├ ƒ /api/rbac/users/[userId]/permissions
+├ ƒ /api/rbac/users/[userId]/roles
+├ ƒ /api/revalidate
+├ ƒ /api/search
+├ ƒ /api/search/autocomplete
+├ ƒ /api/search/history
+├ ƒ /api/status
+├ ƒ /api/stream/analytics
+├ ƒ /api/stream/health
+├ ƒ /api/tasks
+├ ƒ /api/user/preferences
+├ ƒ /api/users
+├ ƒ /api/users/[userId]
+├ ƒ /api/users/[userId]/activity
+├ ƒ /api/users/[userId]/avatar
+├ ƒ /api/users/batch
+├ ƒ /api/users/batch/bulk
+├ ƒ /api/vitals
+├ ƒ /api/web-vitals
+├ ƒ /api/ws
+├ ƒ /api/ws/broadcast
+├ ƒ /api/ws/rooms/[roomId]
+├ ƒ /api/ws/stats
+├ ○ /collaboration-demo
+├ ○ /demo/websocket
+├ ○ /examples/realtime-dashboard
+├ ○ /offline
+├ ○ /sse-demo
+├ ƒ /test-error
+└ ○ /undo-redo-example
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

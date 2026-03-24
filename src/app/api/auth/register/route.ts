@@ -128,7 +128,7 @@
  *           $ref: '#/components/schemas/User'
  */
 
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { registerUser } from '@/lib/auth/service';
 import { RegisterRequest } from '@/lib/auth/types';
 import { logger } from '@/lib/logger';
@@ -139,7 +139,8 @@ import {
   createErrorResponse,
 } from '@/lib/api/error-handler';
 import { validateEmail, validatePasswordStrength, createSuccessResponse } from '@/lib/api/utils';
-import { logRequestStart, logRequestComplete, logRequestError } from '@/lib/api/api-logger';
+import { logRequestStart, logRequestComplete, logRequestError, sanitizeUrlForLogging } from '@/lib/api/api-logger';
+
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
   const metadata = logRequestStart(request);

@@ -15,6 +15,11 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     zh: '博客 - AI 与数字化前沿洞察',
     en: 'Blog - AI & Digital Insights',
   };
+
+  const keywords = {
+    zh: ['7zi Studio', '博客', '技术文章', 'AI', 'Web 开发', '设计', '营销', 'SEO'],
+    en: ['7zi Studio', 'Blog', 'Tech Articles', 'AI', 'Web Development', 'Design', 'Marketing', 'SEO'],
+  };
   
   const descriptions = {
     zh: '7zi Studio 博客 - 分享 AI、数字化、Web 开发、设计、营销的最新见解和深度分析。',
@@ -24,6 +29,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   return {
     title: titles[locale as 'zh' | 'en'] || titles.zh,
     description: descriptions[locale as 'zh' | 'en'] || descriptions.zh,
+    keywords: keywords[locale as 'zh' | 'en'] || keywords.zh,
     openGraph: {
       title: titles[locale as 'zh' | 'en'] || titles.zh,
       description: descriptions[locale as 'zh' | 'en'] || descriptions.zh,

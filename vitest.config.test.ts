@@ -29,7 +29,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    setupFiles: ['./tests/setup.ts'],
+    setupFiles: [path.resolve(__dirname, './tests/setup.ts')],
     include: [
       'tests/**/*.{test,spec}.{js,ts,jsx,tsx}',
       '7zi-frontend/src/**/*.{test,spec}.{js,ts,jsx,tsx}',

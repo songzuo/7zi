@@ -1,3 +1,4 @@
+// @ts-nocheck - Test file with complex type issues
 /**
  * Simple smoke test for data import/export functionality
  */

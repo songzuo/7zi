@@ -1,6 +1,6 @@
 "use client";
 
-
+import { useMemo } from "react";
 import Link from "next/link";
 import { SocialLinks } from "./SocialLinks";
 
@@ -33,7 +33,7 @@ export function Footer() {
   const currentYear = useMemo(() => new Date().getFullYear(), []);
 
   return (
-    <footer className="bg-zinc-900 dark:bg-black text-zinc-300 dark:text-zinc-400">
+    <footer className="bg-zinc-50 dark:bg-zinc-950 text-zinc-300 dark:text-zinc-400">
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">

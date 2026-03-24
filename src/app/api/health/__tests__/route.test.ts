@@ -33,7 +33,7 @@ describe('GET /api/health', () => {
     const response = await GET(request);
 
     expect(response.status).toBe(200);
-    const data = response.json;
+    const data = await response.json();
     expect(data.success).toBe(true);
     expect(data.data.status).toBe('healthy');
   });
@@ -45,10 +45,9 @@ describe('GET /api/health', () => {
 
     const response = await GET(request);
 
-    expect(response.json).toHaveProperty('data');
-    const data = response.json.data;
-    expect(data.uptime).toBeGreaterThanOrEqual(0);
-    expect(typeof data.uptime).toBe('number');
+    const data = await response.json();
+    expect(data.data.uptime).toBeGreaterThanOrEqual(0);
+    expect(typeof data.data.uptime).toBe('number');
   });
 
   it('should include timestamp', async () => {
@@ -58,9 +57,9 @@ describe('GET /api/health', () => {
 
     const response = await GET(request);
 
-    const data = response.json.data;
-    expect(data.timestamp).toBeDefined();
-    expect(new Date(data.timestamp)).toBeInstanceOf(Date);
+    const data = await response.json();
+    expect(data.data.timestamp).toBeDefined();
+    expect(new Date(data.data.timestamp)).toBeInstanceOf(Date);
   });
 
   it('should include version information', async () => {
@@ -70,9 +69,9 @@ describe('GET /api/health', () => {
 
     const response = await GET(request);
 
-    const data = response.json.data;
-    expect(data.version).toBeDefined();
-    expect(typeof data.version).toBe('string');
+    const data = await response.json();
+    expect(data.data.version).toBeDefined();
+    expect(typeof data.data.version).toBe('string');
   });
 
   it('should include memory check', async () => {
@@ -82,13 +81,13 @@ describe('GET /api/health', () => {
 
     const response = await GET(request);
 
-    const data = response.json.data;
-    expect(data.checks).toHaveProperty('memory');
-    expect(data.checks.memory).toHaveProperty('status');
-    expect(data.checks.memory).toHaveProperty('used');
-    expect(data.checks.memory).toHaveProperty('limit');
-    expect(typeof data.checks.memory.used).toBe('number');
-    expect(data.checks.memory.used).toBeGreaterThan(0);
+    const data = await response.json();
+    expect(data.data.checks).toHaveProperty('memory');
+    expect(data.data.checks.memory).toHaveProperty('status');
+    expect(data.data.checks.memory).toHaveProperty('used');
+    expect(data.data.checks.memory).toHaveProperty('limit');
+    expect(typeof data.data.checks.memory.used).toBe('number');
+    expect(data.data.checks.memory.used).toBeGreaterThan(0);
   });
 
   it('should set memory status to warning when over 90% limit', async () => {
@@ -105,8 +104,8 @@ describe('GET /api/health', () => {
 
     const response = await GET(request);
 
-    const data = response.json.data;
-    expect(data.checks.memory.status).toBe('warning');
+    const data = await response.json();
+    expect(data.data.checks.memory.status).toBe('warning');
   });
 
   it('should include node version check', async () => {
@@ -116,11 +115,11 @@ describe('GET /api/health', () => {
 
     const response = await GET(request);
 
-    const data = response.json.data;
-    expect(data.checks).toHaveProperty('node');
-    expect(data.checks.node).toHaveProperty('status');
-    expect(data.checks.node).toHaveProperty('version');
-    expect(data.checks.node.status).toBe('ok');
+    const data = await response.json();
+    expect(data.data.checks).toHaveProperty('node');
+    expect(data.data.checks.node).toHaveProperty('status');
+    expect(data.data.checks.node).toHaveProperty('version');
+    expect(data.data.checks.node.status).toBe('ok');
   });
 
   it('should set correct cache headers', async () => {
@@ -151,7 +150,7 @@ describe('GET /api/health', () => {
     const response = await GET(request);
 
     expect(response.status).toBe(503);
-    const data = response.json;
+    const data = await response.json();
     expect(data.success).toBe(false);
   });
 });

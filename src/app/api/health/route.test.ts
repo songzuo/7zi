@@ -86,7 +86,7 @@ describe('GET /api/health', () => {
 
       mockCacheManager.getOrSet = vi.fn().mockResolvedValue(mockHealthStatus);
 
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -122,7 +122,7 @@ describe('GET /api/health', () => {
 
       mockCacheManager.getOrSet = vi.fn().mockResolvedValue(mockHealthStatus);
 
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       expect(response.status).toBe(503);
@@ -148,7 +148,7 @@ describe('GET /api/health', () => {
         },
       });
 
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       expect(data.data.timestamp).toBe(mockNow.toISOString());
@@ -171,7 +171,7 @@ describe('GET /api/health', () => {
         },
       });
 
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       expect(data.data.uptime).toBe(3600.5);
@@ -194,7 +194,7 @@ describe('GET /api/health', () => {
         },
       });
 
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       expect(data.data.version).toBe('2.0.0');
@@ -223,7 +223,7 @@ describe('GET /api/health', () => {
         },
       });
 
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       expect(typeof data.data.checks.memory.used).toBe('number');
@@ -253,7 +253,7 @@ describe('GET /api/health', () => {
         },
       });
 
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       expect(data.data.checks.memory.status).toBe('warning');
@@ -280,7 +280,7 @@ describe('GET /api/health', () => {
         },
       });
 
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       expect(data.data.checks.memory.status).toBe('ok');
@@ -308,7 +308,7 @@ describe('GET /api/health', () => {
         },
       });
 
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       expect(data.data.checks.node.status).toBe('ok');
@@ -334,7 +334,7 @@ describe('GET /api/health', () => {
         },
       });
 
-      await GET();
+      await GET(mockRequest);
 
       expect(mockCacheManager.getOrSet).toHaveBeenCalledWith(
         expect.stringContaining('health'),
@@ -362,7 +362,7 @@ describe('GET /api/health', () => {
         }, { status: 503 })
       );
 
-      const response = await GET();
+      const response = await GET(mockRequest);
 
       expect(logger.error).toHaveBeenCalledWith(
         'Health check failed',
@@ -391,7 +391,7 @@ describe('GET /api/health', () => {
         }, { status: 503 })
       );
 
-      await GET();
+      await GET(mockRequest);
 
       expect(logger.error).toHaveBeenCalledWith(
         'Health check failed',
@@ -418,7 +418,7 @@ describe('GET /api/health', () => {
         },
       });
 
-      const response = await GET();
+      const response = await GET(mockRequest);
       const data = await response.json();
 
       expect(data).toHaveProperty('success', true);

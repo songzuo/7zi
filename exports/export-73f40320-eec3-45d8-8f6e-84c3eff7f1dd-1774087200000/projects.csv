@@ -1,0 +1,2 @@
+id,name,description,status,priority,progress,owner_id,start_date,end_date,created_at,updated_at
+1,New Project,A new test project,active,high,0,test-user-id,,,2026-03-23 12:54:23,2026-03-23 12:54:23

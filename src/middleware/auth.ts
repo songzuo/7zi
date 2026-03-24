@@ -9,10 +9,9 @@
 
 // Import necessary types and services
 import { NextRequest, NextResponse } from 'next/server';
-import { type UserRole } from '@/lib/auth/types';
+import { type UserContext, type UserRole } from '@/lib/auth/types';
 import { Role } from '@/lib/permissions/types';
 import { authenticateToken } from '@/lib/auth/service';
-import type { RBACUserContext } from '@/lib/auth/middleware-rbac';
 
 /**
  * Rate limit configuration
@@ -38,7 +37,7 @@ export const RATE_LIMIT_CONFIG = {
  */
 export async function withAuth(
   request: NextRequest,
-  handler: (request: NextRequest, context?: RBACUserContext) => Promise<NextResponse>
+  handler: (request: NextRequest, context?: unknown) => Promise<NextResponse>
 ): Promise<NextResponse> {
   // Import here to avoid circular dependency
   const { withUserAuth: rbacWithUserAuth } = await import('@/lib/auth/middleware-rbac');

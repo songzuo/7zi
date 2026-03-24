@@ -116,7 +116,7 @@ export function HealthDashboard({
   ], [apiLatency, isConnected, memoryUsage, lastActive]);
 
   return (
-    <div className={`rounded-xl p-6 ${isDark ? 'bg-zinc-800' : 'bg-white'} shadow-lg ${className}`}>
+    <div className={`rounded-xl p-6 bg-white dark:bg-zinc-800 shadow-lg ${className}`}>
       {/* Header */}
       <div className="mb-6">
         <h2 className="text-2xl font-bold flex items-center gap-2">

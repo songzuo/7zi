@@ -38,11 +38,9 @@ export async function GET(
     if (!user) {
       return NextResponse.json(
         {
-          success: false,
-          error: {
-            code: 'USER_NOT_FOUND',
-            message: 'User not found',
-          },
+          code: 'NOT_FOUND',
+          message: 'User not found',
+          timestamp: new Date().toISOString(),
         },
         { status: 404 }
       );
@@ -64,16 +62,15 @@ export async function GET(
     return NextResponse.json({
       success: true,
       data: sanitizedUser,
+      timestamp: new Date().toISOString(),
     });
   } catch (error) {
     logger.error('Failed to get user', { error });
     return NextResponse.json(
       {
-        success: false,
-        error: {
-          code: 'INTERNAL_ERROR',
-          message: 'Internal server error',
-        },
+        code: 'UNKNOWN_ERROR',
+        message: 'Internal server error',
+        timestamp: new Date().toISOString(),
       },
       { status: 500 }
     );
@@ -100,11 +97,9 @@ export async function PATCH(
     if (!existingUser) {
       return NextResponse.json(
         {
-          success: false,
-          error: {
-            code: 'USER_NOT_FOUND',
-            message: 'User not found',
-          },
+          code: 'NOT_FOUND',
+          message: 'User not found',
+          timestamp: new Date().toISOString(),
         },
         { status: 404 }
       );
@@ -114,11 +109,12 @@ export async function PATCH(
     if (body.role && !Object.values(UserRole).includes(body.role)) {
       return NextResponse.json(
         {
-          success: false,
-          error: {
-            code: 'VALIDATION_ERROR',
-            message: `Invalid role. Must be one of: ${Object.values(UserRole).join(', ')}`,
+          code: 'BAD_REQUEST',
+          message: `Invalid role. Must be one of: ${Object.values(UserRole).join(', ')}`,
+          errors: {
+            role: [`Must be one of: ${Object.values(UserRole).join(', ')}`],
           },
+          timestamp: new Date().toISOString(),
         },
         { status: 400 }
       );
@@ -128,11 +124,12 @@ export async function PATCH(
     if (body.status && !Object.values(UserStatus).includes(body.status)) {
       return NextResponse.json(
         {
-          success: false,
-          error: {
-            code: 'VALIDATION_ERROR',
-            message: `Invalid status. Must be one of: ${Object.values(UserStatus).join(', ')}`,
+          code: 'BAD_REQUEST',
+          message: `Invalid status. Must be one of: ${Object.values(UserStatus).join(', ')}`,
+          errors: {
+            status: [`Must be one of: ${Object.values(UserStatus).join(', ')}`],
           },
+          timestamp: new Date().toISOString(),
         },
         { status: 400 }
       );
@@ -142,11 +139,12 @@ export async function PATCH(
     if (body.password && body.password.length < 8) {
       return NextResponse.json(
         {
-          success: false,
-          error: {
-            code: 'VALIDATION_ERROR',
-            message: 'Password must be at least 8 characters',
+          code: 'BAD_REQUEST',
+          message: 'Password must be at least 8 characters',
+          errors: {
+            password: ['Must be at least 8 characters'],
           },
+          timestamp: new Date().toISOString(),
         },
         { status: 400 }
       );
@@ -175,11 +173,9 @@ export async function PATCH(
     if (!updatedUser) {
       return NextResponse.json(
         {
-          success: false,
-          error: {
-            code: 'UPDATE_FAILED',
-            message: 'Failed to update user',
-          },
+          code: 'UNKNOWN_ERROR',
+          message: 'Failed to update user',
+          timestamp: new Date().toISOString(),
         },
         { status: 500 }
       );
@@ -223,16 +219,15 @@ export async function PATCH(
     return NextResponse.json({
       success: true,
       data: sanitizedUser,
+      timestamp: new Date().toISOString(),
     });
   } catch (error) {
     logger.error('Failed to update user', { error });
     return NextResponse.json(
       {
-        success: false,
-        error: {
-          code: 'INTERNAL_ERROR',
-          message: error instanceof Error ? error.message : 'Internal server error',
-        },
+        code: 'UNKNOWN_ERROR',
+        message: error instanceof Error ? error.message : 'Internal server error',
+        timestamp: new Date().toISOString(),
       },
       { status: 500 }
     );
@@ -254,11 +249,9 @@ export async function DELETE(
     if (!existingUser) {
       return NextResponse.json(
         {
-          success: false,
-          error: {
-            code: 'USER_NOT_FOUND',
-            message: 'User not found',
-          },
+          code: 'NOT_FOUND',
+          message: 'User not found',
+          timestamp: new Date().toISOString(),
         },
         { status: 404 }
       );
@@ -270,11 +263,9 @@ export async function DELETE(
     if (!deleted) {
       return NextResponse.json(
         {
-          success: false,
-          error: {
-            code: 'DELETE_FAILED',
-            message: 'Failed to delete user',
-          },
+          code: 'UNKNOWN_ERROR',
+          message: 'Failed to delete user',
+          timestamp: new Date().toISOString(),
         },
         { status: 500 }
       );
@@ -305,17 +296,16 @@ export async function DELETE(
 
     return NextResponse.json({
       success: true,
-      message: 'User deleted successfully',
+      data: { message: 'User deleted successfully' },
+      timestamp: new Date().toISOString(),
     });
   } catch (error) {
     logger.error('Failed to delete user', { error });
     return NextResponse.json(
       {
-        success: false,
-        error: {
-          code: 'INTERNAL_ERROR',
-          message: error instanceof Error ? error.message : 'Internal server error',
-        },
+        code: 'UNKNOWN_ERROR',
+        message: error instanceof Error ? error.message : 'Internal server error',
+        timestamp: new Date().toISOString(),
       },
       { status: 500 }
     );

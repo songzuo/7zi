@@ -57,7 +57,7 @@ describe('Health Monitoring', () => {
 
   describe('detailedHealthCheck', () => {
     it('should return ok status when all services are healthy', async () => {
-      fetch.mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         status: 200,
       } as Response).mockResolvedValueOnce({
@@ -74,7 +74,7 @@ describe('Health Monitoring', () => {
     });
 
     it('should return degraded when some services fail', async () => {
-      fetch.mockRejectedValueOnce(new Error('Network error'))
+      vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
@@ -88,7 +88,7 @@ describe('Health Monitoring', () => {
     });
 
     it('should return error when all services fail', async () => {
-      fetch.mockRejectedValue(new Error('Network error'));
+      vi.mocked(fetch).mockRejectedValue(new Error('Network error'));
 
       const health = await detailedHealthCheck();
 
@@ -103,7 +103,7 @@ describe('Health Monitoring', () => {
         status: 200,
       };
 
-      fetch.mockResolvedValue(mockResponse as unknown as Response);
+      vi.mocked(fetch).mockResolvedValue(mockResponse as unknown as Response);
 
       const health = await detailedHealthCheck();
 
@@ -165,7 +165,7 @@ describe('Health Monitoring', () => {
 
     describe('readiness', () => {
       it('should check detailed health', async () => {
-        fetch.mockResolvedValue({
+        vi.mocked(fetch).mockResolvedValue({
           ok: true,
           status: 200,
         } as unknown as Response);

@@ -128,7 +128,7 @@
  *           description: Token expiration timestamp
  */
 
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { loginUser } from '@/lib/auth/service';
 import { LoginRequest } from '@/lib/auth/types';
 import { logger } from '@/lib/logger';

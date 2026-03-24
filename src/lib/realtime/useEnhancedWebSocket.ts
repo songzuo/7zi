@@ -221,11 +221,10 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
     }
   }, []);
 
-  // 处理消息
+  // 处理消息 - Fixed: Use ref to avoid stats dependency
   const handleMessage = useCallback((type: string, data: WebSocketMessage) => {
     setLastMessage(data);
     setMessages(prev => [data, ...prev].slice(0, 100));
-    updateStats({ messagesReceived: stats.messagesReceived + 1 });
 
     // 调用特定类型的处理器
     const handlers = messageHandlersRef.current.get(type);
@@ -254,9 +253,12 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
         }
       });
     }
-  }, [stats.messagesReceived, updateStats]);
 
-  // 智能清理离线队列（FIFO + 优先级）
+    // Update stats inline without causing re-render
+    setStats(prev => ({ ...prev, messagesReceived: prev.messagesReceived + 1 }));
+  }, []);
+
+  // 智能清理离线队列（FIFO + 优先级）- Fixed: Removed stats from dependencies
   const trimOfflineQueue = useCallback(() => {
     const queue = offlineQueueRef.current;
     const targetSize = offlineQueueSize;
@@ -281,9 +283,10 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
 
       if (droppedCount > 0 && process.env.NODE_ENV === 'development') {
         logger.info(`[WebSocket] Dropped ${droppedCount} low priority messages from offline queue`, { category: 'system' });
-        updateStats({
-          offlineQueueDroppedCount: stats.offlineQueueDroppedCount + droppedCount,
-        });
+        setStats(prev => ({
+          ...prev,
+          offlineQueueDroppedCount: prev.offlineQueueDroppedCount + droppedCount,
+        }));
       }
     } else {
       // 未达到阈值，使用 FIFO 清理
@@ -292,22 +295,21 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
 
       if (droppedCount > 0 && process.env.NODE_ENV === 'development') {
         logger.info(`[WebSocket] Dropped ${droppedCount} old messages from offline queue (FIFO)`, { category: 'system' });
-        updateStats({
-          offlineQueueDroppedCount: stats.offlineQueueDroppedCount + droppedCount,
-        });
+        setStats(prev => ({
+          ...prev,
+          offlineQueueDroppedCount: prev.offlineQueueDroppedCount + droppedCount,
+        }));
       }
     }
 
     // 同步清理消息ID集合
     const keptIds = new Set(offlineQueueRef.current.map(m => m.id));
-    offlineMessageIdsRef.current = new Set(
-      [...offlineMessageIdsRef.current].filter(id => keptIds.has(id))
-    );
+    offlineMessageIdsRef.current = new Set(Array.from(offlineMessageIdsRef.current).filter(id => keptIds.has(id)));
 
-    updateStats({ offlineQueueSize: offlineQueueRef.current.length });
-  }, [offlineQueueSize, offlineQueuePriorityThreshold, stats, updateStats]);
+    setStats(prev => ({ ...prev, offlineQueueSize: offlineQueueRef.current.length }));
+  }, [offlineQueueSize, offlineQueuePriorityThreshold]);
 
-  // 批量发送离线消息
+  // 批量发送离线消息 - Fixed: Removed stats from dependencies
   const processOfflineQueue = useCallback(() => {
     if (!enableOfflineQueue || offlineQueueRef.current.length === 0) return;
 
@@ -336,10 +338,11 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
       }
     });
 
-    updateStats({
-      messagesSent: stats.messagesSent + sentCount,
+    setStats(prev => ({
+      ...prev,
+      messagesSent: prev.messagesSent + sentCount,
       offlineQueueSize: 0,
-    });
+    }));
 
     if (sentCount > 0 && process.env.NODE_ENV === 'development') {
       logger.info(`[WebSocket] Processed offline queue: ${sentCount} sent, ${failedCount} failed`, { category: 'system' });
@@ -391,10 +394,11 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
         updateState('connected');
         reconnectAttemptsRef.current = 0;
         connectionStartTimeRef.current = new Date();
-        updateStats({
+        setStats(prev => ({
+          ...prev,
           lastConnected: new Date(),
-          reconnectCount: stats.reconnectCount + (reconnectAttemptsRef.current > 0 ? 1 : 0),
-        });
+          reconnectCount: prev.reconnectCount + (reconnectAttemptsRef.current > 0 ? 1 : 0),
+        }));
 
         startHeartbeat();
 
@@ -416,10 +420,11 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
           ? Date.now() - connectionStartTimeRef.current.getTime()
           : 0;
 
-        updateStats({
+        setStats(prev => ({
+          ...prev,
           lastDisconnected: new Date(),
-          connectionDuration: stats.connectionDuration + duration,
-        });
+          connectionDuration: prev.connectionDuration + duration,
+        }));
 
         // 自动重连
         if (reconnect && reason !== 'io client disconnect') {
@@ -507,7 +512,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
     updateState('disconnected');
   }, [stopHeartbeat, updateState]);
 
-  // 发送消息（添加优先级支持）
+  // 发送消息（添加优先级支持）- Fixed: Removed stats from dependencies
   const sendMessage = useCallback((
     type: string,
     payload?: unknown,
@@ -520,9 +525,10 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
       if (process.env.NODE_ENV === 'development') {
         logger.info(`[WebSocket] Message ${messageId} already in offline queue, skipping`, { category: 'system' });
       }
-      updateStats({
-        offlineQueueDedupCount: stats.offlineQueueDedupCount + 1,
-      });
+      setStats(prev => ({
+        ...prev,
+        offlineQueueDedupCount: prev.offlineQueueDedupCount + 1,
+      }));
       return;
     }
 
@@ -538,7 +544,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
 
     if (socketRef.current?.connected) {
       socketRef.current.emit(type, message);
-      updateStats({ messagesSent: stats.messagesSent + 1 });
+      setStats(prev => ({ ...prev, messagesSent: prev.messagesSent + 1 }));
     } else if (enableOfflineQueue) {
       // 添加到离线队列
       offlineQueueRef.current.push(message);
@@ -547,9 +553,9 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
       // 触发队列清理
       trimOfflineQueue();
 
-      updateStats({ offlineQueueSize: offlineQueueRef.current.length });
+      setStats(prev => ({ ...prev, offlineQueueSize: offlineQueueRef.current.length }));
     }
-  }, [enableOfflineQueue, stats.messagesSent, updateStats, trimOfflineQueue]);
+  }, [enableOfflineQueue, trimOfflineQueue]);
 
   // 订阅频道
   const subscribeToChannels = useCallback((newChannels: string[]) => {

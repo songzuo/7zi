@@ -15,10 +15,11 @@
  * const { fetchAllData, isLoading } = useDashboardStore();
  */
 
-
-
+import { create } from 'zustand';
+import { devtools } from 'zustand/middleware';
 import type { UnifiedTeamMember } from '@/types/members';
-import type { GitHubIssue } from '@/types/common';
+import type { GitHubIssue, GitHubCommit } from '@/types/common';
+
 // ============================================================================
 // 类型定义
 // ============================================================================

@@ -63,7 +63,7 @@ describe('GitHubActivity', () => {
   })
 
   it('renders component header', async () => {
-    useGitHubData.mockReturnValue(createMockReturn())
+    vi.mocked(useGitHubData).mockReturnValue(createMockReturn())
     
     render(<GitHubActivity />)
     
@@ -72,7 +72,7 @@ describe('GitHubActivity', () => {
   })
 
   it('shows loading state when isLoading is true', () => {
-    useGitHubData.mockReturnValue(createMockReturn({ isLoading: true }))
+    vi.mocked(useGitHubData).mockReturnValue(createMockReturn({ isLoading: true }))
     
     render(<GitHubActivity />)
     
@@ -82,7 +82,7 @@ describe('GitHubActivity', () => {
   })
 
   it('displays GitHub stats cards', async () => {
-    useGitHubData.mockReturnValue(createMockReturn({
+    vi.mocked(useGitHubData).mockReturnValue(createMockReturn({
       commits: getMockCommits(),
       stats: getMockStats(),
     }))
@@ -98,7 +98,7 @@ describe('GitHubActivity', () => {
   })
 
   it('displays fetched stats values', async () => {
-    useGitHubData.mockReturnValue(createMockReturn({
+    vi.mocked(useGitHubData).mockReturnValue(createMockReturn({
       commits: getMockCommits(),
       stats: getMockStats(),
     }))
@@ -113,7 +113,7 @@ describe('GitHubActivity', () => {
   })
 
   it('displays error message when present', () => {
-    useGitHubData.mockReturnValue(createMockReturn({
+    vi.mocked(useGitHubData).mockReturnValue(createMockReturn({
       error: 'Failed to fetch data',
     }))
     
@@ -123,7 +123,7 @@ describe('GitHubActivity', () => {
   })
 
   it('displays empty state when no data', () => {
-    useGitHubData.mockReturnValue(createMockReturn())
+    vi.mocked(useGitHubData).mockReturnValue(createMockReturn())
     
     render(<GitHubActivity />)
     
@@ -150,7 +150,7 @@ describe('GitHubActivity', () => {
       },
     ]
 
-    useGitHubData.mockReturnValue(createMockReturn({
+    vi.mocked(useGitHubData).mockReturnValue(createMockReturn({
       activities: mockActivities,
     }))
     
@@ -164,7 +164,7 @@ describe('GitHubActivity', () => {
 
   it('calls refresh when refresh button is clicked', async () => {
     const mockRefresh = vi.fn()
-    useGitHubData.mockReturnValue(createMockReturn({
+    vi.mocked(useGitHubData).mockReturnValue(createMockReturn({
       refresh: mockRefresh,
       lastUpdated: new Date(),
     }))
@@ -179,7 +179,7 @@ describe('GitHubActivity', () => {
 
   it('displays last updated time', async () => {
     const lastUpdated = new Date(Date.now() - 60000)
-    useGitHubData.mockReturnValue(createMockReturn({
+    vi.mocked(useGitHubData).mockReturnValue(createMockReturn({
       lastUpdated,
       activities: [
         {

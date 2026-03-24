@@ -7,7 +7,7 @@
 
 import React, { useRef, useMemo, useState, useEffect } from 'react';
 
-interface VirtualizedListProps<T> {
+interface VirtualizedListProps<T extends Record<string, unknown>> {
   items: T[];
   renderItem: (item: T, index: number) => React.ReactNode;
   itemHeight: number;
@@ -16,7 +16,7 @@ interface VirtualizedListProps<T> {
   className?: string;
 }
 
-export function VirtualizedList<T>({
+export function VirtualizedList<T extends Record<string, unknown>>({
   items,
   renderItem,
   itemHeight,
@@ -76,7 +76,7 @@ export function VirtualizedList<T>({
 }
 
 // Virtualized Table Component
-interface VirtualizedTableProps<T> {
+interface VirtualizedTableProps<T extends Record<string, unknown>> {
   data: T[];
   columns: {
     key: string;
@@ -89,7 +89,7 @@ interface VirtualizedTableProps<T> {
   className?: string;
 }
 
-export function VirtualizedTable<T>({
+export function VirtualizedTable<T extends Record<string, unknown>>({
   data,
   columns,
   rowHeight,
@@ -119,8 +119,8 @@ export function VirtualizedTable<T>({
       </div>
 
       {/* Virtualized Body */}
-      <VirtualizedList
-        items={data}
+      <VirtualizedList<Record<string, unknown>>
+        items={data as Record<string, unknown>[]}
         renderItem={(row) => (
           <div
             className="grid items-center px-4 border-b border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
@@ -131,12 +131,12 @@ export function VirtualizedTable<T>({
           >
             {columns.map((col) => (
               <div
-                key={`${(row as any).id}-${col.key}`}
+                key={`${row.id}-${col.key}`}
                 className="text-sm text-zinc-700 dark:text-zinc-300"
               >
                 {col.render
-                  ? col.render((row as any)[col.key], row)
-                  : (row as any)[col.key]}
+                  ? col.render(row[col.key], row as T)
+                  : String(row[col.key] ?? '')}
               </div>
             ))}
           </div>

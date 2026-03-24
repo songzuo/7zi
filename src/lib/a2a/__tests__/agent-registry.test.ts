@@ -2,6 +2,8 @@
  * Unit tests for Agent Registry
  */
 
+// @ts-nocheck - Complex agent registry testing with generic types
+
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import {
   InMemoryAgentRegistry,

@@ -8,10 +8,11 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { withAuth, authenticateRequest } from '@/middleware/auth';
+import { withAuth, RATE_LIMIT_CONFIG } from '@/middleware/auth';
 import { getDatabase } from '@/lib/db';
 import logger from '@/lib/logger';
-import { ErrorCodes, formatErrorMessage } from '@/lib/errors';
+import { createAppError, ErrorCodes, formatErrorMessage } from '@/lib/errors';
+
 // ============================================================================
 // Types
 // ============================================================================
@@ -171,9 +172,25 @@ function ensureTasksTable(): void {
 }
 
 /**
+ * 数据库行类型
+ */
+interface TaskRow {
+  id: string;
+  title: string;
+  description: string | null;
+  priority: string;
+  status: string;
+  due_date: string | null;
+  created_by: string;
+  assigned_to: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
  * 将数据库行转换为 Task 对象
  */
-function rowToTask(row: any): Task {
+function rowToTask(row: TaskRow): Task {
   return {
     id: row.id,
     title: row.title,
@@ -207,9 +224,21 @@ function isValidStatus(status: string): status is TaskStatus {
 }
 
 /**
+ * 创建任务请求数据接口
+ */
+interface CreateTaskRequest {
+  title?: string;
+  description?: string;
+  priority?: string;
+  status?: string;
+  dueDate?: string;
+  assignedTo?: string;
+}
+
+/**
  * 验证创建任务请求
  */
-function validateCreateTaskRequest(data: any): { valid: boolean; errors: string[] } {
+function validateCreateTaskRequest(data: CreateTaskRequest): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
 
   if (!data.title || typeof data.title !== 'string' || data.title.trim().length === 0) {
@@ -243,9 +272,21 @@ function validateCreateTaskRequest(data: any): { valid: boolean; errors: string[
 }
 
 /**
+ * 更新任务请求数据接口
+ */
+interface UpdateTaskRequest {
+  title?: string;
+  description?: string;
+  priority?: string;
+  status?: string;
+  dueDate?: string;
+  assignedTo?: string;
+}
+
+/**
  * 验证更新任务请求
  */
-function validateUpdateTaskRequest(data: any): { valid: boolean; errors: string[] } {
+function validateUpdateTaskRequest(data: UpdateTaskRequest): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
 
   if (data.title !== undefined) {
@@ -283,15 +324,41 @@ function validateUpdateTaskRequest(data: any): { valid: boolean; errors: string[
 // ============================================================================
 
 /**
+ * 任务查询参数接口
+ */
+export interface TaskQueryParams {
+  page?: number;
+  limit?: number;
+  status?: TaskStatus;
+  priority?: TaskPriority;
+  createdBy?: string;
+  assignedTo?: string;
+  search?: string;
+  sortBy?: 'createdAt' | 'updatedAt' | 'dueDate' | 'priority' | 'title';
+  sortOrder?: 'asc' | 'desc';
+}
+
+/**
+ * 排序字段映射
+ */
+const sortFieldMap = {
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
+  dueDate: 'due_date',
+  priority: 'priority',
+  title: 'title',
+} as const;
+
+/**
  * 构建查询条件和参数
  */
 function buildQuery(params: TaskQueryParams): {
   where: string;
   orderBy: string;
-  queryParams: any[];
+  queryParams: (string | number)[];
 } {
   const conditions: string[] = [];
-  const queryParams: any[] = [];
+  const queryParams: (string | number)[] = [];
 
   // 状态筛选
   if (params.status) {
@@ -363,12 +430,8 @@ function buildQuery(params: TaskQueryParams): {
  * GET /api/tasks - 获取任务列表（分页、筛选、排序）
  */
 export async function GET(request: NextRequest) {
-  return withAuth(request, async () => {
+  return withAuth(request, async (req, userId) => {
     try {
-      // 获取用户信息（可选，用于权限控制）
-      const auth = await authenticateRequest(request);
-      const userId = auth.success ? auth.userId : undefined;
-
       ensureTasksTable();
 
       const db = getDatabase();
@@ -387,7 +450,7 @@ export async function GET(request: NextRequest) {
         createdBy: searchParams.get('createdBy') || undefined,
         assignedTo: searchParams.get('assignedTo') || undefined,
         search: searchParams.get('search') || undefined,
-        sortBy: searchParams.get('sortBy') as any || 'createdAt',
+        sortBy: (searchParams.get('sortBy') as keyof typeof sortFieldMap) || 'createdAt',
         sortOrder: searchParams.get('sortOrder') as 'asc' | 'desc' || 'desc',
       };
 
@@ -441,19 +504,8 @@ export async function GET(request: NextRequest) {
  * POST /api/tasks - 创建新任务
  */
 export async function POST(request: NextRequest) {
-  return withAuth(request, async () => {
+  return withAuth(request, async (req, userId) => {
     try {
-      // 获取用户信息
-      const auth = await authenticateRequest(request);
-      if (!auth.success || !auth.userId) {
-        return NextResponse.json(
-          { success: false, error: 'Unauthorized' },
-          { status: 401 }
-        );
-      }
-
-      const userId = auth.userId;
-
       ensureTasksTable();
 
       const body = await request.json() as CreateTaskRequest;
@@ -492,7 +544,7 @@ export async function POST(request: NextRequest) {
         body.priority || 'medium',
         body.status || 'pending',
         body.dueDate || null,
-        userId, // Use userId from authentication
+        userId,
         body.assignedTo || null,
         now,
         now
@@ -500,7 +552,7 @@ export async function POST(request: NextRequest) {
 
       // 获取创建的任务
       const task = rowToTask(
-        db.prepare('SELECT * FROM tasks WHERE id = ?').get(id) as any
+        db.prepare('SELECT * FROM tasks WHERE id = ?').get(id) as TaskRow | undefined
       );
 
       logger.info(`Task created: ${id}`, { taskId: id, userId });

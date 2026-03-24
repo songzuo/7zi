@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useState, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useEnhancedWebSocket } from './useEnhancedWebSocket';
 import { notificationService } from './notification-service';
 import type { RealtimeNotification, RealtimeNotificationType } from './types';
@@ -122,7 +122,7 @@ export function useRealtimeNotifications(
 
       // Also mark in notification service
       if (userId) {
-        // @ts-ignore - TypeScript can't find markAsRead method on notificationService
+        
         await notificationService.markAsRead([id], userId);
       }
     } catch (err) {
@@ -140,7 +140,7 @@ export function useRealtimeNotifications(
       setUnreadCount(0);
 
       if (userId) {
-        // @ts-ignore - TypeScript can't find markAsRead method on notificationService
+        
         await notificationService.markAsRead(
           notificationsRef.current.map(n => n.id),
           userId
@@ -213,7 +213,7 @@ export function useRealtimeNotifications(
   // Play notification sound
   const playNotificationSound = useCallback((priority: 'high' | 'urgent') => {
     try {
-      // @ts-ignore - AudioContext type not in Window interface by default
+      
       const AudioContextClass = window.AudioContext || window.webkitAudioContext;
       const audioContext = AudioContextClass ? new AudioContextClass() : null;
 
@@ -385,9 +385,9 @@ export function useRealtimeNotifications(
       try {
         setLoading(true);
         const history = notificationService.getNotificationHistory(userId, 20);
-        setNotifications(history);
-        notificationsRef.current = history;
-        setUnreadCount(history.filter((n: any) => !n.read).length);
+        setNotifications(history as RealtimeNotification[]);
+        notificationsRef.current = history as RealtimeNotification[];
+        setUnreadCount(history.filter((n: RealtimeNotification) => !n.read).length);
       } catch (err) {
         logger.error('Failed to load initial notifications', { error: err });
         setError(err as Error);

@@ -9,8 +9,21 @@
  */
 
 import React, { useState } from 'react';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { TrendingUp } from 'lucide-react';
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  ReferenceLine
+} from 'recharts';
+import { TrendingUp, DollarSign, Calendar } from 'lucide-react';
+
 // ============================================================================
 // 类型定义
 // ============================================================================

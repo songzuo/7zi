@@ -23,7 +23,6 @@ type UndoRedoImpl = <
 ) => StateCreator<T, Mps, [['zustand/undo-redo', never], ...Mcs]>;
 
 // Type workaround for StoreMutators - use module augmentation with proper types
-// @ts-ignore - TypeScript limitation with module augmentation for Zustand v5
 declare module 'zustand/vanilla' {
   interface StoreMutators<S, A> {
     'zustand/undo-redo': Write<Cast<S, object>, UndoRedoStoreActions>;
@@ -74,7 +73,7 @@ export const undoRedoImpl: UndoRedoImpl = (f, config = {}) => {
     // Internal history state
     const history: HistoryState = {
       past: [],
-      // @ts-ignore - Type assertion for initial state (unknown to T)
+      // @ts-expect-error - Type assertion for initial state (unknown to T)
       present: f(set, get, api),
       future: [],
       currentIndex: 0,
@@ -98,7 +97,7 @@ export const undoRedoImpl: UndoRedoImpl = (f, config = {}) => {
           ) {
             Object.assign(history, loaded);
             // Restore present state into the store
-            // @ts-ignore - Type assertion for history state
+            // @ts-expect-error - Type assertion for history state
             set(loaded.present);
           }
         }
@@ -133,7 +132,7 @@ export const undoRedoImpl: UndoRedoImpl = (f, config = {}) => {
       history.isUndoing = true;
       history.isRedoing = false;
 
-      // @ts-ignore - Type assertion for history state (unknown to T)
+      // @ts-expect-error - Type assertion for history state (unknown to T)
       set(previous);
       saveToStorage();
 
@@ -157,7 +156,7 @@ export const undoRedoImpl: UndoRedoImpl = (f, config = {}) => {
       history.isUndoing = false;
       history.isRedoing = true;
 
-      // @ts-ignore - Type assertion for history state (unknown to T)
+      // @ts-expect-error - Type assertion for history state (unknown to T)
       set(next);
       saveToStorage();
 
@@ -171,7 +170,6 @@ export const undoRedoImpl: UndoRedoImpl = (f, config = {}) => {
     const clearHistory = () => {
       history.past = [];
       history.future = [];
-      // @ts-ignore - Type assertion for history state
       history.present = get();
       history.currentIndex = 0;
       history.isUndoing = false;
@@ -219,7 +217,7 @@ export const undoRedoImpl: UndoRedoImpl = (f, config = {}) => {
         }
 
         Object.assign(history, imported);
-        // @ts-ignore - Type assertion for history state
+        // @ts-expect-error - Type assertion for history state
         set(imported.present);
         saveToStorage();
 
@@ -239,7 +237,7 @@ export const undoRedoImpl: UndoRedoImpl = (f, config = {}) => {
 
       // Skip if we're in the middle of undo/redo
       if (history.isUndoing || history.isRedoing) {
-        // @ts-ignore - Type assertion for set function spread args (Zustand v5 type limitation)
+        // @ts-expect-error - Type assertion for set function spread args (Zustand v5 type limitation)
         set(...args);
         return;
       }
@@ -247,13 +245,13 @@ export const undoRedoImpl: UndoRedoImpl = (f, config = {}) => {
       // Skip if requested
       if (skipNextPush) {
         skipNextPush = false;
-        // @ts-ignore - Type assertion for set function spread args (Zustand v5 type limitation)
+        // @ts-expect-error - Type assertion for set function spread args (Zustand v5 type limitation)
         set(...args);
         return;
       }
 
       // Apply the state change
-      // @ts-ignore - Type assertion for set function spread args (Zustand v5 type limitation)
+      // @ts-expect-error - Type assertion for set function spread args (Zustand v5 type limitation)
       set(...args);
 
       // Wait for the next tick to get the updated state
@@ -280,8 +278,8 @@ export const undoRedoImpl: UndoRedoImpl = (f, config = {}) => {
       });
     };
 
-    // Create the store - @ts-ignore for type assertion
-    // @ts-ignore - Type assertion for final store creation (Zustand v5 type limitation)
+    // Create the store - @ts-expect-error for type assertion
+    // @ts-expect-error - Type assertion for final store creation (Zustand v5 type limitation)
     const store = f(wrappedSet, get, api);
 
     // Return the enhanced store with undo-redo actions

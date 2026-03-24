@@ -258,7 +258,7 @@ export const LazyMeetingRoom = dynamic(
  * - 用途: 数据备份和恢复
  */
 export const LazyDataExportImport = dynamic(
-  () => import('@/components/DataExportImport/index').then(mod => ({ default: mod.DataExportImport })),
+  () => import('@/components/DataExportImport').then(mod => ({ default: mod.DataExportImport })),
   {
     loading: () => (
       <LoadingFallback

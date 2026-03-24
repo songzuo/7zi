@@ -12,10 +12,11 @@ import { getDatabaseSize } from '@/lib/db';
 import { logger } from '@/lib/logger';
 import { withRateLimit } from '@/lib/middleware/rate-limit';
 import { withCors } from '@/middleware/cors';
-import { createErrorResponse, createServiceUnavailableError } from '@/lib/api/error-handler';
+import { createErrorResponse, createServiceUnavailableError, ErrorType } from '@/lib/api/error-handler';
 import { createSuccessResponse } from '@/lib/api/utils';
 import fs from 'fs/promises';
 import path from 'path';
+import crypto from 'crypto';
 
 interface BackupMetadata {
   id: string;
@@ -50,6 +51,11 @@ interface BackupData {
 }
 
 const BACKUP_DIR = path.join(process.cwd(), 'backups');
+
+/**
+ * Sensitive fields blacklist - do not export these fields
+ */
+const SENSITIVE_FIELDS = ['password', 'api_key', 'token', 'refresh_token', 'secret', 'private_key'];
 
 /**
  * Ensure backup directory exists
@@ -122,24 +128,58 @@ async function createBackup(): Promise<BackupMetadata> {
   const dbSize = getDatabaseSize();
   const databaseSizeBytes = dbSize?.sizeInBytes ?? 0;
 
-  // Get all tables
-  const tablesResult = await db.query(`
+  // Get all tables using prepared statement
+  const tablesStmt = db.prepare(`
     SELECT name FROM sqlite_master
     WHERE type = 'table' AND name NOT LIKE 'sqlite_%'
+    ORDER BY name
   `);
+  const tableRows = tablesStmt.all() as Array<{ name: string }>;
+  const tables = tableRows.map(t => t.name);
 
-  const tables = Array.isArray(tablesResult) ? tablesResult.map((t: TableName) => t.name) : [];
+  // Batch get all table row counts (single UNION ALL query)
+  let countQuery = '';
+  const countParams: string[] = [];
+  tables.forEach((table, index) => {
+    if (index > 0) countQuery += ' UNION ALL ';
+    countQuery += `SELECT '${table}' as table_name, COUNT(*) as row_count FROM ${table}`;
+  });
 
-  // Export all tables - OPTIMIZED: Removed redundant COUNT queries
+  const countsStmt = db.prepare(countQuery);
+  const rowCountData = countsStmt.all() as Array<{ table_name: string; row_count: number }>;
+
+  // Create row count map
+  const rowCountMap = new Map<string, number>();
+  for (const row of rowCountData) {
+    rowCountMap.set(row.table_name, row.row_count);
+  }
+
+  // Export all tables with safe columns - OPTIMIZED
   const backupData: BackupData = {};
   const recordCounts: Record<string, number> = {};
 
   for (const table of tables) {
-    const tableData = await db.query(`SELECT * FROM ${table}`);
-    backupData[table] = Array.isArray(tableData) ? tableData : [];
+    // Dynamically get table structure
+    const pragmaStmt = db.prepare(`PRAGMA table_info(${table})`);
+    const columns = pragmaStmt.all() as Array<{ name: string; type: string }>;
 
-    // Use array length instead of separate COUNT query (optimization)
-    recordCounts[table] = Array.isArray(tableData) ? tableData.length : 0;
+    // Filter sensitive fields
+    const safeColumns = columns
+      .map(c => c.name)
+      .filter(col => !SENSITIVE_FIELDS.includes(col.toLowerCase()));
+
+    if (safeColumns.length === 0) {
+      // No safe columns to export
+      backupData[table] = [];
+      recordCounts[table] = rowCountMap.get(table) || 0;
+      continue;
+    }
+
+    const columnsStr = safeColumns.join(', ');
+    const tableDataStmt = db.prepare(`SELECT ${columnsStr} FROM ${table}`);
+    const tableData = tableDataStmt.all();
+    backupData[table] = Array.isArray(tableData) ? tableData : [];
+    recordCounts[table] = rowCountMap.get(table) || 0;
   }
 
   // Create backup metadata
@@ -149,7 +189,7 @@ async function createBackup(): Promise<BackupMetadata> {
     createdAt: new Date().toISOString(),
     sizeInBytes: 0, // Will be calculated after saving
     sizeInMB: 0, // Will be calculated after saving
-    version: '1.0.0',
+    version: '1.1.0', // Updated: sensitive field filtering
     tables,
     recordCounts,
     checksum: '', // Will be calculated after saving
@@ -174,7 +214,6 @@ async function createBackup(): Promise<BackupMetadata> {
   backup.sizeInMB = stats.size / (1024 * 1024);
 
   // Simple checksum (hash of content)
-  const crypto = require('crypto');
   backup.checksum = crypto.createHash('sha256').update(jsonContent).digest('hex');
 
   // Update file with checksum

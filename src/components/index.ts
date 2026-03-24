@@ -84,20 +84,8 @@ export {
   LazyProjectDashboard,
   LazyGitHubActivity,
   LazyTaskBoard,
-  LazyActivityLog,
-  LazyRealtimeDashboard,
-  LazyTeamActivityTracker,
-  LazyAnalyticsDashboard,
-  LazyMetricsDashboard,
-  LazyKnowledgeLatticeScene,
-  LazyMeetingRoom,
-  LazyDataExportImport,
-  LazyGlobalSearch,
-  LazyAnimatedProgressBar,
   LazyUserSettings,
-  LazyFeedbackManagement,
-  LazyEnhancedFeedbackModal,
-  LazyLazyLoadImage,
+  preloadComponents,
 } from './LazyComponents';
 
 // Performance Monitoring

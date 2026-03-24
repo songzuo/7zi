@@ -6,7 +6,7 @@
 [![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/songzuo/7zi)
 [![CI Status](https://github.com/songzuo/7zi/workflows/CI%20-%20Pull%20Request%20Checks/badge.svg)](https://github.com/songzuo/7zi/actions/workflows/ci-pr.yml)
 [![Deploy Status](https://github.com/songzuo/7zi/workflows/Deploy%20-%20Main%20Branch/badge.svg)](https://github.com/songzuo/7zi/actions/workflows/deploy-main.yml)
-[![Next.js](https://img.shields.io/badge/Next.js-16.1.7-black?logo=next.js)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16.2.1-black?logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.2.4-blue?logo=react)](https://react.dev/)
 
 ---
@@ -202,7 +202,7 @@ RESEND_API_KEY=re_xxxxxxxx
 
 | 技术 | 版本 | 用途 |
 |------|------|------|
-| **Next.js** | 16.1.7 | React 全栈框架 (App Router) |
+| **Next.js** | 16.2.1 | React 全栈框架 (App Router) |
 | **React** | 19.2.4 | UI 库 |
 | **TypeScript** | 5.x | 类型安全 |
 | **Tailwind CSS** | 4.x | 原子化 CSS |

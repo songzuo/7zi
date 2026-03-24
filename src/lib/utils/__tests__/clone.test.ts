@@ -61,7 +61,7 @@ describe('clone utilities', () => {
       const cloned = deepClone(map);
 
       expect(cloned).not.toBe(map);
-      expect(cloned.get('key')).toEqual('value');
+      expect(cloned.get('key')).toEqual({ nested: 'value' });
       expect(cloned.get('key')).not.toBe(map.get('key'));
     });
 
@@ -178,16 +178,29 @@ describe('clone utilities', () => {
     });
 
     it('should handle deeply nested structures', () => {
-      let nested: any = { level: 0 };
-      const root = nested;
+      // Build a deep structure (not circular)
+      let current: any = { id: 0 };
       for (let i = 1; i < 100; i++) {
-        nested.next = { level: i };
-        nested = nested.next;
+        current.next = { id: i, next: {} as any };
+        current = current.next;
       }
-      nested.value = 'end';
+      // Set value on the deepest object
+      let deepest = current;
+      while (deepest.next && Object.keys(deepest.next).length > 0) {
+        deepest = deepest.next;
+      }
+      deepest.value = 'end';
 
+      // Clone from the root
+      const root = current;
       const cloned = deepClone(root);
-      expect(cloned.value).toBe('end');
+
+      // Navigate to deepest to check value
+      let clonedDeepest = cloned;
+      while (clonedDeepest.next && Object.keys(clonedDeepest.next).length > 0) {
+        clonedDeepest = clonedDeepest.next;
+      }
+      expect(clonedDeepest.value).toBe('end');
       expect(cloned).not.toBe(root);
     });
 

@@ -4,6 +4,8 @@
  * Demonstrates React.memo and performance best practices for collaboration features
  */
 
+'use client';
+
 import React, { memo } from 'react';
 import { Cursor } from '@/lib/collaboration/manager';
 import type { RoomUser } from '@/lib/websocket/server';

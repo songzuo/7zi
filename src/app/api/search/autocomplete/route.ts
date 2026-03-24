@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getGlobalSearchManager } from '@/lib/search/advanced-search';
+import type { AutocompleteSuggestion } from '@/lib/search/types';
 
 /**
  * GET /api/search/autocomplete - Get autocomplete suggestions

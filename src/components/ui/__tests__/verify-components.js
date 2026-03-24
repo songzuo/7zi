@@ -4,6 +4,8 @@
  * This script verifies that all UI components can be imported and used correctly.
  */
 
+/* eslint-disable @typescript-eslint/no-require-imports */
+
 import React from 'react';
 
 // Test imports from all components

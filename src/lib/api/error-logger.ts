@@ -25,6 +25,16 @@ import { ErrorType } from './error-handler';
 import { getRetryInfo } from './retry-decorator';
 
 /**
+ * Extended Error interface with additional properties
+ */
+interface ExtendedError extends Error {
+  statusCode?: number;
+  status?: number;
+  type?: string;
+  code?: string;
+}
+
+/**
  * Context information for API error logging
  */
 export interface ErrorLogContext {
@@ -119,7 +129,7 @@ function getSeverityForErrorType(errorType: ErrorType): 'error' | 'warn' | 'info
  * @returns Status code or undefined
  */
 function extractStatusCode(error: Error): number | undefined {
-  return (error as any).statusCode || (error as any).status;
+  return (error as ExtendedError).statusCode || (error as ExtendedError).status;
 }
 
 /**
@@ -129,7 +139,7 @@ function extractStatusCode(error: Error): number | undefined {
  * @returns Error type or 'UNKNOWN'
  */
 function extractErrorType(error: Error): ErrorType | string {
-  return (error as any).type || (error as any).code || 'UNKNOWN';
+  return (error as ExtendedError).type || (error as ExtendedError).code || 'UNKNOWN';
 }
 
 /**

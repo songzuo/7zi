@@ -4,7 +4,8 @@
  * Maintains backward compatibility while supporting multi-role systems
  */
 
-import { Role } from '@/lib/permissions/types';
+import { Permission, Role } from '@/lib/permissions/types';
+
 /**
  * User status
  */

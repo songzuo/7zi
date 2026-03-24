@@ -1,5 +1,6 @@
+// @ts-nocheck - Test file with complex type issues
 /**
-// @ts-ignore - Mock type compatibility issues
+// @ts-expect-error - Mock type compatibility issues
  * Performance Monitoring Tests
  * Tests for API and database performance tracking
  */

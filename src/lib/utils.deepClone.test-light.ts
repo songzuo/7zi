@@ -35,13 +35,17 @@ function benchmark(name: string, fn: () => void, iterations: number = 50): void 
   }
   const end = performance.now();
   const avgTime = (end - start) / iterations;
-  console.log(`${name}: ${avgTime.toFixed(4)}ms (avg over ${iterations} iterations)`);
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`${name}: ${avgTime.toFixed(4)}ms (avg over ${iterations} iterations)`);
+  }
 }
 
 /**
  * Run performance tests
  */
 export function runDeepClonePerformanceTests(): void {
+  if (process.env.NODE_ENV === 'production') return;
+
   console.log('\n=== Deep Clone Performance Tests (Iterative Implementation) ===\n');
 
   // Test 1: Deeply nested objects (main benefit of iterative approach)

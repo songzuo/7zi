@@ -149,7 +149,7 @@ export function withSecurity(
 
   return async (request: NextRequest): Promise<NextResponse> => {
     const startTime = Date.now();
-    let metadata: any = null;
+    let metadata: { requestId: string } | null = null;
 
     // Start logging if enabled
     if (finalConfig.enableLogging) {
@@ -374,7 +374,7 @@ export const SecurityConfigs = {
     securityHeadersConfig: {
       contentSecurityPolicy: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'nonce-{CSP_NONCE}'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", 'data:', 'https:'],
         connectSrc: ["'self'"],
@@ -480,12 +480,23 @@ export function getSanitizedQuery<T = Record<string, unknown>>(
 }
 
 /**
- * Get security context from request (brute force info)
+ * Security context interface
  */
-export function getSecurityContext(request: NextRequest): {
-  config: any;
+export interface SecurityContext {
+  config: {
+    maxAttempts: number;
+    baseLockoutDuration: number;
+    attemptWindow: number;
+    captchaThreshold: number;
+    trackByAccount: boolean;
+  };
   identifier?: string;
   requireCaptcha: boolean;
-} | undefined {
-  return (request as any).securityContext;
+}
+
+/**
+ * Get security context from request (brute force info)
+ */
+export function getSecurityContext(request: NextRequest): SecurityContext | undefined {
+  return (request as { securityContext?: SecurityContext }).securityContext;
 }

@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
     const nodeVersion = process.version;
 
     const response: HealthCheckResponse = {
-      status: 'healthy',
+      status: memoryStatus === 'warning' ? 'unhealthy' : 'healthy',
       timestamp: new Date().toISOString(),
       uptime,
       version,
@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
         data: response
       },
       {
-        status: 200,
+        status: memoryStatus === 'warning' ? 503 : 200,
         headers: {
           'Content-Type': 'application/json',
           'Cache-Control': 'no-cache',

@@ -10,8 +10,8 @@ import { createUser, getAllUsers, getUserByEmail } from '@/lib/auth/repository';
 import { UserStatus, UserRole } from '@/lib/auth/types';
 import { NextRequest } from 'next/server';
 
-// Mock dependencies - use vi-mocks.ts global mocks instead of local mocks
-// vi.mock('@/lib/auth/repository'); // Already mocked in vi-mocks.ts
+// Mock dependencies
+vi.mock('@/lib/auth/repository');
 vi.mock('@/lib/db/audit-log');
 vi.mock('@/lib/logger');
 
@@ -170,8 +170,8 @@ describe('User Management API - /api/users', () => {
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.success).toBe(false);
-      expect(data.error.code).toBe('INVALID_PARAMETER');
+      expect(data.success).toBeUndefined();
+      expect(data.code).toBe('BAD_REQUEST');
     });
 
     it('should validate limit parameter', async () => {
@@ -183,8 +183,8 @@ describe('User Management API - /api/users', () => {
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.success).toBe(false);
-      expect(data.error.code).toBe('INVALID_PARAMETER');
+      expect(data.success).toBeUndefined();
+      expect(data.code).toBe('BAD_REQUEST');
     });
 
     it('should validate status parameter', async () => {
@@ -196,7 +196,8 @@ describe('User Management API - /api/users', () => {
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.success).toBe(false);
+      expect(data.success).toBeUndefined();
+      expect(data.code).toBe('BAD_REQUEST');
     });
 
     it('should sort users by name', async () => {
@@ -286,8 +287,10 @@ describe('User Management API - /api/users', () => {
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.success).toBe(false);
-      expect(data.error.code).toBe('VALIDATION_ERROR');
+      expect(data.success).toBeUndefined();
+      expect(data.code).toBe('BAD_REQUEST');
+      expect(data.errors).toHaveProperty('password');
+      expect(data.errors).toHaveProperty('name');
     });
 
     it('should validate email format', async () => {
@@ -304,8 +307,9 @@ describe('User Management API - /api/users', () => {
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.success).toBe(false);
-      expect(data.error.code).toBe('VALIDATION_ERROR');
+      expect(data.success).toBeUndefined();
+      expect(data.code).toBe('BAD_REQUEST');
+      expect(data.errors).toHaveProperty('email');
     });
 
     it('should validate password length', async () => {
@@ -322,8 +326,9 @@ describe('User Management API - /api/users', () => {
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.success).toBe(false);
-      expect(data.error.message).toContain('8 characters');
+      expect(data.success).toBeUndefined();
+      expect(data.code).toBe('BAD_REQUEST');
+      expect(data.message).toContain('8 characters');
     });
 
     it('should check for duplicate email', async () => {
@@ -353,8 +358,8 @@ describe('User Management API - /api/users', () => {
       const data = await response.json();
 
       expect(response.status).toBe(409);
-      expect(data.success).toBe(false);
-      expect(data.error.code).toBe('USER_EXISTS');
+      expect(data.success).toBeUndefined();
+      expect(data.code).toBe('CONFLICT');
     });
 
     it('should validate role if provided', async () => {
@@ -374,7 +379,9 @@ describe('User Management API - /api/users', () => {
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.success).toBe(false);
+      expect(data.success).toBeUndefined();
+      expect(data.code).toBe('BAD_REQUEST');
+      expect(data.errors).toHaveProperty('role');
     });
   });
 });

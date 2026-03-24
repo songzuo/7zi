@@ -1,8 +1,8 @@
 # 7zi Project API Documentation
 
-**Generated**: 2026-03-18
-**Version**: 0.1.0
-**Protocol**: Next.js 16 App Router API Routes
+**Generated**: 2026-03-23
+**Version**: 1.0.9
+**Protocol**: Next.js 15 App Router API Routes
 
 ---
 

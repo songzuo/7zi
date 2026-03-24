@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Calendar, ChevronDown, Check } from 'lucide-react';
 import { type TimeRange, type DateRange } from '@/lib/types/analytics';
 
@@ -53,11 +53,9 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [tempRange, setTempRange] = useState<TimeRange>(selectedRange);
+
   const [tempCustomRange, setTempCustomRange] = useState<DateRange>(
-    customRange || {
-      start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      end: new Date().toISOString().split('T')[0]
-    }
+    customRange || { start: '', end: '' }
   );
 
   const t = locale === 'zh' ? 'zh' : 'en';

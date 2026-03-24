@@ -27,7 +27,7 @@ Route (pages) ─ ○ /404
 ```
 
 ### 构建配置
-- **Next.js 版本**: 16.1.7 (Turbopack)
+- **Next.js 版本**: 16.2.1 (Turbopack)
 - **输出模式**: standalone (Docker 部署)
 - **环境文件**: .env.local, .env.production
 

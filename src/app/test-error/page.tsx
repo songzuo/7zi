@@ -4,6 +4,7 @@
  */
 
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 
 /**
  * Simulate different error types for testing
@@ -57,7 +58,7 @@ export default function TestErrorPage({
               Click the links below to test different error scenarios:
             </p>
             <div className="space-y-3">
-              <a
+              <Link
                 href="/test-error?type=not-found"
                 className="block p-4 bg-white dark:bg-zinc-900 rounded-lg hover:shadow-lg transition-all border border-zinc-200 dark:border-zinc-800"
               >
@@ -65,8 +66,8 @@ export default function TestErrorPage({
                   404 Not Found
                 </h2>
                 <p className="text-sm text-zinc-500">Test the 404 page</p>
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/test-error?type=server"
                 className="block p-4 bg-white dark:bg-zinc-900 rounded-lg hover:shadow-lg transition-all border border-zinc-200 dark:border-zinc-800"
               >
@@ -74,8 +75,8 @@ export default function TestErrorPage({
                   500 Server Error
                 </h2>
                 <p className="text-sm text-zinc-500">Test the 500 error page</p>
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/test-error?type=unauthorized"
                 className="block p-4 bg-white dark:bg-zinc-900 rounded-lg hover:shadow-lg transition-all border border-zinc-200 dark:border-zinc-800"
               >
@@ -83,8 +84,8 @@ export default function TestErrorPage({
                   401 Unauthorized
                 </h2>
                 <p className="text-sm text-zinc-500">Test the unauthorized page</p>
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/test-error?type=forbidden"
                 className="block p-4 bg-white dark:bg-zinc-900 rounded-lg hover:shadow-lg transition-all border border-zinc-200 dark:border-zinc-800"
               >
@@ -92,8 +93,8 @@ export default function TestErrorPage({
                   403 Forbidden
                 </h2>
                 <p className="text-sm text-zinc-500">Test the forbidden page</p>
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/test-error?type=network"
                 className="block p-4 bg-white dark:bg-zinc-900 rounded-lg hover:shadow-lg transition-all border border-zinc-200 dark:border-zinc-800"
               >
@@ -101,7 +102,7 @@ export default function TestErrorPage({
                   Network Error
                 </h2>
                 <p className="text-sm text-zinc-500">Test the network error page</p>
-              </a>
+              </Link>
             </div>
             <div className="mt-8 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
               <p className="text-sm text-amber-700 dark:text-amber-300">

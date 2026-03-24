@@ -3,7 +3,7 @@
  * @description Type definitions for the advanced search system
  */
 
-
+import Fuse from 'fuse.js';
 import type { SearchConfig, SearchResult } from '@/types/search-filter';
 
 // Re-export SearchResult for convenience

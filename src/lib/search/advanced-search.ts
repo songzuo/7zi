@@ -41,7 +41,7 @@ export interface SearchIndex<T> {
 // Constants
 // ============================================================================
 
-// @ts-ignore - Fuse.js type issue with namespace in TypeScript
+// @ts-expect-error - Fuse.js type issue with namespace in TypeScript
 const DEFAULT_FUSE_OPTIONS: Fuse.IFuseOptions<Record<string, unknown>> = {
   threshold: 0.3,
   distance: 100,
@@ -82,7 +82,7 @@ export class AdvancedSearchManager<T extends Record<string, unknown>> {
   createIndex(
     id: string,
     items: T[],
-    // @ts-ignore - Fuse.js type issue with namespace in TypeScript
+    // @ts-expect-error - Fuse.js type issue with namespace in TypeScript
     options?: Partial<Fuse.IFuseOptions<T>>
   ): void {
     const fuseOptions = { ...DEFAULT_FUSE_OPTIONS, ...options };
@@ -411,7 +411,7 @@ export class AdvancedSearchManager<T extends Record<string, unknown>> {
    */
   private convertFuseResults(
     indexId: string,
-    // @ts-ignore - Fuse.js type issue with namespace in TypeScript
+    // @ts-expect-error - Fuse.js type issue with namespace in TypeScript
     fuseResults: Fuse.FuseResult<T>[],
     config?: SearchConfig
   ): SearchResult<T>[] {

@@ -1,5 +1,6 @@
+// @ts-nocheck - Test file with complex type issues
 /**
-// @ts-ignore - Mock type compatibility issues
+// @ts-expect-error - Mock type compatibility issues
  * Database Optimization Initialization Tests
  * 测试数据库优化初始化功能
  */

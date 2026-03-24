@@ -94,7 +94,7 @@ const { getDatabaseAsync } = await import('@/lib/db/index');
 describe('GET /api/feedback', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    getDatabaseAsync.mockResolvedValue(mockDb);
+    vi.mocked(getDatabaseAsync).mockResolvedValue(mockDb);
   });
 
   it('should return feedbacks list', async () => {
@@ -194,7 +194,7 @@ describe('GET /api/feedback', () => {
 describe('POST /api/feedback', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    getDatabaseAsync.mockResolvedValue(mockDb);
+    vi.mocked(getDatabaseAsync).mockResolvedValue(mockDb);
   });
 
   it('should create a new feedback', async () => {
@@ -347,7 +347,7 @@ describe('POST /api/feedback', () => {
 describe('GET_FEEDBACK /api/feedback/[id]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    getDatabaseAsync.mockResolvedValue(mockDb);
+    vi.mocked(getDatabaseAsync).mockResolvedValue(mockDb);
   });
 
   it('should return single feedback', async () => {
@@ -377,7 +377,7 @@ describe('GET_FEEDBACK /api/feedback/[id]', () => {
 describe('PATCH /api/feedback/[id]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    getDatabaseAsync.mockResolvedValue(mockDb);
+    vi.mocked(getDatabaseAsync).mockResolvedValue(mockDb);
   });
 
   it('should update feedback status', async () => {
@@ -394,7 +394,7 @@ describe('PATCH /api/feedback/[id]', () => {
       }),
     });
 
-    const response = await PATCH(request, { params: { id: "1" } });
+    const response = await PATCH(request, { params: Promise.resolve({ id: "1" }) });
 
     expect(response.status).toBe(200);
   });
@@ -414,7 +414,7 @@ describe('PATCH /api/feedback/[id]', () => {
       }),
     });
 
-    const response = await PATCH(request, { params: { id: "1" } });
+    const response = await PATCH(request, { params: Promise.resolve({ id: "1" }) });
 
     expect(response.status).toBe(200);
     expect(mockDb.exec).toHaveBeenCalledWith(
@@ -438,7 +438,7 @@ describe('PATCH /api/feedback/[id]', () => {
       }),
     });
 
-    const response = await PATCH(request, { params: { id: "1" } });
+    const response = await PATCH(request, { params: Promise.resolve({ id: "1" }) });
 
     expect(response.status).toBe(200);
     expect(mockDb.exec).toHaveBeenCalledWith(
@@ -461,7 +461,7 @@ describe('PATCH /api/feedback/[id]', () => {
       }),
     });
 
-    const response = await PATCH(request, { params: { id: "1" } });
+    const response = await PATCH(request, { params: Promise.resolve({ id: "1" }) });
 
     expect(response.status).toBe(200);
   });
@@ -479,7 +479,7 @@ describe('PATCH /api/feedback/[id]', () => {
       }),
     });
 
-    const response = await PATCH(request, { params: { id: "1" } });
+    const response = await PATCH(request, { params: Promise.resolve({ id: "1" }) });
 
     expect(response.status).toBe(200);
   });
@@ -493,7 +493,7 @@ describe('PATCH /api/feedback/[id]', () => {
       }),
     });
 
-    const response = await PATCH(request, { params: { id: "1" } });
+    const response = await PATCH(request, { params: Promise.resolve({ id: "1" }) });
 
     expect(response.status).toBe(403);
   });
@@ -509,7 +509,7 @@ describe('PATCH /api/feedback/[id]', () => {
       }),
     });
 
-    const response = await PATCH(request, { params: { id: "1" } });
+    const response = await PATCH(request, { params: Promise.resolve({ id: "1" }) });
 
     expect(response.status).toBe(404);
   });
@@ -518,7 +518,7 @@ describe('PATCH /api/feedback/[id]', () => {
 describe('DELETE_FEEDBACK /api/feedback/[id]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    getDatabaseAsync.mockResolvedValue(mockDb);
+    vi.mocked(getDatabaseAsync).mockResolvedValue(mockDb);
   });
 
   it('should delete feedback', async () => {

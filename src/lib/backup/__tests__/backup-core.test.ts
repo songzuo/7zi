@@ -94,7 +94,7 @@ describe('Backup Core Module', () => {
 
     it('should return backups sorted by creation date (newest first)', async () => {
       const backup1 = await createBackup();
-      await new Promise(resolve => setTimeout(resolve, 10));
+      vi.advanceTimersByTime(10);
       const backup2 = await createBackup();
 
       const backups = await listBackups();

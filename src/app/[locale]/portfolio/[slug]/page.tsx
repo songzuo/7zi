@@ -157,20 +157,20 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
             {/* Project Info */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {project.client && (
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <div className="bg-white/10 dark:bg-zinc-900/20 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                   <div className="text-sm text-zinc-400 mb-1">{tPortfolio('detail.client')}</div>
                   <div className="font-medium text-white">{project.client}</div>
                 </div>
               )}
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+              <div className="bg-white/10 dark:bg-zinc-900/20 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                 <div className="text-sm text-zinc-400 mb-1">{tPortfolio('detail.duration')}</div>
                 <div className="font-medium text-white">{project.duration}</div>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+              <div className="bg-white/10 dark:bg-zinc-900/20 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                 <div className="text-sm text-zinc-400 mb-1">{tPortfolio('detail.year')}</div>
                 <div className="font-medium text-white">{project.year}</div>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+              <div className="bg-white/10 dark:bg-zinc-900/20 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                 <div className="text-sm text-zinc-400 mb-1">{tPortfolio('detail.category')}</div>
                 <div className="font-medium text-white uppercase">{project.category}</div>
               </div>

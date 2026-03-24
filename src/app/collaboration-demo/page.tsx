@@ -6,22 +6,27 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { useCollaboration } from '@/lib/websocket';
 import { ConnectionStatus, UserList } from '@/components/collaboration/ConnectionStatus';
 
 type RoomType = 'task' | 'project' | 'chat' | 'document';
 
+// Demo-specific: Using Math.random for unique user IDs - acceptable for demo purposes
+// eslint-disable-next-line react-hooks/rules-of-hooks
 export default function CollaborationDemoPage() {
-  const [config, setConfig] = useState({
-    url: 'http://localhost:3000',
-    token: 'demo-token',
+  // Generate stable initial config values
+  const initialConfig = useMemo(() => ({
+    url: 'ws://localhost:3002',
+    token: '',
     userId: `user-${Math.floor(Math.random() * 1000)}`,
     userName: `User ${Math.floor(Math.random() * 1000)}`,
     roomType: 'task' as RoomType,
     roomId: 'demo-task-1',
     documentId: 'demo-doc-1',
-  });
+  }), []);
+
+  const [config, setConfig] = useState(initialConfig);
 
   const {
     connectionState,
@@ -337,7 +342,7 @@ export default function CollaborationDemoPage() {
             <li>Configure different user IDs and names for each tab</li>
             <li>Connect to the WebSocket server</li>
             <li>Join the same room (use the same Room ID)</li>
-            <li>Type messages and click "Add to Document"</li>
+            <li>Type messages and click &quot;Add to Document&quot;</li>
             <li>Watch real-time updates across all tabs</li>
             <li>Observe cursor positions, typing indicators, and user presence</li>
             <li>Test disconnection and reconnection scenarios</li>

@@ -144,13 +144,11 @@ export async function checkTokenBucket(
 export async function getTokenBucketStatus(
   key: string
 ): Promise<{ tokens: number; lastRefill: number | null; capacity: number }> {
-  const defaultResult = { tokens: 0, lastRefill: null, capacity: 0 };
-
   const result = await redisCommand(
     async () => {
       const client = getRedisClient();
       if (!client) {
-        return defaultResult;
+        return { tokens: 0, lastRefill: null, capacity: 0 };
       }
 
       const data = await client.hmget(key, 'tokens', 'lastRefill', 'capacity');
@@ -160,17 +158,17 @@ export async function getTokenBucketStatus(
 
       return { tokens, lastRefill, capacity };
     },
-    defaultResult
+    { tokens: 0, lastRefill: null, capacity: 0 }
   );
 
-  return result ?? defaultResult;
+  return result ?? { tokens: 0, lastRefill: null, capacity: 0 };
 }
 
 /**
  * Reset token bucket for a key
  */
 export async function resetTokenBucket(key: string, capacity: number): Promise<boolean> {
-  const result = await redisCommand(
+  return (await redisCommand(
     async () => {
       const client = getRedisClient();
       if (!client) {
@@ -184,9 +182,7 @@ export async function resetTokenBucket(key: string, capacity: number): Promise<b
       return true;
     },
     false
-  );
-
-  return result ?? false;
+  )) ?? false;
 }
 
 /**
@@ -196,7 +192,7 @@ export async function setTokenBucketCapacity(
   key: string,
   capacity: number
 ): Promise<boolean> {
-  const result = await redisCommand(
+  return (await redisCommand(
     async () => {
       const client = getRedisClient();
       if (!client) {
@@ -207,9 +203,7 @@ export async function setTokenBucketCapacity(
       return true;
     },
     false
-  );
-
-  return result ?? false;
+  )) ?? false;
 }
 
 /**
@@ -220,13 +214,11 @@ export async function addTokensToBucket(
   tokensToAdd: number,
   maxCapacity: number
 ): Promise<{ success: boolean; newTokenCount: number }> {
-  const defaultResult = { success: false, newTokenCount: 0 };
-
-  const result = await redisCommand(
+  return (await redisCommand(
     async () => {
       const client = getRedisClient();
       if (!client) {
-        return defaultResult;
+        return { success: false, newTokenCount: 0 };
       }
 
       const luaScript = `
@@ -246,10 +238,8 @@ export async function addTokensToBucket(
 
       return { success: true, newTokenCount: newTokens };
     },
-    defaultResult
-  );
-
-  return result ?? defaultResult;
+    { success: false, newTokenCount: 0 }
+  )) ?? { success: false, newTokenCount: 0 };
 }
 
 /**
@@ -260,13 +250,11 @@ export async function consumeTokens(
   tokensToConsume: number,
   capacity: number
 ): Promise<{ allowed: boolean; remaining: number }> {
-  const defaultResult = { allowed: true, remaining: capacity - tokensToConsume };
-
-  const result = await redisCommand(
+  return (await redisCommand(
     async () => {
       const client = getRedisClient();
       if (!client) {
-        return defaultResult;
+        return { allowed: true, remaining: capacity - tokensToConsume };
       }
 
       const luaScript = `
@@ -313,8 +301,6 @@ export async function consumeTokens(
 
       return { allowed, remaining };
     },
-    defaultResult
-  );
-
-  return result ?? defaultResult;
+    { allowed: true, remaining: capacity - tokensToConsume }
+  )) ?? { allowed: true, remaining: capacity - tokensToConsume };
 }

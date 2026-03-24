@@ -20,6 +20,7 @@ import {
 import { InMemoryTaskStore } from './task-store';
 import { AgentExecutor, RequestContext, SimpleEventBus } from './executor';
 import { AgentCard } from './agent-card';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface RequestHandlerOptions {
   agentCard: AgentCard;

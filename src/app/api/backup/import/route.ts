@@ -9,9 +9,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { withUserAuth, RBACUserContext } from '@/lib/auth/middleware-rbac';
 import { BackupManager } from '@/lib/backup/manager';
-
+import { ExportFormat } from '@/lib/backup/types';
 import { createSuccessResponse } from '@/lib/api/utils';
-import { createErrorResponse } from '@/lib/api/error-handler';
+import { createBadRequestError, createErrorResponse } from '@/lib/api/error-handler';
+
 /**
  * POST /api/backup/import
  * Import data from a file

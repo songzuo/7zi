@@ -6,7 +6,11 @@
 import { NextRequest } from 'next/server';
 import { getGlobalSearchManager } from '@/lib/search/advanced-search';
 import { getGlobalHistoryManager } from '@/lib/search/history-manager';
-import type { AdvancedSearchQuery,  } from '@/lib/search/types';
+import type {
+  AdvancedSearchQuery,
+  PaginatedSearchResult,
+  UnifiedEntity,
+} from '@/lib/search/types';
 import { createErrorResponse, createSuccessResponse } from '@/lib/api/error-handler';
 import { logger } from '@/lib/logger';
 

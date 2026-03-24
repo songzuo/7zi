@@ -144,12 +144,11 @@ export async function isRedisAvailable(): Promise<boolean> {
 
 /**
  * Execute Redis command with error handling
- * Returns the result of the command, or the fallback value if Redis is unavailable or an error occurs
  */
 export async function redisCommand<T>(
-  command: (...args: any[]) => Promise<T>,
-  fallback: T
-): Promise<T> {
+  command: (...args: unknown[]) => Promise<T>,
+  fallback?: T
+): Promise<T | undefined> {
   const client = getRedisClient();
 
   if (!client) {

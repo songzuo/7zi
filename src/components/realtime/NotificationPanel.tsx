@@ -9,7 +9,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRealtimeNotifications } from '@/lib/realtime/useRealtimeNotifications';
-import { Bell, X, Check, Filter, Trash2, Clock, AlertTriangle, Info, CheckCircle } from 'lucide-react';
+import { Bell, X, Check, Filter, Trash2, Clock, AlertTriangle, Info, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import type { RealtimeNotification, NotificationCategory, RealtimeNotificationType } from '@/lib/realtime/types';

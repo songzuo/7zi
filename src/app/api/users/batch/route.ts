@@ -10,8 +10,14 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserById, createUser, updateUser, getUserByEmail,  } from '@/lib/auth/repository';
-
+import {
+  getUserById,
+  createUser,
+  updateUser,
+  getUserByEmail,
+  getAllUsers,
+} from '@/lib/auth/repository';
+import { batchInsert, batchUpdate, batchDelete } from '@/lib/db/batch-operations';
 import { logger } from '@/lib/logger';
 
 /**

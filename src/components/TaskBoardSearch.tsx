@@ -58,6 +58,7 @@ export const TaskBoardSearch: React.FC<TaskBoardSearchProps> = ({
   }, [labelOptions, assigneeOptions]);
 
   // 处理搜索过滤结果变化
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleResultsChange = (result: any) => {
     setFilteredIssues(result.items);
     setSearchResults({
@@ -105,7 +106,9 @@ export const TaskBoardSearch: React.FC<TaskBoardSearchProps> = ({
       <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800">
         <SearchFilter
           items={issues}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           filters={filterConfigs as any}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           sorts={ISSUE_SORT_CONFIGS as any}
           onResultsChange={handleResultsChange}
           searchPlaceholder="搜索任务标题、标签..."

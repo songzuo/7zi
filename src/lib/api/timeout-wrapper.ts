@@ -54,20 +54,20 @@ export class TimeoutError extends Error {
  *   3000
  * );
  */
-export function withTimeout<T extends (...args: any[]) => Promise<any>>(
+export function withTimeout<T extends (...args: unknown[]) => Promise<unknown>>(
   fn: T,
   timeoutMs: number = 30000,
   locale: SupportedLocale = 'zh'
 ): T {
   return (async (...args: Parameters<T>) => {
     // Create timeout promise
-    const timeoutPromise = new Promise((_, reject) => {
+    const timeoutPromise = new Promise<never>((_, reject) => {
       const timeoutId = setTimeout(() => {
         reject(new TimeoutError(`Operation timed out after ${timeoutMs}ms`));
       }, timeoutMs);
 
       // Store timeout ID for cleanup
-      (timeoutPromise as any).__timeoutId = timeoutId;
+      (timeoutPromise as { __timeoutId?: NodeJS.Timeout }).__timeoutId = timeoutId;
     });
 
     try {
@@ -75,7 +75,7 @@ export function withTimeout<T extends (...args: any[]) => Promise<any>>(
       const result = await Promise.race([fn(...args), timeoutPromise]);
 
       // Clear timeout if operation completed first
-      const timeoutId = (timeoutPromise as any).__timeoutId;
+      const timeoutId = (timeoutPromise as { __timeoutId?: NodeJS.Timeout }).__timeoutId;
       if (timeoutId) {
         clearTimeout(timeoutId);
       }
@@ -83,7 +83,7 @@ export function withTimeout<T extends (...args: any[]) => Promise<any>>(
       return result;
     } catch (error) {
       // Clear timeout on error
-      const timeoutId = (timeoutPromise as any).__timeoutId;
+      const timeoutId = (timeoutPromise as { __timeoutId?: NodeJS.Timeout }).__timeoutId;
       if (timeoutId) {
         clearTimeout(timeoutId);
       }
@@ -154,7 +154,7 @@ export async function withTimeoutPromise<T>(
  * @param locale - Locale for error messages
  * @returns Wrapped function that returns NextResponse on timeout
  */
-export function withTimeoutApi<T extends (...args: any[]) => Promise<any>>(
+export function withTimeoutApi<T extends (...args: unknown[]) => Promise<unknown>>(
   fn: T,
   timeoutMs: number = 30000,
   locale: SupportedLocale = 'zh'

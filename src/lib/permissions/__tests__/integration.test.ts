@@ -1,5 +1,5 @@
 /**
-// @ts-ignore - Mock type compatibility issues
+// @ts-expect-error - Mock type compatibility issues
  * RBAC Integration Test
  * Verifies the complete RBAC system works end-to-end
  */

@@ -26,6 +26,11 @@ type Params = Promise<{ locale: string }>;
 
 
 
+// ISR: Revalidate every 1 hour
+export const revalidate = 3600; // 1小时
+
+
+
 const baseUrl = 'https://7zi.studio';
 
 
@@ -42,6 +47,11 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 
     en: 'Contact Us - Get Professional Digital Services',
 
+  };
+
+  const keywords = {
+    zh: ['7zi Studio', '联系我们', '联系', '咨询', '商务合作', 'AI 服务', '数字化解决方案'],
+    en: ['7zi Studio', 'Contact Us', 'Contact', 'Consultation', 'Business Collaboration', 'AI Services', 'Digital Solutions'],
   };
 
   
@@ -61,6 +71,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     title: titles[locale as 'zh' | 'en'] || titles.zh,
 
     description: descriptions[locale as 'zh' | 'en'] || descriptions.zh,
+    keywords: keywords[locale as 'zh' | 'en'] || keywords.zh,
 
     openGraph: {
 

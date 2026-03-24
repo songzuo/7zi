@@ -93,7 +93,7 @@ describe('GitHub Helper', () => {
 
   describe('fetchFromGitHub', () => {
     it('should make request with correct headers', async () => {
-      fetch.mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve({ data: 'test' }),
       } as Response);
@@ -114,7 +114,7 @@ describe('GitHub Helper', () => {
     });
 
     it('should include authorization header when token is provided', async () => {
-      fetch.mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve({ data: 'test' }),
       } as Response);
@@ -133,7 +133,7 @@ describe('GitHub Helper', () => {
 
     it('should use default owner from env var', async () => {
       vi.stubEnv('NEXT_PUBLIC_GITHUB_OWNER', 'custom-owner');
-      fetch.mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve({ data: 'test' }),
       } as Response);
@@ -147,7 +147,7 @@ describe('GitHub Helper', () => {
     });
 
     it('should use custom owner when provided', async () => {
-      fetch.mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve({ data: 'test' }),
       } as Response);
@@ -162,7 +162,7 @@ describe('GitHub Helper', () => {
 
     it('should use default repo from env var', async () => {
       vi.stubEnv('NEXT_PUBLIC_GITHUB_REPO', 'custom-repo');
-      fetch.mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve({ data: 'test' }),
       } as Response);
@@ -176,7 +176,7 @@ describe('GitHub Helper', () => {
     });
 
     it('should include per_page parameter', async () => {
-      fetch.mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve({ data: 'test' }),
       } as Response);
@@ -190,7 +190,7 @@ describe('GitHub Helper', () => {
     });
 
     it('should include state parameter when provided', async () => {
-      fetch.mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve({ data: 'test' }),
       } as Response);
@@ -204,7 +204,7 @@ describe('GitHub Helper', () => {
     });
 
     it('should include since parameter when provided', async () => {
-      fetch.mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve({ data: 'test' }),
       } as Response);
@@ -220,7 +220,7 @@ describe('GitHub Helper', () => {
     });
 
     it('should include until parameter when provided', async () => {
-      fetch.mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve({ data: 'test' }),
       } as Response);
@@ -236,7 +236,7 @@ describe('GitHub Helper', () => {
     });
 
     it('should return error response when request fails', async () => {
-      fetch.mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: false,
         status: 404,
         statusText: 'Not Found',
@@ -248,7 +248,7 @@ describe('GitHub Helper', () => {
     });
 
     it('should handle network errors', async () => {
-      fetch.mockRejectedValueOnce(new Error('Network error'));
+      vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'));
 
       const result = await fetchFromGitHub('/test/endpoint');
 
@@ -258,7 +258,7 @@ describe('GitHub Helper', () => {
 
   describe('fetchGitHubCommits', () => {
     it('should call fetchFromGitHub with commits endpoint', async () => {
-      fetch.mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve([]),
       } as Response);
@@ -272,7 +272,7 @@ describe('GitHub Helper', () => {
     });
 
     it('should pass through options to fetchFromGitHub', async () => {
-      fetch.mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve([]),
       } as Response);
@@ -298,7 +298,7 @@ describe('GitHub Helper', () => {
         { id: 4, title: 'PR 2', pull_request: { id: 123 } },
       ];
 
-      fetch.mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockData),
       } as Response);
@@ -319,7 +319,7 @@ describe('GitHub Helper', () => {
         { id: 2, title: 'PR 2', pull_request: { id: 123 } },
       ];
 
-      fetch.mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockData),
       } as Response);
@@ -331,7 +331,7 @@ describe('GitHub Helper', () => {
     });
 
     it('should pass through options to fetchFromGitHub', async () => {
-      fetch.mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve([]),
       } as Response);
@@ -348,7 +348,7 @@ describe('GitHub Helper', () => {
     });
 
     it('should return error when fetch fails', async () => {
-      fetch.mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: false,
         status: 404,
         statusText: 'Not Found',
@@ -362,7 +362,7 @@ describe('GitHub Helper', () => {
 
   describe('fetchGitHubIssue', () => {
     it('should fetch single issue by number', async () => {
-      fetch.mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve({ id: 123, title: 'Test Issue' }),
       } as Response);
@@ -377,7 +377,7 @@ describe('GitHub Helper', () => {
     });
 
     it('should use custom owner and repo when provided', async () => {
-      fetch.mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve({ id: 123 }),
       } as Response);
@@ -394,7 +394,7 @@ describe('GitHub Helper', () => {
     });
 
     it('should include authorization header when token is provided', async () => {
-      fetch.mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve({ id: 123 }),
       } as Response);
@@ -412,7 +412,7 @@ describe('GitHub Helper', () => {
     });
 
     it('should return error response when issue not found', async () => {
-      fetch.mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: false,
         status: 404,
         statusText: 'Not Found',
@@ -424,7 +424,7 @@ describe('GitHub Helper', () => {
     });
 
     it('should handle network errors', async () => {
-      fetch.mockRejectedValueOnce(new Error('Network error'));
+      vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'));
 
       const result = await fetchGitHubIssue(123);
 

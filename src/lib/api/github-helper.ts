@@ -4,6 +4,7 @@
  */
 
 import { logger } from '../logger';
+import { NextResponse } from 'next/server';
 
 const GITHUB_API_BASE = 'https://api.github.com';
 

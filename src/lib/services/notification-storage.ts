@@ -6,6 +6,7 @@
 
 import Database from 'better-sqlite3';
 import { join } from 'path';
+import { existsSync, mkdirSync } from 'fs';
 import { logger } from '@/lib/logger';
 
 /**
@@ -25,10 +26,9 @@ export class NotificationStorage {
   initialize(): void {
     try {
       // Ensure data directory exists
-      const fs = require('fs');
-      const dir = require('path').dirname(this.dbPath);
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
+      const dir = join(this.dbPath, '..');
+      if (!existsSync(dir)) {
+        mkdirSync(dir, { recursive: true });
       }
 
       this.db = new Database(this.dbPath);

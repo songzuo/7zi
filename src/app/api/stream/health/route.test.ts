@@ -75,7 +75,7 @@ describe('SSE Health Stream API', () => {
   describe('GET /api/stream/health', () => {
     it('should reject non-SSE requests', async () => {
       const { isValidSSEConnection } = await import('@/lib/sse/utils');
-      isValidSSEConnection.mockReturnValue(false);
+      vi.mocked(isValidSSEConnection).mockReturnValue(false);
 
       const request = new NextRequest('http://localhost:3000/api/stream/health', {
         headers: {
@@ -90,7 +90,7 @@ describe('SSE Health Stream API', () => {
 
     it('should accept valid SSE requests', async () => {
       const { isValidSSEConnection } = await import('@/lib/sse/utils');
-      isValidSSEConnection.mockReturnValue(true);
+      vi.mocked(isValidSSEConnection).mockReturnValue(true);
 
       const request = new NextRequest('http://localhost:3000/api/stream/health', {
         headers: {
@@ -107,7 +107,7 @@ describe('SSE Health Stream API', () => {
 
     it('should include client ID in response headers', async () => {
       const { isValidSSEConnection } = await import('@/lib/sse/utils');
-      isValidSSEConnection.mockReturnValue(true);
+      vi.mocked(isValidSSEConnection).mockReturnValue(true);
 
       const request = new NextRequest('http://localhost:3000/api/stream/health', {
         headers: {
@@ -124,10 +124,10 @@ describe('SSE Health Stream API', () => {
 
     it('should handle stream manager unavailability', async () => {
       const { isValidSSEConnection } = await import('@/lib/sse/utils');
-      isValidSSEConnection.mockReturnValue(true);
+      vi.mocked(isValidSSEConnection).mockReturnValue(true);
 
       const { getGlobalStreamManager } = await import('@/lib/sse/stream');
-      getGlobalStreamManager.mockImplementation(() => {
+      vi.mocked(getGlobalStreamManager).mockImplementation(() => {
         throw new Error('Stream manager not available');
       });
 
@@ -144,7 +144,7 @@ describe('SSE Health Stream API', () => {
 
     it('should set proper SSE headers', async () => {
       const { isValidSSEConnection } = await import('@/lib/sse/utils');
-      isValidSSEConnection.mockReturnValue(true);
+      vi.mocked(isValidSSEConnection).mockReturnValue(true);
 
       const request = new NextRequest('http://localhost:3000/api/stream/health', {
         headers: {
@@ -162,7 +162,7 @@ describe('SSE Health Stream API', () => {
   describe('SSE Stream Data Format', () => {
     it('should return a ReadableStream', async () => {
       const { isValidSSEConnection } = await import('@/lib/sse/utils');
-      isValidSSEConnection.mockReturnValue(true);
+      vi.mocked(isValidSSEConnection).mockReturnValue(true);
 
       const request = new NextRequest('http://localhost:3000/api/stream/health', {
         headers: {

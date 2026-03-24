@@ -7,6 +7,32 @@
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 
+// Add TextEncoder/TextDecoder polyfill for jsdom environment
+if (typeof global.TextEncoder === 'undefined') {
+  const { TextEncoder, TextDecoder } = require('util');
+  global.TextEncoder = TextEncoder;
+  global.TextDecoder = TextDecoder;
+}
+
+// Fix for jose v6 in Node.js environment
+// Ensure crypto module is properly polyfilled
+if (typeof global.crypto === 'undefined') {
+  const { webcrypto } = require('crypto');
+  global.crypto = webcrypto;
+
+  // Additional polyfills for jose v6 compatibility
+  if (!global.crypto.subtle) {
+    global.crypto.subtle = webcrypto.subtle;
+  }
+}
+
+// Ensure TextEncoder/TextDecoder are available globally
+if (typeof global.TextEncoder === 'undefined') {
+  const { TextEncoder, TextDecoder } = require('util');
+  global.TextEncoder = TextEncoder;
+  global.TextDecoder = TextDecoder;
+}
+
 // Mock Next.js router
 vi.mock('next/navigation', () => ({
   useRouter() {
@@ -77,11 +103,27 @@ class MockWebSocket {
 
 global.WebSocket = MockWebSocket as any;
 
-// Mock IntersectionObserver
+// Mock IntersectionObserver with callback support
 class MockIntersectionObserver {
-  observe = vi.fn();
-  disconnect = vi.fn();
-  unobserve = vi.fn();
+  callback: IntersectionObserverCallback;
+  targets: Set<Element>;
+
+  constructor(callback: IntersectionObserverCallback, _options?: IntersectionObserverInit) {
+    this.callback = callback;
+    this.targets = new Set();
+  }
+
+  observe(target: Element) {
+    this.targets.add(target);
+  }
+
+  disconnect() {
+    this.targets.clear();
+  }
+
+  unobserve(target: Element) {
+    this.targets.delete(target);
+  }
 }
 
 global.IntersectionObserver = MockIntersectionObserver as any;
@@ -120,7 +162,10 @@ const localStorageMock = (() => {
   };
 })();
 
-global.localStorage = localStorageMock as any;
+Object.defineProperty(global, 'localStorage', {
+  value: localStorageMock,
+  writable: true,
+});
 
 // Mock sessionStorage
 const sessionStorageMock = (() => {
@@ -140,7 +185,10 @@ const sessionStorageMock = (() => {
   };
 })();
 
-global.sessionStorage = sessionStorageMock as any;
+Object.defineProperty(global, 'sessionStorage', {
+  value: sessionStorageMock,
+  writable: true,
+});
 
 // Mock matchMedia (only in jsdom environment)
 if (typeof window !== 'undefined') {

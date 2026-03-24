@@ -23,6 +23,34 @@ interface ResponsiveMemberListProps {
   enableFilter?: boolean;
 }
 
+// ============================================================================
+// 状态按钮组件 - 使用 React.memo 优化
+// ============================================================================
+
+interface StatusButtonProps {
+  status: string;
+  isActive: boolean;
+  onClick: () => void;
+  label: string;
+}
+
+const StatusButton = React.memo<StatusButtonProps>(({ status, isActive, onClick, label }) => {
+  return (
+    <button
+      onClick={onClick}
+      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all min-h-[40px] touch-active ${
+        isActive
+          ? 'bg-cyan-500 text-white'
+          : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'
+      }`}
+    >
+      {label}
+    </button>
+  );
+});
+
+StatusButton.displayName = 'StatusButton';
+
 export const ResponsiveMemberList: React.FC<ResponsiveMemberListProps> = ({
   members,
   locale,
@@ -92,22 +120,20 @@ export const ResponsiveMemberList: React.FC<ResponsiveMemberListProps> = ({
           {enableFilter && (
             <div className="flex flex-wrap gap-2">
               {['all', 'online', 'working', 'busy', 'idle', 'offline'].map((status) => (
-                <button
+                <StatusButton
                   key={status}
+                  status={status}
+                  isActive={statusFilter === status}
                   onClick={() => setStatusFilter(status)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all min-h-[40px] touch-active ${
-                    statusFilter === status
-                      ? 'bg-cyan-500 text-white'
-                      : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'
-                  }`}
-                >
-                  {status === 'all' && (t('all') || '全部')}
-                  {status === 'online' && (t('online') || '在线')}
-                  {status === 'working' && (t('working') || '工作中')}
-                  {status === 'busy' && (t('busy') || '忙碌')}
-                  {status === 'idle' && (t('idle') || '空闲')}
-                  {status === 'offline' && (t('offline') || '离线')}
-                </button>
+                  label={
+                    status === 'all' ? (t('all') || '全部') :
+                    status === 'online' ? (t('online') || '在线') :
+                    status === 'working' ? (t('working') || '工作中') :
+                    status === 'busy' ? (t('busy') || '忙碌') :
+                    status === 'idle' ? (t('idle') || '空闲') :
+                    (t('offline') || '离线')
+                  }
+                />
               ))}
             </div>
           )}

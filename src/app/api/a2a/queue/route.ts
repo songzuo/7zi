@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getMessageQueue } from '@/lib/a2a/message-queue';
 import { QueueMessage } from '@/lib/a2a/types';
+import type { TaskPriority } from '@/lib/a2a/types';
 
 /**
  * GET /api/a2a/queue
@@ -125,7 +126,7 @@ export async function DELETE(request: NextRequest) {
       });
     } else if (priority) {
       // Remove all messages with a specific priority
-      const messages = queue.getMessagesByPriority(priority as any);
+      const messages = queue.getMessagesByPriority(priority as TaskPriority);
       let removed = 0;
       for (const message of messages) {
         if (queue.remove(message.id)) {

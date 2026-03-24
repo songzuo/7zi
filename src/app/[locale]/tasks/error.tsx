@@ -1,5 +1,7 @@
 'use client';
 
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+
 export { createPageErrorBoundary as default } from '@/components/errors';
 
 export function createPageErrorBoundary(title: string) {
@@ -10,7 +12,6 @@ export function createPageErrorBoundary(title: string) {
     error: Error & { digest?: string };
     reset: () => void;
   }) {
-    const { ErrorBoundary } = require('@/components/ErrorBoundary');
     return (
       <ErrorBoundary
         error={error}

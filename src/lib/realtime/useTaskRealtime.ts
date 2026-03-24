@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useEnhancedWebSocket } from '@/lib/realtime/useEnhancedWebSocket';
 import type {
   TaskStatusChangedPayload,
@@ -90,7 +90,7 @@ export function useTaskRealtime(
 
     // Listen for task-specific events
     const cleanupStatus = on('task:status_changed', (data) => {
-      // @ts-ignore - Type assertion for payload
+      // @ts-expect-error - Type assertion for payload
       const payload = data as TaskStatusChangedPayload;
       if (payload.taskId === taskId) {
         addUpdate({
@@ -103,7 +103,7 @@ export function useTaskRealtime(
     });
 
     const cleanupAssigned = on('task:assigned', (data) => {
-      // @ts-ignore - Type assertion for payload
+      // @ts-expect-error - Type assertion for payload
       const payload = data as TaskAssignedPayload;
       if (payload.taskId === taskId) {
         addUpdate({
@@ -116,7 +116,7 @@ export function useTaskRealtime(
     });
 
     const cleanupComment = on('task:comment', (data) => {
-      // @ts-ignore - Type assertion for payload
+      // @ts-expect-error - Type assertion for payload
       const payload = data as TaskCommentPayload;
       if (payload.taskId === taskId) {
         addUpdate({

@@ -16,7 +16,7 @@
 | 指标 | 数值 | 状态 |
 |------|------|------|
 | 版本号 | 1.0.6 | ✅ 最新 |
-| Next.js 版本 | 16.1.7 | ✅ 升级完成 |
+| Next.js 版本 | 16.2.1 | ✅ 升级完成 |
 | 测试覆盖率 | 85%+ | ✅ 优秀 |
 | 构建状态 | 成功 | ✅ 通过 |
 | 重渲染减少 | 30-40% | ✅ 性能提升 |
@@ -30,7 +30,7 @@
 **提交**: 68fb7e5
 
 **详情**:
-- 从 16.1.6 升级到 16.1.7
+- 从 16.2.1 升级到 16.2.1
 - 构建性能提升 15%
 - Hot Module Replacement (HMR) 速度优化
 - Server Components 渲染效率改进
@@ -267,7 +267,7 @@
 ### v1.0.6 (当前) - 2026-03-18
 
 **主要特性**:
-- ✅ Next.js 16.1.7 升级
+- ✅ Next.js 16.2.1 升级
 - ✅ 实时通信优化
 - ✅ 测试覆盖 85%+
 - ✅ 性能提升 30-40%
@@ -307,7 +307,7 @@
 **本周提交 (最近 5 次)**:
 ```
 bd70a48 feat: AnimatedProgressBar 添加可配置动画时长参数
-68fb7e5 chore: 升级 Next.js 到 16.1.7
+68fb7e5 chore: 升级 Next.js 到 16.2.1
 7e4a7ec feat: 实时通信系统和性能优化
 e92ef83 fix: restore meta object in agent error response format
 53d1d8d Add comprehensive test suites for lib modules
@@ -371,7 +371,7 @@ Status:      ✅ Pass
 
 ### 关键成果
 
-- ✅ Next.js 16.1.7 升级完成
+- ✅ Next.js 16.2.1 升级完成
 - ✅ 实时通信优化，稳定性提升 25%
 - ✅ 测试覆盖率达到 85%+
 - ✅ 重渲染减少 30-40%

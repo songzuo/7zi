@@ -486,6 +486,15 @@ export async function findMissingIndexes(): Promise<Array<{
   return missingIndexes;
 }
 
+export {
+  executeQueryWithMetrics,
+  analyzeSlowQueries,
+  analyzeTables,
+  generatePerformanceReport,
+  explainQueryPlan,
+  findMissingIndexes,
+};
+
 export default {
   executeQueryWithMetrics,
   analyzeSlowQueries,

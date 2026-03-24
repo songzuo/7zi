@@ -32,8 +32,6 @@ Disallow: /health-dashboard/
 
 # 禁止爬取敏感路由
 Disallow: /knowledge-lattice/
-Disallow: /portfolio/
-Disallow: /tasks/
 
 # 网站地图
 Sitemap: https://7zi.studio/sitemap.xml

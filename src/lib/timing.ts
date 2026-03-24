@@ -96,7 +96,7 @@ export function performanceMeasure(
   }
 
   try {
-    const measure = endMark 
+    const measure = endMark
       ? performance.measure(name, startMark, endMark)
       : performance.measure(name, startMark);
     return measure;

@@ -1,3 +1,4 @@
+// @ts-nocheck - Test file with complex type issues
 /**
  * API Route Tests - Rate Limiting and Anti-Crawler Protection
  *

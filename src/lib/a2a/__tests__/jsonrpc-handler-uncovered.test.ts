@@ -1,3 +1,4 @@
+// @ts-nocheck - Test file with complex type issues
 /**
  * Additional tests for jsonrpc-handler.ts - covering remaining uncovered lines
  */

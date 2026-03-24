@@ -4,15 +4,24 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
+import React from 'react';
 
 // Mock dependencies at top level
-vi.mock('@/contexts/SettingsContext', () => ({
-  useTheme: () => ({ isDark: false }),
-}));
+vi.mock('@/contexts/SettingsContext', () => {
+  const actual = vi.importActual<any>('@/contexts/SettingsContext');
+  return {
+    ...actual,
+    useTheme: () => ({ isDark: false }),
+  };
+});
 
-vi.mock('@/lib/realtime/store', () => ({
-  useRealtimeNotificationStore: () => ({ isConnected: true }),
-}));
+vi.mock('@/lib/realtime/store', () => {
+  const actual = vi.importActual<any>('@/lib/realtime/store');
+  return {
+    ...actual,
+    useRealtimeNotificationStore: () => ({ isConnected: true }),
+  };
+});
 
 vi.mock('@/lib/sse/useSSE', () => ({
   useSSE: vi.fn(),
@@ -36,6 +45,14 @@ vi.mock('@/lib/sse/useSSE', () => ({
   })),
 }));
 
+vi.mock('@/lib/monitoring/performance.monitor', () => ({
+  performanceCollector: {
+    getMetrics: vi.fn(() => new Map([
+      ['TTFB', [{ value: 150, timestamp: Date.now() }]]
+    ])),
+  },
+}));
+
 import { HealthDashboard } from '../HealthDashboard';
 
 describe('HealthDashboard', () => {
@@ -49,13 +66,13 @@ describe('HealthDashboard', () => {
 
   describe('渲染', () => {
     it('应该显示标题', async () => {
-      render(<HealthDashboard />);
+      render(React.createElement(HealthDashboard));
 
       await expect(screen.findByText(/Health Dashboard/)).resolves.toBeInTheDocument();
     });
 
     it('应该显示所有指标卡片', async () => {
-      render(<HealthDashboard />);
+      render(React.createElement(HealthDashboard));
 
       await expect(screen.findByText(/API Response Time/)).resolves.toBeInTheDocument();
       await expect(screen.findByText(/WebSocket Connection/)).resolves.toBeInTheDocument();
@@ -64,19 +81,19 @@ describe('HealthDashboard', () => {
     });
 
     it('应该显示 SSE 连接状态', async () => {
-      render(<HealthDashboard />);
+      render(React.createElement(HealthDashboard));
 
       await expect(screen.findByText(/SSE Connection/)).resolves.toBeInTheDocument();
     });
 
     it('应该显示最后更新时间', async () => {
-      render(<HealthDashboard />);
+      render(React.createElement(HealthDashboard));
 
       await expect(screen.findByText(/Last updated:/)).resolves.toBeInTheDocument();
     });
 
     it('应该显示整体状态部分', async () => {
-      render(<HealthDashboard />);
+      render(React.createElement(HealthDashboard));
 
       // 检查是否有 System Healthy 文本
       const systemText = await screen.findByText(/System Healthy/);

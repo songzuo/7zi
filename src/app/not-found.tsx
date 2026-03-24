@@ -3,6 +3,8 @@
  * This will redirect to the localized 404 page
  * If you're here, the locale wasn't matched
  */
+import Link from 'next/link';
+
 export default function RootNotFound() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-zinc-50 dark:bg-zinc-950">
@@ -13,12 +15,12 @@ export default function RootNotFound() {
         <p className="text-xl text-zinc-600 dark:text-zinc-400 mb-6">
           Page Not Found
         </p>
-        <a
+        <Link
           href="/"
           className="inline-block px-6 py-3 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors"
         >
           Go to Home
-        </a>
+        </Link>
       </div>
     </div>
   );

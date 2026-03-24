@@ -249,4 +249,10 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   );
 };
 
-export default FilterPanel;
+// 使用 React.memo 优化，减少不必要的重渲染
+export default React.memo(FilterPanel, (prevProps, nextProps) => {
+  // 深度比较 filters 对象
+  return JSON.stringify(prevProps.filters) === JSON.stringify(nextProps.filters) &&
+         prevProps.locale === nextProps.locale &&
+         prevProps.className === nextProps.className;
+});

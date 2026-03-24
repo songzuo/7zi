@@ -44,7 +44,6 @@ export function TaskEditorCollaboration({
   const [content, setContent] = useState(task.body || '');
   const [cursorPosition, setCursorPosition] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Initialize collaboration if enabled
   const collaboration = useCollaboration({
@@ -86,13 +85,7 @@ export function TaskEditorCollaboration({
       }
     });
 
-    return () => {
-      // Clean up typing timeout
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-      unsubscribe();
-    };
+    return unsubscribe;
   }, [collaboration.document, collaboration, task.id, onTaskUpdate]);
 
   // Handle cursor movement and selection
@@ -128,10 +121,7 @@ export function TaskEditorCollaboration({
       collaboration.setTyping(true);
 
       // Clear typing status after 3 seconds of inactivity
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-      typingTimeoutRef.current = setTimeout(() => {
+      setTimeout(() => {
         collaboration.setTyping(false);
       }, 3000);
     }

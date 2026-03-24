@@ -70,7 +70,7 @@
  *         description: Internal server error
  */
 
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getMultimodalService } from '@/lib/multimodal/multimodal-service';
 import { validateImage, compressImage } from '@/lib/multimodal/image-utils';
 import type { ImageUploadOptions } from '@/lib/multimodal/types';

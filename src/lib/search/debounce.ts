@@ -84,6 +84,7 @@ export function debounceCancellable<T extends (...args: unknown[]) => unknown>(
 
   const debounced = function(this: unknown, ...args: Parameters<T>) {
     pendingArgs = args;
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     pendingContext = this;
 
     if (timeoutId !== null) {

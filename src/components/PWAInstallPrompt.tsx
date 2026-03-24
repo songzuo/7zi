@@ -286,7 +286,7 @@ function IOSInstallGuide({ onClose }: { onClose: () => void }) {
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-zinc-900 dark:text-white">
-                  向下滚动并点击"添加到主屏幕"
+                  向下滚动并点击&quot;添加到主屏幕&quot;
                 </p>
               </div>
             </li>
@@ -296,7 +296,7 @@ function IOSInstallGuide({ onClose }: { onClose: () => void }) {
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-zinc-900 dark:text-white">
-                  点击"添加"完成安装
+                  点击&quot;添加&quot;完成安装
                 </p>
               </div>
             </li>

@@ -1,383 +1,339 @@
 'use client';
 
-import { useState } from 'react';
-import { useCollaboration } from '@/lib/websocket/useCollaboration';
-import { Wifi, WifiOff, Users, Send, LogOut, LogIn, Type, RefreshCw } from 'lucide-react';
+/**
+ * WebSocket Demo Page
+ *
+ * Demonstrates real-time WebSocket functionality including:
+ * - Connection management
+ * - Heartbeat monitoring
+ * - Task status updates
+ * - Room participation
+ */
 
-// Demo configuration
-const DEMO_CONFIG = {
-  url: process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:3001',
-  token: 'demo-token',
-  userId: `demo-user-${Date.now()}`,
-  userName: `Demo User ${Math.floor(Math.random() * 1000)}`,
-  userAvatar: undefined,
-};
+// Force dynamic rendering - this page requires client-side only
+export const dynamic = 'force-dynamic';
 
-const ROOM_COLORS = [
-  '#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '#EC4899',
-];
-
-function getUserColor(userId: string): string {
-  let hash = 0;
-  for (let i = 0; i < userId.length; i++) {
-    hash = userId.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return ROOM_COLORS[Math.abs(hash) % ROOM_COLORS.length];
-}
-
-function ConnectionBadge({ state }: { state: string }) {
-  const states = {
-    disconnected: { color: 'bg-red-500', text: '断开连接', icon: WifiOff },
-    connecting: { color: 'bg-yellow-500', text: '连接中...', icon: RefreshCw },
-    connected: { color: 'bg-green-500', text: '已连接', icon: Wifi },
-    reconnecting: { color: 'bg-orange-500', text: '重连中...', icon: RefreshCw },
-    error: { color: 'bg-red-600', text: '连接错误', icon: WifiOff },
-  };
-
-  const config = states[state as keyof typeof states] || states.disconnected;
-  const Icon = config.icon;
-
-  return (
-    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800">
-      <div className={`w-2 h-2 rounded-full ${config.color} ${state === 'connecting' || state === 'reconnecting' ? 'animate-pulse' : ''}`} />
-      <Icon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{config.text}</span>
-    </div>
-  );
-}
+import { useState, useEffect, useCallback } from 'react';
+import { useWebSocket, useTaskStatusUpdates, type TaskStatusUpdate } from '@/hooks/useWebSocket';
 
 export default function WebSocketDemoPage() {
-  const [roomId, setRoomId] = useState('demo-room-1');
-  const [message, setMessage] = useState('');
+  const [isMounted, setIsMounted] = useState(false);
 
-  const collaboration = useCollaboration({
-    ...DEMO_CONFIG,
-    roomId,
-    roomType: 'document',
-    documentId: 'demo-document-1',
-    autoConnect: false, // Let user manually connect
-    autoReconnect: true,
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return null; // Skip SSR
+  }
+
+  const ws = useWebSocket({
+    autoConnect: false, // Let user control connection
+    reconnection: true,
   });
 
-  const {
-    connectionState,
-    isConnected,
-    isInRoom,
-    users,
-    document,
-    typingUsers,
-    connect,
-    disconnect,
-    reconnect,
-    joinRoom,
-    leaveRoom,
-    sendOperation,
-    setTyping,
-    openDocument,
-  } = collaboration;
+  const taskWs = useTaskStatusUpdates({
+    autoConnect: false,
+  });
 
-  const handleJoinRoom = () => {
-    if (!isConnected) {
-      connect();
-      // Wait for connection then join room
-      setTimeout(() => {
-        joinRoom(roomId, 'document', 'demo-document-1', 'Demo Room');
-      }, 500);
-    } else {
-      joinRoom(roomId, 'document', 'demo-document-1', 'Demo Room');
+  const [messages, setMessages] = useState<string[]>([]);
+  const [roomId, setRoomId] = useState('demo-room');
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+
+  // Log connection status changes
+  useEffect(() => {
+    if (ws.state.connected) {
+      addMessage(`✅ Connected to WebSocket server`);
     }
-  };
+    if (ws.state.error) {
+      addMessage(`❌ Error: ${ws.state.error}`);
+    }
+  }, [ws.state.connected, ws.state.error]);
 
-  const handleLeaveRoom = () => {
-    leaveRoom();
-  };
+  // Log task status updates
+  useEffect(() => {
+    taskWs.taskUpdates.forEach((update, taskId) => {
+      addMessage(`📊 Task ${taskId}: ${update.status} (${update.state})`);
+    });
+  }, [taskWs.taskUpdates.size]);
+
+  const addMessage = useCallback((msg: string) => {
+    setMessages(prev => [...prev.slice(-19), `[${new Date().toLocaleTimeString()}] ${msg}`]);
+  }, []);
 
   const handleConnect = () => {
-    connect();
+    addMessage('🔌 Connecting...');
+    ws.connect();
+    taskWs.connect();
   };
 
   const handleDisconnect = () => {
-    disconnect();
+    addMessage('🔌 Disconnecting...');
+    ws.disconnect();
+    taskWs.disconnect();
   };
 
-  const handleReconnect = () => {
-    reconnect();
+  const handleJoinRoom = () => {
+    ws.joinRoom(roomId, 'project', 'demo-document', 'Demo Room');
+    addMessage(`🏠 Joining room: ${roomId}`);
   };
 
-  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newValue = e.target.value;
-    const previousValue = document?.content || '';
-
-    // Send operation for the change
-    if (previousValue) {
-      if (newValue.length > previousValue.length) {
-        // Insert operation
-        sendOperation({
-          type: 'insert',
-          position: previousValue.length,
-          content: newValue.slice(previousValue.length),
-        });
-      } else if (newValue.length < previousValue.length) {
-        // Delete operation
-        sendOperation({
-          type: 'delete',
-          position: newValue.length,
-          length: previousValue.length - newValue.length,
-        });
-      }
-    } else {
-      // Initial content
-      sendOperation({
-        type: 'insert',
-        position: 0,
-        content: newValue,
-      });
-    }
-
-    // Set typing status
-    setTyping(true);
-    setMessage(newValue);
-
-    // Clear typing status after 2 seconds of no typing
-    setTimeout(() => {
-      setTyping(false);
-    }, 2000);
+  const handleLeaveRoom = () => {
+    ws.leaveRoom(roomId);
+    addMessage(`🚪 Leaving room: ${roomId}`);
   };
 
-  const handleSyncDocument = () => {
-    if (isInRoom) {
-      openDocument('demo-document-1');
-    }
+  const handleSendTestMessage = () => {
+    ws.send('test:message', { text: 'Hello from WebSocket!', timestamp: new Date().toISOString() });
+    addMessage(`📤 Sent test message`);
+  };
+
+  const handleSimulateTaskUpdate = () => {
+    // Simulate a task status update (in real app, this would come from backend)
+    const taskId = `task-${Date.now()}`;
+    const mockUpdate: TaskStatusUpdate = {
+      taskId,
+      status: 'Processing',
+      state: 'running',
+      timestamp: new Date().toISOString(),
+      userId: ws.state.userId,
+      projectId: 'demo-project',
+      metadata: { progress: 50 },
+    };
+
+    // In real app, backend would broadcast this via broadcastTaskStatusUpdate()
+    // Here we just show what the UI would receive
+    addMessage(`📤 Simulating task update: ${taskId}`);
+  };
+
+  const handleClearMessages = () => {
+    setMessages([]);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="max-w-7xl mx-auto p-6 space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-8">
+      <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                WebSocket 协作演示
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400">
-                实时协作、文档编辑、在线状态和打字指示器
-              </p>
-            </div>
-            <ConnectionBadge state={connectionState} />
-          </div>
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-white mb-2">
+            WebSocket Real-Time Demo
+          </h1>
+          <p className="text-slate-300">
+            Enhanced WebSocket with heartbeat, reconnection, and task status updates
+          </p>
         </div>
 
-        {/* Connection Controls */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Connection Panel */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-              <Wifi className="w-5 h-5 text-blue-500" />
-              连接控制
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Connection Status */}
+          <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700">
+            <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+              <span>🔗</span> Connection Status
             </h2>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-300">Status:</span>
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  ws.state.connected ? 'bg-green-500/20 text-green-400' :
+                  ws.state.connecting ? 'bg-yellow-500/20 text-yellow-400' :
+                  'bg-red-500/20 text-red-400'
+                }`}>
+                  {ws.state.connected ? 'Connected' :
+                   ws.state.connecting ? 'Connecting...' :
+                   'Disconnected'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-300">Authenticated:</span>
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  ws.state.authenticated ? 'bg-green-500/20 text-green-400' :
+                  'bg-slate-500/20 text-slate-400'
+                }`}>
+                  {ws.state.authenticated ? 'Yes' : 'No'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-300">Room:</span>
+                <span className="text-white font-mono">{ws.state.roomId || 'None'}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-300">User ID:</span>
+                <span className="text-white font-mono text-sm">
+                  {ws.state.userId || 'Not authenticated'}
+                </span>
+              </div>
+              {ws.state.error && (
+                <div className="mt-3 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                  <p className="text-red-400 text-sm">{ws.state.error}</p>
+                </div>
+              )}
+            </div>
 
-            <div className="space-y-4">
-              <div className="flex gap-2">
+            {/* Connection Controls */}
+            <div className="mt-6 flex flex-wrap gap-2">
+              {!ws.state.connected ? (
                 <button
                   onClick={handleConnect}
-                  disabled={isConnected}
-                  className="flex-1 px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
                 >
-                  <LogIn className="w-4 h-4" />
-                  连接
+                  Connect
                 </button>
+              ) : (
                 <button
                   onClick={handleDisconnect}
-                  disabled={!isConnected}
-                  className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
                 >
-                  <LogOut className="w-4 h-4" />
-                  断开
+                  Disconnect
                 </button>
-                <button
-                  onClick={handleReconnect}
-                  disabled={!isConnected}
-                  className="flex-1 px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                  重连
-                </button>
-              </div>
+              )}
+              <button
+                onClick={ws.reconnect}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+              >
+                Reconnect
+              </button>
+            </div>
+          </div>
 
+          {/* Room Controls */}
+          <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700">
+            <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+              <span>🏠</span> Room Management
+            </h2>
+            <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  房间 ID
-                </label>
+                <label className="block text-slate-300 text-sm mb-2">Room ID</label>
                 <input
                   type="text"
                   value={roomId}
                   onChange={(e) => setRoomId(e.target.value)}
-                  disabled={isInRoom}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+                  className="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="Enter room ID"
                 />
               </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={handleJoinRoom}
+                  disabled={!ws.state.connected}
+                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
+                >
+                  Join Room
+                </button>
+                <button
+                  onClick={handleLeaveRoom}
+                  disabled={!ws.state.roomId}
+                  className="px-4 py-2 bg-orange-600 hover:bg-orange-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
+                >
+                  Leave Room
+                </button>
+              </div>
+            </div>
 
-              <button
-                onClick={handleJoinRoom}
-                disabled={!isConnected || isInRoom}
-                className="w-full px-4 py-2 bg-indigo-500 hover:bg-indigo-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-              >
-                <LogIn className="w-4 h-4" />
-                {isInRoom ? '已在房间中' : '加入房间'}
-              </button>
-
-              <button
-                onClick={handleLeaveRoom}
-                disabled={!isInRoom}
-                className="w-full px-4 py-2 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-              >
-                <LogOut className="w-4 h-4" />
-                离开房间
-              </button>
+            {/* Test Actions */}
+            <div className="mt-6">
+              <h3 className="text-lg font-medium text-white mb-3 flex items-center gap-2">
+                <span>🧪</span> Test Actions
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={handleSendTestMessage}
+                  disabled={!ws.state.connected}
+                  className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
+                >
+                  Send Test Message
+                </button>
+                <button
+                  onClick={handleSimulateTaskUpdate}
+                  className="px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg font-medium transition-colors"
+                >
+                  Simulate Task Update
+                </button>
+                <button
+                  onClick={handleClearMessages}
+                  className="px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg font-medium transition-colors"
+                >
+                  Clear Messages
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Room Info Panel */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-              <Users className="w-5 h-5 text-purple-500" />
-              在线用户 ({users.length})
+          {/* Message Log */}
+          <div className="lg:col-span-2 bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700">
+            <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+              <span>📜</span> Message Log
             </h2>
-
-            <div className="space-y-3 max-h-80 overflow-y-auto">
-              {users.length === 0 ? (
-                <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-                  <Users className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p>暂无在线用户</p>
-                  <p className="text-sm">加入房间后可以看到其他用户</p>
-                </div>
+            <div className="bg-slate-900/50 rounded-lg p-4 h-64 overflow-y-auto font-mono text-sm space-y-1">
+              {messages.length === 0 ? (
+                <p className="text-slate-500 text-center py-8">No messages yet. Connect and try the actions above!</p>
               ) : (
-                users.map((user) => (
-                  <div
-                    key={user.id}
-                    className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
-                  >
-                    <div
-                      className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
-                      style={{ backgroundColor: user.color }}
-                    >
-                      {user.name.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-medium text-gray-900 dark:text-white">
-                        {user.name}
-                        {user.id === DEMO_CONFIG.userId && (
-                          <span className="ml-2 text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-0.5 rounded-full">
-                            你
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {user.isTyping && (
-                          <span className="flex items-center gap-1 text-blue-500">
-                            <Type className="w-3 h-3" />
-                            正在输入...
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="w-2 h-2 rounded-full bg-green-500" />
+                messages.map((msg, idx) => (
+                  <div key={idx} className="text-slate-300 hover:text-white transition-colors">
+                    {msg}
                   </div>
                 ))
               )}
             </div>
+          </div>
 
-            {/* Typing Users */}
-            {typingUsers.length > 0 && (
-              <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                <div className="text-sm text-yellow-800 dark:text-yellow-200 flex items-center gap-2">
-                  <Type className="w-4 h-4" />
-                  <span className="font-medium">
-                    {typingUsers.length === 1
-                      ? '有人在输入...'
-                      : `${typingUsers.length} 人正在输入...`}
-                  </span>
-                </div>
+          {/* Task Status Updates */}
+          <div className="lg:col-span-2 bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700">
+            <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+              <span>📊</span> Task Status Updates
+              <span className="ml-2 text-sm font-normal text-slate-400">
+                ({taskWs.taskUpdates.size} updates received)
+              </span>
+            </h2>
+            {taskWs.taskUpdates.size === 0 ? (
+              <div className="text-center py-8 text-slate-500">
+                No task updates yet. Click "Simulate Task Update" to see how it works!
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Array.from(taskWs.taskUpdates.entries()).map(([taskId, update]) => (
+                  <div
+                    key={taskId}
+                    className="bg-slate-900/50 rounded-lg p-4 border border-slate-700 hover:border-purple-500/50 transition-colors cursor-pointer"
+                    onClick={() => setSelectedTaskId(taskId)}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <span className="text-white font-mono text-sm truncate">{taskId}</span>
+                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                        update.state === 'completed' ? 'bg-green-500/20 text-green-400' :
+                        update.state === 'running' ? 'bg-blue-500/20 text-blue-400' :
+                        update.state === 'failed' ? 'bg-red-500/20 text-red-400' :
+                        'bg-slate-500/20 text-slate-400'
+                      }`}>
+                        {update.state}
+                      </span>
+                    </div>
+                    <div className="text-slate-400 text-sm">{update.status}</div>
+                    <div className="text-slate-500 text-xs mt-2">
+                      {new Date(update.timestamp).toLocaleString()}
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
         </div>
 
-        {/* Document Editor */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-              <Send className="w-5 h-5 text-green-500" />
-              协作文档
-            </h2>
-            <button
-              onClick={handleSyncDocument}
-              disabled={!isInRoom}
-              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 disabled:opacity-50 text-gray-700 dark:text-gray-300 rounded-lg font-medium transition-colors flex items-center gap-2"
-            >
-              <RefreshCw className="w-4 h-4" />
-              同步文档
-            </button>
-          </div>
-
-          {!isInRoom ? (
-            <div className="text-center py-12 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
-              <Send className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                请先加入房间
-              </h3>
-              <p className="text-gray-500 dark:text-gray-400">
-                加入房间后即可开始实时协作编辑文档
-              </p>
+        {/* Usage Instructions */}
+        <div className="mt-8 bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700">
+          <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+            <span>📖</span> Usage Instructions
+          </h2>
+          <div className="grid md:grid-cols-3 gap-6 text-slate-300 text-sm">
+            <div>
+              <h3 className="text-white font-medium mb-2">1. Connect</h3>
+              <p>Click "Connect" to establish a WebSocket connection. The system will automatically authenticate using your session token.</p>
             </div>
-          ) : (
-            <div className="space-y-4">
-              {/* Document Info */}
-              <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-                {document && (
-                  <>
-                    <span>版本: {document.revision}</span>
-                    <span>字符数: {document.content.length}</span>
-                  </>
-                )}
-              </div>
-
-              {/* Text Area */}
-              <textarea
-                value={document?.content || ''}
-                onChange={handleTextChange}
-                placeholder="开始输入...其他用户可以看到您的编辑"
-                className="w-full min-h-[300px] px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y font-mono text-sm"
-                disabled={!isInRoom}
-              />
-
-              {/* Instructions */}
-              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-                <h4 className="font-medium text-blue-900 dark:text-blue-200 mb-2">
-                  💡 演示说明
-                </h4>
-                <ul className="text-sm text-blue-800 dark:text-blue-300 space-y-1">
-                  <li>• 在此输入的文本会实时同步到房间内的其他用户</li>
-                  <li>• 其他用户的编辑也会实时显示在这里</li>
-                  <li>• 打字状态会显示在右侧用户列表中</li>
-                  <li>• 可以通过多个浏览器标签页测试协作功能</li>
-                </ul>
-              </div>
+            <div>
+              <h3 className="text-white font-medium mb-2">2. Join a Room</h3>
+              <p>Enter a room ID and click "Join Room" to participate in real-time collaboration with other users.</p>
             </div>
-          )}
-        </div>
-
-        {/* Status Footer */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
-          <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
-            <div className="flex items-center gap-4">
-              <span>用户 ID: {DEMO_CONFIG.userId}</span>
-              <span>房间: {isInRoom ? roomId : '未加入'}</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <span>在线用户: {users.length}</span>
-              <span>文档版本: {document?.revision ?? '-'}</span>
+            <div>
+              <h3 className="text-white font-medium mb-2">3. Monitor Events</h3>
+              <p>Watch the message log and task status updates for real-time event broadcasts from the server.</p>
             </div>
           </div>
         </div>

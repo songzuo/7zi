@@ -51,12 +51,12 @@ describe('validation/index.ts', () => {
 
     it('应该拒绝无效的 URL', () => {
       expect(validator.rule('not-a-url')).toBe(false);
-      // Note: hp:// is accepted by URL constructor as a protocol
+      expect(validator.rule('hp://invalid.com')).toBe(false); // not allowed protocol
       expect(validator.rule('://incomplete.com')).toBe(false);
       expect(validator.rule('example.com')).toBe(false); // missing protocol
       expect(validator.rule('https://')).toBe(false);
-      expect(validator.rule('javascript:alert(1)')).toBe(true); // valid URL but potentially dangerous
-      expect(validator.rule('data:text/plain,hello')).toBe(true); // valid data URL
+      expect(validator.rule('javascript:alert(1)')).toBe(false); // not allowed protocol
+      expect(validator.rule('data:text/plain,hello')).toBe(false); // not allowed protocol
     });
 
     it('空值应该返回 true', () => {

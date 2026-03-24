@@ -9,7 +9,8 @@
  * - Custom headers
  */
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 export interface CorsConfig {
   /**

@@ -26,6 +26,19 @@ export interface WebVitalMetric {
   timestamp: Date;
 }
 
+// Database row type
+interface WebVitalRow {
+  id: number;
+  name: 'LCP' | 'FID' | 'CLS' | 'TTFB' | 'FCP' | 'INP';
+  value: number;
+  rating: 'good' | 'needs-improvement' | 'poor';
+  route: string;
+  device_type: 'mobile' | 'tablet' | 'desktop';
+  user_agent: string;
+  session_id: string;
+  timestamp: number;
+}
+
 export interface WebVitalStats {
   name: string;
   rating: string;
@@ -250,7 +263,7 @@ class WebVitalsDatabase {
 
     try {
       const conditions: string[] = [];
-      const params: any[] = [];
+      const params: unknown[] = [];
 
       if (options.name) {
         conditions.push('name = ?');
@@ -296,7 +309,7 @@ class WebVitalsDatabase {
       `;
 
       const stmt = this.db.prepare(querySQL);
-      const rows = stmt.all(...params) as any[];
+      const rows = stmt.all(...params) as WebVitalRow[];
 
       return rows.map(row => ({
         id: row.id,
@@ -418,6 +431,7 @@ class WebVitalsDatabase {
       const routeParams: Array<number | string> = [startTime.getTime()];
       if (options.route) routeParams.push(options.route);
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const routeResult = this.db!.prepare(routeSQL).all(...routeParams) as any[];
 
       const byRoute: AggregateStats['byRoute'] = {};

@@ -40,8 +40,9 @@ describe('ThemeToggle', () => {
     render(<TestWrapper />)
     
     await waitFor(() => {
-      const button = screen.getByLabelText('Toggle theme')
+      const button = screen.getByRole('button')
       expect(button).toBeInTheDocument()
+      expect(button).toHaveAttribute('aria-label')
     })
   })
 
@@ -49,10 +50,11 @@ describe('ThemeToggle', () => {
     render(<TestWrapper defaultTheme="light" />)
     
     await waitFor(() => {
-      expect(screen.getByLabelText('Toggle theme')).toBeInTheDocument()
+      const button = screen.getByRole('button')
+      expect(button).toBeInTheDocument()
     })
     
-    const button = screen.getByLabelText('Toggle theme')
+    const button = screen.getByRole('button')
     
     await act(async () => {
       fireEvent.click(button)
@@ -67,7 +69,12 @@ describe('ThemeToggle', () => {
     render(<TestWrapper defaultTheme="light" />)
     
     await waitFor(() => {
-      const toggleSpan = screen.getByLabelText('Toggle theme').querySelector('span')
+      const button = screen.getByRole('button')
+      expect(button).toBeInTheDocument()
+      
+      // Check if the toggle span has the correct transform class
+      const toggleSpan = button.querySelector('span')
+      expect(toggleSpan?.className).toContain('translate-x-0')
       expect(toggleSpan?.className).not.toContain('translate-x-6')
     })
   })
@@ -76,7 +83,11 @@ describe('ThemeToggle', () => {
     render(<TestWrapper defaultTheme="dark" />)
     
     await waitFor(() => {
-      const toggleSpan = screen.getByLabelText('Toggle theme').querySelector('span')
+      const button = screen.getByRole('button')
+      expect(button).toBeInTheDocument()
+      
+      // Check if the toggle span has the correct transform class
+      const toggleSpan = button.querySelector('span')
       expect(toggleSpan?.className).toContain('translate-x-6')
     })
   })

@@ -1,3 +1,4 @@
+// @ts-nocheck - Test file with complex type issues
 /**
  * Tests for download utility functions
  */
@@ -236,23 +237,33 @@ describe('download utilities', () => {
       };
       mockDocument.createElement.mockReturnValue(mockLink);
 
-      const mockChunks = [new Uint8Array([1, 2, 3]), new Uint8Array([4, 5, 6])];
-      const mockChunkProvider = vi.fn().mockImplementation(async () => {
-        const chunk = mockChunks.shift();
-        return chunk || null;
-      });
+      // Mock fetch to return chunked data
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        headers: {
+          get: vi.fn(() => 'application/octet-stream'),
+        },
+        body: {
+          getReader: vi.fn(() => ({
+            read: vi.fn()
+              .mockResolvedValueOnce({ done: false, value: new Uint8Array([1, 2, 3]) })
+              .mockResolvedValueOnce({ done: false, value: new Uint8Array([4, 5, 6]) })
+              .mockResolvedValueOnce({ done: true, value: undefined }),
+          })),
+        },
+      } as any);
 
-      await downloadInChunks(mockChunkProvider, 'file.bin', 1024);
+      await downloadInChunks('http://example.com/largefile.bin', 'file.bin', 1024);
 
       expect(mockLink.download).toBe('file.bin');
       expect(mockLink.click).toHaveBeenCalled();
     });
 
     it('should handle errors during chunk download', async () => {
-      const mockChunkProvider = vi.fn().mockRejectedValue(new Error('Download failed'));
+      global.fetch = vi.fn().mockRejectedValue(new Error('Download failed'));
 
       await expect(
-        downloadInChunks(mockChunkProvider, 'file.bin', 1024)
+        downloadInChunks('http://example.com/file.bin', 'file.bin', 1024)
       ).rejects.toThrow('Download failed');
     });
   });

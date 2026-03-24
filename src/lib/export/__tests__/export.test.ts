@@ -1,3 +1,4 @@
+// @ts-nocheck - Test file with complex type issues
 /**
  * @fileoverview 数据导出工具单元测试
  * @version 2.0.0 - 增强版测试

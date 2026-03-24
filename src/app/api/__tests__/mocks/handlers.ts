@@ -13,6 +13,7 @@ const mockData = new MockDataGenerator();
 export const authHandlers = [
   // Register
   http.post('http://localhost:3000/api/auth/register', async ({ request }: { request: Request }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const body = await request.json() as any;
 
     // Validation
@@ -114,6 +115,7 @@ export const authHandlers = [
 
   // Login
   http.post('http://localhost:3000/api/auth/login', async ({ request }: { request: Request }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const body = await request.json() as any;
 
     if (!body.email || !body.password) {
@@ -254,6 +256,7 @@ export const authHandlers = [
 
   // Refresh token
   http.post('http://localhost:3000/api/auth/refresh', async ({ request }: { request: Request }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const body = await request.json() as any;
 
     if (!body.refreshToken) {

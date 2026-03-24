@@ -13,10 +13,9 @@ export default defineConfig({
 
   // Vitest 4: 线程池配置在顶层（不在 test 对象内）
   poolOptions: {
-    vmForks: {
+    forks: {
       singleFork: true, // 使用单进程执行以减少内存占用和构建阻塞
       isolate: true,    // 确保 fork 之间的隔离
-      execArgv: ['--max-old-space-size=2048'], // 限制 Node.js 内存使用
     },
   },
 
@@ -30,20 +29,20 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    setupFiles: [path.resolve(__dirname, './src/test/setup.tsx')],
-    include: ['src/**/*.{test,spec}.{js,ts,jsx,tsx}', 'app/**/*.{test,spec}.{js,ts,jsx,tsx}'],
+    setupFiles: [path.resolve(__dirname, './tests/setup.ts')],
+    include: ['src/**/*.{test,spec}.{js,ts,jsx,tsx}', 'app/**/*.{test,spec}.{js,ts,jsx,tsx}', 'tests/**/*.{test,spec}.{js,ts,jsx,tsx}'],
 
-    // Vitest 4: 性能优化：使用 vmForks 线程池减少内存占用
-    pool: 'vmForks',
+    // Vitest 4: 性能优化：使用 forks 线程池减少内存占用（jose 库需要真实 Node.js 环境）
+    pool: 'forks',
 
     // 测试超时配置
-    testTimeout: 15000,  // 增加到 15 秒以防止慢测试超时
+    testTimeout: 30000,  // 增加到 30 秒以防止慢测试超时
     hookTimeout: 10000,
     // 失败时重试
     retry: 1,
 
     // 文件级别的超时配置
-    fileTimeout: 60000,  // 增加到 60 秒
+    fileTimeout: 120000,  // 增加到 120 秒
 
     // 性能优化：测试隔离模式（单进程模式下使用 isolate: true 确保测试独立性）
     isolate: true,

@@ -108,9 +108,9 @@ describe('Auth Service - Login', () => {
   });
 
   it('should login successfully with valid credentials', async () => {
-    getUserByEmail.mockResolvedValue(mockUser);
-    createUserToken.mockResolvedValue(mockToken);
-    updateLastLogin.mockResolvedValue(undefined);
+    vi.mocked(getUserByEmail).mockResolvedValue(mockUser);
+    vi.mocked(createUserToken).mockResolvedValue(mockToken);
+    vi.mocked(updateLastLogin).mockResolvedValue(undefined);
 
     const result = await loginUser({
       email: 'test@example.com',
@@ -129,7 +129,7 @@ describe('Auth Service - Login', () => {
   });
 
   it('should fail with invalid email', async () => {
-    getUserByEmail.mockResolvedValue(null);
+    vi.mocked(getUserByEmail).mockResolvedValue(null);
 
     const result = await loginUser({
       email: 'nonexistent@example.com',
@@ -143,7 +143,7 @@ describe('Auth Service - Login', () => {
   });
 
   it('should fail with invalid password', async () => {
-    getUserByEmail.mockResolvedValue(mockUser);
+    vi.mocked(getUserByEmail).mockResolvedValue(mockUser);
 
     const result = await loginUser({
       email: 'test@example.com',
@@ -158,7 +158,7 @@ describe('Auth Service - Login', () => {
 
   it('should fail with inactive user', async () => {
     const inactiveUser = { ...mockUser, status: UserStatus.INACTIVE };
-    getUserByEmail.mockResolvedValue(inactiveUser);
+    vi.mocked(getUserByEmail).mockResolvedValue(inactiveUser);
 
     const result = await loginUser({
       email: 'test@example.com',
@@ -172,7 +172,7 @@ describe('Auth Service - Login', () => {
   });
 
   it('should handle login errors', async () => {
-    getUserByEmail.mockRejectedValue(new Error('Database error'));
+    vi.mocked(getUserByEmail).mockRejectedValue(new Error('Database error'));
 
     const result = await loginUser({
       email: 'test@example.com',
@@ -191,9 +191,9 @@ describe('Auth Service - Login', () => {
   });
 
   it('should support remember me option', async () => {
-    getUserByEmail.mockResolvedValue(mockUser);
-    createUserToken.mockResolvedValue(mockToken);
-    updateLastLogin.mockResolvedValue(undefined);
+    vi.mocked(getUserByEmail).mockResolvedValue(mockUser);
+    vi.mocked(createUserToken).mockResolvedValue(mockToken);
+    vi.mocked(updateLastLogin).mockResolvedValue(undefined);
 
     await loginUser({
       email: 'test@example.com',
@@ -205,9 +205,9 @@ describe('Auth Service - Login', () => {
   });
 
   it('should use default token expiry without remember me', async () => {
-    getUserByEmail.mockResolvedValue(mockUser);
-    createUserToken.mockResolvedValue(mockToken);
-    updateLastLogin.mockResolvedValue(undefined);
+    vi.mocked(getUserByEmail).mockResolvedValue(mockUser);
+    vi.mocked(createUserToken).mockResolvedValue(mockToken);
+    vi.mocked(updateLastLogin).mockResolvedValue(undefined);
 
     await loginUser({
       email: 'test@example.com',
@@ -229,8 +229,8 @@ describe('Auth Service - Registration', () => {
   });
 
   it('should register a new user successfully', async () => {
-    getUserByEmail.mockResolvedValue(null);
-    createUser.mockResolvedValue(mockUser);
+    vi.mocked(getUserByEmail).mockResolvedValue(null);
+    vi.mocked(createUser).mockResolvedValue(mockUser);
 
     const result = await registerUser({
       email: 'newuser@example.com',
@@ -252,7 +252,7 @@ describe('Auth Service - Registration', () => {
   });
 
   it('should fail if email already exists', async () => {
-    getUserByEmail.mockResolvedValue(mockUser);
+    vi.mocked(getUserByEmail).mockResolvedValue(mockUser);
 
     const result = await registerUser({
       email: 'test@example.com',
@@ -266,7 +266,7 @@ describe('Auth Service - Registration', () => {
   });
 
   it('should fail with weak password - too short', async () => {
-    getUserByEmail.mockResolvedValue(null);
+    vi.mocked(getUserByEmail).mockResolvedValue(null);
 
     const result = await registerUser({
       email: 'newuser@example.com',
@@ -280,7 +280,7 @@ describe('Auth Service - Registration', () => {
   });
 
   it('should fail with weak password - missing uppercase', async () => {
-    getUserByEmail.mockResolvedValue(null);
+    vi.mocked(getUserByEmail).mockResolvedValue(null);
 
     const result = await registerUser({
       email: 'newuser@example.com',
@@ -294,7 +294,7 @@ describe('Auth Service - Registration', () => {
   });
 
   it('should fail with weak password - missing lowercase', async () => {
-    getUserByEmail.mockResolvedValue(null);
+    vi.mocked(getUserByEmail).mockResolvedValue(null);
 
     const result = await registerUser({
       email: 'newuser@example.com',
@@ -308,7 +308,7 @@ describe('Auth Service - Registration', () => {
   });
 
   it('should fail with weak password - missing number', async () => {
-    getUserByEmail.mockResolvedValue(null);
+    vi.mocked(getUserByEmail).mockResolvedValue(null);
 
     const result = await registerUser({
       email: 'newuser@example.com',
@@ -322,7 +322,7 @@ describe('Auth Service - Registration', () => {
   });
 
   it('should handle registration errors', async () => {
-    getUserByEmail.mockRejectedValue(new Error('Database error'));
+    vi.mocked(getUserByEmail).mockRejectedValue(new Error('Database error'));
 
     const result = await registerUser({
       email: 'newuser@example.com',
@@ -346,7 +346,7 @@ describe('Auth Service - Registration', () => {
 
 describe('Auth Service - Logout', () => {
   it('should logout successfully', async () => {
-    revokeUserToken.mockResolvedValue(true);
+    vi.mocked(revokeUserToken).mockResolvedValue(true);
 
     const result = await logoutUser('valid-token');
 
@@ -355,7 +355,7 @@ describe('Auth Service - Logout', () => {
   });
 
   it('should handle logout errors', async () => {
-    revokeUserToken.mockRejectedValue(new Error('Database error'));
+    vi.mocked(revokeUserToken).mockRejectedValue(new Error('Database error'));
 
     const result = await logoutUser('valid-token');
 
@@ -387,8 +387,8 @@ describe('Auth Service - Refresh Token', () => {
       token: { refreshToken: 'old-refresh-token', refreshExpiresAt: new Date(Date.now() + 604800000) },
     };
 
-    require('../repository'.getUserByRefreshToken).mockResolvedValue(tempResult);
-    refreshUserToken.mockResolvedValue(mockToken);
+    vi.mocked(require('../repository').getUserByRefreshToken).mockResolvedValue(tempResult);
+    vi.mocked(refreshUserToken).mockResolvedValue(mockToken);
 
     const result = await refreshToken({
       refreshToken: 'old-refresh-token',
@@ -411,7 +411,7 @@ describe('Auth Service - Refresh Token', () => {
   });
 
   it('should fail with invalid refresh token', async () => {
-    require('../repository'.getUserByRefreshToken).mockResolvedValue(null);
+    vi.mocked(require('../repository').getUserByRefreshToken).mockResolvedValue(null);
 
     const result = await refreshToken({
       refreshToken: 'invalid-token',
@@ -429,7 +429,7 @@ describe('Auth Service - Refresh Token', () => {
       token: { refreshToken: 'valid-token', refreshExpiresAt: new Date(Date.now() + 604800000) },
     };
 
-    require('../repository'.getUserByRefreshToken).mockResolvedValue(tempResult);
+    vi.mocked(require('../repository').getUserByRefreshToken).mockResolvedValue(tempResult);
 
     const result = await refreshToken({
       refreshToken: 'valid-token',
@@ -447,7 +447,7 @@ describe('Auth Service - Refresh Token', () => {
       token: { refreshToken: 'valid-token', refreshExpiresAt: new Date(Date.now() - 1000) },
     };
 
-    require('../repository'.getUserByRefreshToken).mockResolvedValue(tempResult);
+    vi.mocked(require('../repository').getUserByRefreshToken).mockResolvedValue(tempResult);
 
     const result = await refreshToken({
       refreshToken: 'valid-token',
@@ -462,9 +462,9 @@ describe('Auth Service - Refresh Token', () => {
 
 describe('Auth Service - Password Change', () => {
   it('should change password successfully', async () => {
-    getUserById.mockResolvedValue(mockUser);
-    updateUser.mockResolvedValue(mockUser);
-    revokeAllUserTokens.mockResolvedValue(undefined);
+    vi.mocked(getUserById).mockResolvedValue(mockUser);
+    vi.mocked(updateUser).mockResolvedValue(mockUser);
+    vi.mocked(revokeAllUserTokens).mockResolvedValue(undefined);
 
     const result = await changePassword('user1', 'correctPassword', 'NewP@ss1');
 
@@ -474,7 +474,7 @@ describe('Auth Service - Password Change', () => {
   });
 
   it('should fail with incorrect current password', async () => {
-    getUserById.mockResolvedValue(mockUser);
+    vi.mocked(getUserById).mockResolvedValue(mockUser);
 
     const result = await changePassword('user1', 'wrongPassword', 'NewP@ss1');
 
@@ -483,7 +483,7 @@ describe('Auth Service - Password Change', () => {
   });
 
   it('should fail with weak new password', async () => {
-    getUserById.mockResolvedValue(mockUser);
+    vi.mocked(getUserById).mockResolvedValue(mockUser);
 
     const result = await changePassword('user1', 'correctPassword', 'weak');
 
@@ -492,7 +492,7 @@ describe('Auth Service - Password Change', () => {
   });
 
   it('should handle user not found', async () => {
-    getUserById.mockResolvedValue(null);
+    vi.mocked(getUserById).mockResolvedValue(null);
 
     const result = await changePassword('nonexistent', 'password', 'NewP@ss1');
 
@@ -503,8 +503,8 @@ describe('Auth Service - Password Change', () => {
 
 describe('Auth Service - Password Reset', () => {
   it('should initiate password reset successfully', async () => {
-    getUserByEmail.mockResolvedValue(mockUser);
-    createPasswordResetToken.mockResolvedValue('reset-token');
+    vi.mocked(getUserByEmail).mockResolvedValue(mockUser);
+    vi.mocked(createPasswordResetToken).mockResolvedValue('reset-token');
 
     const result = await initiatePasswordReset('test@example.com');
 
@@ -513,7 +513,7 @@ describe('Auth Service - Password Reset', () => {
   });
 
   it('should not reveal if user exists on reset initiation', async () => {
-    getUserByEmail.mockResolvedValue(null);
+    vi.mocked(getUserByEmail).mockResolvedValue(null);
 
     const result = await initiatePasswordReset('nonexistent@example.com');
 
@@ -522,10 +522,10 @@ describe('Auth Service - Password Reset', () => {
   });
 
   it('should reset password successfully with valid token', async () => {
-    validatePasswordResetToken.mockResolvedValue(mockUser);
-    updateUser.mockResolvedValue(mockUser);
-    deletePasswordResetToken.mockResolvedValue(undefined);
-    revokeAllUserTokens.mockResolvedValue(undefined);
+    vi.mocked(validatePasswordResetToken).mockResolvedValue(mockUser);
+    vi.mocked(updateUser).mockResolvedValue(mockUser);
+    vi.mocked(deletePasswordResetToken).mockResolvedValue(undefined);
+    vi.mocked(revokeAllUserTokens).mockResolvedValue(undefined);
 
     const result = await resetPassword('valid-token', 'NewP@ss1');
 
@@ -536,7 +536,7 @@ describe('Auth Service - Password Reset', () => {
   });
 
   it('should fail with invalid reset token', async () => {
-    validatePasswordResetToken.mockResolvedValue(null);
+    vi.mocked(validatePasswordResetToken).mockResolvedValue(null);
 
     const result = await resetPassword('invalid-token', 'NewP@ss1');
 
@@ -545,7 +545,7 @@ describe('Auth Service - Password Reset', () => {
   });
 
   it('should fail with weak new password on reset', async () => {
-    validatePasswordResetToken.mockResolvedValue(mockUser);
+    vi.mocked(validatePasswordResetToken).mockResolvedValue(mockUser);
 
     const result = await resetPassword('valid-token', 'weak');
 

@@ -8,7 +8,7 @@ graph TB
         U[用户浏览器]
     end
 
-    subgraph "前端应用 - Next.js 16"
+    subgraph "前端应用 - Next.js 15"
         subgraph "路由层"
             MW[Middleware<br/>语言检测/重定向]
             LR[Locale Router<br/>/zh /en]

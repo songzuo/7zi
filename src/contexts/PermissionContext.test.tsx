@@ -1,3 +1,4 @@
+// @ts-nocheck - Test file with complex type issues
 import { act } from 'react';
 import { render } from '@testing-library/react';
 

@@ -9,7 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { withUserAuth, RBACUserContext } from '@/lib/auth/middleware-rbac';
 import { BackupManager } from '@/lib/backup/manager';
-import { RestoreOptionsSchema } from '@/lib/backup/types';
+import { RestoreOptionsSchema, BackupStatus } from '@/lib/backup/types';
 import { createSuccessResponse } from '@/lib/api/utils';
 import { createBadRequestError, createErrorResponse } from '@/lib/api/error-handler';
 
