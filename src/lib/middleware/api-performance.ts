@@ -65,7 +65,6 @@ const CRITICAL_REQUEST_THRESHOLD = 2000; // 2000ms
 // ============================================
 
 export class ApiPerformanceCollector {
-  private metrics: Map<string, ApiPerformanceData[]> = new Map();
   private summary: ApiPerformanceMetrics = {
     totalRequests: 0,
     successfulRequests: 0,
@@ -77,6 +76,9 @@ export class ApiPerformanceCollector {
     errors: new Map(),
   };
   private maxRecordsPerRoute = 100;
+
+  // Public access to metrics for external functions
+  public readonly metrics: Map<string, ApiPerformanceData[]> = new Map();
 
   /**
    * 记录 API 请求性能
@@ -220,13 +222,7 @@ export class ApiPerformanceCollector {
   getReportData(): {
     summary: Omit<ApiPerformanceMetrics, 'errors'> & { errors: Record<number, number> };
     slowRequests: ApiPerformanceData[];
-    routes: Record<string, {
-      count: number;
-      avgDuration: number;
-      maxDuration: number;
-      minDuration: number;
-      errorRate: number;
-    }>;
+    routes: Record<string, RoutePerformanceStats>;
   } {
     // 转换 errors Map 为对象
     const errorsRecord: Record<number, number> = {};
@@ -391,40 +387,32 @@ export function getApiMetricsSummary(): ApiMetricsSummary {
     slowRequests: summary.slowRequests,
     successfulRequests: summary.successfulRequests,
     failedRequests: summary.failedRequests,
-    byPath: report.routes.reduce((acc, route) => {
-      acc[route.path] = {
-        count: route.stats.count,
-        avgDuration: route.stats.avgDuration,
-        maxDuration: route.stats.maxDuration,
-        minDuration: route.stats.minDuration,
-        errors: route.stats.errors,
-        errorRate: route.stats.errorRate,
-        slowRequests: route.stats.slowRequests,
-        slowRequestRate: route.stats.slowRequestRate,
-      };
+    byPath: Object.entries(report.routes).reduce((acc, [path, stats]) => {
+      acc[path] = stats;
       return acc;
     }, {} as Record<string, RoutePerformanceStats>),
   };
 }
 
 export function getApiMetrics(): ApiPerformanceData[] {
-  const report = apiPerformanceCollector.getReportData();
-  return report.routes.reduce<ApiPerformanceData[]>(
-    (all, route) => [...all, ...route.metrics],
-    []
-  );
+  const data: ApiPerformanceData[] = [];
+  apiPerformanceCollector.metrics.forEach((metrics) => {
+    data.push(...metrics);
+  });
+  return data;
 }
 
 export function getRecentMetrics(minutes: number = 5): ApiPerformanceData[] {
-  const report = apiPerformanceCollector.getReportData();
   const cutoff = Date.now() - minutes * 60 * 1000;
-  return report.routes.reduce<ApiPerformanceData[]>(
-    (all, route) => [
-      ...all,
-      ...route.metrics.filter(m => m.timestamp >= cutoff),
-    ],
-    []
-  );
+  const recentMetrics: ApiPerformanceData[] = [];
+  
+  apiPerformanceCollector.metrics.forEach((metrics) => {
+    metrics
+      .filter(m => m.timestamp >= cutoff)
+      .forEach(m => recentMetrics.push(m));
+  });
+  
+  return recentMetrics;
 }
 
 export function clearApiMetrics() {

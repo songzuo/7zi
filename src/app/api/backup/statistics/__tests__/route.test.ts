@@ -257,7 +257,7 @@ describe('/api/backup/statistics', () => {
       if (response.status === 200) {
         const data = await response.json();
         expect(Array.isArray(data.data.health.issues)).toBe(true);
-        data.data.health.issues.forEach(issue => {
+        data.data.health.issues.forEach((issue: string) => {
           expect(typeof issue).toBe('string');
         });
       }

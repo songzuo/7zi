@@ -11,6 +11,8 @@
  */
 
 import { getRedisClient, redisCommand } from '../redis/client';
+import { getMemoryStore } from './memory-store';
+import { shouldUseRedis, getCachedRedisAvailability } from './storage-factory';
 import { logger } from '@/lib/logger';
 
 export interface SlidingWindowResult {
@@ -18,12 +20,14 @@ export interface SlidingWindowResult {
   remaining: number;
   resetTime: number;
   currentCount: number;
+  storage: 'redis' | 'memory';
 }
 
 export interface SlidingWindowConfig {
   key: string;
   limit: number; // Maximum requests
   window: number; // Time window in seconds
+  forceMemory?: boolean; // Force memory storage
 }
 
 /**
@@ -42,77 +46,109 @@ export interface SlidingWindowConfig {
 export async function checkSlidingWindow(
   config: SlidingWindowConfig
 ): Promise<SlidingWindowResult> {
-  const { key, limit, window } = config;
+  const { key, limit, window, forceMemory } = config;
   const now = Date.now();
   const windowStart = now - window * 1000;
 
-  try {
-    const client = getRedisClient();
+  // 检查是否使用内存存储
+  const useMemory = forceMemory || !shouldUseRedis();
+  const redisAvailable = await getCachedRedisAvailability();
 
-    if (!client) {
-      logger.warn('Redis not available for sliding window check');
-      return {
-        allowed: true,
-        remaining: limit - 1,
-        resetTime: now + window * 1000,
-        currentCount: 0,
-      };
+  // 如果应该使用 Redis 且 Redis 可用
+  if (!useMemory && redisAvailable) {
+    try {
+      return await checkSlidingWindowRedis(key, limit, window, now, windowStart);
+    } catch (error) {
+      logger.error('Redis sliding window check failed, falling back to memory', { error, key, limit, window });
+      // Fall back to memory storage
+      return checkSlidingWindowMemory(key, limit, window);
     }
-
-    // Redis pipeline for atomic operations
-    const pipeline = client.pipeline();
-
-    // 1. Remove entries outside the time window
-    pipeline.zremrangebyscore(key, 0, windowStart);
-
-    // 2. Count current entries in the window
-    pipeline.zcard(key);
-
-    // 3. Check if limit exceeded
-    pipeline.zrange(key, 0, limit - 1);
-
-    // 4. Set expiration (cleanup)
-    pipeline.expire(key, window);
-
-    // Execute pipeline
-    const results = await pipeline.exec();
-
-    if (!results) {
-      throw new Error('Redis pipeline execution failed');
-    }
-
-    const count = results[1][1] as number;
-    const entries = results[2][1] as string[];
-
-    const allowed = count < limit;
-    const remaining = Math.max(0, limit - count - (allowed ? 1 : 0));
-    const resetTime = now + window * 1000;
-
-    // If allowed, add current request to the window
-    if (allowed) {
-      await client.zadd(key, now, `${now}-${Math.random()}`);
-
-      // Set expiration if not already set
-      await client.expire(key, window);
-    }
-
-    return {
-      allowed,
-      remaining,
-      resetTime,
-      currentCount: count,
-    };
-  } catch (error) {
-    logger.error('Sliding window check failed', { error, key, limit, window });
-
-    // Fail open - allow request if Redis fails
-    return {
-      allowed: true,
-      remaining: limit - 1,
-      resetTime: now + window * 1000,
-      currentCount: 0,
-    };
   }
+
+  // 使用内存存储
+  return checkSlidingWindowMemory(key, limit, window);
+}
+
+/**
+ * 使用 Redis 检查滑动窗口
+ */
+async function checkSlidingWindowRedis(
+  key: string,
+  limit: number,
+  window: number,
+  now: number,
+  windowStart: number
+): Promise<SlidingWindowResult> {
+  const client = getRedisClient();
+
+  if (!client) {
+    throw new Error('Redis client not available');
+  }
+
+  // Redis pipeline for atomic operations
+  const pipeline = client.pipeline();
+
+  // 1. Remove entries outside the time window
+  pipeline.zremrangebyscore(key, 0, windowStart);
+
+  // 2. Count current entries in the window
+  pipeline.zcard(key);
+
+  // 3. Check if limit exceeded
+  pipeline.zrange(key, 0, limit - 1);
+
+  // 4. Set expiration (cleanup)
+  pipeline.expire(key, window);
+
+  // Execute pipeline
+  const results = await pipeline.exec();
+
+  if (!results) {
+    throw new Error('Redis pipeline execution failed');
+  }
+
+  const count = results[1][1] as number;
+  const entries = results[2][1] as string[];
+
+  const allowed = count < limit;
+  const remaining = Math.max(0, limit - count - (allowed ? 1 : 0));
+  const resetTime = now + window * 1000;
+
+  // If allowed, add current request to the window
+  if (allowed) {
+    await client.zadd(key, now, `${now}-${Math.random()}`);
+
+    // Set expiration if not already set
+    await client.expire(key, window);
+  }
+
+  return {
+    allowed,
+    remaining,
+    resetTime,
+    currentCount: count,
+    storage: 'redis',
+  };
+}
+
+/**
+ * 使用内存检查滑动窗口
+ */
+function checkSlidingWindowMemory(
+  key: string,
+  limit: number,
+  window: number
+): SlidingWindowResult {
+  const memoryStore = getMemoryStore();
+  const result = memoryStore.incrementSlidingWindow(key, limit, window);
+
+  return {
+    allowed: result.allowed,
+    remaining: result.remaining,
+    resetTime: result.resetTime,
+    currentCount: result.currentCount,
+    storage: 'memory',
+  };
 }
 
 /**
@@ -121,58 +157,112 @@ export async function checkSlidingWindow(
 export async function getSlidingWindowStatus(
   key: string,
   window: number
-): Promise<{ count: number; oldestRequest: number | null; resetTime: number }> {
+): Promise<{ count: number; oldestRequest: number | null; resetTime: number; storage: 'redis' | 'memory' }> {
   const now = Date.now();
   const windowStart = now - window * 1000;
 
-  const result = await redisCommand(
-    async () => {
-      const client = getRedisClient();
-      if (!client) {
-        return { count: 0, oldestRequest: null, resetTime: now + window * 1000 };
-      }
+  // 检查是否使用内存存储
+  const useMemory = !shouldUseRedis();
+  const redisAvailable = await getCachedRedisAvailability();
 
-      const pipeline = client.pipeline();
-      pipeline.zremrangebyscore(key, 0, windowStart);
-      pipeline.zcard(key);
-      pipeline.zrange(key, 0, 0, 'WITHSCORES');
-      pipeline.expire(key, window);
+  // 如果应该使用 Redis 且 Redis 可用
+  if (!useMemory && redisAvailable) {
+    try {
+      return await getSlidingWindowStatusRedis(key, window, now, windowStart);
+    } catch (error) {
+      logger.error('Redis sliding window status check failed, falling back to memory', { error, key, window });
+      // Fall back to memory storage
+      return getSlidingWindowStatusMemory(key, window, now);
+    }
+  }
 
-      const results = await pipeline.exec();
+  // 使用内存存储
+  return getSlidingWindowStatusMemory(key, window, now);
+}
 
-      if (!results) {
-        throw new Error('Redis pipeline execution failed');
-      }
+/**
+ * 使用 Redis 获取滑动窗口状态
+ */
+async function getSlidingWindowStatusRedis(
+  key: string,
+  window: number,
+  now: number,
+  windowStart: number
+): Promise<{ count: number; oldestRequest: number | null; resetTime: number; storage: 'redis' | 'memory' }> {
+  const client = getRedisClient();
 
-      const count = results[1][1] as number;
-      const oldestEntry = results[2][1] as string[];
-      const oldestRequest = oldestEntry.length > 0 ? parseInt(oldestEntry[1]) : null;
-      const resetTime = oldestRequest ? oldestRequest + window * 1000 : now + window * 1000;
+  if (!client) {
+    throw new Error('Redis client not available');
+  }
 
-      return { count, oldestRequest, resetTime };
-    },
-    { count: 0, oldestRequest: null, resetTime: now + window * 1000 }
-  );
+  const pipeline = client.pipeline();
+  pipeline.zremrangebyscore(key, 0, windowStart);
+  pipeline.zcard(key);
+  pipeline.zrange(key, 0, 0, 'WITHSCORES');
+  pipeline.expire(key, window);
 
-  return result ?? { count: 0, oldestRequest: null, resetTime: now + window * 1000 };
+  const results = await pipeline.exec();
+
+  if (!results) {
+    throw new Error('Redis pipeline execution failed');
+  }
+
+  const count = results[1][1] as number;
+  const oldestEntry = results[2][1] as string[];
+  const oldestRequest = oldestEntry.length > 0 ? parseInt(oldestEntry[1]) : null;
+  const resetTime = oldestRequest ? oldestRequest + window * 1000 : now + window * 1000;
+
+  return { count, oldestRequest, resetTime, storage: 'redis' };
+}
+
+/**
+ * 使用内存获取滑动窗口状态
+ */
+function getSlidingWindowStatusMemory(
+  key: string,
+  window: number,
+  now: number
+): { count: number; oldestRequest: number | null; resetTime: number; storage: 'redis' | 'memory' } {
+  const memoryStore = getMemoryStore();
+  const status = memoryStore.getSlidingWindowStatus(key);
+
+  if (!status) {
+    return { count: 0, oldestRequest: null, resetTime: now + window * 1000, storage: 'memory' };
+  }
+
+  return {
+    count: status.count,
+    oldestRequest: status.windowStart,
+    resetTime: status.resetTime,
+    storage: 'memory',
+  };
 }
 
 /**
  * Reset sliding window for a key
  */
 export async function resetSlidingWindow(key: string): Promise<boolean> {
-  return (await redisCommand(
-    async () => {
+  const useMemory = !shouldUseRedis();
+  const redisAvailable = await getCachedRedisAvailability();
+
+  // 如果应该使用 Redis 且 Redis 可用
+  if (!useMemory && redisAvailable) {
+    try {
       const client = getRedisClient();
       if (!client) {
-        return false;
+        throw new Error('Redis client not available');
       }
-
       await client.del(key);
       return true;
-    },
-    false
-  )) ?? false;
+    } catch (error) {
+      logger.error('Redis reset failed, falling back to memory', { error, key });
+    }
+  }
+
+  // 使用内存存储
+  const memoryStore = getMemoryStore();
+  memoryStore.reset(key);
+  return true;
 }
 
 /**

@@ -21,7 +21,7 @@ import {
   sanitizeValue,
   type SanitizationOptions,
 } from './input-sanitization';
-import { logRequestStart, logRequestComplete, logRequestError } from '@/lib/api/api-logger';
+import { logRequestStart, logRequestComplete, logRequestError, type RequestMetadata } from '@/lib/api/api-logger';
 import { logger } from '@/lib/logger';
 
 /**
@@ -149,7 +149,7 @@ export function withSecurity(
 
   return async (request: NextRequest): Promise<NextResponse> => {
     const startTime = Date.now();
-    let metadata: { requestId: string } | null = null;
+    let metadata: RequestMetadata | null = null;
 
     // Start logging if enabled
     if (finalConfig.enableLogging) {
@@ -176,7 +176,7 @@ export function withSecurity(
           { status: 400 }
         );
 
-        if (finalConfig.enableLogging) {
+        if (finalConfig.enableLogging && metadata) {
           logRequestComplete(metadata, response, startTime);
         }
 
@@ -252,14 +252,14 @@ export function withSecurity(
       const response = await wrappedHandler(request);
 
       // Log completion
-      if (finalConfig.enableLogging) {
+      if (finalConfig.enableLogging && metadata) {
         logRequestComplete(metadata, response, startTime);
       }
 
       return response;
     } catch (error) {
       // Log error
-      if (finalConfig.enableLogging) {
+      if (finalConfig.enableLogging && metadata) {
         logRequestError(metadata, error, startTime);
       }
 

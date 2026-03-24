@@ -14,6 +14,10 @@ describe('Notification Store', () => {
     store.setNotifications([]);
     store.clearAll();
     store.resetPreferences();
+    // Clear localStorage to ensure clean state
+    if (typeof window !== 'undefined') {
+      localStorage.clear();
+    }
   });
 
   describe('Basic State Management', () => {
@@ -419,6 +423,77 @@ describe('Notification Store', () => {
       });
 
       expect(useNotificationStore.getState().error).toBeNull();
+    });
+  });
+
+  describe('Notification Limit', () => {
+    it('should limit notifications to 100', () => {
+      // Create 105 notifications
+      const notifications = Array.from({ length: 105 }, (_, i) => ({
+        id: `notif-${i}`,
+        user_id: 'user1',
+        type: NotificationType.TASK_ASSIGNED,
+        title: `Test Notification ${i}`,
+        content: 'Test content',
+        priority: NotificationPriority.NORMAL,
+        status: NotificationStatus.UNREAD,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }));
+
+      act(() => {
+        notifications.forEach((n) => useNotificationStore.getState().addNotification(n));
+      });
+
+      const { notifications: storedNotifications } = useNotificationStore.getState();
+
+      // Should only have 100 notifications (most recent first)
+      expect(storedNotifications).toHaveLength(100);
+      // First notification should be the last one added (newest)
+      expect(storedNotifications[0].id).toBe('notif-104');
+    });
+
+    it('should maintain limit when adding notifications', () => {
+      // Add 100 notifications
+      const notifications = Array.from({ length: 100 }, (_, i) => ({
+        id: `notif-${i}`,
+        user_id: 'user1',
+        type: NotificationType.TASK_ASSIGNED,
+        title: `Test Notification ${i}`,
+        content: 'Test content',
+        priority: NotificationPriority.NORMAL,
+        status: NotificationStatus.UNREAD,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }));
+
+      act(() => {
+        notifications.forEach((n) => useNotificationStore.getState().addNotification(n));
+      });
+
+      expect(useNotificationStore.getState().notifications).toHaveLength(100);
+
+      // Add one more
+      const newNotification = {
+        id: 'notif-100',
+        user_id: 'user1',
+        type: NotificationType.TASK_ASSIGNED,
+        title: 'New Notification',
+        content: 'Test content',
+        priority: NotificationPriority.NORMAL,
+        status: NotificationStatus.UNREAD,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      act(() => {
+        useNotificationStore.getState().addNotification(newNotification);
+      });
+
+      // Should still be 100
+      expect(useNotificationStore.getState().notifications).toHaveLength(100);
+      // Newest should be first
+      expect(useNotificationStore.getState().notifications[0].id).toBe('notif-100');
     });
   });
 });

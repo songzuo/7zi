@@ -97,11 +97,13 @@ export const useNotificationStore = create<NotificationState>()(
         // Add notification
         addNotification: (notification) => {
           const notifications = [notification, ...get().notifications];
-          const unreadCount = notifications.filter(
+          // Limit total notifications to 100
+          const limited = notifications.slice(0, 100);
+          const unreadCount = limited.filter(
             (n) => n.status === NotificationStatus.UNREAD
           ).length;
-          
-          set({ notifications, unreadCount });
+
+          set({ notifications: limited, unreadCount });
         },
 
         // Update notification
@@ -194,8 +196,8 @@ export const useNotificationStore = create<NotificationState>()(
         name: 'notification-store',
         partialize: (state) => ({
           preferences: state.preferences,
-          // Only persist notifications up to 50 to avoid quota issues
-          notifications: state.notifications.slice(0, 50),
+          // Only persist notifications up to 100 to avoid quota issues
+          notifications: state.notifications.slice(0, 100),
         }),
       }
     )

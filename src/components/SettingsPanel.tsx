@@ -6,9 +6,13 @@ import { locales, type Locale } from '@/i18n/config';
 import { useLocale } from 'next-intl';
 import { useRouter, usePathname } from '@/i18n/routing';
 
-const languageNames: Record<Locale, { name: string; nativeName: string; flag: string }> = {
+const languageNames: Partial<Record<Locale, { name: string; nativeName: string; flag: string }>> = {
   zh: { name: 'Chinese', nativeName: '中文', flag: '🇨🇳' },
   en: { name: 'English', nativeName: 'English', flag: '🇺🇸' },
+  ja: { name: 'Japanese', nativeName: '日本語', flag: '🇯🇵' },
+  ko: { name: 'Korean', nativeName: '한국어', flag: '🇰🇷' },
+  fr: { name: 'French', nativeName: 'Français', flag: '🇫🇷' },
+  de: { name: 'German', nativeName: 'Deutsch', flag: '🇩🇪' },
 };
 
 interface SettingsPanelProps {

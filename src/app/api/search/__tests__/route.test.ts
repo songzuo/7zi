@@ -242,12 +242,13 @@ describe('GET /api/search', () => {
     });
 
     it('应该处理服务器错误', async () => {
-      // Mock error scenario
-      vi.doMock('@/lib/search/advanced-search', () => ({
-        getGlobalSearchManager: () => ({
-          search: vi.fn(() => {
-            throw new Error('Search service unavailable');
-          }),
+      // Get the mocked function
+      const { getGlobalSearchManager } = await import('@/lib/search/advanced-search');
+
+      // Mock error scenario using vi.mocked
+      const mockSearch = vi.mocked(getGlobalSearchManager).mockImplementationOnce(() => ({
+        search: vi.fn(() => {
+          throw new Error('Search service unavailable');
         }),
       }));
 
@@ -260,6 +261,9 @@ describe('GET /api/search', () => {
       expect(response.status).toBe(500);
       const data = await response.json();
       expect(data.success).toBe(false);
+
+      // Restore original mock
+      mockSearch.mockRestore();
     });
   });
 

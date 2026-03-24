@@ -101,10 +101,17 @@ export class NotificationService {
         methods: ['GET', 'POST'],
       },
       transports: ['websocket', 'polling'],
+      pingTimeout: 60000, // 60 seconds
+      pingInterval: 25000, // 25 seconds
     });
 
     this.io.on('connection', (socket: Socket) => {
       logger.log(`[NotificationService] Client connected: ${socket.id}`);
+
+      // Handle heartbeat ping
+      socket.on('ping', () => {
+        socket.emit('pong');
+      });
 
       // Handle subscription
       socket.on('subscribe', (subscription: NotificationSubscription) => {

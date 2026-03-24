@@ -1,0 +1,21 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background - full square with gradient (for maskable icon) -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#0891b2"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="512" height="512" fill="url(#bgGradient)"/>
+
+  <!-- Main 7zi text/logo - centered in safe zone (70% of image) -->
+  <text x="256" y="300" font-family="Arial, Helvetica, sans-serif" font-size="140" font-weight="bold" fill="white" text-anchor="middle">
+    7zi
+  </text>
+
+  <!-- Studio subtitle -->
+  <text x="256" y="350" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="normal" fill="rgba(255,255,255,0.9)" text-anchor="middle">
+    STUDIO
+  </text>
+</svg>

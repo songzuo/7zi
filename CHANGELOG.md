@@ -7,6 +7,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.1] - 2026-03-24 (Notification Persistence Enhancement)
+
+### ✨ New Features
+
+- **🔔 Enhanced Notification Persistence**
+  - Updated Zustand store to persist 100 most recent notifications (increased from 50)
+  - Added automatic limit enforcement in `addNotification` method
+  - Automatic localStorage synchronization via Zustand persist middleware
+  - Persistent read/unread status across page refreshes
+  - Timestamp tracking (`read_at`) for notifications
+
+### 🧪 Testing
+
+- **Test Coverage Improvements**
+  - Added localStorage cleanup in test setup
+  - Created new test suite for notification limit functionality
+  - Added 2 new tests:
+    - `should limit notifications to 100` - Verifies limit enforcement
+    - `should maintain limit when adding notifications` - Tests ongoing limit enforcement
+  - All 17 tests passing ✅
+
+### 📚 Documentation
+
+- **New Documentation**
+  - Created `/docs/NOTIFICATION_PERSISTENCE.md` (13,500+ words)
+    - Comprehensive architecture overview with data flow diagrams
+    - Complete API reference (state, actions, selectors)
+    - Usage examples and best practices
+    - Performance considerations and optimization strategies
+    - Migration guide from old hook
+    - Troubleshooting guide
+    - Browser compatibility matrix
+    - Security considerations
+  - Created `/docs/NOTIFICATION_PERSISTENCE_IMPLEMENTATION_SUMMARY.md`
+    - Complete implementation report
+    - Test results summary
+    - Verification checklist
+
+### 🔧 Improvements
+
+- **Code Quality**
+  - Enforced 100-notification limit in store persistence
+  - Added limit enforcement in `addNotification` method for consistency
+  - Improved test reliability with localStorage cleanup
+
+### 📊 Performance
+
+- **Storage Optimization**
+  - ~50 bytes per notification
+  - ~5 KB total for 100 notifications
+  - Minimal localStorage footprint (well under 5-10 MB quota)
+
+---
+
 ## [1.1.0] - 2026-03-24 (Documentation Update)
 
 ### 📚 Documentation Updates
