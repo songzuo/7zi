@@ -7,6 +7,9 @@
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 
+// Import global mocks (must be before any test code runs)
+import '@/test/vi-mocks';
+
 // Add TextEncoder/TextDecoder polyfill for jsdom environment
 if (typeof global.TextEncoder === 'undefined') {
   const { TextEncoder, TextDecoder } = require('util');

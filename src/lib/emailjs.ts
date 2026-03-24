@@ -87,5 +87,5 @@ export function getSubjectLabel(subject?: string, locale: Locale = 'zh'): string
  */
 export function getLocalizedSubject(subjectKey: string, locale: Locale = 'zh'): string {
   const subjects = SUBJECT_MAP[locale] || SUBJECT_MAP.zh;
-  return subjects[subjectKey] || SUBJECT_MAP.zh[subjectKey] || subjectKey;
+  return subjects?.[subjectKey] || SUBJECT_MAP.zh?.[subjectKey] || subjectKey;
 }
