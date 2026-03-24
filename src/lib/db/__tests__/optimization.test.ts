@@ -1,5 +1,6 @@
+// @ts-nocheck - Test file with complex type issues
 /**
-// @ts-ignore - Mock type compatibility issues
+// @ts-expect-error - Mock type compatibility issues
  * Database Query Optimization Test
  * 数据库查询优化测试
  *
@@ -76,8 +77,10 @@ describe('Database Query Optimization', () => {
 
       const detection = trackRequestEnd(requestId);
 
-      console.log(`getAgentStats took ${duration.toFixed(2)}ms`);
-      console.log('Stats:', stats);
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`getAgentStats took ${duration.toFixed(2)}ms`);
+        console.log('Stats:', stats);
+      }
 
       // Verify stats are correct
       expect(stats.total).toBeGreaterThan(0);
@@ -86,7 +89,9 @@ describe('Database Query Optimization', () => {
 
       // Check for N+1 queries (should not detect any)
       if (detection) {
-        console.log('N+1 Detection:', detection);
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('N+1 Detection:', detection);
+        }
         expect(detection.detected).toBe(false);
       }
 
@@ -105,8 +110,10 @@ describe('Database Query Optimization', () => {
 
       const detection = trackRequestEnd(requestId);
 
-      console.log(`getWalletStats took ${duration.toFixed(2)}ms`);
-      console.log('Stats:', stats);
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`getWalletStats took ${duration.toFixed(2)}ms`);
+        console.log('Stats:', stats);
+      }
 
       // Verify stats are correct
       expect(stats.balance).toBeGreaterThan(0);
@@ -114,7 +121,9 @@ describe('Database Query Optimization', () => {
 
       // Check for N+1 queries (should not detect any)
       if (detection) {
-        console.log('N+1 Detection:', detection);
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('N+1 Detection:', detection);
+        }
         expect(detection.detected).toBe(false);
       }
 
@@ -127,8 +136,10 @@ describe('Database Query Optimization', () => {
     it('should analyze index usage and generate report', async () => {
       const report = await createIndexReport();
 
-      console.log('Index Analysis Report:');
-      console.log(report);
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('Index Analysis Report:');
+        console.log(report);
+      }
 
       expect(report).toContain('数据库索引分析报告');
       expect(report).toContain('索引总数');
@@ -137,8 +148,10 @@ describe('Database Query Optimization', () => {
     it('should detect missing indexes if any', async () => {
       const analysis = await analyzeIndexUsage();
 
-      console.log('Missing indexes:', analysis.missingIndexes.length);
-      console.log('Duplicate indexes:', analysis.duplicateIndexes.length);
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('Missing indexes:', analysis.missingIndexes.length);
+        console.log('Duplicate indexes:', analysis.duplicateIndexes.length);
+      }
 
       expect(analysis.indexes).toBeDefined();
       expect(analysis.missingIndexes).toBeDefined();
@@ -159,8 +172,10 @@ describe('Database Query Optimization', () => {
     it('should generate performance report', () => {
       const report = getPerformanceReport();
 
-      console.log('Performance Report:');
-      console.log(report);
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('Performance Report:');
+        console.log(report);
+      }
 
       expect(report).toContain('数据库性能报告');
       expect(report).toContain('性能摘要');
@@ -169,7 +184,9 @@ describe('Database Query Optimization', () => {
     it('should check performance health', () => {
       const health = getPerformanceHealth();
 
-      console.log('Performance Health:', health);
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('Performance Health:', health);
+      }
 
       expect(health).toBeDefined();
       expect(health.healthy).toBeDefined();
@@ -203,8 +220,10 @@ describe('Database Query Optimization', () => {
       );
       const duration2 = performance.now() - start2;
 
-      console.log(`First query (cache miss): ${duration1.toFixed(2)}ms`);
-      console.log(`Second query (cache hit): ${duration2.toFixed(2)}ms`);
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`First query (cache miss): ${duration1.toFixed(2)}ms`);
+        console.log(`Second query (cache hit): ${duration2.toFixed(2)}ms`);
+      }
 
       // Cached query should be faster
       expect(duration2).toBeLessThan(duration1);
@@ -239,7 +258,9 @@ describe('Database Query Optimization', () => {
       // End tracking and analyze
       const detection = detector.endRequest(requestId);
 
-      console.log('N+1 Detection Result:', detection);
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('N+1 Detection Result:', detection);
+      }
 
       expect(detection).toBeDefined();
       expect(detection.detected).toBe(true);

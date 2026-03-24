@@ -18,7 +18,7 @@ export function createAppError(
 ): AppError {
   const error = new Error(message) as AppError;
   error.code = code;
-  error.statusCode = statusCode || 500;
+  error.statusCode = statusCode;
   return error;
 }
 

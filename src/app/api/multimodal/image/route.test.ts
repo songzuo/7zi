@@ -36,11 +36,7 @@ describe('Multimodal Image API - GET /api/multimodal/image', () => {
   });
 
   it('应该返回 API 信息', async () => {
-    const request = new NextRequest('http://localhost/api/multimodal/image', {
-      method: 'GET',
-    });
-
-    const response = await GET(request);
+    const response = await GET();
     const data = await response.json();
 
     expect(response.status).toBe(200);
@@ -50,11 +46,7 @@ describe('Multimodal Image API - GET /api/multimodal/image', () => {
   });
 
   it('应该包含支持的图像类型', async () => {
-    const request = new NextRequest('http://localhost/api/multimodal/image', {
-      method: 'GET',
-    });
-
-    const response = await GET(request);
+    const response = await GET();
     const data = await response.json();
 
     expect(data).toHaveProperty('supportedTypes');
@@ -62,11 +54,7 @@ describe('Multimodal Image API - GET /api/multimodal/image', () => {
   });
 
   it('应该包含 API 版本信息', async () => {
-    const request = new NextRequest('http://localhost/api/multimodal/image', {
-      method: 'GET',
-    });
-
-    const response = await GET(request);
+    const response = await GET();
     const data = await response.json();
 
     expect(data).toHaveProperty('version');

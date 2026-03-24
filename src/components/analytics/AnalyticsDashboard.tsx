@@ -12,14 +12,14 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-
+import { RefreshCw, Download, LayoutGrid, Settings, Save, RotateCcw, AlertCircle } from 'lucide-react';
 import { DateRangePicker } from './DateRangePicker';
 import { FilterPanel } from './FilterPanel';
 import { MetricCard } from './MetricCard';
 import { AnalyticsChart } from './AnalyticsChart';
 import { AnalyticsErrorBoundary } from './ErrorBoundary';
 import { MetricCardSkeleton, ChartSkeleton, LoadingOverlay, MetricsGridSkeleton } from './Skeleton';
-
+import { Activity, Users, CheckCircle, DollarSign, Cpu } from 'lucide-react';
 import {
   type AnalyticsMetrics,
   type AnalyticsFilters,
@@ -286,9 +286,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
     ];
   };
 
-  const statistics = createStatistics();
+  // 使用 useMemo 优化 statistics 数组，避免每次渲染都重新创建
+  const statistics = React.useMemo(() => createStatistics(), [metrics, locale]);
 
-  const icons = [Activity, Users, CheckCircle, DollarSign];
+  const icons = React.useMemo(() => [Activity, Users, CheckCircle, DollarSign], []);
 
   const t = {
     title: locale === 'zh' ? '数据分析' : 'Analytics Dashboard',

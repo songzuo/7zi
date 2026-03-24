@@ -145,7 +145,7 @@ Based on code-quality-report.md (2026-03-20):
 ## 📦 Dependencies
 
 ### Updated
-- Next.js 16.1.7
+- Next.js 16.2.1
 - React 19.2.4
 - TypeScript 5.x
 - Tailwind CSS 4

@@ -13,10 +13,17 @@
  */
 
 import React, { useEffect, useState, Suspense } from 'react';
-
-import {  } from '@/components/LazyComponents';
-
-
+import { MemberCard } from '@/components/MemberCard';
+import {
+  LazyTaskBoard,
+  LazyActivityLog,
+  LazyRealtimeDashboard,
+  LazyTeamActivityTracker,
+  LoadingFallback,
+} from '@/components/LazyComponents';
+import { useDashboardData } from '@/hooks/useDashboardData';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { Link } from '@/i18n/routing';
 
 // ============================================================================
 // 类型定义 - 使用 MemberCard 的 AIMember 类型

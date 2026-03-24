@@ -1,3 +1,5 @@
+'use client';
+
 import { Link } from '@/i18n/routing';
 import { ProjectCategory } from '../data';
 import { memo } from 'react';

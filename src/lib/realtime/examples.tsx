@@ -6,7 +6,7 @@
 
 'use client';
 
-
+import { useState } from 'react';
 import { useWebSocket, createMessage, isMessageType } from './useWebSocket';
 import type { WebSocketMessage } from './types';
 import { useEnhancedWebSocket } from './useEnhancedWebSocket';

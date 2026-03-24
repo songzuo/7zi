@@ -3,6 +3,7 @@
  * 支持多语言的 SEO 配置生成
  */
 
+import type { Metadata } from 'next';
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.studio';
 

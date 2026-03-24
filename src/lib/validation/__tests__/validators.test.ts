@@ -1,5 +1,4 @@
 import {describe, it, expect, vi} from 'vitest';
-// @ts-ignore - Mock type compatibility issues
 import {
   required,
   email,

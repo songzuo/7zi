@@ -146,28 +146,50 @@ const mockFetch = (url: string, options?: RequestInit) => {
           }),
         } as Response);
       } else if (url.includes('/api/performance/alerts')) {
-        resolve({
-          ok: true,
-          status: 200,
-          json: async () => ({
-            success: true,
-            alerts: mockAlerts,
-            rules: [],
-            summary: {
-              total: 2,
-              unacknowledged: 2,
-              bySeverity: { low: 0, medium: 1, high: 0, critical: 1 },
-              byMetric: { LCP: 1, FID: 1, CLS: 0, INP: 0, TTFB: 0 },
-            },
-          }),
-        } as Response);
-      } else if (options?.method === 'POST' && url.includes('/api/performance/alerts')) {
-        const body = JSON.parse(options.body as string);
-        if (body.action === 'acknowledge') {
+        if (options?.method === 'POST') {
+          const body = JSON.parse(options.body as string);
+          if (body.action === 'acknowledge') {
+            resolve({
+              ok: true,
+              status: 200,
+              json: async () => ({ success: true, alert: { ...mockAlerts[0], acknowledged: true } }),
+            } as Response);
+          } else if (body.action === 'create-rule') {
+            resolve({
+              ok: true,
+              status: 200,
+              json: async () => ({ success: true, rule: body.rule }),
+            } as Response);
+          }
+        } else {
           resolve({
             ok: true,
             status: 200,
-            json: async () => ({ success: true, alert: { ...mockAlerts[0], acknowledged: true } }),
+            json: async () => ({
+              success: true,
+              alerts: mockAlerts,
+              rules: [],
+              summary: {
+                total: 2,
+                unacknowledged: 2,
+                bySeverity: { low: 0, medium: 1, high: 0, critical: 1 },
+                byMetric: { LCP: 1, FID: 1, CLS: 0, INP: 0, TTFB: 0 },
+              },
+            }),
+          } as Response);
+        }
+      } else if (url.includes('/api/performance/metrics')) {
+        if (options?.method === 'POST') {
+          resolve({
+            ok: true,
+            status: 200,
+            json: async () => ({ success: true, metrics: mockMetrics }),
+          } as Response);
+        } else {
+          resolve({
+            ok: true,
+            status: 200,
+            json: async () => ({ success: true, metrics: mockMetrics }),
           } as Response);
         }
       } else {

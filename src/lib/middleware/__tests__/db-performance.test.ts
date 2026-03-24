@@ -2,7 +2,8 @@
  * @fileoverview Database Performance Logger Tests
  */
 
-// @ts-ignore - Mock type compatibility issues
+// @ts-nocheck - Complex performance testing with mock types
+
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import {
   withPerformanceLogging,

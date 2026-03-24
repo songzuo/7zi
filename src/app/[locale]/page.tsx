@@ -92,7 +92,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 
         {
 
-          url: `${baseUrl}/og-image.png`,
+          url: `${baseUrl}/og-image.svg`,
 
           width: 1200,
 
@@ -114,7 +114,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 
       description: descriptions[locale as 'zh' | 'en'] || descriptions.zh,
 
-      images: [`${baseUrl}/og-image.png`],
+      images: [`${baseUrl}/og-image.svg`],
 
     },
 

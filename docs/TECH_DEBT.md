@@ -279,7 +279,7 @@ npm install @types/node@25 --save-dev
 ### 依赖健康度
 
 **良好**:
-- Next.js 16.1.7 - 最新稳定版
+- Next.js 16.2.1 - 最新稳定版
 - TypeScript 5.x - 当前主流
 - Vitest 4.x - 最新版
 
@@ -318,7 +318,7 @@ npm install @types/node@25 --save-dev
 
 ### 🟡 中优先级 (本月)
 2. **更新补丁版本**
-   - ✅ React 19.2.3 → 19.2.4 已完成
+   - ✅ React 19.2.4 → 19.2.4 已完成
    
 3. **修复图片优化**
    - AvatarUpload.tsx 使用 next/image

@@ -1,5 +1,5 @@
 /**
-// @ts-ignore - Mock type compatibility issues
+// @ts-expect-error - Mock type compatibility issues
  * Auth Module Tests
  * Tests for authentication service, repository, and middleware
  */

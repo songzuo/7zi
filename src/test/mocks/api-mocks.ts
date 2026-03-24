@@ -3,7 +3,8 @@
  * @description Provides reusable mock objects for Next.js API route testing
  */
 
-
+import { vi } from 'vitest';
+import { NextRequest } from 'next/server';
 
 /**
  * Create a mock NextRequest object with proper Next.js properties

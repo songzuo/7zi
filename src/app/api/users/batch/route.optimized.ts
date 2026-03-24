@@ -17,7 +17,13 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createUser,  } from '@/lib/auth/repository';
+import {
+  getUserById,
+  createUser,
+  updateUser,
+  getUserByEmail,
+  getAllUsers,
+} from '@/lib/auth/repository';
 import { batchUpdate } from '@/lib/db/batch-operations';
 import { getDatabaseAsync } from '@/lib/db';
 import { logger } from '@/lib/logger';

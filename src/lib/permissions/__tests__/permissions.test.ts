@@ -1,5 +1,5 @@
 /**
-// @ts-ignore - Mock type compatibility issues
+// @ts-expect-error - Mock type compatibility issues
  * Permissions System Tests
  * 测试权限系统类型和功能
  */

@@ -44,7 +44,7 @@ import {
   UnifiedAppError,
   isUnifiedError,
 } from '../errors/unified-error';
-import { ErrorCodes, UnifiedErrorType } from '../errors/unified-types';
+import { ErrorCodes } from '../errors/unified-types';
 
 /**
  * Get JWT secret

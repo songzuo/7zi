@@ -3,7 +3,6 @@
  *
  * Socket.IO server for real-time collaboration features
  * Supports rooms, authentication, and message broadcasting
- * Enhanced with heartbeat monitoring, error handling, and reconnection support
  */
 
 'use server';
@@ -16,8 +15,6 @@ import { getUserById } from '@/lib/auth/repository';
 import { logger } from '@/lib/logger';
 import type { Socket } from 'socket.io';
 import { setupVoiceMeetingHandlers } from '@/lib/voice-meeting/signaling';
-import { getHeartbeatManager, type HeartbeatConfig } from './heartbeat';
-import { getErrorHandler, type ErrorHandlerConfig } from './error-handler';
 
 // ============================================================================
 // Types
@@ -279,10 +276,7 @@ async function authenticateSocket(socket: AuthenticatedSocket, next: (err?: Erro
 // Socket Event Handlers
 // ============================================================================
 
-function setupSocketHandlers(
-  socket: AuthenticatedSocket,
-  errorHandler: ReturnType<typeof getErrorHandler>
-): void {
+function setupSocketHandlers(socket: AuthenticatedSocket): void {
   const user = socket.data.user;
 
   // Join user's personal channel
@@ -341,17 +335,8 @@ function setupSocketHandlers(
 
       logger.info('Room joined', { socketId: socket.id, roomId, userId: user.id });
     } catch (error) {
-      const wsError = errorHandler.handleError(error, {
-        socketId: socket.id,
-        userId: user.id,
-        roomId: data?.roomId,
-      });
-
-      socket.emit('system:error', {
-        message: wsError.message,
-        code: wsError.type,
-        recoverable: wsError.recoverable,
-      });
+      logger.error('Error joining room', { socketId: socket.id, error });
+      socket.emit('system:error', { message: 'Failed to join room' });
     }
   });
 
@@ -597,12 +582,6 @@ function setupSocketHandlers(
       reason,
     });
 
-    // Handle disconnect error
-    errorHandler.handleError(new Error(`Disconnected: ${reason}`), {
-      socketId: socket.id,
-      userId: user.id,
-    });
-
     // Leave all rooms
     socket.data.rooms.forEach(roomId => {
       const room = getRoom(roomId);
@@ -624,47 +603,37 @@ function setupSocketHandlers(
 // ============================================================================
 
 function setupServer(ioServer: SocketIOServer): void {
-  // Initialize stability managers
-  const heartbeatManager = getHeartbeatManager({
-    checkInterval: 10000,      // Check every 10 seconds
-    staleTimeout: 60000,        // 60 seconds without heartbeat = stale
-    maxMissedHeartbeats: 5,     // 5 missed heartbeats = disconnect
-    debugLogging: process.env.NODE_ENV === 'development',
-  });
-
-  const errorHandler = getErrorHandler({
-    detailedLogging: true,
-    errorTracking: true,
-    autoRecovery: true,
-    notifyOnHighSeverity: true,
-  });
-
-  // Start heartbeat monitoring
-  heartbeatManager.start();
-
   // Use authentication middleware
   ioServer.use(authenticateSocket as (socket: Socket, next: (err?: Error) => void) => void);
 
   // Handle connections
   ioServer.on('connection', (socket) => {
     logger.info('New connection', { socketId: socket.id });
-
-    const authSocket = socket as AuthenticatedSocket;
-
-    // Register socket with heartbeat manager
-    heartbeatManager.registerSocket(socket, authSocket.data.user?.id);
-
-    // Setup socket handlers
-    setupSocketHandlers(authSocket, errorHandler);
+    setupSocketHandlers(socket as AuthenticatedSocket);
   });
 
   // Setup voice meeting handlers
   setupVoiceMeetingHandlers(ioServer);
 
-  logger.info('WebSocket server setup complete', {
-    heartbeatEnabled: true,
-    errorHandlingEnabled: true,
-  });
+  // Start heartbeat monitoring
+  setInterval(() => {
+    const now = Date.now();
+    ioServer?.sockets.sockets.forEach((socket) => {
+      const authSocket = socket as AuthenticatedSocket;
+      const lastHeartbeat = authSocket.data.lastHeartbeat || 0;
+
+      // Disconnect if no heartbeat for 60 seconds
+      if (now - lastHeartbeat > 60000) {
+        logger.warn('Client disconnected (heartbeat timeout)', {
+          socketId: socket.id,
+          userId: authSocket.data.user?.id,
+        });
+        socket.disconnect(true);
+      }
+    });
+  }, 10000);
+
+  logger.info('WebSocket server setup complete');
 }
 
 // ============================================================================

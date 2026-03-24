@@ -121,7 +121,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
       description: seo.ogDescription,
       images: [
         {
-          url: `${baseUrl}/og-image.png`,
+          url: `${baseUrl}/og-image.svg`,
           width: 1200,
           height: 630,
           alt: seo.title,
@@ -132,7 +132,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
       card: 'summary_large_image',
       title: seo.title,
       description: seo.ogDescription,
-      images: [`${baseUrl}/og-image.png`],
+      images: [`${baseUrl}/og-image.svg`],
       creator: '@7zistudio',
       site: '@7zistudio',
     },
@@ -205,7 +205,7 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://avatars.githubusercontent.com" crossOrigin="anonymous" />
         
         {/* 资源预加载提示 - LCP 优化 */}
-        <link rel="preload" href="/og-image.png" as="image" fetchPriority="high" />
+        <link rel="preload" href="/og-image.svg" as="image" fetchPriority="high" />
         <link rel="preload" href="/favicon.ico" as="image" />
         
         {/* 结构化数据 */}

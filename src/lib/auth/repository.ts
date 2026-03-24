@@ -11,6 +11,7 @@ import {
   CreateUserRequest,
   UpdateUserRequest,
 } from './types';
+import { Role } from '@/lib/permissions/types';
 import * as crypto from 'crypto';
 
 /**
@@ -199,16 +200,111 @@ export async function getUserByEmail(email: string): Promise<User | null> {
 }
 
 /**
- * Get all users
+ * Pagination options
+ */
+export interface PaginationOptions {
+  limit?: number;
+  offset?: number;
+}
+
+/**
+ * Paginated result
+ */
+export interface PaginatedResult<T> {
+  data: T[];
+  total: number;
+  limit: number;
+  offset: number;
+  hasMore: boolean;
+}
+
+/**
+ * Get all users with pagination - OPTIMIZED
+ *
+ * Optimizations:
+ * 1. Default pagination limit (100 records)
+ * 2. Maximum limit (1000 records) to prevent abuse
+ * 3. Pagination metadata support for frontend UI
  */
 export async function getAllUsers(options?: {
   status?: UserStatus;
   role?: UserRole;
+  limit?: number;
+  offset?: number;
 }): Promise<User[]> {
   const db = await getDatabaseAsync();
   await initializeUserTables();
 
+  // Default pagination limits
+  const defaultLimit = 100;
+  const maxLimit = 1000;
+  const limit = Math.min(options?.limit ?? defaultLimit, maxLimit);
+  const offset = options?.offset ?? 0;
+
   let sql = 'SELECT * FROM users';
+  const conditions: string[] = [];
+  const params: (string | number)[] = [];
+
+  if (options?.status) {
+    conditions.push('status = ?');
+    params.push(options.status);
+  }
+  if (options?.role) {
+    conditions.push('role = ?');
+    params.push(options.role);
+  }
+
+  if (conditions.length > 0) {
+    sql += ' WHERE ' + conditions.join(' AND ');
+  }
+
+  sql += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
+  params.push(limit, offset);
+
+  const stmt = db.prepare(sql);
+  const rows = stmt.all(...params) as unknown as Record<string, unknown>[];
+
+  return rows.map(mapRowToUser);
+}
+
+/**
+ * Get all users with pagination metadata - NEW
+ *
+ * Returns paginated result with metadata for frontend pagination UI
+ */
+export async function getAllUsersPaginated(options?: {
+  status?: UserStatus;
+  role?: UserRole;
+  limit?: number;
+  offset?: number;
+}): Promise<PaginatedResult<User>> {
+  const users = await getAllUsers(options);
+  const total = await getUsersCount(options);
+  const limit = Math.min(options?.limit ?? 100, 1000);
+  const offset = options?.offset ?? 0;
+
+  return {
+    data: users,
+    total,
+    limit,
+    offset,
+    hasMore: offset + users.length < total,
+  };
+}
+
+/**
+ * Get users count - NEW
+ *
+ * Get total user count for pagination
+ */
+export async function getUsersCount(options?: {
+  status?: UserStatus;
+  role?: UserRole;
+}): Promise<number> {
+  const db = await getDatabaseAsync();
+  await initializeUserTables();
+
+  let sql = 'SELECT COUNT(*) as count FROM users';
   const conditions: string[] = [];
   const params: string[] = [];
 
@@ -225,12 +321,9 @@ export async function getAllUsers(options?: {
     sql += ' WHERE ' + conditions.join(' AND ');
   }
 
-  sql += ' ORDER BY created_at DESC';
-
   const stmt = db.prepare(sql);
-  const rows = stmt.all(...params) as unknown as Record<string, unknown>[];
-
-  return rows.map(mapRowToUser);
+  const result = stmt.get(...params) as { count: number };
+  return result.count;
 }
 
 /**
@@ -598,21 +691,80 @@ export function getDefaultPermissions(role: UserRole): string[] {
 /**
  * Map database row to User object
  */
+/**
+ * Map database row to User object with enhanced type safety
+ * Includes runtime validation to prevent type-related bugs
+ */
 function mapRowToUser(row: Record<string, unknown>): User {
+  // Validate required fields exist
+  const requiredFields = ['id', 'email', 'password', 'name', 'role', 'status'];
+  for (const field of requiredFields) {
+    if (row[field] === undefined || row[field] === null) {
+      throw new Error(`Missing required field: ${field}`);
+    }
+  }
+
+  // Type-safe parsing helpers
+  const parseStringArray = (value: unknown, defaultValue: string[] = []): string[] => {
+    if (typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value);
+        return Array.isArray(parsed) ? parsed : defaultValue;
+      } catch {
+        return defaultValue;
+      }
+    }
+    return Array.isArray(value) ? value : defaultValue;
+  };
+
+  const parseRecord = (value: unknown, defaultValue: Record<string, unknown> = {}): Record<string, unknown> => {
+    if (typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value);
+        return typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed) ? parsed : defaultValue;
+      } catch {
+        return defaultValue;
+      }
+    }
+    return typeof value === 'object' && value !== null && !Array.isArray(value) ? value as Record<string, unknown> : defaultValue;
+  };
+
+  const parseDate = (value: unknown): Date | undefined => {
+    if (typeof value === 'string') {
+      const date = new Date(value);
+      return isNaN(date.getTime()) ? undefined : date;
+    }
+    return undefined;
+  };
+
+  // Validate role enum
+  const role = row.role as string;
+  const validRoles = Object.values(UserRole);
+  if (!validRoles.includes(role as UserRole)) {
+    throw new Error(`Invalid role: ${role}`);
+  }
+
+  // Validate status enum
+  const status = row.status as string;
+  const validStatuses = Object.values(UserStatus);
+  if (!validStatuses.includes(status as UserStatus)) {
+    throw new Error(`Invalid status: ${status}`);
+  }
+
   return {
     id: row.id as string,
     email: row.email as string,
     password: row.password as string,
     name: row.name as string,
     avatar: row.avatar as string | undefined,
-    role: row.role as UserRole,
-    roles: row.roles ? JSON.parse(row.roles as string || '[]') : [],
-    status: row.status as UserStatus,
-    permissions: JSON.parse(row.permissions as string || '[]'),
-    customPermissions: row.custom_permissions ? JSON.parse(row.custom_permissions as string || '[]') : undefined,
-    metadata: JSON.parse(row.metadata as string || '{}'),
-    createdAt: new Date(row.created_at as string),
-    updatedAt: new Date(row.updated_at as string),
-    lastLoginAt: row.last_login_at ? new Date(row.last_login_at as string) : undefined,
+    role: role as UserRole,
+    roles: (parseStringArray(row.roles) as unknown) as Role[],
+    status: status as UserStatus,
+    permissions: parseStringArray(row.permissions),
+    customPermissions: parseStringArray(row.custom_permissions),
+    metadata: parseRecord(row.metadata),
+    createdAt: parseDate(row.created_at) || new Date(),
+    updatedAt: parseDate(row.updated_at) || new Date(),
+    lastLoginAt: parseDate(row.last_login_at),
   };
 }

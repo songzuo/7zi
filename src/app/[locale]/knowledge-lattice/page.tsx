@@ -85,7 +85,7 @@ export default function KnowledgeLatticePage() {
         </div>
 
         {/* 3D Component */}
-        <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl p-4 h-[700px]">
+        <div className="bg-zinc-50 dark:bg-zinc-950 rounded-2xl shadow-2xl p-4 h-[700px]">
           <LazyKnowledgeLatticeScene data={knowledgeData} />
         </div>
 

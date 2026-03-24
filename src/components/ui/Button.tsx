@@ -11,6 +11,7 @@
 
 import React, { FC, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 /**
  * Button variant types
@@ -119,7 +120,7 @@ export const Button: FC<ButtonProps> = ({
   const tLoading = useTranslations('loading');
 
   // Use translation if textKey is provided, otherwise use children
-  const displayText = textKey ? t(textKey as any) : children;
+  const displayText = textKey ? t(textKey) : children;
   const loadingText = tLoading('default');
 
   return (

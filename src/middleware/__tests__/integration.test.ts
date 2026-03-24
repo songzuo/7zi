@@ -175,7 +175,7 @@ describe('Middleware Integration', () => {
         get: vi.fn().mockReturnValue({ value: csrfToken }),
       };
 
-      cookies.mockResolvedValue(mockCookieStore as any);
+      vi.mocked(cookies).mockResolvedValue(mockCookieStore as any);
 
       const request = new NextRequest('http://localhost:3000/api/test', {
         method: 'POST',
@@ -203,7 +203,7 @@ describe('Middleware Integration', () => {
         get: vi.fn().mockReturnValue(undefined),
       };
 
-      cookies.mockResolvedValue(mockCookieStore as any);
+      vi.mocked(cookies).mockResolvedValue(mockCookieStore as any);
 
       const request = new NextRequest('http://localhost:3000/api/test', {
         method: 'POST',
@@ -230,7 +230,7 @@ describe('Middleware Integration', () => {
         set: vi.fn(),
       };
 
-      cookies.mockResolvedValue(mockCookieStore as any);
+      vi.mocked(cookies).mockResolvedValue(mockCookieStore as any);
 
       const request = new NextRequest('http://localhost:3000/api/test', {
         method: 'POST',

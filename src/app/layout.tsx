@@ -1,18 +1,22 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/Providers";
-import { Analytics } from "@/components/Analytics";
 import { Footer } from "@/components/Footer";
+import { ClientAnalytics } from "@/components/ClientAnalytics";
 import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: 'swap',  // 性能优化：字体加载策略
+  preload: true,     // 性能优化：预加载字体
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: 'swap',  // 性能优化：字体加载策略
+  preload: true,     // 性能优化：预加载字体
 });
 
 const baseUrl = "https://7zi.studio";
@@ -168,7 +172,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Analytics />
+        <ClientAnalytics />
         <Providers>
           {children}
         </Providers>

@@ -9,7 +9,7 @@
 ## 📊 项目概况
 
 ### 技术栈现状
-- **前端框架**: Next.js 16.1.7 + React 19.2.4
+- **前端框架**: Next.js 16.2.1 + React 19.2.4
 - **UI库**: Tailwind CSS 4
 - **状态管理**: Zustand 5.0.12
 - **实时通信**: Socket.IO Client 4.8.3

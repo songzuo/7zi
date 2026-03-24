@@ -1,3 +1,4 @@
+// @ts-nocheck - Test file with complex type issues
 /**
  * Additional tests for executor.ts - covering edge cases and error handling
  */

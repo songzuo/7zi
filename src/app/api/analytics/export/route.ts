@@ -12,7 +12,7 @@ import {
   type TimeSeriesDataPoint,
   type AnalyticsResponse
 } from '@/lib/types/analytics';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { createErrorResponse, createSuccessResponse, createValidationError } from '@/lib/api/error-handler';
 
 // ============================================================================
@@ -51,14 +51,42 @@ function convertToCSV(
 /**
  * Convert data to Excel format
  */
-function convertToExcel(
+async function convertToExcel(
   data: TimeSeriesDataPoint[],
   sheetName = 'Analytics Data'
-): Buffer {
-  const worksheet = XLSX.utils.json_to_sheet(data);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-  return XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' }) as Buffer;
+): Promise<Buffer> {
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet(sheetName);
+
+  // Add header row
+  if (data.length > 0) {
+    const headers = Object.keys(data[0]);
+    const headerRow = worksheet.addRow(headers);
+    headerRow.font = { bold: true };
+    headerRow.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFE0E0E0' },
+    };
+
+    // Add data rows
+    data.forEach((row) => {
+      const values = headers.map((header) => row[header] ?? '');
+      worksheet.addRow(values);
+    });
+
+    // Auto-fit columns
+    worksheet.columns.forEach((column, index) => {
+      const maxLength = Math.max(
+        headers[index].length,
+        ...data.map((row) => String(row[headers[index]] ?? '').length)
+      );
+      column.width = Math.min(Math.max(maxLength, 10), 50);
+    });
+  }
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  return Buffer.from(buffer);
 }
 
 /**
@@ -143,7 +171,7 @@ export async function POST(request: NextRequest) {
         break;
 
       case 'xlsx':
-        content = convertToExcel(data as TimeSeriesDataPoint[], 'Analytics Data');
+        content = await convertToExcel(data as TimeSeriesDataPoint[], 'Analytics Data');
         contentType = getContentType('xlsx');
         break;
 

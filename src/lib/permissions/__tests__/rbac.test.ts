@@ -1,5 +1,5 @@
 /**
-// @ts-ignore - Mock type compatibility issues
+// @ts-expect-error - Mock type compatibility issues
  * RBAC System Tests
  */
 

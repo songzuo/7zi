@@ -69,6 +69,50 @@ export interface SuccessResponse<T = unknown> {
   timestamp: string;
 }
 
+// ============================================================================
+// Helper Functions - Extracted to reduce code duplication
+// ============================================================================
+
+/**
+ * Base error response builder - Consolidates common logic
+ */
+async function buildErrorResponse(
+  type: ErrorType,
+  message: string,
+  statusCode: number,
+  details?: Record<string, unknown>,
+  locale: SupportedLocale = 'zh',
+  requestId?: string
+): Promise<ErrorResponse> {
+  const timestamp = new Date().toISOString();
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  const userErrorExtension = await createUserErrorExtension(type, locale);
+
+  return {
+    success: false,
+    error: {
+      type,
+      message: isDevelopment ? message : 'An error occurred',
+      userMessage: userErrorExtension.userMessage,
+      action: userErrorExtension.userAction,
+      help: userErrorExtension.userHelp,
+      details: isDevelopment ? details : undefined,
+      timestamp,
+    },
+    requestId,
+  };
+}
+
+/**
+ * Create a NextResponse from error data
+ */
+function errorResponseToNextResponse(
+  errorData: ErrorResponse,
+  statusCode: number
+): NextResponse<ErrorResponse> {
+  return NextResponse.json(errorData, { status: statusCode });
+}
+
 /**
  * Create standardized success response
  * This is the recommended way to create success responses in API routes
@@ -98,57 +142,39 @@ export async function createErrorResponse(
   locale: SupportedLocale = 'zh',
   requestId?: string
 ): Promise<NextResponse<ErrorResponse>> {
-  const timestamp = new Date().toISOString();
-  const isDevelopment = process.env.NODE_ENV === 'development';
-
   // If it's already an ApiError, use it directly
   if (error instanceof ApiError) {
-    const userErrorExtension = await createUserErrorExtension(error.type, locale);
-
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          type: error.type,
-          message: isDevelopment ? error.message : 'An error occurred',
-          userMessage: userErrorExtension.userMessage,
-          action: userErrorExtension.userAction,
-          help: userErrorExtension.userHelp,
-          details: isDevelopment ? error.details : undefined,
-          timestamp,
-        },
-        requestId,
-      },
-      { status: error.statusCode }
+    const errorData = await buildErrorResponse(
+      error.type,
+      error.message,
+      error.statusCode,
+      error.details,
+      locale,
+      requestId
     );
+    return errorResponseToNextResponse(errorData, error.statusCode);
   }
 
   // Handle generic errors
   logger.error('API Error', error instanceof Error ? error : new Error(String(error)), { category: 'api' });
 
-  const errorType = ErrorType.INTERNAL;
   const status = statusCode ?? 500;
-  const userErrorExtension = await createUserErrorExtension(errorType, locale);
-
-  return NextResponse.json(
-    {
-      success: false,
-      error: {
-        type: errorType,
-        message: isDevelopment ? (error.message || 'An internal error occurred') : 'An error occurred',
-        userMessage: userErrorExtension.userMessage,
-        action: userErrorExtension.userAction,
-        help: userErrorExtension.userHelp,
-        // Only include details in development, and sanitize them
-        details: isDevelopment
-          ? { originalMessage: error.message }
-          : undefined,
-        timestamp,
-      },
-      requestId,
-    },
-    { status }
+  const errorData = await buildErrorResponse(
+    ErrorType.INTERNAL,
+    error.message || 'An internal error occurred',
+    status,
+    isDevelopment() ? { originalMessage: error.message } : undefined,
+    locale,
+    requestId
   );
+  return errorResponseToNextResponse(errorData, status);
+}
+
+/**
+ * Check if running in development mode
+ */
+function isDevelopment(): boolean {
+  return process.env.NODE_ENV === 'development';
 }
 
 /**
@@ -286,9 +312,9 @@ export async function createMissingTokenError(
  *   return createSuccessResponse(data);
  * });
  */
-export async function withErrorHandling<T extends (...args: unknown[]) => Promise<NextResponse<unknown>>>(
+export function withErrorHandling<T extends (...args: unknown[]) => Promise<NextResponse<unknown>>>(
   handler: T
-): Promise<T> {
+): T {
   return (async (...args: unknown[]) => {
     try {
       return await handler(...(args as Parameters<T>));

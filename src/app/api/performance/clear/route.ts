@@ -9,6 +9,7 @@ import { clearQueryMetrics } from '@/lib/middleware/db-performance';
 import { logger } from '@/lib/logger';
 import { getCacheManager } from '@/lib/cache/CacheManager';
 import { withAdmin, RBACUserContext } from '@/lib/auth/middleware-rbac';
+import { createErrorResponse } from '@/lib/api/error-handler';
 
 async function POSTHandler(
   request: NextRequest,

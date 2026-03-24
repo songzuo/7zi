@@ -364,6 +364,73 @@ export function getApiPerformanceReport() {
   return apiPerformanceCollector.getReportData();
 }
 
+export interface ApiMetricsSummary {
+  total: number;
+  successRate: number;
+  averageDuration: number;
+  maxDuration: number;
+  minDuration: number;
+  slowRequests: number;
+  successfulRequests: number;
+  failedRequests: number;
+  byPath: Record<string, RoutePerformanceStats>;
+}
+
+export function getApiMetricsSummary(): ApiMetricsSummary {
+  const report = apiPerformanceCollector.getReportData();
+  const summary = report.summary;
+  
+  return {
+    total: summary.totalRequests,
+    successRate: summary.totalRequests > 0 
+      ? (summary.successfulRequests / summary.totalRequests) * 100 
+      : 0,
+    averageDuration: summary.averageDuration,
+    maxDuration: summary.maxDuration,
+    minDuration: summary.minDuration === Infinity ? 0 : summary.minDuration,
+    slowRequests: summary.slowRequests,
+    successfulRequests: summary.successfulRequests,
+    failedRequests: summary.failedRequests,
+    byPath: report.routes.reduce((acc, route) => {
+      acc[route.path] = {
+        count: route.stats.count,
+        avgDuration: route.stats.avgDuration,
+        maxDuration: route.stats.maxDuration,
+        minDuration: route.stats.minDuration,
+        errors: route.stats.errors,
+        errorRate: route.stats.errorRate,
+        slowRequests: route.stats.slowRequests,
+        slowRequestRate: route.stats.slowRequestRate,
+      };
+      return acc;
+    }, {} as Record<string, RoutePerformanceStats>),
+  };
+}
+
+export function getApiMetrics(): ApiPerformanceData[] {
+  const report = apiPerformanceCollector.getReportData();
+  return report.routes.reduce<ApiPerformanceData[]>(
+    (all, route) => [...all, ...route.metrics],
+    []
+  );
+}
+
+export function getRecentMetrics(minutes: number = 5): ApiPerformanceData[] {
+  const report = apiPerformanceCollector.getReportData();
+  const cutoff = Date.now() - minutes * 60 * 1000;
+  return report.routes.reduce<ApiPerformanceData[]>(
+    (all, route) => [
+      ...all,
+      ...route.metrics.filter(m => m.timestamp >= cutoff),
+    ],
+    []
+  );
+}
+
+export function clearApiMetrics() {
+  apiPerformanceCollector.clear();
+}
+
 /**
  * 清除性能数据
  */

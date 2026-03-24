@@ -9,7 +9,9 @@ import { getDbTables, getTableData } from '@/test/vi-mocks';
 describe('Database Mock Debug', () => {
   it('should create and find user', async () => {
     // Check initial state
-    console.log('Initial tables:', Array.from(getDbTables().keys()));
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Initial tables:', Array.from(getDbTables().keys()));
+    }
 
     const user = await createUser({
       email: 'test@example.com',
@@ -17,19 +19,27 @@ describe('Database Mock Debug', () => {
       name: 'Test User',
     });
 
-    console.log('Created user:', user);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Created user:', user);
+    }
 
     // Check tables after creation
     const tables = getDbTables();
-    console.log('Tables after creation:', Array.from(tables.keys()));
-    console.log('Users table data:', getTableData('users'));
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Tables after creation:', Array.from(tables.keys()));
+      console.log('Users table data:', getTableData('users'));
+    }
 
     // Try to find user
     const foundById = await getUserById(user.id);
-    console.log('Found by ID:', foundById);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Found by ID:', foundById);
+    }
 
     const foundByEmail = await getUserByEmail('test@example.com');
-    console.log('Found by email:', foundByEmail);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Found by email:', foundByEmail);
+    }
 
     expect(foundById).toBeTruthy();
     expect(foundByEmail).toBeTruthy();

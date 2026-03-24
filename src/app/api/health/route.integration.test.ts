@@ -6,24 +6,32 @@
 
 import { describe, it, expect } from 'vitest';
 import { GET } from './route';
+import { NextRequest } from 'next/server';
+
+function createMockRequest(url: string) {
+  return new NextRequest(url);
+}
 
 describe('/api/health Integration Tests', () => {
   describe('GET /api/health', () => {
     it('should return 200 or 503 status based on actual health', async () => {
-      const response = await GET();
+      const request = createMockRequest('http://localhost/api/health');
+      const response = await GET(request);
 
       // Status depends on actual memory usage
       expect([200, 503]).toContain(response.status);
     });
 
     it('should return JSON content type', async () => {
-      const response = await GET();
+      const request = createMockRequest('http://localhost/api/health');
+      const response = await GET(request);
 
       expect(response.headers.get('content-type')).toContain('application/json');
     });
 
     it('should return health status structure', async () => {
-      const response = await GET();
+      const request = createMockRequest('http://localhost/api/health');
+      const response = await GET(request);
       const data = await response.json();
 
       expect(data).toHaveProperty('status');
@@ -34,14 +42,16 @@ describe('/api/health Integration Tests', () => {
     });
 
     it('should return valid status values', async () => {
-      const response = await GET();
+      const request = createMockRequest('http://localhost/api/health');
+      const response = await GET(request);
       const data = await response.json();
 
       expect(['healthy', 'unhealthy']).toContain(data.status);
     });
 
     it('should include timestamp in ISO format', async () => {
-      const response = await GET();
+      const request = createMockRequest('http://localhost/api/health');
+      const response = await GET(request);
       const data = await response.json();
 
       const timestamp = new Date(data.timestamp);
@@ -49,7 +59,8 @@ describe('/api/health Integration Tests', () => {
     });
 
     it('should include uptime as positive number', async () => {
-      const response = await GET();
+      const request = createMockRequest('http://localhost/api/health');
+      const response = await GET(request);
       const data = await response.json();
 
       expect(typeof data.uptime).toBe('number');
@@ -57,7 +68,8 @@ describe('/api/health Integration Tests', () => {
     });
 
     it('should include checks object with memory and node', async () => {
-      const response = await GET();
+      const request = createMockRequest('http://localhost/api/health');
+      const response = await GET(request);
       const data = await response.json();
 
       expect(data.checks).toHaveProperty('memory');
@@ -65,7 +77,8 @@ describe('/api/health Integration Tests', () => {
     });
 
     it('should include memory usage metrics', async () => {
-      const response = await GET();
+      const request = createMockRequest('http://localhost/api/health');
+      const response = await GET(request);
       const data = await response.json();
 
       const { memory } = data.checks;
@@ -80,7 +93,8 @@ describe('/api/health Integration Tests', () => {
     });
 
     it('should include Node.js version info', async () => {
-      const response = await GET();
+      const request = createMockRequest('http://localhost/api/health');
+      const response = await GET(request);
       const data = await response.json();
 
       const { node } = data.checks;
@@ -92,7 +106,8 @@ describe('/api/health Integration Tests', () => {
     });
 
     it('should return 200 when memory usage is healthy', async () => {
-      const response = await GET();
+      const request = createMockRequest('http://localhost/api/health');
+      const response = await GET(request);
       const data = await response.json();
 
       if (data.status === 'healthy') {
@@ -101,7 +116,8 @@ describe('/api/health Integration Tests', () => {
     });
 
     it('should return 503 when memory usage is unhealthy', async () => {
-      const response = await GET();
+      const request = createMockRequest('http://localhost/api/health');
+      const response = await GET(request);
       const data = await response.json();
 
       if (data.status === 'unhealthy') {
@@ -110,7 +126,8 @@ describe('/api/health Integration Tests', () => {
     });
 
     it('should set memory status to warning at 90% threshold', async () => {
-      const response = await GET();
+      const request = createMockRequest('http://localhost/api/health');
+      const response = await GET(request);
       const data = await response.json();
 
       const { memory } = data.checks;
@@ -123,7 +140,8 @@ describe('/api/health Integration Tests', () => {
     });
 
     it('should set memory status to ok below 90% threshold', async () => {
-      const response = await GET();
+      const request = createMockRequest('http://localhost/api/health');
+      const response = await GET(request);
       const data = await response.json();
 
       const { memory } = data.checks;
@@ -137,8 +155,9 @@ describe('/api/health Integration Tests', () => {
 
   describe('Performance', () => {
     it('should respond quickly under normal conditions', async () => {
+      const request = createMockRequest('http://localhost/api/health');
       const start = Date.now();
-      await GET();
+      await GET(request);
       const duration = Date.now() - start;
       expect(duration).toBeLessThan(500);
     });

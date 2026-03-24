@@ -10,6 +10,7 @@
  * - Command injection prevention
  */
 
+import DOMPurify from 'isomorphic-dompurify';
 
 /**
  * Sanitization options
@@ -342,7 +343,7 @@ export function sanitizeNumber(
     };
   }
 
-  let sanitized = value;
+  const sanitized = value;
 
   // Check if integer
   if (options.isInteger && !Number.isInteger(sanitized)) {

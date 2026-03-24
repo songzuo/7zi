@@ -9,6 +9,7 @@
 
 import type { ConnectionState } from '@/lib/websocket';
 import type { RoomUser } from '@/lib/websocket/types';
+import type { FC } from 'react';
 
 interface ConnectionStatusProps {
   connectionState: ConnectionState;

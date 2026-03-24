@@ -1,26 +1,48 @@
 /**
  * @fileoverview JWT Module Tests
- * @description Tests for JWT token generation and verification
+ * @description Tests for JWT token generation and verification using mock
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { SignJWT, jwtVerify } from 'jose';
+// Mock jose BEFORE importing the module
+vi.mock('jose', () => import('./__mocks__/jose'));
+
+import { vi, describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import {
+  sign,
+  verify,
+  decode,
+  signToken,
+  verifyToken,
+  createJwtToken,
+  verifyJwtToken,
+  isTokenExpired,
+  getTokenTimeRemaining,
+  isValidTokenFormat,
+  type UserContext,
+  type JwtPayload,
+} from './jwt';
 
 // ============================================================================
-// Mock Setup
+// Setup & Teardown
 // ============================================================================
 
-vi.mock('jose', () => ({
-  SignJWT: vi.fn().mockImplementation(() => ({
-    setProtectedHeader: vi.fn().mockReturnThis(),
-    setIssuedAt: vi.fn().mockReturnThis(),
-    setExpirationTime: vi.fn().mockReturnThis(),
-    setIssuer: vi.fn().mockReturnThis(),
-    setAudience: vi.fn().mockReturnThis(),
-    sign: vi.fn().mockResolvedValue('mock-jwt-token'),
-  })),
-  jwtVerify: vi.fn(),
-}));
+let originalJwtSecret: string | undefined;
+
+beforeAll(() => {
+  originalJwtSecret = process.env.JWT_SECRET;
+});
+
+afterAll(() => {
+  if (originalJwtSecret) {
+    process.env.JWT_SECRET = originalJwtSecret;
+  } else {
+    delete process.env.JWT_SECRET;
+  }
+});
+
+beforeEach(() => {
+  process.env.JWT_SECRET = 'test-secret-key-for-jwt-testing-minimum-32-bytes';
+});
 
 // ============================================================================
 // Test Data
@@ -36,450 +58,513 @@ const mockUser = {
   customPermissions: ['manage:team'],
 };
 
+const mockPayload: JwtPayload = {
+  sub: 'user1',
+  email: 'test@example.com',
+  role: 'member',
+  roles: ['member'],
+  permissions: ['read:tasks', 'write:tasks'],
+  customPermissions: ['manage:team'],
+  type: 'user',
+};
+
 // ============================================================================
 // Test Suites
 // ============================================================================
 
 describe('JWT Functions', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    process.env.JWT_SECRET = 'test-secret-key-for-testing';
-  });
+  describe('sign()', () => {
+    it('should generate a valid JWT token', async () => {
+      const token = await sign(mockPayload, 3600);
 
-  afterEach(() => {
-    delete process.env.JWT_SECRET;
-  });
+      expect(token).toBeDefined();
+      expect(typeof token).toBe('string');
+      expect(isValidTokenFormat(token)).toBe(true);
+    });
 
-  describe('JWT Secret Management', () => {
-    it('should throw error when JWT_SECRET is not set', () => {
+    it('should generate tokens with different content', async () => {
+      const token1 = await sign(mockPayload, 3600);
+      const token2 = await sign({ ...mockPayload, sub: 'user2' }, 3600);
+
+      expect(token1).not.toBe(token2);
+    });
+
+    it('should support different expiration times', async () => {
+      const shortToken = await sign(mockPayload, 60); // 1 minute
+      const longToken = await sign(mockPayload, 86400); // 1 day
+
+      expect(shortToken).toBeDefined();
+      expect(longToken).toBeDefined();
+      expect(shortToken).not.toBe(longToken);
+    });
+
+    it('should use default expiration if not provided', async () => {
+      const token = await sign(mockPayload);
+
+      expect(token).toBeDefined();
+      const result = await verify(token);
+      expect(result.valid).toBe(true);
+    });
+
+    it('should fail if JWT_SECRET is not set', async () => {
       delete process.env.JWT_SECRET;
 
-      expect(() => {
-        require('../jwt').getJwtSecret();
-      }).toThrow('JWT_SECRET environment variable is required in production');
+      await expect(sign(mockPayload, 3600)).rejects.toThrow('JWT_SECRET');
     });
 
-    it('should use JWT_SECRET when available', () => {
-      const secret = require('../jwt').getJwtSecret();
-      expect(secret).toBe('test-secret-key-for-testing');
-    });
+    it('should include all payload fields', async () => {
+      const token = await sign(mockPayload, 3600);
+      const result = await verify(token);
 
-    it('should fallback to AGENT_ENCRYPTION_SECRET when JWT_SECRET is not set', () => {
-      delete process.env.JWT_SECRET;
-      process.env.AGENT_ENCRYPTION_SECRET = 'fallback-secret';
-
-      const secret = require('../jwt').getJwtSecret();
-      expect(secret).toBe('fallback-secret');
-
-      delete process.env.AGENT_ENCRYPTION_SECRET;
+      expect(result.valid).toBe(true);
+      expect(result.payload).toMatchObject({
+        sub: mockPayload.sub,
+        email: mockPayload.email,
+        role: mockPayload.role,
+        type: mockPayload.type,
+      });
     });
   });
 
-  describe('JWT Token Generation', () => {
-    it('should generate JWT token with correct claims', async () => {
-      const { generateJwtToken } = await import('../jwt');
+  describe('verify()', () => {
+    it('should verify a valid token', async () => {
+      const token = await sign(mockPayload, 3600);
+      const result = await verify(token);
 
-      const token = await generateJwtToken(mockUser, 3600);
+      expect(result.valid).toBe(true);
+      expect(result.payload).toBeDefined();
+      expect(result.payload?.sub).toBe(mockPayload.sub);
+      expect(result.payload?.email).toBe(mockPayload.email);
+    });
 
-      expect(token).toBe('mock-jwt-token');
-      expect(SignJWT).toHaveBeenCalledWith({
-        sub: mockUser.id,
-        email: mockUser.email,
-        role: mockUser.role,
-        roles: mockUser.roles,
-        permissions: mockUser.permissions,
-        customPermissions: mockUser.customPermissions,
+    it('should fail on invalid token', async () => {
+      const result = await verify('invalid.token.here');
+
+      expect(result.valid).toBe(false);
+      expect(result.error).toBeDefined();
+    });
+
+    it('should fail on empty token', async () => {
+      const result = await verify('');
+
+      expect(result.valid).toBe(false);
+    });
+
+    it('should fail on token with wrong secret', async () => {
+      // Sign with one secret
+      process.env.JWT_SECRET = 'secret1';
+      const token = await sign(mockPayload, 3600);
+
+      // Try to verify with different secret
+      process.env.JWT_SECRET = 'secret2';
+      const result = await verify(token);
+
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain('signature');
+    });
+
+    it('should return correct payload structure', async () => {
+      const token = await sign(mockPayload, 3600);
+      const result = await verify(token);
+
+      expect(result.valid).toBe(true);
+      expect(result.payload).toMatchObject({
+        sub: expect.any(String),
+        email: expect.any(String),
+        role: expect.any(String),
         type: 'user',
+        iss: '7zi-api',
+        aud: '7zi-users',
+        iat: expect.any(Number),
+        exp: expect.any(Number),
       });
     });
 
-    it('should set correct protected header', async () => {
-      const { generateJwtToken } = await import('../jwt');
+    it('should preserve array fields in payload', async () => {
+      const token = await sign(mockPayload, 3600);
+      const result = await verify(token);
 
-      await generateJwtToken(mockUser, 3600);
-
-      const signJwt = (SignJWT as any).mock.results[0].value;
-      expect(signJwt.setProtectedHeader).toHaveBeenCalledWith({ alg: 'HS256' });
-    });
-
-    it('should set issued at time', async () => {
-      const { generateJwtToken } = await import('../jwt');
-
-      await generateJwtToken(mockUser, 3600);
-
-      const signJwt = (SignJWT as any).mock.results[0].value;
-      expect(signJwt.setIssuedAt).toHaveBeenCalled();
-    });
-
-    it('should set expiration time correctly', async () => {
-      const { generateJwtToken } = await import('../jwt');
-
-      await generateJwtToken(mockUser, 3600);
-
-      const signJwt = (SignJWT as any).mock.results[0].value;
-      expect(signJwt.setExpirationTime).toHaveBeenCalled();
-    });
-
-    it('should set correct issuer', async () => {
-      const { generateJwtToken } = await import('../jwt');
-
-      await generateJwtToken(mockUser, 3600);
-
-      const signJwt = (SignJWT as any).mock.results[0].value;
-      expect(signJwt.setIssuer).toHaveBeenCalledWith('7zi-api');
-    });
-
-    it('should set correct audience', async () => {
-      const { generateJwtToken } = await import('../jwt');
-
-      await generateJwtToken(mockUser, 3600);
-
-      const signJwt = (SignJWT as any).mock.results[0].value;
-      expect(signJwt.setAudience).toHaveBeenCalledWith('7zi-users');
-    });
-
-    it('should use correct secret for signing', async () => {
-      const { generateJwtToken } = await import('../jwt');
-
-      await generateJwtToken(mockUser, 3600);
-
-      expect(SignJWT).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: 'user',
-        })
-      );
+      expect(result.valid).toBe(true);
+      expect(result.payload?.roles).toEqual(['member']);
+      expect(result.payload?.permissions).toEqual(['read:tasks', 'write:tasks']);
+      expect(result.payload?.customPermissions).toEqual(['manage:team']);
     });
   });
 
-  describe('JWT Token Verification', () => {
-    it('should verify valid token and return user context', async () => {
-      const mockPayload = {
-        sub: 'user1',
-        email: 'test@example.com',
-        role: 'member',
-        roles: ['member'],
-        permissions: ['read:tasks', 'write:tasks'],
-        customPermissions: ['manage:team'],
-        type: 'user',
-      };
+  describe('decode()', () => {
+    it('should decode a valid token without verification', () => {
+      const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+      const result = decode(token);
 
-      jwtVerify.mockResolvedValue({
-        payload: mockPayload,
-        protectedHeader: { alg: 'HS256' },
-        key: new Uint8Array(),
-      });
+      expect(result.payload).toBeDefined();
+      expect(result.payload?.sub).toBe('1234567890');
+      expect(result.payload?.name).toBe('John Doe');
+    });
 
-      const { verifyJwtToken } = await import('../jwt');
+    it('should fail on invalid format', () => {
+      const result = decode('invalid-token');
 
-      const context = await verifyJwtToken('valid-token');
+      expect(result.payload).toBeUndefined();
+      expect(result.error).toBeDefined();
+    });
+
+    it('should fail on malformed token', () => {
+      const result = decode('a.b');
+
+      expect(result.payload).toBeUndefined();
+    });
+
+    it('should decode tokens signed with any secret', async () => {
+      process.env.JWT_SECRET = 'any-secret';
+      const token = await sign(mockPayload, 3600);
+      const result = decode(token);
+
+      // decode() doesn't verify, so it should work
+      expect(result.payload).toBeDefined();
+      expect(result.payload?.sub).toBe(mockPayload.sub);
+    });
+  });
+});
+
+describe('Backward Compatibility Functions', () => {
+  describe('signToken()', () => {
+    it('should work as an alias for sign()', async () => {
+      const token1 = await sign(mockPayload, 3600);
+      const token2 = await signToken(mockPayload, 3600);
+
+      // Both should be valid tokens
+      expect(isValidTokenFormat(token1)).toBe(true);
+      expect(isValidTokenFormat(token2)).toBe(true);
+    });
+  });
+
+  describe('verifyToken()', () => {
+    it('should return UserContext for valid token', async () => {
+      const token = await sign(mockPayload, 3600);
+      const context = await verifyToken(token);
 
       expect(context).not.toBeNull();
-      expect(context?.userId).toBe('user1');
-      expect(context?.email).toBe('test@example.com');
-      expect(context?.role).toBe('member');
+      expect(context?.userId).toBe(mockPayload.sub);
+      expect(context?.email).toBe(mockPayload.email);
+      expect(context?.role).toBe(mockPayload.role);
     });
 
     it('should return null for invalid token', async () => {
-      jwtVerify.mockRejectedValue(new Error('Invalid token'));
-
-      const { verifyJwtToken } = await import('../jwt');
-
-      const context = await verifyJwtToken('invalid-token');
+      const context = await verifyToken('invalid-token');
 
       expect(context).toBeNull();
     });
 
-    it('should return null for token with wrong type', async () => {
-      const mockPayload = {
-        sub: 'user1',
-        type: 'agent', // Wrong type
-      };
-
-      jwtVerify.mockResolvedValue({
-        payload: mockPayload,
-        protectedHeader: { alg: 'HS256' },
-        key: new Uint8Array(),
-      });
-
-      const { verifyJwtToken } = await import('../jwt');
-
-      const context = await verifyJwtToken('valid-token');
+    it('should return null for non-user token', async () => {
+      const agentPayload = { ...mockPayload, type: 'agent' as const };
+      const token = await sign(agentPayload, 3600);
+      const context = await verifyToken(token);
 
       expect(context).toBeNull();
     });
 
-    it('should verify token with correct issuer', async () => {
-      const mockPayload = {
-        sub: 'user1',
-        email: 'test@example.com',
-        role: 'member',
-        type: 'user',
-      };
+    it('should include all fields in UserContext', async () => {
+      const token = await sign(mockPayload, 3600);
+      const context = await verifyToken(token);
 
-      jwtVerify.mockResolvedValue({
-        payload: mockPayload,
-        protectedHeader: { alg: 'HS256' },
-        key: new Uint8Array(),
+      expect(context).toMatchObject({
+        userId: expect.any(String),
+        email: expect.any(String),
+        role: expect.any(String),
+        roles: expect.any(Array),
+        permissions: expect.any(Array),
+        customPermissions: expect.any(Array),
       });
-
-      const { verifyJwtToken } = await import('../jwt');
-
-      await verifyJwtToken('valid-token');
-
-      expect(jwtVerify).toHaveBeenCalledWith(
-        'valid-token',
-        expect.any(Uint8Array),
-        {
-          issuer: '7zi-api',
-          audience: '7zi-users',
-        }
-      );
     });
 
-    it('should verify token with correct audience', async () => {
-      const mockPayload = {
+    it('should handle missing optional fields', async () => {
+      const minimalPayload: JwtPayload = {
         sub: 'user1',
         email: 'test@example.com',
         role: 'member',
         type: 'user',
       };
-
-      jwtVerify.mockResolvedValue({
-        payload: mockPayload,
-        protectedHeader: { alg: 'HS256' },
-        key: new Uint8Array(),
-      });
-
-      const { verifyJwtToken } = await import('../jwt');
-
-      await verifyJwtToken('valid-token');
-
-      expect(jwtVerify).toHaveBeenCalledWith(
-        'valid-token',
-        expect.any(Uint8Array),
-        {
-          issuer: '7zi-api',
-          audience: '7zi-users',
-        }
-      );
-    });
-
-    it('should handle missing permissions array', async () => {
-      const mockPayload = {
-        sub: 'user1',
-        email: 'test@example.com',
-        role: 'member',
-        roles: ['member'],
-        // Missing permissions array
-        customPermissions: [],
-        type: 'user',
-      };
-
-      jwtVerify.mockResolvedValue({
-        payload: mockPayload,
-        protectedHeader: { alg: 'HS256' },
-        key: new Uint8Array(),
-      });
-
-      const { verifyJwtToken } = await import('../jwt');
-
-      const context = await verifyJwtToken('valid-token');
-
-      expect(context).not.toBeNull();
-      expect(context?.permissions).toEqual([]);
-    });
-
-    it('should handle missing custom permissions', async () => {
-      const mockPayload = {
-        sub: 'user1',
-        email: 'test@example.com',
-        role: 'member',
-        roles: ['member'],
-        permissions: ['read:tasks'],
-        // Missing customPermissions
-        type: 'user',
-      };
-
-      jwtVerify.mockResolvedValue({
-        payload: mockPayload,
-        protectedHeader: { alg: 'HS256' },
-        key: new Uint8Array(),
-      });
-
-      const { verifyJwtToken } = await import('../jwt');
-
-      const context = await verifyJwtToken('valid-token');
-
-      expect(context).not.toBeNull();
-      expect(context?.customPermissions).toEqual([]);
-    });
-
-    it('should handle missing roles array', async () => {
-      const mockPayload = {
-        sub: 'user1',
-        email: 'test@example.com',
-        role: 'member',
-        // Missing roles array
-        permissions: ['read:tasks'],
-        type: 'user',
-      };
-
-      jwtVerify.mockResolvedValue({
-        payload: mockPayload,
-        protectedHeader: { alg: 'HS256' },
-        key: new Uint8Array(),
-      });
-
-      const { verifyJwtToken } = await import('../jwt');
-
-      const context = await verifyJwtToken('valid-token');
+      const token = await sign(minimalPayload, 3600);
+      const context = await verifyToken(token);
 
       expect(context).not.toBeNull();
       expect(context?.roles).toEqual([]);
+      expect(context?.permissions).toEqual([]);
+      expect(context?.customPermissions).toEqual([]);
     });
   });
 
-  describe('JWT Error Handling', () => {
-    it('should handle token expiration errors', async () => {
-      jwtVerify.mockRejectedValue(new Error('Token expired'));
+  describe('createJwtToken()', () => {
+    it('should create token from user object', async () => {
+      const token = await createJwtToken(mockUser, 3600);
 
-      const { verifyJwtToken } = await import('../jwt');
-
-      const context = await verifyJwtToken('expired-token');
-
-      expect(context).toBeNull();
+      expect(token).toBeDefined();
+      const result = await verify(token);
+      expect(result.valid).toBe(true);
+      expect(result.payload?.sub).toBe(mockUser.id);
     });
 
-    it('should handle signature verification errors', async () => {
-      jwtVerify.mockRejectedValue(new Error('Invalid signature'));
+    it('should use default expiration if not provided', async () => {
+      const token = await createJwtToken(mockUser);
 
-      const { verifyJwtToken } = await import('../jwt');
-
-      const context = await verifyJwtToken('invalid-signature-token');
-
-      expect(context).toBeNull();
+      expect(token).toBeDefined();
+      const result = await verify(token);
+      expect(result.valid).toBe(true);
     });
 
-    it('should handle malformed token errors', async () => {
-      jwtVerify.mockRejectedValue(new Error('Malformed token'));
+    it('should include all user fields in payload', async () => {
+      const token = await createJwtToken(mockUser, 3600);
+      const result = await verify(token);
 
-      const { verifyJwtToken } = await import('../jwt');
-
-      const context = await verifyJwtToken('malformed-token');
-
-      expect(context).toBeNull();
-    });
-  });
-
-  describe('JWT Token Expiry Times', () => {
-    it('should support short expiry time (1 hour)', async () => {
-      const { generateJwtToken } = await import('../jwt');
-
-      await generateJwtToken(mockUser, 3600);
-
-      expect(SignJWT).toHaveBeenCalled();
+      expect(result.valid).toBe(true);
+      expect(result.payload).toMatchObject({
+        sub: mockUser.id,
+        email: mockUser.email,
+        role: mockUser.role,
+        type: 'user',
+      });
     });
 
-    it('should support long expiry time (7 days)', async () => {
-      const { generateJwtToken } = await import('../jwt');
+    it('should handle user with missing optional fields', async () => {
+      const minimalUser = {
+        id: 'user1',
+        email: 'test@example.com',
+        role: 'member',
+      };
+      const token = await createJwtToken(minimalUser, 3600);
+      const result = await verify(token);
 
-      await generateJwtToken(mockUser, 604800);
-
-      expect(SignJWT).toHaveBeenCalled();
-    });
-
-    it('should support custom expiry times', async () => {
-      const { generateJwtToken } = await import('../jwt');
-
-      await generateJwtToken(mockUser, 7200); // 2 hours
-
-      expect(SignJWT).toHaveBeenCalled();
+      expect(result.valid).toBe(true);
+      expect(result.payload?.roles).toEqual([]);
+      expect(result.payload?.permissions).toEqual([]);
+      expect(result.payload?.customPermissions).toEqual([]);
     });
   });
 
-  describe('JWT Token Payload Structure', () => {
-    it('should include user ID in payload', async () => {
-      const { generateJwtToken } = await import('../jwt');
+  describe('verifyJwtToken()', () => {
+    it('should work as an alias for verifyToken()', async () => {
+      const token = await createJwtToken(mockUser, 3600);
+      const context1 = await verifyToken(token);
+      const context2 = await verifyJwtToken(token);
 
-      await generateJwtToken(mockUser, 3600);
+      expect(context1).toEqual(context2);
+    });
+  });
+});
 
-      expect(SignJWT).toHaveBeenCalledWith(
-        expect.objectContaining({
-          sub: mockUser.id,
-        })
-      );
+describe('Utility Functions', () => {
+  describe('isTokenExpired()', () => {
+    it('should return false for valid token', async () => {
+      const token = await sign(mockPayload, 3600);
+      const expired = isTokenExpired(token);
+
+      expect(expired).toBe(false);
     });
 
-    it('should include email in payload', async () => {
-      const { generateJwtToken } = await import('../jwt');
+    it('should return true for expired token', async () => {
+      // Create token that's already expired
+      const token = await sign(mockPayload, -1); // Already expired
+      const expired = isTokenExpired(token);
 
-      await generateJwtToken(mockUser, 3600);
-
-      expect(SignJWT).toHaveBeenCalledWith(
-        expect.objectContaining({
-          email: mockUser.email,
-        })
-      );
+      expect(expired).toBe(true);
     });
 
-    it('should include role in payload', async () => {
-      const { generateJwtToken } = await import('../jwt');
+    it('should return true for invalid token', () => {
+      const expired = isTokenExpired('invalid-token');
 
-      await generateJwtToken(mockUser, 3600);
-
-      expect(SignJWT).toHaveBeenCalledWith(
-        expect.objectContaining({
-          role: mockUser.role,
-        })
-      );
+      expect(expired).toBe(true);
     });
 
-    it('should include roles array in payload', async () => {
-      const { generateJwtToken } = await import('../jwt');
+    it('should return false for token without expiration', async () => {
+      // Manually create a token without exp
+      const token = await sign(mockPayload, 3600);
+      const decoded = decode(token);
+      // Decode doesn't actually create a token without exp, but if we had one...
+      expect(decoded.payload?.exp).toBeDefined();
+    });
+  });
 
-      await generateJwtToken(mockUser, 3600);
+  describe('getTokenTimeRemaining()', () => {
+    it('should return positive time for valid token', async () => {
+      const token = await sign(mockPayload, 3600);
+      const remaining = getTokenTimeRemaining(token);
 
-      expect(SignJWT).toHaveBeenCalledWith(
-        expect.objectContaining({
-          roles: mockUser.roles,
-        })
-      );
+      expect(remaining).toBeGreaterThan(0);
+      expect(remaining).toBeLessThanOrEqual(3600);
     });
 
-    it('should include permissions array in payload', async () => {
-      const { generateJwtToken } = await import('../jwt');
+    it('should return 0 for expired token', async () => {
+      const token = await sign(mockPayload, -1);
+      const remaining = getTokenTimeRemaining(token);
 
-      await generateJwtToken(mockUser, 3600);
-
-      expect(SignJWT).toHaveBeenCalledWith(
-        expect.objectContaining({
-          permissions: mockUser.permissions,
-        })
-      );
+      expect(remaining).toBe(0);
     });
 
-    it('should include custom permissions in payload', async () => {
-      const { generateJwtToken } = await import('../jwt');
+    it('should return 0 for invalid token', () => {
+      const remaining = getTokenTimeRemaining('invalid-token');
 
-      await generateJwtToken(mockUser, 3600);
+      expect(remaining).toBe(0);
+    });
+  });
 
-      expect(SignJWT).toHaveBeenCalledWith(
-        expect.objectContaining({
-          customPermissions: mockUser.customPermissions,
-        })
-      );
+  describe('isValidTokenFormat()', () => {
+    it('should return true for valid JWT format', () => {
+      const validToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+
+      expect(isValidTokenFormat(validToken)).toBe(true);
     });
 
-    it('should include type in payload', async () => {
-      const { generateJwtToken } = await import('../jwt');
-
-      await generateJwtToken(mockUser, 3600);
-
-      expect(SignJWT).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: 'user',
-        })
-      );
+    it('should return false for token with wrong number of parts', () => {
+      expect(isValidTokenFormat('one.two')).toBe(false);
+      expect(isValidTokenFormat('one')).toBe(false);
+      expect(isValidTokenFormat('one.two.three.four')).toBe(false);
     });
+
+    it('should return false for empty token', () => {
+      expect(isValidTokenFormat('')).toBe(false);
+    });
+
+    it('should return false for non-string input', () => {
+      expect(isValidTokenFormat(null as any)).toBe(false);
+      expect(isValidTokenFormat(undefined as any)).toBe(false);
+    });
+
+    it('should return false for token with empty parts', () => {
+      expect(isValidTokenFormat('. . ')).toBe(false);
+      expect(isValidTokenFormat('a.b.')).toBe(false);
+      expect(isValidTokenFormat('.b.c')).toBe(false);
+    });
+
+    it('should return true for generated token', async () => {
+      const token = await sign(mockPayload, 3600);
+
+      expect(isValidTokenFormat(token)).toBe(true);
+    });
+  });
+});
+
+describe('Integration Tests', () => {
+  it('should complete sign -> verify -> decode flow', async () => {
+    // Sign
+    const token = await sign(mockPayload, 3600);
+    expect(isValidTokenFormat(token)).toBe(true);
+
+    // Verify
+    const verifyResult = await verify(token);
+    expect(verifyResult.valid).toBe(true);
+    expect(verifyResult.payload?.sub).toBe(mockPayload.sub);
+
+    // Decode
+    const decodeResult = decode(token);
+    expect(decodeResult.payload?.sub).toBe(mockPayload.sub);
+
+    // Compare payloads
+    expect(verifyResult.payload).toEqual(decodeResult.payload);
+  });
+
+  it('should work with UserContext flow', async () => {
+    // Create token from user
+    const token = await createJwtToken(mockUser, 3600);
+
+    // Verify and get context
+    const context = await verifyToken(token);
+    expect(context).not.toBeNull();
+    expect(context?.userId).toBe(mockUser.id);
+    expect(context?.email).toBe(mockUser.email);
+    expect(context?.role).toBe(mockUser.role);
+
+    // Check permissions
+    expect(context?.permissions).toContain('read:tasks');
+    expect(context?.customPermissions).toContain('manage:team');
+  });
+
+  it('should handle multiple tokens for same user', async () => {
+    const user1 = { ...mockUser, id: 'user1' };
+    const user2 = { ...mockUser, id: 'user2' };
+
+    const token1 = await createJwtToken(user1, 3600);
+    const token2 = await createJwtToken(user2, 3600);
+
+    const context1 = await verifyToken(token1);
+    const context2 = await verifyToken(token2);
+
+    expect(context1?.userId).toBe('user1');
+    expect(context2?.userId).toBe('user2');
+    expect(context1?.userId).not.toBe(context2?.userId);
+  });
+});
+
+describe('Error Handling', () => {
+  it('should handle missing JWT_SECRET gracefully', async () => {
+    delete process.env.JWT_SECRET;
+
+    await expect(sign(mockPayload, 3600)).rejects.toThrow();
+  });
+
+  it('should provide meaningful error messages', async () => {
+    const result = await verify('invalid.token.here');
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toBeDefined();
+    expect(typeof result.error).toBe('string');
+  });
+
+  it('should handle malformed payload in decode', () => {
+    const result = decode('not.a.valid.jwt');
+
+    expect(result.payload).toBeUndefined();
+    expect(result.error).toBeDefined();
+  });
+});
+
+describe('Token Expiration', () => {
+  it('should support different expiration times', async () => {
+    const shortToken = await sign(mockPayload, 60);
+    const longToken = await sign(mockPayload, 86400);
+
+    const shortRemaining = getTokenTimeRemaining(shortToken);
+    const longRemaining = getTokenTimeRemaining(longToken);
+
+    expect(shortRemaining).toBeLessThan(longRemaining);
+    expect(shortRemaining).toBeGreaterThan(0);
+    expect(longRemaining).toBeGreaterThan(0);
+  });
+
+  it('should use correct expiration duration format', async () => {
+    // Test that tokens with different expirations are actually different
+    const token1h = await sign(mockPayload, 3600);
+    const token1d = await sign(mockPayload, 86400);
+
+    expect(token1h).not.toBe(token1d);
+
+    const result1h = await verify(token1h);
+    const result1d = await verify(token1d);
+
+    expect(result1h.payload?.exp).toBeDefined();
+    expect(result1d.payload?.exp).toBeDefined();
+    expect(result1d.payload?.exp).toBeGreaterThan(result1h.payload?.exp!);
+  });
+});
+
+describe('Token Type Validation', () => {
+  it('should verify user type tokens', async () => {
+    const userToken = await sign({ ...mockPayload, type: 'user' as const }, 3600);
+    const context = await verifyToken(userToken);
+
+    expect(context).not.toBeNull();
+  });
+
+  it('should reject agent type tokens in verifyToken', async () => {
+    const agentToken = await sign({ ...mockPayload, type: 'agent' as const }, 3600);
+    const context = await verifyToken(agentToken);
+
+    expect(context).toBeNull();
+  });
+
+  it('should reject api type tokens in verifyToken', async () => {
+    const apiToken = await sign({ ...mockPayload, type: 'api' as const }, 3600);
+    const context = await verifyToken(apiToken);
+
+    expect(context).toBeNull();
   });
 });

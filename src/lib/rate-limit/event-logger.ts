@@ -29,7 +29,6 @@ export async function storeRateLimitEvent(event: RateLimitEvent): Promise<boolea
     },
     false
   );
-
   return result ?? false;
 }
 
@@ -85,13 +84,9 @@ export async function getRateLimitEvents(
     },
     []
   );
-
   return result ?? [];
 }
 
-/**
- * Get rate limit statistics
- */
 /**
  * Get rate limit statistics
  */
@@ -152,7 +147,6 @@ export async function cleanupOldRateLimitEvents(olderThanDays: number = 7): Prom
     },
     0
   );
-
   return result ?? 0;
 }
 

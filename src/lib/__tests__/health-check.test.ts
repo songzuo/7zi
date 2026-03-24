@@ -60,7 +60,7 @@ describe('Health Check Module', () => {
     });
 
     it('should return correct uptime from process', () => {
-      process.uptime.mockReturnValue(7200);
+      vi.mocked(process.uptime).mockReturnValue(7200);
 
       const health = basicHealthCheck();
       expect(health.uptime).toBe(7200);
@@ -69,7 +69,7 @@ describe('Health Check Module', () => {
 
   describe('detailedHealthCheck', () => {
     it('should return ok status when all services are healthy', async () => {
-      fetch.mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         status: 200,
       } as Response).mockResolvedValueOnce({
@@ -86,7 +86,7 @@ describe('Health Check Module', () => {
     });
 
     it('should return degraded when GitHub API fails', async () => {
-      fetch.mockRejectedValueOnce(new Error('GitHub API error'))
+      vi.mocked(fetch).mockRejectedValueOnce(new Error('GitHub API error'))
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
@@ -100,7 +100,7 @@ describe('Health Check Module', () => {
     });
 
     it('should return degraded when email service fails', async () => {
-      fetch.mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         status: 200,
       } as Response).mockRejectedValueOnce(new Error('Email service error'));
@@ -113,7 +113,7 @@ describe('Health Check Module', () => {
     });
 
     it('should return error when all services fail', async () => {
-      fetch.mockRejectedValue(new Error('Network error'));
+      vi.mocked(fetch).mockRejectedValue(new Error('Network error'));
 
       const health = await detailedHealthCheck();
 
@@ -128,7 +128,7 @@ describe('Health Check Module', () => {
         status: 200,
       };
 
-      fetch.mockResolvedValue(mockResponse as unknown as Response);
+      vi.mocked(fetch).mockResolvedValue(mockResponse as unknown as Response);
 
       const health = await detailedHealthCheck();
 
@@ -138,7 +138,7 @@ describe('Health Check Module', () => {
     });
 
     it('should include error message when service fails', async () => {
-      fetch.mockRejectedValueOnce(new Error('Connection timeout'))
+      vi.mocked(fetch).mockRejectedValueOnce(new Error('Connection timeout'))
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
@@ -151,7 +151,7 @@ describe('Health Check Module', () => {
     });
 
     it('should handle Resend API with 401 status (auth issue but API is reachable)', async () => {
-      fetch.mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         status: 200,
       } as Response).mockResolvedValueOnce({
@@ -168,7 +168,7 @@ describe('Health Check Module', () => {
     it('should skip email check when API key is not configured', async () => {
       vi.stubEnv('RESEND_API_KEY', undefined);
 
-      fetch.mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
         status: 200,
       } as Response);
@@ -181,7 +181,7 @@ describe('Health Check Module', () => {
     });
 
     it('should handle non-OK status from GitHub API', async () => {
-      fetch.mockResolvedValueOnce({
+      vi.mocked(fetch).mockResolvedValueOnce({
         ok: false,
         status: 500,
       } as Response).mockResolvedValueOnce({
@@ -277,7 +277,7 @@ describe('Health Check Module', () => {
 
     describe('readiness', () => {
       it('should check detailed health and return 200 when healthy', async () => {
-        fetch.mockResolvedValue({
+        vi.mocked(fetch).mockResolvedValue({
           ok: true,
           status: 200,
         } as unknown as Response);
@@ -288,7 +288,7 @@ describe('Health Check Module', () => {
       });
 
       it('should return 503 when health check fails', async () => {
-        fetch.mockRejectedValue(new Error('Service unavailable'));
+        vi.mocked(fetch).mockRejectedValue(new Error('Service unavailable'));
 
         const response = await probes.readiness();
 
@@ -314,7 +314,7 @@ describe('Health Check Module', () => {
 
   describe('Health check edge cases', () => {
     it('should handle concurrent health check calls', async () => {
-      fetch.mockResolvedValue({
+      vi.mocked(fetch).mockResolvedValue({
         ok: true,
         status: 200,
       } as unknown as Response);
@@ -335,7 +335,7 @@ describe('Health Check Module', () => {
       const abortError = new Error('The operation was aborted');
       abortError.name = 'AbortError';
 
-      fetch.mockRejectedValueOnce(abortError)
+      vi.mocked(fetch).mockRejectedValueOnce(abortError)
         .mockRejectedValueOnce(abortError);
 
       const health = await detailedHealthCheck();
@@ -346,7 +346,7 @@ describe('Health Check Module', () => {
     });
 
     it('should handle unknown error types', async () => {
-      fetch.mockRejectedValueOnce('string error')
+      vi.mocked(fetch).mockRejectedValueOnce('string error')
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
@@ -359,7 +359,7 @@ describe('Health Check Module', () => {
     });
 
     it('should handle null error gracefully', async () => {
-      fetch.mockRejectedValueOnce(null as unknown as Error)
+      vi.mocked(fetch).mockRejectedValueOnce(null as unknown as Error)
         .mockResolvedValueOnce({
           ok: true,
           status: 200,

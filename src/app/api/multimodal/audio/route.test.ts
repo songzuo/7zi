@@ -52,8 +52,8 @@ describe('POST /api/multimodal/audio', () => {
     validateAudio = utilsModule.validateAudio;
 
     // Default mocks
-    audioToBuffer.mockResolvedValue(Buffer.from('test-audio-data'));
-    validateAudio.mockResolvedValue({ valid: true });
+    vi.mocked(audioToBuffer).mockResolvedValue(Buffer.from('test-audio-data'));
+    vi.mocked(validateAudio).mockResolvedValue({ valid: true });
   });
 
   afterEach(() => {
@@ -62,7 +62,7 @@ describe('POST /api/multimodal/audio', () => {
 
   describe('Authentication & Authorization', () => {
     it('should return 401 if no authentication token is provided', async () => {
-      getMultimodalService.mockReturnValue({
+      vi.mocked(getMultimodalService).mockReturnValue({
         processAudio: vi.fn(),
         processImage: vi.fn(),
         getProviders: vi.fn(),
@@ -88,7 +88,7 @@ describe('POST /api/multimodal/audio', () => {
     });
 
     it('should return 401 if authentication token is invalid', async () => {
-      getMultimodalService.mockReturnValue({
+      vi.mocked(getMultimodalService).mockReturnValue({
         processAudio: vi.fn(),
         processImage: vi.fn(),
         getProviders: vi.fn(),
@@ -119,7 +119,7 @@ describe('POST /api/multimodal/audio', () => {
 
   describe('Request Validation', () => {
     it('should return 400 if audio file is missing', async () => {
-      getMultimodalService.mockReturnValue({
+      vi.mocked(getMultimodalService).mockReturnValue({
         processAudio: vi.fn(),
         processImage: vi.fn(),
         getProviders: vi.fn(),
@@ -141,7 +141,7 @@ describe('POST /api/multimodal/audio', () => {
     });
 
     it('should return 400 if file type is invalid', async () => {
-      getMultimodalService.mockReturnValue({
+      vi.mocked(getMultimodalService).mockReturnValue({
         processAudio: vi.fn(),
         processImage: vi.fn(),
         getProviders: vi.fn(),
@@ -167,7 +167,7 @@ describe('POST /api/multimodal/audio', () => {
     });
 
     it('should validate file size', async () => {
-      getMultimodalService.mockReturnValue({
+      vi.mocked(getMultimodalService).mockReturnValue({
         processAudio: vi.fn(),
         processImage: vi.fn(),
         getProviders: vi.fn(),
@@ -196,8 +196,8 @@ describe('POST /api/multimodal/audio', () => {
 
   describe('Language Support', () => {
     it('should support Chinese language', async () => {
-      validateAudio.mockResolvedValue({ valid: true });
-      getMultimodalService.mockReturnValue({
+      vi.mocked(validateAudio).mockResolvedValue({ valid: true });
+      vi.mocked(getMultimodalService).mockReturnValue({
         processAudio: vi.fn().mockResolvedValue({
           success: true,
           data: {
@@ -235,8 +235,8 @@ describe('POST /api/multimodal/audio', () => {
     });
 
     it('should support English language', async () => {
-      validateAudio.mockResolvedValue({ valid: true });
-      getMultimodalService.mockReturnValue({
+      vi.mocked(validateAudio).mockResolvedValue({ valid: true });
+      vi.mocked(getMultimodalService).mockReturnValue({
         processAudio: vi.fn().mockResolvedValue({
           success: true,
           data: {
@@ -274,7 +274,7 @@ describe('POST /api/multimodal/audio', () => {
     });
 
     it('should return 400 for unsupported language', async () => {
-      getMultimodalService.mockReturnValue({
+      vi.mocked(getMultimodalService).mockReturnValue({
         processAudio: vi.fn(),
         processImage: vi.fn(),
         getProviders: vi.fn(),
@@ -303,7 +303,7 @@ describe('POST /api/multimodal/audio', () => {
 
   describe('Audio Processing', () => {
     it('should process valid audio with default options', async () => {
-      validateAudio.mockResolvedValue({ valid: true });
+      vi.mocked(validateAudio).mockResolvedValue({ valid: true });
       const mockProcessAudio = vi.fn().mockResolvedValue({
         success: true,
         data: {
@@ -316,7 +316,7 @@ describe('POST /api/multimodal/audio', () => {
         provider: 'default',
       });
 
-      getMultimodalService.mockReturnValue({
+      vi.mocked(getMultimodalService).mockReturnValue({
         processAudio: mockProcessAudio,
         processImage: vi.fn(),
         getProviders: vi.fn(),
@@ -343,10 +343,10 @@ describe('POST /api/multimodal/audio', () => {
     });
 
     it('should handle transcription errors', async () => {
-      validateAudio.mockResolvedValue({ valid: true });
+      vi.mocked(validateAudio).mockResolvedValue({ valid: true });
       const mockProcessAudio = vi.fn().mockRejectedValue(new Error('Transcription failed'));
 
-      getMultimodalService.mockReturnValue({
+      vi.mocked(getMultimodalService).mockReturnValue({
         processAudio: mockProcessAudio,
         processImage: vi.fn(),
         getProviders: vi.fn(),
@@ -374,9 +374,7 @@ describe('POST /api/multimodal/audio', () => {
 
 describe('GET /api/multimodal/audio', () => {
   it('should return service information', async () => {
-    const request = new NextRequest('http://localhost:3000/api/multimodal/audio');
-
-    const response = await GET(request);
+    const response = await GET();
     const result = await response.json();
 
     expect(response.status).toBe(200);

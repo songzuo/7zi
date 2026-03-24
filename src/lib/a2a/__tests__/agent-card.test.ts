@@ -2,7 +2,6 @@
  * Agent Card Tests
  */
 
-// @ts-ignore - Optional properties and type compatibility
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
   createAgentCard,

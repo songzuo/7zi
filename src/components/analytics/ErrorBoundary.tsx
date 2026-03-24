@@ -7,6 +7,13 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertCircle, RefreshCw, Home } from 'lucide-react';
 
+// Extend Window interface to include Sentry
+interface WindowWithSentry extends Window {
+  Sentry?: {
+    captureException(error: Error, options?: { contexts?: { react?: { componentStack: string } } }): void;
+  };
+}
+
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
@@ -52,14 +59,17 @@ export class AnalyticsErrorBoundary extends Component<Props, State> {
     });
 
     // Send to error tracking service (e.g., Sentry)
-    if (typeof window !== 'undefined' && (window as any).Sentry) {
-      (window as any).Sentry.captureException(error, {
-        contexts: {
-          react: {
-            componentStack: errorInfo.componentStack
+    if (typeof window !== 'undefined' && (window as WindowWithSentry).Sentry && errorInfo) {
+      const sentry = (window as WindowWithSentry).Sentry;
+      if (sentry) {
+        sentry.captureException(error, {
+          contexts: {
+            react: {
+              componentStack: errorInfo.componentStack || ''
+            }
           }
-        }
-      });
+        });
+      }
     }
   }
 

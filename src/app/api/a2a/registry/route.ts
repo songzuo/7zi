@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAgentRegistry } from '@/lib/a2a/agent-registry';
 import { AgentRegistration } from '@/lib/a2a/types';
+import { validateBody, formatValidationErrors } from '@/lib/api/validation';
 
 /**
  * GET /api/a2a/registry

@@ -142,7 +142,7 @@ describe('SEO Module', () => {
 
       expect(schema).toMatchObject({
         '@context': 'https://schema.org',
-        '@type': 'LocalBusiness',
+        '@type': 'ProfessionalService',
       });
     });
   });

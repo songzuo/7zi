@@ -10,7 +10,7 @@
  * - Consistent error handling
  */
 
-
+import { NextResponse } from 'next/server';
 import {
   getAllUsers,
   createUser,

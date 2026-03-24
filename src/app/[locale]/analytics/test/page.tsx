@@ -29,10 +29,6 @@ const testTimeSeries: TimeSeriesDataPoint[] = [
   { timestamp: '2026-03-16T00:00:00Z', date: 'Mar 16', agents: 11, users: 55, tasks: 25 }
 ];
 
-console.log('✅ Analytics types imported successfully');
-console.log('✅ Components imported successfully');
-console.log('✅ Module is ready for use');
-
 export default function AnalyticsTestPage() {
   return (
     <AnalyticsDashboard locale="en" defaultTimeRange="week" />

@@ -3,7 +3,7 @@
  * @description Manages search indices for different entity types (tasks, projects, members, agents)
  */
 
-import Fuse from 'fuse.js';
+import Fuse, { type IFuseOptions } from 'fuse.js';
 import type {
   SearchIndexConfig,
   SearchIndexMetadata,
@@ -63,8 +63,8 @@ export class SearchIndexManager {
   createIndex(config: SearchIndexConfig): void {
     const { id, name, fields, enabled = true, fuseOptions } = config;
 
-    // @ts-ignore - Fuse.js type issue with namespace in TypeScript
-    const defaultOptions: Fuse.IFuseOptions<UnifiedEntity> = {
+    
+    const defaultOptions: IFuseOptions<UnifiedEntity> = {
       keys: fields,
       threshold: fuseOptions?.threshold ?? 0.3,
       distance: fuseOptions?.distance ?? 100,
@@ -116,7 +116,7 @@ export class SearchIndexManager {
       throw new Error(`Index '${id}' not found`);
     }
 
-    // @ts-ignore - Fuse.js doesn't have getState(), we need to track items separately
+    
     // This is a limitation - we should track items in a separate map
     const currentItems: UnifiedEntity[] = [];
 
@@ -148,7 +148,7 @@ export class SearchIndexManager {
       throw new Error(`Index '${id}' not found`);
     }
 
-    // @ts-ignore - Fuse.js doesn't have getState(), we need to track items separately
+    
     const currentItems: UnifiedEntity[] = [];
     const filteredItems = currentItems.filter(doc => doc.id !== itemId);
 
@@ -415,7 +415,7 @@ export function convertIssueToTaskEntity(issue: GitHubIssue): TaskEntity {
     status: issue.state === 'open' ? 'open' : 'closed',
     priority: determinePriority(issue),
     assignee: issue.assignee?.login,
-    // @ts-ignore - label type compatibility issue (color may be undefined)
+    
     labels: issue.labels?.map((label) => ({
       name: label.name,
       color: label.color || '#000000',
@@ -435,10 +435,10 @@ export function convertToProjectEntity(project: ProjectInput): ProjectEntity {
     name: project.name || project.title || '',
     title: project.name || project.title || '',
     description: project.description || '',
-    // @ts-ignore - ProjectInput type may not restrict to exact ProjectStatus enum
+    
     status: (project.status as 'active' | 'archived' | 'completed') || 'active',
     owner: project.owner?.login || String(project.ownerId || ''),
-    // @ts-ignore - Member mapping may have type issues
+    
     members: project.members?.map((m) => String(m.login || m.id)) || [],
     createdAt: project.createdAt || project.created_at || '',
     updatedAt: project.updatedAt || project.updated_at || '',
@@ -471,7 +471,7 @@ export function convertToAgentEntity(agent: AgentInput): AgentEntity {
     name: agent.name || agent.title || '',
     title: agent.name || agent.title || '',
     description: agent.description || '',
-    // @ts-ignore - AgentInput type may not restrict to exact AgentStatus enum
+    
     status: (agent.status as 'active' | 'inactive' | 'maintenance') || 'active',
     agentType: agent.type || agent.agentType || '',
     capabilities: (agent.capabilities as string[]) || [],

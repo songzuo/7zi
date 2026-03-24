@@ -19,7 +19,8 @@
  * import { LRUCache } from '@/lib/cache/lru-cache';
  */
 
-import { logger } from './logger';
+// Logger import removed - causing ES module resolution issues
+// Re-enable if logger is actually used in this file
 
 // Re-export ID utilities from dedicated module
 export { generateId, generateUUID } from './utils/id';

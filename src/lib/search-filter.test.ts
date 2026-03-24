@@ -64,6 +64,7 @@ const testItems: TestItem[] = [
  * 测试基本搜索
  */
 function testBasicSearch(): void {
+  if (process.env.NODE_ENV === 'production') return;
   console.log('\n=== 基本搜索测试 ===');
   const results = searchItems(testItems, '搜索');
   console.log(`查询: "搜索", 结果数: ${results.length}`);
@@ -76,6 +77,7 @@ function testBasicSearch(): void {
  * 测试模糊匹配
  */
 function testFuzzySearch(): void {
+  if (process.env.NODE_ENV === 'production') return;
   console.log('\n=== 模糊匹配测试 ===');
 
   // 测试拼写错误
@@ -100,6 +102,7 @@ function testFuzzySearch(): void {
  * 测试拼音匹配
  */
 function testPinyinSearch(): void {
+  if (process.env.NODE_ENV === 'production') return;
   console.log('\n=== 拼音匹配测试 ===');
 
   const config: SearchConfig = {
@@ -122,6 +125,7 @@ function testPinyinSearch(): void {
  * 测试权重排序
  */
 function testWeightedSearch(): void {
+  if (process.env.NODE_ENV === 'production') return;
   console.log('\n=== 权重排序测试 ===');
 
   const config: SearchConfig = {
@@ -147,6 +151,7 @@ function testWeightedSearch(): void {
  * 测试综合搜索（模糊+拼音+权重）
  */
 function testCombinedSearch(): void {
+  if (process.env.NODE_ENV === 'production') return;
   console.log('\n=== 综合搜索测试 ===');
 
   const config: SearchConfig = {
@@ -182,6 +187,7 @@ function testCombinedSearch(): void {
  * 测试高亮功能
  */
 function testHighlight(): void {
+  if (process.env.NODE_ENV === 'production') return;
   console.log('\n=== 高亮功能测试 ===');
 
   const texts = [
@@ -209,6 +215,7 @@ function testHighlight(): void {
  * 测试向后兼容性
  */
 function testBackwardCompatibility(): void {
+  if (process.env.NODE_ENV === 'production') return;
   console.log('\n=== 向后兼容性测试 ===');
 
   // 不提供任何配置，使用默认值
@@ -236,6 +243,7 @@ function testBackwardCompatibility(): void {
 // ============================================================================
 
 export function runAllTests(): void {
+  if (process.env.NODE_ENV === 'production') return;
   console.log('╔════════════════════════════════════════════════════════════╗');
   console.log('║       搜索功能增强测试套件                                  ║');
   console.log('╚════════════════════════════════════════════════════════════╝');

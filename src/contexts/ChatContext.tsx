@@ -10,7 +10,7 @@
 
 'use client';
 
-import { createContext, useContext, ReactNode, useCallback } from 'react';
+import { createContext, useContext, ReactNode, useCallback, useMemo } from 'react';
 import { UnifiedTeamMember } from '@/types/members';
 import { Message } from '@/components/chat/types';
 
@@ -111,7 +111,8 @@ export function ChatProvider({
     return teamMembers.filter((m) => m.status === 'online' || m.status === 'working');
   }, [teamMembers]);
 
-  const contextValue: ChatContextValue = {
+  // 使用 useMemo 优化 context value，避免每次渲染都创建新对象
+  const contextValue = useMemo(() => ({
     teamMembers,
     messages,
     inputValue,
@@ -124,7 +125,20 @@ export function ChatProvider({
     setSelectedMemberId,
     getMemberById,
     getOnlineMembers,
-  };
+  }), [
+    teamMembers,
+    messages,
+    inputValue,
+    isTyping,
+    selectedMemberId,
+    onlineCount,
+    setInputValue,
+    handleSend,
+    handleQuickAction,
+    setSelectedMemberId,
+    getMemberById,
+    getOnlineMembers,
+  ]);
 
   return (
     <ChatContext.Provider value={contextValue}>

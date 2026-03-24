@@ -67,7 +67,7 @@ export interface UseWebSocketReturn {
  */
 export function useWebSocket(config: WebSocketConfig = {}): UseWebSocketReturn {
   const {
-    url = process.env.NEXT_PUBLIC_WS_URL || `${window.location.origin}/api/ws`,
+    url = process.env.NEXT_PUBLIC_WS_URL || (typeof window !== 'undefined' ? `${window.location.origin}/api/ws` : 'http://localhost:3000/api/ws'),
     token,
     autoConnect = true,
     reconnection = true,

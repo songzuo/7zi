@@ -3,17 +3,29 @@
  */
 
 import { render, screen, fireEvent } from '@testing-library/react';
+import { vi, beforeEach } from 'vitest';
+import React from 'react';
+
+// Mock next-intl before importing Button
+vi.mock('next-intl', () => ({
+  useTranslations: vi.fn((namespace: string) => (key: string) => `${namespace}.${key}`),
+}));
+
 import { Button, ButtonGroup, IconButton } from '../Button';
 
 describe('Button Component', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   describe('Basic Rendering', () => {
     it('renders button with text', () => {
-      render(<Button>Click Me</Button>);
+      render(React.createElement(Button, null, 'Click Me'));
       expect(screen.getByRole('button')).toHaveTextContent('Click Me');
     });
 
     it('renders with default variant and size', () => {
-      render(<Button>Button</Button>);
+      render(React.createElement(Button, null, 'Button'));
       const button = screen.getByRole('button');
       expect(button).toHaveClass('bg-blue-600');
       expect(button).toHaveClass('px-4', 'py-2');
@@ -22,34 +34,34 @@ describe('Button Component', () => {
 
   describe('Variants', () => {
     it('applies primary variant', () => {
-      render(<Button variant="primary">Primary</Button>);
+      const { container } = render(<Button variant="primary">Primary</Button>);
       expect(screen.getByRole('button')).toHaveClass('bg-blue-600');
     });
 
     it('applies secondary variant', () => {
-      render(<Button variant="secondary">Secondary</Button>);
+      const { container } = render(<Button variant="secondary">Secondary</Button>);
       expect(screen.getByRole('button')).toHaveClass('bg-zinc-600');
     });
 
     it('applies outline variant', () => {
-      render(<Button variant="outline">Outline</Button>);
+      const { container } = render(<Button variant="outline">Outline</Button>);
       const button = screen.getByRole('button');
       expect(button).toHaveClass('border-2');
       expect(button).toHaveClass('border-zinc-300');
     });
 
     it('applies ghost variant', () => {
-      render(<Button variant="ghost">Ghost</Button>);
+      const { container } = render(<Button variant="ghost">Ghost</Button>);
       expect(screen.getByRole('button')).toHaveClass('hover:bg-zinc-100');
     });
 
     it('applies danger variant', () => {
-      render(<Button variant="danger">Danger</Button>);
+      const { container } = render(<Button variant="danger">Danger</Button>);
       expect(screen.getByRole('button')).toHaveClass('bg-red-600');
     });
 
     it('applies link variant', () => {
-      render(<Button variant="link">Link</Button>);
+      const { container } = render(<Button variant="link">Link</Button>);
       expect(screen.getByRole('button')).toHaveClass('text-blue-600');
     });
   });

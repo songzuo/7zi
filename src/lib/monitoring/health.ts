@@ -175,7 +175,7 @@ export const probes = {
    * Returns 200 if the service is running
    */
   liveness: () => {
-    return NextResponse.json({ status: 'alive' }, { status: 200 });
+    return NextResponse.json({ success: true, status: 'alive' }, { status: 200 });
   },
 
   /**
@@ -184,7 +184,12 @@ export const probes = {
    */
   readiness: async () => {
     const health = await detailedHealthCheck();
-    return healthResponse(health);
+    const result = {
+      ready: health.status === 'ok',
+      ...health
+    };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return healthResponse(result as any);
   },
 
   /**

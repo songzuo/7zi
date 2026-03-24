@@ -3,11 +3,11 @@
  * @description Enhanced dashboard store with undo-redo functionality
  */
 
-
-
-
+import { create } from 'zustand';
+import { devtools } from 'zustand/middleware';
+import { undoRedo } from '@/lib/undo-redo/middleware';
 import type { UnifiedTeamMember } from '@/types/members';
-import type { GitHubIssue } from '@/types/common';
+import type { GitHubIssue, GitHubCommit } from '@/types/common';
 import type { HistoryState } from '@/lib/undo-redo/types';
 
 // ============================================================================
@@ -299,7 +299,6 @@ function mergeActivities(
 // Store Implementation with Undo-Redo
 // ============================================================================
 
-// @ts-ignore - UndoRedo middleware type augmentation issue with Zustand v5
 export const useDashboardStore = create<DashboardStateWithUndoRedo>()(
   devtools(
     undoRedo(
@@ -331,7 +330,6 @@ export const useDashboardStore = create<DashboardStateWithUndoRedo>()(
 
         // Set config (not recorded in history)
         setConfig: (owner, repo, token) => {
-          // @ts-ignore - skipNextHistoryPush is added by middleware
           get().skipNextHistoryPush();
           set({ owner, repo, token: token || null });
         },
@@ -340,7 +338,6 @@ export const useDashboardStore = create<DashboardStateWithUndoRedo>()(
         fetchAllData: async () => {
           const { owner, repo, token } = get();
 
-          // @ts-ignore - skipNextHistoryPush is added by middleware
           get().skipNextHistoryPush();
           set({ isLoading: true, error: null });
 
@@ -446,7 +443,6 @@ export const useDashboardStore = create<DashboardStateWithUndoRedo>()(
               'create',
               `添加成员: ${member.name}`,
               () => {
-                // @ts-ignore - member.id type issue (string | number vs string)
                 useDashboardStore.getState().removeMember(String(member.id));
               },
               () => {
@@ -489,7 +485,6 @@ export const useDashboardStore = create<DashboardStateWithUndoRedo>()(
 
         // Clear error (not recorded in history)
         clearError: () => {
-          // @ts-ignore - skipNextHistoryPush is added by middleware
           get().skipNextHistoryPush();
           set({ error: null });
         },
@@ -498,7 +493,6 @@ export const useDashboardStore = create<DashboardStateWithUndoRedo>()(
         maxHistorySize: 50,
         excludeActionTypes: ['setConfig', 'fetchAllData', 'refreshData', 'clearError'],
       }
-    // @ts-ignore - Type mismatch with undo-redo middleware (Zustand v5 type limitation)
     ),
     { name: 'dashboard-store' }
   )

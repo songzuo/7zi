@@ -90,9 +90,9 @@
  *         description: Internal server error
  */
 
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getMultimodalService } from '@/lib/multimodal/multimodal-service';
-import { validateAudio, formatDuration } from '@/lib/multimodal/audio-utils';
+import { audioToBuffer, validateAudio, formatDuration } from '@/lib/multimodal/audio-utils';
 import type {
   AudioTranscriptionOptions,
   AudioTranscriptionResult,

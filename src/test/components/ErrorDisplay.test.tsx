@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { ErrorDisplay } from '@/components/ErrorDisplay'
 
 describe('ErrorDisplay', () => {
@@ -46,10 +46,12 @@ describe('ErrorDisplay', () => {
       expect(screen.queryByRole('button', { name: '重试' })).not.toBeInTheDocument()
     })
 
-    it('calls onReset when reset button is clicked', () => {
+    it('calls onReset when reset button is clicked', async () => {
       render(<ErrorDisplay showReset onReset={mockOnReset} />)
-      
-      fireEvent.click(screen.getByRole('button', { name: '重试' }))
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: '重试' }))
+      })
       expect(mockOnReset).toHaveBeenCalledTimes(1)
     })
 
@@ -61,10 +63,12 @@ describe('ErrorDisplay', () => {
 
     it('toggles error details visibility', async () => {
       render(<ErrorDisplay errorDigest="test-digest-123" />)
-      
+
       const toggleButton = screen.getByText('显示错误详情')
-      fireEvent.click(toggleButton)
-      
+      await act(async () => {
+        fireEvent.click(toggleButton)
+      })
+
       await waitFor(() => {
         expect(screen.getByText('test-digest-123')).toBeInTheDocument()
         expect(screen.getByText('隐藏错误详情')).toBeInTheDocument()
@@ -98,10 +102,12 @@ describe('ErrorDisplay', () => {
       expect(screen.getByRole('button', { name: '重试' })).toBeInTheDocument()
     })
 
-    it('calls onReset in compact variant', () => {
+    it('calls onReset in compact variant', async () => {
       render(<ErrorDisplay variant="compact" showReset onReset={mockOnReset} />)
-      
-      fireEvent.click(screen.getByRole('button', { name: '重试' }))
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: '重试' }))
+      })
       expect(mockOnReset).toHaveBeenCalledTimes(1)
     })
   })
@@ -132,10 +138,12 @@ describe('ErrorDisplay', () => {
       expect(screen.getByRole('button', { name: '重新加载' })).toBeInTheDocument()
     })
 
-    it('calls onReset when reload button is clicked', () => {
+    it('calls onReset when reload button is clicked', async () => {
       render(<ErrorDisplay variant="fullscreen" showReset onReset={mockOnReset} />)
-      
-      fireEvent.click(screen.getByRole('button', { name: '重新加载' }))
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: '重新加载' }))
+      })
       expect(mockOnReset).toHaveBeenCalledTimes(1)
     })
   })

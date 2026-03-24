@@ -3,7 +3,7 @@
  * POST /api/auth/logout
  */
 
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { withUserAuth } from '@/lib/auth/middleware';
 import { logoutUser } from '@/lib/auth/service';
 import { logger } from '@/lib/logger';

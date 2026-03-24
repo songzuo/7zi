@@ -292,6 +292,146 @@ export function performanceMeasure(
   }
 }
 
+/**
+ * Clear all performance marks
+ */
+export function clearPerformanceMarks(marks?: string[]): void {
+  if (typeof performance === 'undefined' || !performance.clearMarks) {
+    return;
+  }
+
+  if (marks && marks.length > 0) {
+    marks.forEach(mark => performance.clearMarks(mark));
+  } else {
+    performance.clearMarks();
+  }
+}
+
+/**
+ * Clear all performance measures
+ */
+export function clearPerformanceMeasures(measures?: string[]): void {
+  if (typeof performance === 'undefined' || !performance.clearMeasures) {
+    return;
+  }
+
+  if (measures && measures.length > 0) {
+    measures.forEach(measure => performance.clearMeasures(measure));
+  } else {
+    performance.clearMeasures();
+  }
+}
+
+/**
+ * Get all performance measures
+ */
+export function getPerformanceMeasures(): PerformanceEntry[] {
+  if (typeof performance === 'undefined' || !performance.getEntriesByType) {
+    return [];
+  }
+  return performance.getEntriesByType('measure');
+}
+
+/**
+ * Measure async function execution
+ */
+export async function measureAsync<T>(
+  name: string,
+  fn: () => Promise<T>
+): Promise<T> {
+  const startMark = `${name}-start`;
+  const endMark = `${name}-end`;
+  const errorMark = `${name}-error`;
+
+  performanceMark(startMark);
+
+  try {
+    const result = await fn();
+    performanceMark(endMark);
+    performanceMeasure(name, startMark, endMark);
+    clearPerformanceMarks([startMark, endMark]);
+    return result;
+  } catch (error) {
+    performanceMark(errorMark);
+    performanceMeasure(`${name}-error`, startMark, errorMark);
+    throw error;
+  }
+}
+
+/**
+ * Measure sync function execution
+ */
+export function measureSync<T>(
+  name: string,
+  fn: () => T
+): T {
+  const startMark = `${name}-start`;
+  const endMark = `${name}-end`;
+  const errorMark = `${name}-error`;
+
+  performanceMark(startMark);
+
+  try {
+    const result = fn();
+    performanceMark(endMark);
+    performanceMeasure(name, startMark, endMark);
+    clearPerformanceMarks([startMark, endMark]);
+    return result;
+  } catch (error) {
+    performanceMark(errorMark);
+    performanceMeasure(`${name}-error`, startMark, errorMark);
+    throw error;
+  }
+}
+
+// ============================================================================
+// Image Optimization
+// ============================================================================
+
+/**
+ * Lazy load images using Intersection Observer
+ */
+export function lazyLoadImages(): void {
+  if (typeof document === 'undefined' || typeof IntersectionObserver === 'undefined') {
+    return;
+  }
+
+  const lazyImages = document.querySelectorAll('img[data-src]');
+
+  const imageObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const img = entry.target as HTMLImageElement;
+        img.src = img.dataset.src || '';
+        img.classList.remove('lazy');
+        observer.unobserve(img);
+      }
+    });
+  });
+
+  lazyImages.forEach(img => imageObserver.observe(img));
+}
+
+/**
+ * Detect and set image format support (WebP, AVIF, etc.)
+ */
+export function setImageFormatSupport(): void {
+  if (typeof document === 'undefined') {
+    return;
+  }
+
+  // Check for WebP support
+  const webP = new Image();
+  webP.onload = webP.onerror = () => {
+    const isSupported = webP.height === 2;
+    if (isSupported) {
+      document.documentElement.classList.add('webp');
+      document.documentElement.classList.add('modern-browser');
+    }
+  };
+  webP.src = 'data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
+}
+
 // ============================================================================
 // Export Main Function
 // ============================================================================

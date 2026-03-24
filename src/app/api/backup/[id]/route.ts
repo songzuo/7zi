@@ -101,7 +101,7 @@ export async function GET(
 ) {
   const params = await context.params;
   return withUserAuth(request, (req: NextRequest, userContext: RBACUserContext) => {
-    return GETHandler(req, userContext, params.id); // @ts-ignore
+    return GETHandler(req, userContext, params.id);
   });
 }
 
@@ -191,6 +191,6 @@ export async function DELETE(
 ) {
   const params = await context.params;
   return withUserAuth(request, (req: NextRequest, userContext: RBACUserContext) => {
-    return DELETEHandler(req, userContext, params.id); // @ts-ignore
+    return DELETEHandler(req, userContext, params.id);
   });
 }

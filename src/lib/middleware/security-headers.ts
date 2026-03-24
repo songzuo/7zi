@@ -97,7 +97,7 @@ export interface SecurityHeadersConfig {
 const DEFAULT_CONFIG: SecurityHeadersConfig = {
   contentSecurityPolicy: {
     defaultSrc: ["'self'"],
-    scriptSrc: ["'self'", "'nonce-{CSP_NONCE}'"],
+    scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
     styleSrc: ["'self'", "'unsafe-inline'"],
     imgSrc: ["'self'", 'data:', 'https:'],
     fontSrc: ["'self'", 'data:', 'https:'],

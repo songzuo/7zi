@@ -2,7 +2,6 @@
  * N+1 Query Detector Tests
  */
 
-// @ts-ignore - Type compatibility issues
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
   getNPlus1Detector,

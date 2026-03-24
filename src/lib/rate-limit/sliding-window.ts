@@ -124,13 +124,12 @@ export async function getSlidingWindowStatus(
 ): Promise<{ count: number; oldestRequest: number | null; resetTime: number }> {
   const now = Date.now();
   const windowStart = now - window * 1000;
-  const defaultResult = { count: 0, oldestRequest: null, resetTime: now + window * 1000 };
 
   const result = await redisCommand(
     async () => {
       const client = getRedisClient();
       if (!client) {
-        return defaultResult;
+        return { count: 0, oldestRequest: null, resetTime: now + window * 1000 };
       }
 
       const pipeline = client.pipeline();
@@ -152,17 +151,17 @@ export async function getSlidingWindowStatus(
 
       return { count, oldestRequest, resetTime };
     },
-    defaultResult
+    { count: 0, oldestRequest: null, resetTime: now + window * 1000 }
   );
 
-  return result ?? defaultResult;
+  return result ?? { count: 0, oldestRequest: null, resetTime: now + window * 1000 };
 }
 
 /**
  * Reset sliding window for a key
  */
 export async function resetSlidingWindow(key: string): Promise<boolean> {
-  const result = await redisCommand(
+  return (await redisCommand(
     async () => {
       const client = getRedisClient();
       if (!client) {
@@ -173,16 +172,14 @@ export async function resetSlidingWindow(key: string): Promise<boolean> {
       return true;
     },
     false
-  );
-
-  return result ?? false;
+  )) ?? false;
 }
 
 /**
  * Clean up expired sliding windows
  */
 export async function cleanupSlidingWindows(pattern: string): Promise<number> {
-  const result = await redisCommand(
+  return (await redisCommand(
     async () => {
       const client = getRedisClient();
       if (!client) {
@@ -216,7 +213,5 @@ export async function cleanupSlidingWindows(pattern: string): Promise<number> {
       return deletedCount;
     },
     0
-  );
-
-  return result ?? 0;
+  )) ?? 0;
 }

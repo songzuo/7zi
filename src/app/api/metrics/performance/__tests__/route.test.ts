@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { GET } from './route';
+import { GET } from '@/app/api/metrics/performance/route';
 import {
   getApiPerformanceReport,
   clearApiPerformanceData,
@@ -245,7 +245,7 @@ describe('GET /api/metrics/performance', () => {
   describe('error handling', () => {
     it('should handle errors gracefully', async () => {
       // Mock getApiPerformanceReport to throw an error
-      getApiPerformanceReport.mockImplementationOnce(() => {
+      vi.mocked(getApiPerformanceReport).mockImplementationOnce(() => {
         throw new Error('Test error');
       });
 

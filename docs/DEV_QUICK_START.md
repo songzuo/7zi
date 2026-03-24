@@ -126,7 +126,7 @@ pnpm dev -p 3001
 
 ### 技术栈
 
-- **框架**: Next.js 16.1.7 (App Router)
+- **框架**: Next.js 16.2.1 (App Router)
 - **UI**: React 19.2.4
 - **语言**: TypeScript 5.x
 - **样式**: Tailwind CSS 4

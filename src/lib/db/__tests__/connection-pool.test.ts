@@ -16,33 +16,38 @@ const getPoolStats = () => ({ totalConnections: 0, activeConnections: 0, idleCon
 import Database from 'better-sqlite3';
 
 // Mock logger
+const createMockLogger = () => ({
+  debug: vi.fn(),
+  info: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  fatal: vi.fn(),
+  api: vi.fn(),
+  auth: vi.fn(),
+  perf: vi.fn(),
+  user: vi.fn(),
+  security: vi.fn(),
+  setContext: vi.fn(),
+  clearContext: vi.fn(),
+  child: vi.fn(() => createMockLogger()),
+  updateConfig: vi.fn(),
+});
+
 vi.mock('../logger', () => ({
-  logger: {
-    debug: vi.fn(),
-    info: vi.fn(),
-    warn: vi.fn(),
-    error: vi.fn(),
-    fatal: vi.fn(),
-    api: vi.fn(),
-    auth: vi.fn(),
-    perf: vi.fn(),
-    user: vi.fn(),
-    security: vi.fn(),
-    setContext: vi.fn(),
-    clearContext: vi.fn(),
-    child: vi.fn(),
-    updateConfig: vi.fn(),
-  },
+  logger: createMockLogger(),
 }));
 
 // Mock Database
 vi.mock('better-sqlite3', () => ({
-  default: vi.fn().mockImplementation(() => ({
-    prepare: vi.fn(),
-    exec: vi.fn(),
-    close: vi.fn(),
-    open: vi.fn(),
-  })),
+  default: vi.fn().mockImplementation(function() {
+    return {
+      prepare: vi.fn(),
+      exec: vi.fn(),
+      close: vi.fn(),
+      open: vi.fn(),
+      pragma: vi.fn(),
+    };
+  }),
 }));
 
 describe('Connection Pool Manager', () => {

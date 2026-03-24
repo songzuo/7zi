@@ -3,7 +3,7 @@
 **审查日期**: 2026-03-06  
 **审查人**: 架构师 (AI 子代理)  
 **项目版本**: 0.1.0  
-**技术栈**: Next.js 16.1.7 + React 19.2.4 + TypeScript 5
+**技术栈**: Next.js 16.2.1 + React 19.2.4 + TypeScript 5
 
 ---
 
@@ -17,7 +17,7 @@
 ### 1.2 技术栈选型
 | 技术 | 版本 | 评价 |
 |------|------|------|
-| Next.js | 16.1.7 | ✅ 最新稳定版，支持 App Router |
+| Next.js | 16.2.1 | ✅ 最新稳定版，支持 App Router |
 | React | 19.2.4 | ✅ 最新版本，支持 Server Components |
 | TypeScript | 5.x | ✅ 类型安全，strict 模式 |
 | Tailwind CSS | 4.x | ✅ 原子化 CSS，高效开发 |
@@ -60,7 +60,7 @@ src/
 ### 2.2 结构评价
 
 **优点 ✅**
-- App Router 结构符合 Next.js 16 最佳实践
+- App Router 结构符合 Next.js 15 最佳实践
 - 组件按功能域分组（NotificationCenter, UserSettings, chat）
 - 分离了 optimized 组件，便于性能优化
 - hooks、types、lib 职责清晰
@@ -403,7 +403,7 @@ export async function apiClient<T>(
 
 | 技术 | 状态 | 建议 |
 |------|------|------|
-| Next.js 16 | ✅ 优秀 | 继续使用 |
+| Next.js 15 | ✅ 优秀 | 继续使用 |
 | React 19 | ✅ 优秀 | 利用 Server Components |
 | TypeScript | ✅ 优秀 | 保持 strict 模式 |
 | Tailwind CSS | ✅ 优秀 | 考虑组件化 |
@@ -458,7 +458,7 @@ export async function apiClient<T>(
 
 **架构成熟度**: ⭐⭐⭐⭐☆ (4/5)
 
-7zi-Frontend 项目整体架构设计合理，遵循 Next.js 16 最佳实践，代码组织清晰，类型安全完善。主要优势在于：
+7zi-Frontend 项目整体架构设计合理，遵循 Next.js 15 最佳实践，代码组织清晰，类型安全完善。主要优势在于：
 
 - ✅ 现代 React 技术栈
 - ✅ 良好的代码组织结构

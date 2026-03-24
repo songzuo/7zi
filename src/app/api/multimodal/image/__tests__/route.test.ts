@@ -5,68 +5,77 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/app/api/multimodal/image/route';
 import { NextRequest } from 'next/server';
+import { vi as vitest } from 'vitest';
 
 // Mock dependencies
+const mockAnalyzeImage = vi.fn(() =>
+  Promise.resolve({
+    description: 'A beautiful sunset over the ocean',
+    confidence: 0.92,
+    tags: ['sunset', 'ocean', 'beach', 'nature'],
+    colors: ['#FF6B35', '#FF8C42', '#F9C784', '#4ECDC4'],
+    objects: [
+      { name: 'sun', confidence: 0.98, boundingBox: { x: 100, y: 50, width: 80, height: 80 } },
+      { name: 'water', confidence: 0.95, boundingBox: { x: 0, y: 200, width: 500, height: 300 } },
+    ],
+    faces: [],
+    text: [],
+  })
+);
+
+const mockDetectText = vi.fn(() =>
+  Promise.resolve({
+    text: 'Hello World',
+    confidence: 0.95,
+    language: 'en',
+    regions: [
+      {
+        text: 'Hello',
+        boundingBox: { x: 10, y: 10, width: 50, height: 20 },
+        confidence: 0.96,
+      },
+      {
+        text: 'World',
+        boundingBox: { x: 70, y: 10, width: 50, height: 20 },
+        confidence: 0.94,
+      },
+    ],
+  })
+);
+
+const mockDetectFaces = vi.fn(() =>
+  Promise.resolve({
+    faces: [
+      {
+        id: 'face1',
+        boundingBox: { x: 100, y: 50, width: 80, height: 100 },
+        confidence: 0.97,
+        attributes: {
+          age: { min: 25, max: 35 },
+          gender: { type: 'male', confidence: 0.98 },
+          emotion: { type: 'happy', confidence: 0.95 },
+          smile: { value: true, confidence: 0.92 },
+        },
+      },
+    ],
+    count: 1,
+  })
+);
+
+const mockLogger = {
+  error: vi.fn(),
+  info: vi.fn(),
+  warn: vi.fn(),
+};
+
 vi.mock('@/lib/multimodal/image-utils', () => ({
-  analyzeImage: vi.fn(() =>
-    Promise.resolve({
-      description: 'A beautiful sunset over the ocean',
-      confidence: 0.92,
-      tags: ['sunset', 'ocean', 'beach', 'nature'],
-      colors: ['#FF6B35', '#FF8C42', '#F9C784', '#4ECDC4'],
-      objects: [
-        { name: 'sun', confidence: 0.98, boundingBox: { x: 100, y: 50, width: 80, height: 80 } },
-        { name: 'water', confidence: 0.95, boundingBox: { x: 0, y: 200, width: 500, height: 300 } },
-      ],
-      faces: [],
-      text: [],
-    })
-  ),
-  detectText: vi.fn(() =>
-    Promise.resolve({
-      text: 'Hello World',
-      confidence: 0.95,
-      language: 'en',
-      regions: [
-        {
-          text: 'Hello',
-          boundingBox: { x: 10, y: 10, width: 50, height: 20 },
-          confidence: 0.96,
-        },
-        {
-          text: 'World',
-          boundingBox: { x: 70, y: 10, width: 50, height: 20 },
-          confidence: 0.94,
-        },
-      ],
-    })
-  ),
-  detectFaces: vi.fn(() =>
-    Promise.resolve({
-      faces: [
-        {
-          id: 'face1',
-          boundingBox: { x: 100, y: 50, width: 80, height: 100 },
-          confidence: 0.97,
-          attributes: {
-            age: { min: 25, max: 35 },
-            gender: { type: 'male', confidence: 0.98 },
-            emotion: { type: 'happy', confidence: 0.95 },
-            smile: { value: true, confidence: 0.92 },
-          },
-        },
-      ],
-      count: 1,
-    })
-  ),
+  analyzeImage: mockAnalyzeImage,
+  detectText: mockDetectText,
+  detectFaces: mockDetectFaces,
 }));
 
 vi.mock('@/lib/logger', () => ({
-  logger: {
-    error: vi.fn(),
-    info: vi.fn(),
-    warn: vi.fn(),
-  },
+  logger: mockLogger,
 }));
 
 vi.mock('@/lib/api/error-handler', () => ({
@@ -238,7 +247,7 @@ describe('POST /api/multimodal/image', () => {
   });
 
   it('should handle analysis errors', async () => {
-    const { analyzeImage } = require('@/lib/multimodal/image-utils');
+    const { analyzeImage } = require('../../../lib/multimodal/image-utils');
     analyzeImage.mockRejectedValueOnce(new Error('Analysis failed'));
 
     const formData = new FormData();
@@ -284,8 +293,6 @@ describe('POST /api/multimodal/image', () => {
   });
 
   it('should log successful analysis', async () => {
-    const { logger } = require('@/lib/logger');
-
     const formData = new FormData();
     formData.append('image', new Blob(['image data'], { type: 'image/jpeg' }), 'test.jpg');
 
@@ -296,16 +303,14 @@ describe('POST /api/multimodal/image', () => {
 
     await POST(request);
 
-    expect(logger.info).toHaveBeenCalledWith(
+    expect(mockLogger.info).toHaveBeenCalledWith(
       expect.stringContaining('Image analyzed'),
       expect.any(Object)
     );
   });
 
   it('should log errors', async () => {
-    const { logger } = require('@/lib/logger');
-    const { analyzeImage } = require('@/lib/multimodal/image-utils');
-    analyzeImage.mockRejectedValueOnce(new Error('Analysis error'));
+    mockAnalyzeImage.mockRejectedValueOnce(new Error('Analysis error'));
 
     const formData = new FormData();
     formData.append('image', new Blob(['image data'], { type: 'image/jpeg' }), 'test.jpg');
@@ -317,7 +322,7 @@ describe('POST /api/multimodal/image', () => {
 
     await POST(request);
 
-    expect(logger.error).toHaveBeenCalled();
+    expect(mockLogger.error).toHaveBeenCalled();
   });
 
   it('should handle empty image file', async () => {
@@ -350,8 +355,7 @@ describe('POST /api/multimodal/image', () => {
   });
 
   it('should handle face detection errors', async () => {
-    const { detectFaces } = require('@/lib/multimodal/image-utils');
-    detectFaces.mockRejectedValueOnce(new Error('Face detection failed'));
+    mockDetectFaces.mockRejectedValueOnce(new Error('Face detection failed'));
 
     const formData = new FormData();
     formData.append('image', new Blob(['image data'], { type: 'image/jpeg' }), 'test.jpg');
@@ -368,8 +372,7 @@ describe('POST /api/multimodal/image', () => {
   });
 
   it('should handle text detection errors', async () => {
-    const { detectText } = require('@/lib/multimodal/image-utils');
-    detectText.mockRejectedValueOnce(new Error('Text detection failed'));
+    mockDetectText.mockRejectedValueOnce(new Error('Text detection failed'));
 
     const formData = new FormData();
     formData.append('image', new Blob(['image data'], { type: 'image/jpeg' }), 'test.jpg');

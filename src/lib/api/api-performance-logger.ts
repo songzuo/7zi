@@ -5,7 +5,7 @@
  * 在现有的 api-logger 基础上添加性能追踪
  */
 
-
+import { NextRequest } from 'next/server';
 import { logger } from '@/lib/logger';
 import { performance } from 'perf_hooks';
 import { recordCustomMetric } from '@/lib/monitoring';

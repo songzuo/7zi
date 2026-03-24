@@ -15,8 +15,8 @@
 | **README.md** | Next.js 16, React 19 | Next.js 16, React 19 | ✅ 已正确 |
 | **docs/ARCHITECTURE.md** | Next.js 14, React 18 | Next.js 16, React 19 | ✅ 已修复 |
 | **docs/ROADMAP.md** | Next.js 14 | Next.js 16 | ✅ 已修复 |
-| **MEMORY.md** | Next.js 16.1.6, React 19.2.3 | Next.js 16.1.7, React 19.2.4 | ✅ 已修复 |
-| **package.json** | Next.js ^16.1.7, React ^19.2.4 | Next.js ^16.1.7, React ^19.2.4 | ✅ 已正确 |
+| **MEMORY.md** | Next.js 16.2.1, React 19.2.4 | Next.js 16.2.1, React 19.2.4 | ✅ 已修复 |
+| **package.json** | Next.js ^16.2.1, React ^19.2.4 | Next.js ^16.2.1, React ^19.2.4 | ✅ 已正确 |
 
 ---
 
@@ -26,7 +26,7 @@
 - **状态**: 无需修改（已正确）
 - **内容**:
   - Badge: Next.js-16, React-19 ✅
-  - 技术栈表格: Next.js 16.1.7, React 19.2.4 ✅
+  - 技术栈表格: Next.js 16.2.1, React 19.2.4 ✅
 
 ### 2. docs/ARCHITECTURE.md ✅
 - **修复项**:
@@ -41,13 +41,13 @@
 
 ### 4. MEMORY.md ✅
 - **修复项**:
-  - Next.js: `16.1.6` → `16.1.7`
-  - React: `19.2.3` → `19.2.4`
+  - Next.js: `16.2.1` → `16.2.1`
+  - React: `19.2.4` → `19.2.4`
 
 ### 5. package.json ✅
 - **状态**: 无需修改（源文件，实际版本）
 - **实际版本**:
-  - `next: ^16.1.7`
+  - `next: ^16.2.1`
   - `react: ^19.2.4`
 
 ---
@@ -58,7 +58,7 @@
 
 | 技术 | 文档版本 | 实际版本 | 一致性 |
 |------|----------|----------|--------|
-| **Next.js** | 16.1.7 | ^16.1.7 | ✅ 一致 |
+| **Next.js** | 16.2.1 | ^16.2.1 | ✅ 一致 |
 | **React** | 19.2.4 | ^19.2.4 | ✅ 一致 |
 
 ### 修复前后对比
@@ -67,13 +67,13 @@
 - **README.md**: Next.js 16, React 19 ✅ (已正确)
 - **ARCHITECTURE.md**: Next.js 14, React 18 ❌ (不一致)
 - **ROADMAP.md**: Next.js 14 ❌ (不一致)
-- **MEMORY.md**: Next.js 16.1.6, React 19.2.3 ⚠️ (版本号不完整)
+- **MEMORY.md**: Next.js 16.2.1, React 19.2.4 ⚠️ (版本号不完整)
 
 #### After (修复后)
-- **README.md**: Next.js 16.1.7, React 19.2.4 ✅
+- **README.md**: Next.js 16.2.1, React 19.2.4 ✅
 - **ARCHITECTURE.md**: Next.js 16, React 19.2.4 ✅
 - **ROADMAP.md**: Next.js 16 ✅
-- **MEMORY.md**: Next.js 16.1.7, React 19.2.4 ✅
+- **MEMORY.md**: Next.js 16.2.1, React 19.2.4 ✅
 
 ---
 

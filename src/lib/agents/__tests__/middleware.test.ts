@@ -8,23 +8,14 @@ import { withAgentAuth, withPermissions, withAnyPermission, AgentContext } from 
 import { verifyAgentToken } from '@/lib/agents/auth-service';
 
 // Mock dependencies
-const mockVerifyAgentToken = vi.fn();
-const mockHasPermission = vi.fn();
-const mockHasAllPermissions = vi.fn();
-const mockUpdateAgentLastActive = vi.fn();
-
-vi.mock('@/lib/agents/auth-service', async () => {
-  const actual = await vi.importActual<typeof import('@/lib/agents/auth-service')>('@/lib/agents/auth-service');
-  return {
-    ...actual,
-    verifyAgentToken: mockVerifyAgentToken,
-    hasPermission: mockHasPermission,
-    hasAllPermissions: mockHasAllPermissions,
-  };
-});
+vi.mock('@/lib/agents/auth-service', () => ({
+  verifyAgentToken: vi.fn(),
+  hasPermission: vi.fn(),
+  hasAllPermissions: vi.fn(),
+}));
 
 vi.mock('@/lib/agents/repository', () => ({
-  updateAgentLastActive: mockUpdateAgentLastActive,
+  updateAgentLastActive: vi.fn(),
 }));
 
 describe('Agent Middleware', () => {
@@ -67,7 +58,7 @@ describe('Agent Middleware', () => {
 
     it('should reject requests with invalid token', async () => {
       mockRequest.headers.set('authorization', 'Bearer invalid-token');
-      mockVerifyAgentToken.mockResolvedValue(null);
+      vi.mocked(verifyAgentToken).mockResolvedValue(null);
       
       const handler = vi.fn().mockResolvedValue(new NextResponse('OK'));
       
@@ -80,7 +71,7 @@ describe('Agent Middleware', () => {
 
     it('should call handler with valid token', async () => {
       mockRequest.headers.set('authorization', 'Bearer valid-token');
-      mockVerifyAgentToken.mockResolvedValue({
+      vi.mocked(verifyAgentToken).mockResolvedValue({
         agentId: 'agent-1',
         role: 'executor',
         permissions: ['read:tasks'],
@@ -103,7 +94,7 @@ describe('Agent Middleware', () => {
 
     it('should return 500 on unexpected errors', async () => {
       mockRequest.headers.set('authorization', 'Bearer valid-token');
-      mockVerifyAgentToken.mockRejectedValue(new Error('Unexpected error'));
+      vi.mocked(verifyAgentToken).mockRejectedValue(new Error('Unexpected error'));
       
       const handler = vi.fn();
       
@@ -118,13 +109,15 @@ describe('Agent Middleware', () => {
   describe('withPermissions', () => {
     it('should reject when permissions are insufficient', async () => {
       mockRequest.headers.set('authorization', 'Bearer valid-token');
-      mockVerifyAgentToken.mockResolvedValue({
+      vi.mocked(verifyAgentToken).mockResolvedValue({
         agentId: 'agent-1',
         role: 'executor',
         permissions: ['read:tasks'],
       });
       
-      mockHasAllPermissions.mockReturnValue(false);
+      // Import hasAllPermissions mock
+      const { hasAllPermissions } = await import('@/lib/agents/auth-service');
+      vi.mocked(hasAllPermissions).mockReturnValue(false);
 
       const middleware = withPermissions('write:tasks');
       const handler = vi.fn().mockResolvedValue(new NextResponse('OK'));
@@ -138,13 +131,14 @@ describe('Agent Middleware', () => {
 
     it('should allow when all permissions are present', async () => {
       mockRequest.headers.set('authorization', 'Bearer valid-token');
-      mockVerifyAgentToken.mockResolvedValue({
+      vi.mocked(verifyAgentToken).mockResolvedValue({
         agentId: 'agent-1',
         role: 'executor',
         permissions: ['read:tasks', 'write:tasks'],
       });
       
-      mockHasAllPermissions.mockReturnValue(true);
+      const { hasAllPermissions } = await import('@/lib/agents/auth-service');
+      vi.mocked(hasAllPermissions).mockReturnValue(true);
 
       const middleware = withPermissions('write:tasks');
       const handler = vi.fn().mockResolvedValue(new NextResponse('OK'));
@@ -159,13 +153,14 @@ describe('Agent Middleware', () => {
   describe('withAnyPermission', () => {
     it('should allow when any permission is present', async () => {
       mockRequest.headers.set('authorization', 'Bearer valid-token');
-      mockVerifyAgentToken.mockResolvedValue({
+      vi.mocked(verifyAgentToken).mockResolvedValue({
         agentId: 'agent-1',
         role: 'executor',
         permissions: ['read:tasks'],
       });
       
-      mockHasPermission.mockImplementation((perms: string[], perm: string) => {
+      const { hasPermission } = await import('@/lib/agents/auth-service');
+      vi.mocked(hasPermission).mockImplementation((perms: string[], perm: string) => {
         return perms.includes(perm);
       });
 

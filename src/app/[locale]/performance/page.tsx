@@ -5,9 +5,16 @@
  * Displays comprehensive performance metrics, charts, and alerts
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useTranslations } from 'next-intl';
-import { LineChart, Line, BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import dynamic from 'next/dynamic';
+
+// 🚀 优化：将图表组件动态导入，减少初始 bundle 大小
+const PerformanceCharts = dynamic(() => import('./PerformanceCharts'), {
+  ssr: false,
+  loading: () => <div className="h-64 flex items-center justify-center text-gray-500">Loading charts...</div>
+});
+
 import { AlertTriangle, CheckCircle2, XCircle, TrendingUp, TrendingDown, Minus, RefreshCw, Download, Filter, Bell, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -212,44 +219,17 @@ function MetricCard({ name, stats, trend, trendPercentage }: { name: string; sta
 
 function MetricChart({ name, data, color }: { name: string; data: TimeSeriesData[]; color: string }) {
   const config = METRIC_CONFIGS[name as keyof typeof METRIC_CONFIGS];
-  const unit = config?.unit || '';
 
   return (
-    <div className="h-64">
-      <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={data}>
-          <defs>
-            <linearGradient id={`gradient-${name}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={color} stopOpacity={0.3} />
-              <stop offset="95%" stopColor={color} stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="stroke-gray-300 dark:stroke-gray-700" />
-          <XAxis
-            dataKey="timestamp"
-            type="number"
-            domain={['dataMin', 'dataMax']}
-            tickFormatter={(value) => new Date(value).toLocaleTimeString()}
-            stroke="currentColor"
-            className="text-xs fill-gray-600 dark:fill-gray-400"
-          />
-          <YAxis stroke="currentColor" className="text-xs fill-gray-600 dark:fill-gray-400" />
-          <Tooltip
-            labelFormatter={(value) => new Date(value).toLocaleString()}
-            formatter={(value) => {
-              const numValue = typeof value === 'number' ? value : typeof value === 'string' ? parseFloat(value) : 0;
-              return [`${numValue.toFixed(2)}${unit}`, config?.label || name];
-            }}
-            contentStyle={{
-              backgroundColor: 'rgba(255, 255, 255, 0.9)',
-              border: '1px solid #e5e7eb',
-              borderRadius: '0.5rem',
-            }}
-          />
-          <Area type="monotone" dataKey="value" stroke={color} fillOpacity={1} fill={`url(#gradient-${name})`} />
-        </AreaChart>
-      </ResponsiveContainer>
-    </div>
+    <Suspense fallback={<div className="h-64 flex items-center justify-center text-gray-500">Loading chart...</div>}>
+      <PerformanceCharts
+        data={data}
+        chartType="area"
+        xKey="timestamp"
+        yKey="value"
+        color={color}
+      />
+    </Suspense>
   );
 }
 
@@ -334,7 +314,7 @@ export default function PerformanceDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Performance Dashboard</h1>
-          <p className="text-zinc-500 dark:text-zinc-400 mt-1">Monitor your application's performance in real-time</p>
+          <p className="text-zinc-500 dark:text-zinc-400 mt-1">Monitor your application&apos;s performance in real-time</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">

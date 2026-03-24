@@ -72,7 +72,7 @@ SheetJS contains regular expressions vulnerable to ReDoS attacks. Maliciously cr
 - @sentry/nextjs: ^10.44.0
 - better-sqlite3: ^11.5.0
 - jose: ^6.2.1
-- next: ^16.1.7
+- next: ^16.2.1
 - next-intl: ^4.8.3
 - react: ^19.2.4
 - react-dom: ^19.2.4
@@ -84,7 +84,7 @@ SheetJS contains regular expressions vulnerable to ReDoS attacks. Maliciously cr
 - zustand: ^5.0.12
 
 ### Development Dependencies (19 packages)
-- @next/bundle-analyzer: ^16.1.7
+- @next/bundle-analyzer: ^16.2.1
 - @playwright/test: ^1.58.2
 - @tailwindcss/postcss: ^4
 - @testing-library/dom: ^10.4.1
@@ -97,7 +97,7 @@ SheetJS contains regular expressions vulnerable to ReDoS attacks. Maliciously cr
 - @vitejs/plugin-react: ^5.2.0
 - @vitest/coverage-v8: ^4.1.0
 - eslint: ^9
-- eslint-config-next: ^16.1.7
+- eslint-config-next: ^16.2.1
 - jsdom: ^28.1.0
 - playwright: ^1.58.2
 - tailwindcss: ^4

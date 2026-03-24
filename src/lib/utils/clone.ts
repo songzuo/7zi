@@ -72,8 +72,16 @@ export function deepClone<T>(obj: T, seen: WeakMap<object, unknown> = new WeakMa
   // Handle plain objects
   const cloned = {} as T;
   seen.set(obj, cloned);
+
+  // Handle Symbol properties
+  const symbolKeys = Object.getOwnPropertySymbols(obj);
+  for (const sym of symbolKeys) {
+    (cloned as Record<symbol, unknown>)[sym] = deepClone((obj as Record<symbol, unknown>)[sym], seen);
+  }
+
+  // Handle string keys
   for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
       cloned[key] = deepClone(obj[key], seen);
     }
   }

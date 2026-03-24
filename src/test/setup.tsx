@@ -5,11 +5,8 @@ import { afterEach, vi, beforeEach } from 'vitest';
 // Polyfill ReadableStream for jsdom environment (Node.js 18+)
 if (typeof ReadableStream === 'undefined') {
   const { ReadableStream, WritableStream, TransformStream } = require('node:stream/web');
-  // @ts-ignore - Polyfilling global
   global.ReadableStream = ReadableStream as any;
-  // @ts-ignore - Polyfilling global
   global.WritableStream = WritableStream as any;
-  // @ts-ignore - Polyfilling global
   global.TransformStream = TransformStream as any;
 }
 
@@ -121,6 +118,39 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: vi.fn(),
   })),
 })
+
+// Mock Canvas API
+const canvasContextMock = {
+  fillRect: vi.fn(),
+  clearRect: vi.fn(),
+  getImageData: vi.fn(() => ({ data: new Uint8ClampedArray([0, 0, 0, 0]) })),
+  putImageData: vi.fn(),
+  createImageData: vi.fn(() => ({ data: new Uint8ClampedArray([0, 0, 0, 0]) })),
+  setTransform: vi.fn(),
+  drawImage: vi.fn(),
+  save: vi.fn(),
+  fillText: vi.fn(),
+  restore: vi.fn(),
+  beginPath: vi.fn(),
+  moveTo: vi.fn(),
+  lineTo: vi.fn(),
+  closePath: vi.fn(),
+  stroke: vi.fn(),
+  translate: vi.fn(),
+  scale: vi.fn(),
+  rotate: vi.fn(),
+  arc: vi.fn(),
+  fill: vi.fn(),
+  measureText: vi.fn(() => ({ width: 0 })),
+  transform: vi.fn(),
+  rect: vi.fn(),
+  clip: vi.fn(),
+};
+
+// @ts-expect-error - Canvas context mock
+HTMLCanvasElement.prototype.getContext = vi.fn(() => canvasContextMock);
+
+HTMLCanvasElement.prototype.toDataURL = vi.fn(() => 'data:image/png;base64,mock')
 
 // Mock Next.js router
 vi.mock('next/navigation', () => ({

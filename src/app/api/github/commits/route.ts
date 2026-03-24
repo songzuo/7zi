@@ -7,9 +7,20 @@
  * @refactored - Added parameter validation and improved error handling
  */
 
-
-import {  } from '@/lib/api/validation';
-import { createErrorResponse,  } from '@/lib/api/error-handler';
+import { NextRequest, NextResponse } from 'next/server';
+import {
+  githubCommitsQuerySchema,
+  validateQuery,
+  formatValidationErrors,
+} from '@/lib/api/validation';
+import {
+  createValidationError,
+  createUnauthorizedError,
+  createNotFoundError,
+  createRateLimitError,
+  createErrorResponse,
+} from '@/lib/api/error-handler';
+import { logger } from '@/lib/logger';
 
 const GITHUB_API_BASE = 'https://api.github.com';
 

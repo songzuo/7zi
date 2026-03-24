@@ -1,15 +1,15 @@
 # 未使用代码分析报告
 
-生成时间: 2026/3/23 15:43:37
+生成时间: 2026/3/22 11:22:23
 
 ## 📊 摘要
 
 | 指标 | 数量 |
 |------|------|
-| 总文件数 | 958 |
-| 包含未使用导入的文件 | 102 |
-| 包含未使用导出的文件 | 500 |
-| 可能包含死代码的文件 | 402 |
+| 总文件数 | 897 |
+| 包含未使用导入的文件 | 107 |
+| 包含未使用导出的文件 | 376 |
+| 可能包含死代码的文件 | 362 |
 
 ## 📥 未使用的导入
 
@@ -25,6 +25,10 @@
 - `import { ThemeToggle } from '@/components/ThemeToggle'`
 - `import { StructuredData } from '@/components/SEO'`
 
+### src/app/[locale]/analytics/page.tsx
+
+- `import { LazyAnalyticsDashboard } from '@/components/LazyComponents'`
+
 ### src/app/[locale]/analytics/test/page.tsx
 
 - `import { AnalyticsChart, DateRangePicker, FilterPanel, MetricCard } from '@/components/analytics'`
@@ -32,14 +36,12 @@
 ### src/app/[locale]/blog/[slug]/page.tsx
 
 - `import Link from 'next/link'`
-- `import { ArticleSchema } from '@/components/SEO'`
 
 ### src/app/[locale]/blog/page.tsx
 
 - `import { setRequestLocale, getTranslations } from 'next-intl/server'`
 - `import { Locale, locales } from '@/i18n/config'`
 - `import { Link } from '@/i18n/routing'`
-- `import { StructuredData } from '@/components/SEO'`
 
 ### src/app/[locale]/contact/page.tsx
 
@@ -55,8 +57,10 @@
 
 ### src/app/[locale]/dashboard/DashboardClient.tsx
 
-- `import { MemberCard } from '@/components/MemberCard'`
-- `import { LazyTaskBoard, LazyActivityLog, LazyRealtimeDashboard, LazyTeamActivityTracker, LoadingFallback } from '@/components/LazyComponents'`
+- `import { TaskBoard } from '@/components/TaskBoard'`
+- `import { ActivityLog } from '@/components/ActivityLog'`
+- `import { RealtimeDashboard } from '@/components/RealtimeDashboard'`
+- `import { TeamActivityTracker } from '@/components/TeamActivityTracker'`
 - `import { useDashboardData } from '@/hooks/useDashboardData'`
 - `import { LoadingSpinner } from '@/components/LoadingSpinner'`
 - `import { Link } from '@/i18n/routing'`
@@ -75,10 +79,10 @@
 - `import MobileMenu from '@/components/MobileMenu'`
 - `import { setRequestLocale, getTranslations } from 'next-intl/server'`
 - `import { Locale, locales } from '@/i18n/config'`
-- `import { Link } from '@/i18n/routing'`
 - `import { LazyAIChat, LazyGitHubActivity, LazyProjectDashboard } from '@/components/LazyComponents'`
 - `import { LanguageSwitcher } from '@/components/LanguageSwitcher'`
 - `import { ThemeToggle } from '@/components/ThemeToggle'`
+- `import { StructuredData } from '@/components/SEO'`
 
 ### src/app/[locale]/performance/page.tsx
 
@@ -107,10 +111,6 @@
 - `import { StructuredData } from '@/components/SEO'`
 - `import { Suspense } from 'react'`
 
-### src/app/[locale]/tasks/page.tsx
-
-- `import { BREAKPOINTS } from '@/lib/utils/breakpoints'`
-
 ### src/app/[locale]/team/page.tsx
 
 - `import MobileMenu from '@/components/MobileMenu'`
@@ -129,11 +129,13 @@
 
 - `import { validateBody, formatValidationErrors } from '@/lib/api/validation'`
 
-### src/app/api/auth/login/route-unified.ts
+### src/app/api/analytics/export/route.ts
 
-- `import { NextResponse } from 'next/server'`
-- `import { createUnifiedErrorResponse } from '@/lib/errors/index'`
-- `import { logRequestError } from '@/lib/api/api-logger'`
+- `import { type ExportOptions, type ExportFormat, type AnalyticsFilters, type TimeSeriesDataPoint, type AnalyticsResponse } from '@/lib/types/analytics'`
+
+### src/app/api/analytics/metrics/route.ts
+
+- `import { type AnalyticsMetrics, type AnalyticsFilters, type TimeSeriesDataPoint, type AnalyticsResponse, type PaginatedResponse } from '@/lib/types/analytics'`
 
 ### src/app/api/auth/login/route.ts
 
@@ -190,16 +192,20 @@
 
 ### src/app/api/data/export/route.ts
 
-- `import { _exportData } from '@/lib/data-import-export'`
+- `import { _exportData, type ExportFormat, type ExportOptions } from '@/lib/data-import-export'`
 
 ### src/app/api/data/import/route.ts
 
-- `import { _importData } from '@/lib/data-import-export'`
+- `import { _importData, type ImportMode, type ImportOptions, type ExportResult } from '@/lib/data-import-export'`
 
 ### src/app/api/database/health/route.ts
 
-- `import { logger } from '@/lib/logger'`
-- `import { ErrorType } from '@/lib/api/error-handler'`
+- `import { type DatabaseHealthResult } from '@/lib/db/migrations'`
+- `import { type PerformanceReport } from '@/lib/db/performance-analyzer'`
+
+### src/app/api/database/optimize/route.ts
+
+- `import { type PoolConfig } from '@/lib/db/connection-pool'`
 
 ### src/app/api/feedback/route.ts
 
@@ -263,33 +269,26 @@
 
 - `import { createUnauthorizedError } from '@/lib/api/error-handler'`
 
-### src/app/api/stream/health/route.ts
-
-- `import { logApiSuccess } from '@/lib/api/error-logger'`
-
-### src/app/api/tasks/[id]/route.ts
-
-- `import { createAppError } from '@/lib/errors'`
-
-### src/app/api/tasks/route.ts
-
-- `import { RATE_LIMIT_CONFIG } from '@/middleware/auth'`
-- `import { createAppError } from '@/lib/errors'`
-
-### src/app/api/users/batch/route.optimized.ts
-
-- `import { getUserById, updateUser, getUserByEmail, getAllUsers } from '@/lib/auth/repository'`
-
 ### src/app/api/users/batch/route.ts
 
 - `import { getAllUsers } from '@/lib/auth/repository'`
 - `import { batchInsert, batchUpdate, batchDelete } from '@/lib/db/batch-operations'`
 
+### src/app/api/users/route.optimized.ts
+
+- `import { NextResponse } from 'next/server'`
+- `import { getUsersByStatus, getUsersByRole, searchUsers, getUserStatistics } from '@/lib/auth/repository-optimized'`
+
 ### src/app/api/users/route.ts
 
 - `import { NextResponse } from 'next/server'`
 
-*... 还有 52 个文件 *
+### src/app/collaboration-demo/page.tsx
+
+- `import { useCollaboration } from '@/lib/websocket'`
+- `import { ConnectionStatus, UserList } from '@/components/collaboration/ConnectionStatus'`
+
+*... 还有 57 个文件 *
 
 
 ## 📤 未使用的导出
@@ -310,195 +309,215 @@
 
 - 命名导出: `viewport`
 
-### src/app/api/a2a/queue/route.ts
+### src/app/api/a2a/jsonrpc/route.ts
 
-- 命名导出: `GET`, `POST`
-
-### src/app/api/a2a/registry/[id]/heartbeat/route.ts
-
-- 命名导出: `POST`
-
-### src/app/api/a2a/registry/[id]/route.ts
-
-- 命名导出: `GET`, `PUT`, `PATCH`
-
-### src/app/api/a2a/registry/route.ts
-
-- 命名导出: `GET`, `POST`
+- 命名导出: `POST`, `OPTIONS`
 
 ### src/app/api/analytics/export/route.ts
 
 - 命名导出: `POST`, `GET`
 
-### src/app/api/analytics/metrics/route.ts
-
-- 命名导出: `GET`, `POST`
-
-### src/app/api/auth/login/route-unified.ts
-
-- 命名导出: `POST`
-
-### src/app/api/auth/login/route.ts
-
-- 命名导出: `POST`
-
-### src/app/api/auth/logout/route.ts
-
-- 命名导出: `POST`
-
-### src/app/api/auth/me/route.ts
-
-- 命名导出: `GET`
-
-### src/app/api/auth/refresh/route.ts
-
-- 命名导出: `POST`
-
-### src/app/api/auth/register/route.ts
-
-- 命名导出: `POST`
-
-### src/app/api/backup/[id]/route.ts
-
-- 命名导出: `GET`
-
-### src/app/api/backup/export/download/[filename]/route.ts
-
-- 命名导出: `GET`
-
-### src/app/api/backup/export/route.ts
-
-- 命名导出: `GET`, `POST`
-
-### src/app/api/backup/import/route.ts
-
-- 命名导出: `POST`
-
-### src/app/api/backup/jobs/route.ts
-
-- 命名导出: `GET`
-
-### src/app/api/backup/restore/route.ts
-
-- 命名导出: `POST`
-
 ### src/app/api/backup/route.optimized.ts
 
-- 命名导出: `GET`, `POST`, `GET_BACKUP`
-
-### src/app/api/backup/route.ts
-
-- 命名导出: `GET`, `POST`
-
-### src/app/api/backup/schedule/[id]/route.ts
-
-- 命名导出: `PATCH`
-
-### src/app/api/backup/schedule/[id]/trigger/route.ts
-
-- 命名导出: `POST`
-
-### src/app/api/backup/schedule/route.ts
-
-- 命名导出: `GET`, `POST`
-
-### src/app/api/backup/statistics/route.ts
-
-- 命名导出: `GET`
-
-### src/app/api/csp-violation/route.ts
-
-- 命名导出: `POST`, `GET`
-
-### src/app/api/csrf-token/route.ts
-
-- 命名导出: `GET`, `POST`
-
-### src/app/api/data/export/route.ts
-
-- 命名导出: `GET`, `POST`
-
-### src/app/api/data/import/route.ts
-
-- 命名导出: `GET`, `POST`
-
-### src/app/api/database/health/route.ts
-
-- 命名导出: `GET`
-
-### src/app/api/database/optimize/route.ts
-
-- 命名导出: `GET`, `POST`, `PUT`
-
-### src/app/api/demo/task-status/route.ts
-
-- 命名导出: `POST`, `GET`
-
-### src/app/api/example/route.ts
-
-- 命名导出: `GET`, `POST`
-
-### src/app/api/feedback/[id]/route.ts
-
-- 命名导出: `PATCH`, `GET`
+- 命名导出: `GET_BACKUP`
 
 ### src/app/api/feedback/route.ts
 
-- 命名导出: `GET`, `POST`, `GET_FEEDBACK`, `PATCH`, `DELETE_FEEDBACK`
-
-### src/app/api/github/commits/route.ts
-
-- 命名导出: `GET`
-
-### src/app/api/github/issues/route.ts
-
-- 命名导出: `GET`
-
-### src/app/api/health/detailed/route.ts
-
-- 命名导出: `GET`
-
-### src/app/api/health/live/route.ts
-
-- 命名导出: `GET`
-
-### src/app/api/health/ready/route.ts
-
-- 命名导出: `GET`
+- 命名导出: `GET_FEEDBACK`, `DELETE_FEEDBACK`
 
 ### src/app/api/health/route.ts
 
-- 命名导出: `GET`, `HEAD`
-
-### src/app/api/metrics/performance/route.ts
-
-- 命名导出: `GET`
-
-### src/app/api/metrics/prometheus/route.ts
-
-- 命名导出: `GET`
+- 命名导出: `HEAD`
 
 ### src/app/api/multimodal/audio/route.ts
 
-- 命名导出: `runtime`, `POST`, `GET`
+- 命名导出: `runtime`
 
 ### src/app/api/multimodal/image/route.ts
 
-- 命名导出: `runtime`, `POST`, `GET`
+- 命名导出: `runtime`
 
-### src/app/api/performance/alerts/route.ts
+### src/app/api/ratings/route.ts
 
-- 命名导出: `alertRules`, `activeAlerts`, `GET`, `POST`, `PUT`
+- 命名导出: `POST_HELPFUL`
 
-### src/app/api/performance/clear/route.ts
+### src/app/api/users/rbac-example-route.ts
 
-- 命名导出: `POST`
+- 命名导出: `GET_ROLES`
 
-### src/app/api/performance/metrics/route.ts
+### src/app/api/ws/route.ts
 
-- 命名导出: `GET`, `POST`
+- 命名导出: `GET_STATS`
 
-*... 还有 450 个文件 *
+### src/app/viewport.tsx
+
+- 命名导出: `viewport`
+
+### src/components/AIChat.tsx
+
+- 默认导出: `AIChat`
+
+### src/components/ActivityLog.tsx
+
+- 命名导出: `ActivityLog`
+
+### src/components/AnimatedProgressBar.tsx
+
+- 默认导出: `AnimatedProgressBar`
+- 命名导出: `WaveProgress`, `SegmentedProgress`, `GradientProgress`, `StepProgress`
+
+### src/components/BackupList.tsx
+
+- 命名导出: `BackupList`
+
+### src/components/BottomNav.tsx
+
+- 命名导出: `BottomNav`, `BottomNavWrapper`
+
+### src/components/BugReportForm.tsx
+
+- 默认导出: `BugReportForm`
+- 命名导出: `BugReportForm`
+
+### src/components/ClientProviders.tsx
+
+- 命名导出: `ClientProviders`
+
+### src/components/DataExportImport/index.tsx
+
+- 命名导出: `DataExportImport`
+
+### src/components/DataExportPanel.tsx
+
+- 命名导出: `DataExportPanel`
+
+### src/components/EnhancedFeedbackModal.tsx
+
+- 默认导出: `EnhancedFeedbackModal`
+- 命名导出: `EnhancedFeedbackModal`
+
+### src/components/ErrorBoundaryWrapper.tsx
+
+- 默认导出: `ErrorBoundaryWrapper`
+- 命名导出: `ErrorBoundaryWrapper`, `withErrorBoundary`, `AsyncErrorBoundary`
+
+### src/components/ErrorDisplay.tsx
+
+- 默认导出: `ErrorDisplay`
+- 命名导出: `ErrorDisplay`
+
+### src/components/ExportPanel.tsx
+
+- 默认导出: `ExportPanel`
+- 命名导出: `ExportPanel`, `QuickExportButton`
+
+### src/components/FeedbackModal.tsx
+
+- 默认导出: `FeedbackModal`
+- 命名导出: `FeedbackModal`
+
+### src/components/FeedbackWidget.tsx
+
+- 默认导出: `FeedbackWidget`
+- 命名导出: `FeedbackWidget`
+
+### src/components/GitHubActivity.tsx
+
+- 命名导出: `GitHubActivity`
+
+### src/components/GlobalLoader.tsx
+
+- 默认导出: `GlobalLoader`
+- 命名导出: `GlobalLoader`, `MinimalLoader`
+
+### src/components/HealthDashboard.tsx
+
+- 命名导出: `HealthDashboard`
+- 类型导出: `HealthMetric`, `HealthDashboardProps`
+
+### src/components/Hero3D.tsx
+
+- 命名导出: `Hero3D`
+
+### src/components/LanguageSwitcher.tsx
+
+- 命名导出: `LanguageSwitcherCompact`
+
+### src/components/LazyComponents.tsx
+
+- 命名导出: `LazyViewportWrapper`, `LazyHero3D`, `LazyKnowledgeLatticeScene`, `LazyNotificationCenter`, `LazySettingsPanel`, `LazyTaskBoard`, `LazyContactForm`, `LazyUserSettingsPage`, `LazyPWAInstallPrompt`, `LazyAnalyticsDashboard`, `LazyMeetingRoom`, `preloadComponents`
+
+### src/components/LazyLoadImage.tsx
+
+- 默认导出: `LazyLoadImage`
+- 命名导出: `LazyLoadImage`, `ImageGallery`, `ResponsiveLazyImage`
+
+### src/components/LoadingSpinner.enhanced.tsx
+
+- 命名导出: `ANIMATION_TIMING`
+
+### src/components/MemberCard.tsx
+
+- 命名导出: `MemberCard`
+
+### src/components/NetworkErrorBoundary.tsx
+
+- 默认导出: `NetworkErrorBoundary`
+- 命名导出: `NetworkErrorBoundary`
+
+### src/components/NotificationCenter/NotificationBadge.tsx
+
+- 默认导出: `NotificationBadge`
+- 命名导出: `NotificationBadge`
+
+### src/components/NotificationCenter/NotificationCenter.tsx
+
+- 默认导出: `NotificationCenter`
+- 命名导出: `NotificationCenter`
+
+### src/components/NotificationCenter/NotificationFilter.tsx
+
+- 默认导出: `NotificationFilter`
+- 命名导出: `NotificationFilter`
+
+### src/components/NotificationCenter/NotificationItem.tsx
+
+- 默认导出: `NotificationItem`
+- 命名导出: `NotificationItem`
+
+### src/components/NotificationCenter/index.ts
+
+- 命名导出: `NotificationCenter`, `NotificationItem`, `NotificationBadge`
+- 类型导出: `NotificationCenterProps`, `NotificationItemProps`, `NotificationBadgeProps`
+
+### src/components/OptimizedImage.tsx
+
+- 默认导出: `OptimizedImage`
+- 命名导出: `OptimizedImage`, `ResponsiveImage`
+
+### src/components/OptimizedImageWithWebP.tsx
+
+- 命名导出: `OptimizedImage`, `preloadCriticalImages`
+
+### src/components/PageLoadingTemplate.tsx
+
+- 命名导出: `MinimalPageLoading`, `TableLoading`, `ListLoading`, `DashboardLoading`, `TasksLoading`
+
+### src/components/PerformanceMonitor.tsx
+
+- 默认导出: `PerformanceMonitor`
+- 命名导出: `PerformanceMonitor`, `ResourceTimingMonitor`
+
+### src/components/PerformanceOptimizer.tsx
+
+- 默认导出: `PerformanceOptimizer`
+- 命名导出: `PerformanceOptimizer`, `useComponentRenderTiming`, `useApiTiming`, `useResourceTiming`
+
+### src/components/ProjectDashboard.tsx
+
+- 命名导出: `ProjectDashboard`
+
+*... 还有 326 个文件 *
 
 
 ## 💀 潜在的死代码
@@ -507,12 +526,12 @@
 
 ### src/app/[locale]/dashboard/DashboardClient.tsx
 
-- 未使用的函数: `DashboardClient`
+- 未使用的函数: `DashboardClient`, `StatCard`, `MemberStatus`
 - 未使用的常量: `REFRESH_INTERVAL`, `GITHUB_OWNER`, `GITHUB_REPO`, `AI_MEMBERS`
 
 ### src/app/[locale]/portfolio/components/CategoryFilterWrapper.tsx
 
-- 未使用的函数: `CategoryFilterWrapper`, `handleCategoryChange`
+- 未使用的函数: `CategoryFilterWrapper`
 
 ### src/app/[locale]/portfolio/data.ts
 
@@ -545,10 +564,6 @@
 ### src/app/api/analytics/metrics/route.ts
 
 - 未使用的函数: `GET`, `POST`
-
-### src/app/api/auth/login/route-unified.ts
-
-- 未使用的常量: `POST`
 
 ### src/app/api/auth/login/route.ts
 
@@ -627,7 +642,11 @@
 
 - 未使用的函数: `GET`, `POST`
 
-*... 还有 372 个文件 *
+### src/app/api/data/export/route.ts
+
+- 未使用的函数: `GET`, `POST`
+
+*... 还有 332 个文件 *
 
 
 ## ⚠️ 注意事项

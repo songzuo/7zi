@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, useCallback, useMemo, useSyncExternalStore } from 'react';
+import React from 'react';
 import type { Locale } from '@/i18n/config';
 
 // ============================================================================
@@ -207,24 +208,34 @@ export function SettingsProvider({
     setSettings(defaultSettings);
   }, []);
 
+  // 使用 useMemo 优化 context value，避免每次渲染都创建新对象
+  const contextValue = useMemo(() => ({
+    settings,
+    isLoaded: mounted,
+    setTheme,
+    toggleTheme,
+    isDark,
+    setLanguage,
+    setNotifications,
+    resetSettings,
+  }), [
+    settings,
+    mounted,
+    setTheme,
+    toggleTheme,
+    isDark,
+    setLanguage,
+    setNotifications,
+    resetSettings,
+  ]);
+
   // Don't render children until mounted to prevent hydration mismatch
   if (!mounted) {
     return <>{children}</>;
   }
 
   return (
-    <SettingsContext.Provider
-      value={{
-        settings,
-        isLoaded: mounted,
-        setTheme,
-        toggleTheme,
-        isDark,
-        setLanguage,
-        setNotifications,
-        resetSettings,
-      }}
-    >
+    <SettingsContext.Provider value={contextValue}>
       {children}
     </SettingsContext.Provider>
   );

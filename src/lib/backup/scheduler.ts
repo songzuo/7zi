@@ -3,7 +3,7 @@
  * Handles automated backup scheduling
  */
 
-
+import { v4 as uuidv4 } from 'uuid';
 import { logger } from '@/lib/logger';
 import { createBackup, deleteBackup, listBackups } from './backup-core';
 import { BackupConfig, BackupJob, BackupFrequency, BackupStatus, BackupEventType, BackupEvent } from './types';

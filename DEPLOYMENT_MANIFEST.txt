@@ -1,0 +1,37 @@
+# 部署清单
+# 部署目标: bot5.szspd.cn (182.43.36.134)
+# 部署时间: 2025-03-23
+# 版本: v1.0.9 (after cleanup)
+
+## 提交信息
+- Commit: eaa663bc9
+- Message: Deployment commit: remove realtime dashboard example and cached notification processor
+
+## 主要更改
+1. 删除 src/app/examples/realtime-dashboard/page.tsx
+2. 删除 src/lib/queue/processors/cached-notification-processor.ts
+3. 更新 src/app/api/projects/validation.ts
+4. 更新 src/lib/cache/multi-level-cache.ts
+5. 更新 src/lib/redis/client.ts
+6. 更新 src/test/vi-mocks.ts
+7. 添加测试文档和报告
+
+## 部署步骤
+1. 创建部署包 (tar.gz)
+2. 通过 scp 上传到服务器
+3. 在服务器上解压
+4. 安装依赖
+5. 构建项目
+6. 重启服务
+7. 验证部署
+
+## 部署包内容
+- package.json
+- src/
+- public/
+- next.config.js
+- tsconfig.json
+- 其他必要配置文件
+
+## 服务器目标目录
+/root/7zi-website

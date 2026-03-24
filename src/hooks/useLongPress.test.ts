@@ -7,13 +7,13 @@ import { renderHook, act } from '@testing-library/react';
 import { useLongPress } from './useLongPress';
 
 describe('useLongPress', () => {
-  let mockOnLongPress: ReturnType<typeof vi.fn> & ((e: React.TouchEvent | React.MouseEvent) => void);
-  let mockOnClick: ReturnType<typeof vi.fn> & ((e: React.TouchEvent | React.MouseEvent) => void);
+  let mockOnLongPress: any;
+  let mockOnClick: any;
 
   beforeEach(() => {
-    // @ts-ignore
+
     mockOnLongPress = vi.fn();
-    // @ts-ignore
+
     mockOnClick = vi.fn();
     vi.useFakeTimers();
   });
@@ -44,10 +44,10 @@ describe('useLongPress', () => {
     );
 
     act(() => {
-      result.current.handlers.onMouseDown({ 
-        clientX: 0, 
+      result.current.handlers.onMouseDown({
+        clientX: 0,
         clientY: 0,
-        preventDefault: vi.fn(), // @ts-ignore
+        preventDefault: vi.fn(),
       } as any);
     });
 
@@ -75,7 +75,7 @@ describe('useLongPress', () => {
       result.current.handlers.onMouseDown({
         clientX: 0,
         clientY: 0,
-        preventDefault: vi.fn(), // @ts-ignore
+        preventDefault: vi.fn(), 
       } as any);
     });
 
@@ -105,7 +105,7 @@ describe('useLongPress', () => {
       result.current.handlers.onMouseDown({
         clientX: 0,
         clientY: 0,
-        preventDefault: vi.fn(), // @ts-ignore
+        preventDefault: vi.fn(), 
       } as any);
     });
 
@@ -132,13 +132,13 @@ describe('useLongPress', () => {
       result.current.handlers.onMouseDown({
         clientX: 0,
         clientY: 0,
-        preventDefault: vi.fn(), // @ts-ignore
+        preventDefault: vi.fn(), 
       } as any);
     });
 
     act(() => {
       result.current.handlers.onMouseUp({
-        preventDefault: vi.fn(), // @ts-ignore
+        preventDefault: vi.fn(), 
       } as any);
     });
 
@@ -158,7 +158,7 @@ describe('useLongPress', () => {
       result.current.handlers.onMouseDown({
         clientX: 0,
         clientY: 0,
-        preventDefault: vi.fn(), // @ts-ignore
+        preventDefault: vi.fn(), 
       } as any);
     });
 
@@ -168,7 +168,7 @@ describe('useLongPress', () => {
 
     act(() => {
       result.current.handlers.onMouseUp({
-        preventDefault: vi.fn(), // @ts-ignore
+        preventDefault: vi.fn(), 
       } as any);
     });
 
@@ -187,7 +187,7 @@ describe('useLongPress', () => {
     act(() => {
       result.current.handlers.onTouchStart({
         touches: [{ clientX: 0, clientY: 0 }],
-        preventDefault: vi.fn(), // @ts-ignore
+        preventDefault: vi.fn(), 
       } as any);
     });
 
@@ -209,7 +209,7 @@ describe('useLongPress', () => {
     act(() => {
       result.current.handlers.onTouchStart({
         touches: [{ clientX: 0, clientY: 0 }],
-        preventDefault: vi.fn(), // @ts-ignore
+        preventDefault: vi.fn(), 
       } as any);
     });
 
@@ -237,7 +237,7 @@ describe('useLongPress', () => {
       result.current.handlers.onMouseDown({
         clientX: 0,
         clientY: 0,
-        preventDefault: vi.fn(), // @ts-ignore
+        preventDefault: vi.fn(), 
       } as any);
     });
 
@@ -264,7 +264,7 @@ describe('useLongPress', () => {
       result.current.handlers.onMouseDown({
         clientX: 0,
         clientY: 0,
-        preventDefault: vi.fn(), // @ts-ignore
+        preventDefault: vi.fn(), 
       } as any);
     });
 
@@ -291,7 +291,7 @@ describe('useLongPress', () => {
       result.current.handlers.onMouseDown({
         clientX: 0,
         clientY: 0,
-        preventDefault: vi.fn(), // @ts-ignore
+        preventDefault: vi.fn(), 
       } as any);
     });
 
@@ -303,7 +303,7 @@ describe('useLongPress', () => {
 
     act(() => {
       result.current.handlers.onMouseUp({
-        preventDefault: vi.fn(), // @ts-ignore
+        preventDefault: vi.fn(), 
       } as any);
     });
 
