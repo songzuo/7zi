@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { useToastActions } from '@/components/ui/Toast';
+import { useToastActions } from '@/stores/uiStore';
 
 // ============================================================================
 // Types

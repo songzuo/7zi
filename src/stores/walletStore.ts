@@ -28,6 +28,17 @@ import type {
 } from '../types/wallet';
 import { DEFAULT_WALLET_CONFIG as defaultConfig } from '../types/wallet';
 
+// 重新导出类型以供外部使用
+export type {
+  AgentWallet,
+  Transaction,
+  TransferRequest,
+  TransferResult,
+  WalletConfig,
+  TransactionType,
+  TransactionStatus,
+};
+
 // ============================================================================
 // 类型定义
 // ============================================================================

@@ -9,7 +9,7 @@
  * @see ThemeSelector for advanced theme selection with system preference
  */
 
-import { useTheme } from '@/contexts/SettingsContext';
+import { useTheme } from '@/stores/preferencesStore';
 import type { FC } from 'react';
 
 interface ThemeToggleProps {
