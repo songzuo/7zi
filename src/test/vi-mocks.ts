@@ -576,6 +576,19 @@ vi.mock('../lib/db/index', () => ({
 vi.mock('../lib/auth/service', () => ({
   verifyJwtToken: vi.fn(),
   getUserById: vi.fn(),
+  loginUser: vi.fn().mockResolvedValue({
+    success: true,
+    user: {
+      id: 'user-123',
+      email: 'test@example.com',
+      name: 'Test User',
+      role: 'admin',
+      status: 'active',
+    },
+    token: 'mock-access-token',
+    refreshToken: 'mock-refresh-token',
+    expiresAt: new Date(Date.now() + 3600000).toISOString(),
+  }),
   authenticateToken: vi.fn().mockResolvedValue({
     user: {
       id: 'test-user-id',
