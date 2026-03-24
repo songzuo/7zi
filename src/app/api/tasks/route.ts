@@ -194,12 +194,12 @@ function rowToTask(row: TaskRow): Task {
   return {
     id: row.id,
     title: row.title,
-    description: row.description,
+    description: row.description ?? undefined,
     priority: row.priority as TaskPriority,
     status: row.status as TaskStatus,
-    dueDate: row.due_date,
+    dueDate: row.due_date ?? undefined,
     createdBy: row.created_by,
-    assignedTo: row.assigned_to,
+    assignedTo: row.assigned_to ?? undefined,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -221,18 +221,6 @@ function isValidPriority(priority: string): priority is TaskPriority {
  */
 function isValidStatus(status: string): status is TaskStatus {
   return ['pending', 'in_progress', 'completed', 'cancelled'].includes(status);
-}
-
-/**
- * 创建任务请求数据接口
- */
-interface CreateTaskRequest {
-  title?: string;
-  description?: string;
-  priority?: string;
-  status?: string;
-  dueDate?: string;
-  assignedTo?: string;
 }
 
 /**
@@ -272,21 +260,9 @@ function validateCreateTaskRequest(data: CreateTaskRequest): { valid: boolean; e
 }
 
 /**
- * 更新任务请求数据接口
- */
-interface UpdateTaskRequest {
-  title?: string;
-  description?: string;
-  priority?: string;
-  status?: string;
-  dueDate?: string;
-  assignedTo?: string;
-}
-
-/**
  * 验证更新任务请求
  */
-function validateUpdateTaskRequest(data: UpdateTaskRequest): { valid: boolean; errors: string[] } {
+function validateUpdateTaskRequest(data: Partial<UpdateTaskRequest>): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
 
   if (data.title !== undefined) {
@@ -471,7 +447,7 @@ export async function GET(request: NextRequest) {
       `;
       const rows = db.prepare(dataQuery).all(...queryParams, limit, offset);
 
-      const items = rows.map(rowToTask);
+      const items = (rows as Record<string, unknown>[]).map(row => rowToTask(row as unknown as TaskRow));
       const totalPages = Math.ceil(total / limit);
 
       return NextResponse.json({
@@ -551,9 +527,21 @@ export async function POST(request: NextRequest) {
       );
 
       // 获取创建的任务
-      const task = rowToTask(
-        db.prepare('SELECT * FROM tasks WHERE id = ?').get(id) as TaskRow | undefined
-      );
+      const taskRow = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id) as unknown as TaskRow | undefined;
+      const task = taskRow ? rowToTask(taskRow) : null;
+
+      if (!task) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: {
+              type: ErrorCodes.NOT_FOUND,
+              message: 'Failed to retrieve created task',
+            },
+          },
+          { status: 500 }
+        );
+      }
 
       logger.info(`Task created: ${id}`, { taskId: id, userId });
 
