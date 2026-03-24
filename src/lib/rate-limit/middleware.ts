@@ -9,7 +9,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { checkSlidingWindow, checkTokenBucket } from '@/lib/rate-limit';
 import { getRateLimitEnvConfig, mergeRateLimitConfig, RateLimitEnvironmentConfig } from './config';
 import { logger } from '@/lib/logger';
 import { verifyJWT } from '@/lib/auth';
@@ -76,6 +75,36 @@ class RateLimiter {
   }
 
   /**
+   * 获取存储的请求时间戳
+   */
+  private getStorage(key: string): number[] {
+    const stored = limiterCache.get(key) as number[] | undefined;
+    return stored || [];
+  }
+
+  /**
+   * 保存存储的请求时间戳
+   */
+  private saveStorage(key: string, data: number[]): void {
+    limiterCache.set(key, data);
+  }
+
+  /**
+   * 获取令牌桶
+   */
+  private getTokenBucket(key: string): { tokens: number; capacity: number; lastRefill: number } {
+    const stored = limiterCache.get(key) as { tokens: number; capacity: number; lastRefill: number } | undefined;
+    return stored || { tokens: 10, capacity: 10, lastRefill: Date.now() };
+  }
+
+  /**
+   * 保存令牌桶
+   */
+  private saveTokenBucket(key: string, bucket: { tokens: number; capacity: number; lastRefill: number }): void {
+    limiterCache.set(key, bucket);
+  }
+
+  /**
    * 从请求中提取 IP 地址
    */
   private extractIP(request: NextRequest): string {
@@ -133,39 +162,62 @@ class RateLimiter {
     algorithm: string;
   }> {
     const key = this.generateKey(request);
+    const now = Date.now();
+    const windowMs = this.config.windowMs;
+    const windowStart = now - windowMs;
+
+    // 使用内存存储
+    const storage = this.getStorage(key);
+    const recentRequests = storage.filter((t: number) => t > windowStart);
 
     if (this.algorithm === 'sliding-window') {
-      const result = await checkSlidingWindow({
-        key,
-        limit: this.config.maxRequests,
-        window: Math.ceil(this.config.windowMs / 1000),
-      });
+      const allowed = recentRequests.length < this.config.maxRequests;
 
-      const retryAfter = Math.max(0, Math.ceil((result.resetTime - Date.now()) / 1000));
+      if (allowed) {
+        recentRequests.push(now);
+      }
+
+      this.saveStorage(key, recentRequests);
+
+      const resetTime = recentRequests.length > 0
+        ? recentRequests[0] + windowMs
+        : now + windowMs;
+
+      const retryAfter = Math.max(0, Math.ceil((resetTime - now) / 1000));
 
       return {
-        allowed: result.allowed,
+        allowed,
         limit: this.config.maxRequests,
-        remaining: result.remaining,
-        resetTime: result.resetTime,
+        remaining: Math.max(0, this.config.maxRequests - recentRequests.length),
+        resetTime,
         retryAfter,
         algorithm: 'sliding-window',
       };
     } else {
-      const result = await checkTokenBucket({
-        key,
-        capacity: Math.ceil(this.config.maxRequests * 1.5), // 允许 50% 的突发流量
-        refillRate: this.config.maxRequests / (this.config.windowMs / 1000),
-        window: Math.ceil(this.config.windowMs / 1000),
-      });
+      // Token bucket 简化实现
+      const storageKey = `${key}:bucket`;
+      const bucket = this.getTokenBucket(storageKey);
 
-      const retryAfter = Math.max(0, Math.ceil((result.resetTime - Date.now()) / 1000));
+      const refillRate = this.config.maxRequests / (this.config.windowMs / 1000);
+      const timePassed = (now - bucket.lastRefill) / 1000;
+      bucket.tokens = Math.min(bucket.capacity, bucket.tokens + refillRate * timePassed);
+      bucket.lastRefill = now;
+
+      let allowed = bucket.tokens >= 1;
+      if (allowed) {
+        bucket.tokens -= 1;
+      }
+
+      this.saveTokenBucket(storageKey, bucket);
+
+      const resetTime = now + Math.ceil((1 - bucket.tokens) / refillRate * 1000);
+      const retryAfter = Math.max(0, Math.ceil((resetTime - now) / 1000));
 
       return {
-        allowed: result.allowed,
+        allowed,
         limit: this.config.maxRequests,
-        remaining: result.remaining,
-        resetTime: result.resetTime,
+        remaining: Math.floor(bucket.tokens),
+        resetTime,
         retryAfter,
         algorithm: 'token-bucket',
       };

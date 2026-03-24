@@ -75,8 +75,8 @@ const nextConfig: NextConfig = {
       '@react-three/drei',
       'xlsx',
     ],
-    // CSS 优化
-    optimizeCss: true,
+    // 禁用 CSS 优化（实验性功能可能导致问题）
+    // optimizeCss: true,
   },
 
   // 服务器组件外部包
@@ -108,7 +108,8 @@ const nextConfig: NextConfig = {
             priority: 60,
             reuseExistingChunk: true,
             enforce: true,
-            minSize: 0, // 📉 减小最小尺寸，允许拆分
+            minSize: 50000, // 📈 增加到 50KB 以减少碎片化
+            maxSize: 500000, // 最大 500KB
           },
 
           // 📊 大型库独立打包
@@ -118,7 +119,8 @@ const nextConfig: NextConfig = {
             priority: 50,
             reuseExistingChunk: true,
             enforce: true,
-            minSize: 0, // 📉 减小最小尺寸，允许拆分
+            minSize: 50000, // 📈 增加到 50KB
+            maxSize: 300000,
           },
 
           // 📊 实时通信库
@@ -128,7 +130,7 @@ const nextConfig: NextConfig = {
             priority: 45,
             reuseExistingChunk: true,
             enforce: true,
-            minSize: 30000,
+            minSize: 50000,
           },
 
           // 🎨 UI 组件库独立打包
@@ -138,15 +140,17 @@ const nextConfig: NextConfig = {
             priority: 40,
             reuseExistingChunk: true,
             enforce: true,
+            minSize: 30000,
           },
 
-          // 📦 核心框架合并 (React + Next.js)
+          // 📦 核心框架合并 (React + Next.js) - 合并以减少多个小 chunks
           framework: {
-            test: /[\\/]node_modules[\\/](react|react-dom|scheduler|next|next-intl)[\\/]/,
+            test: /[\\/]node_modules[\\/](react|react-dom|scheduler|next)[\\/]/,
             name: 'framework',
             priority: 35,
             reuseExistingChunk: true,
-            minSize: 30000,
+            minSize: 100000, // 📈 增加到 100KB 以合并小 chunks
+            maxSize: 500000,
           },
 
           // 🔧 工具库合并
@@ -155,6 +159,7 @@ const nextConfig: NextConfig = {
             name: 'vendor-utils',
             priority: 30,
             reuseExistingChunk: true,
+            minSize: 30000,
           },
 
           // 📝 表单和验证库
@@ -163,6 +168,7 @@ const nextConfig: NextConfig = {
             name: 'forms-libs',
             priority: 25,
             reuseExistingChunk: true,
+            minSize: 20000,
           },
 
           // 🧩 其他小型工具库合并
@@ -170,25 +176,27 @@ const nextConfig: NextConfig = {
             test: /[\\/]node_modules[\\/]/,
             name: 'vendors',
             priority: 10,
-            minChunks: 1,
+            minChunks: 2, // 📈 增加到 2 以减少碎片
             reuseExistingChunk: true,
+            minSize: 50000,
           },
 
           // 公共模块
           common: {
-            minChunks: 2,
+            minChunks: 3, // 📈 增加到 3
             priority: 5,
             reuseExistingChunk: true,
+            minSize: 30000,
           },
         },
         // 优化 chunk 控制参数
-        maxInitialRequests: 30,  // 增加到 30 (原来 25)
-        maxAsyncRequests: 30,    // 增加到 30 (原来 25)
-        minSize: 10000,          // 📉 减少到 10KB (原来 20KB) - 允许更小的 chunks
-        maxSize: 244000,         // 最大 chunk 大小 244KB
+        maxInitialRequests: 25,  // 📉 减少到 25 以减少请求数
+        maxAsyncRequests: 30,
+        minSize: 20000,          // 📈 增加到 20KB - 减少碎片化
+        maxSize: 244000,
         minChunks: 1,
         // 自动合并小 chunks
-        enforceSizeThreshold: 20000,  // 20KB 以上才强制分割（原来 50KB）
+        enforceSizeThreshold: 50000,  // 📈 增加到 50KB
       };
 
       // Tree shaking 优化
