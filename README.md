@@ -412,6 +412,7 @@ pnpm type-check
 | **Node.js** | 22.x LTS | 运行时环境 |
 | **OpenClaw** | 最新 | AI 代理框架 |
 | **Socket.IO** | 4.8.3 | 实时通信 |
+| **Bull** | 4.16.5 | 任务队列 |
 | **better-sqlite3** | 12.8.0 | 数据库 |
 | **Redis** | 最新 | 缓存和限流 |
 | **jose** | 6.2.1 | JWT 认证 |
