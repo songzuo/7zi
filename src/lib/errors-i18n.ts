@@ -54,7 +54,7 @@ export function getErrorMessage(
   locale: Locale = 'zh',
   customMessage?: string
 ): string {
-  return customMessage || ERROR_MESSAGES[locale]?.[errorType] || ERROR_MESSAGES.zh.unknown;
+  return customMessage || ERROR_MESSAGES[locale]?.[errorType] || '发生未知错误';
 }
 
 /**
@@ -127,7 +127,7 @@ export function formatErrorMessage(
 ): string {
   if (!context) return error;
 
-  const contextMessages: Record<Locale, Record<string, string>> = {
+  const contextMessages: Partial<Record<Locale, Record<string, string>>> = {
     zh: {
       operation: '操作失败：',
       request: '请求失败：',

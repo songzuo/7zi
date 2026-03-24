@@ -554,6 +554,46 @@ declare global {
 // MOCK THE DATABASE MODULE
 // ============================================================================
 
+// Mock logger
+vi.mock('../lib/logger', () => ({
+  logger: {
+    error: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+    fatal: vi.fn(),
+    api: vi.fn(),
+    auth: vi.fn(),
+    perf: vi.fn(),
+    user: vi.fn(),
+    security: vi.fn(),
+    business: vi.fn(),
+    setContext: vi.fn(),
+    clearContext: vi.fn(),
+    child: vi.fn(),
+    updateConfig: vi.fn(),
+  },
+  default: function() {
+    return {
+      error: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      debug: vi.fn(),
+      fatal: vi.fn(),
+      api: vi.fn(),
+      auth: vi.fn(),
+      perf: vi.fn(),
+      user: vi.fn(),
+      security: vi.fn(),
+      business: vi.fn(),
+      setContext: vi.fn(),
+      clearContext: vi.fn(),
+      child: vi.fn(),
+      updateConfig: vi.fn(),
+    };
+  },
+}));
+
 vi.mock('../lib/db/index', () => ({
   getDatabaseAsync: vi.fn().mockResolvedValue(mockDb),
   getDatabase: vi.fn().mockReturnValue(mockDb),

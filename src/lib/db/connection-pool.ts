@@ -104,12 +104,14 @@ class ConnectionPoolManager {
       ...config,
     };
 
-    // Initialize minimum connections before starting background tasks
-    this.initializeMinConnectionsSync();
-
     // Start background tasks
     this.startHealthChecks();
     this.startCleanup();
+
+    // Initialize minimum connections
+    if (this.config.minConnections > 0) {
+      this.initializeMinConnectionsSync();
+    }
 
     logger.info('Connection Pool Manager initialized', {
       category: 'db',
