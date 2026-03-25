@@ -17,13 +17,13 @@ export async function POST(request: NextRequest) {
     // 按路径重新验证
     if (path) {
       revalidatePath(path, 'page');
-      console.log(`[Revalidate] Path: ${path}`);
+      // Path revalidated
     }
 
     // 按标签重新验证
     if (tag) {
       revalidateTag(tag, tag);
-      console.log(`[Revalidate] Tag: ${tag}`);
+      // Tag revalidated
     }
 
     return NextResponse.json({
@@ -56,12 +56,12 @@ export async function GET(request: NextRequest) {
 
   if (path) {
     revalidatePath(path, 'page');
-    console.log(`[Revalidate] Path: ${path}`);
+    // Path revalidated
   }
 
   if (tag) {
     revalidateTag(tag, tag);
-    console.log(`[Revalidate] Tag: ${tag}`);
+    // Tag revalidated
   }
 
   return NextResponse.json({

@@ -107,7 +107,7 @@ export function useWebSocket(config: WebSocketConfig = {}): UseWebSocketReturn {
     // Timeout detection
     heartbeatTimeoutRef.current = setTimeout(() => {
       if (socketRef.current?.connected) {
-        console.warn('[WebSocket] Heartbeat timeout, reconnecting...');
+        // Heartbeat timeout - trigger reconnect
         socketRef.current.disconnect();
       }
     }, heartbeatTimeout);
@@ -127,7 +127,7 @@ export function useWebSocket(config: WebSocketConfig = {}): UseWebSocketReturn {
   // Connect to WebSocket
   const connect = useCallback(() => {
     if (socketRef.current?.connected) {
-      console.warn('[WebSocket] Already connected');
+      // Already connected - silent return
       return;
     }
 
@@ -147,7 +147,7 @@ export function useWebSocket(config: WebSocketConfig = {}): UseWebSocketReturn {
 
       // Connection established
       socket.on('connect', () => {
-        console.log('[WebSocket] Connected', { socketId: socket.id });
+        // Connected - log at info level for monitoring
         updateState({
           connected: true,
           connecting: false,
@@ -157,7 +157,7 @@ export function useWebSocket(config: WebSocketConfig = {}): UseWebSocketReturn {
 
       // Authentication success
       socket.on('auth:authenticated', (data: { userId: string; name: string; avatar?: string }) => {
-        console.log('[WebSocket] Authenticated', data);
+        // User authenticated - state updated silently
         updateState({
           authenticated: true,
           userId: data.userId,
@@ -175,7 +175,7 @@ export function useWebSocket(config: WebSocketConfig = {}): UseWebSocketReturn {
 
       // Connection error
       socket.on('connect_error', (error) => {
-        console.error('[WebSocket] Connection error', error);
+        // Connection error - update state with error message
         updateState({
           connected: false,
           connecting: false,
@@ -185,13 +185,13 @@ export function useWebSocket(config: WebSocketConfig = {}): UseWebSocketReturn {
 
       // Reconnect attempt
       socket.on('reconnect_attempt', (attemptNumber) => {
-        console.log('[WebSocket] Reconnect attempt', { attemptNumber });
+        // Reconnect attempt - state updated via event
         updateState({ connecting: true });
       });
 
       // Reconnect successful
       socket.on('reconnect', (attemptNumber) => {
-        console.log('[WebSocket] Reconnected', { attemptNumber });
+        // Reconnected - state already updated
         updateState({
           connected: true,
           connecting: false,
@@ -211,7 +211,7 @@ export function useWebSocket(config: WebSocketConfig = {}): UseWebSocketReturn {
 
       // Disconnect
       socket.on('disconnect', (reason) => {
-        console.log('[WebSocket] Disconnected', { reason });
+        // Disconnected - state already updated
         stopHeartbeat();
         updateState({
           connected: false,
@@ -238,7 +238,7 @@ export function useWebSocket(config: WebSocketConfig = {}): UseWebSocketReturn {
   // Disconnect from WebSocket
   const disconnect = useCallback(() => {
     if (socketRef.current) {
-      console.log('[WebSocket] Disconnecting');
+      // Disconnecting - state will update via event
       stopHeartbeat();
       socketRef.current.disconnect();
       socketRef.current = null;
@@ -260,7 +260,7 @@ export function useWebSocket(config: WebSocketConfig = {}): UseWebSocketReturn {
   // Join a room
   const joinRoom = useCallback((roomId: string, type = 'task', documentId = '', name?: string) => {
     if (!socketRef.current?.connected) {
-      console.warn('[WebSocket] Cannot join room: not connected');
+      // Cannot join room - not connected
       return;
     }
 
@@ -283,7 +283,7 @@ export function useWebSocket(config: WebSocketConfig = {}): UseWebSocketReturn {
   // Send a message
   const send = useCallback((event: string, data?: unknown) => {
     if (!socketRef.current?.connected) {
-      console.warn('[WebSocket] Cannot send message: not connected');
+      // Cannot send - not connected
       return false;
     }
 
@@ -364,7 +364,7 @@ export function useTaskStatusUpdates(config: WebSocketConfig = {}) {
   useEffect(() => {
     const handleTaskUpdate = (data: unknown) => {
       const update = data as TaskStatusUpdate;
-      console.log('[WebSocket] Task status update', update);
+      // Task status update processed
       setTaskUpdates(prev => {
         const updates = new Map(prev);
         updates.set(update.taskId, update);

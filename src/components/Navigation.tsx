@@ -222,9 +222,9 @@ export const Navigation: React.FC = () => {
           aria-hidden="true"
         />
 
-        {/* Menu Panel */}
+        {/* Menu Panel - Improved mobile width */}
         <div
-          className={`absolute top-0 right-0 h-full w-[min(280px,85vw)] bg-white dark:bg-zinc-900 shadow-2xl transform transition-transform duration-300 ease-out flex flex-col ${
+          className={`absolute top-0 right-0 h-full w-[min(300px,85vw)] bg-white dark:bg-zinc-900 shadow-2xl transform transition-transform duration-300 ease-out flex flex-col ${
             isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
           style={{
@@ -233,10 +233,10 @@ export const Navigation: React.FC = () => {
           }}
         >
           {/* Header */}
-          <div className="p-6 border-b border-zinc-200 dark:border-zinc-700 flex-shrink-0">
+          <div className="p-4 sm:p-6 border-b border-zinc-200 dark:border-zinc-700 flex-shrink-0">
             <Link
               href="/"
-              className="text-2xl font-bold text-zinc-900 dark:text-white touch-active inline-block py-2 rounded-lg min-h-[44px]"
+              className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white touch-active inline-block py-2 rounded-lg min-h-[44px]"
               onClick={closeMenu}
             >
               🤖 <span className="text-cyan-500">{t('siteNameShort')}</span>
@@ -244,7 +244,7 @@ export const Navigation: React.FC = () => {
           </div>
 
           {/* Navigation Items - Scrollable Area */}
-          <nav className="flex-1 overflow-y-auto p-4 overscroll-contain" aria-label="主导航">
+          <nav className="flex-1 overflow-y-auto p-3 sm:p-4 overscroll-contain" aria-label="主导航">
             <ul className="space-y-1" role="menu">
               {NAV_ITEMS.map((item, index) => (
                 <li key={item.href} role="none">
@@ -258,10 +258,10 @@ export const Navigation: React.FC = () => {
                       animationDelay: isMobileMenuOpen ? `${index * 30}ms` : '0ms',
                     }}
                   >
-                    <span className="text-2xl flex-shrink-0" aria-hidden="true">
+                    <span className="text-xl sm:text-2xl flex-shrink-0" aria-hidden="true">
                       {item.icon}
                     </span>
-                    <span className="font-medium text-base">
+                    <span className="font-medium text-sm sm:text-base">
                       {t(item.labelKey)}
                     </span>
                     {pathname === item.href && (
@@ -277,14 +277,14 @@ export const Navigation: React.FC = () => {
           </nav>
 
           {/* Bottom Settings Area */}
-          <div className="p-4 border-t border-zinc-200 dark:border-zinc-700 flex-shrink-0 space-y-3">
-            <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 min-h-[56px]">
+          <div className="p-3 sm:p-4 border-t border-zinc-200 dark:border-zinc-700 flex-shrink-0 space-y-2 sm:space-y-3">
+            <div className="flex items-center justify-between px-3 sm:px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 min-h-[52px]">
               <span className="text-sm text-zinc-600 dark:text-zinc-400">
                 {t('language')}
               </span>
               <LanguageSwitcherCompact />
             </div>
-            <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 min-h-[56px]">
+            <div className="flex items-center justify-between px-3 sm:px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 min-h-[52px]">
               <span className="text-sm text-zinc-600 dark:text-zinc-400">
                 {t('theme')}
               </span>

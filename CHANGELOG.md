@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.3] - 2026-03-25 (WebSocket Stability & Performance)
+
+### 🐛 Bug Fixes
+
+- **WebSocket Stability Improvements**
+  - Enhanced heartbeat timeout detection
+  - Improved reconnection logic with exponential backoff
+  - Better error handling for connection failures
+
+### ✨ New Features
+
+- **Performance Monitoring**
+  - Real-time WebSocket connection state tracking
+  - Task status updates via WebSocket push
+
+### 🧪 Testing
+
+- **Test Infrastructure**
+  - Updated test setup with global mocks
+  - Resolved vi-mocks import issues
+
+### 🔧 Maintenance
+
+- **Dependencies**
+  - Updated pnpm lockfile
+  - Bundle optimization applied
+
+---
+
 ## [1.1.2] - 2026-03-25 (TypeScript & Code Cleanup)
 
 ### 🧹 Code Cleanup
