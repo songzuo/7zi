@@ -495,5 +495,171 @@ describe('Notification Store', () => {
       // Newest should be first
       expect(useNotificationStore.getState().notifications[0].id).toBe('notif-100');
     });
+
+    it('should correctly count unread after limit enforcement', () => {
+      // Add mix of read and unread notifications
+      const notifications = Array.from({ length: 105 }, (_, i) => ({
+        id: `notif-${i}`,
+        user_id: 'user1',
+        type: NotificationType.TASK_ASSIGNED,
+        title: `Test Notification ${i}`,
+        content: 'Test content',
+        priority: NotificationPriority.NORMAL,
+        status: i % 2 === 0 ? NotificationStatus.READ : NotificationStatus.UNREAD,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }));
+
+      act(() => {
+        notifications.forEach((n) => useNotificationStore.getState().addNotification(n));
+      });
+
+      const { notifications: stored, unreadCount } = useNotificationStore.getState();
+
+      // Should have 100 notifications (limit enforced)
+      expect(stored).toHaveLength(100);
+      // The first 100 added are notif-0 to notif-99 (even=READ, odd=UNREAD)
+      // So unread should be 50
+      expect(unreadCount).toBe(50);
+    });
+
+    it('should preserve newest notifications when limit is reached', () => {
+      // Add 150 notifications
+      const notifications = Array.from({ length: 150 }, (_, i) => ({
+        id: `notif-${i}`,
+        user_id: 'user1',
+        type: NotificationType.TASK_ASSIGNED,
+        title: `Notification ${i}`,
+        content: `Content ${i}`,
+        priority: NotificationPriority.NORMAL,
+        status: NotificationStatus.UNREAD,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }));
+
+      act(() => {
+        notifications.forEach((n) => useNotificationStore.getState().addNotification(n));
+      });
+
+      const { notifications: stored } = useNotificationStore.getState();
+
+      // Should only have 100
+      expect(stored).toHaveLength(100);
+      // Should be the newest 100 (notif-50 to notif-149)
+      expect(stored[0].id).toBe('notif-149');
+      expect(stored[99].id).toBe('notif-50');
+      // Should NOT contain older notifications
+      expect(stored.find(n => n.id === 'notif-49')).toBeUndefined();
+    });
+  });
+
+  describe('Read Timestamp', () => {
+    it('should set read_at timestamp when marking as read', () => {
+      const notification = {
+        id: '1',
+        user_id: 'user1',
+        type: NotificationType.TASK_ASSIGNED,
+        title: 'Test Notification',
+        content: 'Test content',
+        priority: NotificationPriority.NORMAL,
+        status: NotificationStatus.UNREAD,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      act(() => {
+        useNotificationStore.getState().addNotification(notification);
+      });
+
+      const beforeRead = new Date();
+
+      act(() => {
+        useNotificationStore.getState().markAsRead('1');
+      });
+
+      const { notifications } = useNotificationStore.getState();
+      const readAt = notifications[0].read_at;
+
+      expect(readAt).toBeDefined();
+      expect(readAt).toBeTruthy();
+      // Should be a valid ISO string
+      expect(new Date(readAt!).toString()).not.toBe('Invalid Date');
+    });
+
+    it('should set read_at for all notifications when marking all as read', () => {
+      const notifications = [
+        {
+          id: '1',
+          user_id: 'user1',
+          type: NotificationType.TASK_ASSIGNED,
+          title: 'Test Notification 1',
+          content: 'Test content',
+          priority: NotificationPriority.NORMAL,
+          status: NotificationStatus.UNREAD,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        {
+          id: '2',
+          user_id: 'user1',
+          type: NotificationType.MEETING_REMINDER,
+          title: 'Test Notification 2',
+          content: 'Test content',
+          priority: NotificationPriority.NORMAL,
+          status: NotificationStatus.UNREAD,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+      ];
+
+      act(() => {
+        notifications.forEach((n) => useNotificationStore.getState().addNotification(n));
+      });
+
+      act(() => {
+        useNotificationStore.getState().markAllAsRead();
+      });
+
+      const { notifications: updated } = useNotificationStore.getState();
+
+      updated.forEach((n) => {
+        expect(n.read_at).toBeDefined();
+        expect(new Date(n.read_at!).toString()).not.toBe('Invalid Date');
+      });
+    });
+
+    it('should preserve read_at when updating notification', () => {
+      const notification = {
+        id: '1',
+        user_id: 'user1',
+        type: NotificationType.TASK_ASSIGNED,
+        title: 'Test Notification',
+        content: 'Test content',
+        priority: NotificationPriority.NORMAL,
+        status: NotificationStatus.UNREAD,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      act(() => {
+        useNotificationStore.getState().addNotification(notification);
+      });
+
+      act(() => {
+        useNotificationStore.getState().markAsRead('1');
+      });
+
+      const { notifications } = useNotificationStore.getState();
+      const originalReadAt = notifications[0].read_at;
+
+      act(() => {
+        useNotificationStore.getState().updateNotification('1', {
+          title: 'Updated Title',
+        });
+      });
+
+      const { notifications: updated } = useNotificationStore.getState();
+      expect(updated[0].read_at).toBe(originalReadAt);
+    });
   });
 });
