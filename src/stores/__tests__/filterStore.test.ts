@@ -29,7 +29,7 @@ describe('filterStore', () => {
     it('should set filters for a namespace', () => {
       const filters = {
         conditions: [
-          { field: 'status', operator: 'equals', value: 'active' },
+          { field: 'status', operator: 'equals' as const, value: 'active' },
         ],
         searchQuery: '',
       };

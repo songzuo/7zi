@@ -246,10 +246,27 @@ describe('GET /api/search', () => {
       const { getGlobalSearchManager } = await import('@/lib/search/advanced-search');
 
       // Mock error scenario using vi.mocked
+      // @ts-ignore - Mock simplified for testing
       const mockSearch = vi.mocked(getGlobalSearchManager).mockImplementationOnce(() => ({
         search: vi.fn(() => {
           throw new Error('Search service unavailable');
         }),
+        indices: new Map(),
+        searchHistory: [],
+        // @ts-ignore - LRUCache private properties not fully mockable
+        searchCache: { get: vi.fn(), set: vi.fn(), delete: vi.fn(), clear: vi.fn(), size: 0, store: new Map(), maxSize: 100, has: vi.fn(), evictLRU: vi.fn() },
+        // @ts-ignore - LRUCache private properties not fully mockable
+        autocompleteCache: { get: vi.fn(), set: vi.fn(), delete: vi.fn(), clear: vi.fn(), size: 0, store: new Map(), maxSize: 100, has: vi.fn(), evictLRU: vi.fn() },
+        createIndex: vi.fn(),
+        updateIndex: vi.fn(),
+        removeIndex: vi.fn(),
+        getIndexIds: vi.fn(() => []),
+        hasIndex: vi.fn(() => false),
+        addToHistory: vi.fn(),
+        getHistory: vi.fn(() => []),
+        clearHistory: vi.fn(),
+        getAutocompleteSuggestions: vi.fn(() => []),
+        getStats: vi.fn(() => ({ searches: 0, cacheHits: 0, cacheMisses: 0, avgResponseTime: 0 })),
       }));
 
       const request = new NextRequest('http://localhost/api/search?q=test', {

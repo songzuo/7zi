@@ -532,7 +532,8 @@ export const useUIStore = create<UIState>()(
             // 将 Map 转为数组存储
             const data = { ...value };
             if (data.state?.formDrafts instanceof Map) {
-              data.state.formDrafts = Array.from(data.state.formDrafts.entries());
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              data.state.formDrafts = Array.from(data.state.formDrafts.entries()) as any;
             }
             try {
               localStorage.setItem(name, JSON.stringify(data));
