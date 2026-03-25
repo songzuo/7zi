@@ -2964,3 +2964,185 @@ curl "http://localhost:3000/api/performance/report?detailed=true"
 ---
 
 _Last updated: 2026-03-21_
+
+---
+
+## 📊 Feedback APIs
+
+### Get Feedback List
+
+**Endpoint:** `GET /api/feedback`
+
+Get paginated list of feedback submissions.
+
+**Query Parameters:**
+- `page` (optional): Page number (default: 1)
+- `per_page` (optional): Items per page (default: 20, max: 100)
+- `type` (optional): Filter by type (bug, feature, complaint, praise)
+- `status` (optional): Filter by status (pending, reviewed, resolved, dismissed)
+- `priority` (optional): Filter by priority (low, medium, high, urgent)
+- `user_id` (optional): Filter by user ID
+- `rating_min` (optional): Minimum rating (1-5)
+- `rating_max` (optional): Maximum rating (1-5)
+- `start_date` (optional): Filter from date (ISO 8601)
+- `end_date` (optional): Filter to date (ISO 8601)
+- `search` (optional): Search in title/description
+- `sort_by` (optional): Sort field (created_at, rating, priority)
+- `sort_order` (optional): asc or desc
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "feedbacks": [...],
+    "meta": {
+      "total": 100,
+      "page": 1,
+      "per_page": 20,
+      "total_pages": 5
+    },
+    "stats": {
+      "total": 100,
+      "byType": {...},
+      "averageRating": 4.2
+    }
+  }
+}
+```
+
+### Create Feedback
+
+**Endpoint:** `POST /api/feedback`
+
+Create a new feedback submission.
+
+**Request Body:**
+```json
+{
+  "type": "feature",
+  "rating": 5,
+  "title": "Great product!",
+  "description": "I would love to see dark mode support.",
+  "email": "user@example.com",
+  "images": [],
+  "metadata": {}
+}
+```
+
+**Errors:**
+- `400` - Validation error
+- `401` - Spam detected
+
+---
+
+### Get Single Feedback
+
+**Endpoint:** `GET /api/feedback/[id]`
+
+Get feedback by ID.
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "uuid",
+    "type": "feature",
+    "rating": 5,
+    "title": "Great product!",
+    "description": "...",
+    "status": "pending",
+    "created_at": "2026-03-25T12:00:00Z"
+  }
+}
+```
+
+### Update Feedback
+
+**Endpoint:** `PATCH /api/feedback/[id]`
+
+Update feedback status/priority (admin only).
+
+**Request Body:**
+```json
+{
+  "status": "resolved",
+  "priority": "high",
+  "admin_notes": "Implemented in v1.2.0"
+}
+```
+
+### Delete Feedback
+
+**Endpoint:** `DELETE /api/feedback/[id]`
+
+Delete feedback (admin only).
+
+---
+
+## 🌊 Stream APIs (SSE)
+
+### Analytics Stream
+
+**Endpoint:** `GET /api/stream/analytics`
+
+Real-time analytics metrics via Server-Sent Events.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Response:** Server-Sent Events stream with metrics:
+```
+event: metrics
+data: {"type":"metrics","timestamp":"...","data":[...]}
+
+event: analytics
+data: {"type":"analytics","timestamp":"...","data":{...}}
+```
+
+### Health Stream
+
+**Endpoint:** `GET /api/stream/health`
+
+Real-time health metrics via Server-Sent Events.
+
+**Response:** Server-Sent Events stream with health data.
+
+---
+
+## 🔄 Revalidate APIs
+
+### Revalidate Path
+
+**Endpoint:** `POST /api/revalidate`
+
+Revalidate Next.js cache for a path.
+
+**Request Body:**
+```json
+{
+  "path": "/dashboard",
+  "secret": "your-revalidate-secret"
+}
+```
+
+### Revalidate Tag
+
+**Endpoint:** `POST /api/revalidate/tag`
+
+Revalidate cache by tag.
+
+**Request Body:**
+```json
+{
+  "tag": "tasks",
+  "secret": "your-revalidate-secret"
+}
+```
+
+---
+
+*Documented by AI 主管 - 2026-03-25*

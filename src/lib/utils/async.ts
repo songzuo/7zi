@@ -105,11 +105,14 @@ export function throttle<T extends (...args: never[]) => void>(
 
       setTimeout(() => {
         inThrottle = false;
-        // Don't auto-execute buffered args - this ensures strict throttling
-        // The buffered args will only execute if a new call comes while throttled
+        // Execute trailing call if buffered args exist
+        if (lastArgs !== null) {
+          func(...lastArgs);
+          lastArgs = null;
+        }
       }, limit);
     } else {
-      lastArgs = args;
+      lastArgs = args; // Only keep latest args
     }
   };
 
