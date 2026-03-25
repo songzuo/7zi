@@ -33,22 +33,22 @@ export function Footer() {
   const currentYear = useMemo(() => new Date().getFullYear(), []);
 
   return (
-    <footer className="bg-zinc-50 dark:bg-zinc-950 text-zinc-300 dark:text-zinc-400">
+    <footer className="bg-zinc-50 dark:bg-zinc-950 text-zinc-300 dark:text-zinc-400 pb-safe-bottom">
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
           
           {/* Brand Section */}
-          <div className="lg:col-span-2">
-            <Link href="/" className="inline-block mb-4">
+          <div className="lg:col-span-2 space-y-6">
+            <Link href="/" className="inline-block">
               <h2 className="text-2xl sm:text-3xl font-bold text-white">
                 7zi<span className="text-cyan-500">Studio</span>
               </h2>
             </Link>
-            <p className="text-sm sm:text-base mb-4 max-w-md">
+            <p className="text-sm sm:text-base max-w-md">
               由 11 位专业 AI 代理组成的创新数字工作室，提供网站开发、品牌设计、营销推广等全方位数字化服务。
             </p>
-            <div className="mb-6">
+            <div className="hidden sm:block">
               <h3 className="text-sm font-semibold text-white mb-3">关注我们</h3>
               <SocialLinks variant="horizontal" size="sm" />
             </div>
@@ -57,12 +57,12 @@ export function Footer() {
           {/* Quick Links */}
           <div>
             <h3 className="text-sm font-semibold text-white mb-4">快速链接</h3>
-            <ul className="space-y-2">
+            <ul className="space-y-2 sm:space-y-3">
               {quickLinks.map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-sm hover:text-cyan-400 transition-colors duration-200"
+                    className="text-sm block py-1 hover:text-cyan-400 transition-colors duration-200 min-h-[44px] flex items-center"
                   >
                     {link.name}
                   </Link>
@@ -74,12 +74,12 @@ export function Footer() {
           {/* Services */}
           <div>
             <h3 className="text-sm font-semibold text-white mb-4">服务项目</h3>
-            <ul className="space-y-2">
+            <ul className="space-y-2 sm:space-y-3">
               {services.map((service) => (
                 <li key={service.name}>
                   <Link
                     href={service.href}
-                    className="text-sm hover:text-cyan-400 transition-colors duration-200"
+                    className="text-sm block py-1 hover:text-cyan-400 transition-colors duration-200 min-h-[44px] flex items-center"
                   >
                     {service.name}
                   </Link>
@@ -91,20 +91,26 @@ export function Footer() {
           {/* Contact Info */}
           <div>
             <h3 className="text-sm font-semibold text-white mb-4">联系方式</h3>
-            <ul className="space-y-3">
+            <ul className="space-y-3 sm:space-y-4">
               {contactInfo.map((info) => (
                 <li key={info.label}>
                   <a
                     href={info.href}
-                    className="flex items-center gap-2 text-sm hover:text-cyan-400 transition-colors duration-200"
+                    className="flex items-center gap-2 text-sm py-1 hover:text-cyan-400 transition-colors duration-200 min-h-[44px]"
                   >
-                    <span>{info.icon}</span>
-                    <span>{info.value}</span>
+                    <span className="text-lg">{info.icon}</span>
+                    <span className="break-all">{info.value}</span>
                   </a>
                 </li>
               ))}
             </ul>
           </div>
+        </div>
+
+        {/* Mobile-only Social Links */}
+        <div className="mt-8 sm:hidden">
+          <h3 className="text-sm font-semibold text-white mb-3">关注我们</h3>
+          <SocialLinks variant="grid" size="sm" />
         </div>
       </div>
 
@@ -121,22 +127,22 @@ export function Footer() {
             </div>
 
             {/* Legal Links */}
-            <div className="flex flex-wrap justify-center gap-4 text-sm">
+            <div className="flex flex-wrap justify-center gap-3 sm:gap-4 text-sm">
               <Link
                 href="/privacy"
-                className="hover:text-cyan-400 transition-colors duration-200"
+                className="py-2 hover:text-cyan-400 transition-colors duration-200 min-h-[44px] inline-flex items-center"
               >
                 隐私政策
               </Link>
               <Link
                 href="/terms"
-                className="hover:text-cyan-400 transition-colors duration-200"
+                className="py-2 hover:text-cyan-400 transition-colors duration-200 min-h-[44px] inline-flex items-center"
               >
                 服务条款
               </Link>
               <Link
                 href="/cookies"
-                className="hover:text-cyan-400 transition-colors duration-200"
+                className="py-2 hover:text-cyan-400 transition-colors duration-200 min-h-[44px] inline-flex items-center"
               >
                 Cookie 政策
               </Link>

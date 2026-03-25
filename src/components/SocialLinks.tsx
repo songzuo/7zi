@@ -117,20 +117,20 @@ export function SocialLinks({ variant = "grid", size = "md", className = "" }: S
 
   // Grid variant (default)
   return (
-    <div className={`grid grid-cols-2 md:grid-cols-3 gap-3 ${className}`}>
+    <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 ${className}`}>
       {socialLinks.map((social) => (
         <Link
           key={social.name}
           href={social.link}
           target="_blank"
           rel="noopener noreferrer"
-          className={`group flex items-center gap-3 bg-gradient-to-br ${social.color} ${sizeClasses[size]} rounded-xl hover:scale-105 transition-all duration-300`}
+          className={`group flex items-center gap-3 bg-gradient-to-br ${social.color} ${sizeClasses[size]} rounded-xl hover:scale-105 transition-all duration-300 touch-active min-h-[44px]`}
         >
           <span className={iconSizes[size]}>{social.icon}</span>
-          <div>
+          <div className="min-w-0 flex-1">
             <div className="font-medium text-white">{social.name}</div>
             {size !== "sm" && (
-              <div className="text-xs text-white/70">{social.description}</div>
+              <div className="text-xs text-white/70 line-clamp-1">{social.description}</div>
             )}
           </div>
         </Link>
