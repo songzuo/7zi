@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.2] - 2026-03-25 (TypeScript & Code Cleanup)
+
+### 🧹 Code Cleanup
+
+- **Legacy Project Structure Removal**
+  - Removed 359 files from old 7zi-project directory
+  - Cleaned up deprecated monitoring library files
+  - Removed outdated E2E testing best practices
+  - Removed duplicate documentation files
+
+### 🐛 Bug Fixes
+
+- **TypeScript Error Fixes**
+  - Fixed `AdvancedSearchManager` mock type issues in search route tests
+  - Fixed `FilterOperator` type compatibility in filterStore tests
+  - Fixed `formDrafts` serialization type mismatch in uiStore
+
+### ✅ Quality Assurance
+
+- **Type Checking**
+  - All TypeScript errors resolved
+  - `pnpm type-check` passing ✅
+
+### 📚 Documentation
+
+- **CHANGELOG Updated**
+  - Added v1.1.2 entry
+  - Documented code cleanup and bug fixes
+
+---
+
 ## [1.1.1] - 2026-03-24 (Notification Persistence Enhancement)
 
 ### ✨ New Features
