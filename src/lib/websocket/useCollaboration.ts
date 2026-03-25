@@ -49,6 +49,27 @@ export type ConnectionState =
   | 'reconnecting'
   | 'error';
 
+export type ReconnectionState =
+  | 'idle'           // 无需重连
+  | 'scheduled'      // 已安排重连
+  | 'attempting'      // 正在尝试连接
+  | 'recovering';     // 正在恢复状态
+
+export type DisconnectReason =
+  | 'io client disconnect'     // 用户主动断开
+  | 'io server disconnect'     // 服务器断开
+  | 'ping timeout'             // 心跳超时
+  | 'transport close'          // 连接关闭
+  | 'network_error'            // 网络错误
+  | 'auth_error';              // 认证错误
+
+export interface ConnectionContext {
+  roomId?: string;
+  roomType?: 'task' | 'project' | 'chat' | 'document';
+  documentId?: string;
+  roomName?: string;
+}
+
 export interface RoomUser {
   id: string;
   name: string;
@@ -79,6 +100,7 @@ export interface CollaborationConfig {
 
 export interface CollaborationState {
   connectionState: ConnectionState;
+  reconnectionState: ReconnectionState;
   error: Error | null;
   isConnected: boolean;
   isInRoom: boolean;
@@ -89,6 +111,7 @@ export interface CollaborationState {
     revision: number;
   } | null;
   typingUsers: string[];
+  reconnectAttempts: number;
 }
 
 export interface CollaborationActions {
@@ -118,6 +141,7 @@ export interface CollaborationActions {
   onCursorUpdate: (callback: (cursor: Cursor) => void) => () => void;
   onTypingUpdate: (callback: (userId: string, userName: string, isTyping: boolean) => void) => () => void;
   onError: (callback: (error: Error) => void) => () => void;
+  onReconnection: (callback: (state: ReconnectionState, attempt: number) => void) => () => void;
 }
 
 // ============================================================================
@@ -140,6 +164,7 @@ export function useCollaboration(config: CollaborationConfig): CollaborationStat
 
   // State
   const [connectionState, setConnectionState] = useState<ConnectionState>('disconnected');
+  const [reconnectionState, setReconnectionState] = useState<ReconnectionState>('idle');
   const [error, setError] = useState<Error | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [isInRoom, setIsInRoom] = useState(false);
@@ -148,6 +173,7 @@ export function useCollaboration(config: CollaborationConfig): CollaborationStat
   const [cursors, setCursors] = useState<Map<string, Cursor>>(new Map());
   const [document, setDocument] = useState<{ content: string; revision: number } | null>(null);
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
+  const [reconnectAttempts, setReconnectAttempts] = useState(0);
 
   // Refs
   const socketRef = useRef<Socket | null>(null);
@@ -155,6 +181,9 @@ export function useCollaboration(config: CollaborationConfig): CollaborationStat
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const currentRoomRef = useRef<string | undefined>(initialRoomId);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isReconnectingRef = useRef(false);
+  const connectionContextRef = useRef<ConnectionContext>({});
+  const reconnectionStateRef = useRef<ReconnectionState>('idle');
 
   // Event listener refs
   const documentUpdateCallbacksRef = useRef<Set<(doc: { content: string; revision: number }) => void>>(new Set());
@@ -163,8 +192,10 @@ export function useCollaboration(config: CollaborationConfig): CollaborationStat
   const cursorUpdateCallbacksRef = useRef<Set<(cursor: Cursor) => void>>(new Set());
   const typingUpdateCallbacksRef = useRef<Set<(userId: string, userName: string, isTyping: boolean) => void>>(new Set());
   const errorCallbackRef = useRef<Set<(error: Error) => void>>(new Set());
+  const reconnectionCallbacksRef = useRef<Set<(state: ReconnectionState, attempt: number) => void>>(new Set());
   const connectRef = useRef<(() => void) | null>(null);
-  const scheduleReconnectRef = useRef<(() => void) | null>(null);
+  const scheduleReconnectRef = useRef<((reason?: DisconnectReason) => void) | null>(null);
+  const recoverConnectionStateRef = useRef<(() => void) | null>(null);
 
   // Update connection state
   const updateState = useCallback((newState: ConnectionState) => {
@@ -172,39 +203,120 @@ export function useCollaboration(config: CollaborationConfig): CollaborationStat
     setIsConnected(newState === 'connected');
   }, []);
 
-  // Calculate reconnect delay with exponential backoff
-  const getReconnectDelay = useCallback((): number => {
-    const baseDelay = 1000;
-    const maxDelay = 30000;
-    const delay = baseDelay * Math.pow(1.5, reconnectAttemptsRef.current);
-    return Math.min(delay, maxDelay);
+  // Update reconnection state
+  const updateReconnectionState = useCallback((newState: ReconnectionState) => {
+    setReconnectionState(newState);
+    reconnectionStateRef.current = newState;
+    setReconnectAttempts(reconnectAttemptsRef.current);
+    reconnectionCallbacksRef.current.forEach(cb => cb(newState, reconnectAttemptsRef.current));
   }, []);
 
-  // Schedule reconnect - MUST be defined before connect to avoid "accessed before declared" error
-  const scheduleReconnect = useCallback(() => {
+  // Get reconnection strategy based on disconnect reason
+  const getReconnectStrategy = useCallback((reason: DisconnectReason) => {
+    switch (reason) {
+      case 'io client disconnect':
+        return { shouldReconnect: false, initialDelay: 0, maxAttempts: 0, backoffMultiplier: 0 };
+      case 'auth_error':
+        return { shouldReconnect: false, initialDelay: 0, maxAttempts: 0, backoffMultiplier: 0 };
+      case 'ping timeout':
+        return { shouldReconnect: true, initialDelay: 2000, maxAttempts: 5, backoffMultiplier: 1.5 };
+      case 'io server disconnect':
+        return { shouldReconnect: true, initialDelay: 3000, maxAttempts: 8, backoffMultiplier: 1.5 };
+      default:
+        return { shouldReconnect: true, initialDelay: 1000, maxAttempts: 10, backoffMultiplier: 1.5 };
+    }
+  }, []);
+
+  // Recover connection state after reconnection
+  const recoverConnectionState = useCallback(() => {
+    const context = connectionContextRef.current;
+
+    if (!context.roomId || !socketRef.current?.connected) {
+      logger.debug('Cannot recover state: no context or not connected');
+      return;
+    }
+
+    logger.info('Recovering connection state', { context });
+    updateReconnectionState('recovering');
+
+    // Re-join room
+    socketRef.current.emit('room:join', {
+      roomId: context.roomId,
+      type: context.roomType || 'document',
+      documentId: context.documentId,
+      name: context.roomName,
+    });
+  }, [updateReconnectionState]);
+
+  // Schedule reconnect with improved logic
+  const scheduleReconnect = useCallback((reason: DisconnectReason = 'network_error') => {
+    // Prevent duplicate reconnection attempts
+    if (isReconnectingRef.current || reconnectionStateRef.current === 'attempting') {
+      logger.debug('Reconnect already in progress, skipping', {
+        state: reconnectionStateRef.current,
+        reason,
+      });
+      return;
+    }
+
+    const strategy = getReconnectStrategy(reason);
+
+    if (!strategy.shouldReconnect) {
+      logger.info('Reconnect disabled for this reason', { reason });
+      updateReconnectionState('idle');
+      updateState('error');
+      return;
+    }
+
+    // Clear existing timeout if any
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
     }
 
-    reconnectAttemptsRef.current++;
+    isReconnectingRef.current = true;
+    reconnectionStateRef.current = 'scheduled';
 
-    if (reconnectAttemptsRef.current > 10) {
-      const error = new Error('Max reconnection attempts reached');
+    reconnectAttemptsRef.current++;
+    updateReconnectionState('scheduled');
+
+    // Check max attempts
+    if (reconnectAttemptsRef.current > strategy.maxAttempts) {
+      const error = new Error(`Max reconnection attempts (${strategy.maxAttempts}) reached for reason: ${reason}`);
       setError(error);
       updateState('error');
+      updateReconnectionState('idle');
+      isReconnectingRef.current = false;
+      logger.error('Max reconnection attempts reached', {
+        attempts: reconnectAttemptsRef.current,
+        reason,
+      });
       return;
     }
 
     updateState('reconnecting');
 
-    const delay = getReconnectDelay();
-    logger.info(`Reconnecting in ${delay}ms`, { attempt: reconnectAttemptsRef.current });
+    // Calculate delay with exponential backoff
+    const delay = Math.min(
+      strategy.initialDelay * Math.pow(strategy.backoffMultiplier, reconnectAttemptsRef.current - 1),
+      30000 // Cap at 30 seconds
+    );
+
+    // Add jitter (±20%) to prevent thundering herd
+    const jitter = delay * 0.2 * (Math.random() * 2 - 1);
+    const finalDelay = Math.max(500, delay + jitter);
+
+    logger.info(`Reconnecting in ${delay}ms`, {
+      attempt: reconnectAttemptsRef.current,
+      maxAttempts: strategy.maxAttempts,
+      reason,
+    });
 
     reconnectTimeoutRef.current = setTimeout(() => {
-      // Use connectRef to avoid stale closure issues
-      connectRef.current?.();
+      reconnectionStateRef.current = 'attempting';
+      updateReconnectionState('attempting');
+      connectRef.current?.(); 
     }, delay);
-  }, [getReconnectDelay, updateState]);
+  }, [getReconnectStrategy, updateState, updateReconnectionState]);
 
   // Create socket connection
   const connect = useCallback(() => {
@@ -228,17 +340,26 @@ export function useCollaboration(config: CollaborationConfig): CollaborationStat
 
       // Connection established
       socket.on('connect', () => {
-        logger.info('WebSocket connected', { userId, userName });
+        logger.info('WebSocket connected', { userId, userName, isReconnect: reconnectAttemptsRef.current > 0 });
         updateState('connected');
-        reconnectAttemptsRef.current = 0;
 
-        // Auto-join room if configured
-        if (currentRoomRef.current && roomType && initialDocumentId) {
-          socket.emit('room:join', {
-            roomId: currentRoomRef.current,
-            type: roomType,
-            documentId: initialDocumentId,
-          });
+        // If this is a reconnection, reset state
+        if (reconnectAttemptsRef.current > 0) {
+          isReconnectingRef.current = false;
+          reconnectAttemptsRef.current = 0;
+          updateReconnectionState('idle');
+
+          // Try to recover previous state
+          recoverConnectionStateRef.current?.();
+        } else {
+          // Initial connection: auto-join room if configured
+          if (currentRoomRef.current && roomType && initialDocumentId) {
+            socket.emit('room:join', {
+              roomId: currentRoomRef.current,
+              type: roomType,
+              documentId: initialDocumentId,
+            });
+          }
         }
       });
 
@@ -397,13 +518,32 @@ export function useCollaboration(config: CollaborationConfig): CollaborationStat
 
       // Disconnect
       socket.on('disconnect', (reason) => {
-        logger.info('WebSocket disconnected', { reason });
-        updateState('disconnected');
-        setIsInRoom(false);
+        logger.info('WebSocket disconnected', {
+          socketId: socket.id,
+          userId,
+          userName,
+          reason,
+          isInRoom,
+        });
 
-        // Auto-reconnect if enabled
+        // Save connection context for recovery
+        if (isInRoom && currentRoomRef.current) {
+          connectionContextRef.current = {
+            roomId: currentRoomRef.current,
+            roomType,
+            documentId: initialDocumentId,
+          };
+          logger.info('Connection context saved for recovery', {
+            context: connectionContextRef.current,
+          });
+        }
+
+        updateState('disconnected');
+        updateReconnectionState('idle');
+
+        // Auto-reconnect if enabled and not user-initiated
         if (autoReconnect && reason !== 'io client disconnect') {
-          scheduleReconnectRef.current?.();
+          scheduleReconnectRef.current?.(reason as DisconnectReason);
         }
       });
 
@@ -412,10 +552,18 @@ export function useCollaboration(config: CollaborationConfig): CollaborationStat
         logger.error('WebSocket connection error', { error: err });
         const error = new Error(err.message || 'Connection error');
         setError(error);
-        updateState('error');
 
-        if (autoReconnect) {
-          scheduleReconnectRef.current?.();
+        // If connection failed during reconnection, schedule another attempt
+        if (reconnectionStateRef.current === 'attempting') {
+          isReconnectingRef.current = false;
+          if (autoReconnect) {
+            scheduleReconnectRef.current?.('network_error');
+          }
+        } else {
+          updateState('error');
+          if (autoReconnect) {
+            scheduleReconnectRef.current?.('network_error');
+          }
         }
       });
 
@@ -429,29 +577,67 @@ export function useCollaboration(config: CollaborationConfig): CollaborationStat
 
   // Disconnect
   const disconnect = useCallback(() => {
+    // Clear reconnect timeout
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
       reconnectTimeoutRef.current = null;
     }
 
+    // Clear typing timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = null;
+    }
+
+    // Clear reconnect state
+    isReconnectingRef.current = false;
+    updateReconnectionState('idle');
+
+    // Disconnect socket and clear references
     if (socketRef.current) {
       socketRef.current.disconnect();
       socketRef.current = null;
     }
 
+    // Clear all event handlers to prevent memory leaks
+    documentUpdateCallbacksRef.current.clear();
+    userJoinedCallbacksRef.current.clear();
+    userLeftCallbacksRef.current.clear();
+    cursorUpdateCallbacksRef.current.clear();
+    typingUpdateCallbacksRef.current.clear();
+    errorCallbackRef.current.clear();
+    reconnectionCallbacksRef.current.clear();
+
+    // Reset all refs
+    currentRoomRef.current = undefined;
+    connectionContextRef.current = {};
+
+    // Update state
     updateState('disconnected');
     setIsInRoom(false);
+    setCurrentRoomId(undefined);
+    setUsers([]);
+    setCursors(new Map());
+    setDocument(null);
+    setTypingUsers([]);
     reconnectAttemptsRef.current = 0;
-  }, [updateState]);
+    setReconnectAttempts(0);
+  }, [updateState, updateReconnectionState]);
 
   // Manual reconnect
   const reconnect = useCallback(() => {
     disconnect();
     setTimeout(() => {
       reconnectAttemptsRef.current = 0;
+      isReconnectingRef.current = false;
+      connectionContextRef.current = {
+        roomId: currentRoomRef.current,
+        roomType,
+        documentId: initialDocumentId,
+      };
       connectRef.current?.();
     }, 100);
-  }, [disconnect]);
+  }, [disconnect, roomType, initialDocumentId]);
 
   // Join room
   const joinRoom = useCallback((
@@ -604,10 +790,10 @@ export function useCollaboration(config: CollaborationConfig): CollaborationStat
     return () => errorCallbackRef.current.delete(callback);
   }, []);
 
-  // Update connect ref
-  useEffect(() => {
-    connectRef.current = connect;
-  }, [connect]);
+  const onReconnection = useCallback((callback: (state: ReconnectionState, attempt: number) => void) => {
+    reconnectionCallbacksRef.current.add(callback);
+    return () => reconnectionCallbacksRef.current.delete(callback);
+  }, []);
 
   // Update refs
   useEffect(() => {
@@ -617,6 +803,10 @@ export function useCollaboration(config: CollaborationConfig): CollaborationStat
   useEffect(() => {
     scheduleReconnectRef.current = scheduleReconnect;
   }, [scheduleReconnect]);
+
+  useEffect(() => {
+    recoverConnectionStateRef.current = recoverConnectionState;
+  }, [recoverConnectionState]);
 
   // Auto-connect on mount
   useEffect(() => {
@@ -632,6 +822,7 @@ export function useCollaboration(config: CollaborationConfig): CollaborationStat
   return {
     // State
     connectionState,
+    reconnectionState,
     error,
     isConnected,
     isInRoom,
@@ -639,6 +830,7 @@ export function useCollaboration(config: CollaborationConfig): CollaborationStat
     cursors,
     document,
     typingUsers,
+    reconnectAttempts,
 
     // Actions
     connect,
@@ -659,6 +851,7 @@ export function useCollaboration(config: CollaborationConfig): CollaborationStat
     onCursorUpdate,
     onTypingUpdate,
     onError,
+    onReconnection,
   };
 }
 
