@@ -4,10 +4,7 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from 'vitest';
-import { server } from './mocks/handlers';
-import { MockDataGenerator } from './mocks/data';
-
-const mockData = new MockDataGenerator();
+import { server, mockData } from './mocks/handlers';
 
 describe('/api/feedback - Integration Tests', () => {
   beforeAll(() => {
@@ -22,6 +19,7 @@ describe('/api/feedback - Integration Tests', () => {
 
   beforeEach(() => {
     server.resetHandlers();
+    mockData.resetFeedbacks();
   });
 
   describe('GET /api/feedback', () => {

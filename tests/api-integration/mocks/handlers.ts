@@ -7,7 +7,7 @@ import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
 import { MockDataGenerator } from './data';
 
-const mockData = new MockDataGenerator();
+export const mockData = new MockDataGenerator();
 
 // Auth endpoints handlers
 export const authHandlers = [
@@ -382,10 +382,261 @@ export const healthHandlers = [
   }),
 ];
 
+// Feedback endpoints handlers
+export const feedbackHandlers = [
+  // GET /api/feedback - List all feedbacks
+  http.get('http://localhost:3000/api/feedback', ({ request }: { request: Request }) => {
+    const url = new URL(request.url);
+
+    const filters: {
+      user_id?: string;
+      type?: string;
+      status?: string;
+      priority?: string;
+      rating_min?: number;
+      rating_max?: number;
+      search?: string;
+      sort_by?: 'created_at' | 'rating';
+      sort_order?: 'asc' | 'desc';
+      page?: number;
+      per_page?: number;
+    } = {
+      user_id: url.searchParams.get('user_id') || undefined,
+      type: url.searchParams.get('type') || undefined,
+      status: url.searchParams.get('status') || undefined,
+      priority: url.searchParams.get('priority') || undefined,
+      rating_min: url.searchParams.get('rating_min')
+        ? parseInt(url.searchParams.get('rating_min')!)
+        : undefined,
+      rating_max: url.searchParams.get('rating_max')
+        ? parseInt(url.searchParams.get('rating_max')!)
+        : undefined,
+      search: url.searchParams.get('search') || undefined,
+      sort_by: (url.searchParams.get('sort_by') as 'created_at' | 'rating') || undefined,
+      sort_order: (url.searchParams.get('sort_order') as 'asc' | 'desc') || undefined,
+      page: url.searchParams.get('page') ? parseInt(url.searchParams.get('page')!) : undefined,
+      per_page: url.searchParams.get('per_page')
+        ? parseInt(url.searchParams.get('per_page')!)
+        : undefined,
+    };
+
+    const result = mockData.filterFeedbacks(filters);
+    const stats = mockData.getFeedbackStats();
+
+    return HttpResponse.json({
+      success: true,
+      data: {
+        feedbacks: result.feedbacks,
+        meta: result.meta,
+        stats,
+      },
+    }, { status: 200 });
+  }),
+
+  // GET /api/feedback/:id - Get single feedback
+  http.get('http://localhost:3000/api/feedback/:id', ({ params }: { params: Record<string, string> }) => {
+    const feedback = mockData.getFeedbackById(params.id);
+
+    if (!feedback) {
+      return HttpResponse.json({
+        success: false,
+        error: {
+          type: 'NOT_FOUND',
+          message: 'Feedback not found',
+        },
+      }, { status: 404 });
+    }
+
+    return HttpResponse.json({
+      success: true,
+      data: feedback,
+    }, { status: 200 });
+  }),
+
+  // POST /api/feedback - Create new feedback
+  http.post('http://localhost:3000/api/feedback', async ({ request }: { request: Request }) => {
+    try {
+      const body = await request.json() as any;
+
+      // Validation
+      if (!body.type) {
+        return HttpResponse.json({
+          success: false,
+          error: {
+            type: 'VALIDATION_ERROR',
+            message: 'type is required',
+          },
+        }, { status: 400 });
+      }
+
+      if (!body.rating || typeof body.rating !== 'number') {
+        return HttpResponse.json({
+          success: false,
+          error: {
+            type: 'VALIDATION_ERROR',
+            message: 'rating is required',
+          },
+        }, { status: 400 });
+      }
+
+      if (body.rating < 1 || body.rating > 5) {
+        return HttpResponse.json({
+          success: false,
+          error: {
+            type: 'VALIDATION_ERROR',
+            message: 'rating must be between 1 and 5',
+          },
+        }, { status: 400 });
+      }
+
+      if (!body.title) {
+        return HttpResponse.json({
+          success: false,
+          error: {
+            type: 'VALIDATION_ERROR',
+            message: 'title is required',
+          },
+        }, { status: 400 });
+      }
+
+      if (body.title.length > 100) {
+        return HttpResponse.json({
+          success: false,
+          error: {
+            type: 'VALIDATION_ERROR',
+            message: 'title must be less than 100 characters',
+          },
+        }, { status: 400 });
+      }
+
+      if (!body.description) {
+        return HttpResponse.json({
+          success: false,
+          error: {
+            type: 'VALIDATION_ERROR',
+            message: 'description is required',
+          },
+        }, { status: 400 });
+      }
+
+      if (body.description.length > 1000) {
+        return HttpResponse.json({
+          success: false,
+          error: {
+            type: 'VALIDATION_ERROR',
+            message: 'description must be less than 1000 characters',
+          },
+        }, { status: 400 });
+      }
+
+      // Create feedback
+      const feedback = mockData.createFeedback({
+        user_id: body.user_id || 'user-test-1',
+        type: body.type,
+        rating: body.rating,
+        title: body.title,
+        description: body.description,
+        email: body.email,
+        metadata: body.metadata,
+      });
+
+      return HttpResponse.json({
+        success: true,
+        data: feedback,
+      }, { status: 201 });
+    } catch (error) {
+      return HttpResponse.json({
+        success: false,
+        error: {
+          type: 'VALIDATION_ERROR',
+          message: 'Invalid JSON body',
+        },
+      }, { status: 400 });
+    }
+  }),
+
+  // PATCH /api/feedback/:id - Update feedback
+  http.patch('http://localhost:3000/api/feedback/:id', async ({ params, request }: { params: Record<string, string>; request: Request }) => {
+    try {
+      const body = await request.json() as any;
+
+      // Check admin permissions
+      if (body.admin_id !== 'admin') {
+        return HttpResponse.json({
+          success: false,
+          error: {
+            type: 'FORBIDDEN',
+            message: 'Admin access required',
+          },
+        }, { status: 403 });
+      }
+
+      // Check if feedback exists
+      const existing = mockData.getFeedbackById(params.id);
+      if (!existing) {
+        return HttpResponse.json({
+          success: false,
+          error: {
+            type: 'NOT_FOUND',
+            message: 'Feedback not found',
+          },
+        }, { status: 404 });
+      }
+
+      // Update feedback
+      const updated = mockData.updateFeedback(params.id, {
+        status: body.status,
+        priority: body.priority,
+        admin_notes: body.admin_notes,
+        metadata: body.metadata,
+      });
+
+      return HttpResponse.json({
+        success: true,
+        data: updated,
+      }, { status: 200 });
+    } catch (error) {
+      return HttpResponse.json({
+        success: false,
+        error: {
+          type: 'VALIDATION_ERROR',
+          message: 'Invalid JSON body',
+        },
+      }, { status: 400 });
+    }
+  }),
+
+  // DELETE /api/feedback/:id - Delete feedback
+  http.delete('http://localhost:3000/api/feedback/:id', ({ params }: { params: Record<string, string> }) => {
+    const existing = mockData.getFeedbackById(params.id);
+
+    if (!existing) {
+      return HttpResponse.json({
+        success: false,
+        error: {
+          type: 'NOT_FOUND',
+          message: 'Feedback not found',
+        },
+      }, { status: 404 });
+    }
+
+    mockData.deleteFeedback(params.id);
+
+    return HttpResponse.json({
+      success: true,
+      data: {
+        id: params.id,
+        message: 'Feedback deleted successfully',
+      },
+    }, { status: 200 });
+  }),
+];
+
 // Combine all handlers
 export const handlers = [
   ...authHandlers,
   ...healthHandlers,
+  ...feedbackHandlers,
 ];
 
 // Create MSW server
