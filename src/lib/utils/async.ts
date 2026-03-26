@@ -75,6 +75,12 @@ export function debounce<T extends (...args: never[]) => void>(
 /**
  * Throttle function with cancel capability
  * 
+ * Behavior:
+ * - First call in window executes immediately
+ * - Calls during window are buffered
+ * - When window ends, execute trailing call immediately if buffered
+ * - If new call comes while not in throttle, execute it immediately
+ * 
  * @template T - Function type
  * @param {T} func - Function to throttle
  * @param {number} limit - Minimum time between executions in milliseconds
@@ -96,23 +102,53 @@ export function throttle<T extends (...args: never[]) => void>(
   let inThrottle: boolean = false;
   let timeout: NodeJS.Timeout | null = null;
   let lastArgs: Parameters<T> | null = null;
+  let pendingTrailing: boolean = false; // True if trailing call is pending execution
 
   const throttled = (...args: Parameters<T>): void => {
+    // Handle zero limit case - just call the function
+    if (limit <= 0) {
+      func(...args);
+      return;
+    }
+
+    // Clear any pending trailing execution
+    pendingTrailing = false;
+
     if (!inThrottle) {
+      // Not in throttle window - execute immediately
       func(...args);
       inThrottle = true;
       lastArgs = null;
 
-      setTimeout(() => {
+      // Clear any existing timeout and schedule new window end
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+
+      // Schedule end of throttle window
+      timeout = setTimeout(() => {
         inThrottle = false;
-        // Execute trailing call if buffered args exist
+        
+        // If we have buffered args, execute trailing call immediately
         if (lastArgs !== null) {
-          func(...lastArgs);
+          pendingTrailing = true;
+          const argsToExecute = lastArgs;
           lastArgs = null;
+          func(...argsToExecute);
+          pendingTrailing = false;
+          
+          // Trailing call starts a new throttle window
+          inThrottle = true;
+          
+          // Schedule next window end
+          timeout = setTimeout(() => {
+            inThrottle = false;
+          }, limit);
         }
       }, limit);
     } else {
-      lastArgs = args; // Only keep latest args
+      // Inside throttle window - buffer latest args for trailing
+      lastArgs = args;
     }
   };
 
@@ -123,6 +159,7 @@ export function throttle<T extends (...args: never[]) => void>(
     }
     inThrottle = false;
     lastArgs = null;
+    pendingTrailing = false;
   };
 
   throttled.pending = (): boolean => inThrottle;
@@ -140,35 +177,72 @@ export function throttle<T extends (...args: never[]) => void>(
  * 
  * @template T - Function type
  * @param {T} func - Function to memoize
- * @param {Function} resolver - Optional key generator function
- * @param {number} maxSize - Maximum cache size (default: 50)
- * @returns {Function} Memoized function
+ * @param {Object} options - Configuration options
+ * @param {Function} options.key - Optional key generator function
+ * @param {Map} options.cache - Optional custom cache instance
+ * @param {number} options.ttl - Time-to-live in milliseconds
+ * @param {number} options.maxSize - Maximum cache size (default: 50)
+ * @param {boolean} options.cacheErrors - Whether to cache errors (default: false)
+ * @returns {Function} Memoized function with clear(), size, has(), delete() methods
  * @example
  * const expensiveCalc = memoize((n: number) => {
  *   return Array(n).fill(0).reduce((a, b, i) => a + i, 0);
- * }, undefined, 100);
+ * }, { maxSize: 100 });
  */
 export function memoize<T extends (...args: unknown[]) => unknown>(
   func: T,
-  resolver?: (...args: Parameters<T>) => string,
-  maxSize: number = 50
-): (...args: Parameters<T>) => ReturnType<T> {
-  const cache = new Map<string, { value: ReturnType<T>; lastAccess: number }>();
-  
-  return (...args: Parameters<T>): ReturnType<T> => {
-    const key = resolver ? resolver(...args) : JSON.stringify(args);
-    const entry = cache.get(key);
+  options?: {
+    key?: (...args: Parameters<T>) => string;
+    cache?: Map<string, { value: ReturnType<T>; lastAccess: number; expiresAt?: number }>;
+    ttl?: number;
+    maxSize?: number;
+    cacheErrors?: boolean;
+  }
+): ((...args: Parameters<T>) => ReturnType<T>) & {
+  clear: () => void;
+  size: number;
+  has: (...args: Parameters<T>) => boolean;
+  delete: (...args: Parameters<T>) => void;
+} {
+  const {
+    key: keyFn,
+    cache: externalCache,
+    ttl,
+    maxSize = 50,
+    cacheErrors = false,
+  } = options || {};
 
+  const cache = externalCache || new Map<string, { value: ReturnType<T>; lastAccess: number; expiresAt?: number }>();
+  
+  const getCacheKey = (...args: Parameters<T>): string => {
+    return keyFn ? keyFn(...args) : JSON.stringify(args);
+  };
+
+  const memoized = (...args: Parameters<T>): ReturnType<T> => {
+    const cacheKey = getCacheKey(...args);
+    const entry = cache.get(cacheKey);
+
+    // Check if entry exists and is valid
     if (entry) {
-      // 简单更新访问时间
-      entry.lastAccess = Date.now();
-      return entry.value;
+      // Check TTL expiration
+      if (ttl && entry.expiresAt && Date.now() > entry.expiresAt) {
+        cache.delete(cacheKey);
+      } else {
+        // Update last access time
+        entry.lastAccess = Date.now();
+        
+        // If cached value is an error, throw it
+        if (entry.value instanceof Error) {
+          throw entry.value;
+        }
+        return entry.value;
+      }
     }
 
     const result = func(...args) as ReturnType<T>;
 
     // LRU 淘汰策略
-    if (cache.size >= maxSize) {
+    if (cache.size >= maxSize && !cache.has(cacheKey)) {
       // 找到最老的条目并删除
       let oldestKey: string | null = null;
       let oldestTime = Infinity;
@@ -185,8 +259,76 @@ export function memoize<T extends (...args: unknown[]) => unknown>(
       }
     }
 
-    cache.set(key, { value: result, lastAccess: Date.now() });
+    cache.set(cacheKey, {
+      value: result,
+      lastAccess: Date.now(),
+      expiresAt: ttl ? Date.now() + ttl : undefined,
+    });
+
     return result;
+  };
+
+  // Wrap to handle error caching
+  const wrapped = (...args: Parameters<T>): ReturnType<T> => {
+    try {
+      return memoized(...args);
+    } catch (error) {
+      // If cacheErrors is enabled, cache error
+      if (cacheErrors) {
+        const cacheKey = getCacheKey(...args);
+        const entry = cache.get(cacheKey);
+        
+        if (!entry) {
+          // Cache error
+          cache.set(cacheKey, {
+            value: error as ReturnType<T>,
+            lastAccess: Date.now(),
+            expiresAt: ttl ? Date.now() + ttl : undefined,
+          });
+        }
+      }
+      throw error;
+    }
+  };
+
+  // Add helper methods
+  wrapped.clear = (): void => {
+    cache.clear();
+  };
+
+  Object.defineProperty(wrapped, 'size', {
+    get: () => cache.size,
+    enumerable: true,
+    configurable: true,
+  });
+
+  wrapped.has = (...args: Parameters<T>): boolean => {
+    const cacheKey = getCacheKey(...args);
+    const entry = cache.get(cacheKey);
+    
+    if (!entry) return false;
+    
+    // Check TTL expiration
+    if (ttl && entry.expiresAt && Date.now() > entry.expiresAt) {
+      cache.delete(cacheKey);
+      return false;
+    }
+    
+    return true;
+  };
+
+  wrapped.delete = (...args: Parameters<T>): void => {
+    const cacheKey = getCacheKey(...args);
+    cache.delete(cacheKey);
+  };
+
+  return wrapped as (
+    (...args: Parameters<T>) => ReturnType<T>
+  ) & {
+    clear: () => void;
+    size: number;
+    has: (...args: Parameters<T>) => boolean;
+    delete: (...args: Parameters<T>) => void;
   };
 }
 

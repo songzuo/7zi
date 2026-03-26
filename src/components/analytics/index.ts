@@ -30,3 +30,16 @@ export type { RealtimeTeamEfficiencyProps } from './RealtimeTeamEfficiency';
 
 export { RealtimeMetricsDashboard } from './RealtimeMetricsDashboard';
 export type { RealtimeMetricsDashboardProps } from './RealtimeMetricsDashboard';
+
+// Performance monitoring components
+export { PerformanceMetrics } from './PerformanceMetrics';
+export type { PerformanceMetricsProps } from './PerformanceMetrics';
+
+export { RealTimeCharts } from './RealTimeCharts';
+export type { RealTimeChartsProps } from './RealTimeCharts';
+
+export { PageLoadWaterfall } from './PageLoadWaterfall';
+export type { PageLoadWaterfallProps } from './PageLoadWaterfall';
+
+export { PerformanceMonitoringDashboard } from './PerformanceMonitoringDashboard';
+export type { PerformanceMonitoringDashboardProps } from './PerformanceMonitoringDashboard';

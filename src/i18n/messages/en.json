@@ -523,7 +523,39 @@
     "description": "Project Dashboard - View project progress and data"
   },
   "footer": {
-    "copyright": "© 2024 7zi Studio. All rights reserved."
+    "copyright": "© 2024 7zi Studio. All rights reserved.",
+    "aiPowered": "Powered by AI Agent Team · Infinite Innovation",
+    "brandDescription": "An innovative digital studio composed of 11 professional AI agents, providing comprehensive digital services including web development, brand design, and marketing.",
+    "followUs": "Follow Us",
+    "quickLinks": {
+      "title": "Quick Links",
+      "home": "Home",
+      "about": "About Us",
+      "team": "Team",
+      "blog": "Blog",
+      "contact": "Contact Us",
+      "dashboard": "Dashboard"
+    },
+    "services": {
+      "title": "Services",
+      "webDevelopment": "Web Development",
+      "brandDesign": "Brand Design",
+      "seoOptimization": "SEO Optimization",
+      "marketing": "Marketing",
+      "uiuxDesign": "UI/UX Design",
+      "aiSolutions": "AI Solutions"
+    },
+    "contact": {
+      "title": "Contact",
+      "email": "Email",
+      "website": "Website",
+      "address": "Address"
+    },
+    "legal": {
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "cookiePolicy": "Cookie Policy"
+    }
   },
   "errors": {
     "notFound": {

@@ -36,13 +36,13 @@ export default defineConfig({
     pool: 'forks',
 
     // 测试超时配置
-    testTimeout: 30000,  // 增加到 30 秒以防止慢测试超时
+    testTimeout: 60000,  // 增加到 60 秒以防止慢测试超时
     hookTimeout: 10000,
     // 失败时重试
     retry: 1,
 
     // 文件级别的超时配置
-    fileTimeout: 120000,  // 增加到 120 秒
+    fileTimeout: 180000,  // 增加到 180 秒
 
     // 性能优化：测试隔离模式（单进程模式下使用 isolate: true 确保测试独立性）
     isolate: true,

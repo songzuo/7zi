@@ -19,6 +19,7 @@ import {
   RefreshTokenFailureResponse,
   UserContext,
   UserRole,
+  UserStatus,
 } from './types';
 import { Role } from '@/lib/permissions/types';
 import {
@@ -57,23 +58,28 @@ function getJwtSecret(): string {
 async function generateJwtToken(user: User, expiresIn: number = 3600): Promise<string> {
   const secret = new TextEncoder().encode(getJwtSecret());
 
-  const token = await new SignJWT({
-    sub: user.id,
-    email: user.email,
-    role: user.role,
-    roles: user.roles || [],
-    permissions: user.permissions,
-    customPermissions: user.customPermissions || [],
-    type: 'user',
-  })
-    .setProtectedHeader({ alg: 'HS256' })
-    .setIssuedAt()
-    .setExpirationTime(Math.floor(Date.now() / 1000) + expiresIn)
-    .setIssuer('7zi-api')
-    .setAudience('7zi-users')
-    .sign(secret);
+  try {
+    const token = await new SignJWT({
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+      roles: user.roles || [],
+      permissions: user.permissions,
+      customPermissions: user.customPermissions || [],
+      type: 'user',
+    })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime(Math.floor(Date.now() / 1000) + expiresIn)
+      .setIssuer('7zi-api')
+      .setAudience('7zi-users')
+      .sign(secret);
 
-  return token;
+    return token;
+  } catch (error) {
+    logger.error('JWT token generation failed', error, { category: 'auth' });
+    throw new Error(`Failed to generate JWT token: ${error instanceof Error ? error.message : String(error)}`);
+  }
 }
 
 /**
@@ -158,6 +164,7 @@ export async function loginUser(request: LoginRequest): Promise<LoginSuccessResp
     // Find user by email
     const user = await getUserByEmail(request.email);
     if (!user) {
+      logger.info('Login failed: user not found', { email: request.email });
       return {
         success: false,
         error: 'Invalid email or password',
@@ -165,7 +172,8 @@ export async function loginUser(request: LoginRequest): Promise<LoginSuccessResp
     }
 
     // Check user status
-    if (user.status !== 'active') {
+    if (user.status !== UserStatus.ACTIVE) {
+      logger.info('Login failed: user not active', { userId: user.id, status: user.status });
       return {
         success: false,
         error: 'Account is not active',
@@ -175,6 +183,7 @@ export async function loginUser(request: LoginRequest): Promise<LoginSuccessResp
     // Verify password
     const isPasswordValid = verifyPassword(request.password, user.password);
     if (!isPasswordValid) {
+      logger.info('Login failed: invalid password', { userId: user.id });
       return {
         success: false,
         error: 'Invalid email or password',
@@ -202,7 +211,14 @@ export async function loginUser(request: LoginRequest): Promise<LoginSuccessResp
       expiresAt: dbToken.expiresAt,
     };
   } catch (error) {
-    logger.error('Login failed', error, { category: 'auth' });
+    // Detailed error logging for debugging
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    logger.error('Login failed', errorMessage, {
+      category: 'auth',
+      error: errorStack,
+      requestEmail: request.email,
+    });
     return {
       success: false,
       error: 'Login failed',

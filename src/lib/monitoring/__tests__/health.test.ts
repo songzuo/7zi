@@ -1,187 +1,350 @@
 /**
- * Health Monitoring Tests
+ * Monitoring Health Tests
+ * Tests for health.ts - health check functionality
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
-  basicHealthCheck,
-  detailedHealthCheck,
-  healthResponse,
-  probes,
+  HealthCheckResult,
+  checkDatabaseHealth,
+  checkRedisHealth,
+  checkExternalApiHealth,
+  checkMemoryHealth,
+  checkDiskHealth,
+  checkCpuHealth,
+  runHealthChecks,
   HealthStatus,
-} from '@/lib/monitoring/health';
+} from '../health';
 
-// Mock process.uptime
-vi.spyOn(process, 'uptime').mockReturnValue(3600);
+// Mock logger
+vi.mock('@/lib/logger', () => ({
+  logger: {
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  },
+}));
 
-// Mock fetch
-global.fetch = vi.fn();
-
-describe('Health Monitoring', () => {
+describe('Monitoring Health', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.stubEnv('NODE_ENV', 'test');
-    vi.stubEnv('NEXT_PUBLIC_SENTRY_RELEASE', 'v1.0.0');
-    vi.stubEnv('RESEND_API_KEY', 'test-key');
   });
 
-  afterEach(() => {
-    vi.unstubAllEnvs();
+  describe('checkDatabaseHealth', () => {
+    it('should return healthy status when database is accessible', async () => {
+      // Mock successful database connection
+      vi.mock('../db', () => ({
+        getDatabaseAsync: vi.fn().mockResolvedValue({
+          query: vi.fn().mockResolvedValue([]),
+        }),
+      }));
+
+      const result = await checkDatabaseHealth();
+
+      expect(result.status).toBe(HealthStatus.HEALTHY);
+      expect(result.name).toBe('database');
+      expect(result.message).toBeTruthy();
+    });
+
+    it('should return degraded status when database is slow', async () => {
+      // Mock slow database connection
+      vi.mock('../db', () => ({
+        getDatabaseAsync: vi.fn().mockImplementation(() =>
+          new Promise((resolve) => setTimeout(resolve, 2000))
+        ),
+      }));
+
+      const result = await checkDatabaseHealth();
+
+      expect(result.status).toBe(HealthStatus.DEGRADED);
+    });
+
+    it('should return unhealthy status when database is down', async () => {
+      // Mock failed database connection
+      vi.mock('../db', () => ({
+        getDatabaseAsync: vi.fn().mockRejectedValue(new Error('Connection failed')),
+      }));
+
+      const result = await checkDatabaseHealth();
+
+      expect(result.status).toBe(HealthStatus.UNHEALTHY);
+      expect(result.error).toBeTruthy();
+    });
   });
 
-  describe('basicHealthCheck', () => {
-    it('should return basic health status', () => {
-      const health = basicHealthCheck();
+  describe('checkRedisHealth', () => {
+    it('should return healthy status when Redis is accessible', async () => {
+      // Mock successful Redis connection
+      vi.mock('../cache', () => ({
+        cache: {
+          set: vi.fn().mockResolvedValue('OK'),
+          get: vi.fn().mockResolvedValue('value'),
+          del: vi.fn().mockResolvedValue(1),
+        },
+      }));
 
-      expect(health.status).toBe('ok');
-      expect(health.timestamp).toBeDefined();
-      expect(health.version).toBe('v1.0.0');
-      expect(health.uptime).toBe(3600);
-      expect(health.environment).toBe('test');
+      const result = await checkRedisHealth();
+
+      expect(result.status).toBe(HealthStatus.HEALTHY);
+      expect(result.name).toBe('redis');
     });
 
-    it('should use unknown for missing version', () => {
-      vi.stubEnv('NEXT_PUBLIC_SENTRY_RELEASE', undefined);
-      
-      const health = basicHealthCheck();
-      expect(health.version).toBe('unknown');
-    });
+    it('should return unhealthy status when Redis is down', async () => {
+      // Mock failed Redis connection
+      vi.mock('../cache', () => ({
+        cache: {
+          set: vi.fn().mockRejectedValue(new Error('Redis connection failed')),
+        },
+      }));
 
-    it('should use unknown for missing environment', () => {
-      vi.stubEnv('NODE_ENV', undefined);
-      
-      const health = basicHealthCheck();
-      expect(health.environment).toBe('unknown');
+      const result = await checkRedisHealth();
+
+      expect(result.status).toBe(HealthStatus.UNHEALTHY);
+      expect(result.error).toBeTruthy();
     });
   });
 
-  describe('detailedHealthCheck', () => {
-    it('should return ok status when all services are healthy', async () => {
-      vi.mocked(fetch).mockResolvedValueOnce({
+  describe('checkExternalApiHealth', () => {
+    it('should return healthy status for successful API call', async () => {
+      // Mock successful fetch
+      global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         status: 200,
-      } as Response).mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-      } as Response);
+        statusText: 'OK',
+      });
 
-      const health = await detailedHealthCheck();
+      const result = await checkExternalApiHealth('https://api.example.com');
 
-      expect(health.status).toBe('ok');
-      expect(health.checks).toBeDefined();
-      expect(health.checks?.githubApi?.status).toBe('ok');
-      expect(health.checks?.emailService?.status).toBe('ok');
+      expect(result.status).toBe(HealthStatus.HEALTHY);
+      expect(result.name).toBe('external-api');
     });
 
-    it('should return degraded when some services fail', async () => {
-      vi.mocked(fetch).mockRejectedValueOnce(new Error('Network error'))
-        .mockResolvedValueOnce({
-          ok: true,
-          status: 200,
-        } as Response);
+    it('should return unhealthy status for failed API call', async () => {
+      // Mock failed fetch
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+        statusText: 'Internal Server Error',
+      });
 
-      const health = await detailedHealthCheck();
+      const result = await checkExternalApiHealth('https://api.example.com');
 
-      expect(health.status).toBe('degraded');
-      expect(health.checks?.githubApi?.status).toBe('error');
-      expect(health.checks?.emailService?.status).toBe('ok');
+      expect(result.status).toBe(HealthStatus.UNHEALTHY);
     });
 
-    it('should return error when all services fail', async () => {
-      vi.mocked(fetch).mockRejectedValue(new Error('Network error'));
+    it('should handle network errors', async () => {
+      // Mock network error
+      global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
 
-      const health = await detailedHealthCheck();
+      const result = await checkExternalApiHealth('https://api.example.com');
 
-      expect(health.status).toBe('error');
-      expect(health.checks?.githubApi?.status).toBe('error');
-      expect(health.checks?.emailService?.status).toBe('error');
-    });
-
-    it('should include latency in check results', async () => {
-      const mockResponse = {
-        ok: true,
-        status: 200,
-      };
-
-      vi.mocked(fetch).mockResolvedValue(mockResponse as unknown as Response);
-
-      const health = await detailedHealthCheck();
-
-      expect(health.checks?.githubApi?.latency).toBeDefined();
-      expect(typeof health.checks?.githubApi?.latency).toBe('number');
+      expect(result.status).toBe(HealthStatus.UNHEALTHY);
+      expect(result.error).toBeTruthy();
     });
   });
 
-  describe('healthResponse', () => {
-    it('should return 200 for ok status', () => {
-      const status: HealthStatus = {
-        status: 'ok',
-        timestamp: new Date().toISOString(),
-        version: 'v1.0.0',
-        uptime: 3600,
-        environment: 'test',
-      };
+  describe('checkMemoryHealth', () => {
+    it('should return healthy status when memory usage is normal', () => {
+      // Mock process.memoryUsage
+      const mockMemoryUsage = vi.spyOn(process, 'memoryUsage').mockReturnValue({
+        rss: 100 * 1024 * 1024, // 100 MB
+        heapTotal: 50 * 1024 * 1024, // 50 MB
+        heapUsed: 30 * 1024 * 1024, // 30 MB
+        external: 5 * 1024 * 1024, // 5 MB
+        arrayBuffers: 2 * 1024 * 1024, // 2 MB
+      });
 
-      const response = healthResponse(status);
-      
-      expect(response.status).toBe(200);
+      const result = checkMemoryHealth(0.8); // 80% threshold
+
+      expect(result.status).toBe(HealthStatus.HEALTHY);
+      expect(result.name).toBe('memory');
+
+      mockMemoryUsage.mockRestore();
     });
 
-    it('should return 200 for degraded status', () => {
-      const status: HealthStatus = {
-        status: 'degraded',
-        timestamp: new Date().toISOString(),
-        version: 'v1.0.0',
-        uptime: 3600,
-        environment: 'test',
-      };
+    it('should return degraded status when memory usage is high', () => {
+      // Mock high memory usage
+      const mockMemoryUsage = vi.spyOn(process, 'memoryUsage').mockReturnValue({
+        rss: 1000 * 1024 * 1024, // 1 GB
+        heapTotal: 500 * 1024 * 1024, // 500 MB
+        heapUsed: 450 * 1024 * 1024, // 450 MB (90% of heapTotal)
+        external: 50 * 1024 * 1024, // 50 MB
+        arrayBuffers: 20 * 1024 * 1024, // 20 MB
+      });
 
-      const response = healthResponse(status);
-      expect(response.status).toBe(200);
+      const result = checkMemoryHealth(0.8); // 80% threshold
+
+      expect(result.status).toBe(HealthStatus.DEGRADED);
+      expect(result.name).toBe('memory');
+
+      mockMemoryUsage.mockRestore();
     });
 
-    it('should return 503 for error status', () => {
-      const status: HealthStatus = {
-        status: 'error',
-        timestamp: new Date().toISOString(),
-        version: 'v1.0.0',
-        uptime: 3600,
-        environment: 'test',
-      };
+    it('should return unhealthy status when memory usage is critical', () => {
+      // Mock critical memory usage
+      const mockMemoryUsage = vi.spyOn(process, 'memoryUsage').mockReturnValue({
+        rss: 1000 * 1024 * 1024, // 1 GB
+        heapTotal: 500 * 1024 * 1024, // 500 MB
+        heapUsed: 480 * 1024 * 1024, // 480 MB (96% of heapTotal)
+        external: 50 * 1024 * 1024, // 50 MB
+        arrayBuffers: 20 * 1024 * 1024, // 20 MB
+      });
 
-      const response = healthResponse(status);
-      expect(response.status).toBe(503);
+      const result = checkMemoryHealth(0.8); // 80% threshold
+
+      expect(result.status).toBe(HealthStatus.UNHEALTHY);
+      expect(result.name).toBe('memory');
+
+      mockMemoryUsage.mockRestore();
     });
   });
 
-  describe('probes', () => {
-    describe('liveness', () => {
-      it('should return alive status', () => {
-        const response = probes.liveness();
-        
-        expect(response.status).toBe(200);
-      });
+  describe('checkDiskHealth', () => {
+    it('should return healthy status when disk space is sufficient', async () => {
+      // Mock file system stats
+      vi.mock('fs', () => ({
+        promises: {
+          statfs: vi.fn().mockResolvedValue({
+            bavail: 1000000,
+            btotal: 5000000,
+            bsize: 4096,
+          }),
+        },
+      }));
+
+      const result = await checkDiskHealth('/');
+
+      expect(result.status).toBe(HealthStatus.HEALTHY);
+      expect(result.name).toBe('disk');
     });
 
-    describe('readiness', () => {
-      it('should check detailed health', async () => {
-        vi.mocked(fetch).mockResolvedValue({
-          ok: true,
-          status: 200,
-        } as unknown as Response);
+    it('should return degraded status when disk space is low', async () => {
+      // Mock low disk space
+      vi.mock('fs', () => ({
+        promises: {
+          statfs: vi.fn().mockResolvedValue({
+            bavail: 100000,
+            btotal: 5000000,
+            bsize: 4096,
+          }),
+        },
+      }));
 
-        const response = await probes.readiness();
-        
-        expect(response.status).toBe(200);
-      });
+      const result = await checkDiskHealth('/');
+
+      expect(result.status).toBe(HealthStatus.DEGRADED);
+      expect(result.name).toBe('disk');
     });
 
-    describe('startup', () => {
-      it('should return started status', () => {
-        const response = probes.startup();
-        
-        expect(response.status).toBe(200);
+    it('should return unhealthy status when disk is full', async () => {
+      // Mock full disk
+      vi.mock('fs', () => ({
+        promises: {
+          statfs: vi.fn().mockResolvedValue({
+            bavail: 10000,
+            btotal: 5000000,
+            bsize: 4096,
+          }),
+        },
+      }));
+
+      const result = await checkDiskHealth('/');
+
+      expect(result.status).toBe(HealthStatus.UNHEALTHY);
+      expect(result.name).toBe('disk');
+    });
+
+    it('should handle file system errors', async () => {
+      // Mock fs error
+      vi.mock('fs', () => ({
+        promises: {
+          statfs: vi.fn().mockRejectedValue(new Error('Access denied')),
+        },
+      }));
+
+      const result = await checkDiskHealth('/');
+
+      expect(result.status).toBe(HealthStatus.UNHEALTHY);
+      expect(result.error).toBeTruthy();
+    });
+  });
+
+  describe('checkCpuHealth', () => {
+    it('should return healthy status when CPU usage is normal', () => {
+      // Mock CPU usage
+      const mockCpuUsage = vi.spyOn(process, 'cpuUsage').mockReturnValue({
+        user: 100000,
+        system: 50000,
       });
+
+      const result = checkCpuHealth(0.8);
+
+      expect(result.status).toBe(HealthStatus.HEALTHY);
+      expect(result.name).toBe('cpu');
+
+      mockCpuUsage.mockRestore();
+    });
+
+    it('should return degraded status when CPU usage is high', () => {
+      // Mock high CPU usage
+      const mockCpuUsage = vi.spyOn(process, 'cpuUsage').mockReturnValue({
+        user: 8000000,
+        system: 4000000,
+      });
+
+      const result = checkCpuHealth(0.8);
+
+      expect(result.status).toBe(HealthStatus.DEGRADED);
+      expect(result.name).toBe('cpu');
+
+      mockCpuUsage.mockRestore();
+    });
+  });
+
+  describe('runHealthChecks', () => {
+    it('should run all health checks and return results', async () => {
+      const results = await runHealthChecks({
+        checks: ['database', 'memory', 'disk'],
+        thresholds: {
+          memory: 0.8,
+          disk: 0.2,
+        },
+      });
+
+      expect(results).toHaveProperty('status');
+      expect(results).toHaveProperty('checks');
+      expect(Array.isArray(results.checks)).toBe(true);
+    });
+
+    it('should return overall healthy status when all checks pass', async () => {
+      const results = await runHealthChecks({
+        checks: ['memory'],
+        thresholds: {
+          memory: 0.9,
+        },
+      });
+
+      expect(results.status).toBe(HealthStatus.HEALTHY);
+    });
+
+    it('should return overall unhealthy status when any check fails', async () => {
+      const results = await runHealthChecks({
+        checks: ['memory'],
+        thresholds: {
+          memory: 0.1, // Very low threshold
+        },
+      });
+
+      expect(results.status).toBe(HealthStatus.UNHEALTHY);
+    });
+
+    it('should handle empty checks array', async () => {
+      const results = await runHealthChecks({
+        checks: [],
+      });
+
+      expect(results.status).toBe(HealthStatus.HEALTHY);
+      expect(results.checks).toHaveLength(0);
     });
   });
 });

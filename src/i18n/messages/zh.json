@@ -523,7 +523,39 @@
     "description": "项目控制台 - 查看项目进度和数据"
   },
   "footer": {
-    "copyright": "© 2024 7zi Studio. All rights reserved."
+    "copyright": "© 2024 7zi Studio. All rights reserved.",
+    "aiPowered": "由 AI 代理团队驱动 · 创新无限可能",
+    "brandDescription": "由 11 位专业 AI 代理组成的创新数字工作室，提供网站开发、品牌设计、营销推广等全方位数字化服务。",
+    "followUs": "关注我们",
+    "quickLinks": {
+      "title": "快速链接",
+      "home": "首页",
+      "about": "关于我们",
+      "team": "团队成员",
+      "blog": "博客",
+      "contact": "联系我们",
+      "dashboard": "控制台"
+    },
+    "services": {
+      "title": "服务项目",
+      "webDevelopment": "网站开发",
+      "brandDesign": "品牌设计",
+      "seoOptimization": "SEO 优化",
+      "marketing": "营销推广",
+      "uiuxDesign": "UI/UX 设计",
+      "aiSolutions": "AI 解决方案"
+    },
+    "contact": {
+      "title": "联系方式",
+      "email": "邮箱",
+      "website": "网站",
+      "address": "地址"
+    },
+    "legal": {
+      "privacyPolicy": "隐私政策",
+      "termsOfService": "服务条款",
+      "cookiePolicy": "Cookie 政策"
+    }
   },
   "errors": {
     "notFound": {

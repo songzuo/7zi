@@ -1,6 +1,6 @@
 import { Pathnames, LocalePrefix } from 'next-intl/routing';
 
-export const locales = ['zh', 'en', 'ja', 'ko', 'fr', 'de'] as const;
+export const locales = ['zh', 'en', 'ja', 'ko', 'es', 'fr', 'de'] as const;
 export type Locale = (typeof locales)[number];
 
 export const defaultLocale: Locale = 'zh';
@@ -12,6 +12,7 @@ export const pathnames: Pathnames<typeof locales> = {
     en: '/about',
     ja: '/about',
     ko: '/about',
+    es: '/about',
     fr: '/about',
     de: '/about'
   },
@@ -20,6 +21,7 @@ export const pathnames: Pathnames<typeof locales> = {
     en: '/team',
     ja: '/team',
     ko: '/team',
+    es: '/team',
     fr: '/team',
     de: '/team'
   },
@@ -28,6 +30,7 @@ export const pathnames: Pathnames<typeof locales> = {
     en: '/contact',
     ja: '/contact',
     ko: '/contact',
+    es: '/contact',
     fr: '/contact',
     de: '/contact'
   },
@@ -36,6 +39,7 @@ export const pathnames: Pathnames<typeof locales> = {
     en: '/blog',
     ja: '/blog',
     ko: '/blog',
+    es: '/blog',
     fr: '/blog',
     de: '/blog'
   },
@@ -44,6 +48,7 @@ export const pathnames: Pathnames<typeof locales> = {
     en: '/dashboard',
     ja: '/dashboard',
     ko: '/dashboard',
+    es: '/dashboard',
     fr: '/dashboard',
     de: '/dashboard'
   }
