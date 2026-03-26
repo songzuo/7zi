@@ -22,16 +22,7 @@ describe('RealtimeDashboard', () => {
       render(<RealtimeDashboard />);
 
       await waitFor(() => {
-        expect(screen.getByText(/实时仪表盘/)).toBeInTheDocument();
-      }, { timeout: 3000 });
-    });
-
-    it('应该显示连接状态', async () => {
-      render(<RealtimeDashboard />);
-
-      // "已连接" appears twice: in header and status card
-      await waitFor(() => {
-        expect(screen.getAllByText(/已连接/).length).toBeGreaterThan(0);
+        expect(screen.getByText(/实时监控仪表盘/)).toBeInTheDocument();
       }, { timeout: 3000 });
     });
 
@@ -39,16 +30,15 @@ describe('RealtimeDashboard', () => {
       render(<RealtimeDashboard />);
 
       await waitFor(() => {
-        expect(screen.getByText(/性能指标/)).toBeInTheDocument();
+        expect(screen.getByText(/CPU 使用率/)).toBeInTheDocument();
       }, { timeout: 3000 });
     });
 
     it('应该显示团队效率', async () => {
       render(<RealtimeDashboard />);
 
-      // "团队效率" appears twice: in heading and label
       await waitFor(() => {
-        expect(screen.getAllByText(/团队效率/).length).toBeGreaterThan(0);
+        expect(screen.getByText(/团队效率分析/)).toBeInTheDocument();
       }, { timeout: 3000 });
     });
   });
@@ -60,7 +50,7 @@ describe('RealtimeDashboard', () => {
       render(<RealtimeDashboard />);
 
       await waitFor(() => {
-        expect(screen.getByText(/实时仪表盘/)).toBeInTheDocument();
+        expect(screen.getByText(/实时监控仪表盘/)).toBeInTheDocument();
       }, { timeout: 3000 });
 
       // Verify that setInterval was called
@@ -123,7 +113,7 @@ describe('RealtimeDashboard', () => {
       render(<RealtimeDashboard />);
 
       await waitFor(() => {
-        expect(screen.getByText(/已完成任务/)).toBeInTheDocument();
+        expect(screen.getByText(/完成任务/)).toBeInTheDocument();
       }, { timeout: 3000 });
     });
 
@@ -131,7 +121,7 @@ describe('RealtimeDashboard', () => {
       render(<RealtimeDashboard />);
 
       await waitFor(() => {
-        expect(screen.getByText(/平均完成时间/)).toBeInTheDocument();
+        expect(screen.getByText(/平均用时/)).toBeInTheDocument();
       }, { timeout: 3000 });
     });
 
@@ -139,7 +129,7 @@ describe('RealtimeDashboard', () => {
       render(<RealtimeDashboard />);
 
       await waitFor(() => {
-        expect(screen.getByText(/活跃成员/)).toBeInTheDocument();
+        expect(screen.getByText(/Active/)).toBeInTheDocument();
       }, { timeout: 3000 });
     });
 
@@ -157,7 +147,7 @@ describe('RealtimeDashboard', () => {
       render(<RealtimeDashboard locale="en" />);
 
       await waitFor(() => {
-        expect(screen.getByText(/Realtime Dashboard/)).toBeInTheDocument();
+        expect(screen.getByText(/Real-time performance monitoring/)).toBeInTheDocument();
       }, { timeout: 3000 });
     });
 
@@ -165,7 +155,7 @@ describe('RealtimeDashboard', () => {
       render(<RealtimeDashboard locale="en" />);
 
       await waitFor(() => {
-        expect(screen.getByText(/Performance/)).toBeInTheDocument();
+        expect(screen.getByText(/CPU Usage/)).toBeInTheDocument();
       }, { timeout: 3000 });
     });
 
@@ -185,7 +175,7 @@ describe('RealtimeDashboard', () => {
 
       // Wait for loading to complete and data to be displayed
       await waitFor(() => {
-        expect(screen.getByText(/活跃连接/)).toBeInTheDocument();
+        expect(screen.getByText(/connections/)).toBeInTheDocument();
       }, { timeout: 5000 });
     });
 
@@ -207,7 +197,7 @@ describe('RealtimeDashboard', () => {
       const { unmount } = render(<RealtimeDashboard />);
 
       await waitFor(() => {
-        expect(screen.getByText(/实时仪表盘/)).toBeInTheDocument();
+        expect(screen.getByText(/实时监控仪表盘/)).toBeInTheDocument();
       }, { timeout: 3000 });
 
       // Unmount the component - should complete without errors

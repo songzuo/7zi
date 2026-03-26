@@ -134,21 +134,55 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Batch retrieve users
-    const users = await Promise.all(
-      ids.map(async (id) => {
-        try {
-          const user = await getUserById(id);
-          return user ? { id, user, error: null } : { id, user: null, error: 'User not found' };
-        } catch (error) {
-          const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-          return { id, user: null, error: errorMsg };
-        }
-      })
-    );
+    // OPTIMIZED: Single bulk query instead of N individual queries (N+1 fix)
+    const { getDatabaseAsync } = await import('@/lib/db');
+    const db = await getDatabaseAsync();
+    const placeholders = ids.map(() => '?').join(',');
+    
+    let users: any[] = [];
+    try {
+      users = (await db.query(
+        `SELECT id, email, name, role, status, created_at, updated_at FROM users WHERE id IN (${placeholders})`,
+        ids
+      )) as any[];
+    } catch (dbError) {
+      // Fallback to individual queries if bulk query fails
+      const fallbackUsers = await Promise.all(
+        ids.map(async (id) => {
+          try {
+            const user = await getUserById(id);
+            return user ? { id, user, error: null } : { id, user: null, error: 'User not found' };
+          } catch (error) {
+            const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+            return { id, user: null, error: errorMsg };
+          }
+        })
+      );
+      const successfulUsers = fallbackUsers.filter(u => u.user).map(u => u.user);
+      const failed = fallbackUsers.filter(u => !u.user);
+      return NextResponse.json({
+        success: true,
+        data: successfulUsers,
+        meta: {
+          total: ids.length,
+          successful: successfulUsers.length,
+          failed: failed.length,
+          errors: failed.length > 0 ? failed.map(f => ({ id: f.id, error: f.error })) : undefined,
+        },
+      });
+    }
 
-    const successfulUsers = users.filter(u => u.user).map(u => u.user);
-    const failed = users.filter(u => !u.user);
+    const userMap = new Map(users.map(u => [u.id, u]));
+    const successfulUsers: any[] = [];
+    const failed: { id: string; error: string }[] = [];
+    
+    for (const id of ids) {
+      if (userMap.has(id)) {
+        successfulUsers.push(userMap.get(id));
+      } else {
+        failed.push({ id, error: 'User not found' });
+      }
+    }
 
     return NextResponse.json({
       success: true,
@@ -267,15 +301,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if any emails already exist
-    const existingEmails = await Promise.all(
-      emails.map(async (email) => {
-        const existing = await getUserByEmail(email);
-        return existing ? email : null;
-      })
-    );
+    // OPTIMIZED: Single bulk query instead of N individual email checks (N+1 fix)
+    const { getDatabaseAsync } = await import('@/lib/db');
+    const db = await getDatabaseAsync();
+    const emailPlaceholders = emails.map(() => '?').join(',');
+    
+    let existingUsers: any[] = [];
+    try {
+      existingUsers = (await db.query(
+        `SELECT email FROM users WHERE email IN (${emailPlaceholders})`,
+        emails
+      )) as any[];
+    } catch (dbError) {
+      // Fallback to individual queries if bulk query fails
+      const fallbackExisting = await Promise.all(
+        emails.map(async (email) => {
+          const existing = await getUserByEmail(email);
+          return existing ? email : null;
+        })
+      );
+      existingUsers = fallbackExisting.filter(e => e !== null).map(email => ({ email }));
+    }
 
-    const duplicateEmails = existingEmails.filter(e => e !== null);
+    const duplicateEmails = existingUsers.map(u => u.email);
     if (duplicateEmails.length > 0) {
       return NextResponse.json(
         {
@@ -519,15 +567,29 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Check if users exist before deleting
-    const existingUsers = await Promise.all(
-      ids.map(async (id) => {
-        const user = await getUserById(id);
-        return user ? id : null;
-      })
-    );
+    // OPTIMIZED: Single bulk query to check existing users instead of N queries (N+1 fix)
+    const { getDatabaseAsync } = await import('@/lib/db');
+    const db = await getDatabaseAsync();
+    const placeholders = ids.map(() => '?').join(',');
+    
+    let existingDbUsers: any[] = [];
+    try {
+      existingDbUsers = (await db.query(
+        `SELECT id FROM users WHERE id IN (${placeholders})`,
+        ids
+      )) as any[];
+    } catch (dbError) {
+      // Fallback to individual queries if bulk query fails
+      const fallbackExisting = await Promise.all(
+        ids.map(async (id) => {
+          const user = await getUserById(id);
+          return user ? id : null;
+        })
+      );
+      existingDbUsers = fallbackExisting.filter(id => id !== null).map(id => ({ id }));
+    }
 
-    const existingIds = existingUsers.filter(id => id !== null) as string[];
+    const existingIds = existingDbUsers.map(u => u.id);
     const notFoundIds = ids.filter(id => !existingIds.includes(id));
 
     // Import delete function from repository

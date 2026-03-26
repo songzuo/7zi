@@ -4,8 +4,8 @@ Complete API documentation for the 7zi AI Team Management Platform.
 
 ---
 
-**Last Updated:** 2026-03-21
-**Version:** v1.0.6
+**Last Updated:** 2026-03-26
+**Version:** v1.2.0
 **Reviewer:** AI Documentation Agent
 **Total Endpoints:** 50+ (including 15+ RBAC endpoints)
 
@@ -3146,3 +3146,201 @@ Revalidate cache by tag.
 ---
 
 *Documented by AI 主管 - 2026-03-25*
+
+---
+
+## 📝 Additional APIs (Added in v1.2.0)
+
+### 💼 Projects APIs
+
+#### List Projects
+**Endpoint:** `GET /api/projects`
+
+Get all projects.
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "projects": [...]
+}
+```
+
+#### Create Project
+**Endpoint:** `POST /api/projects`
+
+Create a new project.
+
+**Request Body:**
+```json
+{
+  "name": "Project Name",
+  "description": "Description"
+}
+```
+
+### ✅ Tasks APIs
+
+#### List Tasks
+**Endpoint:** `GET /api/tasks`
+
+Get all tasks.
+
+#### Create Task
+**Endpoint:** `POST /api/tasks`
+
+Create a new task.
+
+### ⭐ Ratings APIs
+
+#### List Ratings
+**Endpoint:** `GET /api/ratings`
+
+#### Create Rating
+**Endpoint:** `POST /api/ratings`
+
+#### Get Rating
+**Endpoint:** `GET /api/ratings/[id]`
+
+#### Update Rating
+**Endpoint:** `PATCH /api/ratings/[id]`
+
+#### Delete Rating
+**Endpoint:** `DELETE /api/ratings/[id]`
+
+#### Mark Helpful
+**Endpoint:** `POST /api/ratings/[id]/helpful`
+
+### 🔍 Search APIs
+
+#### Search
+**Endpoint:** `GET /api/search`
+
+**Query Parameters:**
+- `q` - Search query
+- `limit` - Results limit
+
+#### Autocomplete
+**Endpoint:** `GET /api/search/autocomplete`
+
+#### Search History
+**Endpoint:** `GET /api/search/history`
+
+### 💾 Backup Schedule APIs
+
+#### List Schedules
+**Endpoint:** `GET /api/backup/schedule`
+
+#### Create Schedule
+**Endpoint:** `POST /api/backup/schedule`
+
+#### Get Schedule
+**Endpoint:** `GET /api/backup/schedule/[id]`
+
+#### Update Schedule
+**Endpoint:** `PUT /api/backup/schedule/[id]`
+
+#### Delete Schedule
+**Endpoint:** `DELETE /api/backup/schedule/[id]`
+
+#### Trigger Schedule
+**Endpoint:** `POST /api/backup/schedule/[id]/trigger`
+
+#### Backup Statistics
+**Endpoint:** `GET /api/backup/statistics`
+
+#### Backup Jobs
+**Endpoint:** `GET /api/backup/jobs`
+
+### 🌐 WebSocket APIs
+
+#### WebSocket Connection
+**Endpoint:** `GET /api/ws`
+
+Upgrade to WebSocket connection for real-time updates.
+
+#### WebSocket Stats
+**Endpoint:** `GET /api/ws/stats`
+
+Get WebSocket server statistics.
+
+#### Room Info
+**Endpoint:** `GET /api/ws/rooms/[roomId]`
+
+Get information about a specific room.
+
+#### Broadcast
+**Endpoint:** `POST /api/ws/broadcast`
+
+Broadcast message to all connected clients.
+
+### 🤖 A2A Registry APIs
+
+#### List Agents
+**Endpoint:** `GET /api/a2a/registry`
+
+#### Register Agent
+**Endpoint:** `POST /api/a2a/registry`
+
+#### Get Agent
+**Endpoint:** `GET /api/a2a/registry/[id]`
+
+#### Update Agent
+**Endpoint:** `PUT /api/a2a/registry/[id]`
+
+#### Agent Heartbeat
+**Endpoint:** `POST /api/a2a/registry/[id]/heartbeat`
+
+#### A2A Queue
+**Endpoint:** `POST /api/a2a/queue`
+
+### 📊 Performance Metrics APIs
+
+#### Performance Metrics
+**Endpoint:** `GET /api/performance/metrics`
+
+#### Performance Alerts
+**Endpoint:** `GET /api/performance/alerts`
+
+### 📥 Data Import/Export APIs
+
+#### Export Data
+**Endpoint:** `POST /api/data/export`
+
+#### Import Data
+**Endpoint:** `POST /api/data/import`
+
+### 👤 User Profile APIs
+
+#### Get User Preferences
+**Endpoint:** `GET /api/user/preferences`
+
+#### Update User Preferences
+**Endpoint:** `PUT /api/user/preferences`
+
+#### Get User Activity
+**Endpoint:** `GET /api/users/[userId]/activity`
+
+#### Update User Avatar
+**Endpoint:** `PUT /api/users/[userId]/avatar`
+
+#### Batch Operations
+**Endpoint:** `POST /api/users/batch`
+**Endpoint:** `POST /api/users/batch/bulk`
+
+### 📊 Web Vitals APIs
+
+#### Report Web Vitals
+**Endpoint:** `POST /api/web-vitals`
+
+#### Report Vitals
+**Endpoint:** `POST /api/vitals`
+
+### 🔒 Security APIs
+
+#### CSP Violation Report
+**Endpoint:** `POST /api/csp-violation`
+
+---
+
+*API documentation updated by AI 主管 - 2026-03-26*

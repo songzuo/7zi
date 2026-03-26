@@ -13,6 +13,7 @@ import { NextRequest } from 'next/server';
 import * as Sentry from '@sentry/nextjs';
 import { createSuccessResponse, createErrorResponse, createValidationError } from '@/lib/api/error-handler';
 import { logger } from '@/lib/logger';
+import { getWebVitalsDB } from '@/lib/web-vitals-db';
 
 // ============================================
 // 类型定义
@@ -209,17 +210,28 @@ export async function POST(request: NextRequest) {
     // 计算性能评分
     const performanceScore = calculatePerformanceScore(enrichedMetrics);
 
-    // TODO: 存储到数据库
-    // await db.webVitals.createMany({
-    //   data: enrichedMetrics.map(metric => ({
-    //     name: metric.name,
-    //     value: metric.value,
-    //     rating: metric.rating,
-    //     route: metric.route,
-    //     deviceType,
-    //     timestamp: new Date(metric.timestamp),
-    //   })),
-    // });
+    // 存储到数据库
+    try {
+      const db = getWebVitalsDB();
+      db.insertMany(enrichedMetrics.map(metric => ({
+        name: metric.name,
+        value: metric.value,
+        rating: metric.rating,
+        route: metric.route,
+        deviceType,
+        userAgent: metric.userAgent,
+        sessionId: metric.sessionId,
+        timestamp: new Date(metric.timestamp),
+      })));
+
+      logger.info('[Web Vitals] Metrics stored to database', {
+        count: enrichedMetrics.length,
+        score: performanceScore,
+      });
+    } catch (dbError) {
+      // Log database error but don't fail the request
+      logger.error('[Web Vitals] Failed to store metrics in database:', dbError instanceof Error ? dbError : new Error(String(dbError)), { category: 'web-vitals' });
+    }
 
     // 返回成功响应
     return createSuccessResponse({
@@ -241,25 +253,17 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const route = searchParams.get('route');
+    const route = searchParams.get('route') || undefined;
     const hours = parseInt(searchParams.get('hours') || '24', 10);
 
-    // TODO: 从数据库查询统计数据
-    // const stats = await db.webVitals.groupBy({
-    //   by: ['name', 'rating'],
-    //   where: {
-    //     route: route || undefined,
-    //     timestamp: {
-    //       gte: new Date(Date.now() - hours * 60 * 60 * 1000),
-    //     },
-    //   },
-    //   _count: true,
-    // });
+    // 从数据库查询统计数据
+    const db = getWebVitalsDB();
+    const stats = db.getStats({ route, hours });
 
     return createSuccessResponse({
-      message: 'Database integration pending',
       route,
       hours,
+      ...stats,
     });
 
   } catch (error) {
