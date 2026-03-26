@@ -188,6 +188,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({ filter, selectedValues,
                           alt={option.label}
                           width={20}
                           height={20}
+                          sizes="20px"
                           className="rounded-full"
                           unoptimized
                         />

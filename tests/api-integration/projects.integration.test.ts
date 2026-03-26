@@ -1,32 +1,23 @@
 /**
  * @fileoverview Projects API integration tests
- * @description Tests for /api/projects endpoints - Project CRUD operations
- *
- * @note This test file is a placeholder for future implementation.
- * The actual /api/projects endpoints need to be created first.
- *
- * Expected endpoints:
- * - GET /api/projects - List all projects
- * - GET /api/projects/:id - Get a single project
- * - POST /api/projects - Create a new project
- * - PUT /api/projects/:id - Update a project
- * - DELETE /api/projects/:id - Delete a project
- *
- * Expected query parameters:
- * - ownerId - Filter projects by owner
- * - status - Filter by status (active, archived)
+ * @description Tests for /api/projects endpoints using MSW handlers
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { server } from './mocks/handlers';
-import { MockDataGenerator } from './mocks/data';
+import { server, mockData } from './mocks/handlers';
 
-const mockData = new MockDataGenerator();
+function getAuthHeader(userId: string): HeadersInit {
+  const token = mockData.generateToken(userId);
+  return { 'Authorization': `Bearer ${token}` };
+}
 
-describe('/api/projects - Integration Tests (Placeholder)', () => {
-  beforeEach(() => {
+describe('/api/projects - Integration Tests', () => {
+  beforeAll(() => {
     server.listen();
-    mockData.resetAll();
+  });
+
+  beforeEach(() => {
+    mockData.resetProjects();
   });
 
   afterEach(() => {
@@ -37,371 +28,412 @@ describe('/api/projects - Integration Tests (Placeholder)', () => {
     server.close();
   });
 
-  describe('Placeholder Tests', () => {
-    it('should indicate that projects API is not yet implemented', async () => {
-      // This is a placeholder test
-      // Once /api/projects endpoints are implemented, this should be replaced
-      // with actual integration tests
-
-      // For now, let's verify our mock data generator works
+  describe('POST /api/projects', () => {
+    it('should create a project with valid data', async () => {
       const user = mockData.createUser({
-        email: 'test@example.com',
+        email: 'owner@example.com',
         password: 'SecurePass123',
-        name: 'Test User',
-      });
-      expect(user).toBeDefined();
-      expect(user.id).toBeDefined();
-
-      const project = mockData.createProject({
-        name: 'Test Project',
-        description: 'A test project',
-        ownerId: user.id,
+        name: 'Project Owner',
       });
 
-      expect(project).toBeDefined();
-      expect(project.id).toBeDefined();
-      expect(project.name).toBe('Test Project');
-      expect(project.ownerId).toBe(user.id);
+      const response = await fetch('http://localhost:3000/api/projects', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeader(user.id),
+        },
+        body: JSON.stringify({
+          name: 'New Project',
+          description: 'Project description',
+        }),
+      });
+
+      const data = await response.json();
+
+      expect(response.status).toBe(201);
+      expect(data.success).toBe(true);
+      expect(data.data.name).toBe('New Project');
+      expect(data.data.description).toBe('Project description');
+      expect(data.data.ownerId).toBe(user.id);
+      expect(data.data.status).toBe('active');
     });
 
-    it('should support project CRUD operations in mock data', () => {
-      const user = mockData.createUser({
-        email: 'test@example.com',
-        password: 'SecurePass123',
-        name: 'Test User',
+    it('should reject project creation without auth token', async () => {
+      const response = await fetch('http://localhost:3000/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'No Auth Project' }),
       });
 
-      // Create
-      const project = mockData.createProject({
-        name: 'New Project',
-        description: 'Project description',
-        ownerId: user.id,
-      });
+      const data = await response.json();
 
-      expect(project.name).toBe('New Project');
-      expect(project.status).toBe('active');
-
-      // Read
-      const foundProject = mockData.getProjectById(project.id);
-      expect(foundProject).not.toBeNull();
-      expect(foundProject?.name).toBe('New Project');
-
-      // Update
-      const updatedProject = mockData.updateProject(project.id, {
-        name: 'Updated Project',
-        description: 'Updated description',
-        status: 'archived',
-      });
-
-      expect(updatedProject?.name).toBe('Updated Project');
-      expect(updatedProject?.description).toBe('Updated description');
-      expect(updatedProject?.status).toBe('archived');
-
-      // Delete
-      const deleted = mockData.deleteProject(project.id);
-      expect(deleted).toBe(true);
-
-      const afterDelete = mockData.getProjectById(project.id);
-      expect(afterDelete).toBeNull();
+      expect(response.status).toBe(401);
+      expect(data.success).toBe(false);
     });
 
-    it('should filter projects by owner', () => {
+    it('should reject project creation without name', async () => {
+      const user = mockData.createUser({
+        email: 'owner@example.com',
+        password: 'SecurePass123',
+        name: 'Project Owner',
+      });
+
+      const response = await fetch('http://localhost:3000/api/projects', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeader(user.id),
+        },
+        body: JSON.stringify({ description: 'No name' }),
+      });
+
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data.success).toBe(false);
+    });
+
+    it('should reject project with empty name', async () => {
+      const user = mockData.createUser({
+        email: 'owner@example.com',
+        password: 'SecurePass123',
+        name: 'Project Owner',
+      });
+
+      const response = await fetch('http://localhost:3000/api/projects', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeader(user.id),
+        },
+        body: JSON.stringify({ name: '   ' }),
+      });
+
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data.success).toBe(false);
+    });
+
+    it('should create project with optional status', async () => {
+      const user = mockData.createUser({
+        email: 'owner@example.com',
+        password: 'SecurePass123',
+        name: 'Project Owner',
+      });
+
+      const response = await fetch('http://localhost:3000/api/projects', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeader(user.id),
+        },
+        body: JSON.stringify({
+          name: 'Archived Project',
+          status: 'archived',
+        }),
+      });
+
+      const data = await response.json();
+
+      expect(response.status).toBe(201);
+      expect(data.data.status).toBe('archived');
+    });
+  });
+
+  describe('GET /api/projects', () => {
+    beforeEach(() => {
       const user1 = mockData.createUser({
-        email: 'test@example.com',
+        email: 'owner1@example.com',
         password: 'SecurePass123',
-        name: 'Test User',
+        name: 'Owner 1',
       });
       const user2 = mockData.createUser({
-        email: 'admin@example.com',
-        password: 'AdminPass123',
-        name: 'Admin User',
+        email: 'owner2@example.com',
+        password: 'SecurePass123',
+        name: 'Owner 2',
       });
+      mockData.generateToken(user1.id);
+      mockData.generateToken(user2.id);
 
-      mockData.createProject({
-        name: 'User 1 Project 1',
-        ownerId: user1.id,
-      });
-      mockData.createProject({
-        name: 'User 1 Project 2',
-        ownerId: user1.id,
-      });
-      mockData.createProject({
-        name: 'User 2 Project 1',
-        ownerId: user2.id,
-      });
-
-      const user1Projects = mockData.getProjectsByOwner(user1.id);
-      const user2Projects = mockData.getProjectsByOwner(user2.id);
-
-      expect(user1Projects.length).toBe(2);
-      expect(user2Projects.length).toBe(1);
-
-      expect(user1Projects.every(p => p.ownerId === user1.id)).toBe(true);
-      expect(user2Projects.every(p => p.ownerId === user2.id)).toBe(true);
+      mockData.createProject({ name: 'Project A', ownerId: user1.id, status: 'active' });
+      mockData.createProject({ name: 'Project B', ownerId: user1.id, status: 'archived' });
+      mockData.createProject({ name: 'Project C', ownerId: user2.id, status: 'active' });
     });
 
-    it('should filter projects by status', () => {
+    it('should return list of projects', async () => {
+      const response = await fetch('http://localhost:3000/api/projects');
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.success).toBe(true);
+      expect(data.data.items).toBeDefined();
+      expect(Array.isArray(data.data.items)).toBe(true);
+      expect(data.data.total).toBeDefined();
+    });
+
+    it('should filter projects by ownerId', async () => {
+      const users = Array.from(mockData.getAllUsers());
+      const user1 = users.find(u => u.email === 'owner1@example.com');
+
+      const response = await fetch(`http://localhost:3000/api/projects?ownerId=${user1!.id}`);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      data.data.items.forEach((project: any) => {
+        expect(project.ownerId).toBe(user1!.id);
+      });
+    });
+
+    it('should filter projects by status', async () => {
+      const response = await fetch('http://localhost:3000/api/projects?status=active');
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      data.data.items.forEach((project: any) => {
+        expect(project.status).toBe('active');
+      });
+    });
+
+    it('should filter by status archived', async () => {
+      const response = await fetch('http://localhost:3000/api/projects?status=archived');
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      data.data.items.forEach((project: any) => {
+        expect(project.status).toBe('archived');
+      });
+    });
+  });
+
+  describe('GET /api/projects/:id', () => {
+    it('should return a project by id', async () => {
       const user = mockData.createUser({
-        email: 'test@example.com',
+        email: 'getuser@example.com',
         password: 'SecurePass123',
-        name: 'Test User',
+        name: 'Get User',
+      });
+      mockData.generateToken(user.id);
+
+      const project = mockData.createProject({
+        name: 'Single Project',
+        description: 'Description',
+        ownerId: user.id,
       });
 
-      const project1 = mockData.createProject({
-        name: 'Active Project',
+      const response = await fetch(`http://localhost:3000/api/projects/${project.id}`);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.success).toBe(true);
+      expect(data.data.id).toBe(project.id);
+      expect(data.data.name).toBe('Single Project');
+    });
+
+    it('should return 404 for non-existent project', async () => {
+      const response = await fetch('http://localhost:3000/api/projects/non-existent-id');
+      const data = await response.json();
+
+      expect(response.status).toBe(404);
+      expect(data.success).toBe(false);
+      expect(data.error.type).toBe('NOT_FOUND');
+    });
+  });
+
+  describe('PUT /api/projects/:id', () => {
+    it('should update project name', async () => {
+      const user = mockData.createUser({
+        email: 'updateuser@example.com',
+        password: 'SecurePass123',
+        name: 'Update User',
+      });
+      const token = getAuthHeader(user.id);
+
+      const project = mockData.createProject({
+        name: 'Original Name',
+        ownerId: user.id,
+      });
+
+      const response = await fetch(`http://localhost:3000/api/projects/${project.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...token,
+        },
+        body: JSON.stringify({ name: 'Updated Name' }),
+      });
+
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.success).toBe(true);
+      expect(data.data.name).toBe('Updated Name');
+    });
+
+    it('should update project description', async () => {
+      const user = mockData.createUser({
+        email: 'updateuser@example.com',
+        password: 'SecurePass123',
+        name: 'Update User',
+      });
+      const token = getAuthHeader(user.id);
+
+      const project = mockData.createProject({
+        name: 'Desc Project',
+        ownerId: user.id,
+      });
+
+      const response = await fetch(`http://localhost:3000/api/projects/${project.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...token,
+        },
+        body: JSON.stringify({ description: 'New description' }),
+      });
+
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.data.description).toBe('New description');
+    });
+
+    it('should update project status to archived', async () => {
+      const user = mockData.createUser({
+        email: 'updateuser@example.com',
+        password: 'SecurePass123',
+        name: 'Update User',
+      });
+      const token = getAuthHeader(user.id);
+
+      const project = mockData.createProject({
+        name: 'Status Project',
         ownerId: user.id,
         status: 'active',
       });
 
-      const project2 = mockData.createProject({
-        name: 'Archived Project',
-        ownerId: user.id,
-        status: 'archived',
+      const response = await fetch(`http://localhost:3000/api/projects/${project.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...token,
+        },
+        body: JSON.stringify({ status: 'archived' }),
       });
 
-      const allProjects = mockData.getAllProjects();
+      const data = await response.json();
 
-      const activeProjects = allProjects.filter(p => p.status === 'active');
-      const archivedProjects = allProjects.filter(p => p.status === 'archived');
-
-      expect(activeProjects.length).toBeGreaterThan(0);
-      expect(archivedProjects.length).toBeGreaterThan(0);
-
-      expect(activeProjects.some(p => p.id === project1.id)).toBe(true);
-      expect(archivedProjects.some(p => p.id === project2.id)).toBe(true);
+      expect(response.status).toBe(200);
+      expect(data.data.status).toBe('archived');
     });
 
-    it('should create projects with valid data', () => {
+    it('should reject update without auth', async () => {
       const user = mockData.createUser({
-        email: 'test@example.com',
+        email: 'updateuser@example.com',
         password: 'SecurePass123',
-        name: 'Test User',
+        name: 'Update User',
       });
 
       const project = mockData.createProject({
-        name: 'Valid Project',
-        description: 'Valid description',
+        name: 'Auth Project',
         ownerId: user.id,
       });
 
-      expect(project.id).toBeDefined();
-      expect(project.name).toBe('Valid Project');
-      expect(project.description).toBe('Valid description');
-      expect(project.ownerId).toBe(user.id);
-      expect(project.status).toBe('active');
-      expect(project.createdAt).toBeDefined();
-      expect(project.updatedAt).toBeDefined();
+      const response = await fetch(`http://localhost:3000/api/projects/${project.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'Hacked' }),
+      });
+
+      expect(response.status).toBe(401);
     });
 
-    it('should update project status', () => {
+    it('should return 404 when updating non-existent project', async () => {
       const user = mockData.createUser({
-        email: 'test@example.com',
+        email: 'updateuser@example.com',
         password: 'SecurePass123',
-        name: 'Test User',
+        name: 'Update User',
       });
 
-      const project = mockData.createProject({
-        name: 'Status Test Project',
-        ownerId: user.id,
+      const response = await fetch('http://localhost:3000/api/projects/non-existent', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeader(user.id),
+        },
+        body: JSON.stringify({ name: 'Update' }),
       });
 
-      expect(project.status).toBe('active');
-
-      const updated = mockData.updateProject(project.id, {
-        status: 'archived',
-      });
-
-      expect(updated?.status).toBe('archived');
+      expect(response.status).toBe(404);
     });
 
-    it('should handle projects with tasks', () => {
+    it('should reject update with empty name', async () => {
       const user = mockData.createUser({
-        email: 'test@example.com',
+        email: 'updateuser@example.com',
         password: 'SecurePass123',
-        name: 'Test User',
+        name: 'Update User',
       });
+      const token = getAuthHeader(user.id);
 
       const project = mockData.createProject({
-        name: 'Project with Tasks',
+        name: 'Name Project',
         ownerId: user.id,
       });
 
-      const task1 = mockData.createTask({
-        projectId: project.id,
-        title: 'Task 1',
+      const response = await fetch(`http://localhost:3000/api/projects/${project.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...token,
+        },
+        body: JSON.stringify({ name: '' }),
       });
 
-      const task2 = mockData.createTask({
-        projectId: project.id,
-        title: 'Task 2',
-      });
+      const data = await response.json();
 
-      const projectTasks = mockData.getTasksByProject(project.id);
-
-      expect(projectTasks.length).toBe(2);
-      expect(projectTasks.some(t => t.id === task1.id)).toBe(true);
-      expect(projectTasks.some(t => t.id === task2.id)).toBe(true);
-    });
-
-    it('should prevent creating projects with invalid ownerId', () => {
-      // This test documents expected behavior
-      // When the API is implemented, it should validate ownerId exists
-
-      const invalidOwnerId = 'non-existent-user-id';
-
-      // In the mock, this will still create a project
-      // But the real API should validate this
-      const project = mockData.createProject({
-        name: 'Invalid Owner Project',
-        ownerId: invalidOwnerId,
-      });
-
-      expect(project.ownerId).toBe(invalidOwnerId);
-      // Note: Real API should return 400 for invalid ownerId
+      expect(response.status).toBe(400);
+      expect(data.success).toBe(false);
     });
   });
 
-  describe('Expected API Behavior (Documentation)', () => {
-    it('should document expected GET /api/projects behavior', () => {
-      // Expected: Returns list of projects
-      // Query params: ownerId, status
-      // Response: { success: true, data: { projects: Project[], total: number } }
+  describe('DELETE /api/projects/:id', () => {
+    it('should delete an existing project', async () => {
+      const user = mockData.createUser({
+        email: 'deleteuser@example.com',
+        password: 'SecurePass123',
+        name: 'Delete User',
+      });
+      mockData.generateToken(user.id);
 
-      const behavior = {
-        endpoint: 'GET /api/projects',
-        queryParams: {
-          ownerId: 'Filter projects by owner ID',
-          status: 'Filter by status (active, archived)',
-        },
-        expectedResponse: {
-          success: true,
-          data: {
-            projects: [],
-            total: 0,
-          },
-        },
-      };
+      const project = mockData.createProject({
+        name: 'To Delete',
+        ownerId: user.id,
+      });
 
-      expect(behavior.endpoint).toBe('GET /api/projects');
-      expect(behavior.expectedResponse.success).toBe(true);
+      const response = await fetch(`http://localhost:3000/api/projects/${project.id}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.success).toBe(true);
+      expect(data.data.id).toBe(project.id);
+
+      // Verify deletion
+      const getResponse = await fetch(`http://localhost:3000/api/projects/${project.id}`);
+      expect(getResponse.status).toBe(404);
     });
 
-    it('should document expected GET /api/projects/:id behavior', () => {
-      // Expected: Returns a single project by ID
-      // Response: { success: true, data: { project: Project } }
+    it('should return 404 when deleting non-existent project', async () => {
+      const response = await fetch('http://localhost:3000/api/projects/non-existent', {
+        method: 'DELETE',
+      });
 
-      const behavior = {
-        endpoint: 'GET /api/projects/:id',
-        expectedResponse: {
-          success: true,
-          data: {
-            project: {},
-          },
-        },
-      };
+      const data = await response.json();
 
-      expect(behavior.endpoint).toBe('GET /api/projects/:id');
-    });
-
-    it('should document expected POST /api/projects behavior', () => {
-      // Expected: Creates a new project
-      // Request body: { name, description, ownerId }
-      // Response: { success: true, data: { project: Project } }
-
-      const behavior = {
-        endpoint: 'POST /api/projects',
-        requestBody: {
-          name: 'string (required)',
-          description: 'string (optional)',
-          ownerId: 'string (required)',
-        },
-        expectedResponse: {
-          success: true,
-          data: {
-            project: {},
-          },
-        },
-      };
-
-      expect(behavior.endpoint).toBe('POST /api/projects');
-    });
-
-    it('should document expected PUT /api/projects/:id behavior', () => {
-      // Expected: Updates an existing project
-      // Request body: { name, description, status }
-      // Response: { success: true, data: { project: Project } }
-
-      const behavior = {
-        endpoint: 'PUT /api/projects/:id',
-        requestBody: {
-          name: 'string (optional)',
-          description: 'string (optional)',
-          status: 'active | archived (optional)',
-        },
-        expectedResponse: {
-          success: true,
-          data: {
-            project: {},
-          },
-        },
-      };
-
-      expect(behavior.endpoint).toBe('PUT /api/projects/:id');
-    });
-
-    it('should document expected DELETE /api/projects/:id behavior', () => {
-      // Expected: Deletes a project
-      // Response: { success: true, data: { id: string } }
-      // Note: Should also handle cascading delete of tasks
-
-      const behavior = {
-        endpoint: 'DELETE /api/projects/:id',
-        expectedResponse: {
-          success: true,
-          data: {
-            id: 'string',
-          },
-        },
-        notes: [
-          'Should delete all associated tasks',
-          'Should be idempotent (delete non-existent = 404)',
-        ],
-      };
-
-      expect(behavior.endpoint).toBe('DELETE /api/projects/:id');
-    });
-  });
-
-  describe('Permission Tests (Documentation)', () => {
-    it('should document permission requirements', () => {
-      // Expected: Only owner or admin can update/delete projects
-      // Expected: Members can view projects they have access to
-
-      const permissions = {
-        'GET /api/projects': {
-          owner: 'read',
-          admin: 'read',
-          member: 'read (with access)',
-        },
-        'POST /api/projects': {
-          owner: 'create',
-          admin: 'create',
-          member: 'forbidden',
-        },
-        'PUT /api/projects/:id': {
-          owner: 'own projects only',
-          admin: 'all projects',
-          member: 'forbidden',
-        },
-        'DELETE /api/projects/:id': {
-          owner: 'own projects only',
-          admin: 'all projects',
-          member: 'forbidden',
-        },
-      };
-
-      expect(permissions['POST /api/projects'].admin).toBe('create');
-      expect(permissions['DELETE /api/projects/:id'].owner).toBe('own projects only');
+      expect(response.status).toBe(404);
+      expect(data.success).toBe(false);
     });
   });
 });

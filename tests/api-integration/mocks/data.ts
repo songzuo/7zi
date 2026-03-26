@@ -27,6 +27,23 @@ export interface MockTask {
   updatedAt: string;
 }
 
+/**
+ * Full task interface matching actual API Task type
+ * Used by task API handlers
+ */
+export interface MockTaskFull {
+  id: string;
+  title: string;
+  description?: string;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  dueDate?: string;
+  createdBy: string;
+  assignedTo?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface MockProject {
   id: string;
   name: string;
@@ -61,6 +78,7 @@ export interface MockFeedback {
 export class MockDataGenerator {
   private users: Map<string, MockUser> = new Map();
   private tasks: Map<string, MockTask> = new Map();
+  private tasksFull: Map<string, MockTaskFull> = new Map();
   private projects: Map<string, MockProject> = new Map();
   private feedbacks: Map<string, MockFeedback> = new Map();
   private tokens: Map<string, string> = new Map();
@@ -244,6 +262,59 @@ export class MockDataGenerator {
     return Array.from(this.tasks.values());
   }
 
+  // Full task methods (matching actual API Task interface)
+  createTaskFull(data: {
+    title: string;
+    description?: string;
+    priority?: 'low' | 'medium' | 'high' | 'urgent';
+    status?: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+    dueDate?: string | null;
+    createdBy: string;
+    assignedTo?: string | null;
+  }): MockTaskFull {
+    const task: MockTaskFull = {
+      id: `task-full-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      title: data.title,
+      description: data.description,
+      priority: data.priority || 'medium',
+      status: data.status || 'pending',
+      dueDate: data.dueDate,
+      createdBy: data.createdBy,
+      assignedTo: data.assignedTo,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    this.tasksFull.set(task.id, task);
+    return task;
+  }
+
+  getTaskFullById(id: string): MockTaskFull | null {
+    return this.tasksFull.get(id) || null;
+  }
+
+  updateTaskFull(id: string, data: Partial<MockTaskFull>): MockTaskFull | null {
+    const task = this.tasksFull.get(id);
+    if (!task) return null;
+
+    const updated: MockTaskFull = {
+      ...task,
+      ...data,
+      updatedAt: new Date().toISOString(),
+    };
+
+    this.tasksFull.set(id, updated);
+    return updated;
+  }
+
+  getAllTasksFull(): MockTaskFull[] {
+    return Array.from(this.tasksFull.values());
+  }
+
+  deleteTaskFull(id: string): boolean {
+    return this.tasksFull.delete(id);
+  }
+
   // Project methods
   createProject(data: {
     name: string;
@@ -336,6 +407,7 @@ export class MockDataGenerator {
 
   resetTasks() {
     this.tasks.clear();
+    this.tasksFull.clear();
   }
 
   resetProjects() {
@@ -383,6 +455,7 @@ export class MockDataGenerator {
   resetAll() {
     this.users.clear();
     this.tasks.clear();
+    this.tasksFull.clear();
     this.projects.clear();
     this.feedbacks.clear();
     this.tokens.clear();
