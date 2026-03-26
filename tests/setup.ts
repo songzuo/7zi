@@ -57,6 +57,22 @@ vi.mock('next/navigation', () => ({
   },
 }));
 
+// Mock next-intl
+const mockUseTranslations = (namespace?: string) => (key: string) => {
+  return namespace ? `${namespace}:${key}` : key;
+};
+
+vi.mock('next-intl', () => ({
+  useTranslations: mockUseTranslations,
+  useLocale: () => 'en',
+  useFormatter: () => ({
+    dateTime: (date: Date) => date.toISOString(),
+    number: (num: number) => num.toString(),
+    currency: (value: number, currency: string) => `${value} ${currency}`,
+  }),
+  NextIntlClientProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
+
 // Mock Next.js Link
 vi.mock('next/link', () => ({
   default: vi.fn(),
@@ -79,6 +95,19 @@ vi.mock('lucide-react', () => ({
   Search: vi.fn(() => null),
   Plus: vi.fn(() => null),
   Trash: vi.fn(() => null),
+  Trash2: vi.fn(() => null),
+  Star: vi.fn(() => null),
+  StarHalf: vi.fn(() => null),
+  TrendingUp: vi.fn(() => null),
+  ThumbsUp: vi.fn(() => null),
+  Filter: vi.fn(() => null),
+  ArrowUpDown: vi.fn(() => null),
+  ChevronLeft: vi.fn(() => null),
+  ChevronRight: vi.fn(() => null),
+  ChevronDown: vi.fn(() => null),
+  ChevronUp: vi.fn(() => null),
+  MessageCircle: vi.fn(() => null),
+  Flag: vi.fn(() => null),
 }));
 
 // Mock WebSocket
