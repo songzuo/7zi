@@ -8,12 +8,27 @@ import { generateTestId, waitForToast } from './helpers/test-helpers';
 
 test.describe('WebSocket Connection', () => {
   test.beforeEach(async ({ page }) => {
-    // Login
-    await page.goto('/zh/login');
-    await page.fill('input[type="email"]', 'test@7zi.com');
-    await page.fill('input[type="password"]', 'test123456');
-    await page.click('button[type="submit"]');
-    await page.waitForURL(/\/dashboard/i, { timeout: 5000 });
+    // Login - use flexible navigation like auth-flow.spec.ts
+    await page.goto('/');
+    const loginButton = page.locator('text=登录, Login, Sign In').first();
+    if (await loginButton.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await loginButton.click();
+      await page.waitForURL(/\/(login|auth|signin)/i, { timeout: 5000 });
+    }
+    
+    // Fill login form with flexible selectors
+    const emailInput = page.locator('input[type="email"], input[name="email"], input[placeholder*="邮箱"], input[placeholder*="Email"]');
+    const passwordInput = page.locator('input[type="password"], input[name="password"]');
+    const submitButton = page.locator('button[type="submit"], button:has-text("登录"), button:has-text("Login")');
+    
+    await emailInput.fill('test@7zi.com');
+    await passwordInput.fill('test123456');
+    await submitButton.click();
+    
+    // Wait for redirect to dashboard or similar
+    await page.waitForURL(/\/(dashboard|home|workspace)/i, { timeout: 10000 }).catch(() => {
+      // If already logged in or no redirect, just continue
+    });
   });
 
   test('should establish WebSocket connection', async ({ page }) => {

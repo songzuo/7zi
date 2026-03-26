@@ -2,7 +2,7 @@
 
 /**
  * 实时仪表盘组件
- * 
+ *
  * 功能:
  * - WebSocket 实时数据推送
  * - 性能监控指标
@@ -97,360 +97,207 @@ const generateTeamEfficiency = (): TeamEfficiency => ({
 // 主组件
 // ============================================================================
 
-export const RealtimeDashboard: React.FC<RealtimeDashboardProps> = memo(({
-  locale = 'zh',
-  className = ''
-}) => {
-  const [metrics, setMetrics] = useState<PerformanceMetric[]>([]);
-  const [efficiency, setEfficiency] = useState<TeamEfficiency | null>(null);
-  const [realtimeStats, setRealtimeStats] = useState<RealtimeStats>({
+export const RealtimeDashboard: React.FC<RealtimeDashboardProps> = memo(({ locale = 'en', className = '' }) => {
+  const [metrics, setMetrics] = useState<PerformanceMetric[]>(generatePerformanceMetrics());
+  const [efficiency, setEfficiency] = useState<TeamEfficiency>(generateTeamEfficiency());
+  const [stats, setStats] = useState<RealtimeStats>({
     activeConnections: 0,
     lastPing: null,
     dataLatency: 0,
-    updateFrequency: 0
+    updateFrequency: 2000
   });
-  const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 多语言
-  const t = {
-    title: locale === 'zh' ? '实时仪表盘' : 'Realtime Dashboard',
-    performance: locale === 'zh' ? '性能指标' : 'Performance',
-    efficiency: locale === 'zh' ? '团队效率' : 'Team Efficiency',
-    realtime: locale === 'zh' ? '实时状态' : 'Realtime Status',
-    connected: locale === 'zh' ? '已连接' : 'Connected',
-    disconnected: locale === 'zh' ? '已断开' : 'Disconnected',
-    latency: locale === 'zh' ? '延迟' : 'Latency',
-    activeConnections: locale === 'zh' ? '活跃连接' : 'Active Connections',
-    tasksCompleted: locale === 'zh' ? '已完成任务' : 'Tasks Completed',
-    avgTime: locale === 'zh' ? '平均完成时间' : 'Avg Completion Time',
-    activeMembers: locale === 'zh' ? '活跃成员' : 'Active Members',
-    weeklyTrend: locale === 'zh' ? '本周趋势' : 'Weekly Trend',
-    target: locale === 'zh' ? '目标' : 'Target',
-    trend: locale === 'zh' ? '趋势' : 'Trend'
+  // 模拟实时数据更新
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMetrics(generatePerformanceMetrics());
+      setEfficiency(generateTeamEfficiency());
+      setStats(prev => ({
+        ...prev,
+        activeConnections: Math.floor(Math.random() * 50) + 100,
+        lastPing: new Date(),
+        dataLatency: Math.floor(Math.random() * 100) + 20
+      }));
+    }, stats.updateFrequency);
+
+    setIsLoading(false);
+
+    return () => clearInterval(interval);
+  }, [stats.updateFrequency]);
+
+  // 趋势图标
+  const getTrendIcon = (trend: 'up' | 'down' | 'stable') => {
+    switch (trend) {
+      case 'up': return '📈';
+      case 'down': return '📉';
+      case 'stable': return '➡️';
+    }
   };
 
-  // 模拟实时数据更新
-  const updateData = useCallback(() => {
-    setMetrics(generatePerformanceMetrics());
-    setEfficiency(generateTeamEfficiency());
-    setRealtimeStats(prev => ({
-      ...prev,
-      lastPing: new Date(),
-      dataLatency: Math.floor(Math.random() * 20) + 5,
-      updateFrequency: prev.updateFrequency + 1
-    }));
-    setIsConnected(true);
-  }, []);
-
-  // 初始化和定时更新
-  useEffect(() => {
-    let isMounted = true;
-
-    // 初始加载
-    const loadData = async () => {
-      if (isMounted) {
-        setIsLoading(true);
-      }
-      try {
-        await updateData();
-      } catch (error) {
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Failed to load RealtimeDashboard data:', error);
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    // Start initial load immediately without awaiting in useEffect
-    loadData();
-
-    // 定时更新（每 5 秒）
-    const interval = setInterval(() => {
-      updateData();
-    }, 5000);
-
-    return () => {
-      isMounted = false;
-      clearInterval(interval);
-    };
-  }, [updateData]);
+  // 趋势颜色
+  const getTrendColor = (trend: 'up' | 'down' | 'stable') => {
+    switch (trend) {
+      case 'up': return 'text-green-600 dark:text-green-400';
+      case 'down': return 'text-red-600 dark:text-red-400';
+      case 'stable': return 'text-zinc-600 dark:text-zinc-400';
+    }
+  };
 
   if (isLoading) {
     return (
-      <div className={`flex items-center justify-center p-8 ${className}`}>
-        <LoadingSpinner size="lg" />
+      <div className={className}>
+        <div className="min-h-[400px] bg-zinc-900 rounded-xl flex items-center justify-center">
+          <LoadingSpinner size="lg" />
+        </div>
       </div>
     );
   }
 
   return (
     <div className={`space-y-6 ${className}`}>
-      {/* 头部 - 连接状态 */}
+      {/* 标题 */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-          📊 {t.title}
-        </h2>
-        <div className="flex items-center gap-2">
-          <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
-          <span className="text-sm text-zinc-600 dark:text-zinc-400">
-            {isConnected ? t.connected : t.disconnected}
-          </span>
+        <div>
+          <h2 className="text-2xl font-bold text-white">实时监控仪表盘</h2>
+          <p className="text-zinc-400 mt-1">
+            {locale === 'zh' ? '实时性能监控和团队效率分析' : 'Real-time performance monitoring and team efficiency analysis'}
+          </p>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-zinc-400">
+          <span className="animate-pulse">🟢</span>
+          <span>{stats.activeConnections} {locale === 'zh' ? '连接' : 'connections'}</span>
         </div>
       </div>
 
-      {/* 实时状态 */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatusCard
-          label={t.activeConnections}
-          value={realtimeStats.activeConnections || 1}
-          icon="🔌"
-        />
-        <StatusCard
-          label={t.latency}
-          value={`${realtimeStats.dataLatency}ms`}
-          icon="⚡"
-          highlight={realtimeStats.dataLatency < 20}
-        />
-        <StatusCard
-          label="更新次数"
-          value={realtimeStats.updateFrequency}
-          icon="🔄"
-        />
-        <StatusCard
-          label={isConnected ? t.connected : t.disconnected}
-          value={isConnected ? '✓' : '✗'}
-          icon={isConnected ? '🟢' : '🔴'}
-        />
-      </div>
-
-      {/* 性能指标 */}
-      <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-4">
-        <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4 flex items-center gap-2">
-          ⚡ {t.performance}
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {metrics.map((metric, index) => (
-            <MetricCard key={index} metric={metric} t={t} />
-          ))}
-        </div>
+      {/* 性能指标卡片 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {metrics.map((metric, index) => (
+          <div
+            key={index}
+            className="bg-zinc-800 rounded-lg p-4 border border-zinc-700 hover:border-zinc-600 transition-colors"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-zinc-400 text-sm">{metric.name}</span>
+              <span className={getTrendColor(metric.trend)}>
+                {getTrendIcon(metric.trend)}
+              </span>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-2xl font-bold text-white">
+                {metric.value}
+              </span>
+              <span className="text-zinc-500">{metric.unit}</span>
+            </div>
+            {metric.target && (
+              <div className="mt-2">
+                <div className="h-1.5 bg-zinc-700 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${
+                      metric.value >= metric.target
+                        ? 'bg-green-500'
+                        : metric.value >= metric.target * 0.8
+                        ? 'bg-yellow-500'
+                        : 'bg-red-500'
+                    }`}
+                    style={{ width: `${Math.min((metric.value / metric.target) * 100, 100)}%` }}
+                  />
+                </div>
+                <div className="text-xs text-zinc-500 mt-1">
+                  {locale === 'zh' ? '目标' : 'Target'}: {metric.target}{metric.unit}
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
       </div>
 
       {/* 团队效率 */}
-      {efficiency && (
-        <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-4">
-          <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4 flex items-center gap-2">
-            👥 {t.efficiency}
-          </h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* 效率统计 */}
-            <div className="space-y-4">
-              <EfficiencyBar
-                label={t.efficiency}
-                value={efficiency.overall}
-                color="blue"
-              />
-              
-              <div className="grid grid-cols-3 gap-3">
-                <StatItem
-                  label={t.tasksCompleted}
-                  value={efficiency.tasksCompleted}
-                  icon="✅"
-                />
-                <StatItem
-                  label={t.avgTime}
-                  value={`${efficiency.averageCompletionTime}min`}
-                  icon="⏱️"
-                />
-                <StatItem
-                  label={t.activeMembers}
-                  value={efficiency.activeMembers}
-                  icon="👤"
-                />
-              </div>
+      <div className="bg-zinc-800 rounded-lg p-6 border border-zinc-700">
+        <h3 className="text-lg font-semibold text-white mb-4">
+          {locale === 'zh' ? '团队效率分析' : 'Team Efficiency'}
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div>
+            <div className="text-zinc-400 text-sm mb-1">
+              {locale === 'zh' ? '整体效率' : 'Overall'}
             </div>
-
-            {/* 本周趋势图 */}
-            <div>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-2">{t.weeklyTrend}</p>
-              <TrendChart data={efficiency.weeklyTrend} />
+            <div className="text-3xl font-bold text-white">
+              {efficiency.overall}%
+            </div>
+          </div>
+          <div>
+            <div className="text-zinc-400 text-sm mb-1">
+              {locale === 'zh' ? '完成任务' : 'Completed'}
+            </div>
+            <div className="text-3xl font-bold text-white">
+              {efficiency.tasksCompleted}
+            </div>
+          </div>
+          <div>
+            <div className="text-zinc-400 text-sm mb-1">
+              {locale === 'zh' ? '平均用时' : 'Avg Time'}
+            </div>
+            <div className="text-3xl font-bold text-white">
+              {efficiency.averageCompletionTime}m
+            </div>
+          </div>
+          <div>
+            <div className="text-zinc-400 text-sm mb-1">
+              {locale === 'zh' ? '活跃成员' : 'Active'}
+            </div>
+            <div className="text-3xl font-bold text-white">
+              {efficiency.activeMembers}
             </div>
           </div>
         </div>
-      )}
+
+        {/* 每周趋势 */}
+        <div className="mt-6">
+          <div className="text-zinc-400 text-sm mb-3">
+            {locale === 'zh' ? '每周趋势' : 'Weekly Trend'}
+          </div>
+          <div className="flex items-end gap-2 h-24">
+            {efficiency.weeklyTrend.map((value, index) => (
+              <div
+                key={index}
+                className="flex-1 flex flex-col items-center gap-1"
+              >
+                <div
+                  className="w-full bg-gradient-to-t from-cyan-600 to-cyan-400 rounded-t transition-all duration-500"
+                  style={{ height: `${value}%` }}
+                />
+                <div className="text-xs text-zinc-500">
+                  {['M', 'T', 'W', 'T', 'F', 'S', 'S'][index]}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* 连接状态 */}
+      <div className="bg-zinc-800 rounded-lg p-4 border border-zinc-700">
+        <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center gap-4">
+            <div className="text-zinc-400">
+              {locale === 'zh' ? '延迟' : 'Latency'}: {stats.dataLatency}ms
+            </div>
+            <div className="text-zinc-400">
+              {locale === 'zh' ? '更新频率' : 'Update'}: {stats.updateFrequency}ms
+            </div>
+          </div>
+          {stats.lastPing && (
+            <div className="text-zinc-500">
+              {locale === 'zh' ? '最后更新' : 'Last update'}: {stats.lastPing.toLocaleTimeString()}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 });
 
 RealtimeDashboard.displayName = 'RealtimeDashboard';
-
-// ============================================================================
-// 子组件
-// ============================================================================
-
-interface StatusCardProps {
-  label: string;
-  value: string | number;
-  icon: string;
-  highlight?: boolean;
-}
-
-const StatusCard = memo<StatusCardProps>(({ label, value, icon, highlight }) => (
-  <div className={`p-3 rounded-lg border ${
-    highlight 
-      ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' 
-      : 'bg-zinc-50 dark:bg-zinc-700/50 border-zinc-200 dark:border-zinc-600'
-  }`}>
-    <div className="flex items-center gap-2 mb-1">
-      <span>{icon}</span>
-      <span className="text-xs text-zinc-600 dark:text-zinc-400">{label}</span>
-    </div>
-    <p className={`text-lg font-bold ${highlight ? 'text-green-700 dark:text-green-300' : 'text-zinc-900 dark:text-white'}`}>
-      {value}
-    </p>
-  </div>
-));
-
-StatusCard.displayName = 'StatusCard';
-
-interface MetricCardProps {
-  metric: PerformanceMetric;
-  t: Record<string, string>;
-}
-
-const MetricCard = memo<MetricCardProps>(({ metric, t }) => {
-  const trendIcon = {
-    up: '📈',
-    down: '📉',
-    stable: '➡️'
-  };
-
-  const trendColor = {
-    up: metric.name.includes('响应') || metric.name.includes('CPU') ? 'text-red-500' : 'text-green-500',
-    down: metric.name.includes('响应') || metric.name.includes('CPU') ? 'text-green-500' : 'text-red-500',
-    stable: 'text-zinc-500'
-  };
-
-  return (
-    <div className="p-4 rounded-lg bg-gradient-to-br from-gray-50 to-gray-100 dark:from-zinc-700 dark:to-zinc-600 border border-zinc-200 dark:border-zinc-500">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{metric.name}</span>
-        <span className={trendColor[metric.trend]}>{trendIcon[metric.trend]}</span>
-      </div>
-      
-      <div className="flex items-baseline gap-1">
-        <span className="text-2xl font-bold text-zinc-900 dark:text-white">{metric.value}</span>
-        <span className="text-sm text-zinc-500">{metric.unit}</span>
-      </div>
-
-      {metric.target && (
-        <div className="mt-2">
-          <div className="flex items-center justify-between text-xs text-zinc-500 mb-1">
-            <span>{t.target}: {metric.target}%</span>
-            <span>{Math.round((metric.value / metric.target) * 100)}%</span>
-          </div>
-          <div className="h-1.5 bg-zinc-200 dark:bg-zinc-500 rounded-full overflow-hidden">
-            <div 
-              className={`h-full transition-all duration-500 ${
-                metric.value >= metric.target ? 'bg-red-500' : 'bg-green-500'
-              }`}
-              style={{ width: `${Math.min(100, (metric.value / metric.target) * 100)}%` }}
-            />
-          </div>
-        </div>
-      )}
-
-      <div className={`text-xs mt-2 ${metric.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-        {metric.change >= 0 ? '+' : ''}{metric.change.toFixed(1)}% {t.trend}
-      </div>
-    </div>
-  );
-});
-
-MetricCard.displayName = 'MetricCard';
-
-interface EfficiencyBarProps {
-  label: string;
-  value: number;
-  color: 'blue' | 'green' | 'yellow' | 'red';
-}
-
-const EfficiencyBar = memo<EfficiencyBarProps>(({ label, value, color }) => {
-  const colorClasses = {
-    blue: 'bg-blue-500',
-    green: 'bg-green-500',
-    yellow: 'bg-yellow-500',
-    red: 'bg-red-500'
-  };
-
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{label}</span>
-        <span className="text-lg font-bold text-zinc-900 dark:text-white">{value}%</span>
-      </div>
-      <div className="h-3 bg-zinc-200 dark:bg-zinc-600 rounded-full overflow-hidden">
-        <div 
-          className={`h-full ${colorClasses[color]} transition-all duration-700 ease-out`}
-          style={{ width: `${value}%` }}
-        />
-      </div>
-    </div>
-  );
-});
-
-EfficiencyBar.displayName = 'EfficiencyBar';
-
-interface StatItemProps {
-  label: string;
-  value: string | number;
-  icon: string;
-}
-
-const StatItem = memo<StatItemProps>(({ label, value, icon }) => (
-  <div className="text-center p-3 rounded-lg bg-zinc-50 dark:bg-zinc-700/50">
-    <span className="text-xl">{icon}</span>
-    <p className="text-lg font-bold text-zinc-900 dark:text-white mt-1">{value}</p>
-    <p className="text-xs text-zinc-500 dark:text-zinc-400">{label}</p>
-  </div>
-));
-
-StatItem.displayName = 'StatItem';
-
-interface TrendChartProps {
-  data: number[];
-}
-
-const TrendChart = memo<TrendChartProps>(({ data }) => {
-  const maxValue = Math.max(...data);
-  const minValue = Math.min(...data);
-  const range = maxValue - minValue || 1;
-
-  const days = ['一', '二', '三', '四', '五', '六', '日'];
-
-  return (
-    <div className="h-32 flex items-end gap-1">
-      {data.map((value, index) => {
-        const height = ((value - minValue) / range) * 80 + 20;
-        return (
-          <div key={index} className="flex-1 flex flex-col items-center gap-1">
-            <div 
-              className="w-full bg-gradient-to-t from-blue-500 to-cyan-400 rounded-t transition-all duration-500 hover:from-blue-600 hover:to-cyan-500"
-              style={{ height: `${height}%` }}
-              title={`${value}%`}
-            />
-            <span className="text-xs text-zinc-500">{days[index]}</span>
-          </div>
-        );
-      })}
-    </div>
-  );
-});
-
-TrendChart.displayName = 'TrendChart';
 
 export default RealtimeDashboard;

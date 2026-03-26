@@ -1,7 +1,7 @@
 /**
  * Performance Optimization Module
  * 性能优化模块
- * 
+ *
  * 功能：
  * - 优化 Largest Contentful Paint (LCP)
  * - 优化 Interaction to Next Paint (INP)
@@ -9,6 +9,54 @@
  * - Resource 提示
  * - 关键资源预加载
  */
+
+// ============================================
+// TypeScript 类型定义
+// ============================================
+
+/**
+ * runInChunks 函数的选项配置
+ */
+export interface RunInChunksOptions {
+  /**
+   * 每批次处理的元素数量
+   * @default 50
+   */
+  chunkSize?: number;
+
+  /**
+   * 最大执行时长（毫秒），超过后让出主线程
+   * @default 50
+   */
+  maxDuration?: number;
+
+  /**
+   * 让出主线程的持续时间（毫秒）
+   * @default 5
+   */
+  yieldDuration?: number;
+}
+
+/**
+ * 预加载资源配置
+ */
+export interface PreloadResources {
+  /** 图片 URL 列表 */
+  images?: string[];
+  /** 字体 URL 列表 */
+  fonts?: string[];
+  /** 样式表 URL 列表 */
+  stylesheets?: string[];
+  /** 脚本 URL 列表 */
+  scripts?: string[];
+}
+
+/**
+ * 性能标记详细信息的可选参数
+ */
+export interface PerformanceMarkOptions {
+  detail?: unknown;
+}
 
 // ============================================
 // LCP 优化
@@ -108,42 +156,131 @@ export function removeUnusedCSS() {
  * 将大任务分解为小任务以优化 INP
  * 
  * 使用方法：
- * await runInChunks(() => {
- *   // 大任务代码
- * }, { maxDuration: 50 });
+ * // 处理数组
+ * const results = await runInChunks(
+ *   items,
+ *   (item) => processItem(item),
+ *   { chunkSize: 50, maxDuration: 50 }
+ * );
+ * 
+ * // 处理生成器
+ * async function* generateItems() { ... }
+ * const results = await runInChunks(
+ *   generateItems(),
+ *   (item) => processItem(item),
+ *   { chunkSize: 50 }
+ * );
  */
-export async function runInChunks<T>(
-  task: () => T,
-  options: { maxDuration?: number; yieldDuration?: number } = {}
-): Promise<T> {
-  const { maxDuration = 50, yieldDuration = 5 } = options;
+export async function runInChunks<T, R>(
+  items: T[] | AsyncIterable<T> | Iterable<T>,
+  processor: (item: T, index: number) => R | Promise<R>,
+  options: { chunkSize?: number; maxDuration?: number; yieldDuration?: number } = {}
+): Promise<R[]> {
+  const { chunkSize = 50, maxDuration = 50, yieldDuration = 5 } = options;
+  const results: R[] = [];
+  let index = 0;
 
-  return new Promise((resolve, reject) => {
-    const startTime = performance.now();
-    let result: T;
-
-    const executeStep = () => {
-      try {
-        result = task();
-        
-        // 检查是否超过时间限制
-        if (performance.now() - startTime > maxDuration) {
-          // 使用 requestIdleCallback 或 setTimeout 让出主线程
-          const yieldFn = typeof requestIdleCallback !== 'undefined'
-            ? (cb: () => void) => requestIdleCallback(cb, { timeout: yieldDuration })
-            : (cb: () => void) => setTimeout(cb, yieldDuration);
-          
-          yieldFn(executeStep);
-        } else {
-          resolve(result);
-        }
-      } catch (error) {
-        reject(error);
+  // 让出主线程的辅助函数
+  const yieldControl = (): Promise<void> => {
+    return new Promise((resolve) => {
+      // 优先使用 requestIdleCallback（浏览器环境）
+      if (typeof requestIdleCallback !== 'undefined') {
+        requestIdleCallback(() => {
+          resolve();
+        }, { timeout: yieldDuration });
+      } else if (typeof setTimeout !== 'undefined') {
+        // 使用 setTimeout 让出主线程
+        setTimeout(() => resolve(), 0);
+      } else {
+        // 使用 setImmediate（Node.js 环境）
+        setImmediate(() => resolve());
       }
-    };
+    });
+  };
 
-    executeStep();
-  });
+  // 检查时间预算
+  const getTimeRemaining = (): number => {
+    if (typeof performance !== 'undefined') {
+      return maxDuration;
+    }
+    return maxDuration;
+  };
+
+  // 处理一个批次
+  const processChunk = async (chunk: T[]): Promise<void> => {
+    for (let i = 0; i < chunk.length; i++) {
+      results[i + index] = await processor(chunk[i], index + i);
+    }
+    index += chunk.length;
+  };
+
+  // 将数组分块处理
+  if (Array.isArray(items)) {
+    for (let i = 0; i < items.length; i += chunkSize) {
+      const chunk = items.slice(i, i + chunkSize);
+      await processChunk(chunk);
+      
+      // 如果还有更多数据需要处理，让出主线程
+      if (i + chunkSize < items.length) {
+        await yieldControl();
+      }
+    }
+  }
+  // 处理可迭代对象
+  else {
+    // 安全地获取迭代器
+    const iter = (items as any)[Symbol.iterator]
+      ? (items as Iterable<T>)[Symbol.iterator]()
+      : (items as AsyncIterable<T>)[Symbol.asyncIterator]();
+    
+    if (!iter) {
+      throw new Error('runInChunks: items must be an array or iterable');
+    }
+
+    let chunk: T[] = [];
+
+    if ('next' in iter && typeof iter.next === 'function') {
+      // AsyncIterable
+      while (true) {
+        const { value, done } = await (iter as AsyncIterator<T>).next();
+        if (done) break;
+
+        chunk.push(value);
+
+        if (chunk.length >= chunkSize) {
+          await processChunk(chunk);
+          chunk = [];
+          await yieldControl();
+        }
+      }
+
+      // 处理剩余的最后一组
+      if (chunk.length > 0) {
+        await processChunk(chunk);
+      }
+    } else {
+      // Sync Iterable
+      while (true) {
+        const { value, done } = (iter as Iterator<T>).next();
+        if (done) break;
+
+        chunk.push(value);
+
+        if (chunk.length >= chunkSize) {
+          await processChunk(chunk);
+          chunk = [];
+          await yieldControl();
+        }
+      }
+
+      // 处理剩余的最后一组
+      if (chunk.length > 0) {
+        await processChunk(chunk);
+      }
+    }
+  }
+
+  return results;
 }
 
 /**
