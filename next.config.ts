@@ -37,16 +37,22 @@ const nextConfig: NextConfig = {
     removeConsole: process.env.NODE_ENV === 'production' ? {
       exclude: ['error', 'warn'],
     } : false,
+    // Remove unnecessary polyfills by configuring SWC minification
+    swcMinify: true,
   },
 
   experimental: {
+    // Optimize package imports for tree-shaking
     optimizePackageImports: [
       'next-intl', '@sentry/nextjs', 'zustand', 'web-vitals', 'lucide-react',
-      'three', '@react-three/fiber', '@react-three/drei', 'xlsx',
+      'three', '@react-three/fiber', '@react-three/drei',
     ],
+    // Optimize CSS imports
+    optimizeCss: true,
   },
 
-  serverExternalPackages: ['sharp', 'better-sqlite3', 'jose', 'uuid'],
+  // ExcelJS should be server-side only and dynamically imported
+  serverExternalPackages: ['sharp', 'better-sqlite3', 'jose', 'uuid', 'exceljs'],
 
   webpack: (config, { isServer, dev }) => {
     config.resolve.alias = config.resolve.alias || {};
@@ -54,6 +60,13 @@ const nextConfig: NextConfig = {
 
     if (!isServer && !dev) {
       config.optimization = config.optimization || {};
+      // Performance budget configuration
+      config.performance = {
+        maxEntrypointSize: 300000, // 300 KB
+        maxAssetSize: 250000,        // 250 KB
+        hints: 'warning',
+      };
+
       config.optimization.splitChunks = {
         chunks: 'all',
         cacheGroups: {
@@ -63,8 +76,8 @@ const nextConfig: NextConfig = {
             priority: 60,
             reuseExistingChunk: true,
             enforce: true,
-            minSize: 50000,
-            maxSize: 500000,
+            minSize: 30000,
+            maxSize: 300000, // Reduced from 500KB to 300KB
           },
           'chart-libs': {
             test: /[\\/]node_modules[\\/](recharts|chart\.js|react-chartjs-2|d3|vis-network|vis-data|@visx)[\\/]/,
@@ -72,8 +85,8 @@ const nextConfig: NextConfig = {
             priority: 50,
             reuseExistingChunk: true,
             enforce: true,
-            minSize: 50000,
-            maxSize: 300000,
+            minSize: 30000,
+            maxSize: 200000, // Reduced from 300KB to 200KB
           },
           'realtime-libs': {
             test: /[\\/]node_modules[\\/](socket\.io-client|@socket\.io|engine\.io-client|eventemitter3)[\\/]/,
@@ -81,7 +94,7 @@ const nextConfig: NextConfig = {
             priority: 45,
             reuseExistingChunk: true,
             enforce: true,
-            minSize: 50000,
+            minSize: 30000,
           },
           'ui-libs': {
             test: /[\\/]node_modules[\\/](@radix-ui|lucide-react|framer-motion|class-variance-authority|clsx|tailwind-merge)[\\/]/,
@@ -89,22 +102,22 @@ const nextConfig: NextConfig = {
             priority: 40,
             reuseExistingChunk: true,
             enforce: true,
-            minSize: 30000,
+            minSize: 20000,
           },
-          framework: {
+          'framework': {
             test: /[\\/]node_modules[\\/](react|react-dom|scheduler|next)[\\/]/,
             name: 'framework',
             priority: 35,
             reuseExistingChunk: true,
             minSize: 100000,
-            maxSize: 500000,
+            maxSize: 400000, // Reduced to merge framework chunks
           },
           'vendor-utils': {
             test: /[\\/]node_modules[\\/](zustand|immer|uuid|date-fns|lodash|lodash-es)[\\/]/,
             name: 'vendor-utils',
             priority: 30,
             reuseExistingChunk: true,
-            minSize: 30000,
+            minSize: 20000,
           },
           'forms-libs': {
             test: /[\\/]node_modules[\\/](zod|react-hook-form|@hookform)[\\/]/,
@@ -113,44 +126,44 @@ const nextConfig: NextConfig = {
             reuseExistingChunk: true,
             minSize: 20000,
           },
+          'excel-libs': {
+            test: /[\\/]node_modules[\\/](exceljs)[\\/]/,
+            name: 'excel-libs',
+            priority: 20,
+            reuseExistingChunk: true,
+            enforce: true,
+            minSize: 50000,
+          },
           vendors: {
             test: /[\\/]node_modules[\\/]/,
             name: 'vendors',
             priority: 10,
             minChunks: 2,
             reuseExistingChunk: true,
-            minSize: 50000,
+            minSize: 30000,
           },
           common: {
             minChunks: 3,
             priority: 5,
             reuseExistingChunk: true,
-            minSize: 30000,
+            minSize: 20000,
           },
         },
         maxInitialRequests: 25,
         maxAsyncRequests: 30,
-        minSize: 20000,
-        maxSize: 244000,
+        minSize: 15000, // Reduced from 20000
+        maxSize: 200000, // Reduced from 244KB
         minChunks: 1,
-        enforceSizeThreshold: 50000,
+        enforceSizeThreshold: 30000, // Reduced from 50000
       };
+      // More aggressive tree-shaking
       config.optimization.usedExports = true;
-      config.optimization.sideEffects = false;
+      config.optimization.sideEffects = false; // More strict side effects checking
       config.optimization.providedExports = true;
-      config.optimization.usedExports = true;
-      config.optimization.sideEffects = true;
+      config.optimization.concatenateModules = true; // Scope hoisting for better minification
     }
 
-    config.resolve.alias['@'] = __dirname + '/src';
 
-    if (!dev) {
-      config.performance = {
-        maxEntrypointSize: 512000,
-        maxAssetSize: 512000,
-        hints: process.env.NODE_ENV === 'production' ? 'warning' : false,
-      };
-    }
 
     return config;
   },

@@ -7,9 +7,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.2.0] - 2026-03-26 (API Documentation & Quality Improvements)
+## [1.2.0] - 2026-03-26 (In Progress)
 
-### 📚 Documentation
+### 🎯 Planned Features (From v1.2.0 ROADMAP)
+
+#### 🧪 Test Fixes and Coverage Improvement
+- Fix test execution issues (3166 tests currently skipped)
+- Target coverage increase from 75% to 85%+
+- Optimize test execution performance
+- Add unit tests for stores and middleware
+- Add integration tests for WebSocket and A2A protocol
+
+#### 🌍 i18n Expansion
+- Add Japanese, Korean, and Spanish language support
+- Automatic language detection based on Accept-Language header
+- DeepL API integration for machine translation
+- Language switcher component
+- Currency and timezone localization
+
+#### 🔐 RBAC Audit Logging
+- Comprehensive audit log system for security and compliance
+- Audit log query API with filtering by user, action, time range
+- Audit log viewer UI
+- Export functionality (CSV/JSON)
+- Role-based permission management enhancements
+- Permission visualization tree
+
+#### 📱 Mobile Responsive Enhancements
+- Mobile-first navigation with bottom tab bar
+- Optimized touch interactions (44px minimum touch targets)
+- Touch feedback animations
+- Mobile-optimized dashboard and task list
+- Performance optimization for mobile devices
+- Lazy loading for mobile assets
+
+#### 📊 Performance Monitoring Dashboard
+- Real-time performance metrics visualization
+- Historical trend analysis
+- Page load waterfall charts
+- Resource loading analysis
+- User device and geographic distribution
+- Automated alerting system for performance degradation
+
+---
+
+## [1.1.3] - 2026-03-25 (Current)
 
 - **API Documentation Complete Overhaul**
   - Added 42 new API endpoint documentation entries

@@ -1,0 +1,662 @@
+<testsuites id="" name="" tests="162" failures="0" skipped="162" errors="0" time="0.31181099999999967">
+<testsuite name="websocket-realtime.spec.ts" timestamp="2026-03-26T13:05:34.639Z" hostname="chromium" tests="27" failures="0" skipped="27" time="0" errors="0">
+<testcase name="WebSocket Connection › should establish WebSocket connection" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Connection › should show connection status" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Connection › should handle reconnection on disconnect" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Connection › should display connection error" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Task Updates › should receive task updates in real-time" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Task Updates › should update task list without refresh" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Task Updates › should show indicator for new items" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Task Updates › should update task status in real-time" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Collaboration › should show active users" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Collaboration › should show typing indicators" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Collaboration › should update collaborator cursor position" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Collaboration › should show collaborative editing indicators" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Dashboard Updates › should update metrics in real-time" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Dashboard Updates › should show live activity feed" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Dashboard Updates › should update charts in real-time" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Push Notifications › should request notification permission" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Push Notifications › should display push notification" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Push Notifications › should handle notification click" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Push Notifications › should configure push notification preferences" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Server-Sent Events (SSE) › should receive SSE updates" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Server-Sent Events (SSE) › should handle SSE reconnection" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Security › should use secure WebSocket (WSS)" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Security › should require authentication for WebSocket" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Security › should handle WebSocket errors gracefully" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Performance › should handle multiple simultaneous updates" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Performance › should not block UI during real-time updates" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Performance › should debounce rapid updates" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="websocket-realtime.spec.ts" timestamp="2026-03-26T13:05:34.639Z" hostname="firefox" tests="27" failures="0" skipped="27" time="0" errors="0">
+<testcase name="WebSocket Connection › should establish WebSocket connection" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Connection › should show connection status" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Connection › should handle reconnection on disconnect" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Connection › should display connection error" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Task Updates › should receive task updates in real-time" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Task Updates › should update task list without refresh" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Task Updates › should show indicator for new items" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Task Updates › should update task status in real-time" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Collaboration › should show active users" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Collaboration › should show typing indicators" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Collaboration › should update collaborator cursor position" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Collaboration › should show collaborative editing indicators" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Dashboard Updates › should update metrics in real-time" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Dashboard Updates › should show live activity feed" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Dashboard Updates › should update charts in real-time" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Push Notifications › should request notification permission" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Push Notifications › should display push notification" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Push Notifications › should handle notification click" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Push Notifications › should configure push notification preferences" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Server-Sent Events (SSE) › should receive SSE updates" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Server-Sent Events (SSE) › should handle SSE reconnection" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Security › should use secure WebSocket (WSS)" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Security › should require authentication for WebSocket" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Security › should handle WebSocket errors gracefully" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Performance › should handle multiple simultaneous updates" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Performance › should not block UI during real-time updates" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Performance › should debounce rapid updates" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="websocket-realtime.spec.ts" timestamp="2026-03-26T13:05:34.639Z" hostname="webkit" tests="27" failures="0" skipped="27" time="0" errors="0">
+<testcase name="WebSocket Connection › should establish WebSocket connection" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Connection › should show connection status" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Connection › should handle reconnection on disconnect" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Connection › should display connection error" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Task Updates › should receive task updates in real-time" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Task Updates › should update task list without refresh" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Task Updates › should show indicator for new items" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Task Updates › should update task status in real-time" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Collaboration › should show active users" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Collaboration › should show typing indicators" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Collaboration › should update collaborator cursor position" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Collaboration › should show collaborative editing indicators" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Dashboard Updates › should update metrics in real-time" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Dashboard Updates › should show live activity feed" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Dashboard Updates › should update charts in real-time" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Push Notifications › should request notification permission" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Push Notifications › should display push notification" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Push Notifications › should handle notification click" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Push Notifications › should configure push notification preferences" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Server-Sent Events (SSE) › should receive SSE updates" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Server-Sent Events (SSE) › should handle SSE reconnection" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Security › should use secure WebSocket (WSS)" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Security › should require authentication for WebSocket" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Security › should handle WebSocket errors gracefully" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Performance › should handle multiple simultaneous updates" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Performance › should not block UI during real-time updates" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Performance › should debounce rapid updates" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="websocket-realtime.spec.ts" timestamp="2026-03-26T13:05:34.639Z" hostname="Mobile Chrome" tests="27" failures="0" skipped="27" time="0" errors="0">
+<testcase name="WebSocket Connection › should establish WebSocket connection" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Connection › should show connection status" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Connection › should handle reconnection on disconnect" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Connection › should display connection error" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Task Updates › should receive task updates in real-time" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Task Updates › should update task list without refresh" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Task Updates › should show indicator for new items" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Task Updates › should update task status in real-time" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Collaboration › should show active users" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Collaboration › should show typing indicators" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Collaboration › should update collaborator cursor position" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Collaboration › should show collaborative editing indicators" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Dashboard Updates › should update metrics in real-time" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Dashboard Updates › should show live activity feed" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Dashboard Updates › should update charts in real-time" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Push Notifications › should request notification permission" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Push Notifications › should display push notification" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Push Notifications › should handle notification click" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Push Notifications › should configure push notification preferences" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Server-Sent Events (SSE) › should receive SSE updates" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Server-Sent Events (SSE) › should handle SSE reconnection" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Security › should use secure WebSocket (WSS)" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Security › should require authentication for WebSocket" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Security › should handle WebSocket errors gracefully" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Performance › should handle multiple simultaneous updates" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Performance › should not block UI during real-time updates" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Performance › should debounce rapid updates" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="websocket-realtime.spec.ts" timestamp="2026-03-26T13:05:34.639Z" hostname="Mobile Safari" tests="27" failures="0" skipped="27" time="0" errors="0">
+<testcase name="WebSocket Connection › should establish WebSocket connection" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Connection › should show connection status" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Connection › should handle reconnection on disconnect" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Connection › should display connection error" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Task Updates › should receive task updates in real-time" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Task Updates › should update task list without refresh" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Task Updates › should show indicator for new items" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Task Updates › should update task status in real-time" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Collaboration › should show active users" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Collaboration › should show typing indicators" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Collaboration › should update collaborator cursor position" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Collaboration › should show collaborative editing indicators" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Dashboard Updates › should update metrics in real-time" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Dashboard Updates › should show live activity feed" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Dashboard Updates › should update charts in real-time" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Push Notifications › should request notification permission" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Push Notifications › should display push notification" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Push Notifications › should handle notification click" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Push Notifications › should configure push notification preferences" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Server-Sent Events (SSE) › should receive SSE updates" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Server-Sent Events (SSE) › should handle SSE reconnection" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Security › should use secure WebSocket (WSS)" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Security › should require authentication for WebSocket" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Security › should handle WebSocket errors gracefully" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Performance › should handle multiple simultaneous updates" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Performance › should not block UI during real-time updates" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Performance › should debounce rapid updates" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="websocket-realtime.spec.ts" timestamp="2026-03-26T13:05:34.639Z" hostname="iPad" tests="27" failures="0" skipped="27" time="0" errors="0">
+<testcase name="WebSocket Connection › should establish WebSocket connection" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Connection › should show connection status" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Connection › should handle reconnection on disconnect" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Connection › should display connection error" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Task Updates › should receive task updates in real-time" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Task Updates › should update task list without refresh" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Task Updates › should show indicator for new items" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Task Updates › should update task status in real-time" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Collaboration › should show active users" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Collaboration › should show typing indicators" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Collaboration › should update collaborator cursor position" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Collaboration › should show collaborative editing indicators" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Dashboard Updates › should update metrics in real-time" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Dashboard Updates › should show live activity feed" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Dashboard Updates › should update charts in real-time" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Push Notifications › should request notification permission" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Push Notifications › should display push notification" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Push Notifications › should handle notification click" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Push Notifications › should configure push notification preferences" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Server-Sent Events (SSE) › should receive SSE updates" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Server-Sent Events (SSE) › should handle SSE reconnection" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Security › should use secure WebSocket (WSS)" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Security › should require authentication for WebSocket" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="WebSocket Security › should handle WebSocket errors gracefully" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Performance › should handle multiple simultaneous updates" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Performance › should not block UI during real-time updates" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Real-time Performance › should debounce rapid updates" classname="websocket-realtime.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+</testsuites>

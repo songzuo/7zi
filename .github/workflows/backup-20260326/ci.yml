@@ -1,0 +1,616 @@
+# ============================================
+# 7zi-frontend CI/CD Pipeline (Optimized v3)
+# 特性：
+# - 并行测试矩阵（单元 + E2E）
+# - 增量构建缓存（Next.js + Docker）
+# - 依赖安全审计
+# - 自动化测试和部署
+# - 零停机部署
+# - 自动回滚
+# ============================================
+
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      strategy:
+        description: 'Deployment strategy'
+        required: true
+        default: 'blue-green'
+        type: choice
+        options:
+          - blue-green
+          - rolling
+
+# 并发控制
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '22'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # ============================================
+  # Job 1: 依赖缓存和安全检查
+  # ============================================
+  setup:
+    name: Setup & Security Audit
+    runs-on: ubuntu-latest
+    outputs:
+      cache-key: ${{ steps.cache-keys.outputs.key }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Generate cache keys
+        id: cache-keys
+        run: |
+          echo "key=npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}" >> $GITHUB_OUTPUT
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+      
+      # 依赖安全审计
+      - name: Security audit
+        run: |
+          echo "🔍 Running security audit..."
+          npm audit --audit-level=moderate || true
+          echo "✅ Security audit complete"
+        continue-on-error: true
+      
+      # 检查过时依赖
+      - name: Check outdated dependencies
+        run: npm outdated || true
+        continue-on-error: true
+
+  # ============================================
+  # Job 2: 代码质量检查（并行）
+  # ============================================
+  lint:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+    needs: [setup]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+      
+      - name: Run ESLint
+        run: npm run lint
+      
+      - name: Check formatting
+        run: npm run format:check
+        continue-on-error: true
+
+  # ============================================
+  # Job 3: TypeScript 类型检查（并行）
+  # ============================================
+  typecheck:
+    name: Type Check
+    runs-on: ubuntu-latest
+    needs: [setup]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+      
+      - name: TypeScript check
+        run: npm run type-check
+
+  # ============================================
+  # Job 4: 单元测试（并行矩阵）
+  # ============================================
+  test-unit:
+    name: Unit Tests (shard ${{ matrix.shard }})
+    runs-on: ubuntu-latest
+    needs: [setup]
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+      
+      - name: Run unit tests
+        run: npm run test:run -- --shard=${{ matrix.shard }}/4
+        
+      - name: Upload coverage
+        if: matrix.shard == 1
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-unit
+          path: coverage/
+          retention-days: 7
+
+  # ============================================
+  # Job 5: E2E 测试（在 PR 和 main 分支运行）
+  # ============================================
+  test-e2e:
+    name: E2E Tests (${{ matrix.browser }})
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck]
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium]
+        # 可选：添加更多浏览器
+        # browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+      
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+      
+      - name: Build application
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+      
+      - name: Run E2E tests
+        run: npm run test:e2e -- --project=${{ matrix.browser }}
+        env:
+          CI: true
+      
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ matrix.browser }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
+  # ============================================
+  # Job 6: 构建
+  # ============================================
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck, test-unit]
+    outputs:
+      build-hash: ${{ steps.build-info.outputs.hash }}
+      build-size: ${{ steps.build-info.outputs.size }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      # 增量构建缓存 - 优化 key 策略
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: |
+            .next/cache
+          key: nextjs-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}-${{ github.sha }}
+          restore-keys: |
+            nextjs-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}-
+            nextjs-${{ runner.os }}-
+      
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+      
+      - name: Build application
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+          NODE_ENV: production
+      
+      # 构建分析
+      - name: Analyze bundle size
+        id: build-info
+        run: |
+          echo "📊 Build Analysis"
+          echo "=================="
+          echo "Total .next/: $(du -sh .next/ | cut -f1)"
+          echo "Static: $(du -sh .next/static/ | cut -f1)"
+          echo "Server: $(du -sh .next/server/ | cut -f1)"
+          echo "Standalone: $(du -sh .next/standalone/ 2>/dev/null || echo 'N/A')"
+          
+          # 输出到 GITHUB_OUTPUT
+          echo "hash=${{ github.sha }}" >> $GITHUB_OUTPUT
+          BUILD_SIZE=$(du -sm .next/standalone 2>/dev/null | cut -f1 || echo "0")
+          echo "size=${BUILD_SIZE}" >> $GITHUB_OUTPUT
+          echo ""
+          echo "📦 Standalone size: ${BUILD_SIZE}MB"
+          
+          # 警告大构建
+          if [ "$BUILD_SIZE" -gt 300 ]; then
+            echo "⚠️ Warning: Build size exceeds 300MB"
+          fi
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: |
+            .next/standalone
+            .next/static
+            public
+          retention-days: 1
+
+  # ============================================
+  # Job 7: Docker 构建（main 分支）
+  # ============================================
+  docker:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    outputs:
+      image-tag: ${{ steps.meta.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      # Docker 层缓存 - 使用 gha 缓存后端（更高效）
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: docker-${{ runner.os }}-${{ hashFiles('Dockerfile.optimized', '**/package-lock.json') }}-${{ github.sha }}
+          restore-keys: |
+            docker-${{ runner.os }}-${{ hashFiles('Dockerfile.optimized', '**/package-lock.json') }}-
+            docker-${{ runner.os }}-
+      
+      - name: Login to Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix=
+            type=raw,value=latest,enable={{is_default_branch}}
+      
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.optimized
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+          build-args: |
+            NEXT_TELEMETRY_DISABLED=1
+      
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+  # ============================================
+  # Job 8: 预部署检查
+  # ============================================
+  pre-deploy:
+    name: Pre-deployment Checks
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: .
+      
+      - name: Verify build integrity
+        run: |
+          echo "🔍 Running pre-deployment checks..."
+          
+          # 检查必要文件
+          test -d .next/standalone || { echo "❌ Missing standalone build"; exit 1; }
+          test -d .next/static || { echo "❌ Missing static files"; exit 1; }
+          test -d public || { echo "❌ Missing public directory"; exit 1; }
+          test -f .next/standalone/server.js || { echo "❌ Missing server.js"; exit 1; }
+          
+          echo "✅ All pre-deployment checks passed!"
+      
+      - name: Security scan
+        run: |
+          echo "🔒 Running security scan..."
+          
+          # 检查敏感文件
+          if find . -name "*.env.local" -o -name "*.pem" -o -name "*.key" 2>/dev/null | grep -q .; then
+            echo "⚠️ Warning: Potential sensitive files found"
+          fi
+          
+          echo "✅ Security scan complete"
+      
+      - name: Generate deployment manifest
+        run: |
+          cat > deployment-manifest.json << EOF
+          {
+            "version": "${{ github.sha }}",
+            "branch": "${{ github.ref_name }}",
+            "commit": "${{ github.sha }}",
+            "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
+            "actor": "${{ github.actor }}",
+            "workflow": "${{ github.workflow }}",
+            "run_id": "${{ github.run_id }}",
+            "run_number": "${{ github.run_number }}"
+          }
+          EOF
+          
+          echo "📋 Deployment manifest:"
+          cat deployment-manifest.json
+      
+      - name: Upload deployment manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-manifest
+          path: deployment-manifest.json
+          retention-days: 30
+
+  # ============================================
+  # Job 9: 部署到 Staging（自动）
+  # ============================================
+  deploy-staging:
+    name: Deploy Staging
+    runs-on: ubuntu-latest
+    needs: [docker, pre-deploy]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: staging
+      url: https://staging.7zi.com
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install sshpass
+        run: sudo apt-get install -y sshpass
+      
+      - name: Deploy to staging
+        env:
+          SSH_HOST: ${{ secrets.STAGING_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_USER }}
+          SSH_PASS: ${{ secrets.DEPLOY_PASS }}
+        run: |
+          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST << 'ENDSSH'
+            set -e
+            cd /opt/7zi-frontend
+            
+            echo "🚀 Starting staging deployment..."
+            
+            # 拉取最新代码
+            git pull origin main
+            
+            # 执行零停机部署
+            if [ -f deploy-zero-downtime.sh ]; then
+              chmod +x deploy-zero-downtime.sh
+              ./deploy-zero-downtime.sh deploy
+            else
+              # 备用方案
+              docker-compose -f docker-compose.prod.yml pull
+              docker-compose -f docker-compose.prod.yml up -d --no-deps --build
+            fi
+            
+            # 健康检查
+            echo "⏳ Waiting for health check..."
+            sleep 15
+            for i in {1..5}; do
+              if curl -sf http://localhost:3000/ > /dev/null 2>&1; then
+                echo "✅ Staging deployment successful!"
+                exit 0
+              fi
+              echo "Attempt $i failed, retrying..."
+              sleep 5
+            done
+            
+            echo "❌ Health check failed!"
+            docker-compose -f docker-compose.prod.yml logs --tail=50
+            exit 1
+          ENDSSH
+
+  # ============================================
+  # Job 10: 部署到 Production（手动触发）
+  # ============================================
+  deploy-production:
+    name: Deploy Production
+    runs-on: ubuntu-latest
+    needs: [docker, pre-deploy]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && inputs.environment == 'production'
+    environment:
+      name: production
+      url: https://7zi.com
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install sshpass
+        run: sudo apt-get install -y sshpass
+      
+      - name: Create release tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          RELEASE_TAG="v$(date +%Y%m%d-%H%M%S)"
+          git tag -a "$RELEASE_TAG" -m "Release $(date +%Y-%m-%d) - $RELEASE_TAG"
+          git push origin --tags || true
+          echo "🏷️ Created release tag: $RELEASE_TAG"
+      
+      - name: Deploy to production
+        env:
+          SSH_HOST: ${{ secrets.PRODUCTION_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_USER }}
+          SSH_PASS: ${{ secrets.DEPLOY_PASS }}
+          DEPLOY_STRATEGY: ${{ inputs.strategy }}
+        run: |
+          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST << 'ENDSSH'
+            set -e
+            cd /opt/7zi-frontend
+            
+            echo "🚀 Starting production deployment..."
+            echo "Strategy: ${DEPLOY_STRATEGY:-blue-green}"
+            
+            # 备份当前版本
+            BACKUP_DIR="/opt/backups/7zi-frontend-$(date +%Y%m%d-%H%M%S)"
+            mkdir -p "$BACKUP_DIR"
+            cp -r .next "$BACKUP_DIR/" 2>/dev/null || true
+            echo "📦 Backup created: $BACKUP_DIR"
+            
+            # 拉取最新代码
+            git pull origin main
+            
+            # 执行部署
+            if [ -f deploy-zero-downtime.sh ]; then
+              chmod +x deploy-zero-downtime.sh
+              if [ "${DEPLOY_STRATEGY}" = "rolling" ]; then
+                ./deploy-zero-downtime.sh rolling
+              else
+                ./deploy-zero-downtime.sh deploy
+              fi
+            else
+              docker-compose -f docker-compose.prod.yml pull
+              docker-compose -f docker-compose.prod.yml up -d --no-deps --build
+            fi
+            
+            # 健康检查（10次重试）
+            echo "⏳ Waiting for health check..."
+            sleep 20
+            for i in {1..10}; do
+              if curl -sf http://localhost:3000/ > /dev/null 2>&1; then
+                echo "✅ Production deployment successful!"
+                
+                # 清理旧备份（保留最近5个）
+                ls -dt /opt/backups/7zi-frontend-* 2>/dev/null | tail -n +6 | xargs -r rm -rf
+                
+                exit 0
+              fi
+              echo "Attempt $i failed, retrying..."
+              sleep 5
+            done
+            
+            echo "❌ Health check failed! Rolling back..."
+            
+            # 回滚
+            docker-compose -f docker-compose.prod.yml down || true
+            if [ -d "$BACKUP_DIR/.next" ]; then
+              cp -r "$BACKUP_DIR/.next" ./
+            fi
+            docker-compose -f docker-compose.prod.yml up -d
+            
+            exit 1
+          ENDSSH
+      
+      - name: Verify deployment
+        run: |
+          echo "Verifying production deployment..."
+          for i in {1..10}; do
+            if curl -sf https://7zi.com/ > /dev/null 2>&1; then
+              echo "✅ Production is accessible"
+              exit 0
+            fi
+            echo "Attempt $i failed, retrying..."
+            sleep 5
+          done
+          echo "⚠️ Warning: Production verification failed"
+
+  # ============================================
+  # Job 11: 失败通知
+  # ============================================
+  notify-failure:
+    name: Notify Failure
+    runs-on: ubuntu-latest
+    needs: [build, test-e2e, deploy-staging, deploy-production]
+    if: failure()
+    steps:
+      - name: Send notification
+        run: |
+          echo "❌ CI/CD Pipeline failed!"
+          echo "========================="
+          echo "Repository: ${{ github.repository }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Workflow: ${{ github.workflow }}"
+          echo "Run ID: ${{ github.run_id }}"
+          # 可在此添加 Slack/Telegram/Email 通知
+
+  # ============================================
+  # Job 12: 成功通知（可选）
+  # ============================================
+  notify-success:
+    name: Notify Success
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, deploy-production]
+    if: success() && github.ref == 'refs/heads/main'
+    steps:
+      - name: Send notification
+        run: |
+          echo "✅ CI/CD Pipeline completed successfully!"
+          echo "=========================================="
+          echo "Repository: ${{ github.repository }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Actor: ${{ github.actor }}"

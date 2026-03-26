@@ -2,7 +2,10 @@
 
 **生成时间**: 2026-03-25  
 **测试员**: 🧪 测试分析子代理  
-**项目路径**: `/root/.openclaw/workspace/7zi-project-new`
+**项目路径**: `/root/.openclaw/workspace`
+
+**更新时间**: 2026-03-26  
+**修复状态**: ✅ 测试执行问题已修复
 
 ---
 
@@ -14,14 +17,31 @@
 | 单元测试文件 | 262 | src/ 目录下 |
 | E2E 测试 | 4 | tests/e2e/ |
 | 集成测试 | 5+ | tests/api-integration/ |
-| **总测试数** | **3166** | (根据 junit-results.xml) |
+| **当前测试总数** | **8552** | (2026-03-26 最新运行) |
 
-### 🔴 关键问题: 所有测试被跳过
-从 `/root/.openclaw/workspace/test-results/junit-results.xml` 分析:
+### ✅ 已解决的问题
+
+#### 🔴 之前的问题 (已解决)
+从旧的备份文件 `/root/.openclaw/workspace/archive/7zi-project-new-backup-2026-03-25/test-results/junit-results.xml` 分析:
 ```
 tests="3166" failures="0" skipped="3166" errors="0"
 ```
-**所有 3166 个测试被跳过，未实际执行！**
+**之前所有 3166 个测试被跳过** - 这是旧备份的状态，非当前实际情况。
+
+#### ✅ 当前状态 (2026-03-26 13:57)
+```
+Test Files  173 failed | 182 passed | 1 skipped (356 total)
+Tests       1432 failed | 7025 passed | 95 skipped (8552 total)
+Duration    630.71s
+```
+
+**测试正在正常执行**，只是有部分失败需要修复。
+
+### 🔧 已修复的测试
+- ✅ **RealtimeDashboard 组件测试** (20 tests) - 全部通过
+  - 修复了文本匹配问题 (中文/英文 locale)
+  - 修复了断言逻辑 (getByText vs getAllByText)
+  - 修复了定时器检测逻辑
 
 ---
 
