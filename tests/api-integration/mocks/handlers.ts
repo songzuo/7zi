@@ -632,11 +632,529 @@ export const feedbackHandlers = [
   }),
 ];
 
+// ========================================
+// Tasks API Handlers
+// ========================================
+const taskHandlers = [
+  // GET /api/tasks - List tasks with pagination, filtering
+  http.get('http://localhost:3000/api/tasks', ({ request }: { request: Request }) => {
+    const url = new URL(request.url);
+    const page = parseInt(url.searchParams.get('page') || '1');
+    const limit = parseInt(url.searchParams.get('limit') || '20');
+    const status = url.searchParams.get('status') || undefined;
+    const priority = url.searchParams.get('priority') || undefined;
+    const search = url.searchParams.get('search') || undefined;
+    const createdBy = url.searchParams.get('createdBy') || undefined;
+    const assignedTo = url.searchParams.get('assignedTo') || undefined;
+    const sortBy = url.searchParams.get('sortBy') || 'createdAt';
+    const sortOrder = url.searchParams.get('sortOrder') || 'desc';
+
+    let tasks = mockData.getAllTasksFull();
+
+    // Apply filters
+    if (status) {
+      tasks = tasks.filter(t => t.status === status);
+    }
+    if (priority) {
+      tasks = tasks.filter(t => t.priority === priority);
+    }
+    if (search) {
+      const searchLower = search.toLowerCase();
+      tasks = tasks.filter(t =>
+        t.title.toLowerCase().includes(searchLower) ||
+        (t.description && t.description.toLowerCase().includes(searchLower))
+      );
+    }
+    if (createdBy) {
+      tasks = tasks.filter(t => t.createdBy === createdBy);
+    }
+    if (assignedTo) {
+      tasks = tasks.filter(t => t.assignedTo === assignedTo);
+    }
+
+    // Sort
+    tasks.sort((a, b) => {
+      const aVal = a[sortBy as keyof typeof a] ?? '';
+      const bVal = b[sortBy as keyof typeof b] ?? '';
+      const cmp = String(aVal).localeCompare(String(bVal));
+      return sortOrder === 'desc' ? -cmp : cmp;
+    });
+
+    const total = tasks.length;
+    const totalPages = Math.ceil(total / limit);
+    const offset = (page - 1) * limit;
+    const items = tasks.slice(offset, offset + limit);
+
+    return HttpResponse.json({
+      success: true,
+      data: {
+        items,
+        total,
+        page,
+        limit,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      },
+    }, { status: 200 });
+  }),
+
+  // POST /api/tasks - Create new task
+  http.post('http://localhost:3000/api/tasks', async ({ request }: { request: Request }) => {
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return HttpResponse.json({
+        success: false,
+        error: { type: 'UNAUTHORIZED', message: 'Unauthorized' },
+      }, { status: 401 });
+    }
+
+    const token = authHeader.substring(7);
+    const userId = mockData.getUserIdFromToken(token);
+    if (!userId) {
+      return HttpResponse.json({
+        success: false,
+        error: { type: 'UNAUTHORIZED', message: 'Unauthorized' },
+      }, { status: 401 });
+    }
+
+    try {
+      const body = await request.json() as any;
+
+      if (!body.title || typeof body.title !== 'string' || body.title.trim().length === 0) {
+        return HttpResponse.json({
+          success: false,
+          error: 'Validation failed',
+          errors: ['Title is required and must be a non-empty string'],
+        }, { status: 400 });
+      }
+
+      if (body.title.length > 200) {
+        return HttpResponse.json({
+          success: false,
+          error: 'Validation failed',
+          errors: ['Title must be less than 200 characters'],
+        }, { status: 400 });
+      }
+
+      const validPriorities = ['low', 'medium', 'high', 'urgent'];
+      if (body.priority && !validPriorities.includes(body.priority)) {
+        return HttpResponse.json({
+          success: false,
+          error: 'Validation failed',
+          errors: ['Invalid priority value'],
+        }, { status: 400 });
+      }
+
+      const validStatuses = ['pending', 'in_progress', 'completed', 'cancelled'];
+      if (body.status && !validStatuses.includes(body.status)) {
+        return HttpResponse.json({
+          success: false,
+          error: 'Validation failed',
+          errors: ['Invalid status value'],
+        }, { status: 400 });
+      }
+
+      const task = mockData.createTaskFull({
+        title: body.title.trim(),
+        description: body.description?.trim(),
+        priority: body.priority || 'medium',
+        status: body.status || 'pending',
+        dueDate: body.dueDate || null,
+        createdBy: userId,
+        assignedTo: body.assignedTo || null,
+      });
+
+      return HttpResponse.json({
+        success: true,
+        data: task,
+      }, { status: 201 });
+    } catch {
+      return HttpResponse.json({
+        success: false,
+        error: { type: 'VALIDATION_ERROR', message: 'Invalid JSON body' },
+      }, { status: 400 });
+    }
+  }),
+
+  // GET /api/tasks/:id - Get single task
+  http.get('http://localhost:3000/api/tasks/:id', ({ params }: { params: Record<string, string> }) => {
+    const task = mockData.getTaskFullById(params.id);
+
+    if (!task) {
+      return HttpResponse.json({
+        success: false,
+        error: { type: 'NOT_FOUND', message: 'Task not found' },
+      }, { status: 404 });
+    }
+
+    return HttpResponse.json({
+      success: true,
+      data: task,
+    }, { status: 200 });
+  }),
+
+  // PUT /api/tasks/:id - Update task
+  http.put('http://localhost:3000/api/tasks/:id', async ({ params, request }: { params: Record<string, string>; request: Request }) => {
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return HttpResponse.json({
+        success: false,
+        error: { type: 'UNAUTHORIZED', message: 'Unauthorized' },
+      }, { status: 401 });
+    }
+
+    const existing = mockData.getTaskFullById(params.id);
+    if (!existing) {
+      return HttpResponse.json({
+        success: false,
+        error: { type: 'NOT_FOUND', message: 'Task not found' },
+      }, { status: 404 });
+    }
+
+    try {
+      const body = await request.json() as any;
+
+      if (body.title !== undefined && (typeof body.title !== 'string' || body.title.trim().length === 0)) {
+        return HttpResponse.json({
+          success: false,
+          error: 'Validation failed',
+          errors: ['Title must be a non-empty string'],
+        }, { status: 400 });
+      }
+
+      const validPriorities = ['low', 'medium', 'high', 'urgent'];
+      if (body.priority && !validPriorities.includes(body.priority)) {
+        return HttpResponse.json({
+          success: false,
+          error: 'Validation failed',
+          errors: ['Invalid priority value'],
+        }, { status: 400 });
+      }
+
+      const validStatuses = ['pending', 'in_progress', 'completed', 'cancelled'];
+      if (body.status && !validStatuses.includes(body.status)) {
+        return HttpResponse.json({
+          success: false,
+          error: 'Validation failed',
+          errors: ['Invalid status value'],
+        }, { status: 400 });
+      }
+
+      const updated = mockData.updateTaskFull(params.id, {
+        title: body.title?.trim(),
+        description: body.description?.trim(),
+        priority: body.priority,
+        status: body.status,
+        dueDate: body.dueDate,
+        assignedTo: body.assignedTo,
+      });
+
+      return HttpResponse.json({
+        success: true,
+        data: updated,
+      }, { status: 200 });
+    } catch {
+      return HttpResponse.json({
+        success: false,
+        error: { type: 'VALIDATION_ERROR', message: 'Invalid JSON body' },
+      }, { status: 400 });
+    }
+  }),
+
+  // DELETE /api/tasks/:id - Delete task
+  http.delete('http://localhost:3000/api/tasks/:id', ({ params }: { params: Record<string, string> }) => {
+    const existing = mockData.getTaskFullById(params.id);
+
+    if (!existing) {
+      return HttpResponse.json({
+        success: false,
+        error: { type: 'NOT_FOUND', message: 'Task not found' },
+      }, { status: 404 });
+    }
+
+    mockData.deleteTaskFull(params.id);
+
+    return HttpResponse.json({
+      success: true,
+      data: { id: params.id },
+    }, { status: 200 });
+  }),
+];
+
+// ========================================
+// Projects API Handlers
+// ========================================
+const projectHandlers = [
+  // GET /api/projects - List projects
+  http.get('http://localhost:3000/api/projects', ({ request }: { request: Request }) => {
+    const url = new URL(request.url);
+    const ownerId = url.searchParams.get('ownerId') || undefined;
+    const status = url.searchParams.get('status') || undefined;
+
+    let projects = mockData.getAllProjects();
+
+    if (ownerId) {
+      projects = projects.filter(p => p.ownerId === ownerId);
+    }
+    if (status) {
+      projects = projects.filter(p => p.status === status);
+    }
+
+    return HttpResponse.json({
+      success: true,
+      data: {
+        items: projects,
+        total: projects.length,
+      },
+    }, { status: 200 });
+  }),
+
+  // POST /api/projects - Create project
+  http.post('http://localhost:3000/api/projects', async ({ request }: { request: Request }) => {
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return HttpResponse.json({
+        success: false,
+        error: { type: 'UNAUTHORIZED', message: 'Unauthorized' },
+      }, { status: 401 });
+    }
+
+    const token = authHeader.substring(7);
+    const userId = mockData.getUserIdFromToken(token);
+    if (!userId) {
+      return HttpResponse.json({
+        success: false,
+        error: { type: 'UNAUTHORIZED', message: 'Unauthorized' },
+      }, { status: 401 });
+    }
+
+    try {
+      const body = await request.json() as any;
+
+      if (!body.name || typeof body.name !== 'string' || body.name.trim().length === 0) {
+        return HttpResponse.json({
+          success: false,
+          error: 'Validation failed',
+          errors: ['Name is required and must be a non-empty string'],
+        }, { status: 400 });
+      }
+
+      const project = mockData.createProject({
+        name: body.name.trim(),
+        description: body.description?.trim(),
+        ownerId: userId,
+        status: body.status || 'active',
+      });
+
+      return HttpResponse.json({
+        success: true,
+        data: project,
+      }, { status: 201 });
+    } catch {
+      return HttpResponse.json({
+        success: false,
+        error: { type: 'VALIDATION_ERROR', message: 'Invalid JSON body' },
+      }, { status: 400 });
+    }
+  }),
+
+  // GET /api/projects/:id - Get single project
+  http.get('http://localhost:3000/api/projects/:id', ({ params }: { params: Record<string, string> }) => {
+    const project = mockData.getProjectById(params.id);
+
+    if (!project) {
+      return HttpResponse.json({
+        success: false,
+        error: { type: 'NOT_FOUND', message: 'Project not found' },
+      }, { status: 404 });
+    }
+
+    return HttpResponse.json({
+      success: true,
+      data: project,
+    }, { status: 200 });
+  }),
+
+  // PUT /api/projects/:id - Update project
+  http.put('http://localhost:3000/api/projects/:id', async ({ params, request }: { params: Record<string, string>; request: Request }) => {
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return HttpResponse.json({
+        success: false,
+        error: { type: 'UNAUTHORIZED', message: 'Unauthorized' },
+      }, { status: 401 });
+    }
+
+    const existing = mockData.getProjectById(params.id);
+    if (!existing) {
+      return HttpResponse.json({
+        success: false,
+        error: { type: 'NOT_FOUND', message: 'Project not found' },
+      }, { status: 404 });
+    }
+
+    try {
+      const body = await request.json() as any;
+
+      if (body.name !== undefined && (typeof body.name !== 'string' || body.name.trim().length === 0)) {
+        return HttpResponse.json({
+          success: false,
+          error: 'Validation failed',
+          errors: ['Name must be a non-empty string'],
+        }, { status: 400 });
+      }
+
+      const updated = mockData.updateProject(params.id, {
+        name: body.name?.trim(),
+        description: body.description?.trim(),
+        status: body.status,
+      });
+
+      return HttpResponse.json({
+        success: true,
+        data: updated,
+      }, { status: 200 });
+    } catch {
+      return HttpResponse.json({
+        success: false,
+        error: { type: 'VALIDATION_ERROR', message: 'Invalid JSON body' },
+      }, { status: 400 });
+    }
+  }),
+
+  // DELETE /api/projects/:id - Delete project
+  http.delete('http://localhost:3000/api/projects/:id', ({ params }: { params: Record<string, string> }) => {
+    const existing = mockData.getProjectById(params.id);
+
+    if (!existing) {
+      return HttpResponse.json({
+        success: false,
+        error: { type: 'NOT_FOUND', message: 'Project not found' },
+      }, { status: 404 });
+    }
+
+    mockData.deleteProject(params.id);
+
+    return HttpResponse.json({
+      success: true,
+      data: { id: params.id },
+    }, { status: 200 });
+  }),
+];
+
+// ========================================
+// Performance API Handlers
+// ========================================
+const performanceHandlers = [
+  // GET /api/performance/metrics
+  http.get('http://localhost:3000/api/performance/metrics', ({ request }: { request: Request }) => {
+    const url = new URL(request.url);
+    const route = url.searchParams.get('route');
+    const metric = url.searchParams.get('metric');
+    const rating = url.searchParams.get('rating');
+    const limit = parseInt(url.searchParams.get('limit') || '100');
+
+    // Return mock performance metrics
+    const mockMetrics = [
+      { id: 'm1', name: 'LCP', value: 1200, rating: 'good', timestamp: Date.now() - 3600000, route: '/', deviceType: 'desktop', connectionType: 'broadband' },
+      { id: 'm2', name: 'FID', value: 50, rating: 'good', timestamp: Date.now() - 3600000, route: '/', deviceType: 'desktop', connectionType: 'broadband' },
+      { id: 'm3', name: 'CLS', value: 0.05, rating: 'good', timestamp: Date.now() - 3600000, route: '/', deviceType: 'desktop', connectionType: 'broadband' },
+      { id: 'm4', name: 'TTFB', value: 200, rating: 'good', timestamp: Date.now() - 3600000, route: '/', deviceType: 'desktop', connectionType: 'broadband' },
+    ];
+
+    let filtered = [...mockMetrics];
+    if (route) filtered = filtered.filter(m => m.route === route);
+    if (metric) filtered = filtered.filter(m => m.name === metric);
+    if (rating) filtered = filtered.filter(m => m.rating === rating);
+
+    const stats = {
+      LCP: { count: 4, avg: 1200, min: 1200, max: 1200, p50: 1200, p90: 1200, p95: 1200, good: 4, needsImprovement: 0, poor: 0 },
+      FID: { count: 4, avg: 50, min: 50, max: 50, p50: 50, p90: 50, p95: 50, good: 4, needsImprovement: 0, poor: 0 },
+      CLS: { count: 4, avg: 0.05, min: 0.05, max: 0.05, p50: 0.05, p90: 0.05, p95: 0.05, good: 4, needsImprovement: 0, poor: 0 },
+    };
+
+    return HttpResponse.json({
+      success: true,
+      data: {
+        metrics: filtered.slice(0, limit),
+        stats,
+        totalAlerts: 0,
+      },
+    }, { status: 200 });
+  }),
+
+  // POST /api/performance/metrics
+  http.post('http://localhost:3000/api/performance/metrics', async ({ request }: { request: Request }) => {
+    try {
+      const body = await request.json() as any;
+      const { metrics, metadata } = body;
+
+      if (!Array.isArray(metrics) || metrics.length === 0) {
+        return HttpResponse.json({
+          success: false,
+          error: { type: 'VALIDATION_ERROR', message: 'Invalid metrics data' },
+        }, { status: 400 });
+      }
+
+      return HttpResponse.json({
+        success: true,
+        data: {
+          stored: metrics.length,
+          alertsTriggered: 0,
+          alerts: [],
+        },
+      }, { status: 201 });
+    } catch {
+      return HttpResponse.json({
+        success: false,
+        error: { type: 'VALIDATION_ERROR', message: 'Invalid JSON body' },
+      }, { status: 400 });
+    }
+  }),
+
+  // DELETE /api/performance/metrics
+  http.delete('http://localhost:3000/api/performance/metrics', ({ request }: { request: Request }) => {
+    const url = new URL(request.url);
+    const before = parseInt(url.searchParams.get('before') || '0');
+
+    return HttpResponse.json({
+      success: true,
+      data: {
+        deleted: before > 0 ? 5 : 10,
+        remainingMetrics: 0,
+      },
+    }, { status: 200 });
+  }),
+
+  // GET /api/metrics/performance (alias)
+  http.get('http://localhost:3000/api/metrics/performance', ({ request }: { request: Request }) => {
+    const url = new URL(request.url);
+    const limit = parseInt(url.searchParams.get('limit') || '100');
+
+    const mockMetrics = [
+      { id: 'm1', name: 'LCP', value: 1200, rating: 'good', timestamp: Date.now(), route: '/', deviceType: 'desktop', connectionType: 'broadband' },
+      { id: 'm2', name: 'FID', value: 50, rating: 'good', timestamp: Date.now(), route: '/', deviceType: 'desktop', connectionType: 'broadband' },
+    ];
+
+    return HttpResponse.json({
+      success: true,
+      data: {
+        metrics: mockMetrics.slice(0, limit),
+        stats: { LCP: { avg: 1200 }, FID: { avg: 50 } },
+      },
+    }, { status: 200 });
+  }),
+];
+
 // Combine all handlers
 export const handlers = [
   ...authHandlers,
   ...healthHandlers,
   ...feedbackHandlers,
+  ...taskHandlers,
+  ...projectHandlers,
+  ...performanceHandlers,
 ];
 
 // Create MSW server

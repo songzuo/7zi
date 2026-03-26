@@ -126,6 +126,7 @@ const MemberCardBase: React.FC<MemberCardProps> = ({
               alt={member.name}
               width={40}
               height={40}
+              sizes="40px"
               className={`rounded-full ring-2 transition-all duration-200 ${
                 isSelected
                   ? 'ring-blue-500'
@@ -183,6 +184,7 @@ const MemberCardBase: React.FC<MemberCardProps> = ({
             alt={member.name}
             width={48}
             height={48}
+            sizes="48px"
             className={`rounded-full ring-2 transition-all duration-300 ${
               isSelected
                 ? 'ring-blue-500'

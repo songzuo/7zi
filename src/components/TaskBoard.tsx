@@ -160,6 +160,7 @@ const TaskCardBase: React.FC<TaskCardProps> = ({ issue }) => {
                   alt={issue.assignee.login}
                   width={16}
                   height={16}
+                  sizes="16px"
                   className="rounded-full"
                   unoptimized
                 />

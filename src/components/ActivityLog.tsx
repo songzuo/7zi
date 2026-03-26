@@ -123,6 +123,7 @@ const ActivityItemCardBase: React.FC<ActivityItemCardProps> = ({ activity, icon,
                 alt={activity.author}
                 width={16}
                 height={16}
+                sizes="16px"
                 className="rounded-full ring-1 ring-transparent group-hover:ring-cyan-500/50 transition-all"
                 unoptimized
               />

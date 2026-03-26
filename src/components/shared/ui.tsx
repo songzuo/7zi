@@ -124,6 +124,7 @@ export const Avatar: FC<AvatarProps> = ({
           alt={name}
           width={pixelSize}
           height={pixelSize}
+          sizes={pixelSize ? `${pixelSize}px` : '48px'}
           className="rounded-full"
           unoptimized
         />

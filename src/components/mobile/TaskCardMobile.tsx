@@ -223,6 +223,7 @@ export function TaskCardMobile({
                     alt={issue.assignee.login}
                     width={20}
                     height={20}
+                    sizes="20px"
                     className="rounded-full"
                     unoptimized
                   />
