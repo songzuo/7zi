@@ -39,11 +39,16 @@ export interface TimingEntry {
 }
 
 // ============================================
-// 浏览器支持检测
+// 浏览器支持检测（动态检查，用于测试）
 // ============================================
 
-const isPerformanceSupported = typeof performance !== 'undefined';
-const isPerformanceObserverSupported = typeof PerformanceObserver !== 'undefined';
+function isPerformanceSupported(): boolean {
+  return typeof performance !== 'undefined';
+}
+
+function isPerformanceObserverSupported(): boolean {
+  return typeof PerformanceObserver !== 'undefined';
+}
 
 // ============================================
 // Performance Mark API
@@ -53,7 +58,7 @@ export function performanceMark(
   name: string,
   options?: PerformanceMarkOptions
 ): PerformanceMark | null {
-  if (!isPerformanceSupported) {
+  if (!isPerformanceSupported()) {
     console.warn('[UserTiming] performance.mark not supported');
     return null;
   }
@@ -68,7 +73,7 @@ export function performanceMark(
 }
 
 export function performanceClearMark(name?: string): void {
-  if (!isPerformanceSupported) return;
+  if (!isPerformanceSupported()) return;
 
   try {
     if (name) {
@@ -90,7 +95,7 @@ export function performanceMeasure(
   startMark: string,
   endMark?: string
 ): PerformanceMeasure | null {
-  if (!isPerformanceSupported) {
+  if (!isPerformanceSupported()) {
     console.warn('[UserTiming] performance.measure not supported');
     return null;
   }
@@ -107,7 +112,7 @@ export function performanceMeasure(
 }
 
 export function performanceClearMeasure(name?: string): void {
-  if (!isPerformanceSupported) return;
+  if (!isPerformanceSupported()) return;
 
   try {
     if (name) {
@@ -125,7 +130,7 @@ export function performanceClearMeasure(name?: string): void {
 // ============================================
 
 export function getEntriesByType(type: string): PerformanceEntry[] {
-  if (!isPerformanceSupported) return [];
+  if (!isPerformanceSupported()) return [];
 
   try {
     return performance.getEntriesByType(type);
@@ -136,7 +141,7 @@ export function getEntriesByType(type: string): PerformanceEntry[] {
 }
 
 export function getEntriesByName(name: string, type?: string): PerformanceEntry[] {
-  if (!isPerformanceSupported) return [];
+  if (!isPerformanceSupported()) return [];
 
   try {
     if (type) {
@@ -167,7 +172,7 @@ export function observePerformance(
   entryTypes: string[],
   callback: PerformanceObserverCallback
 ): PerformanceObserver | null {
-  if (!isPerformanceObserverSupported) {
+  if (!isPerformanceObserverSupported()) {
     console.warn('[UserTiming] PerformanceObserver not supported');
     return null;
   }
@@ -199,7 +204,7 @@ export function usePerformanceMark(name: string, enabled: boolean = true) {
   const startTimeRef = useRef<number>(0);
 
   useEffect(() => {
-    if (!enabled || !isPerformanceSupported) return;
+    if (!enabled || !isPerformanceSupported()) return;
 
     startTimeRef.current = performance.now();
 
@@ -211,7 +216,7 @@ export function usePerformanceMark(name: string, enabled: boolean = true) {
   }, [name, enabled]);
 
   const measure = useCallback(() => {
-    if (!isPerformanceSupported) return null;
+    if (!isPerformanceSupported()) return null;
 
     return performanceMeasure(
       `${name}-duration`,
@@ -231,7 +236,7 @@ export function useRenderTiming(componentName: string) {
   const markEnd = `${componentName}-render-end`;
 
   useEffect(() => {
-    if (!isPerformanceSupported) return;
+    if (!isPerformanceSupported()) return;
 
     performanceMark(markStart);
 
@@ -241,7 +246,7 @@ export function useRenderTiming(componentName: string) {
   }, [markStart, markEnd]);
 
   const getRenderDuration = useCallback(() => {
-    if (!isPerformanceSupported) return 0;
+    if (!isPerformanceSupported()) return 0;
 
     const entries = getEntriesByName(markEnd, 'mark');
     if (entries.length === 0) return 0;
@@ -257,7 +262,7 @@ export function useRenderTiming(componentName: string) {
  */
 export function useLongTaskObserver(callback: (duration: number) => void) {
   useEffect(() => {
-    if (!isPerformanceObserverSupported) return;
+    if (!isPerformanceObserverSupported()) return;
 
     const observer = new PerformanceObserver((list) => {
       list.getEntries().forEach((entry) => {
@@ -278,7 +283,7 @@ export function useLongTaskObserver(callback: (duration: number) => void) {
  */
 export function useLayoutShiftObserver(callback: (value: number) => void) {
   useEffect(() => {
-    if (!isPerformanceObserverSupported) return;
+    if (!isPerformanceObserverSupported()) return;
 
     const observer = new PerformanceObserver((list) => {
       list.getEntries().forEach((entry) => {
@@ -302,14 +307,14 @@ export function useAsyncTiming(operationName: string) {
   const startRef = useRef<number>(0);
 
   const startTiming = useCallback(() => {
-    if (isPerformanceSupported) {
+    if (isPerformanceSupported()) {
       startRef.current = performance.now();
       performanceMark(`${operationName}-async-start`);
     }
   }, [operationName]);
 
   const endTiming = useCallback(() => {
-    if (!isPerformanceSupported || startRef.current === 0) return 0;
+    if (!isPerformanceSupported() || startRef.current === 0) return 0;
 
     performanceMark(`${operationName}-async-end`);
 
@@ -338,7 +343,7 @@ export function withTiming<T extends (...args: unknown[]) => unknown>(
   name: string
 ): T {
   return ((...args: Parameters<T>) => {
-    if (!isPerformanceSupported) {
+    if (!isPerformanceSupported()) {
       return fn(...args);
     }
 
@@ -382,7 +387,7 @@ export function createTimedFetch(name: string) {
     input: RequestInfo,
     init?: RequestInit
   ): Promise<Response> {
-    if (!isPerformanceSupported) {
+    if (!isPerformanceSupported()) {
       return fetch(input, init);
     }
 
@@ -408,7 +413,7 @@ export function createTimedFetch(name: string) {
  * 获取 Navigation Timing 数据
  */
 export function getNavigationTiming(): PerformanceNavigationTiming | null {
-  if (!isPerformanceSupported) return null;
+  if (!isPerformanceSupported()) return null;
 
   const entries = performance.getEntriesByType('navigation');
   return entries.length > 0 ? entries[0] as PerformanceNavigationTiming : null;
@@ -418,7 +423,7 @@ export function getNavigationTiming(): PerformanceNavigationTiming | null {
  * 获取 Resource Timing 数据
  */
 export function getResourceTiming(urlPattern?: string): PerformanceResourceTiming[] {
-  if (!isPerformanceSupported) return [];
+  if (!isPerformanceSupported()) return [];
 
   let entries = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
 
@@ -434,6 +439,9 @@ export function getResourceTiming(urlPattern?: string): PerformanceResourceTimin
  * 格式化 Duration
  */
 export function formatDuration(ms: number): string {
+  if (ms === 0) {
+    return '0ms';
+  }
   if (ms < 1) {
     return `${(ms * 1000).toFixed(0)}μs`;
   }
