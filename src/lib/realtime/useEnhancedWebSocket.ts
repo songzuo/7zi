@@ -180,6 +180,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
   const stateChangeCallbacksRef = useRef<Set<(state: ConnectionState) => void>>(new Set());
   const errorCallbacksRef = useRef<Set<(error: Error) => void>>(new Set());
   const subscribedChannelsRef = useRef<Set<string>>(new Set(channels));
+  const isConnectingRef = useRef(false); // Connection lock to prevent concurrent connections
 
   // 更新状态并通知监听器
   const updateState = useCallback((newState: ConnectionState) => {
@@ -372,10 +373,18 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
 
   // 创建连接
   const createConnection = useCallback(() => {
-    if (socketRef.current?.connected) {
+    // Prevent concurrent connections
+    if (isConnectingRef.current) {
+      logger.warn('[WebSocket] Connection already in progress');
       return;
     }
 
+    if (socketRef.current?.connected) {
+      isConnectingRef.current = false;
+      return;
+    }
+
+    isConnectingRef.current = true;
     updateState('connecting');
     setError(null);
 
@@ -391,6 +400,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
 
       // 连接成功
       socket.on('connect', () => {
+        isConnectingRef.current = false;
         updateState('connected');
         reconnectAttemptsRef.current = 0;
         connectionStartTimeRef.current = new Date();
@@ -457,6 +467,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
       registerMessageHandlers(socket);
 
     } catch (err) {
+      isConnectingRef.current = false;
       const wsError = err instanceof Error ? err : new Error(String(err));
       setError(wsError);
       updateState('error');
@@ -497,18 +508,33 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
 
   // 断开连接
   const disconnectConnection = useCallback(() => {
+    // Clear reconnect timeout
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
       reconnectTimeoutRef.current = null;
     }
 
+    // Stop heartbeat
     stopHeartbeat();
 
+    // Disconnect socket and clear references
     if (socketRef.current) {
       socketRef.current.disconnect();
       socketRef.current = null;
     }
 
+    // Clear all event handlers to prevent memory leaks
+    messageHandlersRef.current.clear();
+    stateChangeCallbacksRef.current.clear();
+    errorCallbacksRef.current.clear();
+
+    // Clear all timers
+    if (heartbeatTimerRef.current) {
+      clearInterval(heartbeatTimerRef.current);
+      heartbeatTimerRef.current = null;
+    }
+
+    // Update state
     updateState('disconnected');
   }, [stopHeartbeat, updateState]);
 

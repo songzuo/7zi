@@ -1,0 +1,429 @@
+/**
+ * Mobile Responsive Design Fixes
+ *
+ * This file contains utility classes and improvements for mobile responsiveness.
+ * Import this in your global CSS or add to existing globals.css.
+ */
+
+/* ============================================
+   MOBILE TOUCH TARGET OPTIMIZATIONS
+   ============================================ */
+
+/* Ensure minimum touch target sizes (44x44px recommended by Apple, 48x48px by Android) */
+.touch-safe {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Larger touch targets for better accessibility */
+.touch-large {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+/* Extra large for critical actions */
+.touch-xl {
+  min-height: 56px;
+  min-width: 56px;
+}
+
+/* Prevent iOS tap highlight color */
+@media (hover: none) and (pointer: coarse) {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Subtle scale animation on touch */
+  button:active,
+  a:active,
+  [role="button"]:active {
+    transform: scale(0.97);
+  }
+}
+
+/* ============================================
+   MOBILE TEXT SIZING
+   ============================================ */
+
+/* Prevent iOS from zooming on input focus (16px minimum) */
+input,
+textarea,
+select {
+  font-size: 16px !important;
+}
+
+/* Responsive text sizes */
+.text-mobile-sm {
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.25rem; /* 20px */
+}
+
+.text-mobile-base {
+  font-size: 1rem; /* 16px */
+  line-height: 1.5rem; /* 24px */
+}
+
+.text-mobile-lg {
+  font-size: 1.125rem; /* 18px */
+  line-height: 1.75rem; /* 28px */
+}
+
+.text-mobile-xl {
+  font-size: 1.25rem; /* 20px */
+  line-height: 1.75rem; /* 28px */
+}
+
+.text-mobile-2xl {
+  font-size: 1.5rem; /* 24px */
+  line-height: 2rem; /* 32px */
+}
+
+/* Mobile-only text sizing */
+@media (max-width: 640px) {
+  .text-responsive-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+
+  .text-responsive-base {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  .text-responsive-lg {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+
+  .text-responsive-xl {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+}
+
+/* ============================================
+   MOBILE SPACING UTILITIES
+   ============================================ */
+
+/* Compact spacing for mobile */
+@media (max-width: 640px) {
+  .p-mobile-sm {
+    padding: 0.75rem; /* 12px */
+  }
+
+  .p-mobile-md {
+    padding: 1rem; /* 16px */
+  }
+
+  .p-mobile-lg {
+    padding: 1.25rem; /* 20px */
+  }
+
+  .gap-mobile-sm {
+    gap: 0.5rem; /* 8px */
+  }
+
+  .gap-mobile-md {
+    gap: 0.75rem; /* 12px */
+  }
+
+  .gap-mobile-lg {
+    gap: 1rem; /* 16px */
+  }
+}
+
+/* ============================================
+   MOBILE GRID ADJUSTMENTS
+   ============================================ */
+
+/* Ensure grids don't overflow on mobile */
+@media (max-width: 640px) {
+  .grid-mobile-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+
+  .grid-mobile-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Prevent horizontal scroll */
+.mobile-overflow-hidden {
+  overflow-x: hidden;
+}
+
+/* Allow horizontal scroll with hidden scrollbar */
+.mobile-overflow-x-auto {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.mobile-overflow-x-auto::-webkit-scrollbar {
+  display: none;
+}
+
+/* ============================================
+   MOBILE FORM OPTIMIZATIONS
+   ============================================ */
+
+@media (max-width: 640px) {
+  /* Stack form inputs vertically */
+  .form-mobile-stack {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+
+  /* Full width inputs */
+  .input-mobile-full {
+    width: 100% !important;
+  }
+
+  /* Larger touch targets for form elements */
+  input,
+  textarea,
+  select,
+  button {
+    min-height: 48px;
+  }
+
+  /* Compact padding for mobile forms */
+  input,
+  textarea,
+  select {
+    padding: 0.875rem 1rem !important; /* 14px 16px */
+  }
+}
+
+/* ============================================
+   MOBILE CARD OPTIMIZATIONS
+   ============================================ */
+
+@media (max-width: 640px) {
+  /* Stack card content vertically */
+  .card-mobile-stack {
+    flex-direction: column !important;
+  }
+
+  /* Full width cards */
+  .card-mobile-full {
+    width: 100% !important;
+  }
+
+  /* Compact card padding */
+  .card-mobile-compact {
+    padding: 1rem !important;
+  }
+
+  /* Remove card shadows on mobile for cleaner look */
+  .card-mobile-flat {
+    box-shadow: none !important;
+    border: 1px solid var(--border);
+  }
+}
+
+/* ============================================
+   MOBILE NAVIGATION OPTIMIZATIONS
+   ============================================ */
+
+@media (max-width: 640px) {
+  /* Hamburger menu visibility */
+  .mobile-menu-toggle {
+    display: flex !important;
+  }
+
+  /* Hide desktop navigation */
+  .desktop-nav {
+    display: none !important;
+  }
+
+  /* Fixed bottom navigation bar (if needed) */
+  .mobile-nav-bottom {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+}
+
+/* ============================================
+   MOBILE IMAGE OPTIMIZATIONS
+   ============================================ */
+
+@media (max-width: 640px) {
+  /* Responsive images */
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Full width images */
+  .img-mobile-full {
+    width: 100% !important;
+    margin-left: -1rem;
+    margin-right: -1rem;
+  }
+
+  /* Contain images */
+  .img-mobile-contain {
+    object-fit: contain !important;
+  }
+
+  /* Cover images */
+  .img-mobile-cover {
+    object-fit: cover !important;
+  }
+}
+
+/* ============================================
+   MOBILE BUTTON OPTIMIZATIONS
+   ============================================ */
+
+@media (max-width: 640px) {
+  /* Full width buttons */
+  .btn-mobile-full {
+    width: 100% !important;
+  }
+
+  /* Stack buttons vertically */
+  .btn-mobile-stack {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+
+  .btn-mobile-stack button,
+  .btn-mobile-stack a {
+    width: 100% !important;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY IMPROVEMENTS
+   ============================================ */
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  * {
+    border-width: 2px !important;
+  }
+
+  a,
+  button {
+    text-decoration: underline !important;
+  }
+}
+
+/* ============================================
+   MOBILE SAFARI FIXES
+   ============================================ */
+
+/* Prevent elastic scrolling */
+.overscroll-none {
+  overscroll-behavior: none;
+}
+
+/* Smooth scroll with momentum scrolling */
+.overscroll-smooth {
+  overscroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ============================================
+   LANDSCAPE MODE OPTIMIZATIONS
+   ============================================ */
+
+@media (max-height: 500px) and (orientation: landscape) {
+  /* Reduce vertical spacing in landscape */
+  .landscape-compact {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+
+  /* Hide non-essential content */
+  .landscape-hide {
+    display: none !important;
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES FOR COMMON PATTERNS
+   ============================================ */
+
+/* Mobile-only content */
+.mobile-only {
+  display: block;
+}
+
+@media (min-width: 641px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
+
+/* Desktop-only content */
+.desktop-only {
+  display: none;
+}
+
+@media (min-width: 641px) {
+  .desktop-only {
+    display: block !important;
+  }
+}
+
+/* Flex utilities for mobile */
+@media (max-width: 640px) {
+  .flex-mobile-col {
+    flex-direction: column !important;
+  }
+
+  .flex-mobile-row {
+    flex-direction: row !important;
+  }
+
+  .items-mobile-start {
+    align-items: flex-start !important;
+  }
+
+  .items-mobile-center {
+    align-items: center !important;
+  }
+
+  .justify-mobile-between {
+    justify-content: space-between !important;
+  }
+}
+
+/* ============================================
+   PRINT OVERRIDES FOR MOBILE
+   ============================================ */
+
+@media print and (max-width: 640px) {
+  /* Optimize print layout for mobile devices */
+  body {
+    font-size: 10pt !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  a[href]:after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+  }
+}

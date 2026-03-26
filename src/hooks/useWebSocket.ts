@@ -87,6 +87,7 @@ export function useWebSocket(config: WebSocketConfig = {}): UseWebSocketReturn {
     authenticated: false,
   });
   const eventHandlersRef = useRef<Map<string, Set<(...args: unknown[]) => void>>>(new Map());
+  const isConnectingRef = useRef(false); // Connection lock to prevent concurrent connections
 
   // Update state helper
   const updateState = useCallback((updates: Partial<WebSocketState>) => {
@@ -126,11 +127,19 @@ export function useWebSocket(config: WebSocketConfig = {}): UseWebSocketReturn {
 
   // Connect to WebSocket
   const connect = useCallback(() => {
-    if (socketRef.current?.connected) {
-      // Already connected - silent return
+    // Prevent concurrent connections
+    if (isConnectingRef.current) {
+      console.warn('[WebSocket] Connection already in progress');
       return;
     }
 
+    if (socketRef.current?.connected) {
+      // Already connected - silent return
+      isConnectingRef.current = false;
+      return;
+    }
+
+    isConnectingRef.current = true;
     updateState({ connecting: true, error: undefined });
 
     try {
@@ -147,6 +156,7 @@ export function useWebSocket(config: WebSocketConfig = {}): UseWebSocketReturn {
 
       // Connection established
       socket.on('connect', () => {
+        isConnectingRef.current = false;
         // Connected - log at info level for monitoring
         updateState({
           connected: true,
@@ -226,6 +236,7 @@ export function useWebSocket(config: WebSocketConfig = {}): UseWebSocketReturn {
       });
 
     } catch (error) {
+      isConnectingRef.current = false;
       console.error('[WebSocket] Connection failed', error);
       updateState({
         connected: false,
@@ -237,18 +248,28 @@ export function useWebSocket(config: WebSocketConfig = {}): UseWebSocketReturn {
 
   // Disconnect from WebSocket
   const disconnect = useCallback(() => {
+    // Clear heartbeat timers first
+    stopHeartbeat();
+
     if (socketRef.current) {
       // Disconnecting - state will update via event
-      stopHeartbeat();
       socketRef.current.disconnect();
       socketRef.current = null;
-      updateState({
-        connected: false,
-        connecting: false,
-        authenticated: false,
-        roomId: undefined,
-      });
+
+      // Clear all event handlers to prevent memory leaks
+      eventHandlersRef.current.clear();
     }
+
+    // Reset all state
+    updateState({
+      connected: false,
+      connecting: false,
+      authenticated: false,
+      roomId: undefined,
+      userId: undefined,
+      error: undefined,
+      lastHeartbeat: undefined,
+    });
   }, [stopHeartbeat, updateState]);
 
   // Force reconnect

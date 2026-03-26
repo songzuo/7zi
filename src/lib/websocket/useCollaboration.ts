@@ -38,6 +38,32 @@ function applyOperation(content: string, operation: Operation): string {
   }
 }
 
+/**
+ * Generate cryptographically secure random jitter
+ * Uses Web Crypto API for better randomness
+ */
+async function generateSecureJitter(): Promise<number> {
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    const array = new Uint32Array(1);
+    crypto.getRandomValues(array);
+    // Return value between -0.2 and 0.2
+    return (array[0] / 0xFFFFFFFF) * 0.4 - 0.2;
+  }
+  // Fallback to Math.random()
+  return Math.random() * 0.4 - 0.2;
+}
+
+/**
+ * Calculate dynamic heartbeat interval based on page visibility
+ * Visible pages get shorter intervals for better responsiveness
+ * Hidden pages get longer intervals to save resources
+ */
+function getHeartbeatInterval(isPageVisible: boolean): number {
+  // Visible: 25 seconds (default, good responsiveness)
+  // Hidden: 60 seconds (resource saving)
+  return isPageVisible ? 25000 : 60000;
+}
+
 // ============================================================================
 // Types
 // ============================================================================
@@ -68,6 +94,18 @@ export interface ConnectionContext {
   roomType?: 'task' | 'project' | 'chat' | 'document';
   documentId?: string;
   roomName?: string;
+}
+
+export interface ConnectionQualityMetrics {
+  connectedAt?: number;
+  disconnectedAt?: number;
+  reconnectAttempts: number;
+  lastReconnectAt?: number;
+  avgReconnectDelay: number;
+  successfulConnections: number;
+  failedConnections: number;
+  totalDowntime: number;
+  isPageVisible: boolean;
 }
 
 export interface RoomUser {
@@ -112,6 +150,7 @@ export interface CollaborationState {
   } | null;
   typingUsers: string[];
   reconnectAttempts: number;
+  connectionQuality: ConnectionQualityMetrics;
 }
 
 export interface CollaborationActions {
@@ -174,6 +213,14 @@ export function useCollaboration(config: CollaborationConfig): CollaborationStat
   const [document, setDocument] = useState<{ content: string; revision: number } | null>(null);
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
+  const [connectionQuality, setConnectionQuality] = useState<ConnectionQualityMetrics>({
+    reconnectAttempts: 0,
+    avgReconnectDelay: 0,
+    successfulConnections: 0,
+    failedConnections: 0,
+    totalDowntime: 0,
+    isPageVisible: true,
+  });
 
   // Refs
   const socketRef = useRef<Socket | null>(null);
@@ -831,6 +878,7 @@ export function useCollaboration(config: CollaborationConfig): CollaborationStat
     document,
     typingUsers,
     reconnectAttempts,
+    connectionQuality,
 
     // Actions
     connect,

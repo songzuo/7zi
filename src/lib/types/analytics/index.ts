@@ -26,3 +26,17 @@ export type {
   Statistic,
   TrendAnalysis
 } from '../analytics';
+
+// Real-time analytics types
+export type {
+  WebSocketStatus,
+  WebSocketConnectionMetrics,
+  TaskStatusDistribution,
+  TaskStatusHistoryPoint,
+  TeamEfficiencyMetrics,
+  AgentEfficiencyRecord,
+  RealtimePerformanceMetrics,
+  RealtimeUpdateMessage,
+  RealtimeAnalyticsState,
+  RealtimeWebSocketConfig
+} from './realtime';

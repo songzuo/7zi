@@ -17,3 +17,16 @@ export type { FilterPanelProps } from './FilterPanel';
 
 export { AnalyticsDashboard } from './AnalyticsDashboard';
 export type { AnalyticsDashboardProps } from './AnalyticsDashboard';
+
+// Real-time analytics components
+export { RealtimeConnectionStatus } from './RealtimeConnectionStatus';
+export type { RealtimeConnectionStatusProps } from './RealtimeConnectionStatus';
+
+export { RealtimeTaskStatusChart } from './RealtimeTaskStatusChart';
+export type { RealtimeTaskStatusChartProps } from './RealtimeTaskStatusChart';
+
+export { RealtimeTeamEfficiency } from './RealtimeTeamEfficiency';
+export type { RealtimeTeamEfficiencyProps } from './RealtimeTeamEfficiency';
+
+export { RealtimeMetricsDashboard } from './RealtimeMetricsDashboard';
+export type { RealtimeMetricsDashboardProps } from './RealtimeMetricsDashboard';

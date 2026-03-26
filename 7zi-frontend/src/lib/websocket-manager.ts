@@ -51,6 +51,19 @@ export interface WebSocketManagerOptions {
 }
 
 /**
+ * Connection statistics
+ */
+export interface ConnectionStats {
+  messagesSent: number;
+  messagesReceived: number;
+  totalReconnections: number;
+  lastActiveTime: number;
+  lastPingTime: number;
+  currentPingLatency: number;
+  averagePingLatency: number;
+}
+
+/**
  * Connection state listener
  */
 export type ConnectionStateListener = (state: ConnectionState, previousState: ConnectionState) => void;
@@ -79,6 +92,21 @@ export class WebSocketManager {
   // Reconnection
   private reconnectionAttempts: number = 0;
   private reconnectionTimer: NodeJS.Timeout | null = null;
+  private totalReconnections: number = 0;
+
+  // Statistics
+  private stats: ConnectionStats = {
+    messagesSent: 0,
+    messagesReceived: 0,
+    totalReconnections: 0,
+    lastActiveTime: Date.now(),
+    lastPingTime: 0,
+    currentPingLatency: 0,
+    averagePingLatency: 0,
+  };
+
+  // Ping latency history for average calculation
+  private pingLatencies: number[] = [];
 
   // Options
   private options: Required<WebSocketManagerOptions>;
@@ -165,6 +193,7 @@ export class WebSocketManager {
 
     this.setState(ConnectionState.DISCONNECTED);
     this.reconnectionAttempts = 0;
+    this.stats.currentPingLatency = 0;
   }
 
   /**
@@ -174,6 +203,8 @@ export class WebSocketManager {
   emit(event: string, data: unknown, queueIfOffline = true): boolean {
     if (this.socket?.connected) {
       this.socket.emit(event, data);
+      this.stats.messagesSent++;
+      this.stats.lastActiveTime = Date.now();
       return true;
     }
 
@@ -251,6 +282,30 @@ export class WebSocketManager {
   }
 
   /**
+   * Get connection statistics
+   */
+  getStats(): ConnectionStats {
+    return { ...this.stats };
+  }
+
+  /**
+   * Reset connection statistics
+   */
+  resetStats(): void {
+    this.stats = {
+      messagesSent: 0,
+      messagesReceived: 0,
+      totalReconnections: this.stats.totalReconnections,
+      lastActiveTime: Date.now(),
+      lastPingTime: 0,
+      currentPingLatency: 0,
+      averagePingLatency: 0,
+    };
+    this.pingLatencies = [];
+    logger.log('[WebSocketManager] Statistics reset');
+  }
+
+  /**
    * Set up socket event listeners
    */
   private setupSocketListeners(): void {
@@ -258,6 +313,12 @@ export class WebSocketManager {
 
     this.socket.on('connect', () => {
       logger.log('[WebSocketManager] Connected to server');
+
+      // Track reconnections
+      if (this.reconnectionAttempts > 0 || this.state === ConnectionState.RECONNECTING) {
+        this.stats.totalReconnections++;
+      }
+
       this.setState(ConnectionState.CONNECTED);
       this.reconnectionAttempts = 0;
       this.missedHeartbeats = 0;
@@ -295,6 +356,20 @@ export class WebSocketManager {
       this.lastPongTime = Date.now();
       this.missedHeartbeats = 0;
 
+      // Calculate ping latency
+      if (this.stats.lastPingTime > 0) {
+        const latency = this.lastPongTime - this.stats.lastPingTime;
+        this.stats.currentPingLatency = latency;
+
+        // Update average (keep last 100 pings)
+        this.pingLatencies.push(latency);
+        if (this.pingLatencies.length > 100) {
+          this.pingLatencies.shift();
+        }
+        this.stats.averagePingLatency =
+          this.pingLatencies.reduce((a, b) => a + b, 0) / this.pingLatencies.length;
+      }
+
       if (this.heartbeatTimeoutTimer) {
         clearTimeout(this.heartbeatTimeoutTimer);
         this.heartbeatTimeoutTimer = null;
@@ -304,6 +379,8 @@ export class WebSocketManager {
     // Set up message forwarding
     this.socket.onAny((event: string, ...args: unknown[]) => {
       const data = args.length > 1 ? args : args[0];
+      this.stats.messagesReceived++;
+      this.stats.lastActiveTime = Date.now();
       this.notifyMessageListeners(event, data);
     });
   }
@@ -316,6 +393,7 @@ export class WebSocketManager {
 
     this.heartbeatTimer = setInterval(() => {
       if (this.socket?.connected) {
+        this.stats.lastPingTime = Date.now();
         this.socket.emit('ping');
 
         // Set timeout for pong response
