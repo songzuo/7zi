@@ -37,10 +37,32 @@ export interface MockProject {
   updatedAt: string;
 }
 
+export interface MockFeedback {
+  id: string;
+  user_id: string;
+  type: 'general' | 'bug' | 'feature' | 'suggestion' | 'complaint' | 'compliment' | 'other';
+  rating: number;
+  title: string;
+  description: string;
+  email?: string;
+  status: 'pending' | 'in_review' | 'resolved' | 'closed';
+  priority: 'low' | 'medium' | 'high';
+  helpful_count: number;
+  not_helpful_count: number;
+  admin_notes?: string;
+  admin_id?: string;
+  created_at: string;
+  updated_at: string;
+  reviewed_at?: string;
+  resolved_at?: string;
+  metadata?: Record<string, unknown>;
+}
+
 export class MockDataGenerator {
   private users: Map<string, MockUser> = new Map();
   private tasks: Map<string, MockTask> = new Map();
   private projects: Map<string, MockProject> = new Map();
+  private feedbacks: Map<string, MockFeedback> = new Map();
   private tokens: Map<string, string> = new Map();
   private refreshTokens: Map<string, string> = new Map();
 
@@ -70,6 +92,41 @@ export class MockDataGenerator {
       password: 'OwnerPass123',
       name: 'Owner User',
       role: 'owner',
+    });
+
+    // Create test feedbacks
+    // Note: Create a feedback with ID 'feedback-1' for testing
+    const feedback1 = {
+      id: 'feedback-1',
+      user_id: 'user-test-1',
+      type: 'bug' as const,
+      rating: 4,
+      title: 'Login page bug',
+      description: 'The login button is not responding on mobile devices',
+      status: 'pending' as const,
+      priority: 'medium' as const,
+      helpful_count: 0,
+      not_helpful_count: 0,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    this.feedbacks.set('feedback-1', feedback1);
+
+    this.createFeedback({
+      user_id: 'user-test-2',
+      type: 'feature',
+      rating: 5,
+      title: 'Add dark mode',
+      description: 'Please add dark mode to improve user experience',
+    });
+
+    this.createFeedback({
+      user_id: 'user-test-1',
+      type: 'general',
+      rating: 3,
+      title: 'UI feedback',
+      description: 'The interface could be more intuitive',
+      status: 'in_review',
     });
   }
 
@@ -285,12 +342,260 @@ export class MockDataGenerator {
     this.projects.clear();
   }
 
+  resetFeedbacks() {
+    this.feedbacks.clear();
+
+    // Re-create test feedbacks with fixed IDs for testing
+    const feedback1 = {
+      id: 'feedback-1',
+      user_id: 'user-test-1',
+      type: 'bug' as const,
+      rating: 4,
+      title: 'Login page bug',
+      description: 'The login button is not responding on mobile devices',
+      status: 'pending' as const,
+      priority: 'medium' as const,
+      helpful_count: 0,
+      not_helpful_count: 0,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    this.feedbacks.set('feedback-1', feedback1);
+
+    this.createFeedback({
+      user_id: 'user-test-2',
+      type: 'feature',
+      rating: 5,
+      title: 'Add dark mode',
+      description: 'Please add dark mode to improve user experience',
+    });
+
+    this.createFeedback({
+      user_id: 'user-test-1',
+      type: 'general',
+      rating: 3,
+      title: 'UI feedback',
+      description: 'The interface could be more intuitive',
+      status: 'in_review',
+    });
+  }
+
   resetAll() {
     this.users.clear();
     this.tasks.clear();
     this.projects.clear();
+    this.feedbacks.clear();
     this.tokens.clear();
     this.refreshTokens.clear();
     this.initializeTestData();
+  }
+
+  // Feedback methods
+  createFeedback(data: {
+    user_id: string;
+    type: 'general' | 'bug' | 'feature' | 'suggestion' | 'complaint' | 'compliment' | 'other';
+    rating: number;
+    title: string;
+    description: string;
+    email?: string;
+    status?: 'pending' | 'in_review' | 'resolved' | 'closed';
+    priority?: 'low' | 'medium' | 'high';
+    metadata?: Record<string, unknown>;
+  }): MockFeedback {
+    const feedback: MockFeedback = {
+      id: `feedback-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      user_id: data.user_id,
+      type: data.type,
+      rating: data.rating,
+      title: data.title,
+      description: data.description,
+      email: data.email,
+      status: data.status || 'pending',
+      priority: data.priority || 'medium',
+      helpful_count: 0,
+      not_helpful_count: 0,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      metadata: data.metadata,
+    };
+
+    this.feedbacks.set(feedback.id, feedback);
+    return feedback;
+  }
+
+  getFeedbackById(id: string): MockFeedback | null {
+    return this.feedbacks.get(id) || null;
+  }
+
+  getAllFeedbacks(): MockFeedback[] {
+    return Array.from(this.feedbacks.values());
+  }
+
+  updateFeedback(id: string, data: Partial<MockFeedback>): MockFeedback | null {
+    const feedback = this.feedbacks.get(id);
+    if (!feedback) return null;
+
+    const updated = {
+      ...feedback,
+      ...data,
+      updated_at: new Date().toISOString(),
+    };
+
+    this.feedbacks.set(id, updated);
+    return updated;
+  }
+
+  deleteFeedback(id: string): boolean {
+    return this.feedbacks.delete(id);
+  }
+
+  filterFeedbacks(filters: {
+    user_id?: string;
+    type?: string;
+    status?: string;
+    priority?: string;
+    rating_min?: number;
+    rating_max?: number;
+    search?: string;
+    sort_by?: 'created_at' | 'rating';
+    sort_order?: 'asc' | 'desc';
+    page?: number;
+    per_page?: number;
+  }): {
+    feedbacks: MockFeedback[];
+    meta: {
+      total: number;
+      page: number;
+      per_page: number;
+      total_pages: number;
+    };
+  } {
+    let filtered = Array.from(this.feedbacks.values());
+
+    // Apply filters
+    if (filters.user_id) {
+      filtered = filtered.filter(f => f.user_id === filters.user_id);
+    }
+    if (filters.type) {
+      filtered = filtered.filter(f => f.type === filters.type);
+    }
+    if (filters.status) {
+      filtered = filtered.filter(f => f.status === filters.status);
+    }
+    if (filters.priority) {
+      filtered = filtered.filter(f => f.priority === filters.priority);
+    }
+    if (filters.rating_min !== undefined) {
+      filtered = filtered.filter(f => f.rating >= filters.rating_min!);
+    }
+    if (filters.rating_max !== undefined) {
+      filtered = filtered.filter(f => f.rating <= filters.rating_max!);
+    }
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      filtered = filtered.filter(
+        f => f.title.toLowerCase().includes(searchLower) || f.description.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Sort
+    const sortBy = filters.sort_by || 'created_at';
+    const sortOrder = filters.sort_order || 'desc';
+
+    filtered.sort((a, b) => {
+      let comparison = 0;
+      if (sortBy === 'created_at') {
+        comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      } else if (sortBy === 'rating') {
+        comparison = a.rating - b.rating;
+      }
+
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+
+    // Paginate
+    const page = filters.page || 1;
+    const perPage = Math.min(filters.per_page || 20, 100);
+    const total = filtered.length;
+    const totalPages = Math.ceil(total / perPage);
+    const startIndex = (page - 1) * perPage;
+    const paginated = filtered.slice(startIndex, startIndex + perPage);
+
+    return {
+      feedbacks: paginated,
+      meta: {
+        total,
+        page,
+        per_page: perPage,
+        total_pages: totalPages,
+      },
+    };
+  }
+
+  getFeedbackStats() {
+    const feedbacks = Array.from(this.feedbacks.values());
+    const total = feedbacks.length;
+
+    const byStatus = {
+      pending: 0,
+      in_review: 0,
+      resolved: 0,
+      closed: 0,
+    };
+
+    const byType = {
+      general: 0,
+      bug: 0,
+      feature: 0,
+      suggestion: 0,
+      complaint: 0,
+      compliment: 0,
+      other: 0,
+      // Aliases for compatibility with test expectations
+      bug_report: 0,
+      feature_request: 0,
+      general_feedback: 0,
+    };
+
+    const byPriority = {
+      low: 0,
+      medium: 0,
+      high: 0,
+    };
+
+    let totalRating = 0;
+
+    feedbacks.forEach(f => {
+      if (byStatus[f.status as keyof typeof byStatus] !== undefined) {
+        byStatus[f.status as keyof typeof byStatus]++;
+      }
+
+      // Count by actual type
+      if (byType[f.type as keyof typeof byType] !== undefined) {
+        byType[f.type as keyof typeof byType]++;
+      }
+
+      // Map to aliases for test compatibility
+      if (f.type === 'bug') {
+        byType.bug_report++;
+      } else if (f.type === 'feature') {
+        byType.feature_request++;
+      } else if (f.type === 'general') {
+        byType.general_feedback++;
+      }
+
+      if (byPriority[f.priority as keyof typeof byPriority] !== undefined) {
+        byPriority[f.priority as keyof typeof byPriority]++;
+      }
+      totalRating += f.rating;
+    });
+
+    return {
+      total,
+      byStatus,
+      byType,
+      byPriority,
+      averageRating: total > 0 ? totalRating / total : 0,
+    };
   }
 }
