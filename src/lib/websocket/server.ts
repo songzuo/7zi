@@ -582,8 +582,9 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
       reason,
     });
 
-    // Leave all rooms
-    socket.data.rooms.forEach(roomId => {
+    // Leave all rooms and notify other users
+    const roomsToLeave = Array.from(socket.data.rooms);
+    roomsToLeave.forEach(roomId => {
       const room = getRoom(roomId);
       if (room) {
         removeUserFromRoom(room, user.id);
@@ -595,6 +596,9 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
         });
       }
     });
+
+    // Clear room references
+    socket.data.rooms.clear();
   });
 }
 
@@ -622,11 +626,14 @@ function setupServer(ioServer: SocketIOServer): void {
       const authSocket = socket as AuthenticatedSocket;
       const lastHeartbeat = authSocket.data.lastHeartbeat || 0;
 
-      // Disconnect if no heartbeat for 60 seconds
-      if (now - lastHeartbeat > 60000) {
+      // Disconnect if no heartbeat for 120 seconds (increased from 60s for better tolerance)
+      const heartbeatTimeout = 120000; // 2 minutes
+      if (now - lastHeartbeat > heartbeatTimeout) {
         logger.warn('Client disconnected (heartbeat timeout)', {
           socketId: socket.id,
           userId: authSocket.data.user?.id,
+          lastHeartbeat,
+          elapsed: now - lastHeartbeat,
         });
         socket.disconnect(true);
       }

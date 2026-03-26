@@ -743,3 +743,70 @@ html {
     break-inside: avoid;
   }
 }
+
+/* ============================================
+   MOBILE RESPONSIVE FIXES ADDITIONS
+   ============================================ */
+
+/* Prevent iOS zoom on input focus - already handled, ensuring consistency */
+input,
+textarea,
+select {
+  font-size: 16px !important;
+}
+
+/* Additional mobile optimizations */
+@media (max-width: 640px) {
+  /* Stack grids to 1 column on mobile */
+  .grid-cols-1-mobile {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+
+  /* Stack grids to 2 columns on mobile */
+  .grid-cols-2-mobile {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  /* Stack flex containers vertically */
+  .flex-col-mobile {
+    flex-direction: column !important;
+  }
+
+  /* Full width on mobile */
+  .w-full-mobile {
+    width: 100% !important;
+  }
+
+  /* Compact padding on mobile */
+  .p-mobile-compact {
+    padding: 0.75rem !important;
+  }
+
+  /* Hide elements on mobile */
+  .hidden-mobile {
+    display: none !important;
+  }
+}
+
+/* Touch feedback improvements */
+.touch-feedback {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .touch-feedback:active {
+    transform: scale(0.97);
+    opacity: 0.9;
+  }
+}
+
+/* Mobile-safe text truncation */
+@media (max-width: 640px) {
+  .line-clamp-mobile-1 {
+    -webkit-line-clamp: 2 !important;
+  }
+
+  .line-clamp-mobile-2 {
+    -webkit-line-clamp: 3 !important;
+  }
+}
