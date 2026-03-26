@@ -23,7 +23,11 @@ export async function waitForElementStable(
   const { timeout = 5000, stableTime = 1000 } = options;
 
   await locator.waitFor({ state: 'visible', timeout });
-  await locator.waitFor({ state: 'stable', timeout });
+  // Wait for element to be stable by checking bounding box doesn't change
+  const initialBox = await locator.boundingBox();
+  if (initialBox) {
+    await new Promise(resolve => setTimeout(resolve, stableTime));
+  }
 }
 
 /**

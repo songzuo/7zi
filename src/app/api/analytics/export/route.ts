@@ -12,8 +12,9 @@ import {
   type TimeSeriesDataPoint,
   type AnalyticsResponse
 } from '@/lib/types/analytics';
-import ExcelJS from 'exceljs';
 import { createErrorResponse, createSuccessResponse, createValidationError } from '@/lib/api/error-handler';
+
+// ExcelJS will be dynamically imported to reduce initial bundle size
 
 // ============================================================================
 // Helper Functions
@@ -55,6 +56,9 @@ async function convertToExcel(
   data: TimeSeriesDataPoint[],
   sheetName = 'Analytics Data'
 ): Promise<Buffer> {
+  // Dynamic import of ExcelJS to reduce initial bundle size (~500KB)
+  const ExcelJS = (await import('exceljs')).default;
+
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet(sheetName);
 
