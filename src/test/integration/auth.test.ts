@@ -12,29 +12,43 @@ import { UserRole, UserStatus } from '@/lib/auth/types'
 // Prevent auto-mocking of auth service - we want to test the real implementation
 vi.unmock('@/lib/auth/service')
 
+// Set required environment variables for JWT
+process.env.JWT_SECRET = 'test-secret-key-for-jwt-in-tests'
+process.env.AGENT_ENCRYPTION_SECRET = 'test-encryption-secret'
+
 // Mock JWT token generation to avoid crypto/JWT issues in test environment
 vi.mock('jose', async (importOriginal) => {
   const actual = await importOriginal<typeof import('jose')>()
+
+  // Create proper function-based mock for SignJWT
+  const mockSignJWT = function(this: any, payload: any) {
+    return {
+      setProtectedHeader: vi.fn(function(this: any) { return this }),
+      setIssuedAt: vi.fn(function(this: any) { return this }),
+      setExpirationTime: vi.fn(function(this: any) { return this }),
+      setIssuer: vi.fn(function(this: any) { return this }),
+      setAudience: vi.fn(function(this: any) { return this }),
+      sign: vi.fn(async function(this: any) {
+        return 'mock-jwt-token.eyJzdWIiOiJ1c2VyLTEiLCJlbWFpbCI6InRlc3RAZXhhbXBsZS5jb20ifQ.signature'
+      }),
+    }
+  }
+
   return {
     ...actual,
-    SignJWT: vi.fn().mockImplementation(() => ({
-      setProtectedHeader: vi.fn().mockReturnThis(),
-      setIssuedAt: vi.fn().mockReturnThis(),
-      setExpirationTime: vi.fn().mockReturnThis(),
-      setIssuer: vi.fn().mockReturnThis(),
-      setAudience: vi.fn().mockReturnThis(),
-      sign: vi.fn().mockResolvedValue('mock-jwt-token.eyJzdWIiOiJ1c2VyLTEiLCJlbWFpbCI6InRlc3RAZXhhbXBsZS5jb20ifQ.signature'),
-    })),
-    jwtVerify: vi.fn().mockResolvedValue({
-      payload: {
-        sub: 'user-1',
-        email: 'test@example.com',
-        role: 'member',
-        roles: [],
-        permissions: [],
-        customPermissions: [],
-        type: 'user',
-      },
+    SignJWT: mockSignJWT as any,
+    jwtVerify: vi.fn(async () => {
+      return {
+        payload: {
+          sub: 'user-1',
+          email: 'test@example.com',
+          role: 'member',
+          roles: [],
+          permissions: [],
+          customPermissions: [],
+          type: 'user',
+        },
+      }
     }),
   }
 })
@@ -42,10 +56,25 @@ vi.mock('jose', async (importOriginal) => {
 // Mock auth repository to work with in-memory data
 vi.mock('@/lib/auth/repository', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/lib/auth/repository')>()
-  
+
   // In-memory user storage for tests
   const testUsers: User[] = []
-  
+  const testTokens: {
+    id: string
+    userId: string
+    token: string
+    refreshToken: string
+    expiresAt: Date
+    refreshExpiresAt: Date
+    createdAt: Date
+  }[] = []
+
+  // Export reset function globally for tests
+  ;(global as any).__resetAuthTestUsers = () => {
+    testUsers.length = 0
+    testTokens.length = 0
+  }
+
   return {
     ...actual,
     hashPassword: actual.hashPassword,
@@ -82,62 +111,88 @@ vi.mock('@/lib/auth/repository', async (importOriginal) => {
       }
       return null
     }),
-    createUserToken: vi.fn(async (_userId: string, expiresInHours: number) => {
+    createUserToken: vi.fn(async (userId: string, expiresInHours: number) => {
       const now = new Date()
-      return {
+      const token = {
         id: `token-${Date.now()}`,
-        userId: 'user-1',
+        userId,
         token: `access-token-${Date.now()}`,
         refreshToken: `refresh-token-${Date.now()}`,
         expiresAt: new Date(now.getTime() + expiresInHours * 3600 * 1000),
         refreshExpiresAt: new Date(now.getTime() + expiresInHours * 3600 * 1000 * 7),
         createdAt: now,
       }
+      testTokens.push(token)
+      return token
     }),
     validateUserToken: vi.fn(async (token: string) => {
+      const dbToken = testTokens.find(t => t.token === token)
+      if (!dbToken) {
+        return null
+      }
+      const user = testUsers.find(u => u.id === dbToken.userId)
       return {
-        user: testUsers[0] || null,
-        token: {
-          id: 'token-1',
-          userId: 'user-1',
-          token,
-          refreshToken: 'refresh-token-123',
-          expiresAt: new Date(Date.now() + 3600000),
-          refreshExpiresAt: new Date(Date.now() + 259200000),
-          createdAt: new Date(),
-        },
+        user: user || null,
+        token: dbToken,
       }
     }),
-    refreshUserToken: vi.fn(async (_refreshToken: string) => {
+    refreshUserToken: vi.fn(async (refreshToken: string) => {
+      const tokenIndex = testTokens.findIndex(t => t.refreshToken === refreshToken)
+      if (tokenIndex === -1) {
+        return null
+      }
+
+      const oldToken = testTokens[tokenIndex]
       const now = new Date()
-      return {
+      const newToken = {
         id: `token-${Date.now()}`,
-        userId: 'user-1',
+        userId: oldToken.userId,
         token: `new-access-token-${Date.now()}`,
         refreshToken: `new-refresh-token-${Date.now()}`,
         expiresAt: new Date(now.getTime() + 3600000),
         refreshExpiresAt: new Date(now.getTime() + 259200000),
         createdAt: now,
       }
+
+      // Remove old token and add new one
+      testTokens.splice(tokenIndex, 1)
+      testTokens.push(newToken)
+
+      return newToken
     }),
-    revokeUserToken: vi.fn(() => {}),
-    revokeAllUserTokens: vi.fn(() => {}),
-    updateLastLogin: vi.fn(() => {}),
+    revokeUserToken: vi.fn(async (token: string) => {
+      const index = testTokens.findIndex(t => t.token === token)
+      if (index !== -1) {
+        testTokens.splice(index, 1)
+      }
+    }),
+    revokeAllUserTokens: vi.fn(async (userId: string) => {
+      const toRemove = testTokens.filter(t => t.userId === userId)
+      toRemove.forEach(t => {
+        const index = testTokens.indexOf(t)
+        if (index !== -1) {
+          testTokens.splice(index, 1)
+        }
+      })
+    }),
+    updateLastLogin: vi.fn(async () => {}),
     createPasswordResetToken: vi.fn(async () => 'reset-token-123'),
     validatePasswordResetToken: vi.fn(async () => testUsers[0] ? { ...testUsers[0] } : null),
     deletePasswordResetToken: vi.fn(async () => {}),
-    getUserByRefreshToken: vi.fn(async (_refreshToken: string) => testUsers[0] ? {
-      user: { ...testUsers[0] },
-      token: {
-        id: 'token-1',
-        userId: 'user-1',
-        token: 'access-token-123',
-        refreshToken: 'refresh-token-123',
-        expiresAt: new Date(Date.now() + 3600000),
-        refreshExpiresAt: new Date(Date.now() + 259200000),
-        createdAt: new Date(),
-      },
-    } : null),
+    getUserByRefreshToken: vi.fn(async (refreshToken: string) => {
+      const token = testTokens.find(t => t.refreshToken === refreshToken)
+      if (!token) {
+        return null
+      }
+      const user = testUsers.find(u => u.id === token.userId)
+      if (!user) {
+        return null
+      }
+      return {
+        user: { ...user },
+        token: { ...token },
+      }
+    }),
   }
 })
 
@@ -145,6 +200,11 @@ describe('Authentication Integration', () => {
   beforeEach(() => {
     setupMockDatabase()
     resetMockDatabase()
+
+    // Reset the mock repository's in-memory storage
+    if (typeof (global as any).__resetAuthTestUsers === 'function') {
+      ;(global as any).__resetAuthTestUsers()
+    }
   })
 
   afterEach(() => {
@@ -157,7 +217,7 @@ describe('Authentication Integration', () => {
       // Arrange: Create a test user directly through repository
       const { createUser } = await import('@/lib/auth/repository')
       const plainPassword = 'MyPassword123'
-      const user = await createUser({
+      await createUser({
         email: 'test@example.com',
         password: plainPassword,
         name: 'Test User',

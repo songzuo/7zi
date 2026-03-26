@@ -1,11 +1,7 @@
-import { Metadata } from 'next';
+'use client';
+
 import dynamic from 'next/dynamic';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-
-export const metadata: Metadata = {
-  title: '协作演示 - 7zi Studio',
-  description: 'WebSocket 实时协作演示',
-};
 
 // Lazy load the entire collaboration demo page to reduce initial bundle by ~1.3MB
 const CollaborationDemoContent = dynamic(

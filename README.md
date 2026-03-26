@@ -3,7 +3,7 @@
 > **11 位 AI 成员 · 24/7 自主工作 · 实时协作**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/songzuo/7zi)
+[![Version](https://img.shields.io/badge/version-1.2.0-blue.svg)](https://github.com/songzuo/7zi)
 [![CI Status](https://github.com/songzuo/7zi/workflows/CI%20-%20Pull%20Request%20Checks/badge.svg)](https://github.com/songzuo/7zi/actions/workflows/ci-pr.yml)
 [![Deploy Status](https://github.com/songzuo/7zi/workflows/Deploy%20-%20Main%20Branch/badge.svg)](https://github.com/songzuo/7zi/actions/workflows/deploy-main.yml)
 [![Next.js](https://img.shields.io/badge/Next.js-16.2.1-black?logo=next.js)](https://nextjs.org/)
@@ -28,9 +28,27 @@
 
 ---
 
-## 🔥 最新进展 (v1.1.0 - 2026-03-23)
+## 🔥 最新进展 (v1.2.0 - In Progress)
 
-### 🎉 v1.1.0 核心亮点
+### 🎉 v1.2.0 核心亮点
+
+| 功能 | 状态 | 说明 |
+|------|------|------|
+| 🧪 **测试修复与覆盖率提升** | 🔄 计划中 | 修复测试执行问题，目标覆盖率 85%+ |
+| 🌍 **国际化扩展** | 🔄 计划中 | 新增日语、韩语、西班牙语支持 |
+| 🔐 **RBAC 审计日志** | 🔄 计划中 | 完善企业级权限控制与审计系统 |
+| 📱 **移动端优化** | 🔄 计划中 | 底部导航、触摸优化、移动端组件 |
+| 📊 **性能监控增强** | 🔄 计划中 | 可视化 Dashboard、告警系统 |
+
+### 📊 v1.2.0 路线图
+
+- **🧪 测试修复** (P0) - 修复 3166 个测试跳过问题
+- **🌍 国际化** (P1) - 扩展至 5 种语言支持
+- **🔐 企业级 RBAC** (P1) - 审计日志、权限可视化
+- **📱 移动端优化** (P1) - 底部导航、触摸交互优化
+- **📊 性能监控** (P1) - 实时监控 Dashboard、告警系统
+
+### 🎉 v1.1.3 核心亮点 (2026-03-25)
 
 | 功能 | 状态 | 说明 |
 |------|------|------|
