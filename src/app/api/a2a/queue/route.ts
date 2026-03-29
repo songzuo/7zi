@@ -14,7 +14,7 @@ import type { TaskPriority } from '@/lib/a2a/types';
  * GET /api/a2a/queue
  * Get queue status and statistics
  */
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const queue = getMessageQueue();
     const stats = queue.getStats();

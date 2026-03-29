@@ -282,6 +282,12 @@ export class ResourcePriorityManager {
           if (index > -1) {
             executing.splice(index, 1);
           }
+        }).catch(() => {
+          // Silently ignore callback errors and remove from executing
+          const index = executing.indexOf(promise);
+          if (index > -1) {
+            executing.splice(index, 1);
+          }
         });
         executing.push(promise);
       }

@@ -14,15 +14,20 @@ vi.mock('@/lib/logger', () => ({
   },
 }));
 
-// Mock XLSX
-vi.mock('xlsx', () => ({
-  utils: {
-    json_to_sheet: vi.fn(() => ({})),
-    book_new: vi.fn(() => ({})),
-    book_append_sheet: vi.fn(() => {}),
-  },
-  write: vi.fn(() => Buffer.from('mock-excel-data')),
-}));
+// Mock ExcelJS
+vi.mock('exceljs', () => {
+  const mockWorkbook = {
+    addWorksheet: vi.fn(() => ({})),
+    xlsx: {
+      writeBuffer: vi.fn(() => Promise.resolve(Buffer.from('mock-excel-data'))),
+    },
+  };
+  return {
+    default: {
+      Workbook: vi.fn(() => mockWorkbook),
+    },
+  };
+});
 
 // Mock error handler
 vi.mock('@/lib/api/error-handler', () => ({

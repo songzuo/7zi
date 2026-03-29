@@ -513,6 +513,8 @@ export function setImageFormatSupport() {
     if (isSupported) {
       document.documentElement.classList.add('webp');
     }
+  }).catch(() => {
+    // Silently ignore WebP check errors
   });
 }
 

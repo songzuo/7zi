@@ -127,11 +127,15 @@ export function usePendingCount(): number {
 
   useEffect(() => {
     // 初始化
-    getPendingOperationsCount().then(setCount);
+    getPendingOperationsCount().then(setCount).catch(() => {
+      // Silently ignore errors
+    });
 
     // 定期更新
     const interval = setInterval(() => {
-      getPendingOperationsCount().then(setCount);
+      getPendingOperationsCount().then(setCount).catch(() => {
+        // Silently ignore errors
+      });
     }, 10000);
 
     return () => clearInterval(interval);

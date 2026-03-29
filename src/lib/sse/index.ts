@@ -10,4 +10,4 @@ export * from './utils';
 export * from './stream';
 
 // React hooks
-export * from './useSSE';
+export * from './hooks';
