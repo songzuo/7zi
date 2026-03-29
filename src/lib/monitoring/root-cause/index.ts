@@ -11,6 +11,7 @@ export {
   type WaterfallEntry,
   type WaterfallAnalysis,
   type CriticalPathSegment,
+  type FirstContentfulPaintData,
   createMockResourceTiming,
   fromPerformanceResourceTiming,
 } from './performance-waterfall';
@@ -36,3 +37,40 @@ export {
   type PerformanceProfile,
   createMockPerformanceProfile,
 } from './bottleneck-detector';
+
+// New exports: Performance Root Cause Analyzer
+export {
+  PerformanceRootCauseAnalyzer,
+  performanceRootCauseAnalyzer,
+  type CoreWebVitalsMetrics,
+  type MemoryMetrics,
+  type MemorySample,
+  type NetworkTimingBreakdown,
+  type NetworkBottleneck,
+  type RenderIssue,
+  type SlowPageDiagnosis,
+  type RootCauseItem,
+  type MemoryLeakIndication,
+  type PerformanceRootCauseAnalysis,
+  type PriorityAction,
+  CORE_WEB_VITALS_THRESHOLDS,
+  NETWORK_THRESHOLDS,
+  MEMORY_THRESHOLDS,
+  RENDER_THRESHOLDS,
+  createMockCoreWebVitals,
+  createMockMemoryMetrics,
+  createMockNetworkTiming,
+} from './performance-root-cause';
+
+// New exports: Performance Budget Controller
+export {
+  PerformanceBudgetController,
+  performanceBudgetController,
+  type BudgetThreshold,
+  type BudgetViolation,
+  type BudgetComplianceReport,
+  type BudgetAlert,
+  type BudgetHistory,
+  DEFAULT_BUDGET_THRESHOLDS,
+  createMockPerformanceMetrics,
+} from './performance-budget';
