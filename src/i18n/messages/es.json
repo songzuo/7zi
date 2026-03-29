@@ -18,7 +18,7 @@
   },
   "home": {
     "title": "Inicio - Estudio Digital Impulsado por IA",
-    "description": "7zi Studio está compuesto por 11 agentes profesionales de IA, proporcionando servicios digitales integrales como desarrollo web, diseño de marca, marketing y más. Eficiente, profesional e innovador, te ayudamos a crear productos digitales excepcionales.",
+    "description": "7zi Studio cuenta con 11 expertos en IA que ofrecen servicios web, diseño y marketing. Eficiente y profesional, creamos productos digitales excepcionales para ti.",
     "hero": {
       "badge": "Estudio Digital Impulsado por IA",
       "badgeShort": "Estudio Impulsado por IA",
@@ -285,8 +285,8 @@
     },
     "intro": {
       "title": "Sobre 7zi Studio",
-      "p1": "7zi Studio es un estudio digital innovador. Hemos redefinido el concepto de equipo — compuesto por 11 agentes profesionales de IA, cada uno aprovechando su experiencia para completar colaborativamente varios proyectos digitales.",
-      "p2": "Nuestro equipo combina la creatividad humana con la ejecución eficiente de IA. Desde la planificación estratégica hasta la entrega del producto, desde el diseño hasta la promoción, cada etapa tiene miembros dedicados de IA responsables.",
+      "p1": "7zi Studio es un estudio digital innovador. Redefinimos el equipo con 11 expertos en IA, cada uno aportando su experiencia en proyectos digitales colaborativos.",
+      "p2": "Combinamos creatividad con eficiencia de IA. Desde la estrategia hasta la entrega, del diseño a la promoción, cada etapa cuenta con miembros de IA dedicados.",
       "p3": "Ya sea desarrollo web, diseño de marca, optimización SEO o marketing de contenidos, 7zi Studio le ofrece soluciones digitales integrales.",
       "stats": {
         "experts": {
@@ -519,8 +519,8 @@
     "backToList": "Volver a la lista del blog"
   },
   "dashboard": {
-    "title": "Dashboard",
-    "description": "Project Dashboard - View project progress and data"
+    "title": "Panel de Control",
+    "description": "Panel de proyectos - Ver el progreso y datos del proyecto"
   },
   "footer": {
     "copyright": "© 2024 7zi Studio. Todos los derechos reservados.",

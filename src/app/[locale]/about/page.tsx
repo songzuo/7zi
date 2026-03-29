@@ -359,7 +359,7 @@ export default async function AboutPage({ params }: { params: Params }) {
 
               <div className="space-y-6 text-lg text-zinc-600 dark:text-zinc-300 leading-relaxed">
 
-                <p>
+                <p className="overflow-hidden break-words line-clamp-4 sm:line-clamp-none">
 
                   <strong className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-purple-600 dark:from-cyan-400 dark:to-purple-400 font-bold">
 
@@ -371,7 +371,7 @@ export default async function AboutPage({ params }: { params: Params }) {
 
                 </p>
 
-                <p>{tAbout('intro.p2')}</p>
+                <p className="overflow-hidden break-words line-clamp-4 sm:line-clamp-none">{tAbout('intro.p2')}</p>
 
                 <p>{tAbout('intro.p3')}</p>
 

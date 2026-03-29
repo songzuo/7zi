@@ -15,7 +15,7 @@ import { Card } from '@/components/shared';
 import { TaskCardMobile } from '@/components/mobile/TaskCardMobile';
 import type { GitHubIssue } from '@/types';
 import { logger } from '@/lib/logger';
-import { isBelowBreakpoint, BREAKPOINTS } from '@/lib/utils/breakpoints';
+import { isBelowBreakpoint } from '@/lib/utils/breakpoints';
 
 type ViewMode = 'list' | 'kanban' | 'mobile';
 

@@ -15,7 +15,7 @@ const PerformanceCharts = dynamic(() => import('./PerformanceCharts'), {
   loading: () => <div className="h-64 flex items-center justify-center text-gray-500">Loading charts...</div>
 });
 
-import { AlertTriangle, CheckCircle2, XCircle, TrendingUp, TrendingDown, Minus, RefreshCw, Download, Filter, Bell, Shield } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, XCircle, TrendingUp, TrendingDown, Minus, RefreshCw, Download, Bell, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 

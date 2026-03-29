@@ -17,6 +17,7 @@ import type { TeamEfficiencyMetrics } from '@/lib/types/analytics/realtime';
 
 export interface RealtimeTeamEfficiencyProps {
   metrics: TeamEfficiencyMetrics | null;
+  previousMetrics?: TeamEfficiencyMetrics | null;
   showDetails?: boolean;
   locale?: string;
   className?: string;
@@ -192,6 +193,7 @@ const MetricCard: React.FC<MetricCardProps> = ({ label, value, icon: Icon, color
 
 export const RealtimeTeamEfficiency: React.FC<RealtimeTeamEfficiencyProps> = ({
   metrics,
+  previousMetrics,
   showDetails = true,
   locale = 'en',
   className = ''
@@ -211,16 +213,34 @@ export const RealtimeTeamEfficiency: React.FC<RealtimeTeamEfficiencyProps> = ({
 
     return Object.entries(METRIC_CONFIG).map(([key, config]) => {
       const value = metrics[key as keyof TeamEfficiencyMetrics] as number;
+      const previousValue = previousMetrics ? previousMetrics[key as keyof TeamEfficiencyMetrics] as number : undefined;
+      
+      // Calculate trend
+      let trend: MetricCardProps['trend'] = undefined;
+      if (previousValue !== undefined && previousValue !== 0) {
+        const direction = calculateTrend(value, previousValue);
+        if (direction) {
+          const change = ((value - previousValue) / previousValue) * 100;
+          trend = {
+            direction,
+            value: Math.abs(change),
+            label: direction === 'up' ? (locale === 'zh' ? '上升' : 'increase') :
+                   direction === 'down' ? (locale === 'zh' ? '下降' : 'decrease') :
+                   (locale === 'zh' ? '稳定' : 'stable')
+          };
+        }
+      }
+
       return {
         key,
         label: config.label[locale as 'en' | 'zh'],
         value: formatMetricValue(value, config.format, 'decimals' in config ? config.decimals : undefined),
         icon: config.icon,
         color: config.color,
-        trend: undefined // TODO: Calculate trend from previous period
+        trend
       };
     });
-  }, [metrics, locale]);
+  }, [metrics, previousMetrics, locale]);
 
   // Calculate derived metrics
   const efficiencyScore = useMemo(() => {

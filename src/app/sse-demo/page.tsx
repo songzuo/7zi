@@ -60,7 +60,7 @@ export default function SSEDemoPage() {
             </p>
             {healthSSE.data && (
               <pre className="bg-zinc-100 p-4 rounded overflow-auto max-h-64 text-sm">
-                {JSON.stringify(healthSSE.data, null, 2)}
+                {String(JSON.stringify(healthSSE.data, null, 2))}
               </pre>
             )}
           </div>
@@ -86,7 +86,7 @@ export default function SSEDemoPage() {
             </p>
             {analyticsSSE.data && (
               <pre className="bg-zinc-100 p-4 rounded overflow-auto max-h-64 text-sm">
-                {JSON.stringify(analyticsSSE.data, null, 2)}
+                {String(JSON.stringify(analyticsSSE.data, null, 2))}
               </pre>
             )}
           </div>
