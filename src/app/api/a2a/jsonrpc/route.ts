@@ -13,13 +13,7 @@ import { getTaskStore } from '@/lib/a2a/task-store';
 import { createSevenZiExecutor } from '@/lib/a2a/executor';
 import { getAgentCard, getExtendedAgentCard } from '@/lib/a2a/agent-card';
 import { JsonRpcRequest, JsonRpcResponse } from '@/lib/a2a/types';
-import {
-  jsonRpcRequestSchema,
-  jsonRpcBatchRequestSchema,
-  validateBody,
-  formatValidationErrors,
-} from '@/lib/api/validation';
-import { createValidationError, createErrorResponse, ErrorType } from '@/lib/api/error-handler';
+import { jsonRpcRequestSchema, jsonRpcBatchRequestSchema, validateBody, formatValidationErrors } from '@/lib/api/validation';
 import { logger } from '@/lib/logger';
 
 // Initialize handler (singleton pattern)

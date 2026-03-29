@@ -27,7 +27,7 @@ export { Role, Permission };
 /**
  * Default role definitions with their permissions
  */
-const DEFAULT_ROLE_DEFINITIONS: Record<Role, RoleDefinition> = {
+export const DEFAULT_ROLE_DEFINITIONS: Record<Role, RoleDefinition> = {
   [Role.GUEST]: {
     id: Role.GUEST,
     name: 'Guest',

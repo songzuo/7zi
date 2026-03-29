@@ -19,7 +19,6 @@ export {
 export type {
   AuthenticatedSocket,
   TaskStatusUpdate,
-  RoomUser,
 } from './server';
 
 // Type system
@@ -27,6 +26,7 @@ export type { WebSocketMessage } from './types';
 
 // Room management (NEW v1.4.0)
 export {
+  RoomManager,
   getRoomManager,
   resetRoomManager,
 } from './rooms';
@@ -44,6 +44,7 @@ export type {
 
 // Permission system (NEW v1.4.0)
 export {
+  PermissionManager,
   getPermissionManager,
   resetPermissionManager,
   createPermissionChecker,
@@ -58,11 +59,11 @@ export type {
   UserRole,
   PermissionGrant,
   UserRoomPermissions,
-  PermissionManager,
 } from './permissions';
 
 // Message store (NEW v1.4.0)
 export {
+  MessageStore,
   getMessageStore,
   resetMessageStore,
 } from './message-store';
@@ -72,7 +73,6 @@ export type {
   OfflineMessage,
   MessageHistoryOptions,
   MessageStoreStats,
-  MessageStore,
 } from './message-store';
 
 // React hooks

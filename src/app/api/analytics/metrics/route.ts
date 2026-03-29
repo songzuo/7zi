@@ -16,7 +16,6 @@ import {
   type AnalyticsMetrics,
   type AnalyticsFilters,
   type TimeSeriesDataPoint,
-  type AnalyticsResponse,
   type PaginatedResponse,
   TimeRange
 } from '@/lib/types/analytics';

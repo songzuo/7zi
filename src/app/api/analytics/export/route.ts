@@ -8,9 +8,7 @@ import { logger } from '@/lib/logger';
 import {
   type ExportOptions,
   type ExportFormat,
-  type AnalyticsFilters,
-  type TimeSeriesDataPoint,
-  type AnalyticsResponse
+  type TimeSeriesDataPoint
 } from '@/lib/types/analytics';
 import { createErrorResponse, createSuccessResponse, createValidationError } from '@/lib/api/error-handler';
 
