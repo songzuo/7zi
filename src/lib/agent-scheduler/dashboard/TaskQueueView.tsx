@@ -76,6 +76,7 @@ interface TaskCardProps {
   onCancel: (taskId: string) => void;
   onTaskClick: (taskId: string) => void;
   selected: boolean;
+  currentTime?: number;
 }
 
 function TaskCard({ task, agents, onReassign, onCancel, onTaskClick, selected }: TaskCardProps) {
