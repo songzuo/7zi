@@ -1,0 +1,284 @@
+# ============================================
+# AgentScheduler Kubernetes 部署配置
+# ============================================
+
+---
+# 命名空间
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: scheduler
+  labels:
+    app: scheduler
+
+---
+# ConfigMap - 调度器配置
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: scheduler-config
+  namespace: scheduler
+data:
+  NODE_ENV: "production"
+  PORT: "3001"
+  SCHEDULER_HOST: "0.0.0.0"
+  SCHEDULER_AUTO_START: "true"
+  SCHEDULER_INTERVAL: "30000"
+  SCHEDULER_MAX_BATCH_SIZE: "10"
+  LOG_LEVEL: "info"
+  LOG_FORMAT: "json"
+
+---
+# Secret - Redis 密码
+apiVersion: v1
+kind: Secret
+metadata:
+  name: redis-secret
+  namespace: scheduler
+type: Opaque
+data:
+  redis-password: c2NoZWR1bGVyLXJlZGlzLXBhc3N3b3Jk  # base64: scheduler-redis-password
+
+---
+# Deployment - AgentScheduler
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scheduler
+  namespace: scheduler
+  labels:
+    app: scheduler
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: scheduler
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3001"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: scheduler
+          image: 7zi/scheduler:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3001
+              name: http
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: scheduler-config
+          env:
+            - name: REDIS_URL
+              value: "redis://redis-service:6379"
+            - name: NODE_OPTIONS
+              value: "--max-old-space-size=512"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3001
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 3
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3001
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          volumeMounts:
+            - name: scheduler-data
+              mountPath: /app/data
+            - name: scheduler-logs
+              mountPath: /app/logs
+      volumes:
+        - name: scheduler-data
+          emptyDir: {}
+        - name: scheduler-logs
+          emptyDir: {}
+
+---
+# Service - AgentScheduler
+apiVersion: v1
+kind: Service
+metadata:
+  name: scheduler-service
+  namespace: scheduler
+  labels:
+    app: scheduler
+spec:
+  type: ClusterIP
+  selector:
+    app: scheduler
+  ports:
+    - name: http
+      port: 3001
+      targetPort: 3001
+      protocol: TCP
+
+---
+# Deployment - Redis
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: scheduler
+  labels:
+    app: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          command:
+            - redis-server
+            - --appendonly
+            - "yes"
+            - --maxmemory
+            - "256mb"
+            - --maxmemory-policy
+            - "allkeys-lru"
+          ports:
+            - containerPort: 6379
+              name: redis
+              protocol: TCP
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+          livenessProbe:
+            exec:
+              command:
+                - redis-cli
+                - ping
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+      volumes:
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: redis-pvc
+
+---
+# Service - Redis
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+  namespace: scheduler
+  labels:
+    app: redis
+spec:
+  type: ClusterIP
+  selector:
+    app: redis
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: 6379
+      protocol: TCP
+
+---
+# PersistentVolumeClaim - Redis 数据
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pvc
+  namespace: scheduler
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: standard  # 根据集群配置调整
+
+---
+# Ingress - 外部访问
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: scheduler-ingress
+  namespace: scheduler
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - scheduler.7zi.com
+      secretName: scheduler-tls
+  rules:
+    - host: scheduler.7zi.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: scheduler-service
+                port:
+                  number: 3001
+
+---
+# HorizontalPodAutoscaler - 自动伸缩
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: scheduler-hpa
+  namespace: scheduler
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: scheduler
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
