@@ -34,8 +34,9 @@ import {
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
-import { useSchedulerStore, selectAgentAvailability, selectAgentUtilization } from '../stores/scheduler-store';
-import type { AgentCapability } from '../models/agent-capability';
+import { useSchedulerStore, selectAgentAvailability } from '../stores/scheduler-store';
+import type { AgentCapability, TaskType } from '../models/agent-capability';
+import type { Task, TaskStatus } from '../models/task-model';
 
 /**
  * Agent display data structure
@@ -95,7 +96,7 @@ const ROLE_FILTERS = [
 /**
  * Transform AgentCapability to AgentDisplay
  */
-function transformToDisplay(agent: AgentCapability, tasks: any[]): AgentDisplay {
+function transformToDisplay(agent: AgentCapability, tasks: Task[]): AgentDisplay {
   const activeTaskCount = tasks.filter(
     t => t.assignedAgent === agent.agentId && t.status === 'in_progress'
   ).length;
@@ -294,7 +295,7 @@ function AgentCard({
                     borderRadius: '8px',
                     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                   }}
-                  formatter={(value: any) => [`${(value || 0).toFixed(1)}%`, '']}
+                  formatter={(value: any) => `${(Number(value) ?? 0).toFixed(1)}%`}
                 />
               </RadarChart>
             </ResponsiveContainer>
@@ -362,7 +363,7 @@ export function AgentStatusPanel() {
   const initialize = useSchedulerStore(state => state.initialize);
   const refresh = useSchedulerStore(state => state.refresh);
 
-  const [selectedFilter, setSelectedFilter] = useState('all');
+  const [selectedFilter, setSelectedFilter] = useState<TaskType | 'all'>('all');
   const [expandedAgents, setExpandedAgents] = useState<Set<string>>(new Set());
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -431,7 +432,7 @@ export function AgentStatusPanel() {
             <Filter className="w-4 h-4 text-gray-500" />
             <select
               value={selectedFilter}
-              onChange={e => setSelectedFilter(e.target.value)}
+              onChange={e => setSelectedFilter(e.target.value as "all" | TaskType)}
               className="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             >
               {ROLE_FILTERS.map(filter => (

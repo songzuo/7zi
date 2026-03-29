@@ -391,6 +391,9 @@ export class AgentScheduler {
       return;
     }
 
+    // Set error message on task
+    task.error = error;
+    
     // Update task status
     this.taskQueue.updateTaskStatus(taskId, 'failed');
     
@@ -416,10 +419,21 @@ export class AgentScheduler {
       return null;
     }
 
-    // Reset task status
+    // Reset task status and clear assignment
+    // Note: This directly modifies the task object to reset its state
+    // The scheduleTask method will update the queue properly when it assigns the task
     task.status = 'pending';
     task.assignedAgent = undefined;
     task.error = undefined;
+    
+    // Re-add task to pending queue if not already there
+    // This ensures the task is tracked in the pending queue for scheduling
+    const pendingTasks = this.taskQueue.getPendingTasks();
+    if (!pendingTasks.find(t => t.id === taskId)) {
+      // Task needs to be re-added to pending queue
+      // We use the taskQueue's internal method by updating status
+      this.taskQueue.updateTaskStatus(taskId, 'pending');
+    }
 
     // Try to reschedule
     return this.scheduleTask(taskId);
