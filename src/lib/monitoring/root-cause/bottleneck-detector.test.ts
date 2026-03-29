@@ -735,7 +735,7 @@ describe('BottleneckDetector', () => {
 
     it('should provide appropriate effort/impact ratings', () => {
       const profile = createMockPerformanceProfile({
-        scriptBlockingTime: 300,
+        blockingScriptTime: 300,
       });
 
       const analysis = detector.analyze(profile);

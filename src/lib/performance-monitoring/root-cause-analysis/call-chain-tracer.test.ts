@@ -81,7 +81,11 @@ describe('CallChainTracer', () => {
       const chain = tracer.getChain(chainId);
       expect(chain?.status).toBe('success');
       expect(chain?.duration).toBeGreaterThanOrEqual(0);
-      expect(chain?.endedAt).toBeGreaterThanOrEqual(chain?.startedAt);
+      expect(chain?.endedAt).toBeDefined();
+      expect(chain?.startedAt).toBeDefined();
+      if (chain?.endedAt && chain?.startedAt) {
+        expect(chain.endedAt).toBeGreaterThanOrEqual(chain.startedAt);
+      }
     });
 
     it('should mark chain as ended', () => {
@@ -163,13 +167,13 @@ describe('CallChainTracer', () => {
         name: 'query-users',
         metadata: {
           query: 'SELECT * FROM users',
-          table: 'users'
+          custom: { table: 'users' }
         }
       });
 
       const node = tracer.getChain(chainId)!.nodes.get(childId);
       expect(node?.metadata.query).toBe('SELECT * FROM users');
-      expect(node?.metadata.table).toBe('users');
+      expect(node?.metadata.custom?.table).toBe('users');
     });
 
     it('should support node metrics', () => {
