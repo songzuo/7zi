@@ -1,19 +1,26 @@
 // Client Providers
 export { ClientProviders } from './ClientProviders';
 
-// Theme (backward compatible - now delegates to SettingsContext)
+// Theme (backward compatible - now delegates to Zustand preferencesStore)
 export { ThemeProvider, useTheme } from './ThemeProvider';
 
-// Settings (recommended - unified context)
-export { 
-  SettingsProvider, 
-  useSettings, 
-  useSettingsSafe,
-  useTheme as useThemeFromSettings 
-} from '@/contexts/SettingsContext';
-export type { Theme, UserSettings, NotificationPreferences } from '@/contexts/SettingsContext';
+// Settings (recommended - use Zustand stores)
+export {
+  useSettings,
+  useTheme as useThemeFromSettings,
+  useLanguage,
+  useNotificationPreferences,
+  usePreferencesLoaded,
+  useDarkMode,
+} from '@/stores/preferencesStore';
+export type {
+  Theme,
+  Locale,
+  UserSettings,
+  NotificationPreferences,
+} from '@/stores/preferencesStore';
 
-// Settings
+// Settings Components
 export { SettingsPanel, SettingsPanelCompact } from './SettingsPanel';
 export { SettingsButton } from './SettingsButton';
 
@@ -84,15 +91,15 @@ export { HealthDashboard } from './HealthDashboard';
 export type { HealthMetric, HealthDashboardProps } from './HealthDashboard';
 
 // Skeleton Loading Components (Designer Patch v4)
-export { 
-  SkeletonText, 
-  SkeletonAvatar, 
-  SkeletonCard, 
-  SkeletonList, 
+export {
+  SkeletonText,
+  SkeletonAvatar,
+  SkeletonCard,
+  SkeletonList,
   SkeletonTable,
   SkeletonStatCard,
   SkeletonNav,
-  SkeletonPage 
+  SkeletonPage
 } from './Skeleton';
 
 // Error Handling
@@ -101,7 +108,7 @@ export { ErrorDisplay } from './ErrorDisplay';
 export { ErrorBoundaryWrapper, withErrorBoundary } from './ErrorBoundaryWrapper';
 
 // Error Boundary Factory (for page-level errors)
-export { 
+export {
   createPageErrorBoundary,
   HomeError,
   AboutError,

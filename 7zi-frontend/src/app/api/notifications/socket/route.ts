@@ -2,7 +2,7 @@
  * Socket.IO Setup API Route
  *
  * Initializes the Socket.IO server for real-time notifications.
- * This route should be called once during server startup.
+ * Requires JWT authentication with admin role for initialization.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -12,13 +12,41 @@ import {
   createSuccessResponse,
   createErrorResponse,
 } from '../../../../lib/api/error-handler';
+import { authenticateJWT } from '@/lib/auth/api-auth';
 
 /**
  * GET /api/notifications/socket
  *
  * Returns Socket.IO server status and configuration
+ * Requires admin role
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Authenticate user
+  const authResult = await authenticateJWT(request);
+
+  if (!authResult.authenticated) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Unauthorized',
+        message: authResult.error || 'Authentication required',
+      },
+      { status: 401 }
+    );
+  }
+
+  // Only admin can view socket status
+  if (authResult.role !== 'admin') {
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Forbidden',
+        message: 'Admin role required to view socket status',
+      },
+      { status: 403 }
+    );
+  }
+
   const io = notificationService.getIO();
 
   return createSuccessResponse({
@@ -33,8 +61,35 @@ export async function GET() {
  * POST /api/notifications/socket
  *
  * Initialize Socket.IO server (typically called on server startup)
+ * Requires admin role
  */
 export async function POST(request: NextRequest) {
+  // Authenticate user
+  const authResult = await authenticateJWT(request);
+
+  if (!authResult.authenticated) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Unauthorized',
+        message: authResult.error || 'Authentication required',
+      },
+      { status: 401 }
+    );
+  }
+
+  // Only admin can initialize socket server
+  if (authResult.role !== 'admin') {
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Forbidden',
+        message: 'Admin role required to initialize socket server',
+      },
+      { status: 403 }
+    );
+  }
+
   try {
     const io = notificationService.getIO();
 

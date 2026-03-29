@@ -37,26 +37,7 @@ export interface RunInChunksOptions {
   yieldDuration?: number;
 }
 
-/**
- * 预加载资源配置
- */
-export interface PreloadResources {
-  /** 图片 URL 列表 */
-  images?: string[];
-  /** 字体 URL 列表 */
-  fonts?: string[];
-  /** 样式表 URL 列表 */
-  stylesheets?: string[];
-  /** 脚本 URL 列表 */
-  scripts?: string[];
-}
 
-/**
- * 性能标记详细信息的可选参数
- */
-export interface PerformanceMarkOptions {
-  detail?: unknown;
-}
 
 // ============================================
 // LCP 优化
@@ -198,14 +179,6 @@ export async function runInChunks<T, R>(
     });
   };
 
-  // 检查时间预算
-  const getTimeRemaining = (): number => {
-    if (typeof performance !== 'undefined') {
-      return maxDuration;
-    }
-    return maxDuration;
-  };
-
   // 处理一个批次
   const processChunk = async (chunk: T[]): Promise<void> => {
     for (let i = 0; i < chunk.length; i++) {
@@ -285,6 +258,9 @@ export async function runInChunks<T, R>(
 
 /**
  * 延迟非关键 JavaScript
+ * 
+ * 查找所有带有 data-defer 属性的脚本，并在页面加载完成后异步加载它们。
+ * 这有助于优化页面初始加载性能。
  */
 export function deferNonCriticalScripts() {
   if (typeof document === 'undefined') return;
@@ -378,6 +354,7 @@ export function performanceMeasure(
     // 获取测量结果
     const measure = performance.getEntriesByName(name, 'measure')[0];
     if (measure) {
+      console.log(`[Performance] ${name}: ${measure.duration.toFixed(2)}ms`);
     }
   } catch (error) {
     console.warn('[Performance] Measure failed:', name, error);
@@ -483,6 +460,10 @@ export function measureSync<T>(
 
 /**
  * 懒加载图片
+ * 
+ * 使用 IntersectionObserver API 实现图片的懒加载。
+ * 当图片进入视口时才会加载实际资源，减少初始加载带宽。
+ * 要求图片元素具有 data-src 属性和 'lazy' class。
  */
 export function lazyLoadImages() {
   if (typeof document === 'undefined' || !('IntersectionObserver' in window)) return;
@@ -541,6 +522,13 @@ export function setImageFormatSupport() {
 
 /**
  * 初始化所有性能优化
+ * 
+ * 此函数会在页面加载时自动启动一系列性能优化措施：
+ * - 预连接常用域名以减少网络延迟
+ * - 延迟非关键脚本的加载
+ * - 实现图片懒加载
+ * - 检测并标记图片格式支持（如 WebP）
+ * - 添加性能标记以跟踪优化效果
  */
 export function initPerformanceOptimizations() {
   if (typeof window === 'undefined') return;

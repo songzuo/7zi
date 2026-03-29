@@ -4,7 +4,7 @@
  * 测试通知管理 React Hook 的功能
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useNotifications } from '../useNotifications';
 

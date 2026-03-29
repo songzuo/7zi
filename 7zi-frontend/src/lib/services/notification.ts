@@ -1,431 +1,177 @@
 /**
- * Real-time Notification Service
+ * Notification Service
  *
- * Provides real-time notification functionality using WebSocket (Socket.IO)
+ * Provides notification functionality for both client and server
+ * Server-side Socket.IO initialization happens lazily
  */
 
-import { Server as SocketIOServer, Socket } from 'socket.io';
-import { logger } from '@/lib/logger';
+// Re-export everything from notification-types (both values and types)
+export {
+  NotificationType,
+  NotificationPriority,
+  type Notification,
+  type NotificationFilter,
+  type NotificationSubscription,
+} from './notification-types';
 
-/**
- * Notification types
- */
-export enum NotificationType {
-  INFO = 'info',
-  SUCCESS = 'success',
-  WARNING = 'warning',
-  ERROR = 'error',
-  TASK_ASSIGNED = 'task_assigned',
-  TASK_COMPLETED = 'task_completed',
-  TASK_UPDATED = 'task_updated',
-  MESSAGE = 'message',
-  SYSTEM = 'system',
-}
+// Import types for use in this file
+import type { Notification, NotificationFilter } from './notification-types';
 
 /**
- * Priority levels
+ * Type for Socket.IO server (dynamically imported)
  */
-export enum NotificationPriority {
-  LOW = 'low',
-  MEDIUM = 'medium',
-  HIGH = 'high',
-  URGENT = 'urgent',
-}
-
-/**
- * Notification interface
- */
-export interface Notification {
-  id: string;
-  type: NotificationType;
-  priority: NotificationPriority;
-  title: string;
-  message: string;
-  data?: Record<string, unknown>;
-  userId?: string;
-  teamId?: string;
-  taskId?: string;
-  read: boolean;
-  createdAt: number;
-  expiresAt?: number;
-}
-
-/**
- * Notification subscription options
- */
-export interface NotificationSubscription {
-  userId?: string;
-  teamId?: string;
-  channels: string[];
-}
-
-/**
- * Notification filter options
- */
-export interface NotificationFilter {
-  type?: NotificationType | NotificationType[];
-  priority?: NotificationPriority | NotificationPriority[];
-  userId?: string;
-  teamId?: string;
-  taskId?: string;
-  read?: boolean;
-  since?: number;
-}
+type SocketIOServer = {
+  on(event: string, listener: (...args: unknown[]) => void): void;
+  emit(event: string, data: unknown): void;
+  to(room: string): SocketIOServer;
+  close(): void;
+};
 
 /**
  * Notification Service class
+ * Socket.IO initialization happens lazily when needed
  */
 export class NotificationService {
   private io: SocketIOServer | null = null;
-  private subscriptions: Map<string, NotificationSubscription> = new Map();
   private notifications: Map<string, Notification> = new Map();
   private notificationHistory: Notification[] = [];
   private maxHistorySize = 1000;
 
-  constructor() {
-    // Initialize with placeholder
-  }
+  constructor() {}
 
   /**
-   * Initialize Socket.IO server
+   * Initialize Socket.IO server (server-side only, lazy loaded)
    */
-  initialize(httpServer: unknown): void {
-    if (this.io) {
-      logger.warn('[NotificationService] Already initialized');
+  async initialize(httpServer: unknown): Promise<void> {
+    if (this.io) return;
+
+    if (typeof window !== 'undefined') {
+      console.warn('[NotificationService] Cannot initialize server in browser');
       return;
     }
 
-    this.io = new SocketIOServer(httpServer, {
-      cors: {
-        origin: '*',
-        methods: ['GET', 'POST'],
-      },
-      transports: ['websocket', 'polling'],
-      pingTimeout: 60000, // 60 seconds
-      pingInterval: 25000, // 25 seconds
-    });
-
-    this.io.on('connection', (socket: Socket) => {
-      logger.log(`[NotificationService] Client connected: ${socket.id}`);
-
-      // Handle heartbeat ping
-      socket.on('ping', () => {
-        socket.emit('pong');
+    // Lazy load socket.io - this code path only runs on the server at runtime
+    // Use eval to prevent bundler from analyzing the import
+    try {
+      // @ts-ignore - Dynamic server-only import
+      const { Server } = await (0, eval)('import("socket.io")');
+      this.io = new Server(httpServer, {
+        cors: { origin: '*', methods: ['GET', 'POST'] },
+        transports: ['websocket', 'polling'],
       });
-
-      // Handle subscription
-      socket.on('subscribe', (subscription: NotificationSubscription) => {
-        this.handleSubscribe(socket, subscription);
-      });
-
-      // Handle unsubscribe
-      socket.on('unsubscribe', () => {
-        this.handleUnsubscribe(socket);
-      });
-
-      // Mark notification as read
-      socket.on('mark_read', (notificationId: string) => {
-        this.markAsRead(notificationId);
-      });
-
-      // Mark all as read
-      socket.on('mark_all_read', (filter: NotificationFilter) => {
-        this.markAllAsRead(filter);
-      });
-
-      // Get unread count
-      socket.on('unread_count', (filter: NotificationFilter) => {
-        const count = this.getUnreadCount(filter);
-        socket.emit('unread_count', count);
-      });
-
-      // Disconnect
-      socket.on('disconnect', () => {
-        this.handleUnsubscribe(socket);
-        logger.log(`[NotificationService] Client disconnected: ${socket.id}`);
-      });
-    });
-
-    logger.log('[NotificationService] Socket.IO server initialized');
-  }
-
-  /**
-   * Handle subscription
-   */
-  private handleSubscribe(socket: Socket, subscription: NotificationSubscription): void {
-    this.subscriptions.set(socket.id, subscription);
-
-    // Join rooms based on channels
-    subscription.channels.forEach(channel => {
-      socket.join(channel);
-    });
-
-    // Send pending notifications
-    const pendingNotifications = this.getNotifications({
-      userId: subscription.userId,
-      teamId: subscription.teamId,
-      read: false,
-    });
-
-    socket.emit('initial_notifications', pendingNotifications);
-    socket.emit('subscribed', { channels: subscription.channels });
-
-    logger.log(`[NotificationService] Client ${socket.id} subscribed to channels:`, subscription.channels);
-  }
-
-  /**
-   * Handle unsubscribe
-   */
-  private handleUnsubscribe(socket: Socket): void {
-    const subscription = this.subscriptions.get(socket.id);
-    if (subscription) {
-      subscription.channels.forEach(channel => {
-        socket.leave(channel);
-      });
-      this.subscriptions.delete(socket.id);
-      logger.log(`[NotificationService] Client ${socket.id} unsubscribed`);
+      console.log('[NotificationService] Socket.IO initialized');
+    } catch (e) {
+      console.warn('[NotificationService] Socket.IO not available');
     }
   }
 
   /**
-   * Create and send a notification
+   * Create a notification
    */
-  async notify(notification: Omit<Notification, 'id' | 'read' | 'createdAt'>): Promise<string> {
-    const id = this.generateId();
-    const fullNotification: Notification = {
-      ...notification,
-      id,
+  private create(data: Omit<Notification, 'id' | 'read' | 'createdAt'>): Notification {
+    return {
+      ...data,
+      id: `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       read: false,
       createdAt: Date.now(),
     };
-
-    // Store notification
-    this.notifications.set(id, fullNotification);
-    this.addToHistory(fullNotification);
-
-    // Determine target channels
-    const channels: string[] = [];
-    if (notification.userId) {
-      channels.push(`user:${notification.userId}`);
-    }
-    if (notification.teamId) {
-      channels.push(`team:${notification.teamId}`);
-    }
-
-    // Broadcast to relevant channels
-    if (this.io) {
-      channels.forEach(channel => {
-        this.io!.to(channel).emit('notification', fullNotification);
-      });
-
-      // Also broadcast to 'all' channel for system-wide notifications
-      if (notification.type === NotificationType.SYSTEM) {
-        this.io.to('all').emit('notification', fullNotification);
-      }
-    }
-
-    logger.log(`[NotificationService] Notification sent: ${id}`, {
-      type: notification.type,
-      channels,
-    });
-
-    return id;
   }
 
   /**
-   * Get notifications with optional filter
+   * Notify a specific user
+   */
+  notifyUser(userId: string, data: Omit<Notification, 'id' | 'read' | 'createdAt'>): Notification {
+    const notification = this.create(data);
+    notification.userId = userId;
+    this.notifications.set(notification.id, notification);
+    if (this.io) this.io.to(`user:${userId}`).emit('notification', notification);
+    return notification;
+  }
+
+  /**
+   * Broadcast to all
+   */
+  broadcast(data: Omit<Notification, 'id' | 'read' | 'createdAt'>): Notification {
+    const notification = this.create(data);
+    this.notifications.set(notification.id, notification);
+    if (this.io) this.io.emit('notification', notification);
+    return notification;
+  }
+
+  /**
+   * Notify - routes to notifyUser or broadcast based on userId presence
+   */
+  notify(data: Omit<Notification, 'id' | 'read' | 'createdAt'>): Notification {
+    if (data.userId) {
+      return this.notifyUser(data.userId, data);
+    }
+    return this.broadcast(data);
+  }
+
+  /**
+   * Get notifications
    */
   getNotifications(filter?: NotificationFilter): Notification[] {
     let result = Array.from(this.notifications.values());
-
-    if (filter) {
-      result = this.applyFilter(result, filter);
-    }
-
-    // Sort by createdAt descending
+    if (filter?.read !== undefined) result = result.filter(n => n.read === filter.read);
+    if (filter?.userId) result = result.filter(n => n.userId === filter.userId);
     return result.sort((a, b) => b.createdAt - a.createdAt);
-  }
-
-  /**
-   * Get notification history
-   */
-  getHistory(limit = 50): Notification[] {
-    return this.notificationHistory.slice(0, limit);
   }
 
   /**
    * Get unread count
    */
   getUnreadCount(filter?: NotificationFilter): number {
-    const fullFilter: NotificationFilter = {
-      ...filter,
-      read: false,
-    };
-    return this.getNotifications(fullFilter).length;
+    return this.getNotifications({ ...filter, read: false }).length;
   }
 
   /**
-   * Mark notification as read
+   * Mark as read
    */
-  markAsRead(notificationId: string): void {
-    const notification = this.notifications.get(notificationId);
-    if (notification) {
-      notification.read = true;
-
-      // Notify subscribed clients
-      if (this.io) {
-        const channels = this.getNotificationChannels(notification);
-        channels.forEach(channel => {
-          this.io!.to(channel).emit('notification_read', notificationId);
-        });
-      }
-    }
+  markAsRead(id: string): boolean {
+    const n = this.notifications.get(id);
+    if (n) { n.read = true; return true; }
+    return false;
   }
 
   /**
-   * Mark all notifications as read
+   * Mark all as read
    */
-  markAllAsRead(filter?: NotificationFilter): void {
-    const notifications = this.getNotifications(filter);
-    notifications.forEach(notification => {
-      notification.read = true;
-    });
-
-    if (this.io) {
-      this.io.emit('notifications_cleared', filter || {});
-    }
+  markAllAsRead(filter?: NotificationFilter): number {
+    const notifications = this.getNotifications({ ...filter, read: false });
+    notifications.forEach(n => n.read = true);
+    return notifications.length;
   }
 
   /**
-   * Delete notification
+   * Delete notification by ID
    */
-  deleteNotification(notificationId: string): void {
-    const notification = this.notifications.get(notificationId);
-    if (notification) {
-      this.notifications.delete(notificationId);
-
-      // Notify subscribed clients
-      if (this.io) {
-        const channels = this.getNotificationChannels(notification);
-        channels.forEach(channel => {
-          this.io!.to(channel).emit('notification_deleted', notificationId);
-        });
-      }
+  deleteNotification(id: string): boolean {
+    if (this.notifications.has(id)) {
+      this.notifications.delete(id);
+      return true;
     }
+    return false;
   }
 
   /**
    * Clean up expired notifications
    */
   cleanupExpired(): number {
+    let count = 0;
     const now = Date.now();
-    let cleaned = 0;
 
     for (const [id, notification] of this.notifications.entries()) {
       if (notification.expiresAt && notification.expiresAt < now) {
         this.notifications.delete(id);
-        cleaned++;
+        count++;
       }
     }
 
-    if (cleaned > 0) {
-      logger.log(`[NotificationService] Cleaned up ${cleaned} expired notifications`);
-    }
-
-    return cleaned;
+    return count;
   }
 
-  /**
-   * Apply filter to notifications
-   */
-  private applyFilter(notifications: Notification[], filter: NotificationFilter): Notification[] {
-    return notifications.filter(notification => {
-      // Type filter
-      if (filter.type) {
-        if (Array.isArray(filter.type)) {
-          if (!filter.type.includes(notification.type)) return false;
-        } else if (notification.type !== filter.type) {
-          return false;
-        }
-      }
-
-      // Priority filter
-      if (filter.priority) {
-        if (Array.isArray(filter.priority)) {
-          if (!filter.priority.includes(notification.priority)) return false;
-        } else if (notification.priority !== filter.priority) {
-          return false;
-        }
-      }
-
-      // User filter
-      if (filter.userId && notification.userId !== filter.userId) {
-        return false;
-      }
-
-      // Team filter
-      if (filter.teamId && notification.teamId !== filter.teamId) {
-        return false;
-      }
-
-      // Task filter
-      if (filter.taskId && notification.taskId !== filter.taskId) {
-        return false;
-      }
-
-      // Read status filter
-      if (filter.read !== undefined && notification.read !== filter.read) {
-        return false;
-      }
-
-      // Time filter
-      if (filter.since && notification.createdAt < filter.since) {
-        return false;
-      }
-
-      return true;
-    });
-  }
-
-  /**
-   * Get channels for a notification
-   */
-  private getNotificationChannels(notification: Notification): string[] {
-    const channels: string[] = [];
-    if (notification.userId) {
-      channels.push(`user:${notification.userId}`);
-    }
-    if (notification.teamId) {
-      channels.push(`team:${notification.teamId}`);
-    }
-    return channels;
-  }
-
-  /**
-   * Add notification to history
-   */
-  private addToHistory(notification: Notification): void {
-    this.notificationHistory.unshift(notification);
-
-    // Maintain history size
-    if (this.notificationHistory.length > this.maxHistorySize) {
-      this.notificationHistory.pop();
-    }
-  }
-
-  /**
-   * Generate unique ID
-   */
-  private generateId(): string {
-    return `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  }
-
-  /**
-   * Get Socket.IO server instance
-   */
-  getIO(): SocketIOServer | null {
-    return this.io;
-  }
+  getIO(): SocketIOServer | null { return this.io; }
 }
 
 // Singleton instance

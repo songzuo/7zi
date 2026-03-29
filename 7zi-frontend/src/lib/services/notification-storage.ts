@@ -2,6 +2,8 @@
  * Database schema for notifications
  *
  * Creates tables for storing notifications and user preferences
+ *
+ * @server-only - This module uses Node.js filesystem APIs and should only be used on the server
  */
 
 import Database from 'better-sqlite3';

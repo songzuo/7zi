@@ -17,12 +17,14 @@ import {
 import {
   NotificationType,
   NotificationPriority,
-} from '@/lib/services/notification';
+} from '@/lib/services/notification-types';
 
 /**
  * Demo Content Component - Uses the notification context
  */
 function DemoContent() {
+  "use memo";
+
   const { notifications, unreadCount, isConnected, markAllAsRead } = useNotificationContext();
   const [showCenter, setShowCenter] = useState(false);
 

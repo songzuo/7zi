@@ -1,342 +1,251 @@
 /**
- * Logger Utility
- *
- * 提供统一的日志记录功能，支持不同日志级别、格式化和输出目标
+ * 生产环境日志配置
+ * 
+ * 提供统一的日志管理，包括：
+ * - 日志级别控制
+ * - 结构化日志输出
+ * - 错误报告
+ * - 性能监控
+ * 
+ * @version 1.0.0
+ * @date 2026-03-28
  */
 
-/**
- * 日志级别枚举
- */
-export enum LogLevel {
-  DEBUG = 0,
-  INFO = 1,
-  WARN = 2,
-  ERROR = 3,
-  FATAL = 4,
-}
+// ============================================
+// 日志级别定义
+// ============================================
+export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'fatal';
 
-/**
- * 日志级别名称映射
- */
-const LogLevelNames: Record<LogLevel, string> = {
-  [LogLevel.DEBUG]: 'DEBUG',
-  [LogLevel.INFO]: 'INFO',
-  [LogLevel.WARN]: 'WARN',
-  [LogLevel.ERROR]: 'ERROR',
-  [LogLevel.FATAL]: 'FATAL',
+const LOG_LEVEL_PRIORITY: Record<LogLevel, number> = {
+  debug: 0,
+  info: 1,
+  warn: 2,
+  error: 3,
+  fatal: 4,
 };
 
-/**
- * 日志级别颜色映射（用于控制台输出）
- */
-const LogLevelColors: Record<LogLevel, string> = {
-  [LogLevel.DEBUG]: '\x1b[36m', // Cyan
-  [LogLevel.INFO]: '\x1b[32m', // Green
-  [LogLevel.WARN]: '\x1b[33m', // Yellow
-  [LogLevel.ERROR]: '\x1b[31m', // Red
-  [LogLevel.FATAL]: '\x1b[35m', // Magenta
-};
-
-/**
- * 重置颜色
- */
-const ResetColor = '\x1b[0m';
-
-/**
- * 日志条目接口
- */
-export interface LogEntry {
+// ============================================
+// 日志配置
+// ============================================
+interface LogConfig {
   level: LogLevel;
-  message: string;
-  timestamp: Date;
-  context?: Record<string, unknown>;
-  error?: Error;
-  stack?: string;
+  format: 'json' | 'text';
+  includeTimestamp: boolean;
+  includeContext: boolean;
+  sanitizeSensitiveData: boolean;
+  enableRemoteLogging: boolean;
+  remoteEndpoint?: string;
 }
 
-/**
- * 日志传输接口
- */
-export interface LogTransport {
-  name: string;
-  log(entry: LogEntry): void | Promise<void>;
+const DEFAULT_CONFIG: LogConfig = {
+  level: (process.env.LOG_LEVEL as LogLevel) || 
+         (process.env.NODE_ENV === 'production' ? 'warn' : 'debug'),
+  format: process.env.NODE_ENV === 'production' ? 'json' : 'text',
+  includeTimestamp: true,
+  includeContext: true,
+  sanitizeSensitiveData: true,
+  enableRemoteLogging: process.env.NODE_ENV === 'production',
+  remoteEndpoint: process.env.LOG_ENDPOINT,
+};
+
+// ============================================
+// 敏感数据过滤
+// ============================================
+const SENSITIVE_FIELDS = [
+  'password',
+  'token',
+  'secret',
+  'apiKey',
+  'api_key',
+  'authorization',
+  'cookie',
+  'session',
+  'privateKey',
+  'private_key',
+];
+
+function sanitizeData(data: unknown): unknown {
+  if (typeof data !== 'object' || data === null) {
+    return data;
+  }
+
+  if (Array.isArray(data)) {
+    return data.map(sanitizeData);
+  }
+
+  const sanitized: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
+    if (SENSITIVE_FIELDS.some(field => key.toLowerCase().includes(field.toLowerCase()))) {
+      sanitized[key] = '[REDACTED]';
+    } else if (typeof value === 'object' && value !== null) {
+      sanitized[key] = sanitizeData(value);
+    } else {
+      sanitized[key] = value;
+    }
+  }
+  return sanitized;
 }
 
-/**
- * 控制台传输
- */
-export class ConsoleTransport implements LogTransport {
-  name = 'console';
-
-  constructor(
-    private options: {
-      colorize?: boolean;
-      includeTimestamp?: boolean;
-      includeContext?: boolean;
-    } = {}
-  ) {
-    this.options = {
-      colorize: true,
-      includeTimestamp: true,
-      includeContext: true,
-      ...options,
-    };
-  }
-
-  log(entry: LogEntry): void {
-    const { colorize, includeTimestamp, includeContext } = this.options;
-    const levelName = LogLevelNames[entry.level];
-    const color = colorize ? LogLevelColors[entry.level] : '';
-    const reset = colorize ? ResetColor : '';
-
-    let output = '';
-
-    // 添加时间戳
-    if (includeTimestamp) {
-      output += `[${entry.timestamp.toISOString()}] `;
-    }
-
-    // 添加日志级别
-    output += `${color}[${levelName}]${reset} `;
-
-    // 添加消息
-    output += `${entry.message}`;
-
-    // 添加上下文
-    if (includeContext && entry.context && Object.keys(entry.context).length > 0) {
-      output += ` ${JSON.stringify(entry.context)}`;
-    }
-
-    // 添加错误信息
-    if (entry.error) {
-      output += `\n  Error: ${entry.error.message}`;
-      if (entry.stack) {
-        output += `\n  Stack: ${entry.stack}`;
-      }
-    }
-
-    // 根据日志级别输出到不同的控制台方法
-    switch (entry.level) {
-      case LogLevel.DEBUG:
-      case LogLevel.INFO:
-        console.log(output);
-        break;
-      case LogLevel.WARN:
-        console.warn(output);
-        break;
-      case LogLevel.ERROR:
-      case LogLevel.FATAL:
-        console.error(output);
-        break;
-    }
-  }
-}
-
-/**
- * 内存传输（用于测试）
- */
-export class MemoryTransport implements LogTransport {
-  name = 'memory';
-  logs: LogEntry[] = [];
-
-  log(entry: LogEntry): void {
-    this.logs.push(entry);
-  }
-
-  clear(): void {
-    this.logs = [];
-  }
-
-  getLogs(level?: LogLevel): LogEntry[] {
-    if (level !== undefined) {
-      return this.logs.filter(log => log.level >= level);
-    }
-    return [...this.logs];
-  }
-
-  getLastLog(): LogEntry | undefined {
-    return this.logs[this.logs.length - 1];
-  }
-}
-
-/**
- * 过滤传输（包装其他传输以过滤日志）
- */
-export class FilterTransport implements LogTransport {
-  name = 'filter';
-
-  constructor(
-    private transport: LogTransport,
-    private minLevel: LogLevel
-  ) {
-    this.name = `filter(${transport.name}, ${LogLevelNames[minLevel]})`;
-  }
-
-  log(entry: LogEntry): void | Promise<void> {
-    if (entry.level >= this.minLevel) {
-      return this.transport.log(entry);
-    }
-  }
-}
-
-/**
- * Logger 类
- */
+// ============================================
+// Logger 类
+// ============================================
 export class Logger {
-  private transports: LogTransport[] = [];
-  private level: LogLevel = LogLevel.INFO;
-  private context: Record<string, unknown> = {};
+  private context: string;
+  private config: LogConfig;
 
-  constructor(options?: {
-    level?: LogLevel;
-    context?: Record<string, unknown>;
-    transports?: LogTransport[];
-  }) {
-    if (options) {
-      if (options.level !== undefined) {
-        this.level = options.level;
-      }
-      if (options.context) {
-        this.context = { ...options.context };
-      }
-      if (options.transports) {
-        this.transports = [...options.transports];
+  constructor(context: string, config?: Partial<LogConfig>) {
+    this.context = context;
+    this.config = { ...DEFAULT_CONFIG, ...config };
+  }
+
+  private shouldLog(level: LogLevel): boolean {
+    return LOG_LEVEL_PRIORITY[level] >= LOG_LEVEL_PRIORITY[this.config.level];
+  }
+
+  private formatMessage(
+    level: LogLevel,
+    message: string,
+    data?: Record<string, unknown>,
+    error?: Error
+  ): string | object {
+    const timestamp = new Date().toISOString();
+    const logData = this.config.sanitizeSensitiveData ? sanitizeData(data) : data;
+
+    const logObject = {
+      timestamp,
+      level,
+      context: this.context,
+      message,
+      ...(logData && { data: logData }),
+      ...(error && { 
+        error: {
+          name: error.name,
+          message: error.message,
+          stack: error.stack,
+        }
+      }),
+      ...(process.env.NODE_ENV === 'production' && {
+        env: process.env.NODE_ENV,
+        version: process.env.npm_package_version,
+      }),
+    };
+
+    if (this.config.format === 'json') {
+      return logObject;
+    }
+
+    // 文本格式
+    const parts = [
+      `[${timestamp}]`,
+      `[${level.toUpperCase()}]`,
+      `[${this.context}]`,
+      message,
+    ];
+
+    if (logData) {
+      parts.push(JSON.stringify(logData, null, 2));
+    }
+
+    if (error) {
+      parts.push(`\nError: ${error.message}`);
+      if (error.stack) {
+        parts.push(`\nStack: ${error.stack}`);
       }
     }
 
-    // 默认添加控制台传输
-    if (this.transports.length === 0) {
-      this.addTransport(new ConsoleTransport());
-    }
+    return parts.join(' ');
   }
 
-  /**
-   * 添加日志传输
-   */
-  addTransport(transport: LogTransport): void {
-    this.transports.push(transport);
-  }
-
-  /**
-   * 移除日志传输
-   */
-  removeTransport(transportName: string): void {
-    this.transports = this.transports.filter(t => t.name !== transportName);
-  }
-
-  /**
-   * 设置日志级别
-   */
-  setLevel(level: LogLevel): void {
-    this.level = level;
-  }
-
-  /**
-   * 获取当前日志级别
-   */
-  getLevel(): LogLevel {
-    return this.level;
-  }
-
-  /**
-   * 添加上下文
-   */
-  addContext(context: Record<string, unknown>): void {
-    this.context = { ...this.context, ...context };
-  }
-
-  /**
-   * 清除上下文
-   */
-  clearContext(): void {
-    this.context = {};
-  }
-
-  /**
-   * 创建子 Logger（继承上下文）
-   */
-  child(context: Record<string, unknown>): Logger {
-    const childLogger = new Logger({
-      level: this.level,
-      context: { ...this.context, ...context },
-      transports: this.transports,
-    });
-    return childLogger;
-  }
-
-  /**
-   * 记录日志
-   */
-  private log(level: LogLevel, message: string, context?: Record<string, unknown>, error?: Error): void {
-    if (level < this.level) {
+  private async log(
+    level: LogLevel,
+    message: string,
+    data?: Record<string, unknown>,
+    error?: Error
+  ): Promise<void> {
+    if (!this.shouldLog(level)) {
       return;
     }
 
-    const entry: LogEntry = {
-      level,
-      message,
-      timestamp: new Date(),
-      context: Object.keys(this.context).length > 0 || (context && Object.keys(context).length > 0)
-        ? { ...this.context, ...context }
-        : undefined,
-      error,
-      stack: error?.stack,
-    };
+    const formatted = this.formatMessage(level, message, data, error);
 
-    for (const transport of this.transports) {
+    // 控制台输出
+    switch (level) {
+      case 'debug':
+        console.debug(formatted);
+        break;
+      case 'info':
+        console.info(formatted);
+        break;
+      case 'warn':
+        console.warn(formatted);
+        break;
+      case 'error':
+      case 'fatal':
+        console.error(formatted);
+        break;
+    }
+
+    // 远程日志 (生产环境)
+    if (this.config.enableRemoteLogging && this.config.remoteEndpoint) {
       try {
-        transport.log(entry);
-      } catch (err) {
-        // 防止日志传输中的错误导致应用崩溃
-        console.error('Error in log transport:', err);
+        await fetch(this.config.remoteEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formatted),
+        }).catch(() => {
+          // 静默失败，避免日志循环
+        });
+      } catch {
+        // 静默失败
       }
     }
   }
 
-  /**
-   * DEBUG 级别日志
-   */
-  debug(message: string, context?: Record<string, unknown>): void {
-    this.log(LogLevel.DEBUG, message, context);
+  debug(message: string, data?: Record<string, unknown>): void {
+    this.log('debug', message, data);
   }
 
-  /**
-   * INFO 级别日志
-   */
-  info(message: string, context?: Record<string, unknown>): void {
-    this.log(LogLevel.INFO, message, context);
+  info(message: string, data?: Record<string, unknown>): void {
+    this.log('info', message, data);
   }
 
-  /**
-   * WARN 级别日志
-   */
-  warn(message: string, context?: Record<string, unknown>): void {
-    this.log(LogLevel.WARN, message, context);
+  warn(message: string, data?: Record<string, unknown>): void {
+    this.log('warn', message, data);
   }
 
-  /**
-   * ERROR 级别日志
-   */
-  error(message: string, error?: Error, context?: Record<string, unknown>): void {
-    this.log(LogLevel.ERROR, message, context, error);
+  error(message: string, error?: Error, data?: Record<string, unknown>): void {
+    this.log('error', message, data, error);
   }
 
-  /**
-   * FATAL 级别日志
-   */
-  fatal(message: string, error?: Error, context?: Record<string, unknown>): void {
-    this.log(LogLevel.FATAL, message, context, error);
+  fatal(message: string, error?: Error, data?: Record<string, unknown>): void {
+    this.log('fatal', message, data, error);
+  }
+
+  // 性能计时器
+  time(label: string): () => void {
+    const start = Date.now();
+    return () => {
+      const duration = Date.now() - start;
+      this.debug(`Timer [${label}]`, { duration: `${duration}ms` });
+    };
+  }
+
+  // 创建子 Logger
+  child(subContext: string): Logger {
+    return new Logger(`${this.context}:${subContext}`, this.config);
   }
 }
 
-/**
- * 默认 Logger 实例
- */
-export const logger = new Logger();
+// ============================================
+// 全局 Logger 实例
+// ============================================
+export const logger = new Logger('app');
 
-/**
- * 便捷函数：创建带有上下文的子 Logger
- */
-export function createLogger(context: Record<string, unknown>, level?: LogLevel): Logger {
-  return logger.child(context);
+// ============================================
+// 便捷导出
+// ============================================
+export function createLogger(context: string, config?: Partial<LogConfig>): Logger {
+  return new Logger(context, config);
 }
+
+export default logger;

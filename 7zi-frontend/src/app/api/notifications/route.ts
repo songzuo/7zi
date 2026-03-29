@@ -2,6 +2,7 @@
  * Notifications API Route
  *
  * REST API for managing notifications (CRUD operations)
+ * Requires JWT authentication
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -10,19 +11,40 @@ import {
   createSuccessResponse,
   createValidationError,
   createErrorResponse,
-} from '../../../lib/api/error-handler';
+} from '@/lib/api/error-handler';
+import { authenticateJWT, AuthResult } from '@/lib/auth/api-auth';
 
 /**
  * GET /api/notifications
  *
  * Get notifications with optional filters
+ * Requires JWT authentication
  */
 export async function GET(request: NextRequest) {
+  // Authenticate user
+  const authResult = await authenticateJWT(request);
+
+  if (!authResult.authenticated) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Unauthorized',
+        message: authResult.error || 'Authentication required',
+      },
+      { status: 401 }
+    );
+  }
+
   try {
     const searchParams = request.nextUrl.searchParams;
 
-    // Parse filters
-    const filter: NotificationFilter = {};
+    // Parse filters - user can only see their own notifications unless admin
+    const filter: NotificationFilter = {
+      // Enforce user ownership (non-admin can only see their own notifications)
+      userId: authResult.role === 'admin' 
+        ? searchParams.get('userId') || undefined
+        : authResult.userId,
+    };
 
     if (searchParams.get('type')) {
       filter.type = searchParams.get('type') as NotificationType;
@@ -30,10 +52,6 @@ export async function GET(request: NextRequest) {
 
     if (searchParams.get('priority')) {
       filter.priority = searchParams.get('priority') as NotificationPriority;
-    }
-
-    if (searchParams.get('userId')) {
-      filter.userId = searchParams.get('userId')!;
     }
 
     if (searchParams.get('teamId')) {
@@ -80,8 +98,23 @@ export async function GET(request: NextRequest) {
  * POST /api/notifications
  *
  * Create a new notification
+ * Requires JWT authentication
  */
 export async function POST(request: NextRequest) {
+  // Authenticate user
+  const authResult = await authenticateJWT(request);
+
+  if (!authResult.authenticated) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Unauthorized',
+        message: authResult.error || 'Authentication required',
+      },
+      { status: 401 }
+    );
+  }
+
   try {
     const body = await request.json();
 

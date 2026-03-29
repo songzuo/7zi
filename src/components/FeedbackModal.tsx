@@ -38,13 +38,13 @@ const FEEDBACK_TYPES: FeedbackTypeOption[] = [
   { value: 'other', label: '其他', icon: '📝' },
 ];
 
-export const FeedbackModal: React.FC<FeedbackModalProps> = ({
+export function FeedbackModal({
   isOpen,
   onClose,
   onSubmit,
   isLoading = false,
   feedbackType = 'general',
-}) => {
+}: FeedbackModalProps) {
   const [type, setType] = useState(feedbackType);
   const [rating, setRating] = useState(5);
   const [title, setTitle] = useState('');

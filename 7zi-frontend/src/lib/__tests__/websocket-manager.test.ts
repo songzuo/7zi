@@ -8,7 +8,7 @@
  * - Message queuing
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi, type Mock } from 'vitest';
 import { WebSocketManager, ConnectionState } from '@/lib/websocket-manager';
 import { io, Socket } from 'socket.io-client';
 
@@ -43,7 +43,7 @@ describe('WebSocketManager', () => {
       onAny: vi.fn(),
     };
 
-    (io as vi.Mock).mockReturnValue(mockSocket as Socket);
+    (io as Mock).mockReturnValue(mockSocket as Socket);
   });
 
   afterEach(() => {
@@ -75,7 +75,7 @@ describe('WebSocketManager', () => {
       wsManager.connect();
 
       // Simulate connection success
-      const connectCallback = (mockSocket.on as vi.Mock).mock.calls.find(
+      const connectCallback = (mockSocket.on as Mock).mock.calls.find(
         (call: [string, Function]) => call[0] === 'connect'
       );
       if (connectCallback) {
@@ -94,7 +94,7 @@ describe('WebSocketManager', () => {
       wsManager.connect();
 
       // Simulate connection
-      const connectCallback = (mockSocket.on as vi.Mock).mock.calls.find(
+      const connectCallback = (mockSocket.on as Mock).mock.calls.find(
         (call: [string, Function]) => call[0] === 'connect'
       );
       if (connectCallback) {
@@ -137,7 +137,7 @@ describe('WebSocketManager', () => {
       wsManager.connect();
 
       // Simulate connection
-      const connectCallback = (mockSocket.on as vi.Mock).mock.calls.find(
+      const connectCallback = (mockSocket.on as Mock).mock.calls.find(
         (call: [string, Function]) => call[0] === 'connect'
       );
       if (connectCallback) {
@@ -160,7 +160,7 @@ describe('WebSocketManager', () => {
       wsManager.connect();
 
       // Simulate connection
-      const connectCallback = (mockSocket.on as vi.Mock).mock.calls.find(
+      const connectCallback = (mockSocket.on as Mock).mock.calls.find(
         (call: [string, Function]) => call[0] === 'connect'
       );
       if (connectCallback) {
@@ -168,7 +168,7 @@ describe('WebSocketManager', () => {
       }
 
       // Simulate pong
-      const pongCallback = (mockSocket.on as vi.Mock).mock.calls.find(
+      const pongCallback = (mockSocket.on as Mock).mock.calls.find(
         (call: [string, Function]) => call[0] === 'pong'
       );
       if (pongCallback) {
@@ -192,7 +192,7 @@ describe('WebSocketManager', () => {
       wsManager.connect();
 
       // Simulate connection
-      const connectCallback = (mockSocket.on as vi.Mock).mock.calls.find(
+      const connectCallback = (mockSocket.on as Mock).mock.calls.find(
         (call: [string, Function]) => call[0] === 'connect'
       );
       if (connectCallback) {
@@ -200,7 +200,7 @@ describe('WebSocketManager', () => {
       }
 
       // Simulate disconnection
-      const disconnectCallback = (mockSocket.on as vi.Mock).mock.calls.find(
+      const disconnectCallback = (mockSocket.on as Mock).mock.calls.find(
         (call: [string, Function]) => call[0] === 'disconnect'
       );
       if (disconnectCallback) {
@@ -226,14 +226,14 @@ describe('WebSocketManager', () => {
       wsManager.connect();
 
       // Simulate connection then immediate disconnect
-      const connectCallback = (mockSocket.on as vi.Mock).mock.calls.find(
+      const connectCallback = (mockSocket.on as Mock).mock.calls.find(
         (call: [string, Function]) => call[0] === 'connect'
       );
       if (connectCallback) {
         connectCallback[1]();
       }
 
-      const disconnectCallback = (mockSocket.on as vi.Mock).mock.calls.find(
+      const disconnectCallback = (mockSocket.on as Mock).mock.calls.find(
         (call: [string, Function]) => call[0] === 'disconnect'
       );
       if (disconnectCallback) {
@@ -281,7 +281,7 @@ describe('WebSocketManager', () => {
       wsManager.connect();
 
       // Simulate connection
-      const connectCallback = (mockSocket.on as vi.Mock).mock.calls.find(
+      const connectCallback = (mockSocket.on as Mock).mock.calls.find(
         (call: [string, Function]) => call[0] === 'connect'
       );
       if (connectCallback) {
@@ -339,7 +339,7 @@ describe('WebSocketManager', () => {
       wsManager.on('test_event', listener);
 
       // Simulate incoming message
-      const anyCallback = (mockSocket.onAny as vi.Mock).mock.calls[0][1];
+      const anyCallback = (mockSocket.onAny as Mock).mock.calls[0][1];
       anyCallback('test_event', { data: 'test' });
 
       expect(listener).toHaveBeenCalledWith('test_event', { data: 'test' });
@@ -355,7 +355,7 @@ describe('WebSocketManager', () => {
       wsManager.on('test_event', listener);
 
       // Simulate incoming message
-      const anyCallback = (mockSocket.onAny as vi.Mock).mock.calls[0][1];
+      const anyCallback = (mockSocket.onAny as Mock).mock.calls[0][1];
       anyCallback('test_event', { data: 'test' });
 
       expect(listener).toHaveBeenCalledTimes(1);
@@ -381,7 +381,7 @@ describe('WebSocketManager', () => {
 
       wsManager.connect();
 
-      const connectCallback = (mockSocket.on as vi.Mock).mock.calls.find(
+      const connectCallback = (mockSocket.on as Mock).mock.calls.find(
         (call: [string, Function]) => call[0] === 'connect'
       );
       if (connectCallback) {

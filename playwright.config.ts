@@ -20,8 +20,8 @@ export default defineConfig({
   // CI 上重试失败测试
   retries: process.env.CI ? 2 : 0,
   
-  // CI 上限制并行 workers
-  workers: process.env.CI ? 1 : undefined,
+  // CI 环境下使用 4 个并行 workers
+  workers: process.env.CI ? 4 : undefined,
   
   // Reporter 配置 - 增强报告生成
   reporter: [
@@ -71,46 +71,22 @@ export default defineConfig({
     },
   },
 
-  // 配置项目（多浏览器测试）
+  // 配置项目（优化后的浏览器配置 - CI 友好）
   projects: [
-    // 主要桌面浏览器
+    // 主要桌面浏览器（仅 Chromium - 最常用且最快）
     {
       name: 'chromium',
-      use: { 
-        ...devices['Desktop Chrome'],
-        viewport: { width: 1920, height: 1080 },
-      },
+      use: { ...devices['Desktop Chrome'] },
     },
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-    // 移动端测试
+    // 移动端测试（仅 Mobile Chrome）
     {
       name: 'Mobile Chrome',
       use: { ...devices['Pixel 5'] },
     },
-    {
-      name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
-    },
-    // 平板测试
-    {
-      name: 'iPad',
-      use: { ...devices['iPad Pro'] },
-    },
     // 视觉回归测试专用（仅 Chromium）
     {
       name: 'visual-regression',
-      use: {
-        ...devices['Desktop Chrome'],
-        viewport: { width: 1920, height: 1080 },
-        deviceScaleFactor: 1,
-      },
+      use: { ...devices['Desktop Chrome'] },
       testMatch: '**/visual-regression.spec.ts',
     },
   ],

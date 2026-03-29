@@ -8,7 +8,7 @@
 
 import React, { useEffect, useState, useMemo, useCallback, memo } from 'react';
 import { Notification } from '@/lib/services/notification';
-import { NotificationToast } from './NotificationToast';
+import NotificationToast from './NotificationToast';
 
 interface NotificationToasterProps {
   notifications: Notification[];
@@ -41,6 +41,8 @@ function NotificationToaster({
   onDelete,
   position = 'top-right',
 }: NotificationToasterProps) {
+  "use memo";
+
   const [visibleNotifications, setVisibleNotifications] = useState<Notification[]>([]);
 
   useEffect(() => {

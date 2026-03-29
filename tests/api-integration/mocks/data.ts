@@ -75,6 +75,39 @@ export interface MockFeedback {
   metadata?: Record<string, unknown>;
 }
 
+export interface MockRating {
+  id: string;
+  user_id: string;
+  target_type: 'agent' | 'task' | 'feature' | 'project' | 'overall';
+  target_id: string;
+  rating: number;
+  title?: string;
+  description?: string;
+  verified?: boolean;
+  helpful_count: number;
+  not_helpful_count: number;
+  created_at: string;
+  updated_at: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface MockMember {
+  id: string;
+  name: string;
+  email: string;
+  role: 'owner' | 'admin' | 'member';
+  status: 'active' | 'inactive';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MockSearchHistory {
+  query: string;
+  resultCount: number;
+  target: string;
+  timestamp: string;
+}
+
 export class MockDataGenerator {
   private users: Map<string, MockUser> = new Map();
   private tasks: Map<string, MockTask> = new Map();
@@ -83,6 +116,9 @@ export class MockDataGenerator {
   private feedbacks: Map<string, MockFeedback> = new Map();
   private tokens: Map<string, string> = new Map();
   private refreshTokens: Map<string, string> = new Map();
+  private ratings: Map<string, MockRating> = new Map();
+  private members: Map<string, MockMember> = new Map();
+  private searchHistory: MockSearchHistory[] = [];
 
   constructor() {
     // Initialize with some test data
@@ -670,5 +706,122 @@ export class MockDataGenerator {
       byPriority,
       averageRating: total > 0 ? totalRating / total : 0,
     };
+  }
+
+  // Rating methods
+  createRating(data: {
+    user_id: string;
+    target_type: 'agent' | 'task' | 'feature' | 'project' | 'overall';
+    target_id: string;
+    rating: number;
+    title?: string;
+    description?: string;
+    verified?: boolean;
+    metadata?: Record<string, unknown>;
+  }): MockRating {
+    const rating: MockRating = {
+      id: `rating-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      user_id: data.user_id,
+      target_type: data.target_type,
+      target_id: data.target_id,
+      rating: data.rating,
+      title: data.title,
+      description: data.description,
+      verified: data.verified || false,
+      helpful_count: 0,
+      not_helpful_count: 0,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      metadata: data.metadata,
+    };
+
+    this.ratings.set(rating.id, rating);
+    return rating;
+  }
+
+  getRatingById(id: string): MockRating | null {
+    return this.ratings.get(id) || null;
+  }
+
+  updateRating(id: string, data: Partial<MockRating>): MockRating | null {
+    const rating = this.ratings.get(id);
+    if (!rating) return null;
+
+    const updated = {
+      ...rating,
+      ...data,
+      updated_at: new Date().toISOString(),
+    };
+
+    this.ratings.set(id, updated);
+    return updated;
+  }
+
+  deleteRating(id: string): boolean {
+    return this.ratings.delete(id);
+  }
+
+  getAllRatings(): MockRating[] {
+    return Array.from(this.ratings.values());
+  }
+
+  resetRatings() {
+    this.ratings.clear();
+  }
+
+  // Member methods
+  createMember(data: {
+    name: string;
+    email: string;
+    role?: 'owner' | 'admin' | 'member';
+    status?: 'active' | 'inactive';
+  }): MockMember {
+    const member: MockMember = {
+      id: `member-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      name: data.name,
+      email: data.email,
+      role: data.role || 'member',
+      status: data.status || 'active',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    this.members.set(member.id, member);
+    return member;
+  }
+
+  getMemberById(id: string): MockMember | null {
+    return this.members.get(id) || null;
+  }
+
+  getAllMembers(): MockMember[] {
+    return Array.from(this.members.values());
+  }
+
+  resetMembers() {
+    this.members.clear();
+  }
+
+  // Search history methods
+  addSearchHistory(query: string, resultCount: number, target: string): void {
+    this.searchHistory.push({
+      query,
+      resultCount,
+      target,
+      timestamp: new Date().toISOString(),
+    });
+
+    // Keep only last 100
+    if (this.searchHistory.length > 100) {
+      this.searchHistory = this.searchHistory.slice(-100);
+    }
+  }
+
+  getRecentSearchHistory(limit: number = 5): MockSearchHistory[] {
+    return this.searchHistory.slice(-limit).reverse();
+  }
+
+  resetSearchHistory() {
+    this.searchHistory = [];
   }
 }

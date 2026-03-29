@@ -1,7 +1,7 @@
 # 📚 7zi Studio 文档中心索引
 
-**最后更新**: 2026-03-24
-**版本**: v1.1.0
+**最后更新**: 2026-03-29
+**版本**: v1.3.0 ✅ 已发布 | v1.4.0 🚀 开发中
 
 ---
 
@@ -13,7 +13,9 @@
 - **[QUICKSTART.md](./QUICKSTART.md)** - 5 分钟快速部署
 - **[DEPLOYMENT.md](./DEPLOYMENT.md)** - 部署文档（生产环境配置）
 - **[CHANGELOG.md](../CHANGELOG.md)** - 版本变更日志
-- **[RELEASE_NOTES_v1.1.0.md](./RELEASE_NOTES_v1.1.0.md)** - v1.1.0 发布说明 🆕
+- **[v1.4.0 规划文档](../V140_PLANNING_20260329.md)** - v1.4.0 详细规划 🚀 开发中
+- **[v1.3.0 规划文档](./v1.3.0-PLANNING.md)** - v1.3.0 详细规划 ✅ 已完成
+- **[RELEASE_NOTES_v1.1.0.md](./RELEASE_NOTES_v1.1.0.md)** - v1.1.0 发布说明
 - **[RELEASE_NOTES_v1.0.9.md](./RELEASE_NOTES_v1.0.9.md)** - v1.0.9 发布说明
 
 ### 🏗️ 架构文档
@@ -28,6 +30,26 @@
 - **[ARCHITECTURE_REVIEW.md](./ARCHITECTURE_REVIEW.md)** - 架构审查报告
 - **[microservice-design.md](./microservice-design.md)** - 微服务设计
 - **[mcp-server-architecture.md](./mcp-server-architecture.md)** - MCP 服务器架构
+
+#### 🏛️ 架构决策记录 (ADR)
+
+- **[ADR README](./adr/README.md)** - ADR 索引和指南 ⭐
+  - ADR 模板和创建指南
+  - v1.4.0 核心架构决策
+  - 决策状态和流转
+
+**v1.4.0 核心架构决策**:
+- **[ADR-0006: Agent Scheduler 架构](./adr/0006-agent-scheduler-architecture.md)** - AI Agent 智能调度系统
+- **[ADR-0007: 性能监控架构](./adr/0007-performance-monitoring-architecture.md)** - 智能异常检测和根因分析
+- **[ADR-0008: WebSocket 房间系统设计](./adr/0008-websocket-room-system-design.md)** - 多房间、权限控制、消息持久化
+- **[ADR-0009: React Compiler 采用策略](./adr/0009-react-compiler-adoption-strategy.md)** - 可选编译模式和回滚机制
+
+**基础架构决策**:
+- **[ADR-0001: 使用 Zustand 进行状态管理](./adr/0001-use-zustand-for-state-management.md)** - 全局状态管理方案
+- **[ADR-0002: 使用 Socket.IO 实现 WebSocket](./adr/0002-use-socket.io-for-websocket.md)** - 实时通信基础设施
+- **[ADR-0003: 使用 Redis 进行缓存](./adr/0003-use-redis-for-caching.md)** - 缓存层设计
+- **[ADR-0004: 启用 TypeScript Strict Mode](./adr/0004-use-typescript-strict-mode.md)** - 类型安全强化
+- **[ADR-0005: 使用 Vitest 作为测试框架](./adr/0005-use-vitest-for-testing.md)** - 现代化测试方案
 
 ### 🔌 API 文档
 
@@ -271,6 +293,17 @@ docs/
 ├── ARCHITECTURE_REVIEW.md       # 架构审查
 ├── microservice-design.md       # 微服务设计
 ├── mcp-server-architecture.md   # MCP 服务器架构
+├── adr/                         # 架构决策记录 ⭐ (v1.4.0 新增)
+│   ├── README.md                # ADR 索引和指南
+│   ├── 0001-use-zustand-for-state-management.md
+│   ├── 0002-use-socket.io-for-websocket.md
+│   ├── 0003-use-redis-for-caching.md
+│   ├── 0004-use-typescript-strict-mode.md
+│   ├── 0005-use-vitest-for-testing.md
+│   ├── 0006-agent-scheduler-architecture.md
+│   ├── 0007-performance-monitoring-architecture.md
+│   ├── 0008-websocket-room-system-design.md
+│   └── 0009-react-compiler-adoption-strategy.md
 ├── API-REFERENCE.md             # API 参考
 ├── API-ENDPOINTS.md             # API 端点列表
 ├── REST-API.md                  # REST API 规范
@@ -320,6 +353,41 @@ docs/
 
 ## 🆕 最新更新
 
+### v1.3.0 (2026-03-28) ✅ 已发布
+
+#### 核心成就
+
+- **国际化完整实现** - i18n 技术栈完整，支持 7 种语言
+- **Server Actions 缓存 API** - updateTag(), refresh(), revalidateTag()
+- **国际化 Phase 2 完成** - 日语/韩语/西班牙语 100% 完成
+- **middleware.ts → proxy.ts 迁移** - 名称更好地反映实际用途
+- **图片优化** - 11 个组件 sizes 属性优化
+- **React Compiler 可行性验证** - 可减少 20-40% 不必要的重新渲染
+
+#### 文档更新
+
+- ✅ 更新 README.md - 版本更新到 v1.3.0
+- ✅ 更新 CHANGELOG.md - 完整的 v1.3.0 变更日志
+- ✅ 创建 V140_PLANNING_20260329.md - v1.4.0 规划文档
+
+### v1.4.0 (2026-03-29 开始) 🚀 开发中
+
+#### 核心目标
+
+1. **AI Agent 智能调度系统** - 基于 AGENTS.md 团队架构的智能任务调度
+2. **性能监控升级** - 智能异常检测、根因分析、性能预算控制
+3. **WebSocket 高级功能** - 房间管理、权限控制、消息持久化
+4. **React Compiler 可选功能** - 可选编译模式、兼容性验证
+
+#### Sprint 1 目标 (2026-03-29 ~ 2026-04-04)
+
+- AI Agent 能力模型设计
+- 调度算法核心实现
+- Dashboard 开发
+- 性能监控异常检测启动
+
+---
+
 ### v1.1.0 (2026-03-22)
 
 #### 新增功能
@@ -340,9 +408,9 @@ docs/
 ## 📝 文档维护
 
 - **维护者**: 📚 咨询师 (AI 团队)
-- **最后审查**: 2026-03-22
-- **下次审查**: 2026-04-22
-- **文档版本**: v1.1.0
+- **最后审查**: 2026-03-29
+- **下次审查**: 2026-04-29
+- **文档版本**: v1.3.0
 
 ---
 

@@ -6,6 +6,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import RevenueChart from '../RevenueChart';
+import type { RevenueDataPoint } from '../RevenueChart';
 
 // Mock recharts components
 vi.mock('recharts', () => ({
@@ -23,14 +24,21 @@ vi.mock('recharts', () => ({
   Legend: () => <div data-testid="legend" />,
 }));
 
+// Mock lucide-react icons
+vi.mock('lucide-react', () => ({
+  TrendingUp: ({ className }: { className?: string }) => <div data-testid="trending-up-icon" className={className} />,
+  DollarSign: ({ className }: { className?: string }) => <div data-testid="dollar-sign-icon" className={className} />,
+  Calendar: ({ className }: { className?: string }) => <div data-testid="calendar-icon" className={className} />,
+}));
+
 describe('RevenueChart Component', () => {
-  const mockData = [
-    { month: 'Jan', revenue: 1000 },
-    { month: 'Feb', revenue: 1500 },
-    { month: 'Mar', revenue: 2000 },
-    { month: 'Apr', revenue: 1800 },
-    { month: 'May', revenue: 2200 },
-    { month: 'Jun', revenue: 2500 },
+  const mockData: RevenueDataPoint[] = [
+    { date: 'Jan', revenue: 1000 },
+    { date: 'Feb', revenue: 1500 },
+    { date: 'Mar', revenue: 2000 },
+    { date: 'Apr', revenue: 1800 },
+    { date: 'May', revenue: 2200 },
+    { date: 'Jun', revenue: 2500 },
   ];
 
   beforeEach(() => {
@@ -59,11 +67,16 @@ describe('RevenueChart Component', () => {
   });
 
   it('should render with default title', () => {
-    const { container } = render(<RevenueChart data={mockData} />);
+    render(<RevenueChart data={mockData} />);
 
-    // Check if title is rendered (if component has a title)
-    const title = container.querySelector('h2, h3, .title');
-    // This is optional based on actual component implementation
+    // Component has a default title
+    expect(screen.getByText('Revenue Trend')).toBeInTheDocument();
+  });
+
+  it('should render with custom title', () => {
+    render(<RevenueChart data={mockData} title="My Revenue Chart" />);
+
+    expect(screen.getByText('My Revenue Chart')).toBeInTheDocument();
   });
 
   it('should render chart axes', () => {
@@ -98,7 +111,7 @@ describe('RevenueChart Component', () => {
   });
 
   it('should handle single data point', () => {
-    const singleData = [{ month: 'Jan', revenue: 1000 }];
+    const singleData: RevenueDataPoint[] = [{ date: 'Jan', revenue: 1000 }];
 
     render(<RevenueChart data={singleData} />);
 
@@ -106,13 +119,91 @@ describe('RevenueChart Component', () => {
   });
 
   it('should handle large dataset', () => {
-    const largeData = Array.from({ length: 100 }, (_, i) => ({
-      month: `Month ${i + 1}`,
+    const largeData: RevenueDataPoint[] = Array.from({ length: 100 }, (_, i) => ({
+      date: `Month ${i + 1}`,
       revenue: Math.floor(Math.random() * 10000),
     }));
 
     render(<RevenueChart data={largeData} />);
 
     expect(screen.getByTestId('responsive-container')).toBeInTheDocument();
+  });
+
+  it('should handle zero revenue values', () => {
+    const zeroData: RevenueDataPoint[] = [
+      { date: 'Jan', revenue: 0 },
+      { date: 'Feb', revenue: 0 },
+      { date: 'Mar', revenue: 0 },
+    ];
+
+    render(<RevenueChart data={zeroData} />);
+
+    expect(screen.getByTestId('responsive-container')).toBeInTheDocument();
+  });
+
+  it('should handle high revenue values', () => {
+    const highData: RevenueDataPoint[] = [
+      { date: 'Jan', revenue: 999999 },
+      { date: 'Feb', revenue: 1000000 },
+      { date: 'Mar', revenue: 1234567 },
+    ];
+
+    render(<RevenueChart data={highData} />);
+
+    expect(screen.getByTestId('responsive-container')).toBeInTheDocument();
+  });
+
+  it('should render with custom color', () => {
+    render(<RevenueChart data={mockData} color="#ff0000" />);
+
+    expect(screen.getByTestId('responsive-container')).toBeInTheDocument();
+  });
+
+  it('should render with custom height', () => {
+    render(<RevenueChart data={mockData} height={500} />);
+
+    expect(screen.getByTestId('responsive-container')).toBeInTheDocument();
+  });
+
+  it('should render with custom subtitle', () => {
+    render(<RevenueChart data={mockData} subtitle="Monthly revenue data" />);
+
+    expect(screen.getByText('Monthly revenue data')).toBeInTheDocument();
+  });
+
+  it('should render with showTarget enabled', () => {
+    const dataWithTarget: RevenueDataPoint[] = [
+      { date: 'Jan', revenue: 1000, target: 1200 },
+      { date: 'Feb', revenue: 1500, target: 1500 },
+      { date: 'Mar', revenue: 2000, target: 1800 },
+    ];
+
+    render(<RevenueChart data={dataWithTarget} showTarget={true} />);
+
+    expect(screen.getByTestId('responsive-container')).toBeInTheDocument();
+  });
+
+  it('should render with showProfit enabled', () => {
+    const dataWithProfit: RevenueDataPoint[] = [
+      { date: 'Jan', revenue: 1000, profit: 500 },
+      { date: 'Feb', revenue: 1500, profit: 750 },
+      { date: 'Mar', revenue: 2000, profit: 1000 },
+    ];
+
+    render(<RevenueChart data={dataWithProfit} showProfit={true} />);
+
+    expect(screen.getByTestId('responsive-container')).toBeInTheDocument();
+  });
+
+  it('should render with custom locale', () => {
+    render(<RevenueChart data={mockData} locale="zh" />);
+
+    expect(screen.getByTestId('responsive-container')).toBeInTheDocument();
+  });
+
+  it('should render with custom className', () => {
+    render(<RevenueChart data={mockData} className="custom-class" />);
+
+    expect(screen.getByTestId('responsive-container').closest('.custom-class')).toBeInTheDocument();
   });
 });

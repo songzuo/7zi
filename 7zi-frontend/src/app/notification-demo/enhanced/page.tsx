@@ -12,8 +12,9 @@
 
 import { useState, useEffect } from 'react';
 import { useNotifications } from '@/hooks/useNotifications';
-import { NotificationCenter } from '@/components/notifications/NotificationCenter';
-import { enhancedNotificationService, NotificationType, NotificationPriority, UserNotificationPreferences } from '@/lib/services/notification-enhanced';
+import NotificationCenter from '@/components/notifications/NotificationCenter';
+import { NotificationType, NotificationPriority } from '@/lib/services/notification';
+import type { UserNotificationPreferences } from '@/lib/services/notification-enhanced';
 import {
   Bell,
   Mail,

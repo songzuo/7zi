@@ -9,7 +9,7 @@
  * 4. 支持部分失败回滚策略
  */
 
-import { getDatabaseAsync, DatabaseConnection } from './index';
+import { getDatabaseAsync, DatabaseConnection } from './connection';
 import { logger } from '../logger';
 
 export interface BatchInsertOptions {

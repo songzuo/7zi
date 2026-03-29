@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from 'vitest';
-import { server } from './mocks/handlers';
+import { server, mockData } from './mocks/handlers';
 
 describe('/api/health - Integration Tests', () => {
   beforeAll(() => {
@@ -252,6 +252,184 @@ describe('/api/health - Integration Tests', () => {
       } else {
         expect(data.data.checks.memory.status).toBe('ok');
       }
+    });
+  });
+
+  describe('GET /api/health/detailed', () => {
+    it('should return 401 without authentication token', async () => {
+      const response = await fetch('http://localhost:3000/api/health/detailed');
+      const data = await response.json();
+
+      expect(response.status).toBe(401);
+      expect(data.success).toBe(false);
+      expect(data.error.type).toBe('UNAUTHORIZED');
+    });
+
+    it('should return 401 with invalid token format', async () => {
+      const response = await fetch('http://localhost:3000/api/health/detailed', {
+        headers: {
+          'Authorization': 'InvalidFormat token',
+        },
+      });
+
+      expect(response.status).toBe(401);
+    });
+
+    it('should return detailed health status with valid token', async () => {
+      const user = mockData.createUser({
+        email: 'healthuser@example.com',
+        password: 'SecurePass123',
+        name: 'Health User',
+      });
+      const token = mockData.generateToken(user.id);
+
+      const response = await fetch('http://localhost:3000/api/health/detailed', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.success).toBe(true);
+      expect(data.data.status).toBe('healthy');
+    });
+
+    it('should return detailed system information', async () => {
+      const user = mockData.createUser({
+        email: 'healthuser2@example.com',
+        password: 'SecurePass123',
+        name: 'Health User 2',
+      });
+      const token = mockData.generateToken(user.id);
+
+      const response = await fetch('http://localhost:3000/api/health/detailed', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.data).toHaveProperty('uptime');
+      expect(data.data).toHaveProperty('version');
+      expect(data.data).toHaveProperty('environment');
+      expect(data.data).toHaveProperty('checks');
+      expect(data.data).toHaveProperty('metrics');
+    });
+
+    it('should return memory check with detailed information', async () => {
+      const user = mockData.createUser({
+        email: 'healthuser3@example.com',
+        password: 'SecurePass123',
+        name: 'Health User 3',
+      });
+      const token = mockData.generateToken(user.id);
+
+      const response = await fetch('http://localhost:3000/api/health/detailed', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.data.checks.memory).toHaveProperty('status');
+      expect(data.data.checks.memory).toHaveProperty('used');
+      expect(data.data.checks.memory).toHaveProperty('total');
+      expect(data.data.checks.memory).toHaveProperty('limit');
+      expect(data.data.checks.memory).toHaveProperty('rss');
+      expect(data.data.checks.memory.status).toMatch(/^(ok|warning)$/);
+    });
+
+    it('should return CPU check with user and system times', async () => {
+      const user = mockData.createUser({
+        email: 'healthuser4@example.com',
+        password: 'SecurePass123',
+        name: 'Health User 4',
+      });
+      const token = mockData.generateToken(user.id);
+
+      const response = await fetch('http://localhost:3000/api/health/detailed', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.data.checks.cpu).toHaveProperty('status');
+      expect(data.data.checks.cpu).toHaveProperty('user');
+      expect(data.data.checks.cpu).toHaveProperty('system');
+      expect(data.data.checks.cpu.status).toBe('ok');
+    });
+
+    it('should return Node.js system information', async () => {
+      const user = mockData.createUser({
+        email: 'healthuser5@example.com',
+        password: 'SecurePass123',
+        name: 'Health User 5',
+      });
+      const token = mockData.generateToken(user.id);
+
+      const response = await fetch('http://localhost:3000/api/health/detailed', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.data.checks.node).toHaveProperty('status');
+      expect(data.data.checks.node).toHaveProperty('version');
+      expect(data.data.checks.node).toHaveProperty('platform');
+      expect(data.data.checks.node).toHaveProperty('arch');
+      expect(data.data.checks.node.version).toMatch(/^v\d+\.\d+\.\d+/);
+    });
+
+    it('should return database connection information', async () => {
+      const user = mockData.createUser({
+        email: 'healthuser6@example.com',
+        password: 'SecurePass123',
+        name: 'Health User 6',
+      });
+      const token = mockData.generateToken(user.id);
+
+      const response = await fetch('http://localhost:3000/api/health/detailed', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.data.checks.database).toHaveProperty('status');
+      expect(data.data.checks.database).toHaveProperty('connectionPool');
+      expect(data.data.checks.database).toHaveProperty('activeConnections');
+      expect(data.data.checks.database.status).toBe('ok');
+    });
+
+    it('should return metrics with uptime and memory percent', async () => {
+      const user = mockData.createUser({
+        email: 'healthuser7@example.com',
+        password: 'SecurePass123',
+        name: 'Health User 7',
+      });
+      const token = mockData.generateToken(user.id);
+
+      const response = await fetch('http://localhost:3000/api/health/detailed', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.data.metrics).toHaveProperty('uptimeSeconds');
+      expect(data.data.metrics).toHaveProperty('memoryPercent');
+      expect(data.data.metrics.uptimeSeconds).toBeGreaterThanOrEqual(0);
+      expect(data.data.metrics.memoryPercent).toBeGreaterThanOrEqual(0);
+      expect(data.data.metrics.memoryPercent).toBeLessThanOrEqual(100);
     });
   });
 });

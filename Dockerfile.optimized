@@ -1,65 +1,105 @@
 # ============================================
-# 7zi-frontend Dockerfile (Production Optimized)
-# 多阶段构建 + 极致优化 + 安全加固
-# 版本: 2.0
+# 7zi-frontend Dockerfile (最终优化版 v3.0)
+# 基于 Alpine + 多阶段构建 + 层压缩 + 健康检查
 # ============================================
 
 # ============================================
-# Stage 1: 依赖安装（利用 Docker 缓存）
+# Stage 1: Dependencies (依赖安装阶段)
 # ============================================
 FROM node:22-alpine AS deps
 
+# 安装系统依赖（Alpine使用apk）
+RUN apk add --no-cache \
+    sqlite \
+    sqlite-dev \
+    curl \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/cache/apk/*
+
 WORKDIR /app
 
-# 安装系统依赖（Alpine 兼容性）
-RUN apk add --no-cache libc6-compat
-
-# 先复制依赖描述文件（最大化缓存利用）
+# 仅复制依赖描述文件以利用缓存
 COPY package.json package-lock.json* ./
 
-# 安装依赖（包括 devDependencies，构建需要）
-RUN npm ci --legacy-peer-deps && \
+# 安装依赖（使用 npm ci 保证一致性）
+RUN npm ci --legacy-peer-deps --prefer-offline && \
     npm cache clean --force
 
 # ============================================
-# Stage 2: 构建阶段
+# Stage 2: Builder (构建阶段)
 # ============================================
 FROM node:22-alpine AS builder
 
+# 安装构建所需的系统依赖
+# gcompat: glibc 兼容层，用于运行依赖 glibc 的原生模块（如 lightningcss）
+RUN apk add --no-cache \
+    gcompat \
+    sqlite \
+    sqlite-dev \
+    curl \
+    python3 \
+    make \
+    g++
+
 WORKDIR /app
 
-# 从 deps 阶段复制 node_modules
+# 从 deps 复制所有依赖
 COPY --from=deps /app/node_modules ./node_modules
 
 # 复制源代码
 COPY . .
 
-# 构建时环境变量
-ENV NEXT_TELEMETRY_DISABLED=1
-ENV NODE_ENV=production
+# 合并环境变量
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    NEXT_BUILD_ID=1 \
+    NODE_OPTIONS="--max-old-space-size=4096"
 
-# 构建应用
-RUN npm run build
+# 生产构建
+RUN npm run build:webpack && \
+    npm prune --production && \
+    rm -rf .next/cache && \
+    rm -rf node_modules/.cache
 
 # ============================================
-# Stage 3: 生产镜像（Alpine - 标准版）
+# Stage 3: Runner (运行阶段 - 最小化镜像)
 # ============================================
-FROM node:22-alpine AS runner-alpine
+FROM node:22-alpine AS runner
+
+# 镜像元数据
+LABEL maintainer="7zi.studio" \
+      description="7zi-frontend production image (optimized v3.0 - Alpine)" \
+      version="2.0.0" \
+      org.opencontainers.image.title="7zi-frontend" \
+      org.opencontainers.image.description="Next.js production image with Alpine + multi-stage build" \
+      org.opencontainers.image.source="https://github.com/7zi-studio/7zi-frontend"
+
+# 安装运行时依赖并创建用户（合并到一个RUN命令）
+RUN apk add --no-cache \
+    dumb-init \
+    sqlite \
+    curl \
+    && addgroup --system --gid 1001 nodejs \
+    && adduser --system --uid 1001 --ingroup nodejs nextjs \
+    && mkdir -p /app/data /app/logs /app/tmp \
+    && chown -R nextjs:nodejs /app \
+    && echo '#!/bin/sh\nset -e\ncurl -f -s --max-time 5 http://localhost:3000/api/health > /dev/null || exit 1' > /usr/local/bin/healthcheck.sh \
+    && chmod +x /usr/local/bin/healthcheck.sh
 
 WORKDIR /app
 
-# 环境变量
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
+# 合并环境变量
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    PORT=3000 \
+    HOSTNAME="0.0.0.0" \
+    NODE_OPTIONS="--max-old-space-size=512" \
+    TMPDIR=/app/tmp
 
-# 安全：创建非 root 用户
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
-
-# 复制构建产物
-COPY --from=builder /app/public ./public
+# 复制 standalone 构建产物（仅必需文件）
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
@@ -70,33 +110,11 @@ USER nextjs
 EXPOSE 3000
 
 # 健康检查
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})" || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+    CMD /usr/local/bin/healthcheck.sh
+
+# 使用 dumb-init 作为 PID 1
+ENTRYPOINT ["dumb-init", "--"]
 
 # 启动应用
 CMD ["node", "server.js"]
-
-# ============================================
-# Stage 4: 生产镜像（Distroless - 最小化）
-# 最小攻击面，无 shell
-# ============================================
-FROM gcr.io/distroless/nodejs22-debian12:latest AS runner-distroless
-
-WORKDIR /app
-
-# 环境变量
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
-
-# 复制构建产物
-COPY --from=builder --chown=1001:1001 /app/public ./public
-COPY --from=builder --chown=1001:1001 /app/.next/standalone ./
-COPY --from=builder --chown=1001:1001 /app/.next/static ./.next/static
-
-# 暴露端口
-EXPOSE 3000
-
-# 启动应用（distroless 无 shell，直接启动）
-CMD ["server.js"]

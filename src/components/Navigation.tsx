@@ -42,7 +42,7 @@ const NAV_ITEMS: NavItem[] = [
   }
 ];
 
-export const Navigation: React.FC = () => {
+export function Navigation() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const prevPathnameRef = React.useRef(pathname);

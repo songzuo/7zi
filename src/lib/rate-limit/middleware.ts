@@ -213,7 +213,7 @@ class RateLimiter {
       bucket.tokens = Math.min(bucket.capacity, bucket.tokens + refillRate * timePassed);
       bucket.lastRefill = now;
 
-      let allowed = bucket.tokens >= 1;
+      const allowed = bucket.tokens >= 1;
       if (allowed) {
         bucket.tokens -= 1;
       }

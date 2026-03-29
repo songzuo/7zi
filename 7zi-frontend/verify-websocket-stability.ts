@@ -20,7 +20,7 @@ const wsManager = new WebSocketManager({
   autoConnect: false,
 });
 
-let stateChanges: { state: ConnectionState; previous: ConnectionState }[] = [];
+const stateChanges: { state: ConnectionState; previous: ConnectionState }[] = [];
 
 wsManager.onStateChange((state, previous) => {
   stateChanges.push({ state, previous });

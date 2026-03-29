@@ -3,7 +3,7 @@
  * Provides optimized query helpers to avoid N+1 query problems
  */
 
-import { DatabaseConnection } from './index';
+import { DatabaseConnection } from './connection';
 
 /**
  * Database table row types for query results

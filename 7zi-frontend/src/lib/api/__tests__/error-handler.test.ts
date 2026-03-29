@@ -35,12 +35,10 @@ vi.mock('../../logger', () => ({
 describe('API Error Handler', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env.NODE_ENV = 'test';
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
-    delete process.env.NODE_ENV;
   });
 
   describe('ApiError', () => {
@@ -135,25 +133,35 @@ describe('API Error Handler', () => {
     });
 
     it('should include original message in development', async () => {
+      const originalNodeEnv = process.env.NODE_ENV;
       process.env.NODE_ENV = 'development';
 
-      const error = new Error('Detailed error message');
-      const response = createErrorResponse(error);
-      const json = await response.json() as ErrorResponse;
+      try {
+        const error = new Error('Detailed error message');
+        const response = createErrorResponse(error);
+        const json = await response.json() as ErrorResponse;
 
-      expect(json.error.details).toEqual({
-        originalMessage: 'Detailed error message',
-      });
+        expect(json.error.details).toEqual({
+          originalMessage: 'Detailed error message',
+        });
+      } finally {
+        process.env.NODE_ENV = originalNodeEnv;
+      }
     });
 
     it('should not include details in production', async () => {
+      const originalNodeEnv = process.env.NODE_ENV;
       process.env.NODE_ENV = 'production';
 
-      const error = new Error('Detailed error message');
-      const response = createErrorResponse(error);
-      const json = await response.json() as ErrorResponse;
+      try {
+        const error = new Error('Detailed error message');
+        const response = createErrorResponse(error);
+        const json = await response.json() as ErrorResponse;
 
-      expect(json.error.details).toBeUndefined();
+        expect(json.error.details).toBeUndefined();
+      } finally {
+        process.env.NODE_ENV = originalNodeEnv;
+      }
     });
 
     it('should use custom status code when provided', () => {

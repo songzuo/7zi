@@ -10,12 +10,12 @@
  * - System preference detection
  * - Theme persistence in localStorage
  *
- * This hook integrates with SettingsContext for unified state management.
+ * This hook now integrates with preferencesStore (Zustand) for unified state management.
  */
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { Theme } from '@/contexts/SettingsContext';
-import { useSettings } from '@/contexts/SettingsContext';
+import { useCallback, useMemo, useState } from 'react';
+import type { Theme } from '@/stores/preferencesStore';
+import { useTheme as useThemeFromStore } from '@/stores/preferencesStore';
 
 interface UseThemeEnhancedReturn {
   /** Current theme value */
@@ -35,61 +35,44 @@ interface UseThemeEnhancedReturn {
 }
 
 export function useThemeEnhanced(): UseThemeEnhancedReturn {
-  const { settings, setTheme: setSettingsTheme } = useSettings();
+  const { theme, setTheme: setStoreTheme, toggleTheme, isDark } = useThemeFromStore();
   const [systemPrefersDark, setSystemPrefersDark] = useState(false);
 
   // Track system preference changes
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  // Note: The store also listens for system theme changes when theme is 'system'
+  // This hook's state is kept for backward compatibility and direct access
+  if (typeof window !== 'undefined') {
+    useState(() => {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      setSystemPrefersDark(mediaQuery.matches);
 
-    // Initial check
-    setSystemPrefersDark(mediaQuery.matches);
+      const handler = (e: MediaQueryListEvent) => {
+        setSystemPrefersDark(e.matches);
+      };
 
-    // Listen for changes
-    const handler = (e: MediaQueryListEvent) => {
-      setSystemPrefersDark(e.matches);
-    };
-
-    mediaQuery.addEventListener('change', handler);
-    return () => mediaQuery.removeEventListener('change', handler);
-  }, []);
-
-  // Computed isDark state
-  const isDark = useMemo(() => {
-    if (settings.theme === 'system') {
-      return systemPrefersDark;
-    }
-    return settings.theme === 'dark';
-  }, [settings.theme, systemPrefersDark]);
-
-  // Set theme
-  const setTheme = useCallback((theme: Theme) => {
-    setSettingsTheme(theme);
-  }, [setSettingsTheme]);
-
-  // Toggle between light and dark
-  const toggleTheme = useCallback(() => {
-    setSettingsTheme(isDark ? 'light' : 'dark');
-  }, [isDark, setSettingsTheme]);
+      mediaQuery.addEventListener('change', handler);
+      return () => mediaQuery.removeEventListener('change', handler);
+    });
+  }
 
   // Cycle through themes
   const cycleTheme = useCallback(() => {
     const themes: Theme[] = ['light', 'dark', 'system'];
-    const currentIndex = themes.indexOf(settings.theme);
+    const currentIndex = themes.indexOf(theme);
     const nextIndex = (currentIndex + 1) % themes.length;
-    setSettingsTheme(themes[nextIndex]);
-  }, [settings.theme, setSettingsTheme]);
+    setStoreTheme(themes[nextIndex]);
+  }, [theme, setStoreTheme]);
 
   // Reset to system
   const resetTheme = useCallback(() => {
-    setSettingsTheme('system');
-  }, [setSettingsTheme]);
+    setStoreTheme('system');
+  }, [setStoreTheme]);
 
   return {
-    theme: settings.theme,
+    theme,
     isDark,
     systemPrefersDark,
-    setTheme,
+    setTheme: setStoreTheme,
     toggleTheme,
     cycleTheme,
     resetTheme,

@@ -1,0 +1,329 @@
+name: Dependency Updates
+
+on:
+  schedule:
+    # 每周一 UTC 0:00 检查依赖更新
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20.x'
+
+jobs:
+  # ============================================
+  # 检查依赖更新
+  # ============================================
+  check-updates:
+    name: 🔍 Check Updates
+    runs-on: ubuntu-latest
+    outputs:
+      has-major: ${{ steps.check-major.outputs.has-updates }}
+      has-minor: ${{ steps.check-minor.outputs.has-updates }}
+      has-patch: ${{ steps.check-patch.outputs.has-updates }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check for major updates
+        id: check-major
+        run: |
+          UPDATES=$(npm outdated --json | jq -r '[.[] | select(.current and .latest and (.latest | split(".")[0] | tonumber) > (.current | split(".")[0] | tonumber))] | length')
+          echo "has-updates=$([ "$UPDATES" -gt 0 ] && echo "true" || echo "false")" >> $GITHUB_OUTPUT
+          echo "Major updates: $UPDATES"
+
+      - name: Check for minor updates
+        id: check-minor
+        run: |
+          UPDATES=$(npm outdated --json | jq -r '[.[] | select(.current and .latest and (.latest | split(".")[1] | tonumber) > (.current | split(".")[1] | tonumber))] | length')
+          echo "has-updates=$([ "$UPDATES" -gt 0 ] && echo "true" || echo "false")" >> $GITHUB_OUTPUT
+          echo "Minor updates: $UPDATES"
+
+      - name: Check for patch updates
+        id: check-patch
+        run: |
+          UPDATES=$(npm outdated --json | jq -r '[.[] | select(.current and .latest and (.latest | split(".")[2] | tonumber) > (.current | split(".")[2] | tonumber))] | length')
+          echo "has-updates=$([ "$UPDATES" -gt 0 ] && echo "true" || echo "false")" >> $GITHUB_OUTPUT
+          echo "Patch updates: $UPDATES"
+
+  # ============================================
+  # 创建 PR 更新 Patch 版本
+  # ============================================
+  update-patch:
+    name: 📌 Update Patch Versions
+    runs-on: ubuntu-latest
+    if: needs.check-updates.outputs.has-patch == 'true'
+    needs: check-updates
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Create update branch
+        run: |
+          BRANCH_NAME="deps/update-patch-$(date +'%Y%m%d')"
+          git checkout -b "$BRANCH_NAME"
+
+      - name: Update patch dependencies
+        run: |
+          npm update
+          npm install
+
+      - name: Run tests
+        run: npm run test:ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Commit changes
+        run: |
+          git add package.json package-lock.json
+          git commit -m "chore: update patch dependencies"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: deps/update-patch-$(date +'%Y%m%d')
+          title: 'chore: update patch dependencies'
+          body: |
+            Automated patch dependency updates.
+
+            All tests passed successfully.
+          labels: dependencies, patch
+          reviewers: ${{ github.repository_owner }}
+
+  # ============================================
+  # 创建 PR 更新 Minor 版本
+  # ============================================
+  update-minor:
+    name: 📌 Update Minor Versions
+    runs-on: ubuntu-latest
+    if: needs.check-updates.outputs.has-minor == 'true'
+    needs: check-updates
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Create update branch
+        run: |
+          BRANCH_NAME="deps/update-minor-$(date +'%Y%m%d')"
+          git checkout -b "$BRANCH_NAME"
+
+      - name: Update minor dependencies
+        run: |
+          # Use npm-check-updates for minor updates
+          npx npm-check-updates -t minor -u
+          npm install
+
+      - name: Run tests
+        run: npm run test:ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Commit changes
+        run: |
+          git add package.json package-lock.json
+          git commit -m "chore: update minor dependencies"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: deps/update-minor-$(date +'%Y%m%d')
+          title: 'chore: update minor dependencies'
+          body: |
+            Automated minor dependency updates.
+
+            **Please review carefully** as minor updates may introduce breaking changes.
+
+            All tests passed successfully.
+          labels: dependencies, minor
+          reviewers: ${{ github.repository_owner }}
+
+  # ============================================
+  # 创建 PR 更新 Major 版本 (手动审核)
+  # ============================================
+  update-major:
+    name: 📌 Update Major Versions
+    runs-on: ubuntu-latest
+    if: needs.check-updates.outputs.has-major == 'true'
+    needs: check-updates
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Create update branch
+        run: |
+          BRANCH_NAME="deps/update-major-$(date +'%Y%m%d')"
+          git checkout -b "$BRANCH_NAME"
+
+      - name: Check major updates
+        id: check
+        run: |
+          npm outdated --json > outdated.json
+          UPDATES=$(jq -r '[.[] | select(.current and .latest and (.latest | split(".")[0] | tonumber) > (.current | split(".")[0] | tonumber))] | map("\(.name): \(.current) -> \(.latest)") | join("\n")' outdated.json)
+          echo "updates<<EOF" >> $GITHUB_OUTPUT
+          echo "$UPDATES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Update major dependencies
+        run: |
+          npx npm-check-updates -t major -u
+          npm install || true
+
+      - name: Run tests
+        run: npm run test:ci || true
+
+      - name: Build project
+        run: npm run build || true
+
+      - name: Commit changes
+        run: |
+          git add package.json package-lock.json
+          git commit -m "chore: update major dependencies" || exit 0
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: deps/update-major-$(date +'%Y%m%d')
+          title: '⚠️ chore: update major dependencies [REVIEW REQUIRED]'
+          body: |
+            Automated major dependency updates.
+
+            **⚠️ MAJOR VERSIONS UPDATED:**
+
+            ${{ steps.check.outputs.updates }}
+
+            **Please review carefully** as major updates WILL introduce breaking changes.
+
+            Tests status: Please check CI results.
+          labels: dependencies, major, review-required
+          reviewers: ${{ github.repository_owner }}
+          draft: true
+
+  # ============================================
+  # 生成依赖报告
+  # ============================================
+  dependency-report:
+    name: 📊 Dependency Report
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [check-updates, update-patch, update-minor, update-major]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate dependency report
+        run: |
+          npm outdated --json > outdated.json || true
+          npm audit --json > audit.json || true
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-reports
+          path: |
+            outdated.json
+            audit.json
+          retention-days: 30
+
+      - name: Comment on issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            let body = '## 📦 Dependency Update Report\n\n';
+            body += `**Date:** ${new Date().toISOString()}\n\n`;
+
+            if (fs.existsSync('outdated.json')) {
+              const outdated = JSON.parse(fs.readFileSync('outdated.json', 'utf8'));
+              if (Object.keys(outdated).length > 0) {
+                body += '### 📌 Outdated Packages\n\n';
+                body += '| Package | Current | Latest | Type |\n';
+                body += '|---------|---------|--------|------|\n';
+                Object.entries(outdated).forEach(([pkg, info]) => {
+                  body += `| ${pkg} | ${info.current} | ${info.latest} | ${info.type} |\n`;
+                });
+              } else {
+                body += '✅ All packages are up to date!\n\n';
+              }
+            }
+
+            if (fs.existsSync('audit.json')) {
+              const audit = JSON.parse(fs.readFileSync('audit.json', 'utf8'));
+              if (audit.vulnerabilities) {
+                const vulnCount = Object.keys(audit.vulnerabilities).length;
+                if (vulnCount > 0) {
+                  body += `\n### 🔒 Vulnerabilities Found\n\n`;
+                  body += `Total: ${vulnCount}\n\n`;
+                }
+              }
+            }
+
+            // Update or create issue
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `📊 Dependency Report - ${new Date().toISOString().split('T')[0]}`,
+              body: body,
+              labels: ['dependencies', 'report']
+            });

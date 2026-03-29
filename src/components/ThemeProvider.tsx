@@ -3,18 +3,18 @@
 /**
  * ThemeProvider - Backward Compatibility Layer
  * 
- * This component now delegates to SettingsProvider for unified state management.
- * The theme functionality is fully integrated into SettingsContext.
+ * This component now delegates to Zustand preferencesStore for unified state management.
+ * Zustand stores don't require providers, so this is now a pass-through component.
  * 
- * @deprecated Use SettingsProvider from '@/contexts/SettingsContext' instead
- * @see SettingsContext for the new unified context
+ * @deprecated Use preferencesStore hooks directly: useTheme, useSettings from '@/stores'
+ * @see preferencesStore for the new unified state management
  */
 
-import { SettingsProvider, useTheme } from '@/contexts/SettingsContext';
-import type { Theme } from '@/contexts/SettingsContext';
+import { useTheme as useThemeFromStore } from '@/stores/preferencesStore';
+import type { Theme } from '@/stores/preferencesStore';
 
 // Re-export useTheme for backward compatibility
-export { useTheme };
+export const useTheme = useThemeFromStore;
 
 // Re-export Theme type
 export type { Theme };
@@ -22,20 +22,18 @@ export type { Theme };
 interface ThemeProviderProps {
   children: React.ReactNode;
   defaultTheme?: Theme;
-  storageKey?: string; // Kept for API compatibility, but ignored
+  storageKey?: string; // Kept for API compatibility, but ignored (Zustand handles persistence)
 }
 
 /**
- * @deprecated Use SettingsProvider directly instead
+ * @deprecated Zustand stores don't require providers.
+ * Simply use useTheme() hook directly in components.
  */
 export function ThemeProvider({ 
   children, 
-  defaultTheme = 'system',
+  defaultTheme: _defaultTheme = 'system',
   storageKey: _storageKey, // eslint-disable-line @typescript-eslint/no-unused-vars
 }: ThemeProviderProps) {
-  return (
-    <SettingsProvider defaultSettings={{ theme: defaultTheme }}>
-      {children}
-    </SettingsProvider>
-  );
+  // Zustand doesn't need a provider - just render children
+  return <>{children}</>;
 }

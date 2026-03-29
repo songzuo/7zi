@@ -10,7 +10,7 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import { useGlobalLoading } from '@/hooks/useGlobalLoading';
+import { useUIStore } from '@/stores/uiStore';
 import { LoadingSpinner } from './LoadingSpinner';
 import { cn } from '@/lib/utils';
 
@@ -45,7 +45,7 @@ interface GlobalLoaderProps {
  * GlobalLoader component - displays full-screen loading overlay
  *
  * @example
- * // Basic usage (auto-controlled by useGlobalLoading)
+ * // Basic usage (auto-controlled by uiStore)
  * <GlobalLoader />
  *
  * @example
@@ -61,7 +61,7 @@ interface GlobalLoaderProps {
  * // Inline variant for embedded loading
  * <GlobalLoader variant="inline" />
  */
-export const GlobalLoader: React.FC<GlobalLoaderProps> = ({
+export function GlobalLoader({
   variant = 'overlay',
   showProgress = false,
   backdrop = 'bg-black/50 dark:bg-white/50',
@@ -70,8 +70,9 @@ export const GlobalLoader: React.FC<GlobalLoaderProps> = ({
   spinnerColor = 'primary',
   minDisplayTime = 300,
   className,
-}) => {
-  const { state } = useGlobalLoading();
+}: GlobalLoaderProps) {
+  const globalLoading = useUIStore((state) => state.globalLoading);
+  const loadingMessage = useUIStore((state) => state.loadingMessage);
 
   // Prevent flickering by enforcing minimum display time
   const [visible, setVisible] = React.useState(false);
@@ -85,14 +86,14 @@ export const GlobalLoader: React.FC<GlobalLoaderProps> = ({
   }, []);
 
   useEffect(() => {
-    if (state.isLoading && !visible) {
+    if (globalLoading && !visible) {
       requestAnimationFrame(() => {
         if (isMountedRef.current) {
           setStartTime(Date.now());
           setVisible(true);
         }
       });
-    } else if (!state.isLoading && visible) {
+    } else if (!globalLoading && visible) {
       const elapsed = Date.now() - startTime;
       const remaining = Math.max(0, minDisplayTime - elapsed);
 
@@ -111,9 +112,9 @@ export const GlobalLoader: React.FC<GlobalLoaderProps> = ({
         });
       }
     }
-  }, [state.isLoading, visible, startTime, minDisplayTime]);
+  }, [globalLoading, visible, startTime, minDisplayTime]);
 
-  if (!visible || !state.isLoading) {
+  if (!visible || !globalLoading) {
     return null;
   }
 
@@ -129,7 +130,7 @@ export const GlobalLoader: React.FC<GlobalLoaderProps> = ({
           className
         )}
         role="status"
-        aria-label={state.message || 'Loading...'}
+        aria-label={loadingMessage || 'Loading...'}
         aria-busy="true"
       >
         <div className="flex flex-col items-center gap-6 p-8 bg-white/90 dark:bg-zinc-900/90 rounded-2xl shadow-2xl">
@@ -138,22 +139,19 @@ export const GlobalLoader: React.FC<GlobalLoaderProps> = ({
             size="xl"
             color={spinnerColor}
           />
-          {state.message && (
+          {loadingMessage && (
             <p className="text-lg font-medium text-zinc-900 dark:text-zinc-100 animate-pulse">
-              {state.message}
+              {loadingMessage}
             </p>
           )}
-          {showProgress && state.progress > 0 && (
+          {showProgress && (
             <div className="w-full max-w-xs">
               <div className="h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-300 ease-out"
-                  style={{ width: `${state.progress}%` }}
+                  style={{ width: `50%` }}
                 />
               </div>
-              <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400 text-center">
-                {Math.round(state.progress)}%
-              </p>
             </div>
           )}
         </div>
@@ -173,7 +171,7 @@ export const GlobalLoader: React.FC<GlobalLoaderProps> = ({
           className
         )}
         role="status"
-        aria-label={state.message || 'Loading...'}
+        aria-label={loadingMessage || 'Loading...'}
         aria-busy="true"
       >
         <LoadingSpinner
@@ -183,14 +181,14 @@ export const GlobalLoader: React.FC<GlobalLoaderProps> = ({
         />
         <div className="flex-1">
           <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-            {state.message || 'Loading...'}
+            {loadingMessage || 'Loading...'}
           </p>
-          {showProgress && state.progress > 0 && (
+          {showProgress && (
             <div className="mt-2">
               <div className="h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-blue-600 transition-all duration-300 ease-out"
-                  style={{ width: `${state.progress}%` }}
+                  style={{ width: `50%` }}
                 />
               </div>
             </div>
@@ -208,7 +206,7 @@ export const GlobalLoader: React.FC<GlobalLoaderProps> = ({
         className
       )}
       role="status"
-      aria-label={state.message || 'Loading...'}
+      aria-label={loadingMessage || 'Loading...'}
       aria-busy="true"
     >
       <LoadingSpinner
@@ -216,14 +214,9 @@ export const GlobalLoader: React.FC<GlobalLoaderProps> = ({
         size="lg"
         color={spinnerColor}
       />
-      {state.message && (
+      {loadingMessage && (
         <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-          {state.message}
-        </p>
-      )}
-      {showProgress && state.progress > 0 && (
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">
-          {Math.round(state.progress)}%
+          {loadingMessage}
         </p>
       )}
     </div>
@@ -233,9 +226,9 @@ export const GlobalLoader: React.FC<GlobalLoaderProps> = ({
 /**
  * Minimal loader - compact version without backdrop
  */
-export const MinimalLoader: React.FC<{ message?: string }> = ({ message }) => (
-  <GlobalLoader variant="minimal" className={message ? '' : 'sr-only'} />
-);
+export function MinimalLoader({ message }: { message?: string }) {
+  return <GlobalLoader variant="minimal" className={message ? '' : 'sr-only'} />;
+}
 
 /**
  * Default export

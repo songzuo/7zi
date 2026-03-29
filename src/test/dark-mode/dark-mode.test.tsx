@@ -7,7 +7,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { SettingsProvider, useSettings } from '@/contexts/SettingsContext';
 import { useThemeEnhanced } from '@/hooks/useThemeEnhanced';
 import { ThemeSelector } from '@/components/ui/ThemeSelector';
 
@@ -17,27 +16,53 @@ const localStorageMock = {
   setItem: vi.fn(),
   removeItem: vi.fn(),
   clear: vi.fn(),
+  length: 0,
+  key: vi.fn(),
+};
+Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+
+// Mock matchMedia
+const mockMatchMedia = vi.fn().mockImplementation((query: string) => ({
+  matches: false,
+  media: query,
+  onchange: null,
+  addListener: vi.fn(),
+  removeListener: vi.fn(),
+  addEventListener: vi.fn(),
+  removeEventListener: vi.fn(),
+  dispatchEvent: vi.fn(),
+}));
+Object.defineProperty(window, 'matchMedia', { value: mockMatchMedia });
+
+// Mock SettingsProvider - simple wrapper for testing
+const SettingsProvider = ({ children }: { children: React.ReactNode }) => {
+  return <>{children}</>;
 };
 
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock,
-});
-
-// Mock window.matchMedia
-const mockMatchMedia = vi.fn();
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: (query: string) => ({
-    matches: query.includes('dark'),
-    media: query,
-    onchange: null,
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  }),
-});
+// Mock Zustand stores
+vi.mock('@/stores/preferencesStore', () => ({
+  usePreferencesStore: vi.fn(() => ({
+    settings: { theme: 'system', language: 'zh', notifications: { enabled: true, sound: true, email: false, push: true } },
+    isLoaded: false,
+    isDark: false,
+    setTheme: vi.fn(),
+    toggleTheme: vi.fn(),
+    setLanguage: vi.fn(),
+    setNotifications: vi.fn(),
+    resetSettings: vi.fn(),
+    syncThemeToDOM: vi.fn(),
+  })),
+  useTheme: vi.fn(() => ({
+    theme: 'system',
+    setTheme: vi.fn(),
+    toggleTheme: vi.fn(),
+    isDark: false,
+  })),
+  useLanguage: vi.fn(() => ({
+    language: 'zh',
+    setLanguage: vi.fn(),
+  })),
+}));
 
 // Test helper component
 function TestComponent() {

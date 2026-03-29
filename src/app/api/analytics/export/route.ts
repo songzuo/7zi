@@ -57,7 +57,10 @@ async function convertToExcel(
   sheetName = 'Analytics Data'
 ): Promise<Buffer> {
   // Dynamic import of ExcelJS to reduce initial bundle size (~500KB)
-  const ExcelJS = (await import('exceljs')).default;
+  const ExcelJS = (await import(
+    /* webpackChunkName: "exceljs" */
+    'exceljs'
+  )).default;
 
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet(sheetName);

@@ -1,0 +1,104 @@
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+yarn.lock
+.pnpm-debug.log*
+.pnpm-store
+
+# Next.js
+.next
+out
+.turbo
+*.tsbuildinfo
+
+# Testing
+coverage
+*.lcov
+.nyc_output
+test-results
+playwright-report
+playwright/.cache
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+vitest.config.ts
+playwright.config.ts
+
+# Docs
+*.md
+!README.md
+!CHANGELOG.md
+
+# Misc
+.DS_Store
+*.pem
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.example
+*.log
+
+# Git
+.git
+.gitignore
+.github
+
+# CI/CD
+.github
+
+# Docker
+Dockerfile*
+docker-compose.yml
+.dockerignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.eslintrc
+.prettierrc
+.storybook/
+
+# Logs
+logs/
+
+# Database
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Cache
+.cache
+
+# Build reports
+CODE-OPTIMIZATION-REPORT.md
+DARK_MODE_IMPLEMENTATION_REPORT.md
+DESIGN_SYSTEM_COMPLETION_REPORT.md
+E2E_IMPLEMENTATION_REPORT.md
+E2E_TEST_COMPLETION_REPORT.md
+E2E_TEST_SUMMARY.md
+ERROR_HANDLING_FIXES.md
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Build artifacts
+dist
+build
+
+# Documentation (optional)
+docs
+*.md
+!README.md

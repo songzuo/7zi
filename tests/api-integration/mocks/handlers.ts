@@ -380,6 +380,64 @@ export const healthHandlers = [
       },
     }, { status: 200 });
   }),
+
+  // Detailed health check (requires authentication)
+  http.get('http://localhost:3000/api/health/detailed', async ({ request }: { request: Request }) => {
+    const authHeader = request.headers.get('authorization');
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return HttpResponse.json({
+        success: false,
+        error: {
+          type: 'UNAUTHORIZED',
+          message: 'Unauthorized',
+        },
+      }, { status: 401 });
+    }
+
+    const memoryUsage = process.memoryUsage();
+    const cpuUsage = process.cpuUsage();
+
+    return HttpResponse.json({
+      success: true,
+      data: {
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        version: '1.0.5',
+        environment: 'test',
+        checks: {
+          memory: {
+            status: memoryUsage.heapUsed / 1024 / 1024 > 460 ? 'warning' : 'ok',
+            used: Math.round(memoryUsage.heapUsed / 1024 / 1024),
+            total: Math.round(memoryUsage.heapTotal / 1024 / 1024),
+            limit: 512,
+            rss: Math.round(memoryUsage.rss / 1024 / 1024),
+          },
+          cpu: {
+            status: 'ok',
+            user: cpuUsage.user,
+            system: cpuUsage.system,
+          },
+          node: {
+            status: 'ok',
+            version: process.version,
+            platform: process.platform,
+            arch: process.arch,
+          },
+          database: {
+            status: 'ok',
+            connectionPool: 5,
+            activeConnections: 2,
+          },
+        },
+        metrics: {
+          uptimeSeconds: Math.floor(process.uptime()),
+          memoryPercent: Math.round((memoryUsage.heapUsed / memoryUsage.heapTotal) * 100),
+        },
+      },
+    }, { status: 200 });
+  }),
 ];
 
 // Feedback endpoints handlers
@@ -1147,6 +1205,394 @@ const performanceHandlers = [
   }),
 ];
 
+// Ratings endpoints handlers
+export const ratingsHandlers = [
+  // GET /api/ratings - List ratings
+  http.get('http://localhost:3000/api/ratings', ({ request }: { request: Request }) => {
+    const url = new URL(request.url);
+    const filters = {
+      user_id: url.searchParams.get('user_id') || undefined,
+      target_type: url.searchParams.get('target_type') || undefined,
+      target_id: url.searchParams.get('target_id') || undefined,
+      rating_min: url.searchParams.get('rating_min')
+        ? parseInt(url.searchParams.get('rating_min')!)
+        : undefined,
+      rating_max: url.searchParams.get('rating_max')
+        ? parseInt(url.searchParams.get('rating_max')!)
+        : undefined,
+      status: url.searchParams.get('status') || undefined,
+      start_date: url.searchParams.get('start_date') || undefined,
+      end_date: url.searchParams.get('end_date') || undefined,
+      sort_by: url.searchParams.get('sort_by') || 'created_at',
+      sort_order: url.searchParams.get('sort_order') || 'desc',
+      page: url.searchParams.get('page') ? parseInt(url.searchParams.get('page')!) : 1,
+      per_page: url.searchParams.get('per_page')
+        ? Math.min(parseInt(url.searchParams.get('per_page')!), 100)
+        : 20,
+    };
+
+    let ratings = Array.from(mockData['ratings']?.values?.() || []);
+
+    // Apply filters
+    if (filters.user_id) {
+      ratings = ratings.filter(r => r.user_id === filters.user_id);
+    }
+    if (filters.target_type) {
+      ratings = ratings.filter(r => r.target_type === filters.target_type);
+    }
+    if (filters.target_id) {
+      ratings = ratings.filter(r => r.target_id === filters.target_id);
+    }
+    if (filters.rating_min) {
+      ratings = ratings.filter(r => r.rating >= filters.rating_min!);
+    }
+    if (filters.rating_max) {
+      ratings = ratings.filter(r => r.rating <= filters.rating_max!);
+    }
+
+    // Sort
+    const sortBy = filters.sort_by;
+    const sortOrder = filters.sort_order;
+    ratings.sort((a: any, b: any) => {
+      let comparison = 0;
+      if (sortBy === 'rating') {
+        comparison = a.rating - b.rating;
+      } else {
+        comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      }
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+
+    // Paginate
+    const total = ratings.length;
+    const offset = (filters.page - 1) * filters.per_page;
+    const paginated = ratings.slice(offset, offset + filters.per_page);
+    const totalPages = Math.ceil(total / filters.per_page);
+
+    return HttpResponse.json({
+      success: true,
+      data: {
+        ratings: paginated.map((r: any) => ({
+          ...r,
+          verified: Boolean(r.verified),
+        })),
+        meta: {
+          total,
+          page: filters.page,
+          per_page: filters.per_page,
+          total_pages: totalPages,
+        },
+        stats: {
+          total,
+          averageRating: ratings.length > 0
+            ? ratings.reduce((sum: number, r: any) => sum + r.rating, 0) / ratings.length
+            : 0,
+        },
+      },
+    }, { status: 200 });
+  }),
+
+  // POST /api/ratings - Create rating
+  http.post('http://localhost:3000/api/ratings', async ({ request }: { request: Request }) => {
+    try {
+      const body = await request.json() as any;
+      const { target_type, target_id, rating, title, description } = body;
+      const userId = request.headers.get('x-user-id') || 'anonymous';
+
+      // Validation
+      if (!target_type || !target_id || !rating) {
+        return HttpResponse.json({
+          success: false,
+          error: {
+            type: 'VALIDATION_ERROR',
+            message: 'target_type, target_id, and rating are required',
+          },
+        }, { status: 400 });
+      }
+
+      if (rating < 1 || rating > 5) {
+        return HttpResponse.json({
+          success: false,
+          error: {
+            type: 'VALIDATION_ERROR',
+            message: 'Rating must be between 1 and 5',
+          },
+        }, { status: 400 });
+      }
+
+      const validTypes = ['agent', 'task', 'feature', 'project', 'overall'];
+      if (!validTypes.includes(target_type)) {
+        return HttpResponse.json({
+          success: false,
+          error: {
+            type: 'VALIDATION_ERROR',
+            message: `Invalid target_type. Must be one of: ${validTypes.join(', ')}`,
+          },
+        }, { status: 400 });
+      }
+
+      // Validate title length
+      if (title && title.length > 100) {
+        return HttpResponse.json({
+          success: false,
+          error: {
+            type: 'VALIDATION_ERROR',
+            message: 'Title must be less than 100 characters',
+          },
+        }, { status: 400 });
+      }
+
+      // Validate description length
+      if (description && description.length > 1000) {
+        return HttpResponse.json({
+          success: false,
+          error: {
+            type: 'VALIDATION_ERROR',
+            message: 'Description must be less than 1000 characters',
+          },
+        }, { status: 400 });
+      }
+
+      // Check if user already rated this target
+      const existingRating = Array.from(mockData['ratings']?.values?.() || []).find(
+        (r: any) => r.user_id === userId && r.target_type === target_type && r.target_id === target_id
+      );
+
+      let resultRating;
+      if (existingRating) {
+        // Update existing
+        resultRating = mockData['updateRating']?.(existingRating.id, {
+          rating,
+          title,
+          description,
+          updated_at: new Date().toISOString(),
+        });
+      } else {
+        // Create new
+        resultRating = mockData['createRating']?.({
+          user_id: userId,
+          target_type,
+          target_id,
+          rating,
+          title,
+          description,
+        });
+      }
+
+      return HttpResponse.json({
+        success: true,
+        data: {
+          ...resultRating,
+          verified: Boolean(resultRating?.verified),
+        },
+      }, { status: existingRating ? 200 : 201 });
+    } catch {
+      return HttpResponse.json({
+        success: false,
+        error: { type: 'VALIDATION_ERROR', message: 'Invalid request' },
+      }, { status: 400 });
+    }
+  }),
+
+  // GET /api/ratings/:id
+  http.get('http://localhost:3000/api/ratings/:id', ({ params }: { params: { id: string } }) => {
+    const rating = mockData['getRatingById']?.(params.id);
+    if (!rating) {
+      return HttpResponse.json({
+        success: false,
+        error: { type: 'NOT_FOUND', message: 'Rating not found' },
+      }, { status: 404 });
+    }
+
+    return HttpResponse.json({
+      success: true,
+      data: {
+        ...rating,
+        verified: Boolean(rating.verified),
+      },
+    }, { status: 200 });
+  }),
+
+  // DELETE /api/ratings/:id
+  http.delete('http://localhost:3000/api/ratings/:id', ({ request, params }: { request: Request; params: { id: string } }) => {
+    const userId = request.headers.get('x-user-id') || 'anonymous';
+    const rating = mockData['getRatingById']?.(params.id);
+
+    if (!rating) {
+      return HttpResponse.json({
+        success: false,
+        error: { type: 'NOT_FOUND', message: 'Rating not found' },
+      }, { status: 404 });
+    }
+
+    if (rating.user_id !== userId && userId !== 'admin') {
+      return HttpResponse.json({
+        success: false,
+        error: { type: 'FORBIDDEN', message: 'You can only delete your own ratings' },
+      }, { status: 403 });
+    }
+
+    mockData['deleteRating']?.(params.id);
+    return HttpResponse.json({
+      success: true,
+      data: { id: params.id, message: 'Rating deleted successfully' },
+    }, { status: 200 });
+  }),
+
+  // POST /api/ratings/:id/helpful
+  http.post('http://localhost:3000/api/ratings/:id/helpful', async ({ request, params }: { request: Request; params: { id: string } }) => {
+    const body = await request.json() as any;
+    const { is_helpful } = body;
+    const userId = request.headers.get('x-user-id') || 'anonymous';
+
+    if (typeof is_helpful !== 'boolean') {
+      return HttpResponse.json({
+        success: false,
+        error: { type: 'VALIDATION_ERROR', message: 'is_helpful must be a boolean' },
+      }, { status: 400 });
+    }
+
+    const rating = mockData['getRatingById']?.(params.id);
+    if (!rating) {
+      return HttpResponse.json({
+        success: false,
+        error: { type: 'NOT_FOUND', message: 'Rating not found' },
+      }, { status: 404 });
+    }
+
+    // Update counts (simplified mock)
+    const updatedRating = mockData['updateRating']?.(params.id, {
+      helpful_count: is_helpful ? (rating.helpful_count || 0) + 1 : rating.helpful_count,
+      not_helpful_count: !is_helpful ? (rating.not_helpful_count || 0) + 1 : rating.not_helpful_count,
+    });
+
+    return HttpResponse.json({
+      success: true,
+      data: {
+        ...updatedRating,
+        verified: Boolean(updatedRating?.verified),
+        user_vote: is_helpful,
+      },
+    }, { status: 200 });
+  }),
+];
+
+// Search endpoints handlers
+export const searchHandlers = [
+  // GET /api/search - Global search
+  http.get('http://localhost:3000/api/search', ({ request }: { request: Request }) => {
+    const url = new URL(request.url);
+    const query = url.searchParams.get('q') || '';
+    const target = (url.searchParams.get('target') || 'all') as 'all' | 'tasks' | 'projects' | 'members';
+    const limit = parseInt(url.searchParams.get('limit') || '50', 10);
+    const offset = parseInt(url.searchParams.get('offset') || '0', 10);
+    const includeHistory = url.searchParams.get('history') === 'true';
+
+    // Collect results from different sources
+    const results: any[] = [];
+    const queryLower = query.toLowerCase();
+
+    // Search tasks
+    if (target === 'all' || target === 'tasks') {
+      const tasks = mockData['getAllTasksFull']?.() || [];
+      tasks.forEach((task: any) => {
+        const taskQuery = `${task.title} ${task.description || ''}`.toLowerCase();
+        if (!query || taskQuery.includes(queryLower)) {
+          results.push({
+            type: 'task',
+            id: task.id,
+            title: task.title,
+            description: task.description,
+            priority: task.priority,
+            status: task.status,
+            createdAt: task.createdAt,
+            updatedAt: task.updatedAt,
+            score: query ? taskQuery.indexOf(queryLower) / taskQuery.length : 1,
+          });
+        }
+      });
+    }
+
+    // Search projects
+    if (target === 'all' || target === 'projects') {
+      const projects = mockData['getAllProjects']?.() || [];
+      projects.forEach((project: any) => {
+        const projectQuery = `${project.name} ${project.description || ''}`.toLowerCase();
+        if (!query || projectQuery.includes(queryLower)) {
+          results.push({
+            type: 'project',
+            id: project.id,
+            name: project.name,
+            description: project.description,
+            ownerId: project.ownerId,
+            status: project.status,
+            createdAt: project.createdAt,
+            updatedAt: project.updatedAt,
+            score: query ? projectQuery.indexOf(queryLower) / projectQuery.length : 1,
+          });
+        }
+      });
+    }
+
+    // Search members
+    if (target === 'all' || target === 'members') {
+      const members = mockData['getAllMembers']?.() || [];
+      const users = mockData['getAllUsers']?.() || [];
+      const allMembers = [...members, ...users.map((u: any) => ({
+        ...u,
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        role: u.role,
+      }))];
+
+      allMembers.forEach((member: any) => {
+        const memberQuery = `${member.name || ''} ${member.email || ''}`.toLowerCase();
+        if (!query || memberQuery.includes(queryLower)) {
+          results.push({
+            type: 'member',
+            id: member.id,
+            name: member.name,
+            email: member.email,
+            role: member.role,
+            status: member.status,
+            createdAt: member.createdAt || member.createdAt,
+            updatedAt: member.updatedAt || member.updatedAt,
+            score: query ? memberQuery.indexOf(queryLower) / memberQuery.length : 1,
+          });
+        }
+      });
+    }
+
+    // Add to history
+    if (query.trim() && results.length > 0) {
+      mockData['addSearchHistory']?.(query, results.length, target);
+    }
+
+    // Build response
+    const response: any = {
+      results: results.slice(offset, offset + limit).map(r => ({ item: r, score: r.score })),
+      total: results.length,
+      page: Math.floor(offset / limit) + 1,
+      pageSize: limit,
+      hasMore: offset + limit < results.length,
+    };
+
+    // Include history if requested
+    if (includeHistory) {
+      response.history = (mockData['getRecentSearchHistory']?.(5) || []).map(h => ({
+        query: h.query,
+        timestamp: h.timestamp,
+      }));
+    }
+
+    return HttpResponse.json({
+      success: true,
+      data: response,
+    }, { status: 200 });
+  }),
+];
+
 // Combine all handlers
 export const handlers = [
   ...authHandlers,
@@ -1155,6 +1601,8 @@ export const handlers = [
   ...taskHandlers,
   ...projectHandlers,
   ...performanceHandlers,
+  ...ratingsHandlers,
+  ...searchHandlers,
 ];
 
 // Create MSW server

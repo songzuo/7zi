@@ -11,11 +11,13 @@ import {
   RequirePermission,
   RequireRoleLevel,
   ResourceType,
+  ActionType,
   PermissionDeniedError,
   Permissions,
   PermissionContext,
   canAccessResource,
-} from '../../lib/permissions';
+} from '@/lib/permissions';
+import { UserRole } from '@/lib/auth';
 import {
   createSuccessResponse,
   createUnauthorizedError,
@@ -23,7 +25,7 @@ import {
   createNotFoundError,
   createErrorResponse,
   ErrorType,
-} from '../../../lib/api/error-handler';
+} from '@/lib/api/error-handler';
 
 /**
  * API 上下文
@@ -43,7 +45,7 @@ const users: Record<string, UserWithRoles> = {
       id: 'user-1',
       username: 'admin',
       email: 'admin@example.com',
-      role: 'admin' as any,
+      role: UserRole.ADMIN,
       permissions: [],
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -55,7 +57,7 @@ const users: Record<string, UserWithRoles> = {
       id: 'user-2',
       username: 'team_leader',
       email: 'team_leader@example.com',
-      role: 'user' as any,
+      role: UserRole.USER,
       permissions: [],
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -67,7 +69,7 @@ const users: Record<string, UserWithRoles> = {
       id: 'user-3',
       username: 'developer',
       email: 'developer@example.com',
-      role: 'user' as any,
+      role: UserRole.USER,
       permissions: [],
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -86,6 +88,11 @@ interface Project {
   ownerId: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+interface ProjectCreateData {
+  name: string;
+  description: string;
 }
 
 const projects: Record<string, Project> = {
@@ -174,7 +181,7 @@ class ProjectController {
   /**
    * 列出所有项目 - 需要 project:read 权限
    */
-  @RequirePermission(ResourceType.PROJECT, 'read')
+  @RequirePermission(ResourceType.PROJECT, ActionType.READ)
   async listProjects(ctx: ApiContext): Promise<NextResponse> {
     const { user } = ctx;
 
@@ -194,14 +201,16 @@ class ProjectController {
   /**
    * 创建新项目 - 需要 project:create 权限
    */
-  @RequirePermission(ResourceType.PROJECT, 'create')
+  @RequirePermission(ResourceType.PROJECT, ActionType.CREATE)
   async createProject(ctx: ApiContext, projectData: unknown): Promise<NextResponse> {
     const { user } = ctx;
 
+    const data = projectData as ProjectCreateData;
+
     const newProject: Project = {
       id: `project-${Date.now()}`,
-      name: (projectData as any).name,
-      description: (projectData as any).description,
+      name: data.name,
+      description: data.description,
       ownerId: user.id,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -245,7 +254,7 @@ class ProjectController {
     }
 
     // 否则检查是否有 project:manage 权限
-    const permissionCheck = canAccessResource(user, ResourceType.PROJECT, 'update', permissionContext);
+    const permissionCheck = canAccessResource(user, ResourceType.PROJECT, ActionType.UPDATE, permissionContext);
 
     if (!permissionCheck.allowed) {
       throw new PermissionDeniedError(
@@ -296,7 +305,7 @@ class ProjectController {
     }
 
     // 否则检查是否有 project:delete 权限
-    const permissionCheck = canAccessResource(user, ResourceType.PROJECT, 'delete', permissionContext);
+    const permissionCheck = canAccessResource(user, ResourceType.PROJECT, ActionType.DELETE, permissionContext);
 
     if (!permissionCheck.allowed) {
       throw new PermissionDeniedError(
@@ -335,7 +344,7 @@ class ProjectController {
   /**
    * 导出项目数据 - 需要 data:export 权限
    */
-  @RequirePermission(ResourceType.DATA, 'export')
+  @RequirePermission(ResourceType.DATA, ActionType.EXPORT)
   async exportProject(ctx: ApiContext, projectId: string): Promise<NextResponse> {
     const { user } = ctx;
 
@@ -372,7 +381,7 @@ class ProjectController {
     }
 
     // 否则检查是否有 project:read 权限
-    const permissionCheck = canAccessResource(user, ResourceType.PROJECT, 'read', permissionContext);
+    const permissionCheck = canAccessResource(user, ResourceType.PROJECT, ActionType.READ, permissionContext);
 
     if (!permissionCheck.allowed) {
       throw new PermissionDeniedError(

@@ -104,18 +104,10 @@ export {
 
 // ============================================
 // React Hooks
+// NOTE: React hooks moved to './hooks/' to avoid circular dependencies
+// Import them from './hooks/' instead:
+// import { usePerformanceMonitor } from '@/lib/monitoring/hooks';
 // ============================================
-export {
-  usePerformanceMonitor,
-  useRenderPerformance,
-  useApiPerformance,
-  useRouteChangePerformance,
-  useMemoryUsage,
-  PerformanceScore,
-  type PerformanceSummary,
-  type UsePerformanceMonitorOptions,
-  type UsePerformanceMonitorReturn,
-} from './use-performance';
 
 // ============================================
 // Prometheus Metrics Exporter

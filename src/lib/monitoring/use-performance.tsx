@@ -15,7 +15,7 @@ import {
   type PerformanceMetric,
   type PerformanceAlert,
   type CustomMetric,
-} from './index';
+} from './performance.monitor';
 import { CUSTOM_METRICS_CONFIG } from './performance.config';
 
 // ============================================

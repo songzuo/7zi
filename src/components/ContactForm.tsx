@@ -311,10 +311,10 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
       <button
         type="submit"
         disabled={isSubmitting}
-        className={`w-full py-4 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-2xl font-semibold text-lg transition-all duration-300 ${
+        className={`w-full py-4 min-h-[56px] bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-2xl font-semibold text-lg transition-all duration-300 touch-active ${
           isSubmitting
             ? "opacity-70 cursor-not-allowed"
-            : "hover:shadow-lg hover:scale-[1.02]"
+            : "hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
         }`}
       >
         {isSubmitting ? (

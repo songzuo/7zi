@@ -1,0 +1,41 @@
+# ============================================
+# 7zi-frontend Development Dockerfile
+# 用于本地开发环境（热重载、调试）
+# ============================================
+
+FROM node:22-alpine
+
+# 安装开发依赖
+RUN apk add --no-cache \
+    libc6-compat \
+    git \
+    curl \
+    bash
+
+WORKDIR /app
+
+# 复制 package 文件
+COPY package.json package-lock.json* ./
+
+# 安装所有依赖（包括 devDependencies）
+RUN npm ci --legacy-peer-deps && npm cache clean --force
+
+# 复制源代码
+COPY . .
+
+# 环境变量
+ENV NODE_ENV=development \
+    NEXT_TELEMETRY_DISABLED=1 \
+    PORT=3000 \
+    HOSTNAME=0.0.0.0
+
+# 暴露端口
+EXPOSE 3000
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:3000/health || exit 1
+
+# 启动开发服务器（支持热重载）
+# 使用 Turbopack 以获得更快的 HMR
+CMD ["npm", "run", "dev:turbo"]

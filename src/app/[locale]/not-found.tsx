@@ -1,14 +1,22 @@
-'use client';
-
-import Link from 'next/link';
-import { useTranslations } from 'next-intl';
-
 /**
  * 404 Not Found 页面 - 国际化版本
  * 当访问不存在的路由时显示
  */
-export default function NotFound() {
-  const t = useTranslations('errors.notFound');
+import Link from 'next/link';
+import { setRequestLocale, getTranslations } from 'next-intl/server';
+import { Locale, locales, defaultLocale } from '@/i18n/config';
+
+type Params = Promise<{ locale: string }>;
+
+export default async function NotFound({ params }: { params: Params }) {
+  const { locale } = await params;
+
+  // Use default locale if invalid
+  const validLocale = locales.includes(locale as Locale) ? locale : defaultLocale;
+
+  setRequestLocale(validLocale);
+
+  const t = await getTranslations({ locale: validLocale, namespace: 'errors.notFound' });
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-zinc-950 dark:to-zinc-900 px-4">
@@ -95,3 +103,6 @@ export default function NotFound() {
     </div>
   );
 }
+
+// Force this page to be dynamic
+export const dynamic = 'force-dynamic';

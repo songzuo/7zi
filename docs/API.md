@@ -1091,6 +1091,83 @@ X-RateLimit-Reset: 1647984000
 - **静态资源**: 1 年（带版本控制）
 - **ISR 缓存**: 根据页面类型（1 小时 - 30 天）
 
+### Server Actions 缓存 API (v1.3.0 新增)
+
+#### updateTag() - Read-Your-Writes 语义
+确保用户立即看到自己的更新，提供强一致性保证。
+
+```typescript
+import { updateTag } from 'next/cache';
+
+// 用户提交更新后立即失效缓存
+await updateUser(userId, data);
+updateTag('user-data'); // 立即生效，用户看到最新数据
+```
+
+**适用场景**:
+- 用户创建/更新内容后需要立即看到变化
+- 关键业务操作需要强一致性
+
+#### refresh() - 仅刷新未缓存数据
+选择性刷新，仅对未缓存的数据发起请求，提高效率。
+
+```typescript
+import { refresh } from 'next/cache';
+
+// 仅刷新未缓存的数据
+await refresh('user-posts'); // 跳过已缓存的数据
+```
+
+**适用场景**:
+- 定期同步数据
+- 低优先级数据更新
+- 减少 API 调用压力
+
+#### revalidateTag() - 新 cacheLife profile 参数
+使用 `cacheLife` profile 进行细粒度的缓存控制。
+
+```typescript
+import { unstable_cacheLife as cacheLife } from 'next/cache';
+import { revalidateTag } from 'next/cache';
+
+// 定义缓存生命周期配置
+const getUserData = unstable_cache(
+  async (userId: string) => {
+    return await db.query('SELECT * FROM users WHERE id = ?', [userId]);
+  },
+  ['user-data'],
+  {
+    tags: ['user-data'],
+    revalidate: cacheLife({
+      stale: 3600,      // 1 小时后数据过期
+      revalidate: 1800, // 30 分钟后后台重新验证
+    })
+  }
+);
+
+// 手动触发重新验证
+revalidateTag('user-data');
+```
+
+**cacheLife 参数说明**:
+- `stale` (秒): 数据被视为过期的时长
+- `revalidate` (秒): 后台重新验证的间隔
+
+### middleware.ts → proxy.ts 迁移 (v1.3.0)
+
+**变更说明**:
+- `src/middleware.ts` 重命名为 `src/proxy.ts`
+- 导出函数从 `middleware` 改为 `proxy`
+- 功能保持不变，仅名称变更以更好地反映实际用途
+
+```typescript
+// 新的 proxy.ts
+export function proxy(request: NextRequest) {
+  // 请求拦截和代理逻辑
+  // ...
+}
+```
+
 ---
 
 ## 🔗 相关文档
