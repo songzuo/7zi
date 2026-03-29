@@ -2,7 +2,7 @@
 
 **项目**: 7zi Frontend
 **日期**: 2026-03-28
-**技术栈**: Next.js 16.2.1, React 18.2.0, TypeScript
+**技术栈**: Next.js 16.2.1, React 19.2.4, TypeScript
 **文档版本**: 1.0
 
 ---

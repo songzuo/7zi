@@ -14,7 +14,7 @@
 **初始状态**:
 - ❌ `babel-plugin-react-compiler` 未安装
 - ❌ `next.config.ts` 未配置 React Compiler
-- ✅ 项目使用 Next.js 16.2.1 + React 18.2.0（支持 React Compiler）
+- ✅ 项目使用 Next.js 16.2.1 + React 19.2.4（支持 React Compiler）
 
 ### 2. 安装和配置
 
