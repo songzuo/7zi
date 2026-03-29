@@ -18,6 +18,9 @@ import {
   DEFAULT_CONFIG
 } from './types';
 
+// Re-export types for external use
+export type { DatabaseQuery } from './types';
+
 // ============================================================================
 // Database Tracker Class
 // ============================================================================
