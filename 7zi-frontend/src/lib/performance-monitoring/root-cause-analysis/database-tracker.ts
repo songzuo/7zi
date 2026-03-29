@@ -378,6 +378,38 @@ export class DatabaseTracker {
       config: this.config,
     };
   }
+
+  /**
+   * Analyze database queries and return analysis results
+   * 分析数据库查询并返回分析结果
+   */
+  analyze(): DatabaseAnalysis {
+    const slowestQueries = this.getSlowestQueries(10);
+    const issues = this.identifyQueryIssues(this.slowQueries);
+    const queriesByType = this.getQueriesByType();
+    const queriesByTable = this.getQueriesByTable();
+
+    const stats: Record<string, QueryStats> = {};
+    this.queryStats.forEach((value, key) => {
+      stats[key] = value;
+    });
+
+    return {
+      slowQueries: this.slowQueries,
+      topSlowQueries: slowestQueries,
+      issues,
+      queryStats: stats,
+      queriesByType,
+      queriesByTable,
+      totalQueries: this.slowQueries.length,
+      avgDuration: this.slowQueries.length > 0
+        ? this.slowQueries.reduce((sum, q) => sum + q.duration, 0) / this.slowQueries.length
+        : 0,
+      maxDuration: this.slowQueries.length > 0
+        ? Math.max(...this.slowQueries.map(q => q.duration))
+        : 0,
+    };
+  }
 }
 
 export interface QueryStats {
@@ -386,6 +418,18 @@ export interface QueryStats {
   maxDuration: number;
   totalRows: number;
   avgDuration: number;
+}
+
+export interface DatabaseAnalysis {
+  slowQueries: SlowQuery[];
+  topSlowQueries: SlowQuery[];
+  issues: QueryIssue[];
+  queryStats: Record<string, QueryStats>;
+  queriesByType: Record<string, number>;
+  queriesByTable: Record<string, number>;
+  totalQueries: number;
+  avgDuration: number;
+  maxDuration: number;
 }
 
 // Export singleton instance

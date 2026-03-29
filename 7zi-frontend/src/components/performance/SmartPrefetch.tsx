@@ -1,4 +1,4 @@
-'use memo';
+'use client';
 
 /**
  * 智能预加载组件
