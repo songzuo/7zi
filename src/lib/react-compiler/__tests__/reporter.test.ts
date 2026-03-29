@@ -3,8 +3,8 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { ReactCompilerReporter, createReporter } from '../reporter';
-import { IncompatibilityReport, CompilerIssue } from '../scanner';
+import { ReactCompilerReporter, createReporter } from '../diagnostics/reporter';
+import { IncompatibilityReport, CompilerIssue } from '../diagnostics/scanner';
 
 describe('ReactCompilerReporter', () => {
   let reporter: ReactCompilerReporter;
@@ -142,8 +142,8 @@ describe('ReactCompilerReporter', () => {
 
       // Check that reports are sorted
       for (let i = 1; i < severities.length; i++) {
-        const prevIndex = severityOrder.indexOf(severities[i - 1]);
-        const currIndex = severityOrder.indexOf(severities[i]);
+        const prevIndex = severityOrder.indexOf(severities[i - 1] || '');
+        const currIndex = severityOrder.indexOf(severities[i] || '');
         expect(prevIndex).toBeLessThanOrEqual(currIndex);
       }
     });
