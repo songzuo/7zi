@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArticleSchema, Breadcrumbs } from "@/components/SEO";
+import { ArticleSchema } from "@/components/SEO";
 
 const baseUrl = "https://7zi.studio";
 

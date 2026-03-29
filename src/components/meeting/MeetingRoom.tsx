@@ -10,6 +10,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useWebRTCMeeting, MeetingParticipant, UseWebRTCMeetingOptions } from '@/hooks/useWebRTCMeeting';
 import { Mic, MicOff, Phone, Users, Settings, Copy, Check } from 'lucide-react';
+import { toast } from '@/stores/uiStore';
 
 // ============================================================================
 // Global Type Extensions
@@ -405,12 +406,14 @@ export default function MeetingRoom({
   });
 
   const handleError = (error: Error) => {
-    // Silently handle error in production
+    // Show error toast using the Toast component
+    const errorMessage = error.message || 'An error occurred';
+    toast.error(errorMessage, 'Meeting Error', { duration: 5000 });
+    
+    // Log error in development
     if (process.env.NODE_ENV === 'development') {
       console.error('Meeting error:', error);
     }
-    // TODO: Show error toast - need to implement with existing Toast component
-    alert(`Meeting error: ${error.message || 'An error occurred'}`);
   };
 
   const {

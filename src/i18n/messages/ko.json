@@ -519,8 +519,8 @@
     "backToList": "블로그 목록으로 돌아가기"
   },
   "dashboard": {
-    "title": "Dashboard",
-    "description": "Project Dashboard - View project progress and data"
+    "title": "대시보드",
+    "description": "프로젝트 대시보드 - 프로젝트 진행 상황과 데이터 보기"
   },
   "footer": {
     "copyright": "© 2024 7zi Studio. All rights reserved.",

@@ -12,11 +12,6 @@ import { useState } from 'react';
 export default function SettingsPage() {
   const [backupRefreshTrigger, setBackupRefreshTrigger] = useState(0);
 
-  const handleBackupCreated = () => {
-    // Refresh the backup list
-    setBackupRefreshTrigger((prev) => prev + 1);
-  };
-
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="mb-8">

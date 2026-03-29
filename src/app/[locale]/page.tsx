@@ -538,7 +538,7 @@ export default async function HomePage({ params }: { params: Params }) {
 
             
 
-            <p className="text-lg sm:text-xl md:text-2xl text-zinc-600 dark:text-zinc-400 max-w-3xl mx-auto mb-8 md:mb-12">
+            <p className="text-lg sm:text-xl md:text-2xl text-zinc-600 dark:text-zinc-400 max-w-3xl mx-auto mb-8 md:mb-12 overflow-hidden break-words line-clamp-3 sm:line-clamp-none">
 
               {tHero('description')}
 

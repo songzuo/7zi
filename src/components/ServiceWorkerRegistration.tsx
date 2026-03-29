@@ -87,6 +87,8 @@ export function ServiceWorkerRegistration() {
                   detail: { version },
                 })
               );
+            }).catch(() => {
+              // Silently ignore version fetch errors
             });
           }
         });
