@@ -32,7 +32,7 @@ export const DEFAULT_MONITORING_CONFIG: MonitoringConfig = {
   storageType: 'memory',
 };
 
-export const ENV_SPECIFIC_CONFIG: Partial<MonitoringConfig> = {
+export const ENV_SPECIFIC_CONFIG: Record<string, Partial<MonitoringConfig>> = {
   // 开发环境
   development: {
     enabled: true,
@@ -66,14 +66,14 @@ export const ENV_SPECIFIC_CONFIG: Partial<MonitoringConfig> = {
 
 export function getMonitoringConfig(): MonitoringConfig {
   const env = process.env.NODE_ENV || 'development';
-  const envConfig = ENV_SPECIFIC_CONFIG[env as keyof typeof ENV_SPECIFIC_CONFIG] || {};
+  const envConfig = ENV_SPECIFIC_CONFIG[env] || {};
 
   return {
     ...DEFAULT_MONITORING_CONFIG,
     ...envConfig,
     alarms: {
       ...DEFAULT_MONITORING_CONFIG.alarms,
-      ...(envConfig.alarms || {}),
+      ...((envConfig as any).alarms || {}),
     },
   };
 }

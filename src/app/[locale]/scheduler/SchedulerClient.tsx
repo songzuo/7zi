@@ -6,7 +6,7 @@
  * Integrates the AgentScheduler Dashboard with the main Next.js application
  */
 
-import { Dashboard } from '@/lib/agent-scheduler/dashboard/Dashboard';
+import { Dashboard } from '@/lib/agents/scheduler/dashboard/Dashboard';
 import type { Locale } from '@/i18n/config';
 
 interface SchedulerClientProps {

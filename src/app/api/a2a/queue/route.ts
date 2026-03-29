@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getMessageQueue } from '@/lib/a2a/message-queue';
 import { QueueMessage } from '@/lib/a2a/types';
 import type { TaskPriority } from '@/lib/a2a/types';
+import { logger } from '@/lib/logger';
 
 /**
  * GET /api/a2a/queue
@@ -147,7 +148,7 @@ export async function DELETE(request: NextRequest) {
       });
     }
   } catch (error) {
-    console.error('Queue DELETE error:', error);
+    logger.error('Queue DELETE error', error);
     return NextResponse.json(
       {
         error: 'Failed to clear queue',

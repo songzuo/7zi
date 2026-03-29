@@ -1,0 +1,4139 @@
+{
+  "timestamp": "2026-03-29T16:08:18.123Z",
+  "summary": {
+    "totalFiles": 1081,
+    "totalComponents": 687,
+    "issues": {
+      "errors": 0,
+      "warnings": 571,
+      "info": 114
+    },
+    "manualOptimizations": {
+      "reactMemo": 7,
+      "useMemo": 97,
+      "useCallback": 351
+    }
+  },
+  "details": [
+    {
+      "file": "/root/.openclaw/workspace/src/app/[locale]/about/page.test.tsx",
+      "message": "大型组件 (402 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/[locale]/about/page.tsx",
+      "message": "大型组件 (867 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/[locale]/blog/[slug]/page.tsx",
+      "message": "大型组件 (360 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/[locale]/blog/page.tsx",
+      "message": "大型组件 (341 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/[locale]/contact/page.tsx",
+      "message": "大型组件 (641 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/[locale]/dashboard/DashboardClient.tsx",
+      "message": "React.memo 使用",
+      "severity": "info",
+      "count": 2
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/[locale]/dashboard/DashboardClient.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 6
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/[locale]/dashboard/DashboardClient.tsx",
+      "message": "大型组件 (524 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/[locale]/error-enhanced.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 2
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/[locale]/page.optimized.example.tsx",
+      "message": "大型组件 (493 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/[locale]/page.tsx",
+      "message": "大型组件 (1135 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/[locale]/performance/PerformanceCharts.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/[locale]/performance/__tests__/performance-dashboard.test.tsx",
+      "message": "大型组件 (522 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/[locale]/performance/page.tsx",
+      "message": "大型组件 (449 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/[locale]/portfolio/[slug]/page.tsx",
+      "message": "大型组件 (380 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/[locale]/portfolio/components/CategoryFilterWrapper.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/[locale]/portfolio/page.tsx",
+      "message": "大型组件 (559 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/[locale]/react-compiler-verify/page.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 2
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/[locale]/react-compiler-verify/page.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 4
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/[locale]/react-compiler-verify/page.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/[locale]/react-compiler-verify/page.tsx",
+      "message": "大型组件 (615 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/[locale]/tasks/page.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/[locale]/tasks/page.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/[locale]/tasks/page.tsx",
+      "message": "大型组件 (461 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/[locale]/team/page.test.tsx",
+      "message": "大型组件 (451 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/[locale]/team/page.tsx",
+      "message": "大型组件 (661 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/__tests__/mocks/handlers.ts",
+      "message": "大型组件 (386 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/a2a/jsonrpc/__tests__/route.integration.test.ts",
+      "message": "大型组件 (970 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/a2a/jsonrpc/__tests__/route.test.ts",
+      "message": "大型组件 (550 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/a2a/registry/[id]/heartbeat/__tests__/route.test.ts",
+      "message": "大型组件 (384 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/analytics/__tests__/api.test.ts",
+      "message": "大型组件 (402 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/analytics/__tests__/optimization.test.ts",
+      "message": "大型组件 (378 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/analytics/export/route.test.ts",
+      "message": "大型组件 (437 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/analytics/metrics/route.test.ts",
+      "message": "大型组件 (426 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/analytics/metrics/route.ts",
+      "message": "大型组件 (407 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/auth/__tests__/auth.routes.test.ts",
+      "message": "大型组件 (983 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/auth/login/__tests__/route.test.ts",
+      "message": "大型组件 (554 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/auth/login/route.test.ts",
+      "message": "大型组件 (442 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/auth/register/__tests__/route.test.ts",
+      "message": "大型组件 (605 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/csrf-token/route.integration.test.ts",
+      "message": "大型组件 (312 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/data/export/__tests__/route.integration.test.ts",
+      "message": "大型组件 (546 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/data/import/__tests__/route.integration.test.ts",
+      "message": "大型组件 (857 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/data/import/route.test.ts",
+      "message": "大型组件 (461 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/database/health/__tests__/route.test.ts",
+      "message": "大型组件 (373 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/database/health/route.test.ts",
+      "message": "大型组件 (457 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/database/optimize/__tests__/route.test.ts",
+      "message": "大型组件 (472 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/database/optimize/route.test.ts",
+      "message": "大型组件 (308 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/database/optimize/route.ts",
+      "message": "大型组件 (322 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/feedback/__tests__/route.test.ts",
+      "message": "大型组件 (563 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/feedback/route.ts",
+      "message": "大型组件 (496 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/github/commits/__tests__/route.test.ts",
+      "message": "大型组件 (965 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/health/route.test.ts",
+      "message": "大型组件 (434 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/multimodal/audio/route.test.ts",
+      "message": "大型组件 (386 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/multimodal/audio/route.ts",
+      "message": "大型组件 (600 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/multimodal/image/__tests__/route.test.ts",
+      "message": "大型组件 (407 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/multimodal/image/route.ts",
+      "message": "大型组件 (459 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/performance/__tests__/performance-api.test.ts",
+      "message": "大型组件 (360 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/performance/alerts/route.ts",
+      "message": "大型组件 (397 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/performance/metrics/__tests__/route.test.ts",
+      "message": "大型组件 (510 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/performance/metrics/route.ts",
+      "message": "大型组件 (436 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/performance/report/route.ts",
+      "message": "大型组件 (434 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/projects/__tests__/route.test.ts",
+      "message": "大型组件 (479 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/ratings/__tests__/route.test.ts",
+      "message": "大型组件 (526 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/ratings/route.ts",
+      "message": "大型组件 (542 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/revalidate/__tests__/route.test.ts",
+      "message": "大型组件 (388 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/search/__tests__/route.test.ts",
+      "message": "大型组件 (448 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/stream/health/route.ts",
+      "message": "大型组件 (473 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/tasks/__tests__/route.test.ts",
+      "message": "大型组件 (523 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/tasks/route.ts",
+      "message": "大型组件 (580 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/user/preferences/__tests__/route.test.ts",
+      "message": "大型组件 (713 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/vitals/__tests__/route.test.ts",
+      "message": "大型组件 (865 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/api/web-vitals/__tests__/route.test.ts",
+      "message": "大型组件 (499 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/collaboration-demo/CollaborationDemoContent.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/collaboration-demo/CollaborationDemoContent.tsx",
+      "message": "大型组件 (354 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/demo/websocket/page.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/demo/websocket/page.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/demo/websocket/page.tsx",
+      "message": "大型组件 (344 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/app/undo-redo-example/page.tsx",
+      "message": "大型组件 (401 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/AIChat.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/ActivityLog.tsx",
+      "message": "React.memo 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/Analytics.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/AnimatedProgressBar.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 5
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/AnimatedProgressBar.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/AnimatedProgressBar.tsx",
+      "message": "大型组件 (664 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/BugReportForm.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/ContactForm.test.tsx",
+      "message": "大型组件 (526 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/ContactForm.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/ContactForm.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 3
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/ContactForm.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/ContactForm.tsx",
+      "message": "大型组件 (350 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/DataExportImport/index.tsx",
+      "message": "大型组件 (555 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/DataExportPanel.tsx",
+      "message": "大型组件 (370 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/EnhancedFeedbackModal.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 2
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/EnhancedFeedbackModal.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/EnhancedFeedbackModal.tsx",
+      "message": "大型组件 (441 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/ErrorBoundary.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 4
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/ErrorBoundary.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/ErrorDisplay.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 5
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/ErrorDisplay.tsx",
+      "message": "大型组件 (387 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/ExportPanel.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 2
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/ExportPanel.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 4
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/ExportPanel.tsx",
+      "message": "大型组件 (428 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/Footer.i18n.example.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/Footer.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/GlobalLoader.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/HealthDashboard.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 2
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/HealthDashboard.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 2
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/HealthDashboard.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/LazyComponents.tsx",
+      "message": "大型组件 (459 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/LazyLoadImage.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 3
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/LazyLoadImage.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 4
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/LazyLoadImage.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/LazyLoadImage.tsx",
+      "message": "大型组件 (569 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/MobileMenu.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/Navigation.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 4
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/Navigation.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/NotificationCenter/NotificationCenter.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 3
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/PWAInstallPrompt.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/PWAInstallPrompt.tsx",
+      "message": "大型组件 (319 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/PerformanceMonitor.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/PerformanceOptimizer.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/PerformanceOptimizer.tsx",
+      "message": "大型组件 (316 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/RealtimeDashboard.tsx",
+      "message": "大型组件 (304 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/SEO.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 12
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/SEO.tsx",
+      "message": "大型组件 (362 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/SearchFilter.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/SearchFilter.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 2
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/SearchFilter.tsx",
+      "message": "大型组件 (488 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/ServiceWorkerRegistration.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/SettingsButton.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/Skeleton.tsx",
+      "message": "大型组件 (344 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/TaskBoard.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/TaskBoardSearch.tsx",
+      "message": "React.memo 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/TaskBoardSearch.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 3
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/TeamActivityTracker.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 2
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/TeamActivityTracker.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 3
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/TeamActivityTracker.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/TeamActivityTracker.tsx",
+      "message": "大型组件 (546 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/UserProfile/UserProfile.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 7
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/UserProfile/UserProfile.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/UserProfile/UserProfile.tsx",
+      "message": "大型组件 (431 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/UserSettings/AvatarUpload.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/UserSettings/UserSettingsPage.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 7
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/UserSettings/UserSettingsPage.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/UserSettings/UserSettingsPage.tsx",
+      "message": "大型组件 (649 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/__tests__/AnimatedProgressBar.test.tsx",
+      "message": "大型组件 (341 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/__tests__/ErrorBoundary.test.tsx",
+      "message": "大型组件 (384 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/__tests__/HealthDashboard.test.tsx",
+      "message": "大型组件 (352 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/__tests__/MemberCard.test.tsx",
+      "message": "大型组件 (306 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/__tests__/NetworkErrorBoundary.test.tsx",
+      "message": "大型组件 (616 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/__tests__/OptimizedImage.test.tsx",
+      "message": "大型组件 (441 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/__tests__/TaskBoard.test.tsx",
+      "message": "大型组件 (366 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/admin/FeedbackManagementPanel.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/admin/FeedbackManagementPanel.tsx",
+      "message": "大型组件 (542 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/analytics/AnalyticsChart.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 2
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/analytics/AnalyticsChart.tsx",
+      "message": "大型组件 (409 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/analytics/AnalyticsDashboard.tsx",
+      "message": "React.memo 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/analytics/AnalyticsDashboard.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 2
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/analytics/AnalyticsDashboard.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 3
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/analytics/AnalyticsDashboard.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/analytics/AnalyticsDashboard.tsx",
+      "message": "大型组件 (606 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/analytics/FilterPanel.tsx",
+      "message": "React.memo 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/analytics/PageLoadWaterfall.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 3
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/analytics/PageLoadWaterfall.tsx",
+      "message": "大型组件 (400 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/analytics/PerformanceMetrics.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 2
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/analytics/RealTimeCharts.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 2
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/analytics/RealtimeTaskStatusChart.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 3
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/analytics/RealtimeTaskStatusChart.tsx",
+      "message": "大型组件 (301 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/analytics/RealtimeTeamEfficiency.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 2
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/analytics/RealtimeTeamEfficiency.tsx",
+      "message": "大型组件 (402 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/analytics/VirtualizedList.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 2
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/analytics/__tests__/analytics.test.tsx",
+      "message": "大型组件 (635 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/analytics/__tests__/integration.test.tsx",
+      "message": "大型组件 (613 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/chat/useChat.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 3
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/chat/useChat.ts",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/collaboration/RemoteSelection.tsx",
+      "message": "大型组件 (301 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/collaboration/TaskEditor.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/collaboration/TaskEditor.tsx",
+      "message": "大型组件 (338 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/collaboration/TaskEditorCollaboration.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/collaboration/TaskEditorCollaboration.tsx",
+      "message": "大型组件 (331 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/dashboard/ActivityChart.tsx",
+      "message": "大型组件 (319 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/fallbacks/AsyncBoundary.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 6
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/fallbacks/AsyncBoundary.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/fallbacks/AsyncBoundary.tsx",
+      "message": "大型组件 (370 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/fallbacks/ComponentFallback.tsx",
+      "message": "React.memo 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/fallbacks/ComponentFallback.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 2
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/form/useFieldValidation.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 7
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/knowledge-lattice/KnowledgeLatticeScene.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 3
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/meeting/MeetingRoom.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/meeting/MeetingRoom.tsx",
+      "message": "大型组件 (579 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/mobile/SwipeContainer.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 8
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/mobile/TaskCardMobile.tsx",
+      "message": "大型组件 (373 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/monitoring/MetricsDashboard.tsx",
+      "message": "大型组件 (450 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/multimodal/AudioUploader.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 7
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/multimodal/ImageUploader.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 5
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/rating/RatingList.tsx",
+      "message": "大型组件 (390 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/rating/ReviewItem.tsx",
+      "message": "大型组件 (323 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/rating/__tests__/RatingList.test.tsx",
+      "message": "大型组件 (349 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/rating/__tests__/integration.test.tsx",
+      "message": "大型组件 (323 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/realtime/NotificationPanel.tsx",
+      "message": "大型组件 (368 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/search/GlobalSearch.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 3
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/search/GlobalSearch.tsx",
+      "message": "大型组件 (529 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/search/SearchResults.tsx",
+      "message": "大型组件 (315 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/settings/NotificationPreferences.tsx",
+      "message": "大型组件 (510 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/ui/__tests__/Tooltip.test.tsx",
+      "message": "大型组件 (430 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/components/undo-redo/HistoryViewer.tsx",
+      "message": "大型组件 (356 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/contexts/ChatContext.test.tsx",
+      "message": "大型组件 (385 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/contexts/ChatContext.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/contexts/ChatContext.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 2
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/contexts/PermissionContext.test.tsx",
+      "message": "大型组件 (683 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/features/notifications/services/notification-enhanced.ts",
+      "message": "大型组件 (575 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/features/notifications/services/notification-storage.ts",
+      "message": "大型组件 (596 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/features/notifications/services/notification.ts",
+      "message": "大型组件 (426 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/__tests__/useThemeEnhanced.test.ts",
+      "message": "大型组件 (475 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useBatchSelection.test.ts",
+      "message": "大型组件 (690 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useBatchSelection.ts",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useBatchSelection.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 13
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useBatchSelection.ts",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useBatchSelection.ts",
+      "message": "大型组件 (318 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useDashboardData.test.ts",
+      "message": "大型组件 (510 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useDashboardData.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 4
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useFetch.test.ts",
+      "message": "大型组件 (472 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useFetch.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useFetch.ts",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useGitHubData.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 6
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useIntersectionObserver.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useIntersectionObserver.ts",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useLocalStorage.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useLongPress.test.ts",
+      "message": "大型组件 (313 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useLongPress.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 4
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useNotifications.test.ts",
+      "message": "大型组件 (316 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useNotifications.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 9
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useNotifications.ts",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/usePerformance.test.ts",
+      "message": "大型组件 (417 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/usePerformance.ts",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useSwipeGestures.test.ts",
+      "message": "大型组件 (430 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useSwipeGestures.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 3
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useSwipeGestures.ts",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useThemeEnhanced.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 2
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useThemeEnhanced.ts",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useWebRTCMeeting.edge-cases.test.ts",
+      "message": "大型组件 (682 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useWebRTCMeeting.test.ts",
+      "message": "大型组件 (517 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useWebRTCMeeting.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 13
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useWebRTCMeeting.ts",
+      "message": "大型组件 (616 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useWebSocket.test.ts",
+      "message": "大型组件 (520 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useWebSocket.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 13
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useWebSocket.ts",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/hooks/useWebSocket.ts",
+      "message": "大型组件 (422 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/__tests__/csrf.test.ts",
+      "message": "大型组件 (560 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/__tests__/errors.test.ts",
+      "message": "大型组件 (537 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/__tests__/health-check.test.ts",
+      "message": "大型组件 (375 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/__tests__/logger.test.ts",
+      "message": "大型组件 (335 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/__tests__/performance-optimization.test.ts",
+      "message": "大型组件 (759 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/__tests__/search-filter.test.ts",
+      "message": "大型组件 (1271 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/__tests__/seo-metadata.test.ts",
+      "message": "大型组件 (369 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/__tests__/timing-utils.test.ts",
+      "message": "大型组件 (385 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/__tests__/timing.test.ts",
+      "message": "大型组件 (521 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/__tests__/utils-cache.test.ts",
+      "message": "大型组件 (347 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/__tests__/utils-exports.test.ts",
+      "message": "大型组件 (330 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/__tests__/utils-retry.test.ts",
+      "message": "大型组件 (483 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/__tests__/utils.test.ts",
+      "message": "大型组件 (785 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/a2a/__tests__/agent-registry.test.ts",
+      "message": "大型组件 (453 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/a2a/__tests__/executor-edge-cases.test.ts",
+      "message": "大型组件 (561 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/a2a/__tests__/executor.test.ts",
+      "message": "大型组件 (886 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/a2a/__tests__/jsonrpc-handler-edge-cases.test.ts",
+      "message": "大型组件 (962 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/a2a/__tests__/jsonrpc-handler-uncovered.test.ts",
+      "message": "大型组件 (584 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/a2a/__tests__/jsonrpc-handler.test.ts",
+      "message": "大型组件 (647 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/a2a/__tests__/message-queue.test.ts",
+      "message": "大型组件 (317 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/a2a/__tests__/task-store-uncovered.test.ts",
+      "message": "大型组件 (524 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/a2a/__tests__/task-store.test.ts",
+      "message": "大型组件 (1071 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/a2a/agent-registry.ts",
+      "message": "大型组件 (366 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/a2a/jsonrpc-handler.ts",
+      "message": "大型组件 (392 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/a2a/message-queue.ts",
+      "message": "大型组件 (416 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/a2a/task-store.ts",
+      "message": "大型组件 (371 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/a2a/types.ts",
+      "message": "大型组件 (315 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent/auth-service-optimized.ts",
+      "message": "大型组件 (335 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent/auth-service.ts",
+      "message": "大型组件 (334 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent/communication/message-builder.ts",
+      "message": "大型组件 (752 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent/communication/types.ts",
+      "message": "大型组件 (352 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent/repository-optimized-v2.ts",
+      "message": "大型组件 (635 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent/repository-optimized.ts",
+      "message": "大型组件 (558 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent/repository.ts",
+      "message": "大型组件 (634 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent/types.ts",
+      "message": "大型组件 (399 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent/wallet-repository-optimized-v2.ts",
+      "message": "大型组件 (675 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent/wallet-repository-optimized.ts",
+      "message": "大型组件 (591 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent/wallet-repository.ts",
+      "message": "大型组件 (688 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent-scheduler/core/load-balancer.ts",
+      "message": "大型组件 (391 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent-scheduler/core/matching.ts",
+      "message": "大型组件 (366 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent-scheduler/core/ranking.ts",
+      "message": "大型组件 (325 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent-scheduler/core/scheduler.ts",
+      "message": "大型组件 (590 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent-scheduler/dashboard/AgentStatusPanel.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 2
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent-scheduler/dashboard/AgentStatusPanel.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent-scheduler/dashboard/AgentStatusPanel.tsx",
+      "message": "大型组件 (507 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent-scheduler/dashboard/Dashboard.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 3
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent-scheduler/dashboard/Dashboard.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent-scheduler/dashboard/Dashboard.tsx",
+      "message": "大型组件 (471 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent-scheduler/dashboard/ManualOverride.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 4
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent-scheduler/dashboard/ManualOverride.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 3
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent-scheduler/dashboard/ManualOverride.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent-scheduler/dashboard/ManualOverride.tsx",
+      "message": "大型组件 (705 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent-scheduler/dashboard/ScheduleHistory.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 4
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent-scheduler/dashboard/ScheduleHistory.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent-scheduler/dashboard/ScheduleHistory.tsx",
+      "message": "大型组件 (607 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent-scheduler/dashboard/TaskQueueView.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 5
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent-scheduler/dashboard/TaskQueueView.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 3
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent-scheduler/dashboard/TaskQueueView.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent-scheduler/dashboard/TaskQueueView.tsx",
+      "message": "大型组件 (635 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent-scheduler/models/agent-capability.ts",
+      "message": "大型组件 (325 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent-scheduler/models/schedule-decision.ts",
+      "message": "大型组件 (318 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/agent-scheduler/stores/scheduler-store.ts",
+      "message": "大型组件 (372 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/api/__tests__/error-handler.test.ts",
+      "message": "大型组件 (444 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/api/__tests__/github-helper.test.ts",
+      "message": "大型组件 (435 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/api/__tests__/validation.test.ts",
+      "message": "大型组件 (519 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/api/api-response-wrapper.ts",
+      "message": "大型组件 (317 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/api/enhanced-error-handler.ts",
+      "message": "大型组件 (314 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/api/error-handler.ts",
+      "message": "大型组件 (337 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/api/error-logger.ts",
+      "message": "大型组件 (470 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/api/user-messages.ts",
+      "message": "大型组件 (460 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/approval/__tests__/approval.test.ts",
+      "message": "大型组件 (367 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/approval/__tests__/repository.test.ts",
+      "message": "大型组件 (785 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/approval/repository.ts",
+      "message": "大型组件 (452 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/approval/types.ts",
+      "message": "大型组件 (368 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/approval/workflow.ts",
+      "message": "大型组件 (348 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/auth/__tests__/auth.test.ts",
+      "message": "大型组件 (420 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/auth/jwt.test.ts",
+      "message": "大型组件 (571 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/auth/jwt.ts",
+      "message": "大型组件 (374 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/auth/middleware-rbac.ts",
+      "message": "大型组件 (330 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/auth/repository-optimized.ts",
+      "message": "大型组件 (391 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/auth/repository.ts",
+      "message": "大型组件 (771 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/auth/service-unified.ts",
+      "message": "大型组件 (471 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/auth/service.test.ts",
+      "message": "大型组件 (610 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/auth/service.ts",
+      "message": "大型组件 (533 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/backup/__tests__/scheduler.test.ts",
+      "message": "大型组件 (336 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/backup/backup-core.ts",
+      "message": "大型组件 (526 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/backup/data-export.ts",
+      "message": "大型组件 (514 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/backup/manager.ts",
+      "message": "大型组件 (327 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/backup/scheduler.ts",
+      "message": "大型组件 (413 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/cache/CacheManager.test.ts",
+      "message": "大型组件 (307 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/cache/__tests__/CacheManager.test.ts",
+      "message": "大型组件 (505 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/cache/__tests__/cache.test.ts",
+      "message": "大型组件 (1056 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/collaboration/manager.test.ts",
+      "message": "大型组件 (692 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/collaboration/manager.ts",
+      "message": "大型组件 (596 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/collaboration/rooms.ts",
+      "message": "大型组件 (435 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/csv-export.test.ts",
+      "message": "大型组件 (324 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/data-import-export.test.ts",
+      "message": "大型组件 (385 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/data-import-export.ts",
+      "message": "大型组件 (719 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/date.test.ts",
+      "message": "大型组件 (384 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/__tests__/audit-log.test.ts",
+      "message": "大型组件 (871 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/__tests__/batch-operations.test.ts",
+      "message": "大型组件 (320 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/__tests__/connection-pool.test.ts",
+      "message": "大型组件 (395 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/__tests__/enhanced-db.test.ts",
+      "message": "大型组件 (383 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/__tests__/feedback.test.ts",
+      "message": "大型组件 (481 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/__tests__/index-analyzer.test.ts",
+      "message": "大型组件 (362 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/__tests__/index.test.ts",
+      "message": "大型组件 (428 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/__tests__/migrations.test.ts",
+      "message": "大型组件 (357 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/__tests__/nplus1-detector.test.ts",
+      "message": "大型组件 (348 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/__tests__/optimization-init.test.ts",
+      "message": "大型组件 (306 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/__tests__/pagination.test.ts",
+      "message": "大型组件 (343 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/__tests__/performance-analyzer.test.ts",
+      "message": "大型组件 (488 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/__tests__/performance-logger.test.ts",
+      "message": "大型组件 (493 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/__tests__/query-builder.test.ts",
+      "message": "大型组件 (332 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/__tests__/query-optimizations.test.ts",
+      "message": "大型组件 (766 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/__tests__/user-preferences.test.ts",
+      "message": "大型组件 (692 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/__tests__/v3-migration.test.ts",
+      "message": "大型组件 (325 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/audit-log.ts",
+      "message": "大型组件 (532 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/batch-operations.ts",
+      "message": "大型组件 (560 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/cache.test.ts",
+      "message": "大型组件 (334 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/cache.ts",
+      "message": "大型组件 (1023 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/connection-pool.ts",
+      "message": "大型组件 (721 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/index-analyzer.ts",
+      "message": "大型组件 (354 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/index-unified.ts",
+      "message": "大型组件 (514 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/migrations.ts",
+      "message": "大型组件 (543 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/nplus1-detector.ts",
+      "message": "大型组件 (385 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/pagination.ts",
+      "message": "大型组件 (356 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/performance-analyzer.ts",
+      "message": "大型组件 (497 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/performance-logger.ts",
+      "message": "大型组件 (414 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/query-builder/query-builder.ts",
+      "message": "大型组件 (700 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/query-builder/query-executor.ts",
+      "message": "大型组件 (359 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/query-builder.ts",
+      "message": "大型组件 (1280 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/query-optimizations.ts",
+      "message": "大型组件 (408 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/slow-query-logger.ts",
+      "message": "大型组件 (465 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/db/types.test.ts",
+      "message": "大型组件 (312 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/errors/unified-error.ts",
+      "message": "大型组件 (374 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/errors/unified-response.ts",
+      "message": "大型组件 (395 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/export/__tests__/export.test.ts",
+      "message": "大型组件 (875 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/export/index.ts",
+      "message": "大型组件 (927 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/fallback/circuit-breaker.ts",
+      "message": "大型组件 (367 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/fallback/graceful-degradation.ts",
+      "message": "大型组件 (408 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/feedback/anti-spam.ts",
+      "message": "大型组件 (358 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/feedback/notifications.ts",
+      "message": "大型组件 (361 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/hooks/useRealtimeAnalytics.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 4
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/hooks/useRealtimeAnalytics.ts",
+      "message": "大型组件 (321 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/hooks/useWebVitals.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/hooks/useWebVitals.ts",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/hooks/useWebVitals.ts",
+      "message": "大型组件 (324 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/inp-optimization.ts",
+      "message": "大型组件 (430 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/keyboard-shortcuts/keyboard-shortcuts.test.ts",
+      "message": "大型组件 (699 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/keyboard-shortcuts/shortcut-config.ts",
+      "message": "大型组件 (502 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/keyboard-shortcuts/shortcut-manager.ts",
+      "message": "大型组件 (578 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/keyboard-shortcuts/shortcut-tooltip.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 2
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/keyboard-shortcuts/shortcut-tooltip.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/keyboard-shortcuts/shortcut-tooltip.tsx",
+      "message": "大型组件 (365 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/keyboard-shortcuts/use-keyboard-shortcuts.ts",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 2
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/keyboard-shortcuts/use-keyboard-shortcuts.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 9
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/keyboard-shortcuts/use-keyboard-shortcuts.ts",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/keyboard-shortcuts/use-keyboard-shortcuts.ts",
+      "message": "大型组件 (423 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/lcp-optimization.ts",
+      "message": "大型组件 (365 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/logger/__tests__/logger.test.ts",
+      "message": "大型组件 (471 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/logger/__tests__/utils.test.ts",
+      "message": "大型组件 (473 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/logger/activity-types.test.ts",
+      "message": "大型组件 (521 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/logger/index.ts",
+      "message": "大型组件 (465 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/mcp/server.ts",
+      "message": "大型组件 (497 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/middleware/__tests__/api-examples.test.ts",
+      "message": "大型组件 (508 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/middleware/__tests__/api-performance.test.ts",
+      "message": "大型组件 (338 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/middleware/__tests__/crawler-detection.test.ts",
+      "message": "大型组件 (474 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/middleware/__tests__/db-performance.test.ts",
+      "message": "大型组件 (677 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/middleware/__tests__/rate-limit.test.ts",
+      "message": "大型组件 (410 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/middleware/__tests__/security.test.ts",
+      "message": "大型组件 (617 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/middleware/__tests__/user-rate-limit.test.ts",
+      "message": "大型组件 (512 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/middleware/api-error-logging.ts",
+      "message": "大型组件 (324 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/middleware/api-performance.ts",
+      "message": "大型组件 (428 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/middleware/brute-force-protection.ts",
+      "message": "大型组件 (528 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/middleware/compression.ts",
+      "message": "大型组件 (351 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/middleware/cors.ts",
+      "message": "大型组件 (343 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/middleware/crawler-detection.ts",
+      "message": "大型组件 (570 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/middleware/csrf.ts",
+      "message": "大型组件 (392 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/middleware/db-performance.ts",
+      "message": "大型组件 (516 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/middleware/input-sanitization.ts",
+      "message": "大型组件 (727 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/middleware/monitoring-wrapper.ts",
+      "message": "大型组件 (357 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/middleware/rate-limit.ts",
+      "message": "大型组件 (549 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/middleware/security-headers.ts",
+      "message": "大型组件 (482 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/middleware/security.ts",
+      "message": "大型组件 (503 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/middleware/user-rate-limit.ts",
+      "message": "大型组件 (372 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/monitoring/__tests__/alerts.test.ts",
+      "message": "大型组件 (610 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/monitoring/__tests__/budget.test.ts",
+      "message": "大型组件 (530 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/monitoring/__tests__/performance-metrics.test.ts",
+      "message": "大型组件 (660 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/monitoring/__tests__/performance.config.test.ts",
+      "message": "大型组件 (543 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/monitoring/__tests__/performance.monitor.test.ts",
+      "message": "大型组件 (885 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/monitoring/alerts.ts",
+      "message": "大型组件 (843 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/monitoring/anomaly-detector.ts",
+      "message": "大型组件 (316 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/monitoring/budget.ts",
+      "message": "大型组件 (497 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/monitoring/performance-metrics.test.ts",
+      "message": "大型组件 (481 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/monitoring/performance-trend-aggregation.test.ts",
+      "message": "大型组件 (930 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/monitoring/performance-trend.test.ts",
+      "message": "大型组件 (454 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/monitoring/performance.config.ts",
+      "message": "大型组件 (496 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/monitoring/performance.monitor.ts",
+      "message": "大型组件 (735 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/monitoring/prometheus.ts",
+      "message": "大型组件 (458 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/monitoring/root-cause/bottleneck-detector.test.ts",
+      "message": "大型组件 (762 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/monitoring/root-cause/bottleneck-detector.ts",
+      "message": "大型组件 (749 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/monitoring/root-cause/performance-waterfall.test.ts",
+      "message": "大型组件 (578 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/monitoring/root-cause/performance-waterfall.ts",
+      "message": "大型组件 (439 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/monitoring/root-cause/slow-request-tracker.test.ts",
+      "message": "大型组件 (681 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/monitoring/root-cause/slow-request-tracker.ts",
+      "message": "大型组件 (540 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/monitoring/use-performance.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 3
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/monitoring/use-performance.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/monitoring/use-performance.tsx",
+      "message": "大型组件 (382 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/monitoring/web-vitals.ts",
+      "message": "大型组件 (532 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/multimodal/__tests__/multimodal-utils.test.ts",
+      "message": "大型组件 (580 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/notification-preferences.ts",
+      "message": "大型组件 (365 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/notifications/__tests__/store.test.ts",
+      "message": "大型组件 (666 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/notifications/store.ts",
+      "message": "大型组件 (304 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/offline/__tests__/offline.test.ts",
+      "message": "大型组件 (338 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/offline/offline-store.ts",
+      "message": "大型组件 (411 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/offline/sync-manager.ts",
+      "message": "大型组件 (424 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/offline/useOfflineSync.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 4
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/offline/useOfflineSync.ts",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance/__tests__/api-response-tracker.test.ts",
+      "message": "大型组件 (844 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance/api-response-tracker.ts",
+      "message": "大型组件 (387 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance-monitoring/alerting/alert-stats.ts",
+      "message": "大型组件 (641 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance-monitoring/alerting/alerter.test.ts",
+      "message": "大型组件 (761 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance-monitoring/alerting/alerter.ts",
+      "message": "大型组件 (1232 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance-monitoring/alerting/channels/email.ts",
+      "message": "大型组件 (380 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance-monitoring/alerting/channels/slack.ts",
+      "message": "大型组件 (330 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance-monitoring/alerting/escalation-policy.ts",
+      "message": "大型组件 (836 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance-monitoring/budget-control/budget-checker.test.ts",
+      "message": "大型组件 (833 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance-monitoring/budget-control/budget-checker.ts",
+      "message": "大型组件 (564 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance-monitoring/budget-control/budget-config.test.ts",
+      "message": "大型组件 (420 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance-monitoring/budget-control/budget-config.ts",
+      "message": "大型组件 (542 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance-monitoring/budget-control/budget-linter.test.ts",
+      "message": "大型组件 (562 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance-monitoring/budget-control/budget-linter.ts",
+      "message": "大型组件 (651 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance-monitoring/budget-control/budget-parser.ts",
+      "message": "大型组件 (358 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance-monitoring/root-cause-analysis/analyzer.test.ts",
+      "message": "大型组件 (754 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance-monitoring/root-cause-analysis/analyzer.ts",
+      "message": "大型组件 (1195 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance-monitoring/root-cause-analysis/api-tracker.ts",
+      "message": "大型组件 (755 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance-monitoring/root-cause-analysis/call-chain-tracer.test.ts",
+      "message": "大型组件 (898 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance-monitoring/root-cause-analysis/call-chain-tracer.ts",
+      "message": "大型组件 (932 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance-monitoring/root-cause-analysis/causality-analyzer.test.ts",
+      "message": "大型组件 (785 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance-monitoring/root-cause-analysis/causality-analyzer.ts",
+      "message": "大型组件 (888 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance-monitoring/root-cause-analysis/correlation-engine.test.ts",
+      "message": "大型组件 (669 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance-monitoring/root-cause-analysis/correlation-engine.ts",
+      "message": "大型组件 (728 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance-monitoring/root-cause-analysis/database-tracker.ts",
+      "message": "大型组件 (683 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance-monitoring/root-cause-analysis/rendering-tracker.ts",
+      "message": "大型组件 (922 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance-monitoring/root-cause-analysis/types.ts",
+      "message": "大型组件 (463 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance-optimization.test.ts",
+      "message": "大型组件 (522 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/performance-optimization.ts",
+      "message": "大型组件 (562 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/permissions/__tests__/rbac.test.ts",
+      "message": "大型组件 (319 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/permissions/middleware.ts",
+      "message": "大型组件 (347 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/permissions/rbac.ts",
+      "message": "大型组件 (385 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/permissions/repository.ts",
+      "message": "大型组件 (525 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/permissions.ts",
+      "message": "大型组件 (995 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/prefetch/hooks/use-predictive-prefetch.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 5
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/prefetch/hooks/use-predictive-prefetch.ts",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/prefetch/hooks/use-predictive-prefetch.ts",
+      "message": "大型组件 (327 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/prefetch/hooks/use-prefetch.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 2
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/prefetch/hooks/use-prefetch.ts",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/prefetch/hooks/use-resource-hint.ts",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 4
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/prefetch/hooks/use-resource-hint.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 2
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/prefetch/hooks/use-resource-hint.ts",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/prefetch/hooks/use-resource-hint.ts",
+      "message": "大型组件 (425 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/prefetch/predictive-prefetcher.ts",
+      "message": "大型组件 (432 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/prefetch/prefetch-provider.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 6
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/prefetch/prefetch-provider.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/prefetch/prefetch-provider.tsx",
+      "message": "大型组件 (394 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/prefetch/prefetch.test.ts",
+      "message": "大型组件 (447 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/prefetch/resource-prefetcher.ts",
+      "message": "大型组件 (498 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/prefetch/route-prefetcher.ts",
+      "message": "大型组件 (311 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/prefetch/user-behavior.ts",
+      "message": "大型组件 (449 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/rate-limit/index.ts",
+      "message": "大型组件 (529 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/rate-limit/memory-store.ts",
+      "message": "大型组件 (343 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/rate-limit/middleware.ts",
+      "message": "大型组件 (502 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/rate-limit/sliding-window.ts",
+      "message": "大型组件 (308 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/rate-limit/token-bucket.ts",
+      "message": "大型组件 (384 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/react-compiler/dashboard/CompilerDiagnostics.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 2
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/react-compiler/dashboard/CompilerDiagnostics.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/react-compiler/dashboard/CompilerDiagnostics.tsx",
+      "message": "大型组件 (666 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/react-compiler/diagnostics/migration-guide.ts",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/react-compiler/diagnostics/migration-guide.ts",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/react-compiler/diagnostics/migration-guide.ts",
+      "message": "大型组件 (535 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/react-compiler/diagnostics/reporter.ts",
+      "message": "大型组件 (494 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/react-compiler/diagnostics/scanner.ts",
+      "message": "大型组件 (314 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/react-compiler/performance/tracker.ts",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/realtime/__tests__/notification-provider.edge-cases.test.tsx",
+      "message": "大型组件 (1202 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/realtime/__tests__/retry-manager.test.ts",
+      "message": "大型组件 (564 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/realtime/__tests__/useWebSocket.test.ts",
+      "message": "大型组件 (671 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/realtime/__tests__/websocket.test.ts",
+      "message": "大型组件 (476 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/realtime/examples.tsx",
+      "message": "大型组件 (476 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/realtime/notification-hooks.ts",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/realtime/notification-hooks.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 22
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/realtime/notification-hooks.ts",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/realtime/notification-hooks.ts",
+      "message": "大型组件 (503 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/realtime/notification-provider.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 12
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/realtime/notification-provider.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/realtime/notification-provider.tsx",
+      "message": "大型组件 (489 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/realtime/notification-service.ts",
+      "message": "大型组件 (1039 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/realtime/retry-manager.ts",
+      "message": "大型组件 (446 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/realtime/useEnhancedWebSocket.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 19
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/realtime/useEnhancedWebSocket.ts",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/realtime/useEnhancedWebSocket.ts",
+      "message": "大型组件 (683 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/realtime/useRealtimeNotifications.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 7
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/realtime/useRealtimeNotifications.ts",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/realtime/useRealtimeNotifications.ts",
+      "message": "大型组件 (434 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/realtime/useTaskRealtime.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 5
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/realtime/useWebSocket.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 9
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/realtime/useWebSocket.ts",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/realtime/useWebSocket.ts",
+      "message": "大型组件 (362 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/search/__tests__/advanced-search.test.ts",
+      "message": "大型组件 (361 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/search/__tests__/debounce.test.ts",
+      "message": "大型组件 (396 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/search/__tests__/history-manager.test.ts",
+      "message": "大型组件 (370 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/search/__tests__/multi-field-search.test.ts",
+      "message": "大型组件 (352 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/search/advanced-search.ts",
+      "message": "大型组件 (626 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/search/debounce.ts",
+      "message": "大型组件 (306 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/search/history-manager.ts",
+      "message": "大型组件 (337 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/search/index-manager.ts",
+      "message": "大型组件 (500 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/search/multi-field-search.ts",
+      "message": "大型组件 (522 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/search/types.ts",
+      "message": "大型组件 (422 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/search-filter-enhanced.test.ts",
+      "message": "大型组件 (527 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/search-filter.ts",
+      "message": "大型组件 (863 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/security/headers.test.ts",
+      "message": "大型组件 (487 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/security/headers.ts",
+      "message": "大型组件 (454 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/security/rate-limit/examples/api-route-integration.ts",
+      "message": "大型组件 (378 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/security/rate-limit/rate-limit-config.ts",
+      "message": "大型组件 (311 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/security/rate-limit/rate-limiter.test.ts",
+      "message": "大型组件 (596 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/security/rate-limit/rate-limiter.ts",
+      "message": "大型组件 (345 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/security/rate-limit/redis-adapter.ts",
+      "message": "大型组件 (353 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/security/rbac/__tests__/audit-logger.test.ts",
+      "message": "大型组件 (679 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/security/rbac/__tests__/permission-inheritance.test.ts",
+      "message": "大型组件 (336 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/security/rbac/__tests__/rbac-cache.test.ts",
+      "message": "大型组件 (385 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/security/rbac/audit-logger.ts",
+      "message": "大型组件 (721 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/security/rbac/permission-inheritance.ts",
+      "message": "大型组件 (510 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/security/rbac/rbac-cache.ts",
+      "message": "大型组件 (524 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/seo-metadata.ts",
+      "message": "大型组件 (350 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/services/__tests__/notification-enhanced.test.ts",
+      "message": "大型组件 (1060 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/services/__tests__/notification-service.edge-cases.test.ts",
+      "message": "大型组件 (543 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/services/__tests__/notification-service.test.ts",
+      "message": "大型组件 (654 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/services/email.ts",
+      "message": "大型组件 (330 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/services/notification-enhanced.ts",
+      "message": "大型组件 (575 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/services/notification-storage.ts",
+      "message": "大型组件 (596 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/services/notification.ts",
+      "message": "大型组件 (426 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/sse/hooks.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 3
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/sse/hooks.ts",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/timing.test.ts",
+      "message": "大型组件 (654 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/tools/__tests__/executor.test.ts",
+      "message": "大型组件 (329 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/tools/executor.ts",
+      "message": "大型组件 (440 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/undo-redo/__tests__/manager.test.ts",
+      "message": "大型组件 (348 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/undo-redo/__tests__/middleware.test.ts",
+      "message": "大型组件 (438 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/undo-redo/index.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 5
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/undo-redo/index.ts",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/undo-redo/manager.ts",
+      "message": "大型组件 (426 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/undo-redo/middleware.ts",
+      "message": "大型组件 (332 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/user-preferences.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 6
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/user-preferences.ts",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/utils/__tests__/async.test.ts",
+      "message": "大型组件 (528 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/utils/async.ts",
+      "message": "大型组件 (399 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/utils/retry.ts",
+      "message": "大型组件 (438 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/utils-core.test.ts",
+      "message": "大型组件 (505 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/validation/__tests__/form-validator.test.ts",
+      "message": "大型组件 (571 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/validation/__tests__/validators.test.ts",
+      "message": "大型组件 (487 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/validation/data-converter.test.ts",
+      "message": "大型组件 (622 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/validation/data-converter.ts",
+      "message": "大型组件 (526 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/validation/form-validator.ts",
+      "message": "大型组件 (520 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/validation/useFormValidation.ts",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/validation/useFormValidation.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 12
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/validation/useFormValidation.ts",
+      "message": "大型组件 (324 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/validation/validators.test.ts",
+      "message": "大型组件 (435 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/voice-meeting/signaling.ts",
+      "message": "大型组件 (621 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/web-vitals-db.ts",
+      "message": "大型组件 (591 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/websocket/__tests__/collaboration.test.ts",
+      "message": "大型组件 (668 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/websocket/__tests__/integration.test.ts",
+      "message": "大型组件 (618 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/websocket/__tests__/message-store.e2e.test.ts",
+      "message": "大型组件 (930 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/websocket/__tests__/message-store.test.ts",
+      "message": "大型组件 (584 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/websocket/__tests__/permissions.e2e.test.ts",
+      "message": "大型组件 (469 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/websocket/__tests__/rooms.e2e.test.ts",
+      "message": "大型组件 (611 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/websocket/__tests__/rooms.test.ts",
+      "message": "大型组件 (674 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/websocket/__tests__/server-enhanced.test.ts",
+      "message": "大型组件 (589 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/websocket/__tests__/server.test.ts",
+      "message": "大型组件 (621 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/websocket/dashboard/RoomList.tsx",
+      "message": "useMemo 使用",
+      "severity": "info",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/websocket/dashboard/RoomList.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 3
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/websocket/dashboard/RoomList.tsx",
+      "message": "大型组件 (489 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/websocket/dashboard/RoomView.tsx",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 3
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/websocket/dashboard/RoomView.tsx",
+      "message": "大型 useEffect（考虑拆分）",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/websocket/dashboard/RoomView.tsx",
+      "message": "大型组件 (601 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/websocket/dashboard/websocket-store.ts",
+      "message": "大型组件 (328 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/websocket/message-store.ts",
+      "message": "大型组件 (628 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/websocket/permissions.ts",
+      "message": "大型组件 (437 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/websocket/rooms.ts",
+      "message": "大型组件 (849 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/websocket/server.ts",
+      "message": "大型组件 (1374 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/websocket/types.ts",
+      "message": "大型组件 (574 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/websocket/useCollaboration.ts",
+      "message": "useCallback 使用",
+      "severity": "info",
+      "count": 22
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/lib/websocket/useCollaboration.ts",
+      "message": "大型组件 (907 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/middleware/__tests__/integration.test.ts",
+      "message": "大型组件 (361 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/middleware/cors.ts",
+      "message": "大型组件 (365 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/stores/__tests__/dashboardStore.test.ts",
+      "message": "大型组件 (748 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/stores/__tests__/uiStore.test.ts",
+      "message": "大型组件 (333 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/stores/__tests__/walletStore.test.ts",
+      "message": "大型组件 (363 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/stores/dashboardStore.ts",
+      "message": "大型组件 (484 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/stores/dashboardStoreWithUndoRedo.ts",
+      "message": "大型组件 (606 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/stores/filterStore.ts",
+      "message": "大型组件 (616 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/stores/preferencesStore.ts",
+      "message": "大型组件 (315 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/stores/uiStore.ts",
+      "message": "大型组件 (728 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/stores/walletStore.ts",
+      "message": "大型组件 (520 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/api/routes-github-csrf.test.ts",
+      "message": "大型组件 (403 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/api/routes.test.ts",
+      "message": "大型组件 (361 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/components/ContactForm.test.tsx",
+      "message": "大型组件 (330 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/components/shared/ui.test.tsx",
+      "message": "大型组件 (337 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/dark-mode/dark-mode.test.tsx",
+      "message": "大型组件 (567 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/e2e/core-interactions.spec.ts",
+      "message": "大型组件 (530 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/e2e/language-switching.spec.ts",
+      "message": "大型组件 (535 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/e2e/navigation.spec.ts",
+      "message": "大型组件 (452 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/hooks/useFetch.boundary.test.ts",
+      "message": "大型组件 (903 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/hooks/useFetch.test.ts",
+      "message": "大型组件 (359 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/hooks/useGitHubData.test.ts",
+      "message": "大型组件 (355 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/hooks/useIntersectionObserver.test.ts",
+      "message": "大型组件 (492 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/hooks/useLocalStorage.boundary.test.ts",
+      "message": "大型组件 (663 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/integration/auth-flow.test.ts",
+      "message": "大型组件 (376 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/integration/auth.test.ts",
+      "message": "大型组件 (348 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/integration/contact-form.test.ts",
+      "message": "大型组件 (501 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/integration/dashboard.test.ts",
+      "message": "大型组件 (459 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/integration/hooks.test.ts",
+      "message": "大型组件 (563 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/integration/navigation.test.ts",
+      "message": "大型组件 (418 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/integration/project-creation-and-assignment.test.ts",
+      "message": "大型组件 (721 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/integration/settings.test.ts",
+      "message": "大型组件 (356 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/integration/task-creation-flow.test.ts",
+      "message": "大型组件 (475 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/integration/user-settings-update.test.ts",
+      "message": "大型组件 (785 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/lib/date.boundary.test.ts",
+      "message": "大型组件 (514 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/lib/errors.boundary.test.ts",
+      "message": "大型组件 (508 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/security/csrf-protection.test.ts",
+      "message": "大型组件 (574 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/security/input-validation.test.ts",
+      "message": "大型组件 (927 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/security/xss-protection.test.ts",
+      "message": "大型组件 (532 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/security/xss-protection.test.ts",
+      "message": "深层嵌套 (嵌套层级: 6)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/seo/seo-schema.test.tsx",
+      "message": "大型组件 (355 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/vi-mocks.ts",
+      "message": "大型组件 (990 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/websocket/message-store.test.ts",
+      "message": "大型组件 (815 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/websocket/permissions.test.ts",
+      "message": "大型组件 (361 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/test/websocket/rooms.test.ts",
+      "message": "大型组件 (677 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    },
+    {
+      "file": "/root/.openclaw/workspace/src/tools/agent-cli.ts",
+      "message": "大型组件 (737 行，建议 < 300 行)",
+      "severity": "warning",
+      "count": 1
+    }
+  ],
+  "recommendations": [
+    {
+      "priority": "medium",
+      "message": "多个组件存在潜在问题，建议先优化再启用编译器"
+    },
+    {
+      "priority": "low",
+      "message": "97 处 useMemo 可以在启用编译器后逐步移除"
+    }
+  ]
+}

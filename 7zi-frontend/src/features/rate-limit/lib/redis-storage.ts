@@ -74,10 +74,21 @@ export class RedisRateLimitStorage implements IRateLimitStorage {
       resetTime.toString(), // ARGV[2]: 过期时间戳
     );
 
+    // Redis eval 返回 unknown，需要类型断言
+    const resultArray = result as Array<number | Buffer> | null;
+
+    if (!resultArray) {
+      return {
+        count: 0,
+        resetTime: resetTime,
+        windowStart: now,
+      };
+    }
+
     // Redis 返回的是 Buffer 数组，需要转换
-    const count = typeof result[0] === 'number' ? result[0] : parseInt(result[0].toString(), 10);
-    const reset = typeof result[1] === 'number' ? result[1] : parseInt(result[1].toString(), 10);
-    const windowStart = typeof result[2] === 'number' ? result[2] : parseInt(result[2].toString(), 10);
+    const count = typeof resultArray[0] === 'number' ? resultArray[0] : parseInt((resultArray[0] as any)?.toString() || '0', 10);
+    const reset = typeof resultArray[1] === 'number' ? resultArray[1] : parseInt((resultArray[1] as any)?.toString() || '0', 10);
+    const windowStart = typeof resultArray[2] === 'number' ? resultArray[2] : parseInt((resultArray[2] as any)?.toString() || '0', 10);
 
     return {
       count,
@@ -98,23 +109,24 @@ export class RedisRateLimitStorage implements IRateLimitStorage {
     pipeline.get(metaKey);
     pipeline.ttl(redisKey);
 
-    const [countStr, metaStr, ttl] = await pipeline.exec();
+    const results = await pipeline.exec() as Array<[Error | null, unknown] | null>;
 
-    if (!countStr || countStr[1] === null) {
+    if (!results || !results[0] || results[0][1] === null) {
       return null;
     }
 
-    const count = parseInt(countStr[1] as string, 10);
+    const count = parseInt((results[0][1] as any)?.toString() || '0', 10);
 
     // 获取窗口开始时间
     let windowStart = Date.now();
-    if (metaStr && metaStr[1] !== null) {
-      const meta = JSON.parse(metaStr[1] as string);
+    if (results[1] && results[1][1] !== null) {
+      const meta = JSON.parse((results[1][1] as any)?.toString() || '{}');
       windowStart = meta.windowStart || Date.now();
     }
 
     // 计算 resetTime
-    const ttlSeconds = ttl && ttl[1] !== -2 ? ttl[1] as number : 60;
+    const ttlVal = results[2] ? results[2][1] : null;
+    const ttlSeconds = ttlVal && ttlVal !== -2 ? (ttlVal as any) || 60 : 60;
     const resetTime = Date.now() + ttlSeconds * 1000;
 
     return {

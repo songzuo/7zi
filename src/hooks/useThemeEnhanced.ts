@@ -13,7 +13,7 @@
  * This hook now integrates with preferencesStore (Zustand) for unified state management.
  */
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Theme } from '@/stores/preferencesStore';
 import { useTheme as useThemeFromStore } from '@/stores/preferencesStore';
 
@@ -41,19 +41,19 @@ export function useThemeEnhanced(): UseThemeEnhancedReturn {
   // Track system preference changes
   // Note: The store also listens for system theme changes when theme is 'system'
   // This hook's state is kept for backward compatibility and direct access
-  if (typeof window !== 'undefined') {
-    useState(() => {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      setSystemPrefersDark(mediaQuery.matches);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
 
-      const handler = (e: MediaQueryListEvent) => {
-        setSystemPrefersDark(e.matches);
-      };
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    setSystemPrefersDark(mediaQuery.matches);
 
-      mediaQuery.addEventListener('change', handler);
-      return () => mediaQuery.removeEventListener('change', handler);
-    });
-  }
+    const handler = (e: MediaQueryListEvent) => {
+      setSystemPrefersDark(e.matches);
+    };
+
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
 
   // Cycle through themes
   const cycleTheme = useCallback(() => {

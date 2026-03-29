@@ -65,9 +65,9 @@ describe('Notifications API Route', () => {
 
   describe('GET /api/notifications', () => {
     it('should get notifications with no filters', async () => {
-      const mockNotifications = [
-        { id: '1', title: 'Test 1', type: 'info', priority: 'medium' },
-        { id: '2', title: 'Test 2', type: 'success', priority: 'high' },
+      const mockNotifications: any[] = [
+        { id: '1', title: 'Test 1', type: 'info', priority: 'medium', message: 'Test message 1', read: false, createdAt: Date.now() },
+        { id: '2', title: 'Test 2', type: 'success', priority: 'high', message: 'Test message 2', read: false, createdAt: Date.now() },
       ];
       vi.mocked(notificationService.getNotifications).mockReturnValue(mockNotifications);
       vi.mocked(notificationService.getUnreadCount).mockReturnValue(5);
@@ -91,7 +91,7 @@ describe('Notifications API Route', () => {
     });
 
     it('should get notifications with type filter', async () => {
-      const mockNotifications = [{ id: '1', title: 'Test', type: 'error' }];
+      const mockNotifications: any[] = [{ id: '1', title: 'Test', type: 'error', priority: 'medium', message: 'Test', read: false, createdAt: Date.now() }];
       vi.mocked(notificationService.getNotifications).mockReturnValue(mockNotifications);
       vi.mocked(notificationService.getUnreadCount).mockReturnValue(0);
 
@@ -165,9 +165,14 @@ describe('Notifications API Route', () => {
     });
 
     it('should respect limit parameter', async () => {
-      const mockNotifications = Array.from({ length: 100 }, (_, i) => ({
+      const mockNotifications: any[] = Array.from({ length: 100 }, (_, i) => ({
         id: String(i),
         title: `Test ${i}`,
+        type: 'info',
+        priority: 'medium',
+        message: `Message ${i}`,
+        read: false,
+        createdAt: Date.now(),
       }));
       vi.mocked(notificationService.getNotifications).mockReturnValue(mockNotifications);
       vi.mocked(notificationService.getUnreadCount).mockReturnValue(0);
@@ -186,9 +191,14 @@ describe('Notifications API Route', () => {
     });
 
     it('should use default limit of 50', async () => {
-      const mockNotifications = Array.from({ length: 60 }, (_, i) => ({
+      const mockNotifications: any[] = Array.from({ length: 60 }, (_, i) => ({
         id: String(i),
         title: `Test ${i}`,
+        type: 'info',
+        priority: 'medium',
+        message: `Message ${i}`,
+        read: false,
+        createdAt: Date.now(),
       }));
       vi.mocked(notificationService.getNotifications).mockReturnValue(mockNotifications);
       vi.mocked(notificationService.getUnreadCount).mockReturnValue(0);
@@ -236,7 +246,16 @@ describe('Notifications API Route', () => {
 
   describe('POST /api/notifications', () => {
     it('should create notification with required fields', async () => {
-      vi.mocked(notificationService.notify).mockResolvedValue('notif-123');
+      const mockNotification: any = {
+        id: 'notif-123',
+        title: 'Test Notification',
+        message: 'Test message',
+        type: 'info',
+        priority: 'medium',
+        read: false,
+        createdAt: Date.now(),
+      };
+      vi.mocked(notificationService.notify).mockReturnValue(mockNotification);
 
       const url = new URL('http://localhost/api/notifications');
       const request = new NextRequest(url, {
@@ -268,7 +287,20 @@ describe('Notifications API Route', () => {
     });
 
     it('should create notification with all fields', async () => {
-      vi.mocked(notificationService.notify).mockResolvedValue('notif-456');
+      const mockNotification: any = {
+        id: 'notif-456',
+        title: 'Test',
+        message: 'Message',
+        type: 'warning',
+        priority: 'high',
+        userId: 'user-123',
+        teamId: 'team-123',
+        taskId: 'task-123',
+        data: { custom: 'value' },
+        read: false,
+        createdAt: Date.now(),
+      };
+      vi.mocked(notificationService.notify).mockReturnValue(mockNotification);
 
       const url = new URL('http://localhost/api/notifications');
       const request = new NextRequest(url, {

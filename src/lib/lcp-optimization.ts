@@ -122,18 +122,12 @@ export function optimizeLCPImage(options: {
   height?: number;
   loading?: 'lazy' | 'eager' | 'auto';
 }) {
-  const props: Record<string, string | number> = {
+  return {
     loading: options.loading || (options.priority ? 'eager' : 'lazy'),
-  };
-
-  if (options.priority) {
-    props.fetchpriority = 'high';
-  }
-
-  if (options.width) props.width = options.width;
-  if (options.height) props.height = options.height;
-
-  return props;
+    ...(options.priority && { fetchpriority: 'high' }),
+    ...(options.width !== undefined && { width: options.width }),
+    ...(options.height !== undefined && { height: options.height }),
+  } as Record<string, string | number>;
 }
 
 /**

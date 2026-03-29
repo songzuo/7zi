@@ -53,7 +53,7 @@ export class EmailService {
     this.enabled = !!config.apiKey;
 
     if (this.enabled) {
-      logger.log('[EmailService] Email service initialized');
+      logger.info('[EmailService] Email service initialized');
     } else {
       logger.warn('[EmailService] Email service disabled: No API key provided');
     }
@@ -130,7 +130,7 @@ export class EmailService {
         throw new Error(result.message || 'Failed to send email');
       }
 
-      logger.log('[EmailService] Email sent successfully:', result.id);
+      logger.info('[EmailService] Email sent successfully:', result.id);
 
       return {
         success: true,

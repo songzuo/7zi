@@ -7,7 +7,9 @@ Complete API documentation for the 7zi AI Team Management Platform.
 **Last Updated:** 2026-03-29
 **Version:** v1.4.0
 **Reviewer:** AI Documentation Agent
-**Total Endpoints:** 60+ (including 15+ RBAC endpoints, 30+ WebSocket APIs)
+**Total Endpoints:** 57 REST endpoints + 30+ WebSocket message types
+
+> **注意**: 本文档已与代码同步验证。所有 API 端点均来自 `src/app/api/` 目录下的实际实现。
 
 ---
 
@@ -2295,65 +2297,60 @@ curl https://your-domain.com/api/rbac/permissions?groupBy=resource \
 
 ---
 
-## 👥 User Management APIs (RBAC)
+## 👤 User Preferences APIs
 
-### List Users
+> **注意**: 用户管理功能通过 RBAC API (`/api/rbac/users/[userId]/*`) 实现。此部分仅包含用户偏好设置 API。
 
-**Endpoint:** `GET /api/users`
+### Get User Preferences
 
-List all users. Requires `user:read` permission.
+**Endpoint:** `GET /api/user/preferences`
 
-**Headers:**
-```
-Authorization: Bearer <token>
-```
+Get user preferences including language, theme, and notification settings.
+
+**Query Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `user_id` | string | Yes | User ID |
 
 **Response (200 OK):**
 ```json
 {
   "success": true,
-  "data": [
-    {
-      "id": "user_123",
-      "email": "user@example.com",
-      "name": "John Doe",
-      "role": "MEMBER",
-      "status": "active",
-      "createdAt": "2026-03-01T00:00:00.000Z"
-    }
-  ],
-  "meta": {
-    "count": 1,
-    "timestamp": "2026-03-21T12:00:00.000Z"
+  "data": {
+    "user_id": "user_123",
+    "locale": "zh",
+    "theme": "system",
+    "notifications_enabled": true,
+    "email_notifications": true,
+    "sound_enabled": true,
+    "created_at": "2026-03-01T00:00:00.000Z",
+    "updated_at": "2026-03-21T12:00:00.000Z"
   }
 }
 ```
 
 **Errors:**
-- `401` - Unauthorized
-- `403` - Insufficient permissions
+- `400` - user_id is required
 - `500` - Internal server error
 
 ---
 
-### Create User
+### Create User Preferences
 
-**Endpoint:** `POST /api/users`
+**Endpoint:** `POST /api/user/preferences`
 
-Create a new user. Requires `user:create` permission.
-
-**Headers:**
-```
-Authorization: Bearer <token>
-Content-Type: application/json
-```
+Create user preferences for a new user.
 
 **Request Body:**
 ```json
 {
-  "email": "user@example.com",
-  "password": "SecurePass123",
-  "name": "John Doe"
+  "user_id": "user_123",
+  "locale": "zh",
+  "theme": "dark",
+  "timezone": "Asia/Shanghai",
+  "notifications_enabled": true,
+  "email_notifications": true,
+  "sound_enabled": true
 }
 ```
 
@@ -2362,50 +2359,39 @@ Content-Type: application/json
 {
   "success": true,
   "data": {
-    "id": "user_456",
-    "email": "user@example.com",
-    "name": "John Doe",
-    "role": "MEMBER",
-    "createdAt": "2026-03-21T12:00:00.000Z"
-  },
-  "meta": {
-    "timestamp": "2026-03-21T12:00:00.000Z"
+    "user_id": "user_123",
+    "locale": "zh",
+    "theme": "dark",
+    "timezone": "Asia/Shanghai",
+    "notifications_enabled": true,
+    "email_notifications": true,
+    "sound_enabled": true,
+    "created_at": "2026-03-21T12:00:00.000Z",
+    "updated_at": "2026-03-21T12:00:00.000Z"
   }
 }
 ```
 
 **Errors:**
-- `400` - Validation error (missing required fields)
-- `401` - Unauthorized
-- `403` - Insufficient permissions
+- `400` - user_id is required
+- `409` - User preferences already exist. Use PUT to update.
 - `500` - Internal server error
 
 ---
 
-### Update User
+### Update User Preferences
 
-**Endpoint:** `PATCH /api/users?id={userId}`
+**Endpoint:** `PUT /api/user/preferences`
 
-Update user information. Requires `user:update` permission.
-
-**Headers:**
-```
-Authorization: Bearer <token>
-Content-Type: application/json
-```
-
-**Query Parameters:**
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | string | Yes | User ID to update |
+Update user preferences. If preferences don't exist, they will be created.
 
 **Request Body:**
 ```json
 {
-  "name": "Jane Doe",
-  "avatar": "https://example.com/avatar.jpg",
-  "roles": ["MEMBER", "MODERATOR"],
-  "status": "active"
+  "user_id": "user_123",
+  "locale": "en",
+  "theme": "light",
+  "notifications_enabled": false
 }
 ```
 
@@ -2414,163 +2400,20 @@ Content-Type: application/json
 {
   "success": true,
   "data": {
-    "id": "user_123",
-    "email": "user@example.com",
-    "name": "Jane Doe",
-    "avatar": "https://example.com/avatar.jpg",
-    "role": "MEMBER",
-    "status": "active",
-    "roles": ["MEMBER", "MODERATOR"]
-  },
-  "meta": {
-    "timestamp": "2026-03-21T12:00:00.000Z"
+    "user_id": "user_123",
+    "locale": "en",
+    "theme": "light",
+    "notifications_enabled": false,
+    "email_notifications": true,
+    "sound_enabled": true,
+    "updated_at": "2026-03-21T12:00:00.000Z"
   }
 }
 ```
 
 **Errors:**
-- `400` - Validation error (user ID required)
-- `401` - Unauthorized
-- `403` - Insufficient permissions
-- `404` - User not found
+- `400` - user_id is required
 - `500` - Internal server error
-
----
-
-### Delete User
-
-**Endpoint:** `DELETE /api/users?id={userId}`
-
-Delete a user. Requires **ADMIN role** (not just permission).
-
-**Headers:**
-```
-Authorization: Bearer <token>
-```
-
-**Query Parameters:**
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | string | Yes | User ID to delete |
-
-**Response (200 OK):**
-```json
-{
-  "success": true,
-  "data": {
-    "id": "user_123"
-  },
-  "meta": {
-    "timestamp": "2026-03-21T12:00:00.000Z"
-  }
-}
-```
-
-**Errors:**
-- `400` - Validation error (user ID required)
-- `401` - Unauthorized
-- `403` - Insufficient permissions (requires ADMIN role)
-- `404` - User not found
-- `500` - Internal server error
-
----
-
-### Get All Roles
-
-**Endpoint:** `GET /api/users/roles`
-
-List all roles with user counts. Requires `user:manage_role` permission OR MANAGER/ADMIN role.
-
-**Headers:**
-```
-Authorization: Bearer <token>
-```
-
-**Response (200 OK):**
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "role": "ADMIN",
-      "count": 2
-    },
-    {
-      "role": "MANAGER",
-      "count": 5
-    },
-    {
-      "role": "MEMBER",
-      "count": 42
-    }
-  ],
-  "meta": {
-    "count": 3,
-    "timestamp": "2026-03-21T12:00:00.000Z"
-  }
-}
-```
-
-**Errors:**
-- `401` - Unauthorized
-- `403` - Insufficient permissions
-- `500` - Internal server error
-
----
-
-## 🔧 Example API Route
-
-### Example with Monitoring
-
-**Endpoint:** `GET /api/example`
-
-Demonstrates the recommended pattern for API routes with monitoring and error handling.
-
-**Response (200 OK):**
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": "1",
-      "name": "Engineering"
-    },
-    {
-      "id": "2",
-      "name": "Design"
-    },
-    {
-      "id": "3",
-      "name": "Product"
-    }
-  ]
-}
-```
-
-**Endpoint:** `POST /api/example`
-
-Create a new resource with monitoring.
-
-**Request Body:**
-```json
-{
-  "name": "Marketing"
-}
-```
-
-**Response (201 Created):**
-```json
-{
-  "success": true,
-  "data": {
-    "id": "abc-123",
-    "name": "Marketing",
-    "createdAt": "2026-03-21T12:00:00.000Z"
-  }
-}
-```
-
-**Note:** This is a demonstration endpoint showing proper API patterns with monitoring, logging, and error handling.
 
 ---
 
@@ -3717,11 +3560,10 @@ export async function refreshDashboard(userId: string) {
 
 ---
 
-## 📝 Additional APIs (Added in v1.2.0)
+## 💼 Projects APIs
 
-### 💼 Projects APIs
+### List Projects
 
-#### List Projects
 **Endpoint:** `GET /api/projects`
 
 Get all projects.
@@ -3734,7 +3576,8 @@ Get all projects.
 }
 ```
 
-#### Create Project
+### Create Project
+
 **Endpoint:** `POST /api/projects`
 
 Create a new project.
@@ -3747,106 +3590,464 @@ Create a new project.
 }
 ```
 
-### ✅ Tasks APIs
+**Response (201 Created):**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "proj_123",
+    "name": "Project Name",
+    "description": "Description"
+  }
+}
+```
 
-#### List Tasks
+---
+
+## ✅ Tasks APIs
+
+### List Tasks
+
 **Endpoint:** `GET /api/tasks`
 
-Get all tasks.
+Get all tasks with optional filtering.
 
-#### Create Task
+**Query Parameters:**
+- `status` - Filter by status (pending, in_progress, completed, failed)
+- `agent_id` - Filter by assigned agent
+- `priority` - Filter by priority (high, medium, low)
+- `limit` - Maximum number of tasks to return
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": [...],
+  "count": 10
+}
+```
+
+### Create Task
+
 **Endpoint:** `POST /api/tasks`
 
 Create a new task.
 
-### ⭐ Ratings APIs
+**Request Body:**
+```json
+{
+  "type": "analysis",
+  "priority": "high",
+  "title": "Analyze user behavior",
+  "description": "Analyze user behavior patterns",
+  "estimatedDuration": 30,
+  "dependencies": []
+}
+```
 
-#### List Ratings
+**Response (201 Created):**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "task_123",
+    "type": "analysis",
+    "priority": "high",
+    "status": "pending",
+    "createdAt": "2026-03-29T12:00:00.000Z"
+  }
+}
+```
+
+---
+
+## ⭐ Ratings APIs
+
+### List Ratings
+
 **Endpoint:** `GET /api/ratings`
 
-#### Create Rating
-**Endpoint:** `POST /api/ratings`
-
-#### Get Rating
-**Endpoint:** `GET /api/ratings/[id]`
-
-#### Update Rating
-**Endpoint:** `PATCH /api/ratings/[id]`
-
-#### Delete Rating
-**Endpoint:** `DELETE /api/ratings/[id]`
-
-#### Mark Helpful
-**Endpoint:** `POST /api/ratings/[id]/helpful`
-
-### 🔍 Search APIs
-
-#### Search
-**Endpoint:** `GET /api/search`
+Get all ratings with optional filtering.
 
 **Query Parameters:**
-- `q` - Search query
-- `limit` - Results limit
+- `user_id` - Filter by user ID
+- `target_type` - Filter by target type
+- `target_id` - Filter by target ID
+- `min_score` - Minimum score (1-5)
+- `max_score` - Maximum score (1-5)
 
-#### Autocomplete
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "rating_123",
+      "user_id": "user_123",
+      "target_type": "agent",
+      "target_id": "agent_456",
+      "score": 5,
+      "comment": "Excellent work!",
+      "helpful_count": 3,
+      "created_at": "2026-03-29T12:00:00.000Z"
+    }
+  ],
+  "count": 1
+}
+```
+
+### Create Rating
+
+**Endpoint:** `POST /api/ratings`
+
+Create a new rating.
+
+**Request Body:**
+```json
+{
+  "user_id": "user_123",
+  "target_type": "agent",
+  "target_id": "agent_456",
+  "score": 5,
+  "comment": "Excellent work!"
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "rating_123",
+    "user_id": "user_123",
+    "target_type": "agent",
+    "target_id": "agent_456",
+    "score": 5,
+    "comment": "Excellent work!",
+    "helpful_count": 0,
+    "created_at": "2026-03-29T12:00:00.000Z"
+  }
+}
+```
+
+### Get Rating
+
+**Endpoint:** `GET /api/ratings/[id]`
+
+Get a specific rating by ID.
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "rating_123",
+    "user_id": "user_123",
+    "target_type": "agent",
+    "target_id": "agent_456",
+    "score": 5,
+    "comment": "Excellent work!",
+    "helpful_count": 3,
+    "created_at": "2026-03-29T12:00:00.000Z"
+  }
+}
+```
+
+### Update Rating
+
+**Endpoint:** `PATCH /api/ratings/[id]`
+
+Update an existing rating.
+
+**Request Body:**
+```json
+{
+  "score": 4,
+  "comment": "Updated comment"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "rating_123",
+    "score": 4,
+    "comment": "Updated comment",
+    "updated_at": "2026-03-29T13:00:00.000Z"
+  }
+}
+```
+
+### Delete Rating
+
+**Endpoint:** `DELETE /api/ratings/[id]`
+
+Delete a rating.
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Rating deleted successfully"
+}
+```
+
+### Mark Helpful
+
+**Endpoint:** `POST /api/ratings/[id]/helpful`
+
+Mark a rating as helpful.
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "rating_id": "rating_123",
+    "helpful_count": 4
+  }
+}
+```
+
+---
+
+## 🔍 Search APIs
+
+### Search
+
+**Endpoint:** `GET /api/search`
+
+Search across multiple resource types.
+
+**Query Parameters:**
+- `q` - Search query (required)
+- `type` - Resource type (all, tasks, projects, agents, users)
+- `limit` - Maximum results (default: 20)
+- `offset` - Pagination offset (default: 0)
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "results": [
+      {
+        "type": "task",
+        "id": "task_123",
+        "title": "Analyze user behavior",
+        "highlight": "<em>Analyze</em> user <em>behavior</em>",
+        "relevance": 0.95
+      }
+    ],
+    "total": 10,
+    "query": "analyze user behavior",
+    "type": "all"
+  }
+}
+```
+
+### Autocomplete
+
 **Endpoint:** `GET /api/search/autocomplete`
 
-#### Search History
+Get autocomplete suggestions for search queries.
+
+**Query Parameters:**
+- `q` - Partial query (required)
+- `type` - Resource type
+- `limit` - Maximum suggestions (default: 10)
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "suggestions": [
+      "analyze user behavior",
+      "analyze agent performance",
+      "analyze task queue"
+    ],
+    "query": "analyze"
+  }
+}
+```
+
+### Search History
+
 **Endpoint:** `GET /api/search/history`
 
-### 💾 Backup Schedule APIs
+Get search history for a user.
 
-#### List Schedules
-**Endpoint:** `GET /api/backup/schedule`
+**Query Parameters:**
+- `user_id` - User ID (required)
+- `limit` - Maximum results (default: 20)
 
-#### Create Schedule
-**Endpoint:** `POST /api/backup/schedule`
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "history": [
+      {
+        "id": "hist_123",
+        "user_id": "user_123",
+        "query": "analyze user behavior",
+        "results_count": 10,
+        "created_at": "2026-03-29T12:00:00.000Z"
+      }
+    ],
+    "count": 5
+  }
+}
+```
 
-#### Get Schedule
-**Endpoint:** `GET /api/backup/schedule/[id]`
+---
 
-#### Update Schedule
-**Endpoint:** `PUT /api/backup/schedule/[id]`
+## 📊 Demo APIs
 
-#### Delete Schedule
-**Endpoint:** `DELETE /api/backup/schedule/[id]`
+### Demo Task Status
 
-#### Trigger Schedule
-**Endpoint:** `POST /api/backup/schedule/[id]/trigger`
+**Endpoint:** `GET /api/demo/task-status`
 
-#### Backup Statistics
-**Endpoint:** `GET /api/backup/statistics`
+Demo endpoint for testing task status visualization.
 
-#### Backup Jobs
-**Endpoint:** `GET /api/backup/jobs`
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "tasks": [
+      {
+        "id": "task_001",
+        "title": "Analyze user behavior",
+        "status": "completed",
+        "progress": 100,
+        "assignedAgent": "minimax-agent-1",
+        "startTime": "2026-03-29T10:00:00.000Z",
+        "endTime": "2026-03-29T10:30:00.000Z"
+      }
+    ]
+  }
+}
+```
 
-### 🌐 WebSocket APIs (v1.4.0 增强)
+---
+
+## 🚫 Deprecated APIs
+
+### Backup Schedule APIs
+
+> **⚠️ 已废弃**: 备份计划 API 不再使用。请使用其他方式管理数据备份。
+
+以下端点已从代码中移除:
+
+- `GET /api/backup/schedule`
+- `POST /api/backup/schedule`
+- `GET /api/backup/schedule/[id]`
+- `PUT /api/backup/schedule/[id]`
+- `DELETE /api/backup/schedule/[id]`
+- `POST /api/backup/schedule/[id]/trigger`
+- `GET /api/backup/statistics`
+- `GET /api/backup/jobs`
+
+### Example API
+
+> **⚠️ 已废弃**: `/api/example` 端点不再存在。
+
+### Export API
+
+> **⚠️ 已废弃**: `/api/export` 端点不再存在。请使用 `/api/data/export`。
+
+---
+
+## 📝 数据导入导出 APIs
+
+### Export Data
+
+**Endpoint:** `POST /api/data/export`
+
+Export data from the system.
+
+**Request Body:**
+```json
+{
+  "format": "json",
+  "types": ["tasks", "projects", "users"],
+  "filters": {
+    "dateRange": {
+      "start": "2026-03-01",
+      "end": "2026-03-31"
+    }
+  }
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "exportId": "export_123",
+    "format": "json",
+    "size": 1024000,
+    "downloadUrl": "/api/data/export/download/export_123",
+    "expiresAt": "2026-03-30T12:00:00.000Z"
+  }
+}
+```
+
+### Import Data
+
+**Endpoint:** `POST /api/data/import`
+
+Import data into the system.
+
+**Request Body:** `multipart/form-data`
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `file` | File | Yes | Data file to import |
+| `format` | string | Yes | File format (json, csv) |
+| `dryRun` | boolean | No | Validate without importing (default: false) |
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "importId": "import_123",
+    "recordsProcessed": 100,
+    "recordsImported": 95,
+    "recordsSkipped": 5,
+    "errors": [
+      {
+        "row": 42,
+        "field": "email",
+        "message": "Invalid email format"
+      }
+    ]
+  }
+}
+```
+
+### 🌐 WebSocket APIs (v1.4.0)
 
 v1.4.0 引入了完整的 WebSocket 高级功能，包括房间管理、权限控制和消息持久化系统。
 
-#### HTTP 端点
+> **重要说明**: WebSocket 通过 Socket.IO 库实现，不提供独立的 REST API 端点。连接通过 Socket.IO 客户端建立。
 
-##### WebSocket Connection
-**Endpoint:** `GET /api/ws`
+#### 连接方式
 
-Upgrade to WebSocket connection for real-time updates.
+```typescript
+import { io } from 'socket.io-client';
 
-##### WebSocket Stats
-**Endpoint:** `GET /api/ws/stats`
-
-Get WebSocket server statistics.
-
-##### Room Info
-**Endpoint:** `GET /api/ws/rooms/[roomId]`
-
-Get information about a specific room.
-
-##### Broadcast
-**Endpoint:** `POST /api/ws/broadcast`
-
-Broadcast message to all connected clients.
-
----
+const socket = io('ws://your-server:3001', {
+  auth: {
+    token: 'your-jwt-token'
+  }
+});
+```
 
 #### WebSocket 高级功能 API
 

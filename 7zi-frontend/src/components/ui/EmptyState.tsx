@@ -26,7 +26,7 @@ export interface EmptyStateProps {
   /** 标题 */
   title: string;
   /** 描述 */
-  description?: string;
+  description?: React.ReactNode;
   /** 操作按钮 */
   action?: {
     label: string;

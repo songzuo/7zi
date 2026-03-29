@@ -66,12 +66,16 @@ describe('RoomManager E2E Tests', () => {
     });
 
     it('应该允许管理员邀请用户', () => {
+      // 先邀请 user2 加入私有房间
+      manager.invite(roomId, user2Id, user1Id);
+
       // 用户2以管理员身份加入私有房间
-      manager.join(roomId, {
+      const joinResult = manager.join(roomId, {
         userId: user2Id,
         userName: user2Name,
         role: 'admin',
       });
+      expect(joinResult.success).toBe(true);
 
       // 验证用户2有邀请权限
       const permManager = getPermissionManager();
@@ -82,11 +86,11 @@ describe('RoomManager E2E Tests', () => {
       expect(inviteResult.success).toBe(true);
 
       // 被邀请用户可以加入
-      const joinResult = manager.join(roomId, {
+      const joinResult2 = manager.join(roomId, {
         userId: user3Id,
         userName: user3Name,
       });
-      expect(joinResult.success).toBe(true);
+      expect(joinResult2.success).toBe(true);
     });
 
     it('应该拒绝无权限用户的邀请', () => {

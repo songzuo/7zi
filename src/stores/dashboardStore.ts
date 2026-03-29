@@ -470,6 +470,22 @@ export const useMember = (memberId: string) =>
 export const getDashboardSnapshot = () => useDashboardStore.getState();
 
 /**
+ * 获取统计数据（非 Hook 版本，用于测试和非 React 环境）
+ */
+export const getDashboardStats = (): DashboardStats => {
+  const state = useDashboardStore.getState();
+  return {
+    totalMembers: state.members.length,
+    working: state.members.filter((m) => m.status === 'working').length,
+    busy: state.members.filter((m) => m.status === 'busy').length,
+    idle: state.members.filter((m) => m.status === 'idle').length,
+    offline: state.members.filter((m) => m.status === 'offline').length,
+    openIssues: state.issues.filter((i) => i.state === 'open').length,
+    closedIssues: state.issues.filter((i) => i.state === 'closed').length,
+  };
+};
+
+/**
  * 设置 Dashboard 配置（外部调用）
  */
 export const setDashboardConfig = (owner: string, repo: string, token?: string) => {

@@ -1,39 +1,48 @@
 /**
- * 通知状态管理 Store
+ * UI 通知状态管理 Store
  *
  * 架构师: 🏗️ 架构师
  * 创建日期: 2026-03-29
+ * 更新日期: 2026-03-29 - 重命名类型以区分 UI 通知和服务器通知
  *
  * 功能:
- * - 通知列表管理
+ * - UI 通知列表管理（Toast/Snackbar 样式通知）
  * - 未读计数
  * - 通知操作 (添加、删除、标记已读)
  * - 自动消失机制
+ *
+ * 注意: 此 Store 用于 UI 层面的通知显示
+ * 服务器端实时通知使用 @/lib/services/notification-types.ts 中的类型
  */
 
 import { create } from 'zustand';
 
 /**
- * 通知类型
+ * UI 通知类型（简化版，用于 Toast 显示）
  */
-export type NotificationType = 'success' | 'error' | 'warning' | 'info';
+export type UINotificationType = 'success' | 'error' | 'warning' | 'info';
 
 /**
- * 通知优先级
+ * UI 通知优先级
  */
-export type NotificationPriority = 'low' | 'normal' | 'high' | 'urgent';
+export type UINotificationPriority = 'low' | 'normal' | 'high' | 'urgent';
 
 /**
- * 通知接口
+ * UI 通知接口
+ *
+ * 与服务器端 Notification 类型的区别：
+ * - 没有 userId/teamId/taskId（不需要关联用户）
+ * - 有 duration（自动消失时间）
+ * - 有 action（可点击的操作按钮）
  */
-export interface Notification {
+export interface UINotification {
   id: string;
-  type: NotificationType;
+  type: UINotificationType;
   title: string;
   message: string;
   read: boolean;
   timestamp: number;
-  priority?: NotificationPriority;
+  priority?: UINotificationPriority;
   duration?: number; // 自动消失时间 (毫秒)
   action?: {
     label: string;
@@ -43,27 +52,27 @@ export interface Notification {
 }
 
 /**
- * 通知过滤器
+ * UI 通知过滤器
  */
-export interface NotificationFilter {
-  type?: NotificationType;
+export interface UINotificationFilter {
+  type?: UINotificationType;
   read?: boolean;
-  priority?: NotificationPriority;
+  priority?: UINotificationPriority;
   search?: string;
 }
 
 /**
- * 通知状态接口
+ * UI 通知状态接口
  */
-export interface NotificationState {
+export interface UINotificationState {
   // 状态
-  notifications: Notification[];
+  notifications: UINotification[];
   unreadCount: number;
   maxNotifications: number;
 
   // 添加通知
   addNotification: (
-    notification: Omit<Notification, 'id' | 'read' | 'timestamp'>
+    notification: Omit<UINotification, 'id' | 'read' | 'timestamp'>
   ) => string;
 
   // 删除通知
@@ -75,7 +84,7 @@ export interface NotificationState {
   markAllAsRead: () => void;
 
   // 过滤
-  getFilteredNotifications: (filter: NotificationFilter) => Notification[];
+  getFilteredNotifications: (filter: UINotificationFilter) => UINotification[];
 
   // 快捷方法
   success: (title: string, message: string, duration?: number) => string;
@@ -87,7 +96,7 @@ export interface NotificationState {
 /**
  * 默认持续时间
  */
-const DEFAULT_DURATION = {
+const DEFAULT_DURATION: Record<UINotificationType, number> = {
   success: 5000,
   info: 5000,
   warning: 7000,
@@ -95,9 +104,9 @@ const DEFAULT_DURATION = {
 };
 
 /**
- * 通知状态 Store
+ * UI 通知状态 Store
  */
-export const useNotificationStore = create<NotificationState>((set, get) => ({
+export const useNotificationStore = create<UINotificationState>((set, get) => ({
   notifications: [],
   unreadCount: 0,
   maxNotifications: 100,
@@ -110,7 +119,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
     const timestamp = Date.now();
     const duration = notification.duration ?? DEFAULT_DURATION[notification.type];
 
-    const newNotification: Notification = {
+    const newNotification: UINotification = {
       ...notification,
       id,
       read: false,
@@ -191,7 +200,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
   /**
    * 获取过滤后的通知
    */
-  getFilteredNotifications: (filter: NotificationFilter) => {
+  getFilteredNotifications: (filter: UINotificationFilter) => {
     const { notifications } = get();
     let filtered = [...notifications];
 
@@ -251,7 +260,17 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
 /**
  * 选择器 - 用于性能优化
  */
-export const selectNotifications = (state: NotificationState) => state.notifications;
-export const selectUnreadCount = (state: NotificationState) => state.unreadCount;
-export const selectUnreadNotifications = (state: NotificationState) =>
+export const selectNotifications = (state: UINotificationState) => state.notifications;
+export const selectUnreadCount = (state: UINotificationState) => state.unreadCount;
+export const selectUnreadNotifications = (state: UINotificationState) =>
   state.notifications.filter((n) => !n.read);
+
+/**
+ * 向后兼容的类型别名
+ * @deprecated 使用 UINotification 代替
+ */
+export type Notification = UINotification;
+export type NotificationType = UINotificationType;
+export type NotificationPriority = UINotificationPriority;
+export type NotificationFilter = UINotificationFilter;
+export type NotificationState = UINotificationState;

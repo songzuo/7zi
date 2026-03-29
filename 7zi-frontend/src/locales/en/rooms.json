@@ -1,0 +1,63 @@
+{
+  "rooms": {
+    "title": "Rooms",
+    "subtitle": "Manage your WebSocket rooms",
+    "create": "Create Room",
+    "join": "Join Room",
+    "leave": "Leave",
+    "leaveConfirm": "Are you sure you want to leave this room?",
+    "joined": "Joined",
+    "created": "Created",
+    "filter": {
+      "all": "All Rooms",
+      "myCreated": "My Created Rooms",
+      "myJoined": "My Joined Rooms"
+    },
+    "roomName": "Room Name",
+    "roomDescription": "Description",
+    "roomPassword": "Password (Optional)",
+    "members": "Members",
+    "online": "Online",
+    "lastActivity": "Last Activity",
+    "creator": "Creator",
+    "createdAt": "Created At",
+    "settings": "Settings",
+    "invite": "Invite",
+    "inviteCode": "Invite Code",
+    "inviteLink": "Invite Link",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "share": "Share",
+    "rename": "Rename",
+    "changePassword": "Change Password",
+    "transferOwnership": "Transfer Ownership",
+    "transferTo": "Transfer to",
+    "transferConfirm": "Are you sure you want to transfer ownership to {{name}}?",
+    "delete": "Delete Room",
+    "deleteConfirm": "Are you sure you want to delete this room? This action cannot be undone.",
+    "status": {
+      "connected": "Connected",
+      "connecting": "Connecting",
+      "disconnected": "Disconnected",
+      "reconnecting": "Reconnecting"
+    },
+    "messages": {
+      "createSuccess": "Room created successfully",
+      "joinSuccess": "Joined room successfully",
+      "leaveSuccess": "Left room successfully",
+      "updateSuccess": "Room updated successfully",
+      "deleteSuccess": "Room deleted successfully",
+      "error": "An error occurred",
+      "invalidCode": "Invalid invite code",
+      "alreadyJoined": "You have already joined this room",
+      "notInRoom": "You are not in this room"
+    },
+    "placeholder": {
+      "searchRooms": "Search rooms...",
+      "enterRoomName": "Enter room name",
+      "enterDescription": "Enter description (optional)",
+      "enterPassword": "Enter password (optional)",
+      "enterInviteCode": "Enter invite code"
+    }
+  }
+}

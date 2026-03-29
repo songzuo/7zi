@@ -116,24 +116,24 @@ export class LocalStorageStorage implements MonitoringStorage {
     return typeof window !== 'undefined';
   }
 
-  private getMetrics(): PerformanceMetric[] {
+  private getAllMetrics(): PerformanceMetric[] {
     if (!this.isClient()) return [];
     const data = localStorage.getItem(this.metricsKey);
     return data ? JSON.parse(data) : [];
   }
 
-  private setMetrics(metrics: PerformanceMetric[]): void {
+  private setAllMetrics(metrics: PerformanceMetric[]): void {
     if (!this.isClient()) return;
     localStorage.setItem(this.metricsKey, JSON.stringify(metrics));
   }
 
-  private getAlarms(): AlarmEvent[] {
+  private getAllAlarms(): AlarmEvent[] {
     if (!this.isClient()) return [];
     const data = localStorage.getItem(this.alarmsKey);
     return data ? JSON.parse(data) : [];
   }
 
-  private setAlarms(alarms: AlarmEvent[]): void {
+  private setAllAlarms(alarms: AlarmEvent[]): void {
     if (!this.isClient()) return;
     localStorage.setItem(this.alarmsKey, JSON.stringify(alarms));
   }
@@ -141,7 +141,7 @@ export class LocalStorageStorage implements MonitoringStorage {
   async saveMetric(metric: PerformanceMetric): Promise<void> {
     if (!this.isClient()) return;
 
-    const metrics = this.getMetrics();
+    const metrics = this.getAllMetrics();
     const existingIndex = metrics.findIndex((m) => m.id === metric.id);
 
     if (existingIndex >= 0) {
@@ -155,7 +155,7 @@ export class LocalStorageStorage implements MonitoringStorage {
     const cutoffTime = now - this.retentionPeriodMs;
     const filteredMetrics = metrics.filter((m) => m.timestamp >= cutoffTime);
 
-    this.setMetrics(filteredMetrics);
+    this.setAllMetrics(filteredMetrics);
   }
 
   async getMetrics(filter?: {
@@ -165,7 +165,7 @@ export class LocalStorageStorage implements MonitoringStorage {
   }): Promise<PerformanceMetric[]> {
     if (!this.isClient()) return [];
 
-    let metrics = this.getMetrics();
+    let metrics = this.getAllMetrics();
 
     if (filter?.type) {
       metrics = metrics.filter((m) => m.type === filter.type);
@@ -196,13 +196,13 @@ export class LocalStorageStorage implements MonitoringStorage {
 
   async getMetricsCount(): Promise<number> {
     if (!this.isClient()) return 0;
-    return this.getMetrics().length;
+    return this.getAllMetrics().length;
   }
 
   async saveAlarm(event: AlarmEvent): Promise<void> {
     if (!this.isClient()) return;
 
-    const alarms = this.getAlarms();
+    const alarms = this.getAllAlarms();
     const existingIndex = alarms.findIndex((a) => a.id === event.id);
 
     if (existingIndex >= 0) {
@@ -211,13 +211,13 @@ export class LocalStorageStorage implements MonitoringStorage {
       alarms.push(event);
     }
 
-    this.setAlarms(alarms);
+    this.setAllAlarms(alarms);
   }
 
   async getAlarms(startTime?: number): Promise<AlarmEvent[]> {
     if (!this.isClient()) return [];
 
-    let alarms = this.getAlarms();
+    let alarms = this.getAllAlarms();
 
     if (startTime) {
       alarms = alarms.filter((a) => a.timestamp >= startTime);

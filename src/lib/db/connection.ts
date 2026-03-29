@@ -46,6 +46,7 @@ function initializeDatabase(): Database.Database {
   }
 
   const dbPath = process.env.DATABASE_PATH || '/tmp/7zi-database.sqlite';
+  const isMemoryDatabase = dbPath === ':memory:';
 
   // better-sqlite3 verbose callback type: (message?: unknown, ...additionalArgs: unknown[]) => void
   const verboseCallback = process.env.NODE_ENV === 'development'
@@ -60,12 +61,14 @@ function initializeDatabase(): Database.Database {
     verbose: verboseCallback,
   });
 
-  // Enable performance optimizations
-  dbInstance.pragma('journal_mode = WAL'); // Write-Ahead Logging for better concurrency
-  dbInstance.pragma('synchronous = NORMAL'); // Faster writes with reasonable safety
-  dbInstance.pragma('cache_size = -64000'); // 64MB cache
-  dbInstance.pragma('temp_store = MEMORY'); // Store temp tables in memory
-  dbInstance.pragma('mmap_size = 30000000000'); // Use memory-mapped I/O for 30GB
+  // Enable performance optimizations (skip for memory databases and test environment)
+  if (!isMemoryDatabase && process.env.NODE_ENV !== 'test') {
+    dbInstance.pragma('journal_mode = WAL'); // Write-Ahead Logging for better concurrency
+    dbInstance.pragma('synchronous = NORMAL'); // Faster writes with reasonable safety
+    dbInstance.pragma('cache_size = -64000'); // 64MB cache
+    dbInstance.pragma('temp_store = MEMORY'); // Store temp tables in memory
+    dbInstance.pragma('mmap_size = 30000000000'); // Use memory-mapped I/O for 30GB
+  }
   
   connectionCount = 1;
   
@@ -110,7 +113,7 @@ export function getDatabase(): DatabaseConnection {
     queryRows: (sql: string, params?: unknown[]) => {
       try {
         const stmt = db.prepare(sql);
-        const result = params ? stmt.all(...params) : stmt.all();
+        const result = params && params.length > 0 ? stmt.all(...params) : stmt.all();
         return Array.isArray(result) ? result as Record<string, unknown>[] : [];
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);

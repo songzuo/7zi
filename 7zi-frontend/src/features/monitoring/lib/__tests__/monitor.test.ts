@@ -6,13 +6,13 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { PerformanceMonitor } from '../monitor';
 import { MemoryStorage } from '../storage';
-import type { MonitoringConfig } from './types';
+import type { MonitoringConfig } from '../types';
 
 describe('PerformanceMonitor', () => {
   let monitor: PerformanceMonitor;
 
   beforeEach(() => {
-    monitor = new PerformanceMonitor();
+    monitor = PerformanceMonitor.getInstance();
     monitor.updateConfig({ enabled: true, sampleRate: 1.0 });
   });
 

@@ -7,7 +7,7 @@
 'use client';
 
 import { OptimizedImage, BackgroundImage, ImageGallery, IMAGE_PRESETS, type ImagePreset } from '@/components/OptimizedImage'
-import { usePreloadImage, useLazyImage } from '@/hooks/useImageOptimization'
+import { usePreloadImage, useLazyImage } from '@/hooks/useImagePreload'
 import { useState } from 'react'
 
 export default function ImageOptimizationExamplePage() {
@@ -108,7 +108,6 @@ export default function ImageOptimizationExamplePage() {
                 alt="Lazy loaded image"
                 preset="content"
                 className="rounded-lg shadow-lg w-full"
-                loading="lazy"
               />
             )}
           </div>
@@ -135,7 +134,7 @@ export default function ImageOptimizationExamplePage() {
             <label className="block text-sm font-medium mb-2">选择预设：</label>
             <select
               value={selectedPreset}
-              onChange={(e) => setSelectedPreset(e.target.value)}
+              onChange={(e) => setSelectedPreset(e.target.value as ImagePreset)}
               className="px-4 py-2 border rounded dark:bg-gray-700 dark:border-gray-600"
             >
               <option value="avatar">Avatar</option>

@@ -1,4 +1,7 @@
 /**
+ * @vitest-environment jsdom
+ */
+/**
  * Performance Monitoring Integration Tests
  * End-to-end tests for performance monitoring system
  */

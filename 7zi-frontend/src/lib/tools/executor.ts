@@ -3,10 +3,30 @@
  * Placeholder for tool execution
  */
 
-export class ToolExecutor {
-  constructor() {}
+import type { ToolResult } from '@/features/mcp/lib/server';
 
-  async execute(toolName: string, args: Record<string, unknown>) {
-    return { success: true, result: {} };
+export class ToolExecutor {
+  private static instance: ToolExecutor;
+
+  private constructor() {}
+
+  static getInstance(): ToolExecutor {
+    if (!ToolExecutor.instance) {
+      ToolExecutor.instance = new ToolExecutor();
+    }
+    return ToolExecutor.instance;
+  }
+
+  static async execute(toolName: string, args: Record<string, unknown>): Promise<ToolResult> {
+    // Placeholder implementation
+    console.log(`[ToolExecutor] Executing tool: ${toolName}`, args);
+    return {
+      content: [
+        {
+          type: 'text',
+          text: `Tool ${toolName} executed successfully`,
+        },
+      ],
+    };
   }
 }

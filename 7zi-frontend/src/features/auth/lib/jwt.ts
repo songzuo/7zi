@@ -46,7 +46,18 @@ export async function generateJWT(payload: Omit<JWTPayload, 'iat' | 'exp'>): Pro
 export async function verifyJWT(token: string): Promise<JWTPayload> {
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET);
-    return payload as JWTPayload;
+    // 验证 payload 包含必需的字段
+    if (!payload.userId || !payload.username || !payload.email || !payload.role) {
+      throw new Error('Invalid JWT payload structure');
+    }
+    return {
+      userId: payload.userId as string,
+      username: payload.username as string,
+      email: payload.email as string,
+      role: payload.role as 'admin' | 'user' | 'guest',
+      iat: payload.iat,
+      exp: payload.exp,
+    };
   } catch (error) {
     console.error('[JWT] Token verification failed:', error);
     throw new Error('Invalid or expired token');

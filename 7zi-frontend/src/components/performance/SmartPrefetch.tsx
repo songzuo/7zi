@@ -109,10 +109,11 @@ function useUserBehavior() {
   }, []);
 
   const endHover = useCallback(() => {
-    if (hoverStartRef.current) {
+    if (hoverStartRef.current !== null) {
+      const hoverTime = Date.now() - hoverStartRef.current;
       setBehavior(prev => ({
         ...prev,
-        hoverTime: Date.now() - hoverStartRef.current,
+        hoverTime,
         lastInteraction: Date.now(),
       }));
       hoverStartRef.current = null;

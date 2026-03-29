@@ -46,7 +46,7 @@ export async function generateJWT(payload: Omit<JWTPayload, 'iat' | 'exp'>): Pro
 export async function verifyJWT(token: string): Promise<JWTPayload> {
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET);
-    return payload as JWTPayload;
+    return payload as unknown as JWTPayload;
   } catch (error) {
     console.error('[JWT] Token verification failed:', error);
     throw new Error('Invalid or expired token');

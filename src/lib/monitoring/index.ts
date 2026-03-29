@@ -8,6 +8,8 @@
  * - 告警管理
  * - 错误追踪
  * - 健康检查
+ * - 根因分析
+ * - 预算控制
  */
 
 // ============================================
@@ -34,7 +36,6 @@ export {
   getEnvironmentConfig,
   getConfig,
   type MetricRating,
-  type AlertLevel,
   type Environment,
 } from './performance.config';
 
@@ -86,8 +87,12 @@ export {
   sendSlackAlert,
   sendEmailAlert,
   alerts,
+  AlertSystem,
+  AlertDeduplication,
+  AlertAggregator,
   type AlertSeverity,
   type AlertConfig,
+  type AlertChannel,
 } from './alerts';
 
 // ============================================
@@ -120,3 +125,99 @@ export {
   type HistogramMetric,
   type MetricType,
 } from './prometheus';
+
+// ============================================
+// 根因分析 (Root Cause Analysis)
+// ============================================
+export {
+  RootCauseAnalyzer,
+  rootCauseAnalyzer,
+  type RootCauseAnalysis,
+  type MemoryLeakIndicator,
+  type SlowQueryIndicator,
+  type CacheHitRateIndicator,
+  type PerformanceIndicator,
+  type MetricCorrelation,
+  type DiagnosisReport,
+  type ActionItem,
+} from './root-cause';
+
+// Re-export from root-cause subdirectory
+export {
+  BottleneckDetector,
+  bottleneckDetector,
+  type Bottleneck,
+  type BottleneckAnalysis,
+  type BottleneckRecommendation,
+  type PerformanceProfile,
+} from './root-cause';
+
+export {
+  SlowRequestTracker,
+  slowRequestTracker,
+  type RequestTiming,
+  type SlowRequestAnalysis,
+  type RequestBottleneck,
+} from './root-cause';
+
+export {
+  PerformanceWaterfall,
+  performanceWaterfall,
+  type ResourceTiming,
+  type WaterfallAnalysis,
+} from './root-cause';
+
+// ============================================
+// 预算控制器 (Budget Controller)
+// ============================================
+export {
+  BudgetController,
+  budgetController,
+  DEFAULT_BUDGET_RULES,
+  createBudgetControllerWithAlerts,
+  formatBudgetResultsForDisplay,
+  type BudgetRule,
+  type BudgetCheckResult,
+  type BudgetReport,
+  type BudgetSummary,
+  type BudgetViolationAlert,
+  type SuppressionRule,
+} from './budget-controller';
+
+// ============================================
+// 告警管理器 (Alert Manager)
+// ============================================
+export {
+  AlertManager,
+  getAlertManager,
+  createAlertManager,
+  DEFAULT_ALERT_RULES,
+  ALERT_LEVELS,
+  createSilenceRule,
+  formatAlertForDisplay,
+  formatAlertStatsForDisplay,
+  type AlertLevel,
+  type AlertLevelKey,
+  type AlertRecord as AlertManagerRecord,
+  type AlertStats,
+  type SilenceRule as AlertSilenceRule,
+  type AlertMatcher,
+  type EscalationPolicy,
+  type EscalationLevel,
+} from './alert-manager';
+
+// ============================================
+// 性能预算 (Budget - Legacy)
+// ============================================
+export {
+  PerformanceBudget,
+  DEFAULT_BUDGETS,
+  createDefaultBudget,
+  createBudget,
+  formatBudgetViolation,
+  type BudgetThreshold,
+  type BudgetConfig,
+  type BudgetResult,
+  type BudgetViolation,
+  type BudgetReport as LegacyBudgetReport,
+} from './budget';

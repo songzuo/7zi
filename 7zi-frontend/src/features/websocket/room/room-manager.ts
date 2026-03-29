@@ -108,7 +108,7 @@ export class RoomManager {
     // 记录用户房间关联
     this.addUserRoom(config.ownerId, roomId);
 
-    logger.log(`[RoomManager] Room created: ${roomId} by ${userName}`);
+    logger.info(`[RoomManager] Room created: ${roomId} by ${userName}`);
     return room;
   }
 
@@ -165,7 +165,7 @@ export class RoomManager {
     // 记录用户房间关联
     this.addUserRoom(userId, roomId);
 
-    logger.log(`[RoomManager] ${userName} joined room: ${roomId}`);
+    logger.info(`[RoomManager] ${userName} joined room: ${roomId}`);
     return { success: true };
   }
 
@@ -195,7 +195,7 @@ export class RoomManager {
     // 移除用户房间关联
     this.removeUserRoom(userId, roomId);
 
-    logger.log(`[RoomManager] User ${userId} left room: ${roomId}`);
+    logger.info(`[RoomManager] User ${userId} left room: ${roomId}`);
     return { success: true };
   }
 
@@ -230,7 +230,7 @@ export class RoomManager {
     // 移除用户房间关联
     this.removeUserRoom(targetUserId, roomId);
 
-    logger.log(`[RoomManager] User ${targetUserId} kicked from room: ${roomId}`);
+    logger.info(`[RoomManager] User ${targetUserId} kicked from room: ${roomId}`);
     return { success: true };
   }
 
@@ -268,7 +268,7 @@ export class RoomManager {
     member.permissions = this.getDefaultPermissions(newRole);
     room.lastActivityAt = Date.now();
 
-    logger.log(`[RoomManager] User ${targetUserId} role updated to ${newRole} in room: ${roomId}`);
+    logger.info(`[RoomManager] User ${targetUserId} role updated to ${newRole} in room: ${roomId}`);
     return { success: true };
   }
 
@@ -341,7 +341,7 @@ export class RoomManager {
     }
 
     this.rooms.delete(roomId);
-    logger.log(`[RoomManager] Room deleted: ${roomId}`);
+    logger.info(`[RoomManager] Room deleted: ${roomId}`);
     return { success: true };
   }
 

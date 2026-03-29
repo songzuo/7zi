@@ -27,7 +27,7 @@ export class MessagePersistence {
     // 清理旧消息
     await this.cleanupOldMessages(roomId);
 
-    logger.log(`[MessagePersistence] Message saved: ${message.id} in room ${roomId}`);
+    logger.info(`[MessagePersistence] Message saved: ${message.id} in room ${roomId}`);
   }
 
   /**
@@ -42,12 +42,12 @@ export class MessagePersistence {
     let result = [...messages];
 
     // 时间范围过滤
-    if (options.after) {
-      result = result.filter(m => m.createdAt > options.after);
+    if (options.after !== undefined) {
+      result = result.filter(m => m.createdAt > options.after!);
     }
 
-    if (options.before) {
-      result = result.filter(m => m.createdAt < options.before);
+    if (options.before !== undefined) {
+      result = result.filter(m => m.createdAt < options.before!);
     }
 
     // 排序（时间倒序）
@@ -146,7 +146,7 @@ export class MessagePersistence {
       results = results.slice(0, options.limit);
     }
 
-    logger.log(`[MessagePersistence] Search completed: ${results.length} results`);
+    logger.info(`[MessagePersistence] Search completed: ${results.length} results`);
     return results;
   }
 
@@ -172,7 +172,7 @@ export class MessagePersistence {
         message.editedAt = Date.now();
         message.editedCount = (message.editedCount || 0) + 1;
 
-        logger.log(`[MessagePersistence] Message edited: ${messageId}`);
+        logger.info(`[MessagePersistence] Message edited: ${messageId}`);
         return { success: true };
       }
     }
@@ -196,7 +196,7 @@ export class MessagePersistence {
         message.deletedAt = Date.now();
         message.deletedBy = deleterId;
 
-        logger.log(`[MessagePersistence] Message deleted: ${messageId}`);
+        logger.info(`[MessagePersistence] Message deleted: ${messageId}`);
         return { success: true };
       }
     }
@@ -235,7 +235,7 @@ export class MessagePersistence {
       }
     }
 
-    logger.log(`[MessagePersistence] Room ${roomId} marked as read by user ${userId}`);
+    logger.info(`[MessagePersistence] Room ${roomId} marked as read by user ${userId}`);
   }
 
   /**
@@ -262,7 +262,7 @@ export class MessagePersistence {
     // 按时间排序
     offlineMessages.sort((a, b) => a.createdAt - b.createdAt);
 
-    logger.log(`[MessagePersistence] Synced ${offlineMessages.length} offline messages for user ${userId}`);
+    logger.info(`[MessagePersistence] Synced ${offlineMessages.length} offline messages for user ${userId}`);
     return offlineMessages;
   }
 
@@ -292,7 +292,7 @@ export class MessagePersistence {
     this.messages.set(roomId, filtered);
 
     if (filtered.length !== originalSize) {
-      logger.log(`[MessagePersistence] Cleaned up ${originalSize - filtered.length} old messages in room ${roomId}`);
+      logger.info(`[MessagePersistence] Cleaned up ${originalSize - filtered.length} old messages in room ${roomId}`);
     }
   }
 

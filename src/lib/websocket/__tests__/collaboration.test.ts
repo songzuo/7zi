@@ -13,10 +13,11 @@ import { describe, it, expect } from 'vitest';
 import type {
   CursorUpdate,
   SelectionUpdate,
-  DocumentOperation,
-  DocumentState,
+  DocumentOperation as WebSocketDocumentOperation,
+  DocumentState as WebSocketDocumentState,
   CollaborationMessage,
 } from '../types';
+import type { Operation, DocumentState } from '@/lib/collaboration/manager';
 import {
   transform,
   applyOperationToContent,
@@ -148,7 +149,7 @@ describe('Selection Synchronization', () => {
 
 describe('Document Operations', () => {
   it('should create valid insert operation', () => {
-    const operation: DocumentOperation = {
+    const operation: Operation = {
       type: 'insert',
       position: 5,
       content: 'hello',
@@ -160,7 +161,7 @@ describe('Document Operations', () => {
   });
 
   it('should create valid delete operation', () => {
-    const operation: DocumentOperation = {
+    const operation: Operation = {
       type: 'delete',
       position: 10,
       length: 3,
@@ -172,7 +173,7 @@ describe('Document Operations', () => {
   });
 
   it('should create valid retain operation', () => {
-    const operation: DocumentOperation = {
+    const operation: Operation = {
       type: 'retain',
       position: 0,
     };
@@ -183,7 +184,7 @@ describe('Document Operations', () => {
 
   it('should apply insert operation to document', () => {
     const content = 'Hello world';
-    const operation: DocumentOperation = {
+    const operation: Operation = {
       type: 'insert',
       position: 5,
       content: ' beautiful',
@@ -196,7 +197,7 @@ describe('Document Operations', () => {
 
   it('should apply delete operation to document', () => {
     const content = 'Hello beautiful world';
-    const operation: DocumentOperation = {
+    const operation: Operation = {
       type: 'delete',
       position: 5,
       length: 10,
@@ -209,7 +210,7 @@ describe('Document Operations', () => {
 
   it('should apply retain operation to document', () => {
     const content = 'Hello world';
-    const operation: DocumentOperation = {
+    const operation: Operation = {
       type: 'retain',
       position: 0,
     };
@@ -221,7 +222,7 @@ describe('Document Operations', () => {
 
   it('should handle insert at beginning', () => {
     const content = 'world';
-    const operation: DocumentOperation = {
+    const operation: Operation = {
       type: 'insert',
       position: 0,
       content: 'Hello ',
@@ -234,7 +235,7 @@ describe('Document Operations', () => {
 
   it('should handle insert at end', () => {
     const content = 'Hello';
-    const operation: DocumentOperation = {
+    const operation: Operation = {
       type: 'insert',
       position: 5,
       content: ' world',
@@ -252,13 +253,13 @@ describe('Document Operations', () => {
 
 describe('Operational Transformation', () => {
   it('should transform concurrent insert operations', () => {
-    const op1: DocumentOperation = {
+    const op1: Operation = {
       type: 'insert',
       position: 5,
       content: 'hello',
     };
 
-    const op2: DocumentOperation = {
+    const op2: Operation = {
       type: 'insert',
       position: 10,
       content: 'world',
@@ -276,13 +277,13 @@ describe('Operational Transformation', () => {
   });
 
   it('should transform concurrent delete operations', () => {
-    const op1: DocumentOperation = {
+    const op1: Operation = {
       type: 'delete',
       position: 5,
       length: 3,
     };
 
-    const op2: DocumentOperation = {
+    const op2: Operation = {
       type: 'delete',
       position: 10,
       length: 2,
@@ -300,13 +301,13 @@ describe('Operational Transformation', () => {
   });
 
   it('should transform insert and delete', () => {
-    const op1: DocumentOperation = {
+    const op1: Operation = {
       type: 'insert',
       position: 5,
       content: 'hello',
     };
 
-    const op2: DocumentOperation = {
+    const op2: Operation = {
       type: 'delete',
       position: 10,
       length: 2,
@@ -322,13 +323,13 @@ describe('Operational Transformation', () => {
   });
 
   it('should handle operations at same position', () => {
-    const op1: DocumentOperation = {
+    const op1: Operation = {
       type: 'insert',
       position: 5,
       content: 'A',
     };
 
-    const op2: DocumentOperation = {
+    const op2: Operation = {
       type: 'insert',
       position: 5,
       content: 'B',
@@ -342,13 +343,13 @@ describe('Operational Transformation', () => {
   });
 
   it('should compose two operations', () => {
-    const op1: DocumentOperation = {
+    const op1: Operation = {
       type: 'insert',
       position: 0,
       content: 'Hello',
     };
 
-    const op2: DocumentOperation = {
+    const op2: Operation = {
       type: 'insert',
       position: 5,
       content: ' world',
@@ -362,13 +363,13 @@ describe('Operational Transformation', () => {
   });
 
   it('should compose operations with proper position adjustment', () => {
-    const op1: DocumentOperation = {
+    const op1: Operation = {
       type: 'insert',
       position: 3,
       content: 'llo',
     };
 
-    const op2: DocumentOperation = {
+    const op2: Operation = {
       type: 'insert',
       position: 0,
       content: 'He',
@@ -497,7 +498,7 @@ describe('Document State', () => {
       revision: 0,
     };
 
-    const operation: DocumentOperation = {
+    const operation: Operation = {
       type: 'insert',
       position: 5,
       content: ' world',
@@ -524,14 +525,14 @@ describe('Multi-User Scenarios', () => {
     const content = 'Hello world';
 
     // User 1 inserts at position 5
-    const op1: DocumentOperation = {
+    const op1: Operation = {
       type: 'insert',
       position: 5,
       content: ' beautiful',
     };
 
     // User 2 inserts at position 10 (before transformation)
-    const op2: DocumentOperation = {
+    const op2: Operation = {
       type: 'insert',
       position: 10,
       content: ' amazing',
@@ -550,19 +551,19 @@ describe('Multi-User Scenarios', () => {
   it('should handle three users editing concurrently', () => {
     const content = 'ABC';
 
-    const op1: DocumentOperation = {
+    const op1: Operation = {
       type: 'insert',
       position: 1,
       content: 'X',
     };
 
-    const op2: DocumentOperation = {
+    const op2: Operation = {
       type: 'insert',
       position: 2,
       content: 'Y',
     };
 
-    const op3: DocumentOperation = {
+    const op3: Operation = {
       type: 'insert',
       position: 3,
       content: 'Z',
@@ -586,13 +587,13 @@ describe('Multi-User Scenarios', () => {
   it('should handle conflicting deletions', () => {
     const content = 'Hello world';
 
-    const op1: DocumentOperation = {
+    const op1: Operation = {
       type: 'delete',
       position: 0,
       length: 5,
     };
 
-    const op2: DocumentOperation = {
+    const op2: Operation = {
       type: 'delete',
       position: 6,
       length: 5,
@@ -614,7 +615,7 @@ describe('Multi-User Scenarios', () => {
 describe('Edge Cases', () => {
   it('should handle empty document', () => {
     const content = '';
-    const operation: DocumentOperation = {
+    const operation: Operation = {
       type: 'insert',
       position: 0,
       content: 'Hello',
@@ -627,7 +628,7 @@ describe('Edge Cases', () => {
 
   it('should handle operation beyond document length', () => {
     const content = 'Hello';
-    const operation: DocumentOperation = {
+    const operation: Operation = {
       type: 'insert',
       position: 100,
       content: ' world',
@@ -641,7 +642,7 @@ describe('Edge Cases', () => {
 
   it('should handle zero-length delete', () => {
     const content = 'Hello world';
-    const operation: DocumentOperation = {
+    const operation: Operation = {
       type: 'delete',
       position: 5,
       length: 0,
@@ -654,7 +655,7 @@ describe('Edge Cases', () => {
 
   it('should handle empty insert', () => {
     const content = 'Hello';
-    const operation: DocumentOperation = {
+    const operation: Operation = {
       type: 'insert',
       position: 5,
       content: '',

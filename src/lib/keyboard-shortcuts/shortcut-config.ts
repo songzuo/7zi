@@ -4,19 +4,10 @@
  * Default shortcuts for the application. These can be customized by users.
  */
 
-import type { KeyboardShortcut } from './shortcut-manager';
+import type { KeyboardShortcut, ShortcutContext } from './shortcut-types';
 
-/**
- * Context types for shortcuts
- */
-export type ShortcutContext =
-  | 'global'
-  | 'dashboard'
-  | 'tasks'
-  | 'editor'
-  | 'settings'
-  | 'calendar'
-  | 'notifications';
+// Re-export types for backward compatibility
+export type { KeyboardShortcut, ShortcutContext } from './shortcut-types';
 
 /**
  * Default shortcuts configuration

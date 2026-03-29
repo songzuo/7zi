@@ -307,7 +307,6 @@ export const useSchedulerStore = create<SchedulerState>((set, get) => ({
 /**
  * Selectors
  */
-export const selectScheduler = (state: SchedulerState) => state.scheduler;
 export const selectAgents = (state: SchedulerState) => state.agents;
 export const selectTasks = (state: SchedulerState) => state.tasks;
 export const selectPendingTasks = (state: SchedulerState) => state.pendingTasks;
@@ -337,6 +336,8 @@ export const selectAgentAvailability = (state: SchedulerState) => {
   };
 };
 
+// NOTE: The following computed selectors are kept for potential future use
+// even though they are not currently used in the codebase
 export const selectTaskByStatus = (status: TaskStatus) => (state: SchedulerState) => {
   return state.tasks.filter(t => t.status === status);
 };
@@ -346,17 +347,17 @@ export const selectTasksByAgent = (agentId: string) => (state: SchedulerState) =
 };
 
 export const selectUrgentTasks = (state: SchedulerState) => {
-  return state.tasks.filter(t => 
+  return state.tasks.filter(t =>
     t.priority === 'urgent' || t.priority === 'high'
   );
 };
 
 export const selectOverdueTasks = (state: SchedulerState) => {
   const now = Date.now();
-  return state.tasks.filter(t => 
-    t.deadline && 
-    t.deadline < now && 
-    t.status !== 'completed' && 
+  return state.tasks.filter(t =>
+    t.deadline &&
+    t.deadline < now &&
+    t.status !== 'completed' &&
     t.status !== 'cancelled'
   );
 };

@@ -810,5 +810,53 @@
       "size": "El tamaño del archivo no puede exceder {size}MB",
       "type": "Tipo de archivo no soportado"
     }
+  },
+  "agentDashboard": {
+    "pageTitle": "Programador de Equipo IA",
+    "activeTasks": "Tareas Activas",
+    "avgResponse": "Respuesta Promedio",
+    "completedToday": "Completadas Hoy",
+    "teamEfficiency": "Eficiencia del Equipo",
+    "taskName": "Nombre de Tarea",
+    "assignee": "Asignado a",
+    "status": "Estado",
+    "progress": "Progreso",
+    "estimatedTime": "Tiempo Estimado",
+    "pending": "Pendiente",
+    "inProgress": "En Progreso",
+    "completed": "Completado",
+    "failed": "Fallido",
+    "cancelled": "Cancelado",
+    "allTasks": "Todas",
+    "online": "En línea",
+    "busy": "Ocupado",
+    "idle": "Inactivo",
+    "offline": "Desconectado",
+    "teamStatus": "Estado del Equipo",
+    "taskList": "Lista de Tareas",
+    "loading": "Cargando...",
+    "noTasks": "Sin tareas",
+    "noAgents": "Sin agentes",
+    "priority": {
+      "urgent": "Urgente",
+      "high": "Alta",
+      "medium": "Media",
+      "low": "Baja"
+    },
+    "agentTypes": {
+      "strategic": "Estratégico",
+      "research": "Investigación",
+      "technical": "Técnico",
+      "execution": "Ejecución",
+      "operations": "Operaciones",
+      "quality": "Calidad",
+      "creative": "Creativo",
+      "marketing": "Marketing",
+      "business": "Negocios"
+    },
+    "refreshInterval": "Actualizaciones en tiempo real",
+    "totalTasks": "Total de Tareas",
+    "pendingTasks": "Pendientes",
+    "completedTasks": "Completadas"
   }
 }

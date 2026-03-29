@@ -71,6 +71,14 @@ export const IMAGE_PRESETS: Record<ImagePreset, {
     height: 60,
     priority: true,
   },
+
+  // Banner
+  banner: {
+    sizes: '100vw',
+    width: 1920,
+    height: 400,
+    priority: true,
+  },
 }
 
 // 占位符颜色（用于模糊效果）
@@ -109,7 +117,7 @@ interface OptimizedImageProps {
   height?: number;
   sizes?: string;
   priority?: boolean;
-  placeholder?: 'empty' | 'blur' | 'base64';
+  placeholder?: 'empty' | 'blur';
   blurDataURL?: string;
   quality?: number;
   fill?: boolean;
@@ -152,13 +160,13 @@ export function OptimizedImage({
   }
   
   // 加载完成处理
-  const handleLoad = useCallback((e) => {
+  const handleLoad = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
     setIsLoading(false)
     onLoad?.(e)
   }, [onLoad])
   
   // 错误处理
-  const handleError = useCallback((e) => {
+  const handleError = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
     setIsLoading(false)
     setHasError(true)
     onError?.(e)
@@ -219,6 +227,15 @@ export function OptimizedImage({
 /**
  * 背景图片组件（用于 Hero 区域）
  */
+interface BackgroundImageProps {
+  src: string;
+  children: React.ReactNode;
+  className?: string;
+  overlay?: boolean;
+  overlayOpacity?: number;
+  priority?: boolean;
+}
+
 export function BackgroundImage({
   src,
   children,
@@ -226,8 +243,7 @@ export function BackgroundImage({
   overlay = true,
   overlayOpacity = 0.5,
   priority = true,
-  ...props
-}) {
+}: BackgroundImageProps) {
   return (
     <div className={`relative ${className}`}>
       <div className="absolute inset-0">
@@ -238,7 +254,6 @@ export function BackgroundImage({
           priority={priority}
           preset="hero"
           className="object-cover"
-          {...props}
         />
         {overlay && (
           <div
@@ -257,12 +272,23 @@ export function BackgroundImage({
 /**
  * 图片画廊组件
  */
+interface ImageGalleryProps {
+  images: Array<{
+    id?: string | number;
+    src: string;
+    alt?: string;
+  }>;
+  columns?: number;
+  gap?: number;
+  className?: string;
+}
+
 export function ImageGallery({
   images,
   columns = 3,
   gap = 4,
   className = '',
-}) {
+}: ImageGalleryProps) {
   return (
     <div
       className={`grid gap-${gap} ${className}`}

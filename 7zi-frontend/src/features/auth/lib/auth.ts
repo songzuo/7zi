@@ -4,7 +4,7 @@
  * 提供认证相关的工具函数，包括密码哈希、令牌验证、权限检查等
  */
 
-import { isValidEmail, isStrongPassword, isValidUsername } from './validation';
+import { isValidEmail, isStrongPassword, isValidUsername } from '@/lib/validation';
 
 /**
  * 用户角色枚举

@@ -41,7 +41,7 @@ export class NotificationStorage {
 
       this.createTables();
 
-      logger.log('[NotificationStorage] Database initialized at:', this.dbPath);
+      logger.info('[NotificationStorage] Database initialized at:', this.dbPath);
     } catch (error) {
       logger.error('[NotificationStorage] Failed to initialize database:', error);
       throw error;
@@ -596,7 +596,7 @@ export class NotificationStorage {
     if (this.db) {
       this.db.close();
       this.db = null;
-      logger.log('[NotificationStorage] Database connection closed');
+      logger.info('[NotificationStorage] Database connection closed');
     }
   }
 }

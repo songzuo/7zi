@@ -21,16 +21,15 @@ export type {
 // Config
 export { DEFAULT_MONITORING_CONFIG, ENV_SPECIFIC_CONFIG, getMonitoringConfig } from './config';
 
-// Storage
-export { MonitoringStorage, MemoryStorage, LocalStorageStorage } from './storage';
+// Storage (export classes and interface separately)
+export { MemoryStorage, LocalStorageStorage } from './storage';
+export type { MonitoringStorage } from './storage';
 
 // Utilities
 export {
   withPerformanceTracking,
   monitoredFetch,
   trackReactError,
-  createPerformanceTracker,
   logBrowserMetrics,
   initBrowserTracking,
-  usePerformanceTracker,
 } from './utils';

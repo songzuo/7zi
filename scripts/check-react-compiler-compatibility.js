@@ -221,6 +221,8 @@ function scanDirectory(dir) {
       allResults.forEach(result => {
         if (result.severity === 'error') {
           stats.issues.errors++;
+          console.log(`${colors.red}❌ 错误: ${result.file}${colors.reset}`);
+          console.log(`   ${result.message}\n`);
         } else if (result.severity === 'warning') {
           stats.issues.warnings++;
         } else {

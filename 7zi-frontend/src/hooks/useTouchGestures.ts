@@ -288,13 +288,13 @@ export function useTouchGestures(
       e.preventDefault();
       
       const touch = e.touches[0];
-      const deltaX = touch.clientX - touchStartRef.current.x;
-      const deltaY = touch.clientY - touchStartRef.current.y;
+      const deltaX = touch.clientX - (touchStartRef.current?.x || 0);
+      const deltaY = touch.clientY - (touchStartRef.current?.y || 0);
 
       setState(prev => ({
         ...prev,
-        translateX: touchStartRef.current.translateX + deltaX,
-        translateY: touchStartRef.current.translateY + deltaY,
+        translateX: (touchStartRef.current?.translateX || 0) + deltaX,
+        translateY: (touchStartRef.current?.translateY || 0) + deltaY,
         isDragging: true,
       }));
 

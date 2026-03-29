@@ -1,0 +1,104 @@
+# ============================================
+# 7zi-frontend Dockerfile (生产优化版 v3.0)
+# 目标: <500MB 镜像体积
+# 优化: Alpine基础镜像 + 极层压缩 + 依赖精简
+# ============================================
+
+# ============================================
+# Stage 1: Base & System Dependencies (Alpine)
+# ============================================
+FROM node:22-alpine AS base
+
+# Alpine 使用 apk 而不是 apt
+RUN apk add --no-cache sqlite curl python3 make g++ && \
+    rm -rf /var/cache/apk/*
+
+WORKDIR /app
+
+# ============================================
+# Stage 2: Dependencies (依赖安装阶段)
+# ============================================
+FROM base AS deps
+
+# 仅复制依赖描述文件
+COPY package*.json ./
+
+# 安装所有依赖（包含 devDependencies，用于构建）
+RUN npm ci --legacy-peer-deps && \
+    npm cache clean --force
+
+# ============================================
+# Stage 3: Builder (构建阶段)
+# ============================================
+FROM base AS builder
+
+# 复制依赖
+COPY --from=deps /app/node_modules ./node_modules
+
+# 复制源代码
+COPY . .
+
+# 构建环境变量
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    NEXT_BUILD_ID=1 \
+    NODE_OPTIONS="--max-old-space-size=4096" \
+    # Native module 编译优化
+    npm_config_build_from_source=true
+
+# 生产构建（使用标准构建以兼容 Next.js 16）
+RUN npm run build && \
+    npm prune --production && \
+    rm -rf .next/cache
+
+# ============================================
+# Stage 4: Runner (运行阶段 - 极小镜像)
+# ============================================
+FROM node:22-alpine AS runner
+
+# 镜像元数据
+LABEL maintainer="7zi.studio" \
+      description="7zi-frontend production image (ultra-optimized v3.0)" \
+      version="1.3.0" \
+      org.opencontainers.image.title="7zi-frontend" \
+      org.opencontainers.image.description="Next.js production image with Alpine base" \
+      org.opencontainers.image.source="https://github.com/7zi-studio/7zi-frontend"
+
+# 极简系统依赖 (仅必需的 runtime 依赖)
+RUN apk add --no-cache tini sqlite && \
+    rm -rf /var/cache/apk/* && \
+    addgroup -g 1001 -S nodejs && \
+    adduser -S -u 1001 -G nodejs nextjs && \
+    mkdir -p /app/data /app/logs /app/tmp && \
+    chown -R nextjs:nodejs /app
+
+WORKDIR /app
+
+# 生产环境变量 (内存限制优化)
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    PORT=3000 \
+    HOSTNAME="0.0.0.0" \
+    NODE_OPTIONS="--max-old-space-size=512" \
+    TMPDIR=/app/tmp
+
+# 复制 standalone 构建产物 (最小化)
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# 切换到非 root 用户
+USER nextjs
+
+# 暴露端口
+EXPOSE 3000
+
+# 健康检查 (直接使用 curl)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+    CMD curl -f http://localhost:3000/api/health || exit 1
+
+# 使用 tini (Alpine 的轻量级 init)
+ENTRYPOINT ["tini", "--"]
+
+# 启动应用
+CMD ["node", "server.js"]

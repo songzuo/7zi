@@ -104,9 +104,13 @@ export class PerformanceAnomalyDetector {
         const isoResult = trainAndDetect(
           history,
           value,
-          this.config.algorithms.isolationForest
+          {
+            numTrees: this.config.algorithms.isolationForest.numTrees || 100,
+            subSamplingSize: this.config.algorithms.isolationForest.subSamplingSize || 256,
+            contamination: this.config.algorithms.isolationForest.contamination,
+          }
         );
-        
+
         if (isoResult.isAnomaly) {
           detections.push({
             isAnomaly: true,

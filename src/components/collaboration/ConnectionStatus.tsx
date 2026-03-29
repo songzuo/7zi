@@ -60,7 +60,11 @@ export function ConnectionStatus({
   };
 
   const activeUsers = users.filter(
-    (u) => new Date().getTime() - u.lastActivity.getTime() < 5 * 60 * 1000
+    (u) => {
+      if (!u.lastActivity) return false;
+      const lastActivityTime = u.lastActivity instanceof Date ? u.lastActivity.getTime() : u.lastActivity;
+      return new Date().getTime() - lastActivityTime < 5 * 60 * 1000;
+    }
   );
 
   return (
@@ -131,7 +135,11 @@ interface UserListProps {
 
 export function UserList({ users, currentUserId }: UserListProps) {
   const activeUsers = users.filter(
-    (u) => new Date().getTime() - u.lastActivity.getTime() < 5 * 60 * 1000
+    (u) => {
+      if (!u.lastActivity) return false;
+      const lastActivityTime = u.lastActivity instanceof Date ? u.lastActivity.getTime() : u.lastActivity;
+      return new Date().getTime() - lastActivityTime < 5 * 60 * 1000;
+    }
   );
 
   if (activeUsers.length === 0) {

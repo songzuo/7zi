@@ -61,7 +61,7 @@ describe('useAuthStore', () => {
       const { result } = renderHook(() => useAuthStore());
 
       // Mock fetch 失败
-      global.fetch = jest.fn(() =>
+      global.fetch = vi.fn(() =>
         Promise.resolve({
           ok: false,
           json: () => Promise.resolve({ message: 'Invalid credentials' }),

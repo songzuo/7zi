@@ -48,8 +48,9 @@ export interface ScheduleDecision {
 
 /**
  * Scheduling metrics for tracking performance
+ * @internal Used by ScheduleHistory class
  */
-export interface SchedulingMetrics {
+interface SchedulingMetrics {
   /** Total decisions made */
   totalDecisions: number;
   

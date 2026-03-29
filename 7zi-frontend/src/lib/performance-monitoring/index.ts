@@ -73,10 +73,6 @@ export type {
 
 // Types
 export type {
-  MetricBaseline,
-  AnomalyDetection,
-  AnomalyDetectionConfig,
-  AnomalyEvent,
   MetricDataPoint,
 } from './anomaly-detection/types';
 
@@ -103,26 +99,7 @@ export type {
   SuppressionConfig,
 } from './alerting/types';
 
-export type {
-  BudgetThreshold,
-  PageBudget,
-  BudgetViolation,
-  BudgetCheckResult,
-  PerformanceBudgetConfig,
-  PerformanceMetrics as BudgetMetrics,
-  ResourceMetrics,
-} from './budget-control/types';
-
 // Constants
 export { DEFAULT_ANOMALY_CONFIG } from './anomaly-detection/types';
 export { DEFAULT_ROOT_CAUSE_CONFIG } from './root-cause-analysis/types';
-export { DEFAULT_ALERTING_CONFIG } from './alerting/types';
 export { DEFAULT_BUDGET_CONFIG } from './budget-control/types';
-
-// Re-export default configs for convenience
-export const defaultConfigs = {
-  anomaly: require('./anomaly-detection/types').DEFAULT_ANOMALY_CONFIG,
-  rootCause: require('./root-cause-analysis/types').DEFAULT_ROOT_CAUSE_CONFIG,
-  alerting: require('./alerting/types').DEFAULT_ALERTING_CONFIG,
-  budget: require('./budget-control/types').DEFAULT_BUDGET_CONFIG,
-};

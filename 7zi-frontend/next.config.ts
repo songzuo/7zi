@@ -1,10 +1,10 @@
 /**
- * Next.js 16 + Turbopack 生产环境配置
- * 
- * 基于 TURBOPACK_RESEARCH_20260328.md 研究报告实施
- * 
- * @version 1.0.0
- * @date 2026-03-28
+ * Next.js 16 + Webpack 生产环境配置
+ *
+ * Bundle 性能优化版本
+ *
+ * @version 1.4.0
+ * @date 2026-03-29
  */
 
 import type { NextConfig } from 'next';
@@ -15,7 +15,6 @@ import path from 'path';
 // ============================================
 const isProduction = process.env.NODE_ENV === 'production';
 const isAnalyze = process.env.ANALYZE === 'true';
-const useWebpack = process.env.USE_WEBPACK === 'true';
 
 // ============================================
 // Chunk 大小限制配置
@@ -30,15 +29,6 @@ const CHUNK_LIMITS = {
   // 最小 chunk 大小 (15KB)
   minChunkSize: 15 * 1024,
 };
-
-// ============================================
-// 日志级别配置
-// ============================================
-const LOG_LEVELS = {
-  development: 'debug',
-  test: 'info',
-  production: 'warn',
-} as const;
 
 // ============================================
 // Next.js 配置
@@ -80,14 +70,14 @@ const nextConfig: NextConfig = {
   images: {
     // 启用现代图片格式
     formats: ['image/avif', 'image/webp'],
-    
+
     // 图片尺寸配置（响应式）
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    
+
     // 最小缓存时间（30天）
     minimumCacheTTL: 60 * 60 * 24 * 30,
-    
+
     // 远程图片域名白名单
     remotePatterns: [
       {
@@ -95,12 +85,12 @@ const nextConfig: NextConfig = {
         hostname: '**',
       },
     ],
-    
+
     // 安全配置
     dangerouslyAllowSVG: false,
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    
+
     // 启用图片优化
     unoptimized: false,
   },
@@ -118,7 +108,7 @@ const nextConfig: NextConfig = {
   },
 
   // ============================================
-  // 实验性选项 - Turbopack 优化
+  // 实验性选项
   // ============================================
   experimental: {
     // 包导入优化 - 改善 tree-shaking
@@ -134,34 +124,12 @@ const nextConfig: NextConfig = {
       'zod',
       'react-i18next',
       'i18next',
+      'clsx',
+      'tailwind-merge',
     ],
-    
+
     // CSS 优化
     optimizeCss: true,
-
-    // Turbopack 特定优化 (生产环境)
-    ...(isProduction && {
-      // 构建缓存 - 提升增量构建速度
-      turbo: {
-        resolveExtensions: ['.tsx', '.ts', '.jsx', '.js', '.json'],
-      },
-    }),
-  },
-
-  // ============================================
-  // Turbopack 配置
-  // ============================================
-  turbopack: {
-    // 路径别名 - 替代 webpack resolve.alias
-    resolveAlias: {
-      '@': path.join(__dirname, 'src'),
-    },
-    
-    // 文件系统根目录（解决 lockfile 警告）
-    root: __dirname,
-    
-    // 扩展名解析
-    resolveExtensions: ['.tsx', '.ts', '.jsx', '.js', '.json'],
   },
 
   // ============================================
@@ -175,132 +143,207 @@ const nextConfig: NextConfig = {
   ],
 
   // ============================================
-  // Webpack 后备配置 (仅当 USE_WEBPACK=true 时启用)
+  // Turbopack 配置（禁用以使用 Webpack）
   // ============================================
-  webpack: (config, { isServer, dev, nextRuntime }) => {
-    // 仅在明确使用 webpack 时应用复杂配置
-    if (useWebpack) {
-      // 路径别名配置
-      config.resolve = config.resolve || {};
-      config.resolve.alias = config.resolve.alias || {};
-      config.resolve.alias['@'] = path.join(__dirname, 'src');
+  turbopack: {}, // 空配置，让 Next.js 使用 Webpack
 
-      if (!isServer && !dev) {
-        config.optimization = config.optimization || {};
-        
-        // 性能预算配置
-        config.performance = {
-          maxEntrypointSize: CHUNK_LIMITS.maxEntrypointSize,
-          maxAssetSize: CHUNK_LIMITS.maxAssetSize,
-          hints: 'warning',
-        };
+  // ============================================
+  // Webpack 配置（生产环境优化）
+  // ============================================
+  webpack: (config: any, { isServer, dev }: any) => {
+    // 路径别名配置
+    config.resolve = config.resolve || {};
+    config.resolve.alias = config.resolve.alias || {};
+    config.resolve.alias['@'] = path.join(__dirname, 'src');
 
-        // 代码分包策略
-        config.optimization.splitChunks = {
-          chunks: 'all',
-          cacheGroups: {
-            // Three.js 相关库
-            'three-libs': {
-              test: /[\\/]node_modules[\\/](three|@react-three)[\\/]/,
-              name: 'three-libs',
-              priority: 60,
-              reuseExistingChunk: true,
-              enforce: true,
-              minSize: CHUNK_LIMITS.minChunkSize,
-              maxSize: 300 * 1024,
-            },
-            // 图表库
-            'chart-libs': {
-              test: /[\\/]node_modules[\\/](recharts|d3|@visx)[\\/]/,
-              name: 'chart-libs',
-              priority: 50,
-              reuseExistingChunk: true,
-              enforce: true,
-              minSize: CHUNK_LIMITS.minChunkSize,
-              maxSize: CHUNK_LIMITS.maxAsyncChunkSize,
-            },
-            // 实时通信库
-            'realtime-libs': {
-              test: /[\\/]node_modules[\\/](socket\.io|engine\.io)[\\/]/,
-              name: 'realtime-libs',
-              priority: 45,
-              reuseExistingChunk: true,
-              enforce: true,
-              minSize: CHUNK_LIMITS.minChunkSize,
-            },
-            // UI 组件库
-            'ui-libs': {
-              test: /[\\/]node_modules[\\/](@radix-ui|lucide-react|framer-motion)[\\/]/,
-              name: 'ui-libs',
-              priority: 40,
-              reuseExistingChunk: true,
-              enforce: true,
-              minSize: 20 * 1024,
-            },
-            // 框架核心
-            'framework': {
-              test: /[\\/]node_modules[\\/](react|react-dom|next)[\\/]/,
-              name: 'framework',
-              priority: 35,
-              reuseExistingChunk: true,
-              minSize: 100 * 1024,
-              maxSize: 400 * 1024,
-            },
-            // 工具库
-            'vendor-utils': {
-              test: /[\\/]node_modules[\\/](zustand|immer|uuid|date-fns|lodash)[\\/]/,
-              name: 'vendor-utils',
-              priority: 30,
-              reuseExistingChunk: true,
-              minSize: 20 * 1024,
-            },
-            // 表单验证库
-            'forms-libs': {
-              test: /[\\/]node_modules[\\/](zod|react-hook-form)[\\/]/,
-              name: 'forms-libs',
-              priority: 25,
-              reuseExistingChunk: true,
-              minSize: 20 * 1024,
-            },
-            // 国际化库
-            'i18n-libs': {
-              test: /[\\/]node_modules[\\/](i18next|react-i18next|next-i18next)[\\/]/,
-              name: 'i18n-libs',
-              priority: 22,
-              reuseExistingChunk: true,
-              minSize: CHUNK_LIMITS.minChunkSize,
-            },
-            // 通用 node_modules
-            vendors: {
-              test: /[\\/]node_modules[\\/]/,
-              name: 'vendors',
-              priority: 10,
-              minChunks: 2,
-              reuseExistingChunk: true,
-              minSize: CHUNK_LIMITS.minChunkSize,
-            },
-            // 公共代码
-            common: {
-              minChunks: 3,
-              priority: 5,
-              reuseExistingChunk: true,
-              minSize: 20 * 1024,
-            },
+    // 模块解析优化
+    config.resolve.extensions = ['.tsx', '.ts', '.js', '.json'];
+    config.resolve.modules = ['node_modules'];
+
+    // Tree-shaking 优化
+    config.optimization = config.optimization || {};
+    config.optimization.usedExports = true;
+    config.optimization.sideEffects = true;
+    config.optimization.providedExports = true;
+    config.optimization.concatenateModules = true;
+
+    if (!isServer && !dev) {
+      // 性能预算配置
+      config.performance = {
+        maxEntrypointSize: CHUNK_LIMITS.maxEntrypointSize,
+        maxAssetSize: CHUNK_LIMITS.maxAssetSize,
+        hints: 'warning',
+      };
+
+      // 代码分包策略 - 优化版
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          // Three.js 核心库（最大优先级）
+          'three-core': {
+            test: /[\\/]node_modules[\\/]three[\\/]/,
+            name: 'three-core',
+            priority: 70,
+            reuseExistingChunk: true,
+            enforce: true,
+            minSize: CHUNK_LIMITS.minChunkSize,
+            maxSize: 250 * 1024, // 限制大小
           },
-          maxInitialRequests: 25,
-          maxAsyncRequests: 30,
-          minSize: CHUNK_LIMITS.minChunkSize,
-          maxSize: CHUNK_LIMITS.maxAsyncChunkSize,
-          minChunks: 1,
-          enforceSizeThreshold: 30 * 1024,
-        };
-
-        // Tree-shaking 优化
-        config.optimization.usedExports = true;
-        config.optimization.sideEffects = true;
-        config.optimization.providedExports = true;
-        config.optimization.concatenateModules = true;
-      }
+          // React Three Fiber 相关
+          'react-three': {
+            test: /[\\/]node_modules[\\/]@react-three[\\/]/,
+            name: 'react-three',
+            priority: 65,
+            reuseExistingChunk: true,
+            enforce: true,
+            minSize: CHUNK_LIMITS.minChunkSize,
+            maxSize: 150 * 1024,
+          },
+          // 图表库
+          'chart-libs': {
+            test: /[\\/]node_modules[\\/](recharts|d3|@visx)[\\/]/,
+            name: 'chart-libs',
+            priority: 50,
+            reuseExistingChunk: true,
+            enforce: true,
+            minSize: CHUNK_LIMITS.minChunkSize,
+            maxSize: CHUNK_LIMITS.maxAsyncChunkSize,
+          },
+          // 实时通信库
+          'realtime-libs': {
+            test: /[\\/]node_modules[\\/](socket\.io|engine\.io)[\\/]/,
+            name: 'realtime-libs',
+            priority: 45,
+            reuseExistingChunk: true,
+            enforce: true,
+            minSize: CHUNK_LIMITS.minChunkSize,
+            maxSize: 80 * 1024,
+          },
+          // Radix UI 组件（独立分割）
+          'radix-ui': {
+            test: /[\\/]node_modules[\\/]@radix-ui[\\/]/,
+            name: 'radix-ui',
+            priority: 42,
+            reuseExistingChunk: true,
+            enforce: true,
+            minSize: 15 * 1024,
+            maxSize: 100 * 1024,
+          },
+          // Lucide 图标（独立分割）
+          'lucide-icons': {
+            test: /[\\/]node_modules[\\/]lucide-react[\\/]/,
+            name: 'lucide-icons',
+            priority: 41,
+            reuseExistingChunk: true,
+            enforce: true,
+            minSize: 15 * 1024,
+            maxSize: 80 * 1024,
+          },
+          // Framer Motion 动画
+          'framer-motion': {
+            test: /[\\/]node_modules[\\/]framer-motion[\\/]/,
+            name: 'framer-motion',
+            priority: 40,
+            reuseExistingChunk: true,
+            enforce: true,
+            minSize: 20 * 1024,
+            maxSize: 100 * 1024,
+          },
+          // 框架核心 - 拆分为更小的部分
+          'react-core': {
+            test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+            name: 'react-core',
+            priority: 36,
+            reuseExistingChunk: true,
+            minSize: 80 * 1024,
+            maxSize: 200 * 1024,
+          },
+          'next-core': {
+            test: /[\\/]node_modules[\\/]next[\\/]/,
+            name: 'next-core',
+            priority: 35,
+            reuseExistingChunk: true,
+            minSize: 50 * 1024,
+            maxSize: 150 * 1024,
+          },
+          // Zustand 状态管理
+          'zustand': {
+            test: /[\\/]node_modules[\\/]zustand[\\/]/,
+            name: 'zustand',
+            priority: 32,
+            reuseExistingChunk: true,
+            minSize: 10 * 1024,
+            maxSize: 50 * 1024,
+          },
+          // 工具库
+          'vendor-utils': {
+            test: /[\\/]node_modules[\\/](immer|uuid|date-fns|lodash|clsx|tailwind-merge)[\\/]/,
+            name: 'vendor-utils',
+            priority: 30,
+            reuseExistingChunk: true,
+            minSize: 10 * 1024,
+            maxSize: 80 * 1024,
+          },
+          // 表单验证库
+          'forms-libs': {
+            test: /[\\/]node_modules[\\/](zod|react-hook-form)[\\/]/,
+            name: 'forms-libs',
+            priority: 25,
+            reuseExistingChunk: true,
+            minSize: 15 * 1024,
+            maxSize: 60 * 1024,
+          },
+          // 国际化库
+          'i18n-libs': {
+            test: /[\\/]node_modules[\\/](i18next|react-i18next|next-i18next|i18next-browser-languagedetector)[\\/]/,
+            name: 'i18n-libs',
+            priority: 22,
+            reuseExistingChunk: true,
+            minSize: CHUNK_LIMITS.minChunkSize,
+            maxSize: 100 * 1024,
+          },
+          // 二维码库
+          'qrcode': {
+            test: /[\\/]node_modules[\\/]qrcode[\\/]/,
+            name: 'qrcode',
+            priority: 20,
+            reuseExistingChunk: true,
+            minSize: 10 * 1024,
+            maxSize: 50 * 1024,
+          },
+          // Polyfills（优化）
+          'polyfills': {
+            test: /[\\/]node_modules[\\/](core-js|regenerator-runtime)[\\/]/,
+            name: 'polyfills',
+            priority: 18,
+            reuseExistingChunk: true,
+            minSize: 20 * 1024,
+            maxSize: 100 * 1024,
+          },
+          // 通用 node_modules
+          vendors: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            priority: 10,
+            minChunks: 2,
+            reuseExistingChunk: true,
+            minSize: CHUNK_LIMITS.minChunkSize,
+          },
+          // 公共代码
+          common: {
+            minChunks: 3,
+            priority: 5,
+            reuseExistingChunk: true,
+            minSize: 20 * 1024,
+          },
+        },
+        maxInitialRequests: 30, // 增加以允许更多并行请求
+        maxAsyncRequests: 35,
+        minSize: 10 * 1024, // 降低最小大小
+        maxSize: 150 * 1024, // 降低默认最大大小
+        minChunks: 1,
+        enforceSizeThreshold: 20 * 1024, // 降低阈值
+      };
     }
 
     return config;
@@ -315,17 +358,17 @@ const nextConfig: NextConfig = {
         source: '/:path*',
         headers: [
           { key: 'X-DNS-Prefetch-Control', value: 'on' },
-          { 
-            key: 'Strict-Transport-Security', 
-            value: 'max-age=63072000; includeSubDomains; preload' 
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload'
           },
           { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'X-XSS-Protection', value: '1; mode=block' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          { 
-            key: 'Permissions-Policy', 
-            value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()' 
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()'
           },
         ],
       },

@@ -1,3 +1,7 @@
+/**
+ * @vitest-environment jsdom
+ */
+
 // @ts-nocheck - Test file with complex type issues
 /**
  * RatingList Component Tests
@@ -340,9 +344,3 @@ describe('RatingList', () => {
     });
   });
 });
-
-// Helper function for fireEvent
-function fireEvent(element: HTMLElement, event: string) {
-  const eventObj = new Event(event, { bubbles: true, cancelable: true });
-  element.dispatchEvent(eventObj);
-}

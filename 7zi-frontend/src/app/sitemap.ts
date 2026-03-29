@@ -6,45 +6,61 @@
 import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.com'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.studio'
 
   // 主要页面
   const mainPages = [
-    '',
-    '/image-optimization-demo',
-    '/notification-demo',
-    '/notification-demo/enhanced',
-    '/design-system',
-    '/feedback',
-    '/i18n-demo',
-    '/dark-mode-demo',
-    '/websocket-status-demo',
-    '/monitoring-example',
+    {
+      path: '',
+      priority: 1,
+      changeFreq: 'weekly' as const,
+    },
+    {
+      path: '/design-system',
+      priority: 0.8,
+      changeFreq: 'weekly' as const,
+    },
+    {
+      path: '/feedback',
+      priority: 0.7,
+      changeFreq: 'monthly' as const,
+    },
+    {
+      path: '/monitoring-example',
+      priority: 0.6,
+      changeFreq: 'monthly' as const,
+    },
   ]
 
   // 多语言页面
-  const locales = ['zh-CN', 'en']
-  const localePages = ['/knowledge-lattice']
+  const locales = ['zh', 'en']
+  const localePages = [
+    {
+      path: '/knowledge-lattice',
+      priority: 0.8,
+      changeFreq: 'weekly' as const,
+    },
+  ]
 
   const routes: MetadataRoute.Sitemap = [
     // 主要页面
-    ...mainPages.map((route) => ({
-      url: `${baseUrl}${route}`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly' as const,
-      priority: route === '' ? 1 : 0.8,
+    ...mainPages.map((page) => ({
+      url: `${baseUrl}${page.path}`,
+      lastModified: new Date('2026-03-29'),
+      changeFrequency: page.changeFreq,
+      priority: page.priority,
     })),
     // 多语言页面
     ...locales.flatMap((locale) =>
-      localePages.map((route) => ({
-        url: `${baseUrl}/${locale}${route}`,
-        lastModified: new Date(),
-        changeFrequency: 'weekly' as const,
-        priority: 0.7,
+      localePages.map((page) => ({
+        url: `${baseUrl}/${locale}${page.path}`,
+        lastModified: new Date('2026-03-29'),
+        changeFrequency: page.changeFreq,
+        priority: page.priority,
         alternates: {
           languages: {
-            'zh-CN': `${baseUrl}/zh-CN${route}`,
-            en: `${baseUrl}/en${route}`,
+            'zh-CN': `${baseUrl}/zh${page.path}`,
+            en: `${baseUrl}/en${page.path}`,
           },
         },
       }))

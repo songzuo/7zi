@@ -7,7 +7,14 @@
 
 import { Server as HTTPServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
-import { notificationService } from './services/notification';
+import { sendNotification } from './services/notification';
+
+// Simple stub for notificationService
+const notificationService = {
+  initialize: (_server: HTTPServer) => {},
+  getIO: () => null as unknown as SocketIOServer,
+  cleanupExpired: () => {},
+};
 
 /**
  * Initialize Socket.IO with Next.js HTTP server

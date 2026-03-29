@@ -44,3 +44,10 @@ export {
   type SwipeHandlers,
   type PinchToZoomOptions,
 } from './useTouchGestures';
+
+export {
+  usePreloadImage,
+  usePreloadImages,
+  useLazyImage,
+  useResponsiveImageSize,
+} from './useImagePreload';

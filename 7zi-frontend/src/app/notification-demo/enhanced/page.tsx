@@ -663,7 +663,7 @@ export default function NotificationDemoPage() {
           notifications={notifications}
           unreadCount={unreadCount}
           onMarkRead={markAsRead}
-          onMarkAllRead={markAllRead}
+          onMarkAllRead={markAllAsRead}
           onDelete={deleteNotification}
           isOpen={showNotificationCenter}
           onClose={() => setShowNotificationCenter(false)}

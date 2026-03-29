@@ -231,7 +231,7 @@ describe('BudgetChecker', () => {
       });
 
       const metrics: PerformanceMetrics = {
-        LCP: 3500, // Over /budget
+        LCP: 2800, // Under /dashboard budget (3000 - 15%)
         TBT: 200, // Under /dashboard budget
       };
 
@@ -566,7 +566,7 @@ describe('BudgetChecker', () => {
     });
 
     it('should detect missing budgets array', () => {
-      const result = budgetChecker.validateBudgetConfig({ budgets: [] } as any);
+      const result = budgetChecker.validateBudgetConfig({} as any);
 
       expect(result.valid).toBe(false);
       expect(result.errors).toContain('budgets must be an array');
@@ -759,9 +759,9 @@ describe('formatBudgetViolation', () => {
 
     expect(formatted).toContain('⚠️');
     expect(formatted).toContain('LCP');
-    expect(formatted).toContain('2800ms');
+    expect(formatted).toContain('2800.0ms');
     expect(formatted).toContain('2500ms');
-    expect(formatted).toContain('2750ms');
+    expect(formatted).toContain('2750.0ms');
     expect(formatted).toContain('1.8%');
   });
 

@@ -53,7 +53,7 @@ describe('WebSocketAdvancedService Integration', () => {
         'Owner'
       );
 
-      await service.joinRoom(room.id, 'user2', 'Jane', undefined, 'guest');
+      await service.joinRoom(room.id, 'user2', 'Jane');
 
       await expect(
         service.sendMessage(

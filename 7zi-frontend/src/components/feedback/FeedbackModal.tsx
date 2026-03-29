@@ -211,7 +211,7 @@ export default function FeedbackModal({
       }
 
       const stream = await navigator.mediaDevices.getDisplayMedia({
-        video: { cursor: 'always' },
+        video: { cursor: 'always' } as MediaTrackConstraints,
       });
 
       const video = document.createElement('video');

@@ -148,12 +148,12 @@ export class WebSocketManager {
    */
   connect(): void {
     if (this.socket?.connected) {
-      logger.log('[WebSocketManager] Already connected');
+      logger.info('[WebSocketManager] Already connected');
       return;
     }
 
     if (this.state === ConnectionState.CONNECTING || this.state === ConnectionState.RECONNECTING) {
-      logger.log('[WebSocketManager] Connection already in progress');
+      logger.info('[WebSocketManager] Connection already in progress');
       return;
     }
 
@@ -288,7 +288,7 @@ export class WebSocketManager {
    */
   clearQueue(): void {
     this.queue = [];
-    logger.log('[WebSocketManager] Message queue cleared');
+    logger.info('[WebSocketManager] Message queue cleared');
   }
 
   /**
@@ -312,7 +312,7 @@ export class WebSocketManager {
       averagePingLatency: 0,
     };
     this.pingLatencies = [];
-    logger.log('[WebSocketManager] Statistics reset');
+    logger.info('[WebSocketManager] Statistics reset');
   }
 
   /**
@@ -322,7 +322,7 @@ export class WebSocketManager {
     if (!this.socket) return;
 
     this.socket.on('connect', () => {
-      logger.log('[WebSocketManager] Connected to server');
+      logger.info('[WebSocketManager] Connected to server');
 
       // Track reconnections
       if (this.reconnectionAttempts > 0 || this.state === ConnectionState.RECONNECTING) {
@@ -337,13 +337,13 @@ export class WebSocketManager {
     });
 
     this.socket.on('disconnect', (reason) => {
-      logger.log('[WebSocketManager] Disconnected:', reason);
+      logger.info('[WebSocketManager] Disconnected:', reason);
 
       const strategy = this.getReconnectStrategy(reason);
 
       if (!strategy.shouldReconnect) {
         // User initiated disconnect or server explicitly disconnected us
-        logger.log('[WebSocketManager] Not reconnecting:', strategy.reason);
+        logger.info('[WebSocketManager] Not reconnecting:', strategy.reason);
         this.setState(ConnectionState.DISCONNECTED);
         this.stopHeartbeat();
       } else {
@@ -592,7 +592,7 @@ export class WebSocketManager {
    */
   private setupNetworkListeners(): void {
     this._onlineHandler = () => {
-      logger.log('[WebSocketManager] Network online, attempting fast reconnect');
+      logger.info('[WebSocketManager] Network online, attempting fast reconnect');
       // Immediately try to reconnect if not already connected
       if (this.state !== ConnectionState.CONNECTED && this.state !== ConnectionState.CONNECTING) {
         this.fastReconnect();
@@ -600,7 +600,7 @@ export class WebSocketManager {
     };
 
     this._offlineHandler = () => {
-      logger.log('[WebSocketManager] Network offline');
+      logger.info('[WebSocketManager] Network offline');
       // Remember if we were connected before going offline
       this._wasConnected = this.state === ConnectionState.CONNECTED;
     };
@@ -628,7 +628,7 @@ export class WebSocketManager {
    * Fast reconnect with minimal delay
    */
   private fastReconnect(): void {
-    logger.log('[WebSocketManager] Fast reconnect initiated');
+    logger.info('[WebSocketManager] Fast reconnect initiated');
     this.reconnectionAttempts = 0;
     this.connect();
   }

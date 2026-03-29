@@ -6,8 +6,29 @@ import React from 'react';
 import Link from 'next/link';
 
 export const metadata = {
-  title: '设计系统文档 - 7zi Frontend',
-  description: '7zi Frontend 设计系统文档，包含组件、设计 Token 和最佳实践',
+  title: '设计系统文档 - 7zi Studio',
+  description: '7zi Studio 设计系统文档，包含组件、设计 Token 和最佳实践。提供完整的设计语言和可复用的 UI 组件，帮助团队快速构建一致、美观的用户界面。',
+  keywords: ['设计系统', 'Design System', 'UI组件', 'Design Token', '7zi Studio', '组件库'],
+  openGraph: {
+    title: '设计系统文档 - 7zi Studio',
+    description: '7zi Studio 设计系统文档，包含组件、设计 Token 和最佳实践。',
+    type: 'website',
+    url: 'https://7zi.studio/design-system',
+    images: [
+      {
+        url: 'https://7zi.studio/images/og-design-system.jpg',
+        width: 1200,
+        height: 630,
+        alt: '设计系统文档',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '设计系统文档 - 7zi Studio',
+    description: '7zi Studio 设计系统文档，包含组件、设计 Token 和最佳实践。',
+    images: ['https://7zi.studio/images/og-design-system.jpg'],
+  },
 };
 
 export default function DesignSystemPage() {

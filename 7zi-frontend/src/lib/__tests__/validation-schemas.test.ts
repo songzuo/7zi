@@ -149,7 +149,7 @@ describe('Validation Schemas', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.errors[0].message).toContain('不一致');
+        expect(result.error.issues[0].message).toContain('不一致');
       }
     });
   });
@@ -390,7 +390,7 @@ describe('Sanitization Functions', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.errors.errors.length).toBeGreaterThan(0);
+        expect(result.error.issues.length).toBeGreaterThan(0);
       }
     });
 
@@ -407,7 +407,7 @@ describe('Sanitization Functions', () => {
       expect(result.success).toBe(false); // 因为清理后的用户名包含特殊字符可能仍然无效
       if (!result.success) {
         // 验证了输入被清理过
-        expect(result.errors).toBeDefined();
+        expect(result.error).toBeDefined();
       }
     });
   });

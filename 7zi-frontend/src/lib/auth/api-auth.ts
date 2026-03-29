@@ -255,3 +255,39 @@ export function isMCPEnabled(): boolean {
 export function getAllowedMCPOrigins(): string[] {
   return Array.from(ALLOWED_MCP_ORIGINS);
 }
+
+/**
+ * Create admin-only authentication middleware
+ * Returns 401 if not authenticated, 403 if not admin
+ */
+export function withAdmin(
+  handler: (request: NextRequest, context: { user: AuthResult }) => Promise<NextResponse>
+) {
+  return async (request: NextRequest): Promise<NextResponse> => {
+    const authResult = await verifyJWTAuth(request);
+
+    if (!authResult.authenticated) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Unauthorized',
+          message: authResult.error || 'Authentication required',
+        },
+        { status: 401 }
+      );
+    }
+
+    if (authResult.role !== 'admin') {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Forbidden',
+          message: '需要管理员权限',
+        },
+        { status: 403 }
+      );
+    }
+
+    return handler(request, { user: authResult });
+  };
+}

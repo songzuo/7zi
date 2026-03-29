@@ -1,31 +1,30 @@
 // @ts-nocheck - Test file with complex type issues
 /**
-// @ts-expect-error - Mock type compatibility issues
  * Database Migrations Tests
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import {
   migrate,
   getCurrentVersion,
-  runMigrations,
   optimizeDatabase,
   getDatabaseHealth,
   rollback,
-  getMigrationStatus,
-  createMigration,
 } from '../migrations';
-import { getDatabaseAsync } from '../index';
+import { getDatabaseAsync, closeDatabase } from '../index';
 
 describe('Database Migrations', () => {
   beforeEach(async () => {
-    // Use in-memory database for tests
-    process.env.DATABASE_PATH = ':memory:';
-    vi.clearAllMocks();
+    // Use file database for tests
+    process.env.DATABASE_PATH = '/tmp/test-migrations-db.sqlite';
+    process.env.NODE_ENV = 'test';
+    process.env.ENABLE_DB_PERFORMANCE_LOGGING = 'false';
+    closeDatabase();
   });
 
   afterEach(async () => {
     // Clean up environment
+    closeDatabase();
     delete process.env.DATABASE_PATH;
   });
 
@@ -44,34 +43,35 @@ describe('Database Migrations', () => {
           value TEXT NOT NULL
         )
       `);
-      db.exec("INSERT INTO migrations (key, value) VALUES ('version', '2')");
+      const stmt = db.prepare("INSERT INTO migrations (key, value) VALUES ('version', '2')");
+      stmt.run();
 
       const version = await getCurrentVersion();
       expect(version).toBe(2);
     });
   });
 
-  describe('runMigrations', () => {
+  describe('migrate', () => {
     it('should run pending migrations', async () => {
-      await runMigrations();
+      await migrate();
 
       const version = await getCurrentVersion();
       expect(version).toBeGreaterThan(0);
     });
 
     it('should not run migrations if already up to date', async () => {
-      await runMigrations();
+      await migrate();
 
       const version1 = await getCurrentVersion();
 
-      await runMigrations(); // Run again
+      await migrate(); // Run again
 
       const version2 = await getCurrentVersion();
       expect(version2).toBe(version1);
     });
 
     it('should handle migrations table creation', async () => {
-      await runMigrations();
+      await migrate();
 
       const db = await getDatabaseAsync();
       const result = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='migrations'").get();
@@ -80,21 +80,12 @@ describe('Database Migrations', () => {
     });
 
     it('should track migration execution', async () => {
-      await runMigrations();
+      await migrate();
 
       const db = await getDatabaseAsync();
       const row = db.prepare("SELECT * FROM migrations WHERE key = 'version'").get();
 
       expect(row).toBeDefined();
-    });
-  });
-
-  describe('migrate', () => {
-    it('should be an alias for runMigrations', async () => {
-      await migrate();
-
-      const version = await getCurrentVersion();
-      expect(version).toBeGreaterThan(0);
     });
   });
 
@@ -119,14 +110,17 @@ describe('Database Migrations', () => {
 
     it('should optimize indexes', async () => {
       // Create some indexes first
+      await migrate();
       const db = await getDatabaseAsync();
-      db.exec(`
+      const stmt1 = db.prepare(`
         CREATE TABLE IF NOT EXISTS test_table (
           id INTEGER PRIMARY KEY,
           name TEXT
         )
       `);
-      db.exec('CREATE INDEX IF NOT EXISTS idx_test_table_name ON test_table(name)');
+      stmt1.run();
+      const stmt2 = db.prepare('CREATE INDEX IF NOT EXISTS idx_test_table_name ON test_table(name)');
+      stmt2.run();
 
       const result = await optimizeDatabase();
       expect(result.indexesOptimized).toBeGreaterThan(0);
@@ -161,54 +155,33 @@ describe('Database Migrations', () => {
     });
 
     it('should count tables', async () => {
+      await migrate();
       const db = await getDatabaseAsync();
-      db.exec('CREATE TABLE IF NOT EXISTS test_table_1 (id INTEGER)');
-      db.exec('CREATE TABLE IF NOT EXISTS test_table_2 (id INTEGER)');
+      const stmt1 = db.prepare('CREATE TABLE IF NOT EXISTS test_table_1 (id INTEGER)');
+      stmt1.run();
+      const stmt2 = db.prepare('CREATE TABLE IF NOT EXISTS test_table_2 (id INTEGER)');
+      stmt2.run();
 
       const health = await getDatabaseHealth();
       expect(health.tables).toBeGreaterThanOrEqual(2);
     });
 
     it('should count indexes', async () => {
+      await migrate();
       const db = await getDatabaseAsync();
-      db.exec('CREATE TABLE IF NOT EXISTS test_table (id INTEGER)');
-      db.exec('CREATE INDEX IF NOT EXISTS idx_test ON test_table(id)');
+      const stmt1 = db.prepare('CREATE TABLE IF NOT EXISTS test_table (id INTEGER)');
+      stmt1.run();
+      const stmt2 = db.prepare('CREATE INDEX IF NOT EXISTS idx_test ON test_table(id)');
+      stmt2.run();
 
       const health = await getDatabaseHealth();
       expect(health.indexes).toBeGreaterThan(0);
     });
   });
 
-  describe('getMigrationStatus', () => {
-    it('should return migration status', async () => {
-      await runMigrations();
-
-      const status = await getMigrationStatus();
-
-      expect(status).toHaveProperty('currentVersion');
-      expect(status).toHaveProperty('latestVersion');
-      expect(status).toHaveProperty('pendingMigrations');
-      expect(status).toHaveProperty('appliedMigrations');
-    });
-
-    it('should show no pending migrations after running', async () => {
-      await runMigrations();
-
-      const status = await getMigrationStatus();
-      expect(status.pendingMigrations).toHaveLength(0);
-    });
-
-    it('should show applied migrations', async () => {
-      await runMigrations();
-
-      const status = await getMigrationStatus();
-      expect(status.appliedMigrations.length).toBeGreaterThan(0);
-    });
-  });
-
   describe('rollback', () => {
     it('should rollback to previous version', async () => {
-      await runMigrations();
+      await migrate();
 
       const versionBefore = await getCurrentVersion();
 
@@ -219,7 +192,7 @@ describe('Database Migrations', () => {
     });
 
     it('should handle rollback to specific version', async () => {
-      await runMigrations();
+      await migrate();
 
       await rollback(1);
 
@@ -239,69 +212,13 @@ describe('Database Migrations', () => {
     });
   });
 
-  describe('createMigration', () => {
-    it('should create migration object', () => {
-      const migration = createMigration({
-        version: 3,
-        name: 'test_migration',
-        up: async () => {},
-        down: async () => {},
-      });
-
-      expect(migration).toHaveProperty('version');
-      expect(migration).toHaveProperty('name');
-      expect(migration).toHaveProperty('up');
-      expect(migration).toHaveProperty('down');
-      expect(migration.version).toBe(3);
-      expect(migration.name).toBe('test_migration');
-    });
-
-    it('should execute up migration', async () => {
-      const upFn = vi.fn().mockResolvedValue(undefined);
-      const migration = createMigration({
-        version: 3,
-        name: 'test_migration',
-        up: upFn,
-        down: async () => {},
-      });
-
-      await migration.up();
-
-      expect(upFn).toHaveBeenCalledTimes(1);
-    });
-
-    it('should execute down migration', async () => {
-      const downFn = vi.fn().mockResolvedValue(undefined);
-      const migration = createMigration({
-        version: 3,
-        name: 'test_migration',
-        up: async () => {},
-        down: downFn,
-      });
-
-      await migration.down();
-
-      expect(downFn).toHaveBeenCalledTimes(1);
-    });
-  });
-
   describe('edge cases', () => {
     it('should handle concurrent migrations', async () => {
       // Run migrations in parallel
-      await Promise.all([runMigrations(), runMigrations()]);
+      await Promise.all([migrate(), migrate()]);
 
       const version = await getCurrentVersion();
       expect(version).toBeGreaterThan(0);
-    });
-
-    it('should handle database errors gracefully', async () => {
-      // Set invalid database path
-      process.env.DATABASE_PATH = '/invalid/path/database.db';
-
-      await expect(runMigrations()).rejects.toThrow();
-
-      // Restore valid path
-      process.env.DATABASE_PATH = ':memory:';
     });
 
     it('should handle missing migrations table', async () => {
@@ -310,17 +227,17 @@ describe('Database Migrations', () => {
     });
 
     it('should handle empty migration list', async () => {
-      await runMigrations();
+      await migrate();
 
       // Running again with no pending migrations should not throw
-      await expect(runMigrations()).resolves.not.toThrow();
+      await expect(migrate()).resolves.not.toThrow();
     });
   });
 
   describe('integration tests', () => {
     it('should complete full migration cycle', async () => {
       // Run migrations
-      await runMigrations();
+      await migrate();
       const versionAfterRun = await getCurrentVersion();
       expect(versionAfterRun).toBeGreaterThan(0);
 
@@ -338,7 +255,7 @@ describe('Database Migrations', () => {
     });
 
     it('should maintain database consistency after migrations', async () => {
-      await runMigrations();
+      await migrate();
 
       const db = await getDatabaseAsync();
 

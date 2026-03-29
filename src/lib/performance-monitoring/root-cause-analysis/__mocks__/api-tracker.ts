@@ -4,10 +4,10 @@
 
 import { vi } from 'vitest';
 
-export const APITracker = vi.fn().mockImplementation(() => ({
-  trackRequest: vi.fn().mockReturnValue('request-id-123'),
-  getHistory: vi.fn().mockReturnValue([]),
-  analyze: vi.fn().mockReturnValue({
+export class APITracker {
+  trackRequest = vi.fn().mockReturnValue('request-id-123');
+  getHistory = vi.fn().mockReturnValue([]);
+  analyze = vi.fn().mockReturnValue({
     requestStatistics: {
       totalRequests: 0,
       averageDuration: 0,
@@ -16,10 +16,10 @@ export const APITracker = vi.fn().mockImplementation(() => ({
       topSlowEndpoints: []
     },
     criticalIssues: []
-  }),
-  clearHistory: vi.fn(),
-  updateConfig: vi.fn()
-}));
+  });
+  clearHistory = vi.fn();
+  updateConfig = vi.fn();
+}
 
 export const APIRequestMock = {
   id: 'request-1',

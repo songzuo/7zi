@@ -15,7 +15,7 @@ import clsx from 'clsx';
 // Card 组件
 // ============================================
 
-export interface CardProps {
+export interface CardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onClick'> {
   /** 卡片内容 */
   children: React.ReactNode;
   /** 是否有阴影 */
