@@ -13,15 +13,17 @@ import {
   RequireAllPermissions,
   RequireRoleLevel,
   ResourceType,
+  ActionType,
   PermissionDeniedError,
   Permissions,
-} from '../../lib/permissions';
+} from '@/lib/permissions';
+import { UserRole } from '@/lib/auth';
 import {
   createSuccessResponse,
   createUnauthorizedError,
   createForbiddenError,
   createErrorResponse,
-} from '../../../lib/api/error-handler';
+} from '@/lib/api/error-handler';
 
 /**
  * 模拟的 API 上下文（实际应用中从 session 或 JWT 解析）
@@ -33,6 +35,14 @@ interface ApiContext {
 }
 
 /**
+ * 用户创建数据接口
+ */
+interface UserCreateData {
+  username: string;
+  email: string;
+}
+
+/**
  * 模拟的用户数据存储
  */
 const users: Record<string, UserWithRoles> = {
@@ -41,7 +51,7 @@ const users: Record<string, UserWithRoles> = {
       id: 'user-1',
       username: 'admin',
       email: 'admin@example.com',
-      role: 'admin' as any,
+      role: UserRole.ADMIN,
       permissions: [],
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -53,7 +63,7 @@ const users: Record<string, UserWithRoles> = {
       id: 'user-2',
       username: 'developer',
       email: 'developer@example.com',
-      role: 'user' as any,
+      role: UserRole.USER,
       permissions: [],
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -136,7 +146,7 @@ class UserController {
   /**
    * 列出所有用户 - 需要 user:list 权限
    */
-  @RequirePermission(ResourceType.USER, 'list')
+  @RequirePermission(ResourceType.USER, ActionType.LIST)
   async listUsers(ctx: ApiContext): Promise<NextResponse> {
     const { user } = ctx;
 
@@ -154,15 +164,17 @@ class UserController {
   /**
    * 创建新用户 - 需要 user:create 权限
    */
-  @RequirePermission(ResourceType.USER, 'create')
+  @RequirePermission(ResourceType.USER, ActionType.CREATE)
   async createUser(ctx: ApiContext, userData: unknown): Promise<NextResponse> {
     const { user } = ctx;
+
+    const data = userData as UserCreateData;
 
     // 实际业务逻辑
     const newUser = {
       id: `user-${Date.now()}`,
-      username: (userData as any).username,
-      email: (userData as any).email,
+      username: data.username,
+      email: data.email,
       createdAt: new Date(),
     };
 
@@ -173,22 +185,23 @@ class UserController {
    * 更新用户信息 - 需要满足任一权限：user:update 或 user:manage
    */
   @RequireAnyPermission([
-    { resourceType: ResourceType.USER, action: 'update' },
-    { resourceType: ResourceType.USER, action: 'delete' },
+    { resourceType: ResourceType.USER, action: ActionType.UPDATE },
+    { resourceType: ResourceType.USER, action: ActionType.DELETE },
   ])
   async updateUser(ctx: ApiContext, userId: string, updates: unknown): Promise<NextResponse> {
     const { user } = ctx;
 
-    // 实际业务逻辑
-    return createSuccessResponse({ id: userId, ...updates });
+    // Actual business logic
+    const updateData = updates as Record<string, unknown>;
+    return createSuccessResponse({ id: userId, ...updateData });
   }
 
   /**
    * 删除用户 - 需要 user:delete 和 user:update 两个权限
    */
   @RequireAllPermissions([
-    { resourceType: ResourceType.USER, action: 'delete' },
-    { resourceType: ResourceType.USER, action: 'update' },
+    { resourceType: ResourceType.USER, action: ActionType.DELETE },
+    { resourceType: ResourceType.USER, action: ActionType.UPDATE },
   ])
   async deleteUser(ctx: ApiContext, userId: string): Promise<NextResponse> {
     const { user } = ctx;
@@ -214,7 +227,7 @@ class UserController {
   /**
    * 导出用户数据 - 需要 data:export 权限
    */
-  @RequirePermission(ResourceType.DATA, 'export')
+  @RequirePermission(ResourceType.DATA, ActionType.EXPORT)
   async exportUsers(ctx: ApiContext): Promise<NextResponse> {
     const { user } = ctx;
 

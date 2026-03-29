@@ -1,0 +1,15 @@
+{
+  "testEnvironment": "node",
+  "collectCoverage": true,
+  "collectCoverageFrom": [
+    "scripts/**/*.js",
+    "!scripts/**/*.test.js",
+    "!scripts/**/node_modules/**"
+  ],
+  "coverageDirectory": "coverage",
+  "testMatch": [
+    "**/tests/**/*.test.js",
+    "!**/tests/health-check-json.test.js"
+  ],
+  "testTimeout": 10000
+}

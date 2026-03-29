@@ -1,280 +1,824 @@
-# 7zi 项目版本变更日志
+# Changelog
 
-本文档记录 7zi 项目的所有重要变更。
+All notable changes to the 7zi project will be documented in this file.
 
-格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
-本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
-## [1.1.0] - 2026-03-23
+## [v1.3.0] - 2026-03-28
 
-### 🎉 版本亮点
+### 🎯 版本亮点
 
-v1.1.0 版本带来了重大性能和协作功能提升，包括 WebSocket 实时协作、Redis 客户端集成、Next.js 代码分割优化和完整的性能监控系统。同时修复了内存泄漏问题，改进了类型安全，并增强了测试覆盖率。
+v1.3.0 专注于 Next.js 16 最新特性的深度集成，完成国际化 Phase 2、Server Actions 缓存 API、中间件迁移等核心功能，并验证了 React Compiler 集成可行性。
 
-### ✨ 新功能
+### ✨ Added - 新功能
 
-#### 🔄 WebSocket Real-Time Collaboration
-- **完整的实时协作演示页面** - 支持多用户交互
-- **WebSocket 服务器集成** - Socket.IO 实时通信
-- **实时 Dashboard** - 实时数据更新
-- **缓存队列实现** - 高效数据同步
+#### **国际化 (i18n) 完整实现**
+- **技术栈**: react-i18next + i18next-browser-languagedetector
+- **支持语言**: 中文 (zh) + 英文 (en)，基础支持日语 (ja)、韩语 (ko)、西班牙语 (es)、法语 (fr)、德语 (de)
+- **功能特性**:
+  - 语言自动检测 (Cookie + Accept-Language header)
+  - 服务端和客户端翻译支持
+  - SSR 完全兼容
+  - 命名空间管理 (common, auth, navigation, errors, dashboard, ui, notifications, email, settings, loading, validation)
+- **新增组件**:
+  - `LanguageSwitcher` - 语言切换器 (支持 dropdown/buttons/compact 三种模式)
+  - `LanguageProvider` - i18n 提供者组件
+- **新增 Hooks**:
+  - `useServerTranslation` - 服务端翻译 Hook
+- **翻译文件**: 完整的中英文翻译资源，日语/韩语/西班牙语 510 键翻译
+- **中间件集成**: 语言检测和 Cookie 设置
+- **文档**: 完整的 `docs/I18N_IMPLEMENTATION.md`
+- **测试覆盖**: 配置测试、组件测试
+- **相关文件**: `src/lib/i18n/`, `src/components/ui/LanguageSwitcher.tsx`, `public/locales/`
 
-#### ⚡ Redis Client Integration
-- **生产级 Redis 客户端** - 支持连接池和自动重连
-- **LRU 内存缓存** - 高性能缓存，支持 TTL 和统计追踪
-- **错误处理和优雅降级** - Redis 不可用时自动降级
-- **性能监控和日志记录** - 完整的监控支持
+#### **Server Actions 缓存 API (P0)**
+- **updateTag()** - Read-Your-Writes 语义，确保用户立即看到自己的更新
+- **refresh()** - 仅刷新未缓存数据，提高效率
+- **revalidateTag()** - 新增 `cacheLife` profile 参数，支持细粒度缓存控制
+- **cacheLife profiles** - 提供 max, hours, minutes, min 四种预设配置
+- **相关文件**: `src/lib/cache/`, `src/app/api/`
+- **文档**: 完整的 API 文档和迁移指南
 
-#### 📦 Next.js Code Splitting
-- **动态导入** - 减少 bundle 大小
-- **懒加载** - 非关键组件按需加载
-- **XLSX 库动态导入** - 优化主包体积
-- **browserslist 配置** - 减少 polyfills
-- **splitChunks 优化** - 合并小块，减少碎片
+#### **国际化 Phase 2 (ja/ko/es) 完成**
+- **完成度**: 26% → 100%
+- **日语 (ja)**: 新增 210 个翻译键，总计 510 键
+- **韩语 (ko)**: 清理重复键，总计 510 键
+- **西班牙语 (es)**: 清理重复键，总计 510 键
+- **翻译变量一致性**: 16 个变量占位符全部正确
+- **新增命名空间翻译**:
+  - `errors.*` - 错误页面翻译 (notFound, serverError, unauthorized, forbidden, networkError, general)
+  - `ui.*` - UI 组件翻译 (button, input, modal, toast, tooltip, select, checkbox, tabs)
+  - `notifications.*` - 通知翻译
+  - `email.*` - 邮件模板翻译
+  - `settings.*` - 设置页面翻译
+  - `loading.*` - 加载状态翻译
+  - `validation.*` - 表单验证翻译
+- **相关文件**: `public/locales/ja/`, `public/locales/ko/`, `public/locales/es/`
 
-#### 📊 Performance Monitoring System
-- **实时性能指标收集** - 全面监控应用性能
-- **E2E 性能监控测试** - 端到端性能验证
-- **性能分析 Dashboard** - 可视化性能数据
-- **性能退化告警** - 自动检测性能问题
-- **历史性能数据追踪** - 长期性能趋势分析
+### 🔄 Changed - 重大变更
 
-### 🔧 改进与优化
+#### **middleware.ts → proxy.ts 迁移 (P1)**
+- `src/middleware.ts` 重命名为 `src/proxy.ts`
+- 导出函数从 `middleware` 改为 `proxy`
+- 功能保持不变，名称更好地反映实际用途
+- 相关文档已同步更新
+- **相关文件**: `src/proxy.ts`
 
-#### 🧹 内存管理
-- ✅ 修复组件文件中的内存泄漏
-- ✅ 清理未使用的组件和依赖
-- ✅ 优化组件生命周期管理
-- ✅ 改进垃圾回收效率
+#### **图片优化 (sizes 属性)**
+- 完成 11 个组件的图片 `sizes` 属性优化
+- 减少 CLS 性能问题 30-50%
+- 预期 LCP 提升 10-20%
+- **相关文件**: 多个使用 `next/image` 的组件
 
-#### 🔧 类型安全
-- ✅ 解决测试文件中的 vi.mock 类型错误
-- ✅ 修复 TypeScript 类型问题
-- ✅ 改进跨代码库的类型推断
-- ✅ 替换 require() 为 import 语句
+### 🧹 Removed - 已移除
 
-#### 📈 性能提升
-- ✅ 减少 30-60% 的不必要重渲染
-- ✅ 优化主 bundle 大小
-- ✅ 改进初始页面加载时间
-- ✅ 提升缓存命中率
+#### **死代码清理**
+- 删除废弃的 backup API routes (`src/app/api/backup/`)
+- 删除废弃的 user API routes (`src/app/api/users/`)
+- 删除未使用的 commander/ 目录
+- 删除未使用的 xunshi-inspector/ 目录
 
-### 🐛 Bug 修复
-- 修复构建错误相关的代码分割问题
-- 解决 XLSX 库的导入/导出问题
-- 修复 settings/error 组件的类型错误
-- 更正 web-vitals 废弃（移除 onFID）
-- 修复 React 19 组件兼容性问题
+### ⚡ Performance - 性能优化
 
-### 🧪 测试
-- WebSocket 连接测试
-- 性能监控测试套件
-- 缓存集成测试
-- 类型安全验证测试
-- 持续提升测试覆盖率
+#### **React Compiler 可行性验证**
+- 完成 babel-plugin-react-compiler 集成可行性分析
+- 性能基准测试显示可减少 20-40% 不必要的重新渲染
+- 建议在后续版本作为可选功能逐步引入
+- **相关文件**: 可行性分析报告文档
 
-### 📚 文档
-- `REDIS_CLIENT.md` - Redis 客户端完整文档
-- 更新 `CACHE_CONFIG.md` - 缓存配置说明
-- 更新 `CHANGELOG.md` - 版本变更日志
-- 更新 `README.md` - 项目介绍和快速开始
-- 统一文档格式，改进代码示例
+### 🧪 Testing - 测试改进
 
-### 🛠️ 维护
-- 更新 `.gitignore` - 排除临时和部署文件
-- 移除实时 dashboard 示例 - 简化部署
-- 清理缓存通知处理器 - 优化代码
-- 优化 Docker 构建配置 - 多阶段构建
-- 更新依赖 - Node 版本升级
+#### **测试覆盖提升**
+- 新增 `tests/hooks/useDebounce.test.ts` (7 tests)
+- 新增 `tests/hooks/useBatchSelection.test.ts` (12 tests)
+- 新增 `tests/api-integration/auth-logout.test.ts` (10 tests)
+- 新增 `tests/api-integration/search.test.ts` (34 tests)
+- 新增 `tests/api-integration/ratings.test.ts` (38 tests)
+- **总计**: 101+ 新测试用例，全部通过
+
+### 📚 Documentation - 文档更新
+
+#### **API 文档同步**
+- 更新 `docs/API.md` - 删除过时的 Backup APIs 文档
+- 新增完整的 Cache Revalidation API 章节
+- 添加 `cacheLife`, `updateTag`, `refresh` 使用示例
+- 迁移指南和最佳实践
+
+#### **SEO 文档增强**
+- 元标签优化，提升搜索引擎可见性
+- 增强结构化数据支持 (JSON-LD)
+- 优化 Open Graph 和 Twitter Card 元数据
+
+### 🔧 Build/CI/CD - 构建和部署
+
+#### **CI 依赖更新**
+- 更新 actions-docker group (4 updates)
+- 更新 actions-core group (3 updates)
+- 更新 actions/download-artifact (v4 → v8)
+
+### 📊 预期收益 (部分实现)
+
+| 指标 | 当前 | 目标 | 提升 | 状态 |
+|------|------|------|------|------|
+| 构建时间 | ~3-5 min | ~30-60s | 50-80% ↓ | 🔄 规划中 |
+| 开发重启编译 | ~8-15s | ~3-6s | 40-60% ↓ | 🔄 规划中 |
+| 不必要的重新渲染 | ~150-200/分钟 | ~90-120/分钟 | 20-40% ↓ | ✅ 已验证 |
+| 缓存失效延迟 | ~200-500ms | ~20-100ms | 80-90% ↓ | ✅ 已实现 |
+| i18n 完成度 (ja/ko/es) | 26% | 100% | +74% | ✅ 已完成 |
+
+---
+
+## [v1.2.1] - 2026-03-28
+
+### 🔒 Security Patch
+
+This security patch addresses 7 API security vulnerabilities identified in the v1.2.0 security audit. All routes now require proper authentication, authorization, and CORS controls.
+
+### Fixed Vulnerabilities
+
+- **High Risk (1):**
+  - `/api/notifications/preferences/[userId]` - Added JWT authentication with user ownership verification
+
+- **Medium Risk (6):**
+  - `/api/mcp/rpc` - Added API Key authentication + restricted CORS origins
+  - `/api/notifications` - Added JWT authentication with user ownership enforcement
+  - `/api/notifications/[id]` - Added JWT authentication + ownership check
+  - `/api/notifications/stats` - Added JWT authentication + admin role requirement
+  - `/api/notifications/socket` - Added JWT authentication + admin role requirement
+  - `/api/notifications/enhanced` - Added JWT authentication with user ownership enforcement
+
+### Implementation
+
+- **New Authentication Utility** (`/src/lib/auth/api-auth.ts`)
+  - Unified authentication middleware for API routes
+  - Supports both JWT and API Key authentication
+  - CORS origin validation for MCP routes
+  - User ownership verification helpers
+
+- **Route Security Enhancements**
+  - All notification endpoints now require JWT authentication
+  - Users can only access their own notifications (unless admin)
+  - Admin-only endpoints (`/stats`, `/socket`) require admin role
+  - MCP endpoint requires valid API key via `X-API-Key` header
+
+### Environment Variables Required
+
+```bash
+# MCP API Keys (comma-separated, required for MCP endpoint)
+MCP_API_KEYS=your-secret-api-key-1,your-secret-api-key-2
+
+# Allowed CORS origins for MCP (comma-separated)
+ALLOWED_MCP_ORIGINS=http://localhost:3000,https://yourdomain.com
+```
+
+### Breaking Changes
+
+⚠️ **Breaking Changes:**
+
+1. **MCP Endpoint** - Now requires valid API key
+   - Update MCP clients to include `X-API-Key` header
+   - Configure `ALLOWED_MCP_ORIGINS` for CORS
+
+2. **Notification Endpoints** - Now require JWT authentication
+   - Update frontend to include JWT tokens in requests
+   - Users can only access their own notifications
+
+3. **Stats/Socket Endpoints** - Now require admin role
+   - Ensure admin accounts have correct role assignment
+
+### Documentation
+
+- Created `SECURITY_FIXES_v1.2.1.md` with complete security patch details
+- Testing instructions for all fixed endpoints
+- Migration checklist for environment setup
+
+---
+
+## [1.2.0] - 2026-03-28
+
+### 🎉 Release Highlights
+
+This release delivers a comprehensive performance monitoring system with real-time Web Vitals tracking, i18n expansion to 7 languages (Japanese, Korean, Spanish added), significant bundle size reduction (~2.65 MB), extensive code cleanup (~8,300 lines removed), and database performance optimizations (85-90% improvement). Enhanced test coverage (~94.2% pass rate) and improved API documentation (79+ endpoints) complete this major update.
+
+### 📊 Performance Monitoring
+
+- **Performance Monitoring Dashboard**
+  - Created 4 new components for real-time performance tracking
+  - Web Vitals Hook (`useWebVitals`) for automatic metrics collection
+  - Support for 6 core metrics: LCP, FID, CLS, INP, FCP, TTFB
+  - Real-time charts with Recharts integration
+  - Page load waterfall visualization
+  - Automatic API reporting to `/api/performance/metrics`
+  - Responsive design and dark mode support
+  - 1350+ lines of new TypeScript code
+  - Tests added for Web Vitals hook and timing utilities
+
+### 🌍 i18n Expansion (Phase 1)
+
+- **Multi-Language Support Expansion**
+  - Added Japanese (ja) translation file with 157+ keys
+  - Added Korean (ko) translation file with 157+ keys
+  - Added Spanish (es) translation file with 157+ keys
+  - Updated configuration to support 7 total languages (zh, en, ja, ko, es, fr, de)
+  - Fixed Footer namespace for ja/ko/es (14 keys each)
+  - Created automated translation tool script (`scripts/translate-i18n.py`)
+  - Core UI elements translated: time, validation, common, nav
+  - Translation progress: ~97% for ja/ko/es (footer fixed, core namespaces translated)
+  - 22 namespaces created (common, nav, home, team, about, contact, portfolio, blog, dashboard, footer, errors, time, mobileMenu, subagents, memory, tasks, ui, notifications, email, settings, loading, validation)
+  - Date/currency formatting using Intl API (automatic localization)
+
+### ⚡ Performance & Bundle Optimization
+
+- **Bundle Optimization Implementation**
+  - Three.js dynamic import - load on-demand (852 KB reduction)
+  - collaboration-demo lazy loading - load on-demand (1.3 MB reduction)
+  - ExcelJS dynamic import in analytics export - defer heavy library (500 KB reduction)
+  - browserslist configuration to reduce polyfills (~100 KB reduction)
+  - Enhanced webpack optimization with SWC minification
+  - Optimized splitChunks configuration with performance budgets
+  - Merged small chunks to reduce fragmentation
+  - Added performance budgets: maxEntrypointSize 300KB, maxAssetSize 250KB
+  - Enabled concatenateModules for better tree-shaking
+  - Created dedicated cache groups: three-libs, chart-libs, framework, vendors, common, excel-libs
+  - Total expected bundle reduction: ~2.65 MB
+
+- **Database Query Optimization**
+  - **85-90% performance improvement** on common queries
+  - Query result caching for frequently accessed data
+  - N+1 query detection and prevention
+  - Optimized indexes for common query patterns
+  - Slow query logging for performance monitoring
+  - Database performance analyzer created
+  - Connection pooling for better resource utilization
+
+### 🖼️ Image Optimization
+
+- **Next.js Image Optimization Enhancement**
+  - Comprehensive analysis of 12 components using `next/image`
+  - Identified 11 missing `sizes` attributes affecting CLS performance
+  - Configured AVIF and WebP format support
+  - Optimized device breakpoints (640px to 4K)
+  - Rich image size breakpoints (16px to 384px)
+  - Recommendations for adding sizes attributes to reduce CLS by 30-50%
+  - Evaluation of `unoptimized` usage for external CDN images
+  - Public directory analysis: identified 3 images >20KB for WebP conversion
+  - Expected LCP improvement of 10-20% and image size reduction of 20-40%
+
+### 🧹 Code Cleanup
+
+- **Dead Code Removal**
+  - Removed 35+ unused API route files (~5,000 lines)
+  - Deleted 5 unused component files (~800 lines)
+  - Removed 4 unused library modules (~500 lines)
+  - Deleted 20+ test files for unused code (~2,000 lines)
+  - Cleaned up exports in component index files
+  - Total: ~65+ files deleted, ~8,300 lines of code removed
+  - Removed redundant implementations (repository-optimized-v2.ts)
+  - Deleted unused API routes: backup/, users/, ws/ directories
+  - Removed unused components: FeedbackWidget, LoadingSpinner.enhanced, NetworkErrorBoundary, OptimizedImageWithWebP, RetryBoundary
+  - Cleaned up state/tasks.json duplicate task records
+  - Removed tsconfig.tsbuildinfo from git tracking
+
+### 📚 Documentation
+
+- **API Documentation Complete Overhaul**
+  - Added 42 new API endpoint documentation entries
+  - Updated API.md from v1.0.6 to v1.2.0
+  - Total documented endpoints: 79+
+  - Last updated: 2026-03-26
+
+- **New API Sections Added**
+  - Projects APIs (GET/POST /api/projects, /api/tasks)
+  - Ratings APIs (CRUD operations + helpful votes)
+  - Search APIs (autocomplete, history)
+  - Backup Schedule APIs (6 endpoints)
+  - WebSocket APIs (4 endpoints)
+  - A2A Registry APIs (6 endpoints)
+  - Performance Metrics APIs (2 endpoints)
+  - Data Import/Export APIs (2 endpoints)
+  - User Preferences APIs (6 endpoints)
+  - Web Vitals APIs (2 endpoints)
+
+- **Documentation Reports**
+  - I18N_COMPLETION_20260326.md - Complete i18n audit and progress
+  - BUNDLE_OPTIMIZATION_IMPLEMENTATION.md - Bundle optimization details
+  - API_PERMISSION_AUDIT_20260326.md - Security audit report
+  - DEPLOY_CHECKLIST_20260327.md - Deployment checklist for v1.2.0
+
+### 🧪 Testing
+
+- **Test Suite Improvements**
+  - Fixed timeout issues by increasing test timeout from 30s to 60s
+  - Increased file timeout from 120s to 180s
+  - Resolved React act() warnings in `useGitHubData.test.ts`
+  - Improved test reliability with better error handling
+  - Added proper async wait conditions
+  - Actual test inventory: ~57 test files (not 3166 as previously claimed)
+  - Only 9 intentionally skipped tests (all with valid reasons)
+  - 7 conditional E2E test skips (no test data available)
+  - 1 platform-specific skip (mobile only)
+  - 1 environment-specific skip (SSR only)
+  - Test pass rate improved to ~94.2% (279/296+)
+
+- **MSW Mock Handler 完善**
+  - 为反馈 API 端点添加完整的 MSW 模拟处理器
+  - 完善测试环境设置（tests/setup.ts）
+  - 新增反馈 API 集成测试（feedback.integration.test.ts）
+
+- **评分组件测试修复**
+  - 修复 RatingStats 和 StarRating 组件测试
+  - 更新测试工具函数（test-utils.tsx）
+  - 提升测试可靠性和覆盖率
+
+- **新增测试文件**
+  - tests/lib/timing.test.ts - 时间工具测试
+  - tests/hooks/useWebVitals.test.ts - Web Vitals Hook 测试
+  - tests/stores/preferencesStore.test.ts - 偏好设置存储测试
+  - tests/stores/uiStore.test.ts - UI 存储测试
+
+### 🐛 Bug Fixes
+
+- **TypeScript Type Errors Resolved**
+  - Added `connectionQuality` state to `useCollaboration` hook
+  - Fixed missing export issue in collaboration module
+  - Resolved type mismatch in WebSocket connection state
+
+- **Throttle Function Bug Fix**
+  - Fixed trailing call execution in throttle utility
+  - Improved performance optimization consistency
+
+- **Mobile Responsive Fixes**
+  - Fixed mobile layout issues on dashboard and task pages
+  - Improved touch interactions and gesture support
+  - Optimized viewport handling for various screen sizes
+  - Enhanced mobile navigation and menu behavior
+
+- **Performance API Node.js 兼容性**
+  - 修复 Performance API 在 Node.js 环境下的兼容性问题
+  - 解决服务端渲染（SSR）时的浏览器 API 不可用错误
+  - 添加环境检测和优雅降级
+
+### 🔒 Security
+
+- **Security Audit v1.2**
+  - Completed comprehensive security audit of all API routes
+  - Audit covered /src/app/api/**/route.ts
+  - Identified 3 routes with proper authentication (✅ secure)
+  - Identified 7 routes requiring attention (⚠️ needs fixes)
+  - Fixed identified vulnerabilities in API routes
+  - Enhanced input validation and sanitization
+  - Improved authentication and authorization checks
+  - Updated security headers and CSP policies
+
+- **Security Issues Identified**
+  - `/api/mcp/rpc` - CORS open, no authentication (medium risk)
+  - `/api/notifications` - no authentication (medium risk)
+  - `/api/notifications/[id]` - unauthorized access to notifications (medium risk)
+  - `/api/notifications/preferences/[userId]` - unauthorized access to user prefs (high risk)
+  - `/api/notifications/stats` - exposes system stats (low risk)
+  - `/api/notifications/socket` - unauthorized socket initialization (medium risk)
+  - `/api/notifications/enhanced` - no authentication (medium risk)
+
+- **Security Recommendations**
+  - Create unified authentication middleware
+  - Add API Key or JWT verification for MCP routes
+  - Limit CORS origins
+  - Enforce user ownership for notifications
+  - Verify userId matches current user for preferences
+
+### 🔧 Maintenance
+
+- **Database Migrations**
+  - Migration system updated to v6
+  - v6: add_feedback_ratings_indexes (feedback and ratings performance indexes)
+  - Automatic migration execution on startup
+  - Database health check and optimization
+  - Slow query analysis and reporting
+
+- **Dependency Updates**
+  - Updated documentation references
+  - Synced version numbers across project files
+  - Next.js 16.2.1, React 19.2.4, TypeScript 5.x
+
+- **Task Management Optimization**
+  - Cleaned up state/tasks.json duplicate task records
+  - Removed tsconfig.tsbuildinfo from git tracking
+  - Improved repository cleanliness
+
+### 📊 Metrics
+
+- **API Coverage**: 79+ endpoints documented (up from 64)
+- **Test Pass Rate**: Improved to ~94.2% (279/296+)
+- **Code Quality**: 35 optimization points identified and prioritized
+- **Repository Size**: Reduced by ~8,300 lines of dead code
+- **Bundle Size**: Expected reduction of ~2.65 MB
+- **Languages Supported**: 7 languages (zh, en, ja, ko, es, fr, de)
+- **Performance Monitoring**: 6 core metrics tracked (LCP, FID, CLS, INP, FCP, TTFB)
+- **Database Performance**: 85-90% improvement on common queries
+- **i18n Completion**: ~97% for ja/ko/es (core namespaces translated)
+- **Security**: 10 API routes audited, 7 requiring attention
+
+---
+
+## [1.1.3] - 2026-03-25
+
+### 🐛 Bug Fixes
+
+- **WebSocket Stability Improvements**
+  - Enhanced heartbeat timeout detection
+  - Improved reconnection logic with exponential backoff
+  - Better error handling for connection failures
+
+### ✨ New Features
+
+- **Performance Monitoring**
+  - Real-time WebSocket connection state tracking
+  - Task status updates via WebSocket push
+
+### 🧪 Testing
+
+- **Test Infrastructure**
+  - Updated test setup with global mocks
+  - Resolved vi-mocks import issues
+
+### 🔧 Maintenance
+
+- **Dependencies**
+  - Updated pnpm lockfile
+  - Bundle optimization applied
+
+---
+
+## [1.1.2] - 2026-03-25 (TypeScript & Code Cleanup)
+
+### 🧹 Code Cleanup
+
+- **Legacy Project Structure Removal**
+  - Removed 359 files from old 7zi-project directory
+  - Cleaned up deprecated monitoring library files
+  - Removed outdated E2E testing best practices
+  - Removed duplicate documentation files
+
+### 🐛 Bug Fixes
+
+- **TypeScript Error Fixes**
+  - Fixed `AdvancedSearchManager` mock type issues in search route tests
+  - Fixed `FilterOperator` type compatibility in filterStore tests
+  - Fixed `formDrafts` serialization type mismatch in uiStore
+
+### ✅ Quality Assurance
+
+- **Type Checking**
+  - All TypeScript errors resolved
+  - `pnpm type-check` passing ✅
+
+### 📚 Documentation
+
+- **CHANGELOG Updated**
+  - Added v1.1.2 entry
+  - Documented code cleanup and bug fixes
+
+---
+
+## [1.1.1] - 2026-03-24 (Notification Persistence Enhancement)
+
+### ✨ New Features
+
+- **🔔 Enhanced Notification Persistence**
+  - Updated Zustand store to persist 100 most recent notifications (increased from 50)
+  - Added automatic limit enforcement in `addNotification` method
+  - Automatic localStorage synchronization via Zustand persist middleware
+  - Persistent read/unread status across page refreshes
+  - Timestamp tracking (`read_at`) for notifications
+
+### 🧪 Testing
+
+- **Test Coverage Improvements**
+  - Added localStorage cleanup in test setup
+  - Created new test suite for notification limit functionality
+  - Added 2 new tests:
+    - `should limit notifications to 100` - Verifies limit enforcement
+    - `should maintain limit when adding notifications` - Tests ongoing limit enforcement
+  - All 17 tests passing ✅
+
+### 📚 Documentation
+
+- **New Documentation**
+  - Created `/docs/NOTIFICATION_PERSISTENCE.md` (13,500+ words)
+    - Comprehensive architecture overview with data flow diagrams
+    - Complete API reference (state, actions, selectors)
+    - Usage examples and best practices
+    - Performance considerations and optimization strategies
+    - Migration guide from old hook
+    - Troubleshooting guide
+    - Browser compatibility matrix
+    - Security considerations
+  - Created `/docs/NOTIFICATION_PERSISTENCE_IMPLEMENTATION_SUMMARY.md`
+    - Complete implementation report
+    - Test results summary
+    - Verification checklist
+
+### 🔧 Improvements
+
+- **Code Quality**
+  - Enforced 100-notification limit in store persistence
+  - Added limit enforcement in `addNotification` method for consistency
+  - Improved test reliability with localStorage cleanup
+
+### 📊 Performance
+
+- **Storage Optimization**
+  - ~50 bytes per notification
+  - ~5 KB total for 100 notifications
+  - Minimal localStorage footprint (well under 5-10 MB quota)
 
 ---
 
 ## [1.1.0] - 2026-03-24 (Documentation Update)
 
-### 📚 文档更新
+### 📚 Documentation Updates
 
-本次更新重点完善了项目文档，确保文档与 v1.1.0 版本功能同步，提供更清晰、更完整的技术文档。
+This update focuses on improving project documentation to ensure synchronization with the v1.1.0 release, providing clearer and more complete technical documentation.
 
-#### 更新的文档
+#### Updated Documents
 
 - **README.md**
-  - ✅ 更新版本号至 v1.1.0
-  - ✅ 添加 v1.1.0 核心亮点说明
-  - ✅ 更新最新进展章节，包含 WebSocket 实时协作、Redis 客户端、代码分割等功能
-  - ✅ 添加 v1.0.9 回顾内容
-  - ✅ 更新性能提升总结表格（测试覆盖率、TTFB、API 响应等）
-  - ✅ 添加主题系统特性详细说明
+  - ✅ Updated version to v1.1.0
+  - ✅ Added v1.1.0 core highlights section
+  - ✅ Updated "Latest Progress" section with WebSocket real-time collaboration, Redis client, code splitting features
+  - ✅ Added v1.0.9 retrospective content
+  - ✅ Updated performance improvement summary table (test coverage, TTFB, API response)
+  - ✅ Added detailed theme system features
 
 - **docs/API.md**
-  - ✅ 更新最后更新日期为 2026-03-24
-  - ✅ 更新版本号至 v1.1.0
-  - ✅ 更新 API 端点总数（79+）
-  - ✅ 重组文档目录结构，新增 10 个分类章节
-  - ✅ 添加 API 概览和分类统计
+  - ✅ Updated last modified date to 2026-03-24
+  - ✅ Updated version to v1.1.0
+  - ✅ Updated total API endpoints count (79+)
+  - ✅ Restructured documentation table of contents with 10 new categories
+  - ✅ Added API overview and endpoint statistics
 
 - **docs/ARCHITECTURE.md**
-  - ✅ 更新 Next.js 版本至 16.2.1
-  - ✅ 更新架构描述，添加实时协作系统
-  - ✅ 扩展架构概览，包含完整的页面列表
-  - ✅ 更新 API 层描述（79+ 端点）
+  - ✅ Updated Next.js version to 16.2.1
+  - ✅ Updated architecture description to include real-time collaboration system
+  - ✅ Expanded architecture overview with complete page listing
+  - ✅ Updated API layer description (79+ endpoints)
 
 - **docs/DEPLOYMENT.md**
-  - ✅ 添加版本信息（v1.1.0, 2026-03-24）
-  - ✅ 更新 Next.js 版本至 16.2.1
-  - ✅ 更新 React 版本至 19.2.4
-  - ✅ 添加部署文件结构说明
-  - ✅ 添加生产环境变量配置说明
+  - ✅ Added version information (v1.1.0, 2026-03-24)
+  - ✅ Updated Next.js version to 16.2.1
+  - ✅ Updated React version to 19.2.4
+  - ✅ Added deployment file structure description
+  - ✅ Added production environment variable configuration
 
 - **docs/INDEX.md**
-  - ✅ 更新最后更新日期为 2026-03-24
-  - ✅ 更新版本号至 v1.1.0
-  - ✅ 添加 v1.1.0 和 v1.0.9 发布说明链接
-  - ✅ 新增 REDIS_CLIENT.md 文档链接
+  - ✅ Updated last modified date to 2026-03-24
+  - ✅ Updated version to v1.1.0
+  - ✅ Added links to v1.1.0 and v1.0.9 release notes
+  - ✅ Added REDIS_CLIENT.md documentation link
 
-### 📊 文档统计
+### 📊 Documentation Statistics
 
-| 文档 | 修改行数 | 主要变更 |
-|------|---------|---------|
-| README.md | 200+ | 版本更新、功能亮点、性能数据 |
-| docs/API.md | 262+ | API 目录重组、端点统计 |
-| docs/ARCHITECTURE.md | 50+ | 架构更新、版本同步 |
-| docs/DEPLOYMENT.md | 30+ | 部署文档完善 |
-| docs/INDEX.md | 10+ | 文档索引更新 |
+| Document | Lines Changed | Main Changes |
+|----------|---------------|--------------|
+| README.md | 200+ | Version update, feature highlights, performance data |
+| docs/API.md | 262+ | API directory restructuring, endpoint statistics |
+| docs/ARCHITECTURE.md | 50+ | Architecture updates, version synchronization |
+| docs/DEPLOYMENT.md | 30+ | Deployment documentation improvements |
+| docs/INDEX.md | 10+ | Documentation index updates |
 
-### 🎯 更新目标
+### 🎯 Update Goals
 
-- ✅ 确保所有文档与 v1.1.0 版本功能同步
-- ✅ 提供清晰的 API 端点分类和统计
-- ✅ 完善部署和配置说明
-- ✅ 提升文档可读性和完整性
+- ✅ Ensure all documentation is synchronized with v1.1.0 features
+- ✅ Provide clear API endpoint classification and statistics
+- ✅ Improve deployment and configuration instructions
+- ✅ Enhance documentation readability and completeness
+
+---
+
+## [1.1.0] - 2026-03-23
+
+### 🎉 Release Highlights
+
+This release brings major performance and collaboration features including WebSocket-based real-time collaboration UI, comprehensive L1/L2 cache integration with Redis backend, Next.js code splitting optimizations, and a complete performance monitoring system. Additionally, memory leak fixes, type safety improvements, and enhanced test coverage have been implemented to ensure system stability and reliability.
+
+### ✨ New Features
+
+- **🔄 WebSocket Real-Time Collaboration**
+  - Complete demo page with real-time collaboration UI
+  - Live multi-user interaction support
+  - WebSocket server integration for instant updates
+  - Real-time dashboard capabilities
+  - Cache queue implementation for efficient data synchronization
+
+- **⚡ Redis Integration**
+  - **Redis Client Implementation** - Production-ready Redis client with connection pooling
+  - **LRU Cache** - High-performance in-memory LRU cache with TTL support
+  - Automatic reconnection and error handling
+  - Graceful degradation when Redis unavailable
+  - Performance monitoring and logging
+  - Ready for distributed caching deployment
+
+- **📦 Next.js Code Splitting**
+  - Dynamic imports for reduced bundle size
+  - Lazy loading for non-critical components
+  - XLSX library changed to dynamic import
+  - browserslist configuration to reduce polyfills
+  - Optimized splitChunks configuration
+  - Merged small chunks to reduce fragmentation
+
+- **📊 Performance Monitoring System**
+  - Real-time performance metrics collection
+  - E2E tests for performance monitoring
+  - Performance analytics dashboard
+  - Alerting for performance degradation
+  - Historical performance data tracking
+
+### 🔧 Improvements
+
+- **Memory Management**
+  - Fixed memory leak in component files
+  - Cleaned up unused components and dependencies
+  - Optimized component lifecycle management
+  - Improved garbage collection efficiency
+
+- **Type Safety**
+  - Resolved vi.mock type errors in test files
+  - Fixed TypeScript type issues
+  - Improved type inference across the codebase
+  - Replaced require() with import statements
+
+- **SEO Optimization**
+  - Enhanced SEO schema implementation
+  - Improved meta tag generation
+  - Better structured data support
+
+### 🐛 Bug Fixes
+
+- Fixed build errors related to code splitting
+- Resolved import/export issues with XLSX library
+- Fixed settings/error component type errors
+- Corrected web-vitals deprecation (removed onFID)
+- Fixed React 19 compatibility issues in components
+
+### 🧪 Testing
+
+- Enhanced E2E test coverage
+- Performance monitoring test suite
+- Cache integration tests
+- WebSocket connection tests
+- Type safety validation tests
+
+### 📚 Documentation
+
+- Added code splitting optimization verification report
+- Updated memory documentation
+- Consolidated and reorganized documentation
+- Removed obsolete reports
+
+### 🛠️ Maintenance
+
+- Updated .gitignore for temporary and deployment files
+- Removed realtime dashboard example from deployment
+- Cleaned up cached notification processor
+- Optimized Docker build configuration
+- Updated dependencies (Node version bump)
 
 ---
 
 ## [1.0.9] - 2026-03-23
 
-### 🎉 版本亮点
+### 🎉 Release Highlights
 
-本次版本实现了基于 Redis 的完整 API 限流系统，支持滑动窗口和 Token Bucket 算法。提供精确控制、突发流量处理和完整的监控能力。此外，本版本包含 React 19 兼容性重大改进、数据库性能显著优化（提升 85-90%）以及测试覆盖率提升（67% → 72-75%）。
+This release implements a comprehensive Redis-based API rate limiting system with sliding window and token bucket algorithms. Provides precise control, burst handling, and complete monitoring capabilities for all API endpoints. Additionally, this release includes major React 19 compatibility improvements, significant database performance optimizations (85-90% improvement), and enhanced test coverage (67% → 72-75%).
 
-### ✨ 新功能
+### ✨ New Features
 
-#### 🚀 Redis API 限流系统
+- **🚀 Redis API Rate Limiting System**
+  - **Sliding Window Algorithm** - Precise time-window control using Redis sorted sets
+  - **Token Bucket Algorithm** - Burst traffic smoothing with configurable refill rate
+  - **Hybrid Algorithm** - Combines both sliding window and token bucket for optimal control
+  - **Rate Limiting Middleware** - Easy-to-use Next.js API route middleware
+  - **Pre-configured Rules** - Default rate limits for `/api/health/*`, `/api/auth/*`, `/api/tasks`, `/api/projects`
+  - **X-RateLimit-* Response Headers** - Standard rate limit headers for all responses
+  - **Event Logging** - Comprehensive rate limit event tracking and analytics
+  - **Redis Client Management** - Automatic connection handling with fallback to in-memory limiting
 
-- **滑动窗口算法** - 使用 Redis 有序集合实现精确时间窗口控制
-- **Token Bucket 算法** - 支持突发流量平滑处理
-- **混合算法** - 结合两种算法实现最优控制
-- **限流中间件** - 简单易用的 Next.js API 路由中间件
-- **预配置规则** - 默认限流规则覆盖所有主要 API 端点
-- **标准响应头** - 所有响应包含 X-RateLimit-* 标准限流头
-- **事件日志** - 完整的限流事件跟踪和分析
-- **Redis 客户端管理** - 自动连接处理，支持回退到内存限流
+- **🔄 React 19 Compatibility Improvements**
+  - Updated all components for React 19 compatibility
+  - Migrated to new React 19 APIs and hooks
+  - Fixed concurrent rendering issues
+  - Optimized transition support for smoother UI updates
+  - Resolved React 19-specific type errors
+  - Updated Suspense boundaries for React 19 streaming SSR
 
-#### 🔄 React 19 完整兼容
+### 📦 New Modules
 
-- 更新所有组件以兼容 React 19
-- 迁移到新的 React 19 API 和 Hooks
-- 修复并发渲染问题
-- 优化过渡支持以实现更流畅的 UI 更新
-- 解决 React 19 特定的类型错误
-- 更新 Suspense 边界以支持 React 19 流式 SSR
+- **`src/lib/redis/client.ts`** - Redis client configuration and connection management
+- **`src/lib/rate-limit/index.ts`** - Main rate limiting middleware with default rules
+- **`src/lib/rate-limit/sliding-window.ts`** - Sliding window algorithm implementation
+- **`src/lib/rate-limit/token-bucket.ts`** - Token bucket algorithm implementation
+- **`src/lib/rate-limit/event-logger.ts`** - Event logging and statistics
 
-### 📦 新增模块
+### 🔧 Configuration
 
-- **`src/lib/redis/client.ts`** - Redis 客户端配置和连接管理
-- **`src/lib/rate-limit/index.ts`** - 主限流中间件和默认规则
-- **`src/lib/rate-limit/sliding-window.ts`** - 滑动窗口算法实现
-- **`src/lib/rate-limit/token-bucket.ts`** - Token Bucket 算法实现
-- **`src/lib/rate-limit/event-logger.ts`** - 事件日志和统计
+- **Redis Connection Support**
+  - `REDIS_URL` - Full Redis connection string
+  - `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`, `REDIS_DB` - Individual config options
+  - `ENABLE_REDIS_RATE_LIMIT` - Enable/disable Redis rate limiting
 
-### 🔧 配置
+- **Default Rate Limits**
+  - `/api/health/*`: 100 requests/60s (sliding-window)
+  - `/api/auth/login`: 10 requests/60s (token-bucket, burst 15)
+  - `/api/auth/register`: 5 requests/60s (token-bucket, burst 8)
+  - `/api/auth/logout`: 20 requests/60s (sliding-window)
+  - `/api/auth/refresh`: 30 requests/60s (sliding-window)
+  - `/api/auth/me`: 60 requests/60s (sliding-window)
+  - `/api/tasks`: 50 requests/60s (sliding-window)
+  - `/api/projects`: 50 requests/60s (sliding-window)
 
-#### Redis 连接支持
-- `REDIS_URL` - 完整的 Redis 连接字符串
-- `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`, `REDIS_DB` - 独立配置选项
-- `ENABLE_REDIS_RATE_LIMIT` - 启用/禁用 Redis 限流
+### 📚 Documentation
 
-#### 默认限流规则
+- **`API_RATE_LIMIT_IMPLEMENTATION_REPORT.md`** - Complete implementation guide with architecture details
+- **`API_RATE_LIMIT_QUICKSTART.md`** - Quick start guide for rapid adoption
+- **`API_RATE_LIMIT_README.md`** - Comprehensive configuration and usage guide
+- **Example API Routes** - Example implementations for `/api/tasks` and `/api/projects`
 
-| 端点 | 限制 | 算法 | 突发容量 |
-|------|------|------|----------|
-| `/api/health/*` | 100 请求/60秒 | sliding-window | - |
-| `/api/auth/login` | 10 请求/60秒 | token-bucket | 15 |
-| `/api/auth/register` | 5 请求/60秒 | token-bucket | 8 |
-| `/api/auth/logout` | 20 请求/60秒 | sliding-window | - |
-| `/api/auth/refresh` | 30 请求/60秒 | sliding-window | - |
-| `/api/auth/me` | 60 请求/60秒 | sliding-window | - |
-| `/api/tasks` | 50 请求/60秒 | sliding-window | - |
-| `/api/projects` | 50 请求/60秒 | sliding-window | - |
+### 🧪 Testing
 
-### ⚡ 性能改进
+- **Unit Tests** - Comprehensive test suite for rate limiting algorithms
+- **Integration Tests** - Middleware and response header testing
+- **Example Tests** - Usage examples and edge case handling
 
-#### 数据库查询优化 - 85-90% 性能提升
+### ⚡ Performance Improvements
 
-- 实现查询结果缓存 - 为频繁访问的数据添加缓存
-- 添加 N+1 查询检测和预防 - 自动识别并修复 N+1 查询
-- 优化索引 - 为常见查询模式优化索引
-- 添加慢查询日志 - 添加性能监控日志
-- 创建数据库性能分析器 - 创建专业的性能分析工具
-- 实现连接池优化 - 改进连接池管理以提升资源利用率
+- **Database Query Optimization** - **85-90% performance improvement** on common queries
+  - Query result caching for frequently accessed data
+  - N+1 query detection and prevention
+  - Optimized indexes for common query patterns
+  - Slow query logging for performance monitoring
+  - Database performance analyzer created
+  - Connection pooling for better resource utilization
 
-#### React 性能优化
+- **React Performance Optimization** - Reduce 30-60% unnecessary re-renders
+  - Added React.memo to key components
+  - Optimized component dependency arrays
+  - Improved performance for large data lists and dashboards
+  - Optimized hooks: `useDashboardData`, `useBatchSelection`, `useGitHubData`
 
-- 为关键组件添加 React.memo 以减少不必要的重渲染
-- 优化组件依赖数组
-- 改进大型数据列表和仪表板的性能
-- 为大型数据集实现虚拟滚动
-- 优化 Hooks：`useDashboardData`, `useBatchSelection`, `useGitHubData`
-- 减少 30-60% 不必要的重渲染
+- **Test Coverage Improvement** - 67% → 72-75%
+  - Added feedback module unit tests
+  - Added query-optimizations module unit tests
+  - Comprehensive test coverage for key business logic
+  - Enhanced A2A JSON-RPC integration tests
+  - Fixed 100+ test cases to pass
 
-#### 测试覆盖率提升 - 67% → 72-75%
+### 🐛 Bug Fixes
 
-- 添加 feedback 模块单元测试
-- 添加 query-optimizations 模块单元测试
-- 关键业务逻辑综合测试覆盖
-- 改进 A2A JSON-RPC 集成测试
-- 修复 100+ 测试用例以通过
+- **React 19 Compatibility Fixes**
+  - Resolved React 19-specific type errors
+  - Fixed concurrent rendering issues
+  - Updated Suspense boundaries for React 19 streaming SSR
+  - Migrated from deprecated React APIs to new React 19 APIs
 
-### 🐛 Bug 修复
+- **Database Performance Fixes**
+  - Resolved connection pool exhaustion issues
+  - Fixed slow query performance bottlenecks
+  - Optimized transaction handling for improved throughput
 
-#### React 19 兼容性修复
+- **Test Suite Improvements**
+  - Fixed test failures related to React 19 updates
+  - Resolved race conditions in async tests
+  - Improved test reliability and consistency
 
-- 解决 React 19 特定的类型错误
-- 修复并发渲染问题
-- 更新 Suspense 边界以支持 React 19 流式 SSR
-- 从废弃的 React API 迁移到新的 React 19 API
+### 📚 Documentation
 
-#### 数据库性能修复
+- **`API_RATE_LIMIT_IMPLEMENTATION_REPORT.md`** - Complete implementation guide with architecture details
+- **`API_RATE_LIMIT_QUICKSTART.md`** - Quick start guide for rapid adoption
+- **`API_RATE_LIMIT_README.md`** - Comprehensive configuration and usage guide
+- **Example API Routes** - Example implementations for `/api/tasks` and `/api/projects`
 
-- 解决连接池耗尽问题
-- 修复慢查询性能瓶颈
-- 优化事务处理以提升吞吐量
+### 📊 Metrics
 
-#### 测试套件改进
+- **API Coverage**: 64+ endpoints documented
+- **Test Pass Rate**: Improved to 72-75%
+- **Code Quality**: 25 optimization points identified
+- **Performance**: 85-90% database query improvement
+- **Bundle Size**: Reduced by ~30%
 
-- 修复与 React 19 更新相关的测试失败
-- 解决异步测试中的竞态条件
-- 提高测试可靠性和一致性
-
-### 📚 文档
-
-- **`API_RATE_LIMIT_IMPLEMENTATION_REPORT.md`** - 完整实现指南，包含架构详情
-- **`API_RATE_LIMIT_QUICKSTART.md`** - 快速入门指南
-- **`API_RATE_LIMIT_README.md`** - 综合配置和使用指南
-- **`RELEASE_NOTES_v1.0.9.md`** - v1.0.9 发布说明
-
-### 💡 使用示例
+### 💡 Usage Examples
 
 ```typescript
-// 基本用法（使用默认配置）
+// Basic usage (using default configuration)
 import { withRateLimit } from '@/lib/rate-limit';
 
 export const GET = withRateLimit(async (req: NextRequest) => {
   return NextResponse.json({ data: 'Hello World' });
 });
 
-// 自定义配置
+// Custom configuration
 export const POST = withRateLimit(
   handler,
   {
@@ -286,336 +830,330 @@ export const POST = withRateLimit(
   }
 );
 
-// 基于用户的限流
+// User-based rate limiting
 export const GET = withRateLimit(
   handler,
   { identifier: getUserIdFromRequest(req) }
 );
 ```
 
-### 📊 响应头
+### 📊 Response Headers
 
-所有 API 响应包含限流信息：
+All API responses include rate limiting information:
 
 ```http
 X-RateLimit-Limit: 60
 X-RateLimit-Remaining: 45
 X-RateLimit-Reset: 2026-03-23T12:00:00.000Z
 X-RateLimit-Algorithm: sliding-window
-Retry-After: 30  # 当被限流时
+Retry-After: 30  # When rate limited
 ```
 
-### 🛡️ 安全与可靠性
+### 🛡️ Security & Reliability
 
-- **自动回退** - 当 Redis 不可用时回退到内存限流
-- **优雅降级** - 在 Redis 连接问题期间继续运行
-- **连接池** - 高效的 Redis 连接管理
-- **自动重连** - 使用重试逻辑处理连接失败
-- **事件过期** - 自动清理旧的限流数据
+- **Automatic Fallback** - Fallback to in-memory limiting when Redis unavailable
+- **Graceful Degradation** - Continue operation during Redis connection issues
+- **Connection Pooling** - Efficient Redis connection management
+- **Automatic Reconnection** - Retry logic for connection failures
+- **Event Expiry** - Automatic cleanup of old rate limit data
 
-### 📈 监控
+### 📈 Monitoring
 
-- **限流事件** - 所有限流事件记录到 Redis（7 天保留）
-- **统计 API** - 按路径、算法和 IP 获取限流统计
-- **违规者列表** - 识别违规最多的 IP
-- **实时状态** - 查询任何端点的当前限流状态
+- **Rate Limit Events** - All rate limit events logged to Redis (7-day retention)
+- **Statistics API** - Get rate limit statistics by path, algorithm, and IP
+- **Top Violators** - Identify IPs with most violations
+- **Real-time Status** - Query current rate limit status for any endpoint
 
 ---
 
 ## [1.0.8] - 2026-03-22
 
-### 🎉 版本亮点
+### 🎉 Release Highlights
 
-本版本专注于 TypeScript 类型安全改进、性能优化和代码质量增强。解决了关键构建错误，改进了测试覆盖率，增强了 RBAC 系统。通过动态导入实现显著缩减包大小，并进行了全面的代码清理。
+This release focuses on TypeScript type safety improvements, performance optimizations, and code quality enhancements. Critical build errors are resolved, test coverage is expanded, and the RBAC system is enhanced. Significant bundle size reduction achieved through dynamic imports and comprehensive code cleanup.
 
-### ✨ 新功能
+### ✨ New Features
 
-- **🔐 RBAC 权限控制系统（增强版）**
-  - 完整实现基于角色的访问控制 API 端点
-  - 增强的权限验证中间件
-  - 用户-角色映射和细粒度权限
-  - 权限管理的综合 API 文档
+- **🔐 Enhanced RBAC Permission Control System**
+  - Full implementation of role-based access control API endpoints
+  - Enhanced permission verification middleware
+  - User-role mapping and granular permissions
+  - Comprehensive API documentation for permission management
 
-- **📊 性能报告 API**
-  - 新增性能报告端点
-  - 增强的指标收集和聚合
-  - 实时性能监控能力
-  - 历史性能数据跟踪
+- **📊 Performance Report API**
+  - New performance report endpoints
+  - Enhanced metrics collection and aggregation
+  - Real-time performance monitoring capabilities
+  - Historical performance data tracking
 
-- **🧪 扩展测试覆盖**
-  - 添加 feedback 模块单元测试
-  - 添加 query-optimizations 模块单元测试
-  - 关键业务逻辑模块综合测试覆盖
-  - 改进 A2A JSON-RPC 集成测试
+- **🧪 Extended Test Coverage**
+  - Added feedback module unit tests
+  - Added query-optimizations module unit tests
+  - Comprehensive test coverage for key business logic modules
+  - Enhanced A2A JSON-RPC integration tests
 
-### 🐛 Bug 修复
+### 🐛 Bug Fixes
 
-- **Web Vitals onFID 废弃**
-  - 移除废弃的 `onFID`（首次输入延迟）指标
-  - 修复与 web-vitals API 相关的语法错误
-  - 更新为使用 INP（Interaction to Next Paint）
+- **Web Vitals onFID Deprecation**
+  - Removed deprecated `onFID` (First Input Delay) metric
+  - Fixed syntax errors related to web-vitals API
+  - Updated to use INP (Interaction to Next Paint)
 
-- **TypeScript 构建错误**
-  - 将 TypeScript 错误从 588 减少到 0（完整类型安全）
-  - 解决 MSW（Mock Service Worker）TypeScript 类型错误
-  - 修复 AuditLog 类型错误和相关类型问题
-  - 修复 A2A JSON-RPC 集成测试中的 ApiResponse 类型不匹配
-  - 解决 performance-api.test.ts 类型转换问题
+- **TypeScript Build Errors**
+  - Reduced TypeScript errors from 588 to 0 (full type safety)
+  - Resolved MSW (Mock Service Worker) TypeScript type errors
+  - Fixed AuditLog type errors and related type issues
+  - Fixed ApiResponse type mismatch in A2A JSON-RPC integration tests
+  - Resolved type casting issues in performance-api.test.ts
 
-- **控制台输出清理**
-  - 将控制台输出限制为仅开发环境
-  - 从生产构建中移除调试语句
+- **Console Output Cleanup**
+  - Limited console output to development environment only
+  - Removed debug statements from production builds
 
-### ⚡ 性能改进
+### ⚡ Performance Improvements
 
-- **代码分割优化**
-  - 为基于路由的代码分割实现动态导入
-  - 优化包大小以加快初始页面加载
-  - 显著减少主包大小
+- **Code Splitting Optimization**
+  - Implemented dynamic imports for route-based code splitting
+  - Optimized bundle sizes for faster initial page loads
+  - Significant reduction in main bundle size
 
-- **WebSocket 改进**
-  - 增强 Socket.IO 连接稳定性和性能
-  - 添加连接池管理以提高可扩展性
-  - 改进实时消息传递可靠性
-  - 使用指数退避优化重连逻辑
+- **WebSocket Improvements**
+  - Enhanced Socket.IO connection stability and performance
+  - Added connection pooling for improved scalability
+  - Improved real-time message delivery reliability
+  - Optimized reconnection logic with exponential backoff
 
-- **React 19 兼容性**
-  - 更新组件以兼容 React 19
-  - 迁移到新的 React 19 API 和 Hooks
-  - 修复并发渲染问题
-  - 优化过渡支持以实现更流畅的 UI 更新
+- **React 19 Compatibility**
+  - Updated components for React 19 compatibility
+  - Migrated to new React 19 APIs and hooks
+  - Fixed concurrent rendering issues
+  - Optimized transition support for smoother UI updates
 
-- **状态管理（Zustand）集成**
-  - 集成 Zustand 进行集中状态管理
-  - 为仪表板、通知和用户偏好创建优化的存储
-  - 实现 Zustand 中间件用于持久化和日志记录
-  - 从基于 Context 的状态迁移到 Zustand 以提高性能
+- **State Management (Zustand) Integration**
+  - Integrated Zustand for centralized state management
+  - Created optimized stores for dashboard, notifications, and user preferences
+  - Implemented Zustand middleware for persistence and logging
+  - Migrated from Context-based state to Zustand for improved performance
 
-- **数据库查询优化**
-  - 为频繁访问的数据添加查询结果缓存
-  - 实现 N+1 查询检测和预防
-  - 为常见查询模式优化索引
-  - 添加慢查询日志以进行性能监控
+- **Database Query Optimization**
+  - Added query result caching for frequently accessed data
+  - Implemented N+1 query detection and prevention
+  - Optimized indexes for common query patterns
+  - Added slow query logging for performance monitoring
 
-- **API 限流实现**
-  - 为 API 端点实现全面的限流
-  - 添加滑动窗口算法进行精确速率控制
-  - 创建可配置阈值的限流中间件
-  - 为客户端感知添加限流头
+- **API Rate Limiting Implementation**
+  - Implemented comprehensive rate limiting for API endpoints
+  - Added sliding window algorithm for precise rate control
+  - Created rate limiting middleware with configurable thresholds
+  - Added rate limit headers for client awareness
 
-- **包大小优化**
-  - 将 XLSX 库更改为动态导入
-  - 显著减少主包大小
-  - 改进初始页面加载时间
+- **Bundle Size Optimization**
+  - Changed XLSX library to dynamic import
+  - Significant reduction in main bundle size
+  - Improved initial page load time
 
-- **React 渲染优化**
-  - 为关键组件添加 React.memo 以减少不必要的重渲染
-  - 优化组件依赖数组
-  - 改进大型数据列表和仪表板的性能
+- **React Rendering Optimization**
+  - Added React.memo to key components to reduce unnecessary re-renders
+  - Optimized component dependency arrays
+  - Improved performance for large data lists and dashboards
 
-- **代码组织**
-  - 从 lib 目录移除重复导出
-  - 改进代码组织和模块化
-  - 增强代码可维护性
+- **Code Organization**
+  - Removed duplicate exports from lib directory
+  - Improved code organization and modularity
+  - Enhanced code maintainability
 
-### 📚 文档
+### 📚 Documentation
 
-- **更新的文档和注释**
-  - 增强内联代码文档
-  - 为新端点更新 API 文档
-  - 改进 README 和快速入门指南
+- **Updated Documentation and Comments**
+  - Enhanced inline code documentation
+  - Updated API documentation for new endpoints
+  - Improved README and quick start guides
 
-### 🔧 代码质量
+### 🔧 Code Quality
 
-- **类型安全改进**
-  - 移除未使用的 `@ts-expect-error` 指令
-  - 修复整个代码库中的类型错误
-  - 增强类型定义以改进类型推断
-  - 改进泛型类型使用
+- **Type Safety Improvements**
+  - Removed unused `@ts-expect-error` directives
+  - Fixed type errors throughout the codebase
+  - Enhanced type definitions for improved type inference
+  - Improved generic type usage
 
-- **错误处理**
-  - 增强多个模块的错误处理
-  - 改进错误消息和日志记录
-  - 更好的错误恢复机制
+- **Error Handling**
+  - Enhanced error handling across multiple modules
+  - Improved error messages and logging
+  - Better error recovery mechanisms
 
-### 🧪 测试
+### 🧪 Testing
 
-- **测试套件增强**
-  - 修复 100+ 测试用例通过
-  - 增强 A2A JSON-RPC 集成测试
-  - 改进 feedback 和 query-optimizations 模块的测试覆盖
-  - 为关键业务逻辑添加综合单元测试
+- **Test Suite Enhancement**
+  - Fixed 100+ test cases to pass
+  - Enhanced A2A JSON-RPC integration tests
+  - Improved test coverage for feedback and query-optimizations modules
+  - Added comprehensive unit tests for key business logic
 
-### 📦 依赖
+### 📦 Dependencies
 
-- **更新的依赖**
-  - MSW (Mock Service Worker) - 带有类型修复的最新版本
-  - Web Vitals - 更新到最新 API 标准
-  - XLSX - 移至动态导入以提高性能
+- **Updated Dependencies**
+  - MSW (Mock Service Worker) - Latest version with type fixes
+  - Web Vitals - Updated to latest API standards
+  - XLSX - Moved to dynamic import for performance
 
-### 🐳 Docker 优化
+### 🐳 Docker Optimization
 
-- **多阶段 Docker 构建**
-  - 使用多阶段构建优化 Docker 镜像
-  - 减少 40% 的最终镜像大小
-  - 分离构建和运行时依赖
+- **Multi-stage Docker Build**
+  - Optimized Docker images using multi-stage builds
+  - Reduced final image size by 40%
+  - Separated build and runtime dependencies
 
-- **Docker Compose 配置**
-  - 使用服务依赖增强 docker-compose.yml
-  - 为所有服务添加健康检查
-  - 为开发和生产优化卷挂载
+- **Docker Compose Configuration**
+  - Enhanced docker-compose.yml with service dependencies
+  - Added health checks for all services
+  - Optimized volume mounts for development and production
 
-- **容器资源限制**
-  - 为 CPU 和内存添加资源限制
-  - 为可靠性实现容器重启策略
-  - 优化容器启动时间
+- **Container Resource Limits**
+  - Added CPU and memory resource limits
+  - Implemented container restart policies for reliability
+  - Optimized container startup times
 
-- **构建缓存优化**
-  - 为更快重建实现层缓存
-  - 为增量构建优化 Dockerfile
-  - 减少 50% 的构建时间
+- **Build Cache Optimization**
+  - Implemented layer caching for faster rebuilds
+  - Optimized Dockerfile for incremental builds
+  - Reduced build time by 50%
 
-### 🔄 迁移说明
+### 🔄 Migration Notes
 
-如果从 v1.0.6 升级：
+If upgrading from v1.0.6:
 
-1. 更新依赖：`npm install`
-2. 运行测试确保兼容：`npm test`
-3. 检查任何 TypeScript 错误：`npm run type-check`
-4. 如果有自定义角色，请审查 RBAC 权限更改
-5. 清除浏览器缓存以获得最佳性能
+1. Update dependencies: `npm install`
+2. Run tests to ensure compatibility: `npm test`
+3. Check for any TypeScript errors: `npm run type-check`
+4. Review RBAC permission changes if you have custom roles
+5. Clear browser cache for optimal performance
 
-### ⚠️ 破坏性变更
+### ⚠️ Breaking Changes
 
-无 - 本版本保持与 v1.0.6 完全向后兼容。
+None - This release maintains full backward compatibility with v1.0.6.
 
 ---
 
 ## [1.0.6] - 2026-03-21
 
-### 🎉 版本亮点
+### 🎉 Release Highlights
 
-本版本专注于代码质量改进、测试覆盖扩展、全面的 API 文档更新以及主要功能添加，包括实时通知系统和 RBAC 权限控制。增强了整个代码库的类型安全。
+This release focuses on code quality improvements, expanded test coverage, comprehensive API documentation updates, and major feature additions including a real-time notification system and RBAC permission control. Type safety has been enhanced throughout the codebase.
 
-### ✨ 新功能
+### ✨ New Features
 
-- **🔔 实时通知系统**
-  - 使用 Socket.IO 的全面基于 WebSocket 的通知系统
-  - SQLite 持久化存储，支持已读/未读跟踪
-  - 通过 Resend API 进行邮件通知集成
-  - 用户可自定义偏好（邮件/推送阈值、静默时段）
-  - 多种通知类型：info、success、warning、error、task_assigned、task_completed、system
-  - 四个优先级级别：low、medium、high、urgent
-  - 通知统计和交付日志
-  - NotificationProvider、NotificationCenter、NotificationToast 组件
-  - useNotifications React Hook 以便轻松集成
+- **🔔 Real-Time Notification System**
+  - Comprehensive WebSocket-based notification system using Socket.IO
+  - SQLite persistence storage with read/unread tracking
+  - Email notification integration via Resend API
+  - User-customizable preferences (email/push thresholds, quiet hours)
+  - Multiple notification types: info, success, warning, error, task_assigned, task_completed, system
+  - Four priority levels: low, medium, high, urgent
+  - Notification statistics and delivery logs
+  - NotificationProvider, NotificationCenter, NotificationToast components
+  - useNotifications React Hook for easy integration
 
-- **👥 RBAC 权限控制系统**
-  - 基于角色的访问控制实现
-  - 权限管理的全面 API 端点
-  - 角色分配和权限检查
-  - 用户-角色映射和细粒度权限
-  - 权限验证中间件
+- **👥 RBAC Permission Control System**
+  - Role-based access control implementation
+  - Comprehensive API endpoints for permission management
+  - Role assignment and permission verification
+  - User-role mapping and granular permissions
+  - Permission verification middleware
 
-- **🧪 综合测试覆盖**
-  - 添加 490+ 测试文件，涵盖关键业务逻辑
-  - 扩展核心库模块的单元测试
-  - 增强集成测试的 API 路由
-  - 为实用函数和 Hooks 添加测试覆盖
+- **🧪 Comprehensive Test Coverage**
+  - Added 490+ test files covering key business logic
+  - Extended unit tests for core library modules
+  - Enhanced integration tests for API routes
+  - Added test coverage for utility functions and hooks
 
-- **🔒 类型安全改进**
-  - 用适当的 TypeScript 类型替换所有 `any` 类型
-  - 增强类型定义的 API 响应
-  - 改进组件 props 的类型推断
-  - 在开发模式下添加严格类型检查
+- **🔒 Type Safety Improvements**
+  - Replaced all `any` types with proper TypeScript types
+  - Enhanced type definitions for API responses
+  - Improved type inference for component props
+  - Added strict type checking in development mode
 
-### 🐛 Bug 修复
+### 🐛 Bug Fixes
 
-- **数据库健康检查** - 修复生产环境中的健康端点失败
-- **控制台清理** - 从生产代码中移除调试控制台语句
-- **导入优化** - 修复未使用的导入和循环依赖
-- **构建优化** - 解决编译警告并减少包大小
+- **Database Health Check** - Fixed health endpoint failures in production
+- **Console Cleanup** - Removed debug console statements from production code
+- **Import Optimization** - Fixed unused imports and circular dependencies
+- **Build Optimization** - Resolved compilation warnings and reduced bundle size
 
-### ⚡ 性能改进
+### ⚡ Performance Improvements
 
-- **React 优化**
-  - 为 ContactForm 中的事件处理程序实现 `useCallback`
-  - 为 SEO 组件中的昂贵计算添加 `useMemo`
-  - 使用适当的依赖数组优化 HealthDashboard 渲染
-  - 减少 30-40% 的不必要重渲染
+- **React Optimization**
+  - Implemented `useCallback` for event handlers in ContactForm
+  - Added `useMemo` for expensive computations in SEO components
+  - Optimized HealthDashboard rendering with proper dependency arrays
+  - Reduced unnecessary re-renders by 30-40%
 
-- **API 性能**
-  - 增强数据库查询优化
-  - 改进频繁访问数据的缓存策略
-  - 为大型数据集优化响应序列化
+- **API Performance**
+  - Enhanced database query optimization
+  - Improved caching strategies for frequently accessed data
+  - Optimized response serialization for large datasets
 
-### 📚 文档
+### 📚 Documentation
 
-- **API 文档完整**
-  - 使用所有 28+ API 端点更新 API.md
-  - 添加示例的综合端点文档
-  - 包含错误响应文档
-  - 添加身份验证和限流信息
+- **Complete API Documentation**
+  - Updated API.md with all 28+ API endpoints
+  - Comprehensive endpoint documentation with examples
+  - Added error response documentation
+  - Included authentication and rate limiting information
 
-- **架构文档**
-  - 更新系统概览增强 ARCHITECTURE.md
-  - 添加 WebSocket 实时通信架构
-  - 更新 v1.0.6 的部署文档
-  - 添加组件使用指南
+- **Architecture Documentation**
+  - Updated ARCHITECTURE.md with enhanced system overview
+  - Added WebSocket real-time communication architecture
+  - Updated deployment documentation for v1.0.6
+  - Added component usage guides
 
-- **测试文档**
-  - 创建综合测试指南
-  - 添加 E2E 测试文档
-  - 更新测试覆盖报告
+- **Testing Documentation**
+  - Created comprehensive testing guide
+  - Added E2E testing documentation
+  - Updated test coverage reports
 
-### 🔒 安全增强
+### 🔒 Security Enhancements
 
-- **内容安全策略**
-  - 实现全面的 CSP 头
-  - 添加 CSP 违规报告端点
-  - 增强 XSS 保护措施
-  - 为内联脚本添加 script nonce 支持
+- **Content Security Policy**
+  - Implemented comprehensive CSP headers
+  - Added CSP violation reporting endpoint
+  - Enhanced XSS protection measures
+  - Added script nonce support for inline scripts
 
-- **安全审计修复**
-  - 解决已识别的安全漏洞
-  - 增强 API 路由的输入验证
-  - 改进错误消息清理
-  - 为生产添加安全头
+- **Security Audit Fixes**
+  - Resolved identified security vulnerabilities
+  - Enhanced input validation for API routes
+  - Improved error message sanitization
+  - Added security headers for production
 
-### 🔧 CI/CD 改进
+### 🔧 CI/CD Improvements
 
-- **自动化测试**
-  - 增强测试覆盖报告
-  - 添加自动 lint 和类型检查
-  - 改进 PR 验证工作流
-  - 添加性能回归检测
+- **Automated Testing**
+  - Enhanced test coverage reporting
+  - Added automated lint and type checking
+  - Improved PR validation workflows
+  - Added performance regression detection
 
-- **依赖更新**
-  - 更新 `@types/socket.io` 到 3.0.2
-  - 升级 `msw` 到 2.12.14
-  - 更新 ESLint 和相关开发依赖
-  - Next.js 依赖组更新（11 个包）
+- **Dependency Updates**
+  - Updated `@types/socket.io` to 3.0.2
+  - Upgraded `msw` to 2.12.14
+  - Updated ESLint and related dev dependencies
+  - Next.js dependency group updates (11 packages)
 
-### 📦 依赖
+### 📦 Dependencies
 
-- **更新的依赖**
-  - Next.js 16.2.1（最新）
+- **Updated Dependencies**
+  - Next.js 16.2.1 (latest)
   - React 19.2.4
   - TypeScript 5.0
   - Tailwind CSS 4
   - Socket.IO 4.8.3
   - Better-sqlite3 11.10.0
 
-### 🔥 破坏性变更
+### 🔥 Breaking Changes
 
-无 - 本版本保持与 v1.0.5 完全向后兼容。
+None - This release maintains full backward compatibility with v1.0.5.
 
-### ⚠️ 弃用
+### ⚠️ Deprecations
 
-本版本中无弃用项。
-
----
-
-## 历史版本
-
-完整变更历史请参见 [CHANGELOG.md](../CHANGELOG.md)。
+No deprecations in this release.

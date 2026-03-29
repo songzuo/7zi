@@ -1,0 +1,73 @@
+digraph lib_dependencies {
+  rankdir=TB;
+  node [shape=box, fontname="Arial"];
+  
+  // Legend
+  subgraph cluster_legend {
+    label="Legend";
+    style=filled;
+    fillcolor=lightgrey;
+    
+    core [label="Core Module", style=filled, fillcolor=lightblue];
+    v14 [label="v1.4.0 New", style=filled, fillcolor=lightgreen];
+    regular [label="Regular Module"];
+  }
+  
+  // Core Modules (高被依赖)
+  logger [style=filled, fillcolor=lightblue, label="logger\n(23 deps)"];
+  db [style=filled, fillcolor=lightblue, label="db\n(6 deps)"];
+  errors [style=filled, fillcolor=lightblue, label="errors\n(3 deps)"];
+  cache [style=filled, fillcolor=lightblue, label="cache\n(3 deps)"];
+  monitoring [style=filled, fillcolor=lightblue, label="monitoring\n(3 deps)"];
+  permissions [style=filled, fillcolor=lightblue, label="permissions\n(2 deps)"];
+  
+  // v1.4.0 New Modules
+  agent_scheduler [label="agent-scheduler", style=filled, fillcolor=lightgreen];
+  performance_monitoring [label="performance-monitoring", style=filled, fillcolor=lightgreen];
+  react_compiler [label="react-compiler", style=filled, fillcolor=lightgreen];
+  prefetch [style=filled, fillcolor=lightgreen];
+  websocket [style=filled, fillcolor=lightgreen];
+  security [style=filled, fillcolor=lightgreen];
+  
+  // Agent System
+  agent -> {db, logger, utils, crypto};
+  agent_scheduler -> {models, stores, core} [style=dashed];
+  a2a -> logger;
+  mcp -> logger;
+  
+  // Auth & Permissions
+  auth -> {logger, permissions, db, errors};
+  permissions -> {logger, db};
+  approval -> permissions;
+  
+  // Communication
+  websocket -> {logger, auth, voice_meeting, collaboration};
+  realtime -> logger;
+  sse -> logger;
+  voice_meeting -> {logger, websocket};
+  collaboration -> logger;
+  
+  // API & Services
+  api -> {logger, monitoring};
+  services -> logger;
+  middleware -> {logger, monitoring, api, db};
+  
+  // Monitoring & Performance
+  monitoring -> {logger, middleware};
+  performance -> monitoring;
+  performance_monitoring -> monitoring [style=dashed];
+  
+  // Utils
+  utils -> {cache, logger};
+  crypto -> utils;
+  
+  // Others
+  backup -> {db, logger, api};
+  search -> {cache};
+  rate_limit -> {redis, logger, auth};
+  security -> rate_limit [style=dashed];
+  
+  // v1.4.0 internal dependencies (dashed)
+  react_compiler -> {config, diagnostics} [style=dashed];
+  prefetch -> {predictive_prefetcher, user_behavior} [style=dashed];
+}

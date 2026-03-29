@@ -3,56 +3,23 @@
 /**
  * ClientProviders Component
  *
- * This component wraps the application with client-side context providers.
- * It includes the GlobalLoadingProvider for unified loading state management
- * across the entire application.
+ * This component now initializes client-side features only.
+ * Zustand stores don't require providers, so this component is simplified.
  *
  * @module components/ClientProviders
  *
- * Providers included:
- * - SettingsProvider - Application settings and preferences
- * - GlobalLoadingProvider - Global loading state management
- *
- * Global Loading System:
- * The GlobalLoadingProvider enables components to:
- * - Trigger global loading states with custom messages
- * - Track progress (0-100%)
- * - Use automatic Promise wrapping with withLoading()
- * - Create scoped loading states for isolated components
- *
- * Example usage in components:
+ * Note: GlobalLoadingProvider has been removed. Use uiStore for global loading state:
  * ```tsx
- * import { useGlobalLoading } from '@/hooks/useGlobalLoading';
+ * import { useUIStore } from '@/stores/uiStore';
+ * import { setGlobalLoading } from '@/stores/uiStore';
  *
- * function MyComponent() {
- *   const { startLoading, stopLoading, withLoading } = useGlobalLoading();
- *
- *   // Manual control
- *   const handleSave = async () => {
- *     startLoading('Saving data...');
- *     try {
- *       await saveData();
- *     } finally {
- *       stopLoading();
- *     }
- *   };
- *
- *   // Automatic with promise
- *   const handleFetch = async () => {
- *     const data = await withLoading(fetchData(), 'Fetching data...');
- *     return data;
- *   };
- * }
+ * // In components
+ * const { globalLoading, loadingMessage } = useUIStore();
+ * const { setGlobalLoading } = useUIStore.getState();
  * ```
- *
- * @see {@link GlobalLoadingProvider} - Global loading state provider
- * @see {@link useGlobalLoading} - Hook for accessing global loading state
- * @see {@link GlobalLoader} - Full-screen loading overlay component
- * @see docs/LOADING-SYSTEM.md - Complete documentation
  */
 
 import React, { useEffect } from 'react';
-import { GlobalLoadingProvider } from '@/hooks/useGlobalLoading';
 import { setupBrowserErrorHandlers } from '@/lib/global-error-handlers';
 import { initWebVitalsMonitoring } from '@/lib/monitoring/web-vitals';
 import initPerformanceMonitoring from '@/lib/monitoring/performance-metrics';
@@ -78,9 +45,6 @@ export function ClientProviders({ children }: ClientProvidersProps) {
     initPerformanceMonitoring();
   }, []);
 
-  return (
-    <GlobalLoadingProvider>
-      {children}
-    </GlobalLoadingProvider>
-  );
+  // No providers needed - Zustand stores work without them
+  return <>{children}</>;
 }

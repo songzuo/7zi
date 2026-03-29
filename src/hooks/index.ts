@@ -20,8 +20,9 @@ export {
   useScrollPosition,
 } from './usePerformance';
 
-// Global Loading Hooks
-export { useGlobalLoading, useScopedLoading, GlobalLoadingProvider } from './useGlobalLoading';
+// Global Loading - 已迁移到 uiStore
+// 使用方法: import { useGlobalLoading, setGlobalLoading } from '@/stores/uiStore';
+// 注意: useGlobalLoading 现在从 uiStore 导出，不再需要 Provider
 
 // WebSocket Hooks
 export { useWebSocket, useTaskStatusUpdates } from './useWebSocket';

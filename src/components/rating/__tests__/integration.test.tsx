@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import { RatingList } from '../RatingList';
 import { RatingStats } from '../RatingStats';
 import { StarRating } from '../StarRating';
@@ -277,16 +277,20 @@ describe('Rating System Integration', () => {
 
     // Open filters
     const filterButton = screen.getByText(/Filters/);
-    fireEvent.click(filterButton);
+    await act(async () => {
+      fireEvent.click(filterButton);
 
-    await waitFor(() => {
-      const searchInput = screen.getByPlaceholderText('Search reviews...');
-      fireEvent.change(searchInput, { target: { value: 'test' } });
+      await waitFor(() => {
+        const searchInput = screen.getByPlaceholderText('Search reviews...');
+        fireEvent.change(searchInput, { target: { value: 'test' } });
+      });
     });
 
     // Click reset
     const resetButton = screen.getByText('Reset Filters');
-    fireEvent.click(resetButton);
+    await act(async () => {
+      fireEvent.click(resetButton);
+    });
 
     // Search should be cleared
     const searchInput = screen.getByPlaceholderText('Search reviews...') as HTMLInputElement;

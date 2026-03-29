@@ -1,0 +1,76 @@
+/**
+ * Admin Feedback Page - Feedback management dashboard
+ *
+ * Provides an interface for admins to view and manage user feedbacks
+ */
+
+'use client';
+
+import { useEffect, useState } from 'react';
+import FeedbackAdminPanel from '@/components/feedback/FeedbackAdminPanel';
+import { createMockUser, UserRole } from '@/lib/auth';
+
+export default function AdminFeedbackPage() {
+  const user = createMockUser({ role: UserRole.ADMIN });
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  useEffect(() => {
+    if (user) {
+      setCurrentUser({
+        id: user.id || 'unknown',
+        name: user.username || 'Admin',
+        email: user.email || 'admin@example.com',
+        role: user.role,
+      });
+    }
+  }, [user]);
+
+  if (!user || user.role !== 'admin') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-8">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg
+              className="w-8 h-8 text-red-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+              />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            需要管理员权限
+          </h1>
+          <p className="text-gray-600 mb-6">
+            您需要管理员权限才能访问此页面。如果您是管理员，请先登录。
+          </p>
+          <button
+            onClick={() => window.location.href = '/'}
+            className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            返回首页
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4" />
+          <p className="text-gray-600">加载中...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return <FeedbackAdminPanel currentUser={currentUser} />;
+}

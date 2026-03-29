@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/Providers";
-import { Footer } from "@/components/Footer";
 import { ClientAnalytics } from "@/components/ClientAnalytics";
 import "./globals.css";
 
@@ -176,7 +175,6 @@ export default function RootLayout({
         <Providers>
           {children}
         </Providers>
-        <Footer />
       </body>
     </html>
   );

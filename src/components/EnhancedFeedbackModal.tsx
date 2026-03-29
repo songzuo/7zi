@@ -68,13 +68,13 @@ const FEEDBACK_TYPES: FeedbackTypeOption[] = [
   },
 ];
 
-export const EnhancedFeedbackModal: React.FC<EnhancedFeedbackModalProps> = ({
+export function EnhancedFeedbackModal({
   isOpen,
   onClose,
   onSubmit,
   isLoading = false,
   feedbackType = FeedbackType.GENERAL,
-}) => {
+}: EnhancedFeedbackModalProps) {
   const [type, setType] = useState<FeedbackType>(feedbackType);
   const [rating, setRating] = useState(5);
   const [title, setTitle] = useState('');

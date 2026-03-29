@@ -37,7 +37,7 @@ describe('Retry Utilities', () => {
 
     it('should retry on failure', async () => {
       let attempts = 0;
-      const fn = vi.fn(() => {
+      const fn = vi.fn(async () => {
         attempts++;
         if (attempts < 3) throw new Error('network error');
         return 'success';
@@ -130,7 +130,7 @@ describe('Retry Utilities', () => {
       const otherError = new Error('not retryable');
 
       let attempts = 0;
-      const fn = vi.fn(() => {
+      const fn = vi.fn(async () => {
         attempts++;
         if (attempts === 1) throw networkError;
         if (attempts === 2) throw otherError;
@@ -151,7 +151,7 @@ describe('Retry Utilities', () => {
 
     it('should support onRetry callback', async () => {
       const onRetry = vi.fn();
-      const fn = vi.fn(() => {
+      const fn = vi.fn(async () => {
         throw new Error('fail');
       });
 
@@ -365,27 +365,45 @@ describe('Retry Utilities', () => {
       expect(fn2).toHaveBeenCalledTimes(1);
     });
 
-    it('should cleanup expired entries', () => {
+    it('should cleanup expired entries', async () => {
       const cache = new RetryCache(1000);
+      const fn = vi.fn().mockResolvedValue('value');
 
-      cache.cache.set('key1', { timestamp: Date.now() - 2000, result: 'value1' });
-      cache.cache.set('key2', { timestamp: Date.now() - 500, result: 'value2' });
+      // Set a cache entry that will expire
+      await cache.execute('key1', fn);
 
+      // Wait for TTL to expire
+      await vi.advanceTimersByTimeAsync(2000);
+
+      // Cleanup should remove expired entries
       cache.cleanup();
 
-      expect(cache.cache.has('key1')).toBe(false);
-      expect(cache.cache.has('key2')).toBe(true);
+      // Execute should call fn again since cache was expired
+      const fn2 = vi.fn().mockResolvedValue('value2');
+      await cache.execute('key1', fn2);
+
+      expect(fn2).toHaveBeenCalled();
     });
 
-    it('should clear all entries', () => {
+    it('should clear all entries', async () => {
       const cache = new RetryCache(60000);
+      const fn1 = vi.fn().mockResolvedValue('value1');
+      const fn2 = vi.fn().mockResolvedValue('value2');
 
-      cache.cache.set('key1', { timestamp: Date.now(), result: 'value1' });
-      cache.cache.set('key2', { timestamp: Date.now(), result: 'value2' });
+      await cache.execute('key1', fn1);
+      await cache.execute('key2', fn2);
 
       cache.clear();
 
-      expect(cache.cache.size).toBe(0);
+      // After clear, executing the same keys should call the functions again
+      const fn3 = vi.fn().mockResolvedValue('value3');
+      const fn4 = vi.fn().mockResolvedValue('value4');
+
+      await cache.execute('key1', fn3);
+      await cache.execute('key2', fn4);
+
+      expect(fn3).toHaveBeenCalled();
+      expect(fn4).toHaveBeenCalled();
     });
   });
 

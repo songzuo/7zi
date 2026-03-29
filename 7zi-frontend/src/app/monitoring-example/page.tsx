@@ -6,18 +6,33 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { SimplePerformanceDashboard } from '@/components/SimplePerformanceDashboard';
+import { EnhancedPerformanceDashboard } from '@/components/EnhancedPerformanceDashboard';
 import {
   monitoredFetch,
   monitor,
   withPerformanceTracking,
   createPerformanceTracker,
 } from '@/lib/monitoring';
+import { initWebVitalsMonitoring, initCustomMetricsTracking, budgetManager } from '@/lib/performance';
 
 export default function MonitoringExamplePage() {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [logs, setLogs] = useState<string[]>([]);
+
+  // Initialize performance monitoring on mount
+  useEffect(() => {
+    initWebVitalsMonitoring({
+      enabled: true,
+      trackAllMetrics: true,
+    });
+    initCustomMetricsTracking({
+      trackMemory: true,
+      trackNetwork: true,
+      trackResources: true,
+    });
+    addLog('Performance monitoring initialized');
+  }, []);
 
   const addLog = (message: string) => {
     const timestamp = new Date().toLocaleTimeString();
@@ -145,7 +160,27 @@ export default function MonitoringExamplePage() {
     });
   };
 
-  // Example 7: Generate some API requests
+  // Example 8: Check performance budget
+  const checkPerformanceBudget = async () => {
+    addLog('Checking performance budget...');
+
+    // Get budget report
+    const webVitals = (await import('@/lib/performance')).webVitalsMonitor.getMetrics();
+    const customMetrics = (await import('@/lib/performance')).customMetricsTracker.getMetrics();
+    const report = budgetManager.calculateBudgetReport(webVitals, customMetrics);
+
+    addLog(`Overall Score: ${report.overallScore.toFixed(0)}`);
+    addLog(`Status: ${report.status.toUpperCase()}`);
+    addLog(`Violations: ${report.violations.length}`);
+    addLog(`Recommendations: ${report.recommendations.length}`);
+
+    // Log violations
+    if (report.violations.length > 0) {
+      report.violations.slice(0, 3).forEach((v) => {
+        addLog(`- ${v.metric}: ${v.currentValue.toFixed(2)} > ${v.threshold} (${v.severity})`);
+      });
+    }
+  };
   const generateRequests = async () => {
     addLog('Generating API requests...');
 
@@ -179,7 +214,12 @@ export default function MonitoringExamplePage() {
         </div>
 
         {/* Performance Dashboard */}
-        <SimplePerformanceDashboard />
+        <EnhancedPerformanceDashboard
+          showWebVitals={true}
+          showBudget={true}
+          showAlarms={true}
+          refreshInterval={5000}
+        />
 
         {/* Example Buttons */}
         <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-lg dark:shadow-none p-6">
@@ -233,6 +273,13 @@ export default function MonitoringExamplePage() {
               className="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded"
             >
               Generate API Requests
+            </button>
+
+            <button
+              onClick={checkPerformanceBudget}
+              className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded"
+            >
+              Check Budget
             </button>
 
             <button

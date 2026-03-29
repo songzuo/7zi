@@ -1,0 +1,244 @@
+/**
+ * 全局样式文件
+ * 引入设计系统变量和全局样式
+ */
+
+@import '../styles/tokens.css';
+
+/* ===== 全局样式 ===== */
+
+* {
+  /* 平滑过渡主题切换 */
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* 禁用首次加载时的过渡动画，防止闪烁 */
+.no-transitions * {
+  transition: none !important;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  color: var(--color-gray-900);
+  background-color: var(--color-gray-50);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 暗色模式下的全局样式 */
+.dark body {
+  color: var(--color-gray-900);
+  background-color: var(--color-gray-50);
+}
+
+/* ===== 实用工具类 ===== */
+
+/* 文本颜色 */
+.text-primary {
+  color: var(--color-primary-600);
+}
+
+.text-secondary {
+  color: var(--color-gray-600);
+}
+
+/* 背景颜色 */
+.bg-primary {
+  background-color: var(--color-primary-600);
+}
+
+.bg-secondary {
+  background-color: var(--color-gray-600);
+}
+
+/* 边框颜色 */
+.border-primary {
+  border-color: var(--color-primary-600);
+}
+
+.border-secondary {
+  border-color: var(--color-gray-600);
+}
+
+/* 按钮样式 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-2) var(--spacing-4);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-base);
+}
+
+.btn-primary {
+  background-color: var(--color-primary-600);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-700);
+}
+
+/* 卡片样式 */
+.card {
+  background-color: var(--color-gray-50);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-6);
+  box-shadow: var(--shadow-sm);
+}
+
+.dark .card {
+  background-color: var(--color-gray-100);
+  border-color: var(--color-gray-200);
+}
+
+/* 输入框样式 */
+.input {
+  width: 100%;
+  padding: var(--spacing-2) var(--spacing-3);
+  font-size: var(--font-size-sm);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  background-color: var(--color-gray-50);
+  transition: all var(--transition-base);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 3px var(--color-primary-100);
+}
+
+.dark .input {
+  background-color: var(--color-gray-100);
+  border-color: var(--color-gray-300);
+  color: var(--color-gray-900);
+}
+
+/* 链接样式 */
+a {
+  color: var(--color-primary-600);
+  text-decoration: none;
+  transition: color var(--transition-base);
+}
+
+a:hover {
+  color: var(--color-primary-700);
+  text-decoration: underline;
+}
+
+/* 代码块样式 */
+code, pre {
+  font-family: var(--font-family-mono);
+  background-color: var(--color-gray-100);
+  border-radius: var(--radius-md);
+}
+
+code {
+  padding: var(--spacing-1) var(--spacing-2);
+}
+
+pre {
+  padding: var(--spacing-4);
+  overflow-x: auto;
+}
+
+.dark code,
+.dark pre {
+  background-color: var(--color-gray-200);
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: var(--color-gray-100);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-gray-400);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-gray-500);
+}
+
+.dark ::-webkit-scrollbar-track {
+  background-color: var(--color-gray-200);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background-color: var(--color-gray-600);
+}
+
+/* ===== 响应式布局 ===== */
+
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--spacing-4);
+  padding-right: var(--spacing-4);
+}
+
+/* ===== 动画效果 ===== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn var(--transition-slow);
+}
+
+.animate-slideIn {
+  animation: slideIn var(--transition-slow);
+}
+
+/* 主题切换按钮旋转动画 */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.theme-switcher-icon {
+  transition: transform var(--transition-base);
+}
+
+.theme-switcher-icon:hover {
+  transform: rotate(15deg);
+}

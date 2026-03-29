@@ -247,7 +247,7 @@ describe('WebSocketStatusPanel', () => {
 ## Browser Compatibility
 
 - ✅ Modern browsers with WebSocket support
-- ✅ React 19+
+- ✅ React 18+
 - ✅ Socket.io client 4.x
 - ✅ Mobile browsers (iOS Safari, Chrome Mobile)
 

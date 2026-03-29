@@ -120,7 +120,7 @@ export default function WebSocketStatusDemoPage() {
               <label className="text-sm text-gray-600 font-medium">Mode:</label>
               <select
                 value={demoMode}
-                onChange={(e) => setDemoMode(e.target.value as any)}
+                onChange={(e) => setDemoMode(e.target.value as 'full' | 'compact' | 'badge')}
                 className="px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="full">Full Panel</option>

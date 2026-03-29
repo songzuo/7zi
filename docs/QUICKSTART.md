@@ -54,10 +54,7 @@ cd 7zi
 ### 步骤 2: 安装依赖 (2-3 分钟)
 
 ```bash
-# 进入 app 目录
-cd app
-
-# 安装依赖 (使用 pnpm，推荐)
+# 项目根目录即为 Next.js 项目，直接安装依赖
 pnpm install
 
 # 或使用 npm

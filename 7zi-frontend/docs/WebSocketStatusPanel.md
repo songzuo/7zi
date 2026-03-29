@@ -1,6 +1,6 @@
 # WebSocket Status Panel Component
 
-Real-time WebSocket connection monitoring component for React 19 applications.
+Real-time WebSocket connection monitoring component for React 18 applications.
 
 ## Features
 
@@ -261,7 +261,7 @@ A comprehensive demo page is available at `/websocket-status-demo` with:
 ## Browser Support
 
 - Modern browsers with WebSocket support
-- React 19+
+- React 18+
 - Socket.io client 4.x
 
 ## License

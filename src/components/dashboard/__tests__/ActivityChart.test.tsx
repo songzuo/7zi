@@ -6,6 +6,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import ActivityChart from '../ActivityChart';
+import type { ActivityDataPoint } from '../ActivityChart';
 
 // Mock recharts components
 vi.mock('recharts', () => ({
@@ -23,15 +24,23 @@ vi.mock('recharts', () => ({
   Legend: () => <div data-testid="legend" />,
 }));
 
+// Mock lucide-react icons
+vi.mock('lucide-react', () => ({
+  Activity: ({ className }: { className?: string }) => <div data-testid="activity-icon" className={className} />,
+  Zap: ({ className }: { className?: string }) => <div data-testid="zap-icon" className={className} />,
+  Users: ({ className }: { className?: string }) => <div data-testid="users-icon" className={className} />,
+  Cpu: ({ className }: { className?: string }) => <div data-testid="cpu-icon" className={className} />,
+}));
+
 describe('ActivityChart Component', () => {
-  const mockData = [
-    { date: '2024-01-01', activity: 10 },
-    { date: '2024-01-02', activity: 15 },
-    { date: '2024-01-03', activity: 20 },
-    { date: '2024-01-04', activity: 18 },
-    { date: '2024-01-05', activity: 25 },
-    { date: '2024-01-06', activity: 30 },
-    { date: '2024-01-07', activity: 22 },
+  const mockData: ActivityDataPoint[] = [
+    { timestamp: '2024-01-01T00:00:00Z', agents: 10, users: 50, tokens: 1000 },
+    { timestamp: '2024-01-02T00:00:00Z', agents: 15, users: 65, tokens: 1500 },
+    { timestamp: '2024-01-03T00:00:00Z', agents: 20, users: 80, tokens: 2000 },
+    { timestamp: '2024-01-04T00:00:00Z', agents: 18, users: 70, tokens: 1800 },
+    { timestamp: '2024-01-05T00:00:00Z', agents: 25, users: 90, tokens: 2500 },
+    { timestamp: '2024-01-06T00:00:00Z', agents: 30, users: 100, tokens: 3000 },
+    { timestamp: '2024-01-07T00:00:00Z', agents: 22, users: 85, tokens: 2200 },
   ];
 
   beforeEach(() => {
@@ -91,7 +100,9 @@ describe('ActivityChart Component', () => {
   });
 
   it('should handle single data point', () => {
-    const singleData = [{ date: '2024-01-01', activity: 10 }];
+    const singleData: ActivityDataPoint[] = [
+      { timestamp: '2024-01-01T00:00:00Z', agents: 10, users: 50, tokens: 1000 }
+    ];
 
     render(<ActivityChart data={singleData} />);
 
@@ -99,9 +110,11 @@ describe('ActivityChart Component', () => {
   });
 
   it('should handle large dataset', () => {
-    const largeData = Array.from({ length: 100 }, (_, i) => ({
-      date: `2024-01-${String(i + 1).padStart(2, '0')}`,
-      activity: Math.floor(Math.random() * 100),
+    const largeData: ActivityDataPoint[] = Array.from({ length: 100 }, (_, i) => ({
+      timestamp: `2024-01-${String(i + 1).padStart(2, '0')}T00:00:00Z`,
+      agents: Math.floor(Math.random() * 50),
+      users: Math.floor(Math.random() * 100),
+      tokens: Math.floor(Math.random() * 5000),
     }));
 
     render(<ActivityChart data={largeData} />);
@@ -110,10 +123,10 @@ describe('ActivityChart Component', () => {
   });
 
   it('should handle zero activity values', () => {
-    const zeroData = [
-      { date: '2024-01-01', activity: 0 },
-      { date: '2024-01-02', activity: 0 },
-      { date: '2024-01-03', activity: 0 },
+    const zeroData: ActivityDataPoint[] = [
+      { timestamp: '2024-01-01T00:00:00Z', agents: 0, users: 0, tokens: 0 },
+      { timestamp: '2024-01-02T00:00:00Z', agents: 0, users: 0, tokens: 0 },
+      { timestamp: '2024-01-03T00:00:00Z', agents: 0, users: 0, tokens: 0 },
     ];
 
     render(<ActivityChart data={zeroData} />);
@@ -122,14 +135,51 @@ describe('ActivityChart Component', () => {
   });
 
   it('should handle high activity values', () => {
-    const highData = [
-      { date: '2024-01-01', activity: 999999 },
-      { date: '2024-01-02', activity: 1000000 },
-      { date: '2024-01-03', activity: 1234567 },
+    const highData: ActivityDataPoint[] = [
+      { timestamp: '2024-01-01T00:00:00Z', agents: 999999, users: 1000000, tokens: 9999999 },
+      { timestamp: '2024-01-02T00:00:00Z', agents: 1000000, users: 1500000, tokens: 10000000 },
+      { timestamp: '2024-01-03T00:00:00Z', agents: 1234567, users: 2000000, tokens: 12345678 },
     ];
 
     render(<ActivityChart data={highData} />);
 
     expect(screen.getByTestId('responsive-container')).toBeInTheDocument();
+  });
+
+  it('should render with custom title', () => {
+    render(<ActivityChart data={mockData} title="Custom Activity Chart" />);
+
+    expect(screen.getByText('Custom Activity Chart')).toBeInTheDocument();
+  });
+
+  it('should render with custom subtitle', () => {
+    render(<ActivityChart data={mockData} subtitle="Activity over time" />);
+
+    expect(screen.getByText('Activity over time')).toBeInTheDocument();
+  });
+
+  it('should render with custom metrics', () => {
+    render(<ActivityChart data={mockData} metrics={['agents', 'users']} />);
+
+    expect(screen.getByTestId('responsive-container')).toBeInTheDocument();
+  });
+
+  it('should render with custom height', () => {
+    render(<ActivityChart data={mockData} height={500} />);
+
+    expect(screen.getByTestId('responsive-container')).toBeInTheDocument();
+  });
+
+  it('should hide legend when showLegend is false', () => {
+    render(<ActivityChart data={mockData} showLegend={false} />);
+
+    const legend = screen.queryByTestId('legend');
+    expect(legend).not.toBeInTheDocument();
+  });
+
+  it('should render with custom className', () => {
+    render(<ActivityChart data={mockData} className="custom-class" />);
+
+    expect(screen.getByTestId('responsive-container').closest('.custom-class')).toBeInTheDocument();
   });
 });

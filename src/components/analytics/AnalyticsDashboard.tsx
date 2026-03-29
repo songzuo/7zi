@@ -102,7 +102,24 @@ const DEFAULT_LAYOUT: DashboardLayout = {
 // Main Component
 // ============================================================================
 
-export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
+// Custom comparison function for React.memo
+// Only compare locale and className - these are the only props that affect rendering
+// Other props (defaultTimeRange, refreshInterval) only affect initial state
+const arePropsEqual = (
+  prevProps: AnalyticsDashboardProps,
+  nextProps: AnalyticsDashboardProps
+): boolean => {
+  // Compare locale (affects localization text)
+  const localeEqual = prevProps.locale === nextProps.locale;
+  // Compare className (affects styling)
+  const classNameEqual = prevProps.className === nextProps.className;
+
+  // If both key props are equal, prevent re-render
+  return localeEqual && classNameEqual;
+};
+
+// Wrap component with React.memo for performance optimization
+const AnalyticsDashboardComponent: React.FC<AnalyticsDashboardProps> = ({
   locale = 'en',
   defaultTimeRange = 'week',
   refreshInterval = 30000,
@@ -574,6 +591,9 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
     </div>
   );
 };
+
+// Apply React.memo with custom comparison function
+export const AnalyticsDashboard = React.memo(AnalyticsDashboardComponent, arePropsEqual);
 
 // Export with error boundary wrapper
 export default function AnalyticsDashboardWithErrorBoundary(props: AnalyticsDashboardProps) {

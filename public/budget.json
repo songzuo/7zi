@@ -1,0 +1,89 @@
+{
+  "budgets": [
+    {
+      "path": "/",
+      "timings": [
+        {
+          "metric": "LCP",
+          "budget": 2500,
+          "tolerance": 0.1
+        },
+        {
+          "metric": "FID",
+          "budget": 100,
+          "tolerance": 0.15
+        },
+        {
+          "metric": "CLS",
+          "budget": 0.1,
+          "tolerance": 0.2
+        },
+        {
+          "metric": "TTFB",
+          "budget": 800,
+          "tolerance": 0.2
+        },
+        {
+          "metric": "FCP",
+          "budget": 1800,
+          "tolerance": 0.15
+        }
+      ]
+    },
+    {
+      "path": "/dashboard",
+      "timings": [
+        {
+          "metric": "LCP",
+          "budget": 3000,
+          "tolerance": 0.15
+        },
+        {
+          "metric": "TBT",
+          "budget": 300,
+          "tolerance": 0.2
+        },
+        {
+          "metric": "CLS",
+          "budget": 0.1,
+          "tolerance": 0.2
+        }
+      ]
+    },
+    {
+      "path": "/tasks",
+      "timings": [
+        {
+          "metric": "LCP",
+          "budget": 2500,
+          "tolerance": 0.1
+        },
+        {
+          "metric": "TBT",
+          "budget": 200,
+          "tolerance": 0.15
+        },
+        {
+          "metric": "CLS",
+          "budget": 0.1,
+          "tolerance": 0.2
+        }
+      ]
+    },
+    {
+      "path": "/dashboard/*",
+      "timings": [
+        {
+          "metric": "LCP",
+          "budget": 3000,
+          "tolerance": 0.2
+        },
+        {
+          "metric": "TBT",
+          "budget": 350,
+          "tolerance": 0.2
+        }
+      ]
+    }
+  ]
+}

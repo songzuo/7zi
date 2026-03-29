@@ -327,5 +327,3 @@ ${process.env.NEXT_PUBLIC_APP_URL || 'https://7zi.com'}
 
 // Singleton instance
 export const emailService = new EmailService();
- const emailService = new EmailService();
- const emailService = new EmailService();

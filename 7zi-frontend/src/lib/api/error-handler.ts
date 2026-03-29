@@ -39,6 +39,8 @@ export enum ErrorType {
  * API Error class for structured error responses
  */
 export class ApiError extends Error {
+  public data?: Record<string, unknown>;
+
   constructor(
     public type: ErrorType,
     message: string,
@@ -178,10 +180,25 @@ export function createUnauthorizedError(
  * Create forbidden error response (403)
  */
 export function createForbiddenError(
-  message: string = 'Access forbidden'
+  message: string = 'Access forbidden',
+  extra?: {
+    requiredPermissions?: string[];
+    missingPermissions?: string[];
+  }
 ): NextResponse<ErrorResponse> {
   const error = new ApiError(ErrorType.FORBIDDEN, message, 403);
-  return createErrorResponse(error);
+  const response = createErrorResponse(error);
+
+  // Add extra context if provided by adding to the error data
+  if (extra) {
+    error.data = {
+      ...error.details,
+      requiredPermissions: extra.requiredPermissions,
+      missingPermissions: extra.missingPermissions,
+    };
+  }
+
+  return response;
 }
 
 /**

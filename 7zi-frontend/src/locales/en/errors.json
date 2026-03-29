@@ -1,0 +1,102 @@
+{
+  "generic": "An error occurred",
+  "network": "Network error",
+  "server": "Server error",
+  "client": "Client error",
+  "validation": "Validation failed",
+  "authentication": "Authentication failed",
+  "authorization": "Permission denied",
+  "notFound": "Not found",
+  "conflict": "Conflict",
+  "rateLimit": "Too many requests",
+  "timeout": "Request timeout",
+  "unavailable": "Service unavailable",
+  "maintenance": "System under maintenance",
+  "unknown": "Unknown error",
+  "default": "An unexpected error occurred",
+  "400": {
+    "title": "Bad Request",
+    "description": "The request was malformed"
+  },
+  "401": {
+    "title": "Unauthorized",
+    "description": "Please sign in first"
+  },
+  "403": {
+    "title": "Forbidden",
+    "description": "You don't have permission to access this resource"
+  },
+  "404": {
+    "title": "Not Found",
+    "description": "The requested resource was not found"
+  },
+  "409": {
+    "title": "Conflict",
+    "description": "The request conflicts with the current state"
+  },
+  "429": {
+    "title": "Too Many Requests",
+    "description": "Please try again later"
+  },
+  "500": {
+    "title": "Server Error",
+    "description": "The server encountered an unexpected error"
+  },
+  "502": {
+    "title": "Bad Gateway",
+    "description": "Invalid gateway response"
+  },
+  "503": {
+    "title": "Service Unavailable",
+    "description": "The service is temporarily unavailable, please try again later"
+  },
+  "504": {
+    "title": "Gateway Timeout",
+    "description": "Gateway response timeout"
+  },
+  "required": "This field is required",
+  "invalid": "Invalid value",
+  "minLength": "At least {{count}} characters required",
+  "maxLength": "Maximum {{count}} characters allowed",
+  "min": "Minimum value is {{min}}",
+  "max": "Maximum value is {{max}}",
+  "pattern": "Invalid format",
+  "email": "Please enter a valid email address",
+  "url": "Please enter a valid URL",
+  "phone": "Please enter a valid phone number",
+  "date": "Please enter a valid date",
+  "time": "Please enter a valid time",
+  "number": "Please enter a valid number",
+  "integer": "Please enter a valid integer",
+  "positive": "Must be a positive number",
+  "negative": "Must be a negative number",
+  "unique": "This value is already taken",
+  "match": "Values do not match",
+  "confirm": "Please confirm your input",
+  "accept": "Please accept the terms",
+  "uploadFailed": "Upload failed",
+  "downloadFailed": "Download failed",
+  "saveFailed": "Save failed",
+  "deleteFailed": "Delete failed",
+  "loadFailed": "Load failed",
+  "submitFailed": "Submit failed",
+  "createFailed": "Create failed",
+  "updateFailed": "Update failed",
+  "searchFailed": "Search failed",
+  "filterFailed": "Filter failed",
+  "sortFailed": "Sort failed",
+  "exportFailed": "Export failed",
+  "importFailed": "Import failed",
+  "copyFailed": "Copy failed",
+  "pasteFailed": "Paste failed",
+  "connectionLost": "Connection lost",
+  "connectionRestored": "Connection restored",
+  "retry": "Retry",
+  "goHome": "Go Home",
+  "goBack": "Go Back",
+  "refresh": "Refresh Page",
+  "contactSupport": "Contact Support",
+  "reportIssue": "Report Issue",
+  "viewDetails": "View Details",
+  "hideDetails": "Hide Details"
+}

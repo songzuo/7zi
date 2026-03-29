@@ -30,11 +30,11 @@ const PRIORITIES = [
   { value: 'critical', label: '紧急', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' },
 ];
 
-export const BugReportForm: React.FC<BugReportProps> = ({
+export function BugReportForm({
   onSubmit,
   isLoading = false,
   showTitle = true,
-}) => {
+}: BugReportProps) {
   const [summary, setSummary] = useState('');
   const [steps, setSteps] = useState('');
   const [expected, setExpected] = useState('');

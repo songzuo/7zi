@@ -24,18 +24,20 @@ interface LoadingFallbackProps {
   className?: string;
 }
 
-export const LoadingFallback: React.FC<LoadingFallbackProps> = ({
+export function LoadingFallback({
   message = '加载中...',
   size = 'md',
   className = '',
-}) => (
-  <div className={`p-8 flex items-center justify-center ${className}`}>
-    <div className="text-center">
-      <LoadingSpinner size={size} />
-      <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">{message}</p>
+}: LoadingFallbackProps) {
+  return (
+    <div className={`p-8 flex items-center justify-center ${className}`}>
+      <div className="text-center">
+        <LoadingSpinner size={size} />
+        <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">{message}</p>
+      </div>
     </div>
-  </div>
-);
+  );
+}
 
 // ============================================================================
 // Dashboard 相关组件动态导入
@@ -98,7 +100,9 @@ export const LazyTaskBoard = dynamic(
  * - 大小: ~250 行
  * - 用途: 显示 GitHub Commits 活动日志
  */
-export const LazyActivityLog = dynamic(
+export const LazyActivityLog = dynamic<
+  React.ComponentProps<typeof import('@/components/ActivityLog').ActivityLog>
+>(
   () => import('@/components/ActivityLog').then(mod => ({ default: mod.ActivityLog })),
   {
     loading: () => <LoadingFallback message="加载活动日志..." size="md" />,

@@ -3,7 +3,7 @@
  * Provides database schema migrations and performance optimization tools
  */
 
-import { getDatabaseAsync, getDatabaseSize, analyzeDatabase, vacuumDatabase } from './index';
+import { getDatabaseAsync, getDatabaseSize, analyzeDatabase, vacuumDatabase } from './connection';
 import { initializeUserPreferencesTable } from './user-preferences';
 import { initializeAuditLogsTable } from './audit-log';
 import { logger } from '../logger';

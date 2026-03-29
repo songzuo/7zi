@@ -1,0 +1,102 @@
+{
+  "generic": "发生错误",
+  "network": "网络错误",
+  "server": "服务器错误",
+  "client": "客户端错误",
+  "validation": "验证失败",
+  "authentication": "身份验证失败",
+  "authorization": "权限不足",
+  "notFound": "未找到",
+  "conflict": "冲突",
+  "rateLimit": "请求过于频繁",
+  "timeout": "请求超时",
+  "unavailable": "服务不可用",
+  "maintenance": "系统维护中",
+  "unknown": "未知错误",
+  "default": "发生意外错误",
+  "400": {
+    "title": "请求错误",
+    "description": "请求格式不正确"
+  },
+  "401": {
+    "title": "未授权",
+    "description": "请先登录"
+  },
+  "403": {
+    "title": "禁止访问",
+    "description": "您没有权限访问此资源"
+  },
+  "404": {
+    "title": "未找到",
+    "description": "请求的资源不存在"
+  },
+  "409": {
+    "title": "冲突",
+    "description": "请求与当前状态冲突"
+  },
+  "429": {
+    "title": "请求过多",
+    "description": "请稍后再试"
+  },
+  "500": {
+    "title": "服务器错误",
+    "description": "服务器遇到意外错误"
+  },
+  "502": {
+    "title": "网关错误",
+    "description": "无效的网关响应"
+  },
+  "503": {
+    "title": "服务不可用",
+    "description": "服务暂时不可用，请稍后再试"
+  },
+  "504": {
+    "title": "网关超时",
+    "description": "网关响应超时"
+  },
+  "required": "此字段必填",
+  "invalid": "无效的值",
+  "minLength": "至少需要 {{count}} 个字符",
+  "maxLength": "最多允许 {{count}} 个字符",
+  "min": "最小值为 {{min}}",
+  "max": "最大值为 {{max}}",
+  "pattern": "格式不正确",
+  "email": "请输入有效的邮箱地址",
+  "url": "请输入有效的网址",
+  "phone": "请输入有效的电话号码",
+  "date": "请输入有效的日期",
+  "time": "请输入有效的时间",
+  "number": "请输入有效的数字",
+  "integer": "请输入有效的整数",
+  "positive": "必须为正数",
+  "negative": "必须为负数",
+  "unique": "该值已被使用",
+  "match": "两次输入不匹配",
+  "confirm": "请确认您的输入",
+  "accept": "请接受条款",
+  "uploadFailed": "上传失败",
+  "downloadFailed": "下载失败",
+  "saveFailed": "保存失败",
+  "deleteFailed": "删除失败",
+  "loadFailed": "加载失败",
+  "submitFailed": "提交失败",
+  "createFailed": "创建失败",
+  "updateFailed": "更新失败",
+  "searchFailed": "搜索失败",
+  "filterFailed": "筛选失败",
+  "sortFailed": "排序失败",
+  "exportFailed": "导出失败",
+  "importFailed": "导入失败",
+  "copyFailed": "复制失败",
+  "pasteFailed": "粘贴失败",
+  "connectionLost": "连接已断开",
+  "connectionRestored": "连接已恢复",
+  "retry": "重试",
+  "goHome": "返回首页",
+  "goBack": "返回",
+  "refresh": "刷新页面",
+  "contactSupport": "联系客服",
+  "reportIssue": "报告问题",
+  "viewDetails": "查看详情",
+  "hideDetails": "隐藏详情"
+}

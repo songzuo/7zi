@@ -544,11 +544,11 @@ interface ResponsiveLazyImageProps extends Omit<LazyLoadImageProps, 'fill'> {
   aspectRatio?: '16/9' | '4/3' | '1/1' | '3/4' | '2/3' | '21/9';
 }
 
-export const ResponsiveLazyImage: React.FC<ResponsiveLazyImageProps> = memo(({
+export const ResponsiveLazyImage = memo(({
   aspectRatio = '16/9',
   className = '',
   ...props
-}) => {
+}: ResponsiveLazyImageProps) => {
   return (
     <div 
       className={`relative overflow-hidden ${className}`}

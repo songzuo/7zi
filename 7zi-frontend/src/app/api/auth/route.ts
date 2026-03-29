@@ -12,9 +12,10 @@ import {
   passwordResetSchema,
   createValidationErrorResponse,
   validateAndSanitizeBody,
-} from '../../lib/validation-schemas';
-import { AuditLogger } from '../../lib/audit/logger';
-import { getClientIP } from '../../lib/rate-limit/limiter';
+} from '@/lib/validation-schemas';
+import { AuditLogger } from '@/lib/audit/logger';
+import { AuditEventType } from '@/lib/audit/types';
+import { getClientIP } from '@/lib/rate-limit/limiter';
 
 /**
  * POST /api/auth/login - 用户登录
@@ -43,7 +44,7 @@ export async function POST(request: NextRequest) {
     if (isAuthenticated) {
       // 记录成功的登录
       await AuditLogger.logAuthEvent(
-        'login.success',
+        AuditEventType.LOGIN_SUCCESS,
         {
           userId: 'user-123', // 实际应用中从数据库获取
           username,
@@ -66,7 +67,7 @@ export async function POST(request: NextRequest) {
     } else {
       // 记录失败的登录
       await AuditLogger.logAuthEvent(
-        'login.failed',
+        AuditEventType.LOGIN_FAILED,
         {
           username,
           ipAddress,
@@ -181,7 +182,7 @@ export async function PATCH(request: NextRequest) {
 
     // TODO: 验证 token 并更新密码
 
-    await AuditLogger.logPasswordReset('password.reset.success', {
+    await AuditLogger.logPasswordReset(AuditEventType.PASSWORD_RESET_SUCCESS, {
       ipAddress,
       success: true,
     });

@@ -396,7 +396,10 @@ export class DataExporter<T extends Record<string, unknown>> {
     const excelOptions = this.config.excelOptions || {};
 
     // 动态导入 ExcelJS
-    const ExcelJS = await import('exceljs');
+    const ExcelJS = await import(
+      /* webpackChunkName: "exceljs" */
+      'exceljs'
+    );
     const workbook = new ExcelJS.Workbook();
 
     // 创建工作表
@@ -804,7 +807,10 @@ export async function exportMultiSheet<T extends Record<string, unknown>>(
 ): Promise<ExportResult> {
   try {
     // 动态导入 ExcelJS
-    const ExcelJS = await import('exceljs');
+    const ExcelJS = await import(
+      /* webpackChunkName: "exceljs" */
+      'exceljs'
+    );
     const workbook = new ExcelJS.Workbook();
 
     config.sheets.forEach((sheetConfig) => {

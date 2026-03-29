@@ -664,3 +664,154 @@ ENVIRONMENT=staging ./deploy.sh deploy
 
 **文档版本**: 3.0
 **最后更新**: 2025-01-22
+
+---
+
+## ⚡ API Rate Limiting Configuration (v1.4.0)
+
+### Overview
+
+v1.4.0 introduces Redis-based distributed API rate limiting with support for sliding window and token bucket algorithms.
+
+### Redis Configuration
+
+Production environment should use Redis for distributed rate limiting:
+
+```bash
+# Redis connection configuration
+REDIS_HOST=your-redis-host.com
+REDIS_PORT=6379
+REDIS_PASSWORD=your-redis-password
+REDIS_DB=0
+
+# Enable Redis rate limiting
+RATE_LIMIT_REDIS_ENABLED=true
+```
+
+Development environment can use in-memory mode (no Redis required):
+
+```bash
+# Local development - use memory mode
+REDIS_HOST=localhost
+RATE_LIMIT_REDIS_ENABLED=false
+```
+
+### Rate Limiting Strategies
+
+Default strategies (configured in `src/proxy.ts`):
+
+| API Route | Limit | Algorithm | Description |
+|-----------|-------|------------|-------------|
+| `/api/auth/*` | 5 req/min | Sliding Window | Strict limit (login/register) |
+| `/api/tasks/*` | 30 req/min | Sliding Window | Moderate limit (task operations) |
+| `/api/*` | 100 req/min | Token Bucket | Lenient limit (general API) |
+
+### Customizing Rate Limits
+
+To modify rate limiting strategies, edit `src/proxy.ts`:
+
+```typescript
+// Change auth limit to 10 req/min
+const authRateLimiter = new DistributedRateLimiter({
+  windowMs: 60000,        // 1 minute
+  maxRequests: 10,       // 10 requests/minute
+  algorithm: 'sliding-window',
+  keyGenerator: KeyGenerators.byIP,
+});
+```
+
+### Rate Limit Headers
+
+All API responses include standard Rate Limit headers:
+
+```
+X-RateLimit-Limit: 100        # Request limit
+X-RateLimit-Remaining: 95     # Remaining requests
+X-RateLimit-Reset: 2026-03-29T12:00:00.000Z  # Reset time
+Retry-After: 60               # Retry seconds (429 responses only)
+```
+
+### Monitoring Rate Limits
+
+```bash
+# Check Redis connection status
+ssh root@7zi.com "docker exec -it <redis-container> redis-cli ping"
+
+# View rate limit keys (Redis mode)
+ssh root@7zi.com "docker exec -it <redis-container> redis-cli KEYS 'rate-limit:*'"
+
+# View rate limit triggers in API logs
+ssh root@7zi.com "docker logs 7zi-frontend-blue | grep 'Rate limit'"
+```
+
+### Troubleshooting
+
+**Issue: Rate limiting not working**
+
+```bash
+# 1. Check if middleware is loaded
+./deploy.sh logs | grep "rate limit"
+
+# 2. Check Redis connection (production)
+ssh root@7zi.com "docker exec -it <redis-container> redis-cli ping"
+
+# 3. Check environment variables
+ssh root@7zi.com "docker exec -it 7zi-frontend-blue env | grep RATE_LIMIT"
+```
+
+**Issue: Rate limiting too strict**
+
+```bash
+# Check strategy configuration
+cat src/proxy.ts | grep "new DistributedRateLimiter"
+
+# To adjust, modify config and redeploy
+./deploy.sh deploy
+```
+
+**Redis Fallback**
+
+If Redis is unavailable, the system automatically falls back to in-memory mode:
+
+```
+[WARN] Redis connection failed, falling back to in-memory rate limiting
+```
+
+---
+
+## 🔄 Environment Updates for v1.4.0
+
+### Rate Limiting Variables
+
+New environment variables added in `.env.example`:
+
+```bash
+# Redis Configuration
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
+REDIS_DB=0
+REDIS_TLS=false
+
+# Rate Limiting
+RATE_LIMIT_REDIS_ENABLED=false
+RATE_LIMIT_AUTH_MAX=5
+RATE_LIMIT_TASKS_MAX=30
+RATE_LIMIT_GENERAL_MAX=100
+RATE_LIMIT_WINDOW_MS=60000
+```
+
+### Production Deployment Checklist
+
+When deploying v1.4.0 to production, ensure:
+
+- [ ] Redis is installed and running
+- [ ] `RATE_LIMIT_REDIS_ENABLED=true` in `.env.production`
+- [ ] Redis connection credentials are correct
+- [ ] Test rate limiting endpoints before full deployment
+- [ ] Monitor Rate Limit headers in API responses
+
+---
+
+**Updated**: 2026-03-29
+**Version**: 1.4.0

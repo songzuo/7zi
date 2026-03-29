@@ -4,7 +4,7 @@
  * 测试实时通知服务的核心功能
  */
 
-import { describe, it, expect, beforeEach, vi, afterEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import {
   NotificationService,
   NotificationType,

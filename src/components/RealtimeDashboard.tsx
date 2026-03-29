@@ -97,7 +97,7 @@ const generateTeamEfficiency = (): TeamEfficiency => ({
 // 主组件
 // ============================================================================
 
-export const RealtimeDashboard: React.FC<RealtimeDashboardProps> = memo(({ locale = 'en', className = '' }) => {
+export const RealtimeDashboard = memo(({ locale = 'en', className = '' }: RealtimeDashboardProps) => {
   const [metrics, setMetrics] = useState<PerformanceMetric[]>(generatePerformanceMetrics());
   const [efficiency, setEfficiency] = useState<TeamEfficiency>(generateTeamEfficiency());
   const [stats, setStats] = useState<RealtimeStats>({

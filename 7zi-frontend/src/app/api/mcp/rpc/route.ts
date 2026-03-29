@@ -2,6 +2,7 @@
  * MCP JSON-RPC 2.0 API Route
  *
  * 处理 MCP (Model Context Protocol) JSON-RPC 请求
+ * Requires API Key authentication
  *
  * @openapi
  * /api/mcp/rpc:
@@ -45,9 +46,11 @@
  *                     tools/call: Execute a tool
  *   post:
  *     summary: Process MCP JSON-RPC 2.0 request
- *     description: Processes JSON-RPC 2.0 requests for the Model Context Protocol.
+ *     description: Processes JSON-RPC 2.0 requests for the Model Context Protocol. Requires API Key authentication.
  *     tags:
  *       - MCP
+ *     security:
+ *       - ApiKeyAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -86,6 +89,12 @@
  *                 - type: array
  *                   items:
  *                     $ref: '#/components/schemas/MCPResponse'
+ *       401:
+ *         description: Unauthorized - Invalid or missing API key
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/MCPError'
  *       400:
  *         description: Invalid request (parse error, invalid format)
  *         content:
@@ -200,7 +209,7 @@
  *             code:
  *               type: integer
  *               description: JSON-RPC error code
- *               enum: [-32700, -32600, -32601, -32602, -32603]
+ *               enum: [-32700, -32600, -32601, -32602, -32603, -32001]
  *             message:
  *               type: string
  *               description: Error message
@@ -237,32 +246,51 @@
  *               type: array
  *               items:
  *                 type: string
+ *   securitySchemes:
+ *     ApiKeyAuth:
+ *       type: apiKey
+ *       in: header
+ *       name: X-API-Key
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { mcpServer } from "@/lib/mcp/server";
-import { createErrorResponse } from "@/lib/api/error-handler";
-
-/**
- * 支持 CORS（用于 Claude Desktop 等客户端）
- */
-const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
+import { authenticateAPIKey, getMCPCORSHeaders } from "@/lib/auth/api-auth";
 
 /**
  * 处理 OPTIONS 请求（CORS 预检）
  */
-export async function OPTIONS() {
-  return new NextResponse(null, { headers: CORS_HEADERS });
+export async function OPTIONS(request: NextRequest) {
+  const corsHeaders = getMCPCORSHeaders(request);
+  return new NextResponse(null, { headers: corsHeaders });
 }
 
 /**
  * 处理 MCP JSON-RPC POST 请求
+ * Requires API Key authentication
  */
 export async function POST(request: NextRequest) {
+  // Authenticate with API key
+  const authResult = authenticateAPIKey(request);
+  const corsHeaders = getMCPCORSHeaders(request);
+
+  if (!authResult.authenticated) {
+    return NextResponse.json(
+      {
+        jsonrpc: "2.0",
+        id: null,
+        error: {
+          code: -32001,
+          message: "Unauthorized: Invalid or missing API key",
+        },
+      },
+      { 
+        status: 401,
+        headers: corsHeaders,
+      }
+    );
+  }
+
   try {
     // 解析 JSON-RPC 请求
     const body = await request.json();
@@ -278,7 +306,7 @@ export async function POST(request: NextRequest) {
             message: "Invalid Request: jsonrpc version must be 2.0",
           },
         },
-        { headers: CORS_HEADERS }
+        { headers: corsHeaders }
       );
     }
 
@@ -292,7 +320,7 @@ export async function POST(request: NextRequest) {
             message: "Invalid Request: method is required",
           },
         },
-        { headers: CORS_HEADERS }
+        { headers: corsHeaders }
       );
     }
 
@@ -300,7 +328,7 @@ export async function POST(request: NextRequest) {
     const response = await mcpServer.handleRequest(body);
 
     return NextResponse.json(response, {
-      headers: CORS_HEADERS,
+      headers: corsHeaders,
     });
   } catch {
     // JSON 解析错误
@@ -313,7 +341,7 @@ export async function POST(request: NextRequest) {
           message: "Parse error: Invalid JSON",
         },
       },
-      { headers: CORS_HEADERS }
+      { headers: corsHeaders }
     );
   }
 }
@@ -321,7 +349,9 @@ export async function POST(request: NextRequest) {
 /**
  * GET 方法：返回 MCP Server 信息
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const corsHeaders = getMCPCORSHeaders(request);
+  
   return NextResponse.json(
     {
       name: "OpenClaw MCP Server",
@@ -335,7 +365,11 @@ export async function GET() {
         "tools/list": "List available tools",
         "tools/call": "Execute a tool",
       },
+      auth: {
+        method: "API Key",
+        header: "X-API-Key",
+      },
     },
-    { headers: CORS_HEADERS }
+    { headers: corsHeaders }
   );
 }

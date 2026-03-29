@@ -31,6 +31,8 @@ export function SimplePerformanceDashboard({
   showAlarms = true,
   className = '',
 }: SimplePerformanceDashboardProps) {
+  "use memo";
+
   const [metrics, setMetrics] = useState<AggregatedMetrics | null>(null);
   const [alarms, setAlarms] = useState<AlarmEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);

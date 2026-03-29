@@ -152,6 +152,9 @@ describe('dashboardStore - 数据获取', () => {
   it('fetchAllData 应该处理 API 错误', async () => {
     const state = getDashboardSnapshot();
 
+    // Suppress expected console.warn output
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
     // Mock fetch to throw error directly (simulating a network error)
     mockFetch.mockRejectedValue(new Error('Network error'));
 
@@ -162,10 +165,15 @@ describe('dashboardStore - 数据获取', () => {
     // The error is caught in Promise.all catch blocks, so error is null
     // But data should still be set
     expect(finalState.error).toBe(null);
+
+    warnSpy.mockRestore();
   });
 
   it('fetchAllData 应该处理 401 认证错误', async () => {
     const state = getDashboardSnapshot();
+
+    // Suppress expected console.warn output
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     // Mock fetch to throw error directly
     mockFetch.mockRejectedValue(new Error('GitHub Token 无效'));
@@ -175,10 +183,15 @@ describe('dashboardStore - 数据获取', () => {
     const finalState = getDashboardSnapshot();
     // Errors are caught internally, so error is null
     expect(finalState.error).toBe(null);
+
+    warnSpy.mockRestore();
   });
 
   it('fetchAllData 应该处理 403 速率限制错误', async () => {
     const state = getDashboardSnapshot();
+
+    // Suppress expected console.warn output
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     // Mock fetch to throw error directly
     mockFetch.mockRejectedValue(new Error('GitHub API 速率限制，请稍后重试'));
@@ -188,6 +201,8 @@ describe('dashboardStore - 数据获取', () => {
     const finalState = getDashboardSnapshot();
     // Errors are caught internally, so error is null
     expect(finalState.error).toBe(null);
+
+    warnSpy.mockRestore();
   });
 
   it('fetchAllData 应该使用 token 认证', async () => {

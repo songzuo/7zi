@@ -1,0 +1,245 @@
+name: Scheduled Jobs
+
+on:
+  schedule:
+    # 每天 UTC 0:00 (北京时间 8:00) 运行
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20.x'
+
+jobs:
+  # ============================================
+  # 依赖更新检查
+  # ============================================
+  check-dependencies:
+    name: 📦 Check Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check for outdated packages
+        run: npm outdated --json > outdated.json || true
+
+      - name: Upload outdated packages
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: outdated-packages
+          path: outdated.json
+          retention-days: 30
+
+      - name: Check security vulnerabilities
+        run: npm audit --json > audit.json || true
+
+      - name: Create issue if vulnerabilities found
+        if: hashFiles('audit.json') != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const audit = JSON.parse(fs.readFileSync('audit.json', 'utf8'));
+
+            if (audit.vulnerabilities && Object.keys(audit.vulnerabilities).length > 0) {
+              const vulnerabilities = audit.vulnerabilities;
+              const severityOrder = ['critical', 'high', 'moderate', 'low'];
+
+              const sortedVulnerabilities = Object.entries(vulnerabilities)
+                .sort((a, b) => {
+                  return severityOrder.indexOf(a[1].severity) - severityOrder.indexOf(b[1].severity);
+                });
+
+              let body = '## 🔒 Security Vulnerabilities Found\n\n';
+              body += `**Total:** ${sortedVulnerabilities.length} vulnerabilities\n\n`;
+              body += '| Package | Severity | Via | Patched |\n';
+              body += '|---------|----------|-----|----------|\n';
+
+              sortedVulnerabilities.forEach(([pkg, vuln]) => {
+                body += `| \`${pkg}\` | ${vuln.severity} | ${vuln.via.join(', ')} | ${vuln.patchedVersions || 'No'} |\n`;
+              });
+
+              github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `🔒 Security Audit - ${new Date().toISOString().split('T')[0]}`,
+                body: body,
+                labels: ['security', 'dependencies']
+              });
+            }
+
+  # ============================================
+  # 代码质量分析
+  # ============================================
+  code-quality:
+    name: 📊 Code Quality Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint -- --format json --output-file eslint-report.json || true
+
+      - name: Calculate code complexity
+        run: |
+          npx eslint . --format json --output-file eslint-report.json || true
+          # 这里可以添加更多的代码质量指标
+
+      - name: Upload code quality report
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-quality-report
+          path: eslint-report.json
+          retention-days: 30
+
+  # ============================================
+  # 测试覆盖率趋势
+  # ============================================
+  coverage-trend:
+    name: 📈 Coverage Trend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests with coverage
+        run: npm run test:coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage/coverage-final.json
+          flags: scheduled
+          name: scheduled-coverage
+
+      - name: Generate coverage trend report
+        run: |
+          # 这里可以添加逻辑来生成趋势报告
+          echo "Coverage report generated"
+
+  # ============================================
+  # 性能基准测试
+  # ============================================
+  performance-benchmark:
+    name: 🚀 Performance Benchmark
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Start application
+        run: npm run start &
+        env:
+          NODE_ENV: production
+          PORT: 3000
+
+      - name: Wait for application to start
+        run: sleep 30
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          urls: |
+            http://localhost:3000
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+      - name: Create performance issue if degraded
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '⚠️ Performance Degradation Detected',
+              body: 'Lighthouse CI detected performance degradation. Please review the test results.',
+              labels: ['performance', 'urgent']
+            });
+
+  # ============================================
+  # 构建时间监控
+  # ============================================
+  build-time-monitor:
+    name: ⏱️ Build Time Monitor
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Measure standard build time
+        run: |
+          START_TIME=$(date +%s)
+          npm run build
+          END_TIME=$(date +%s)
+          BUILD_TIME=$((END_TIME - START_TIME))
+          echo "Standard build time: ${BUILD_TIME}s"
+
+      - name: Measure Turbopack build time
+        run: |
+          START_TIME=$(date +%s)
+          npx next build --turbo
+          END_TIME=$(date +%s)
+          TURBO_BUILD_TIME=$((END_TIME - START_TIME))
+          echo "Turbopack build time: ${TURBO_BUILD_TIME}s"
+
+      - name: Compare build times
+        run: |
+          echo "Build time comparison:"
+          echo "Standard build: ${BUILD_TIME}s"
+          echo "Turbopack build: ${TURBO_BUILD_TIME}s"
+          echo "Speedup: $(echo "scale=2; ${BUILD_TIME} / ${TURBO_BUILD_TIME}" | bc)x"

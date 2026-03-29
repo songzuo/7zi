@@ -12,7 +12,8 @@ FROM node:22-alpine AS deps
 WORKDIR /app
 
 # 安装构建依赖（Alpine 兼容性）
-RUN apk add --no-cache libc6-compat
+# 包含 sharp 和 better-sqlite3 所需的构建工具
+RUN apk add --no-cache libc6-compat python3 make g++ vips-dev sqlite-dev
 
 # 先复制依赖描述文件（利用 Docker 缓存层）
 COPY package.json package-lock.json* ./
@@ -27,6 +28,9 @@ RUN npm ci --only=production --legacy-peer-deps && npm cache clean --force
 FROM node:22-alpine AS builder
 
 WORKDIR /app
+
+# 安装构建工具和依赖
+RUN apk add --no-cache libc6-compat python3 make g++ vips-dev sqlite-dev
 
 # 从 deps 阶段复制生产依赖
 COPY --from=deps /app/node_modules ./node_modules
@@ -44,8 +48,9 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
-# 构建应用（standalone 模式）
-# standalone 模式会生成自包含的服务器，无需 node_modules
+# Turbopack 生产构建配置
+# Next.js 16+ 支持 Turbopack 生产构建
+# 如需回退到 webpack，设置环境变量: TURBOPACK=0
 RUN npm run build
 
 # ============================================
@@ -67,8 +72,8 @@ ENV HOSTNAME="0.0.0.0"
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# 安装运行时依赖（SQLite 需要的库）
-RUN apk add --no-cache sqlite
+# 安装运行时依赖（SQLite 和 sharp 需要的库）
+RUN apk add --no-cache sqlite vips
 
 # 复制构建产物（standalone 模式）
 # standalone 模式会生成自包含的服务器，包含所有必需的 node_modules

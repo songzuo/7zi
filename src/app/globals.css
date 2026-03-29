@@ -319,11 +319,23 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Remove universal transitions - only keep tap highlight removal */
 * {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Apply transitions ONLY to interactive elements */
+button, a, input, select, textarea, [role="button"], .interactive {
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+/* For elements that explicitly need transitions (opt-in) */
+.transition-interactive {
   transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 200ms;
-  -webkit-tap-highlight-color: transparent;
 }
 
 /* ============================================
@@ -507,35 +519,65 @@ html {
 .touch-active {
   position: relative;
   overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
-.touch-active::after {
+/* Ripple effect for touch feedback with GPU acceleration */
+.touch-active::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.05);
+  background: radial-gradient(circle at center, rgba(6, 182, 212, 0.15) 0%, transparent 70%);
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.15s ease-out;
+  pointer-events: none;
+  z-index: 1;
+  /* GPU acceleration */
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
-.touch-active:active::after {
+.touch-active:active::before {
   opacity: 1;
+}
+
+/* Enhanced touch feedback with scale */
+.touch-active:active {
+  transform: scale(0.97);
+  transition: transform 0.1s ease-out;
+}
+
+/* Mobile touch optimized utility class */
+.mobile-touch-optimized {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+  /* Prevent text selection during touch */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 /* Touch device specific optimizations */
 @media (hover: none) and (pointer: coarse) {
+  /* Disable tap highlight and use custom feedback */
   .touch-feedback,
   button,
   a,
   [role="button"] {
-    -webkit-tap-highlight-color: rgba(6, 182, 212, 0.1);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 
+  /* Press effect on touch */
   .touch-feedback:active,
   button:active,
-  a:active {
+  a:active,
+  [role="button"]:active {
     transform: scale(0.97);
-    opacity: 0.9;
+    opacity: 0.95;
+    transition: transform 0.1s ease-out, opacity 0.1s ease-out;
   }
 
   /* Prevent iOS zoom on input */
@@ -544,18 +586,126 @@ html {
   select {
     font-size: 16px !important;
   }
+
+  /* Faster transitions on mobile for snappier feel */
+  * {
+    transition-duration: 150ms;
+  }
 }
 
 /* ============================================
-   SAFE AREA UTILITIES
+   ENHANCED TOUCH FEEDBACK (新增优化)
+   ============================================ */
+
+/* Global touch-optimized class for consistent feedback */
+.touch-optimized {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+}
+
+.touch-optimized:active {
+  transform: scale(0.97);
+  opacity: 0.9;
+}
+
+/* Card touch feedback */
+.card-touch {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-touch:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Ripple effect for better feedback */
+.touch-ripple {
+  position: relative;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.touch-ripple::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease-out, height 0.3s ease-out, opacity 0.3s ease-out;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.touch-ripple:active::after {
+  width: 200px;
+  height: 200px;
+  opacity: 1;
+  transition: width 0s, height 0s, opacity 0.3s ease-out;
+}
+
+.dark .touch-ripple::after {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================
+   SCROLL PERFORMANCE OPTIMIZATIONS
+   ============================================ */
+
+/* Prevent iOS scroll bounce globally */
+html {
+  overscroll-behavior-y: none;
+  overscroll-behavior-x: none;
+}
+
+/* Smooth scroll container with hardware acceleration */
+.smooth-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overflow-scrolling: touch;
+}
+
+/* GPU-accelerated scrolling */
+.gpu-scroll {
+  transform: translateZ(0);
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Optimize scrollable containers */
+.scroll-container {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  transform: translateZ(0);
+  will-change: scroll-position;
+}
+
+/* Smooth momentum scrolling on iOS */
+.scroll-smooth {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ============================================
+   SAFE AREA UTILITIES & NOTCH SUPPORT
    ============================================ */
 
 @supports (padding: max(0px)) {
+  /* Body-level safe areas */
   body {
     padding-left: max(0px, env(safe-area-inset-left));
     padding-right: max(0px, env(safe-area-inset-right));
   }
 
+  /* Safe area padding utilities */
   .safe-top {
     padding-top: max(0px, env(safe-area-inset-top));
   }
@@ -564,6 +714,22 @@ html {
     padding-bottom: max(16px, env(safe-area-inset-bottom));
   }
 
+  .safe-left {
+    padding-left: max(0px, env(safe-area-inset-left));
+  }
+
+  .safe-right {
+    padding-right: max(0px, env(safe-area-inset-right));
+  }
+
+  .safe-all {
+    padding-top: max(0px, env(safe-area-inset-top));
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+  }
+
+  /* Padding utilities with safe areas */
   .p-safe-top {
     padding-top: max(1rem, env(safe-area-inset-top));
   }
@@ -572,6 +738,12 @@ html {
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
 
+  .p-safe-horizontal {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+
+  /* Margin utilities with safe areas */
   .mt-safe-top {
     margin-top: max(1rem, env(safe-area-inset-top));
   }
@@ -580,19 +752,44 @@ html {
     margin-bottom: max(1rem, env(safe-area-inset-bottom));
   }
 
-  /* Fixed elements */
+  /* Fixed bottom elements - critical for mobile */
   .fixed.bottom-0,
   footer.fixed,
-  .fixed-bottom {
-    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  .fixed-bottom,
+  .sticky.bottom-0 {
+    padding-bottom: max(16px, env(safe-area-inset-bottom)) !important;
+    padding-left: max(0px, env(safe-area-inset-left)) !important;
+    padding-right: max(0px, env(safe-area-inset-right)) !important;
   }
 
+  /* Fixed top elements */
   .fixed.top-0,
   nav.fixed,
-  header.fixed {
+  header.fixed,
+  .sticky.top-0 {
+    padding-top: max(0px, env(safe-area-inset-top)) !important;
+    padding-left: max(0px, env(safe-area-inset-left)) !important;
+    padding-right: max(0px, env(safe-area-inset-right)) !important;
+  }
+
+  /* Sticky navigation */
+  nav.sticky {
     padding-top: max(0px, env(safe-area-inset-top));
   }
+
+  /* Full-screen modals and dialogs */
+  .fixed.inset-0,
+  .modal-overlay,
+  dialog::backdrop {
+    padding-top: max(0px, env(safe-area-inset-top));
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+  }
 }
+
+/* Viewport meta tag support - handled in layout.html, but ensuring CSS readiness */
+/* Add safe-area-inset-bottom to elements that interact with system UI */
 
 /* ============================================
    STATE COLORS & SHADOWS

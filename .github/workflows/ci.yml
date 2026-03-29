@@ -1,14 +1,15 @@
 # ============================================
-# 7zi-frontend 统一 CI/CD Pipeline (v6)
+# 7zi-frontend 统一 CI/CD Pipeline (v7)
 # ============================================
 # 特性：
-# - 统一的工作流，适用于 PR 和 main 分支
+# - 统一的工作流，适用于 PR、main 和 develop 分支
 # - 智能变更检测（跳过不必要的测试）
 # - 多层缓存策略（npm, Next.js turbo, Docker GHA cache）
 # - 并行执行（lint, typecheck, 分片测试）
 # - 测试分片（4x 并行单元测试）
 # - Job 超时控制（防止无限运行）
 # - 针对 PR 和 main 分支的不同部署策略
+# - SSH 密钥认证（移除密码认证）
 # ============================================
 
 name: CI/CD Pipeline
@@ -46,6 +47,16 @@ on:
         options:
           - blue-green
           - rolling
+
+# ============================================
+# 安全：仅限必要的权限
+# ============================================
+permissions:
+  contents: read
+  deployments: write
+  pull-requests: write
+  actions: write
+  packages: write
 
 # 并发控制
 concurrency:
@@ -86,7 +97,7 @@ jobs:
             **/*.config.*
 
   # ============================================
-  # Job 2: 依赖安装和缓存
+  # Job 2: 依赖安装和缓存（共享 node_modules）
   # ============================================
   setup:
     name: 安装依赖
@@ -97,18 +108,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: 生成缓存 key
-        id: cache-keys
-        run: |
-          echo "key=npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}" >> $GITHUB_OUTPUT
+      # ✅ 使用 GitHub Actions cache 缓存 node_modules
+      - name: 缓存 node_modules
+        uses: actions/cache@v4
+        id: node-modules-cache
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
 
-      - name: 设置 Node.js（带 npm 缓存）
+      - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: 安装依赖
+      - name: 安装依赖（如果缓存未命中）
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
         run: npm ci --prefer-offline
 
   # ============================================
@@ -155,6 +174,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # ✅ 共享 node_modules 缓存
+      - name: 缓存 node_modules
+        uses: actions/cache@v4
+        id: node-modules-cache
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+
       - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
@@ -162,6 +193,7 @@ jobs:
           cache: 'npm'
 
       - name: 安装依赖
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
         run: npm ci --prefer-offline
 
       - name: 运行 ESLint
@@ -182,6 +214,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # ✅ 共享 node_modules 缓存
+      - name: 缓存 node_modules
+        uses: actions/cache@v4
+        id: node-modules-cache
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+
       - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
@@ -189,6 +233,7 @@ jobs:
           cache: 'npm'
 
       - name: 安装依赖
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
         run: npm ci --prefer-offline
 
       - name: TypeScript 检查
@@ -210,6 +255,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # ✅ 共享 node_modules 缓存
+      - name: 缓存 node_modules
+        uses: actions/cache@v4
+        id: node-modules-cache
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+
       - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
@@ -217,6 +274,7 @@ jobs:
           cache: 'npm'
 
       - name: 安装依赖
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
         run: npm ci --prefer-offline
 
       - name: 运行单元测试
@@ -244,6 +302,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # ✅ 共享 node_modules 缓存
+      - name: 缓存 node_modules
+        uses: actions/cache@v4
+        id: node-modules-cache
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+
       - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
@@ -261,6 +331,7 @@ jobs:
             ${{ runner.os }}-nextjs-turbo-
 
       - name: 安装依赖
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
         run: npm ci --prefer-offline
 
       - name: 构建应用
@@ -312,6 +383,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # ✅ 共享 node_modules 缓存
+      - name: 缓存 node_modules
+        uses: actions/cache@v4
+        id: node-modules-cache
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+
       - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
@@ -319,6 +402,7 @@ jobs:
           cache: 'npm'
 
       - name: 安装依赖
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
         run: npm ci --prefer-offline
 
       - name: 安装 Playwright 浏览器
@@ -356,6 +440,7 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     outputs:
       image-tag: ${{ steps.meta.outputs.version }}
+      image-digest: ${{ steps.build.outputs.digest }}
     steps:
       - uses: actions/checkout@v4
 
@@ -381,6 +466,7 @@ jobs:
             type=raw,value=${{ github.run_number }}
 
       - name: 构建并推送
+        id: build
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -400,6 +486,7 @@ jobs:
           echo "🐳 Docker 镜像已构建" >> $GITHUB_STEP_SUMMARY
           echo "======================" >> $GITHUB_STEP_SUMMARY
           echo "- **Tags**: ${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Digest**: ${{ steps.build.outputs.digest }}" >> $GITHUB_STEP_SUMMARY
 
   # ============================================
   # Job 10: 预部署检查
@@ -459,7 +546,7 @@ jobs:
           retention-days: 30
 
   # ============================================
-  # Job 11: 部署到 Staging（自动）
+  # Job 11: 部署到 Staging（自动，SSH 密钥）
   # ============================================
   deploy-staging:
     name: 部署到 Staging
@@ -473,16 +560,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: 安装 sshpass
-        run: sudo apt-get install -y sshpass
+      # ✅ 使用 SSH 密钥认证（替代密码）
+      - name: 设置 SSH 密钥
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.STAGING_HOST }} >> ~/.ssh/known_hosts
 
       - name: 部署到 Staging
         env:
           SSH_HOST: ${{ secrets.STAGING_HOST }}
           SSH_USER: ${{ secrets.DEPLOY_USER }}
-          SSH_PASS: ${{ secrets.DEPLOY_PASS }}
         run: |
-          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST << 'ENDSSH'
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST << 'ENDSSH'
             set -e
             cd /opt/7zi-frontend
             
@@ -518,7 +609,7 @@ jobs:
           ENDSSH
 
   # ============================================
-  # Job 12: 部署到 Production（手动触发）
+  # Job 12: 部署到 Production（手动触发，SSH 密钥）
   # ============================================
   deploy-production:
     name: 部署到 Production
@@ -532,8 +623,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: 安装 sshpass
-        run: sudo apt-get install -y sshpass
+      # ✅ 使用 SSH 密钥认证（替代密码）
+      - name: 设置 SSH 密钥
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.PRODUCTION_HOST }} >> ~/.ssh/known_hosts
 
       - name: 创建 release tag
         run: |
@@ -548,10 +644,9 @@ jobs:
         env:
           SSH_HOST: ${{ secrets.PRODUCTION_HOST }}
           SSH_USER: ${{ secrets.DEPLOY_USER }}
-          SSH_PASS: ${{ secrets.DEPLOY_PASS }}
           DEPLOY_STRATEGY: ${{ inputs.deploy-strategy }}
         run: |
-          sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST << 'ENDSSH'
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST << 'ENDSSH'
             set -e
             cd /opt/7zi-frontend
             
@@ -620,6 +715,30 @@ jobs:
             sleep 5
           done
           echo "⚠️ 警告：Production 验证失败"
+
+      - name: 创建 GitHub Release
+        if: success()
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: Release v${{ github.run_number }}
+          body: |
+            ## 🚀 Deployment v${{ github.run_number }}
+
+            **Commit**: ${{ github.sha }}
+            **Branch**: ${{ github.ref_name }}
+
+            ### Docker Image
+            - `ghcr.io/${{ github.repository }}:latest`
+            - `ghcr.io/${{ github.repository }}:${{ github.run_number }}`
+            - `ghcr.io/${{ github.repository }}@${{ needs.docker.outputs.image-digest }}`
+
+            ### Changes
+            See the [commit history](https://github.com/${{ github.repository }}/commits/${{ github.sha }})
+          draft: false
+          prerelease: false
 
   # ============================================
   # Job 13: CI/CD 总结

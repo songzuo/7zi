@@ -2,27 +2,50 @@
  * Enhanced Notifications API Route
  *
  * Provides endpoints for managing notifications with all delivery channels
+ * Requires JWT authentication
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { enhancedNotificationService, NotificationType, NotificationPriority } from '@/lib/services/notification-enhanced';
+import { enhancedNotificationService } from '@/lib/services/notification-enhanced';
+import { NotificationType, NotificationPriority } from '@/lib/services/notification-types';
+import type { Notification } from '@/lib/services/notification-types';
 import { EmailRecipient } from '@/lib/services/email';
 import {
   createSuccessResponse,
   createValidationError,
   createErrorResponse,
 } from '../../../../lib/api/error-handler';
+import { authenticateJWT } from '@/lib/auth/api-auth';
 
 /**
  * GET /api/notifications/enhanced
  *
  * Get notifications with enhanced features
+ * Requires JWT authentication
  */
 export async function GET(request: NextRequest) {
+  // Authenticate user
+  const authResult = await authenticateJWT(request);
+
+  if (!authResult.authenticated) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Unauthorized',
+        message: authResult.error || 'Authentication required',
+      },
+      { status: 401 }
+    );
+  }
+
   try {
     const searchParams = request.nextUrl.searchParams;
 
-    const userId = searchParams.get('userId') || undefined;
+    // User can only see their own notifications unless admin
+    const userId = authResult.role === 'admin'
+      ? searchParams.get('userId') || undefined
+      : authResult.userId;
+
     const teamId = searchParams.get('teamId') || undefined;
     const taskId = searchParams.get('taskId') || undefined;
     const type = searchParams.get('type') as NotificationType | null;
@@ -60,8 +83,23 @@ export async function GET(request: NextRequest) {
  * POST /api/notifications/enhanced
  *
  * Create and send a notification with all delivery channels
+ * Requires JWT authentication
  */
 export async function POST(request: NextRequest) {
+  // Authenticate user
+  const authResult = await authenticateJWT(request);
+
+  if (!authResult.authenticated) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Unauthorized',
+        message: authResult.error || 'Authentication required',
+      },
+      { status: 401 }
+    );
+  }
+
   try {
     const body = await request.json();
 

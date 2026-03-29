@@ -5,7 +5,8 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { AuditLogger, AuditEventType, AuditLogLevel } from '../audit/logger';
+import { AuditLogger } from '../audit/logger';
+import { AuditEventType, AuditLogLevel } from '../audit/types';
 
 describe('AuditLogger', () => {
   beforeEach(() => {
@@ -19,7 +20,7 @@ describe('AuditLogger', () => {
 
   describe('logAuthEvent', () => {
     it('should log successful login', async () => {
-      const log = await AuditLogger.logAuthEvent('login.success', {
+      const log = await AuditLogger.logAuthEvent(AuditEventType.LOGIN_SUCCESS, {
         userId: 'user-123',
         username: 'testuser',
         ipAddress: '192.168.1.1',
@@ -36,7 +37,7 @@ describe('AuditLogger', () => {
     });
 
     it('should log failed login', async () => {
-      const log = await AuditLogger.logAuthEvent('login.failed', {
+      const log = await AuditLogger.logAuthEvent(AuditEventType.LOGIN_FAILED, {
         username: 'testuser',
         ipAddress: '192.168.1.1',
         success: false,
@@ -64,7 +65,7 @@ describe('AuditLogger', () => {
       expect(log.eventType).toBe(AuditEventType.REGISTER);
       expect(log.userId).toBe('user-456');
       expect(log.username).toBe('newuser');
-      expect(log.email).toBe('newuser@example.com');
+      expect(log.details?.email).toBe('newuser@example.com');
       expect(log.success).toBe(true);
       expect(log.level).toBe(AuditLogLevel.INFO);
     });
@@ -72,7 +73,7 @@ describe('AuditLogger', () => {
 
   describe('logPasswordReset', () => {
     it('should log password reset request', async () => {
-      const log = await AuditLogger.logPasswordReset('password.reset.request', {
+      const log = await AuditLogger.logPasswordReset(AuditEventType.PASSWORD_RESET_REQUEST, {
         username: 'testuser',
         ipAddress: '192.168.1.3',
         success: true,
@@ -85,7 +86,7 @@ describe('AuditLogger', () => {
     });
 
     it('should log password reset success', async () => {
-      const log = await AuditLogger.logPasswordReset('password.reset.success', {
+      const log = await AuditLogger.logPasswordReset(AuditEventType.PASSWORD_RESET_SUCCESS, {
         userId: 'user-123',
         ipAddress: '192.168.1.3',
         success: true,
@@ -267,21 +268,21 @@ describe('AuditLogger', () => {
   describe('query', () => {
     beforeEach(async () => {
       // 创建一些测试日志
-      await AuditLogger.logAuthEvent('login.success', {
+      await AuditLogger.logAuthEvent(AuditEventType.LOGIN_SUCCESS, {
         userId: 'user-1',
         username: 'user1',
         ipAddress: '192.168.1.10',
         success: true,
       });
 
-      await AuditLogger.logAuthEvent('login.failed', {
+      await AuditLogger.logAuthEvent(AuditEventType.LOGIN_FAILED, {
         username: 'user2',
         ipAddress: '192.168.1.11',
         success: false,
         error: 'Invalid credentials',
       });
 
-      await AuditLogger.logAuthEvent('login.success', {
+      await AuditLogger.logAuthEvent(AuditEventType.LOGIN_SUCCESS, {
         userId: 'user-1',
         username: 'user1',
         ipAddress: '192.168.1.10',
@@ -343,14 +344,14 @@ describe('AuditLogger', () => {
 
   describe('getStats', () => {
     beforeEach(async () => {
-      await AuditLogger.logAuthEvent('login.success', {
+      await AuditLogger.logAuthEvent(AuditEventType.LOGIN_SUCCESS, {
         userId: 'user-1',
         username: 'user1',
         ipAddress: '192.168.1.20',
         success: true,
       });
 
-      await AuditLogger.logAuthEvent('login.failed', {
+      await AuditLogger.logAuthEvent(AuditEventType.LOGIN_FAILED, {
         username: 'user2',
         ipAddress: '192.168.1.21',
         success: false,
@@ -411,7 +412,7 @@ describe('AuditLogger', () => {
   describe('cleanup', () => {
     it('should clean up old logs', async () => {
       // 创建一些日志
-      await AuditLogger.logAuthEvent('login.success', {
+      await AuditLogger.logAuthEvent(AuditEventType.LOGIN_SUCCESS, {
         userId: 'user-1',
         username: 'user1',
         ipAddress: '192.168.1.30',

@@ -1,16 +1,31 @@
 /**
  * @fileoverview Integration test for User Settings Update
  * Tests user preferences including theme, language, notifications, and other settings
+ * @updated Uses Zustand stores instead of SettingsContext
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { SettingsProvider } from '@/contexts/SettingsContext'
 
 // Mock fetch for API calls
 const mockFetch = vi.fn()
 global.fetch = mockFetch
+
+// Mock Zustand stores
+vi.mock('@/stores/preferencesStore', () => ({
+  usePreferencesStore: vi.fn(() => ({
+    settings: { theme: 'system', language: 'zh', notifications: { enabled: true, sound: true, email: false, push: true } },
+    isLoaded: true,
+    isDark: false,
+    setTheme: vi.fn(),
+    toggleTheme: vi.fn(),
+    setLanguage: vi.fn(),
+    setNotifications: vi.fn(),
+    resetSettings: vi.fn(),
+    syncThemeToDOM: vi.fn(),
+  })),
+}))
 
 // Mock user settings data
 const mockUserSettings = {

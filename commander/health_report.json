@@ -1,0 +1,119 @@
+{
+  "timestamp": "2026-03-17T08:22:34.426Z",
+  "system": {
+    "nginx": {
+      "running": true,
+      "status": "active"
+    },
+    "load": "08:22:39 up 11 days,  4:05,  0 users,  load average: 0.76, 0.85, 0.95",
+    "disk": "/dev/vda1        88G   67G   21G  77% /"
+  },
+  "nginx": {
+    "configValid": true,
+    "processCount": 9,
+    "siteConfigs": 24
+  },
+  "ports": {
+    "80": {
+      "listening": false,
+      "info": "not listening"
+    },
+    "443": {
+      "listening": false,
+      "info": "not listening"
+    },
+    "3010": {
+      "listening": false,
+      "info": "not listening"
+    }
+  },
+  "sites": [
+    {
+      "name": "7zi.com (main)",
+      "url": "http://127.0.0.1:3010",
+      "statusCode": 200,
+      "responseTime": 822.1500000000001,
+      "sizeDownload": 226757,
+      "healthy": true,
+      "slow": false
+    },
+    {
+      "name": "cv.7zi.com",
+      "url": "https://cv.7zi.com",
+      "statusCode": 200,
+      "responseTime": 217.802,
+      "sizeDownload": 2991,
+      "healthy": true,
+      "slow": false
+    },
+    {
+      "name": "sign.7zi.com",
+      "url": "https://sign.7zi.com",
+      "statusCode": 200,
+      "responseTime": 180.107,
+      "sizeDownload": 2991,
+      "healthy": true,
+      "slow": false
+    },
+    {
+      "name": "china.7zi.com",
+      "url": "https://china.7zi.com",
+      "statusCode": 200,
+      "responseTime": 182.18300000000002,
+      "sizeDownload": 3254,
+      "healthy": true,
+      "slow": false
+    },
+    {
+      "name": "song.7zi.com",
+      "url": "https://song.7zi.com",
+      "statusCode": 200,
+      "responseTime": 221.649,
+      "sizeDownload": 2991,
+      "healthy": true,
+      "slow": false
+    },
+    {
+      "name": "ppt.7zi.com",
+      "url": "https://ppt.7zi.com",
+      "statusCode": 200,
+      "responseTime": 148.885,
+      "sizeDownload": 2991,
+      "healthy": true,
+      "slow": false
+    },
+    {
+      "name": "today.7zi.com",
+      "url": "https://today.7zi.com",
+      "statusCode": 403,
+      "responseTime": 179.729,
+      "sizeDownload": 162,
+      "healthy": false,
+      "slow": false
+    },
+    {
+      "name": "wechat.7zi.com",
+      "url": "https://wechat.7zi.com",
+      "statusCode": 403,
+      "responseTime": 367.01,
+      "sizeDownload": 162,
+      "healthy": false,
+      "slow": false
+    },
+    {
+      "name": "good.7zi.com",
+      "url": "https://good.7zi.com",
+      "statusCode": 403,
+      "responseTime": 193.652,
+      "sizeDownload": 162,
+      "healthy": false,
+      "slow": false
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "healthy": 6,
+    "unhealthy": 3,
+    "warnings": 0
+  }
+}

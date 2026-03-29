@@ -1,0 +1,117 @@
+# ============================================
+# 7zi-frontend Production Dockerfile (优化版)
+# 生产环境专用 - 多阶段构建 + Debian slim + 构建缓存优化
+# ============================================
+
+# ============================================
+# Stage 1: Base & System Dependencies
+# ============================================
+FROM node:20-slim AS base
+
+# 安装系统依赖（合并到一层，减少层数）
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# ============================================
+# Stage 2: Dependencies (依赖安装阶段)
+# ============================================
+FROM base AS deps
+
+# 仅复制依赖描述文件以利用缓存
+COPY 7zi-frontend/package.json 7zi-frontend/package-lock.json* ./
+
+# 安装所有依赖（使用 --prefer-offline 加速）
+RUN npm ci --legacy-peer-deps --prefer-offline && \
+    npm cache clean --force
+
+# ============================================
+# Stage 3: Builder (构建阶段)
+# ============================================
+FROM base AS builder
+
+# 复制所有依赖（从 deps 阶段）
+COPY --from=deps /app/node_modules ./node_modules
+
+# 复制源代码
+COPY 7zi-frontend/ ./app/
+
+WORKDIR /app/app
+
+# 环境变量（合并到一层）
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    NEXT_BUILD_ID=1 \
+    NODE_OPTIONS="--max-old-space-size=4096"
+
+# Webpack 生产构建（避免 Turbopack 兼容性问题）
+RUN npx next build --webpack --experimental-build-mode compile
+
+# 清理和优化
+RUN npm prune --production && \
+    rm -rf .next/cache .next/standalone/node_modules/.cache
+
+# ============================================
+# Stage 4: Runner (运行阶段 - 最小化镜像)
+# ============================================
+FROM node:20-slim AS runner
+
+# 元数据标签
+LABEL maintainer="7zi.studio" \
+      description="7zi-frontend production image (optimized)" \
+      version="1.2.1"
+
+# 安装运行时最小依赖（合并到一层）
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    dumb-init \
+    curl \
+    sqlite3 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# 环境变量（合并到一层）
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    PORT=3000 \
+    HOSTNAME="0.0.0.0" \
+    NODE_OPTIONS="--max-old-space-size=512"
+
+# 安全：创建非 root 用户（合并到一层）
+RUN groupadd --system --gid 1001 nodejs && \
+    useradd --system --uid 1001 --gid nodejs nextjs && \
+    mkdir -p /app/data /app/logs && \
+    chown -R nextjs:nodejs /app
+
+# 复制 standalone 构建产物（仅包含必需文件）
+COPY --from=builder --chown=nextjs:nodejs /app/app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/app/.next/static ./.next/static
+
+# 创建健康检查脚本（合并到一层）
+RUN echo '#!/bin/sh\n\
+set -e\n\
+curl -f -s http://localhost:3000/api/health > /dev/null || exit 1' > /usr/local/bin/healthcheck.sh && \
+    chmod +x /usr/local/bin/healthcheck.sh
+
+# 切换到非 root 用户
+USER nextjs
+
+# 暴露端口
+EXPOSE 3000
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+    CMD ["/usr/local/bin/healthcheck.sh"]
+
+# 使用 dumb-init 作为 PID 1
+ENTRYPOINT ["dumb-init", "--"]
+
+# 启动应用
+CMD ["node", "server.js"]

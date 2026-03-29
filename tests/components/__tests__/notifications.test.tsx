@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 
@@ -156,11 +156,12 @@ describe('Notification Components', () => {
         onDismiss();
       }, 3000);
 
-      vi.advanceTimersByTime(3000);
-
-      await waitFor(() => {
-        expect(onDismiss).toHaveBeenCalledTimes(1);
+      // Use act to wrap timer advancement
+      act(() => {
+        vi.advanceTimersByTime(3000);
       });
+
+      expect(onDismiss).toHaveBeenCalledTimes(1);
 
       vi.useRealTimers();
     });
@@ -206,7 +207,9 @@ describe('Notification Components', () => {
         </div>
       );
 
-      await userEvent.click(screen.getByTestId('add-notification'));
+      await act(async () => {
+        await userEvent.click(screen.getByTestId('add-notification'));
+      });
       expect(mockAddNotification).toHaveBeenCalledWith({
         title: 'Test',
         message: 'Test message',
@@ -228,7 +231,9 @@ describe('Notification Components', () => {
         </div>
       );
 
-      await userEvent.click(screen.getByTestId('remove-notification'));
+      await act(async () => {
+        await userEvent.click(screen.getByTestId('remove-notification'));
+      });
       expect(mockRemoveNotification).toHaveBeenCalledWith(notificationId);
     });
 
@@ -243,7 +248,9 @@ describe('Notification Components', () => {
         </div>
       );
 
-      await userEvent.click(screen.getByTestId('clear-all'));
+      await act(async () => {
+        await userEvent.click(screen.getByTestId('clear-all'));
+      });
       expect(mockClearAll).toHaveBeenCalledTimes(1);
     });
   });

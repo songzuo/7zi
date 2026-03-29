@@ -641,8 +641,8 @@ function createServer() {
       credentials: true,
     },
     transports: ['websocket', 'polling'],
-    pingTimeout: 45000,
-    pingInterval: 25000,
+    pingTimeout: 120000, // 120 seconds - increased to match client heartbeat detection (25s * 3 + margin)
+    pingInterval: 25000, // 25 seconds - matches client heartbeat interval
     maxHttpBufferSize: 1e8, // 100 MB
   });
 

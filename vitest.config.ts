@@ -14,13 +14,13 @@ export default defineConfig({
   // Vitest 4: 线程池配置在顶层（不在 test 对象内）
   poolOptions: {
     forks: {
-      singleFork: true, // 使用单进程执行以减少内存占用和构建阻塞
-      isolate: true,    // 确保 fork 之间的隔离
+      singleFork: false, // 允许并行执行以提高测试速度
+      isolate: true,     // 确保 fork 之间的隔离
     },
   },
 
-  // Vitest 4: 严格限制并发工作线程数量
-  maxThreads: 1, // 使用单个线程避免内存溢出
+  // Vitest 4: 并发工作线程配置
+  maxThreads: 6, // 允许最多 6 个并行线程
   minThreads: 1,
 
   // 内存限制配置（防止 worker 崩溃）
@@ -48,12 +48,11 @@ export default defineConfig({
     isolate: true,
 
     // 并发限制：限制同时运行的测试文件数量
-    maxConcurrency: 1, // 串行执行以避免内存溢出
+    maxConcurrency: 6, // 允许同时运行 6 个测试文件以提高执行速度
 
     // 测试顺序：随机顺序以发现隐藏的依赖关系
     sequence: {
       shuffle: false,  // 保持顺序以确保稳定性
-      concurrent: false, // 串行执行
     },
 
     // 限制工作线程的生命周期

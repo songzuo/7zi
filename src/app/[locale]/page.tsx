@@ -366,19 +366,19 @@ export default async function HomePage({ params }: { params: Params }) {
 
               <div className="hidden lg:flex items-center gap-6">
 
-                <Link href="/about" className="text-zinc-600 dark:text-zinc-400 hover:text-cyan-500 transition-colors">
+                <Link href="/about" className="text-zinc-600 dark:text-zinc-400 hover:text-cyan-500 transition-colors min-h-[44px] py-2 px-4 rounded-lg touch-active active:scale-95">
 
                   {tNav('about')}
 
                 </Link>
 
-                <Link href="/team" className="text-zinc-600 dark:text-zinc-400 hover:text-cyan-500 transition-colors">
+                <Link href="/team" className="text-zinc-600 dark:text-zinc-400 hover:text-cyan-500 transition-colors min-h-[44px] py-2 px-4 rounded-lg touch-active active:scale-95">
 
                   {tNav('team')}
 
                 </Link>
 
-                <Link href="/blog" className="text-zinc-600 dark:text-zinc-400 hover:text-cyan-500 transition-colors">
+                <Link href="/blog" className="text-zinc-600 dark:text-zinc-400 hover:text-cyan-500 transition-colors min-h-[44px] py-2 px-4 rounded-lg touch-active active:scale-95">
 
                   {tNav('blog')}
 
@@ -392,7 +392,7 @@ export default async function HomePage({ params }: { params: Params }) {
 
                   rel="noopener noreferrer"
 
-                  className="text-zinc-600 dark:text-zinc-400 hover:text-cyan-500 transition-colors"
+                  className="text-zinc-600 dark:text-zinc-400 hover:text-cyan-500 transition-colors min-h-[44px] py-2 px-4 rounded-lg touch-active active:scale-95"
 
                 >
 
@@ -400,7 +400,7 @@ export default async function HomePage({ params }: { params: Params }) {
 
                 </a>
 
-                <Link href="/dashboard" className="text-zinc-600 dark:text-zinc-400 hover:text-cyan-500 transition-colors">
+                <Link href="/dashboard" className="text-zinc-600 dark:text-zinc-400 hover:text-cyan-500 transition-colors min-h-[44px] py-2 px-4 rounded-lg touch-active active:scale-95">
 
                   {tNav('dashboard')}
 

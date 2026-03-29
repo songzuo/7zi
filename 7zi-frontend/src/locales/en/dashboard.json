@@ -1,0 +1,114 @@
+{
+  "title": "Dashboard",
+  "overview": "Overview",
+  "welcome": "Welcome back, {{name}}!",
+  "welcomeBack": "Welcome back!",
+  "goodMorning": "Good morning",
+  "goodAfternoon": "Good afternoon",
+  "goodEvening": "Good evening",
+  "stats": {
+    "title": "Statistics",
+    "total": "Total",
+    "today": "Today",
+    "thisWeek": "This Week",
+    "thisMonth": "This Month",
+    "thisYear": "This Year",
+    "growth": "Growth",
+    "decline": "Decline",
+    "trend": "Trend"
+  },
+  "charts": {
+    "title": "Charts",
+    "line": "Line Chart",
+    "bar": "Bar Chart",
+    "pie": "Pie Chart",
+    "area": "Area Chart",
+    "scatter": "Scatter Plot",
+    "view": "View",
+    "details": "Details",
+    "compare": "Compare",
+    "timeline": "Timeline",
+    "distribution": "Distribution"
+  },
+  "recent": {
+    "title": "Recent Activity",
+    "activities": "Activities",
+    "items": "Items",
+    "viewAll": "View All",
+    "noItems": "No recent activity"
+  },
+  "quickActions": {
+    "title": "Quick Actions",
+    "create": "Create",
+    "new": "New",
+    "add": "Add",
+    "import": "Import",
+    "export": "Export",
+    "settings": "Settings"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "unread": "Unread",
+    "read": "Read",
+    "all": "All",
+    "markAsRead": "Mark as read",
+    "markAllAsRead": "Mark all as read",
+    "clear": "Clear",
+    "settings": "Notification settings"
+  },
+  "widgets": {
+    "title": "Widgets",
+    "add": "Add Widget",
+    "remove": "Remove Widget",
+    "edit": "Edit Widget",
+    "reorder": "Reorder Widgets",
+    "customize": "Customize",
+    "save": "Save",
+    "cancel": "Cancel",
+    "reset": "Reset"
+  },
+  "performance": {
+    "title": "Performance",
+    "loadTime": "Load Time",
+    "responseTime": "Response Time",
+    "uptime": "Uptime",
+    "errors": "Errors",
+    "warnings": "Warnings",
+    "optimization": "Optimization suggestions"
+  },
+  "filters": {
+    "title": "Filters",
+    "dateRange": "Date Range",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "thisWeek": "This Week",
+    "lastWeek": "Last Week",
+    "thisMonth": "This Month",
+    "lastMonth": "Last Month",
+    "custom": "Custom",
+    "apply": "Apply",
+    "reset": "Reset"
+  },
+  "status": {
+    "title": "Status",
+    "online": "Online",
+    "offline": "Offline",
+    "maintenance": "Under Maintenance",
+    "updating": "Updating",
+    "loading": "Loading",
+    "ready": "Ready",
+    "error": "Error",
+    "warning": "Warning",
+    "success": "Success",
+    "info": "Info"
+  },
+  "actions": {
+    "refresh": "Refresh",
+    "export": "Export",
+    "print": "Print",
+    "share": "Share",
+    "settings": "Settings",
+    "help": "Help",
+    "feedback": "Feedback"
+  }
+}

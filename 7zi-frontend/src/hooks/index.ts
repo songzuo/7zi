@@ -13,3 +13,34 @@ export {
   type UseWebSocketStatusOptions,
   type UseWebSocketStatusReturn,
 } from './useWebSocketStatus';
+
+export {
+  useMediaQuery,
+  useIsMobile,
+  useIsTablet,
+  useIsDesktop,
+  useIsLargeDesktop,
+  useIsLandscape,
+  useIsPortrait,
+  useIsTouchDevice,
+  usePrefersReducedMotion,
+  usePrefersDarkMode,
+  useDeviceType,
+  useResponsiveValue,
+  useWindowSize,
+  type MediaQueryOptions,
+  type DeviceType,
+  type ResponsiveValueConfig,
+  type WindowSize,
+} from './useMediaQuery';
+
+export {
+  useTouchGestures,
+  useSwipe,
+  usePinchToZoom,
+  type TouchGestureOptions,
+  type TouchGestureHandlers,
+  type TouchGestureState,
+  type SwipeHandlers,
+  type PinchToZoomOptions,
+} from './useTouchGestures';

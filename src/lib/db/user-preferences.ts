@@ -3,7 +3,7 @@
  * Manages user preferences including language, theme, and notification settings
  */
 
-import { getDatabaseAsync } from './index';
+import { getDatabaseAsync } from './connection';
 import { logger } from '../logger';
 
 /**

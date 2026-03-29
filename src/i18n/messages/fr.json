@@ -1,0 +1,814 @@
+{
+  "common": {
+    "siteName": "7zi Studio",
+    "siteNameShort": "7ziStudio",
+    "tagline": "Studio d'Innovation Numérique Propulsé par l'IA",
+    "taglineShort": "Studio Propulsé par l'IA",
+    "logo": "7ziStudio"
+  },
+  "nav": {
+    "home": "Accueil",
+    "about": "À propos",
+    "team": "Équipe",
+    "blog": "Blog",
+    "portfolio": "Portfolio",
+    "dashboard": "Tableau de bord",
+    "contact": "Contact",
+    "global": "7zi Global"
+  },
+  "home": {
+    "title": "Accueil - Studio d'Innovation Numérique Propulsé par l'IA",
+    "description": "7zi Studio est composé de 11 agents IA professionnels, offrant des services numériques complets incluant le développement web, le design de marque et le marketing. Efficace, professionnel et innovant.",
+    "hero": {
+      "badge": "Studio d'Innovation Numérique Propulsé par l'IA",
+      "badgeShort": "Studio Propulsé par l'IA",
+      "title1": "Redéfinir",
+      "title2": "la Collaboration d'Équipe",
+      "title1Prefix": "Redéfinir la Collaboration d'Équipe avec l'IA",
+      "description": "7zi Studio est composé de 11 agents IA professionnels, de la planification stratégique à la livraison produit, vous offrant des solutions numériques clés en main.",
+      "cta1": "En savoir plus",
+      "cta2": "Notre équipe",
+      "stats": {
+        "experts": {
+          "value": "11+",
+          "label": "Experts IA"
+        },
+        "service": {
+          "value": "24/7",
+          "label": "Service en ligne"
+        },
+        "delivery": {
+          "value": "100%",
+          "label": "Livraison de projets"
+        }
+      }
+    },
+    "teamPreview": {
+      "title": "11 Experts IA à votre service",
+      "description": "Notre équipe couvre la stratégie, la technologie et les opérations - chaque projet dispose de membres IA dédiés",
+      "viewTeam": "Voir l'équipe complète"
+    },
+    "services": {
+      "title": "Ce que nous pouvons faire pour vous",
+      "description": "Services numériques complets pour répondre à tous vos besoins",
+      "web": {
+        "title": "Développement Web",
+        "description": "Du design à l'implémentation, construire des sites web et applications web modernes haute performance",
+        "features": [
+          "Design adaptatif",
+          "Optimisation des performances",
+          "Optimisé pour le SEO"
+        ]
+      },
+      "design": {
+        "title": "Design de Marque",
+        "description": "Design UI/UX professionnel pour créer une identité visuelle de marque unique",
+        "features": [
+          "Design de logo",
+          "Identité visuelle",
+          "Expérience utilisateur"
+        ]
+      },
+      "marketing": {
+        "title": "Marketing et Promotion",
+        "description": "Optimisation SEO, marketing de contenu et gestion des réseaux sociaux pour améliorer l'influence de la marque",
+        "features": [
+          "Optimisation SEO",
+          "Stratégie de contenu",
+          "Réseaux sociaux"
+        ]
+      }
+    },
+    "whyUs": {
+      "title": "Pourquoi choisir 7zi Studio",
+      "efficient": {
+        "title": "Exécution Efficace",
+        "description": "L'équipe IA travaille 24/7 avec réponse rapide et efficacité doublée"
+      },
+      "professional": {
+        "title": "Focalisation Professionnelle",
+        "description": "11 experts IA chacun avec leur spécialité, assurant des standards professionnels à chaque étape"
+      },
+      "cost": {
+        "title": "Optimisation des Coûts",
+        "description": "Profitez de services professionnels de haute qualité sans recruter plusieurs équipes"
+      },
+      "iteration": {
+        "title": "Itération Continue",
+        "description": "Itération et optimisation rapides basées sur les retours pour améliorer les produits et expériences"
+      }
+    },
+    "cta": {
+      "title": "Prêt à commencer?",
+      "description": "Construisons ensemble votre prochain projet numérique",
+      "button": "Contactez-nous maintenant"
+    }
+  },
+  "team": {
+    "title": "Notre Équipe",
+    "description": "Présentation de nos 11 agents IA professionnels",
+    "hero": {
+      "badge": "11 Experts IA",
+      "title": "Notre Équipe",
+      "description": "De la planification stratégique à l'exécution, des experts à chaque étape pour vous guider",
+      "stats": {
+        "members": {
+          "value": "11",
+          "label": "Agents Professionnels"
+        },
+        "coverage": {
+          "value": "100%",
+          "label": "Couverture"
+        },
+        "support": {
+          "value": "24/7",
+          "label": "Support en ligne"
+        }
+      }
+    },
+    "filters": {
+      "all": "Tous",
+      "strategy": "Stratégie",
+      "tech": "Technologie",
+      "creative": "Créatif",
+      "business": "Business"
+    },
+    "members": {
+      "expert": {
+        "name": "Expert Monde IA",
+        "role": "Stratégie et Planification Futuriste",
+        "description": "Se concentre sur les tendances de développement des agents IA et la disposition future, fournissant des perspectives stratégiques et une pensée avant-gardiste à l'équipe.",
+        "skills": [
+          "Analyse stratégique",
+          "Prédiction des tendances",
+          "Pensée innovante"
+        ]
+      },
+      "consultant": {
+        "name": "Consultant",
+        "role": "Recherche et Analyse",
+        "description": "Recherche approfondie sur la dynamique du marché et les tendances technologiques, fournissant un support décisionnel basé sur les données pour les projets.",
+        "skills": [
+          "Recherche de marché",
+          "Analyse de données",
+          "Support décisionnel"
+        ]
+      },
+      "architect": {
+        "name": "Architecte",
+        "role": "Design et Planification",
+        "description": "Conçoit l'architecture système et les solutions techniques, assurant la faisabilité et l'évolutivité du projet.",
+        "skills": [
+          "Architecture système",
+          "Sélection technologique",
+          "Design de solutions"
+        ]
+      },
+      "executor": {
+        "name": "Exécuteur",
+        "role": "Exécution et Implémentation",
+        "description": "Exécute efficacement les tâches, transformant les solutions de conception en implémentations de code de haute qualité.",
+        "skills": [
+          "Implémentation de code",
+          "Exécution de tâches",
+          "Optimisation de l'efficacité"
+        ]
+      },
+      "admin": {
+        "name": "Administrateur Système",
+        "role": "Opérations et Déploiement",
+        "description": "Responsable des opérations système, de la gestion des serveurs et du déploiement automatisé pour assurer un fonctionnement stable du service.",
+        "skills": [
+          "Opérations système",
+          "Déploiement automatique",
+          "Sécurisation"
+        ]
+      },
+      "tester": {
+        "name": "Testeur",
+        "role": "Tests et Débogage",
+        "description": "Écrit des cas de test, effectue des tests fonctionnels et l'optimisation des performances pour assurer la qualité du produit.",
+        "skills": [
+          "Tests fonctionnels",
+          "Optimisation des performances",
+          "Assurance qualité"
+        ]
+      },
+      "designer": {
+        "name": "Designer",
+        "role": "Design UI et Frontend",
+        "description": "Crée des interfaces belles et conviviales, fournissant un excellent design d'expérience utilisateur.",
+        "skills": [
+          "Design UI",
+          "Expérience utilisateur",
+          "Créativité visuelle"
+        ]
+      },
+      "promoter": {
+        "name": "Spécialiste Marketing",
+        "role": "Promotion et SEO",
+        "description": "Développe des stratégies de promotion, optimise les classements des moteurs de recherche et améliore la notoriété de la marque.",
+        "skills": [
+          "Optimisation SEO",
+          "Marketing de contenu",
+          "Promotion de marque"
+        ]
+      },
+      "sales": {
+        "name": "Ventes et Support",
+        "role": "Ventes et Service Client",
+        "description": "Communique avec les clients, comprend les besoins, fournit des solutions et un support de service de qualité.",
+        "skills": [
+          "Communication client",
+          "Analyse des besoins",
+          "Solutions"
+        ]
+      },
+      "finance": {
+        "name": "Finance",
+        "role": "Comptabilité et Audit",
+        "description": "Gère les revenus et dépenses financiers, effectue la comptabilité des coûts et l'analyse financière pour assurer la santé financière.",
+        "skills": [
+          "Gestion financière",
+          "Contrôle des coûts",
+          "Analyse financière"
+        ]
+      },
+      "media": {
+        "name": "Média",
+        "role": "Média et Publicité",
+        "description": "Planifie et produit du contenu, diffusant par plusieurs canaux pour améliorer l'influence de la marque.",
+        "skills": [
+          "Planification de contenu",
+          "Opérations média",
+          "Communication de marque"
+        ]
+      }
+    },
+    "availability": "24/7",
+    "collaboration": {
+      "title": "Mode de Collaboration Efficace",
+      "description": "11 agents IA travaillant ensemble de manière transparente pour assurer une progression fluide du projet",
+      "items": {
+        "strategy": {
+          "title": "Stratégie → Exécution",
+          "description": "De la planification stratégique de l'Expert Monde IA à l'implémentation efficace de l'Exécuteur"
+        },
+        "design": {
+          "title": "Design → Développement",
+          "description": "Les solutions créatives du Designer parfaitement implémentées par l'Architecte et l'Exécuteur"
+        },
+        "testing": {
+          "title": "Tests → Déploiement",
+          "description": "Le Testeur assure la qualité, l'Administrateur déploie en ligne de manière stable"
+        },
+        "promotion": {
+          "title": "Promotion → Conversion",
+          "description": "Le Spécialiste Marketing génère du trafic, les Ventes convertissent, la Finance comptabilise avec précision"
+        }
+      }
+    },
+    "cta": {
+      "title": "Prêt à travailler avec nous?",
+      "description": "11 experts IA prêts à créer d'excellents projets numériques pour vous",
+      "button": "Contactez-nous"
+    }
+  },
+  "about": {
+    "title": "À propos de nous",
+    "description": "Découvrez 7zi Studio - Un studio numérique innovant propulsé par 11 agents IA",
+    "hero": {
+      "badge": "Studio Innovant Propulsé par l'IA",
+      "title": "À propos",
+      "description": "Redéfinir la collaboration d'équipe — Une équipe intelligente de 11 agents IA, créant de la valeur numérique pour vous 24/7",
+      "scrollHint": "Explorer plus"
+    },
+    "intro": {
+      "title": "À propos de 7zi Studio",
+      "p1": "est un studio numérique innovant. Nous avons redéfini le concept d'équipe — composé de 11 agents IA professionnels, chacun utilisant son expertise pour collaborer à divers projets numériques.",
+      "p2": "Notre équipe combine la créativité humaine avec l'exécution efficace de l'IA. De la planification stratégique à la livraison produit, du design à la promotion, chaque étape a des membres IA dédiés.",
+      "p3": "Qu'il s'agisse de développement web, de design de marque, d'optimisation SEO ou de marketing de contenu, 7zi Studio vous offre des solutions numériques clés en main.",
+      "stats": {
+        "experts": {
+          "value": "11",
+          "label": "Experts IA",
+          "sub": "Chacun Spécialisé"
+        },
+        "projects": {
+          "value": "50+",
+          "label": "Projets Terminés",
+          "sub": "Satisfaction Client"
+        },
+        "delivery": {
+          "value": "100%",
+          "label": "Taux de Livraison",
+          "sub": "Livraison à temps"
+        },
+        "support": {
+          "value": "24/7",
+          "label": "Support en ligne",
+          "sub": "Toujours Réactif"
+        }
+      }
+    },
+    "team": {
+      "badge": "Équipe Principale",
+      "title": "Nos Membres d'Équipe",
+      "description": "11 agents IA avec une expertise unique, formant une équipe intelligente collaborant efficacement"
+    },
+    "timeline": {
+      "badge": "Notre Parcours",
+      "title": "Notre Trajectoire de Croissance",
+      "description": "Du démarrage à la croissance, chaque étape en avant avec nos clients",
+      "items": [
+        {
+          "year": "2024",
+          "title": "Fondation",
+          "description": "7zi Studio officiellement établi, ouvrant une nouvelle ère de studios numériques propulsés par l'IA"
+        },
+        {
+          "year": "2024",
+          "title": "Formation de l'Équipe",
+          "description": "Les 11 agents IA en place, formant un système de collaboration complet"
+        },
+        {
+          "year": "2025",
+          "title": "Expansion des Services",
+          "description": "Services étendus au développement web, design de marque, optimisation SEO et plus"
+        },
+        {
+          "year": "2025",
+          "title": "Mise à niveau Technologique",
+          "description": "Introduction des dernières technologies IA, optimisant continuellement l'efficacité de collaboration et la qualité de production de l'équipe"
+        }
+      ]
+    },
+    "partners": {
+      "badge": "Partenaires",
+      "title": "Ils nous font confiance",
+      "description": "Partenariat avec d'excellentes entreprises pour créer ensemble un avenir numérique",
+      "count": "{count} entreprises ont choisi de travailler avec nous"
+    },
+    "values": {
+      "badge": "Valeurs Fondamentales",
+      "title": "Notre Philosophie",
+      "items": {
+        "collaboration": {
+          "title": "Collaboration Efficace",
+          "description": "11 agents IA travaillant ensemble avec des forces complémentaires, assurant que chaque projet progresse efficacement."
+        },
+        "innovation": {
+          "title": "Piloté par l'Innovation",
+          "description": "Explorant continuellement de nouvelles technologies et solutions, fournissant aux clients les solutions les plus innovantes."
+        },
+        "quality": {
+          "title": "Focalisé sur la Qualité",
+          "description": "Contrôlant strictement la qualité à chaque étape pour assurer que les livrables dépassent les attentes des clients."
+        },
+        "customer": {
+          "title": "Client d'abord",
+          "description": "Compréhension approfondie des besoins des clients, fournissant un service et un support personnalisés."
+        }
+      }
+    },
+    "process": {
+      "badge": "Flux de travail",
+      "title": "Comment nous travaillons",
+      "items": [
+        {
+          "title": "Analyse des Besoins",
+          "description": "Comprendre profondément vos objectifs et besoins, développer des plans de projet détaillés"
+        },
+        {
+          "title": "Design de Solutions",
+          "description": "Architectes et designers collaborent pour créer des solutions techniques et visuelles complètes"
+        },
+        {
+          "title": "Développement",
+          "description": "L'Exécuteur code efficacement, le Testeur effectue le contrôle qualité simultanément"
+        },
+        {
+          "title": "Livraison",
+          "description": "L'Administrateur déploie en ligne, le Spécialiste Marketing lance les plans marketing"
+        }
+      ]
+    },
+    "cta": {
+      "title": "Prêt à travailler avec nous?",
+      "description": "Construisons ensemble votre projet numérique et créons des possibilités infinies",
+      "button": "Contactez-nous"
+    }
+  },
+  "contact": {
+    "title": "Contactez-nous",
+    "description": "Contactez 7zi Studio - Studio d'innovation numérique propulsé par l'IA. Coopération commerciale, support technique, consultation de projet. Nous répondons dans les 24 heures.",
+    "hero": {
+      "title": "Contact",
+      "description": "Vous avez des questions ou des idées de partenariat? Nous sommes toujours prêts à vous servir"
+    },
+    "form": {
+      "title": "Envoyer un message",
+      "name": "Nom",
+      "email": "Email",
+      "company": "Entreprise (Optionnel)",
+      "subject": "Sujet",
+      "message": "Message",
+      "submit": "Envoyer",
+      "sending": "Envoi en cours...",
+      "success": "Message envoyé avec succès!",
+      "error": "Échec de l'envoi, veuillez réessayer"
+    },
+    "info": {
+      "title": "Contact par email",
+      "business": {
+        "title": "Coopération Commerciale",
+        "email": "business@7zi.studio",
+        "description": "Consultation de projet, coopération commerciale"
+      },
+      "support": {
+        "title": "Support Technique",
+        "email": "support@7zi.studio",
+        "description": "Problèmes techniques, service après-vente"
+      },
+      "careers": {
+        "title": "Nous Rejoindre",
+        "email": "careers@7zi.studio",
+        "description": "Recrutement de partenaires IA"
+      }
+    },
+    "social": {
+      "title": "Suivez-nous"
+    },
+    "response": {
+      "title": "Temps de Réponse",
+      "description": "Nous répondons généralement dans les 24 heures. Réponse plus rapide les jours de semaine!"
+    },
+    "faq": {
+      "title": "FAQ",
+      "items": [
+        {
+          "question": "Quels services 7zi Studio offre-t-il?",
+          "answer": "Nous fournissons des services numériques complets incluant le développement web, le design de marque, le design UI/UX, l'optimisation SEO et le marketing de contenu."
+        },
+        {
+          "question": "Comment démarrer une collaboration?",
+          "answer": "Vous pouvez nous contacter en remplissant le formulaire de contact ou en envoyant un email. Notre équipe répondra dans les 24 heures."
+        },
+        {
+          "question": "Quel est votre modèle de tarification?",
+          "answer": "Nous fournissons des devis personnalisés basés sur les besoins du projet, incluant la tarification par projet et les modèles de service mensuels."
+        },
+        {
+          "question": "Offrez-vous une consultation gratuite?",
+          "answer": "Oui, nous offrons une consultation initiale gratuite. Vous pouvez décrire vos besoins en détail, et nous fournirons des suggestions préliminaires."
+        }
+      ]
+    },
+    "cta": {
+      "title": "Encore hésitant?",
+      "description": "Commencez votre projet numérique maintenant et créez l'avenir avec 7zi Studio",
+      "emailButton": "Envoyer un email",
+      "homeButton": "Retour à l'accueil"
+    }
+  },
+  "portfolio": {
+    "title": "Portfolio",
+    "description": "Portfolio 7zi Studio - Développement web, applications mobiles, solutions IA et vitrine de design de marque",
+    "hero": {
+      "badge": "Travaux Vedettes",
+      "title": "Notre Portfolio",
+      "description": "Du développement web aux solutions IA, chaque projet reflète notre engagement envers la qualité"
+    },
+    "categories": {
+      "all": "Tous",
+      "website": "Site web",
+      "app": "Application",
+      "ai": "IA",
+      "design": "Design"
+    },
+    "card": {
+      "viewDetails": "Voir les détails"
+    },
+    "detail": {
+      "backToList": "Retour au portfolio",
+      "visitSite": "Visiter le site",
+      "client": "Client",
+      "duration": "Durée",
+      "category": "Catégorie",
+      "year": "Année",
+      "highlights": "Points forts",
+      "techStack": "Stack technique",
+      "screenshots": "Captures d'écran",
+      "testimonial": "Témoignage client",
+      "relatedProjects": "Projets connexes"
+    },
+    "cta": {
+      "title": "Prêt à démarrer votre projet?",
+      "description": "Donnons vie à vos idées ensemble",
+      "button": "Contactez-nous maintenant"
+    },
+    "empty": {
+      "title": "Aucun projet trouvé",
+      "description": "Essayez une autre catégorie"
+    }
+  },
+  "blog": {
+    "title": "Blog",
+    "description": "Blog 7zi Studio - Partage de la technologie IA, de la transformation numérique et des perspectives de l'industrie",
+    "readMore": "Lire la suite",
+    "backToList": "Retour à la liste des blogs"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "description": "Tableau de bord de projet - Voir la progression et les données du projet"
+  },
+  "footer": {
+    "copyright": "© 2024 7zi Studio. Tous droits réservés.",
+    "aiPowered": "Propulsé par l'Équipe d'Agents IA · Innovation Infinie",
+    "brandDescription": "Un studio numérique innovant composé de 11 agents IA professionnels, offrant des services numériques complets incluant le développement web, le design de marque et le marketing.",
+    "followUs": "Suivez-nous",
+    "quickLinks": {
+      "title": "Liens Rapides",
+      "home": "Accueil",
+      "about": "À propos de nous",
+      "team": "Équipe",
+      "blog": "Blog",
+      "contact": "Contactez-nous",
+      "dashboard": "Tableau de bord"
+    },
+    "services": {
+      "title": "Services",
+      "webDevelopment": "Développement Web",
+      "brandDesign": "Design de Marque",
+      "seoOptimization": "Optimisation SEO",
+      "marketing": "Marketing",
+      "uiuxDesign": "Design UI/UX",
+      "aiSolutions": "Solutions IA"
+    },
+    "contact": {
+      "title": "Contact",
+      "email": "Email",
+      "website": "Site web",
+      "address": "Adresse"
+    },
+    "legal": {
+      "privacyPolicy": "Politique de confidentialité",
+      "termsOfService": "Conditions d'utilisation",
+      "cookiePolicy": "Politique de cookies"
+    }
+  },
+  "errors": {
+    "notFound": {
+      "title": "Page non trouvée",
+      "description": "La page que vous cherchez n'existe pas ou a été supprimée.",
+      "solution": "Vérifiez l'URL pour les fautes de frappe ou utilisez la navigation pour trouver ce dont vous avez besoin.",
+      "backHome": "Retour à l'accueil",
+      "contactSupport": "Contacter le support",
+      "suggestions": {
+        "title": "Vous cherchez peut-être:",
+        "home": "Accueil",
+        "about": "À propos de nous",
+        "team": "Équipe",
+        "blog": "Blog"
+      }
+    },
+    "serverError": {
+      "title": "Erreur serveur",
+      "description": "Un problème est survenu de notre côté.",
+      "solution": "Notre équipe a été notifiée et travaille à résoudre ce problème.",
+      "retry": "Réessayer",
+      "backHome": "Retour à l'accueil",
+      "errorCode": "Code d'erreur: {code}"
+    },
+    "unauthorized": {
+      "title": "Authentification requise",
+      "description": "Vous devez vous connecter pour accéder à cette page.",
+      "solution": "Veuillez vous connecter pour continuer, ou contacter le support si vous pensez qu'il s'agit d'une erreur.",
+      "login": "Se connecter",
+      "backHome": "Retour à l'accueil"
+    },
+    "forbidden": {
+      "title": "Accès refusé",
+      "description": "Vous n'avez pas la permission d'accéder à cette page.",
+      "solution": "Si vous pensez qu'il s'agit d'une erreur, veuillez contacter notre équipe de support.",
+      "backHome": "Retour à l'accueil",
+      "contactSupport": "Contacter le support"
+    },
+    "networkError": {
+      "title": "Erreur réseau",
+      "description": "Impossible de se connecter au serveur.",
+      "solution": "Veuillez vérifier votre connexion internet et réessayer.",
+      "retry": "Réessayer",
+      "backHome": "Retour à l'accueil"
+    },
+    "general": {
+      "title": "Une erreur s'est produite",
+      "description": "Une erreur inattendue s'est produite.",
+      "solution": "Veuillez réessayer. Si le problème persiste, contactez notre équipe de support.",
+      "retry": "Réessayer",
+      "backHome": "Retour à l'accueil",
+      "copyError": "Copier les infos d'erreur",
+      "copied": "Copié!",
+      "showDetails": "Voir les détails",
+      "hideDetails": "Masquer les détails",
+      "goBack": "Retour",
+      "refresh": "Actualiser la page",
+      "support": "Si le problème continue, veuillez contacter"
+    }
+  },
+  "time": {
+    "justNow": "à l'instant",
+    "minutesAgo": "il y a {count} minute",
+    "hoursAgo": "il y a {count} heure",
+    "daysAgo": "il y a {count} jour",
+    "weeksAgo": "il y a {count} semaine",
+    "monthsAgo": "il y a {count} mois",
+    "yearsAgo": "il y a {count} an"
+  },
+  "mobileMenu": {
+    "open": "Ouvrir le menu",
+    "close": "Fermer le menu",
+    "language": "Langue",
+    "theme": "Thème"
+  },
+  "subagents": "Sous-agents",
+  "memory": "Mémoire",
+  "tasks": "Tâches",
+  "ui": {
+    "button": {
+      "confirm": "Confirmer",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "delete": "Supprimer",
+      "edit": "Modifier",
+      "close": "Fermer",
+      "submit": "Soumettre",
+      "back": "Retour",
+      "next": "Suivant",
+      "previous": "Précédent",
+      "loading": "Chargement...",
+      "retry": "Réessayer",
+      "search": "Rechercher",
+      "filter": "Filtrer",
+      "sort": "Trier",
+      "export": "Exporter",
+      "import": "Importer",
+      "download": "Télécharger",
+      "upload": "Téléverser",
+      "share": "Partager",
+      "copy": "Copier",
+      "view": "Voir",
+      "create": "Créer",
+      "add": "Ajouter",
+      "remove": "Supprimer",
+      "clear": "Effacer",
+      "reset": "Réinitialiser",
+      "apply": "Appliquer"
+    },
+    "input": {
+      "placeholder": {
+        "search": "Rechercher...",
+        "name": "Entrez le nom",
+        "email": "Entrez l'email",
+        "message": "Entrez le message",
+        "company": "Entrez le nom de l'entreprise (optionnel)"
+      },
+      "label": {
+        "name": "Nom",
+        "email": "Email",
+        "phone": "Téléphone",
+        "company": "Entreprise",
+        "subject": "Sujet",
+        "message": "Message",
+        "description": "Description",
+        "category": "Catégorie",
+        "tags": "Étiquettes"
+      }
+    },
+    "modal": {
+      "close": "Fermer la modale",
+      "confirmTitle": "Confirmer",
+      "confirmMessage": "Êtes-vous sûr de vouloir effectuer cette action?",
+      "deleteTitle": "Confirmation de suppression",
+      "deleteMessage": "Cette action ne peut pas être annulée. Êtes-vous sûr de vouloir supprimer?"
+    },
+    "toast": {
+      "success": "Succès",
+      "error": "Erreur",
+      "warning": "Avertissement",
+      "info": "Info",
+      "saved": "Enregistré",
+      "deleted": "Supprimé",
+      "updated": "Mis à jour",
+      "copied": "Copié dans le presse-papier"
+    },
+    "tooltip": {
+      "moreInfo": "Plus d'informations",
+      "viewDetails": "Voir les détails",
+      "close": "Fermer"
+    },
+    "select": {
+      "placeholder": "Sélectionner...",
+      "all": "Tous",
+      "none": "Aucun"
+    },
+    "checkbox": {
+      "selectAll": "Tout sélectionner",
+      "unselectAll": "Tout désélectionner"
+    },
+    "tabs": {
+      "overview": "Vue d'ensemble",
+      "details": "Détails",
+      "settings": "Paramètres",
+      "history": "Historique"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Tout marquer comme lu",
+    "markAsRead": "Marquer comme lu",
+    "markAsUnread": "Marquer comme non lu",
+    "delete": "Supprimer",
+    "deleteAll": "Tout supprimer",
+    "settings": "Paramètres de notification",
+    "types": {
+      "info": "Info",
+      "success": "Succès",
+      "warning": "Avertissement",
+      "error": "Erreur"
+    },
+    "messages": {
+      "newMessage": "Nouveau message",
+      "taskUpdated": "Tâche mise à jour",
+      "taskCompleted": "Tâche terminée",
+      "newComment": "Nouveau commentaire",
+      "mention": "Quelqu'un vous a mentionné",
+      "system": "Notification système",
+      "reminder": "Rappel",
+      "deadline": "Échéance approche",
+      "overdue": "En retard"
+    },
+    "empty": {
+      "title": "Aucune notification",
+      "description": "Vous n'avez pas encore de notifications"
+    }
+  },
+  "email": {
+    "subject": {
+      "contact": "Demande depuis le site web",
+      "project": "Demande de projet",
+      "cooperation": "Coopération commerciale",
+      "support": "Support technique",
+      "careers": "Nous rejoindre",
+      "other": "Autre demande"
+    },
+    "greeting": "Bonjour",
+    "body": {
+      "intro": "Nouveau message de demande reçu:",
+      "fromName": "De: {name}",
+      "fromEmail": "Email: {email}",
+      "company": "Entreprise: {company}",
+      "subject": "Sujet: {subject}",
+      "message": "Message:",
+      "timestamp": "Envoyé à: {time}"
+    },
+    "footer": {
+      "sentFrom": "Ce message a été envoyé depuis le site web de 7zi Studio",
+      "unsubscribe": "Si vous ne souhaitez pas recevoir de tels emails, veuillez répondre à cet email"
+    }
+  },
+  "settings": {
+    "title": "Paramètres",
+    "profile": "Profil",
+    "preferences": "Préférences",
+    "notifications": "Notifications",
+    "security": "Sécurité",
+    "language": "Langue",
+    "theme": "Thème",
+    "account": "Compte",
+    "save": "Enregistrer les modifications",
+    "cancel": "Annuler"
+  },
+  "loading": {
+    "default": "Chargement...",
+    "saving": "Enregistrement...",
+    "sending": "Envoi en cours...",
+    "deleting": "Suppression...",
+    "updating": "Mise à jour..."
+  },
+  "validation": {
+    "required": "Ce champ est requis",
+    "email": "Veuillez entrer une adresse email valide",
+    "phone": "Veuillez entrer un numéro de téléphone valide",
+    "minLength": "Minimum {min} caractères requis",
+    "maxLength": "Maximum {max} caractères autorisés",
+    "url": "Veuillez entrer une URL valide",
+    "number": "Veuillez entrer un nombre valide",
+    "date": "Veuillez sélectionner une date valide",
+    "file": {
+      "required": "Veuillez sélectionner un fichier",
+      "size": "La taille du fichier ne peut pas dépasser {size}Mo",
+      "type": "Type de fichier non supporté"
+    }
+  }
+}

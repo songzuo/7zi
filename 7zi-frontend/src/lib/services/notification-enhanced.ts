@@ -4,10 +4,21 @@
  * Integrates WebSocket real-time notifications, email notifications, and persistent storage
  */
 
-import { notificationService as baseService, Notification, NotificationType, NotificationPriority } from '@/lib/services/notification';
-import { emailService, EmailRecipient } from '@/lib/services/email';
-import { notificationStorage } from '@/lib/services/notification-storage';
+import { notificationService as baseService } from './notification';
+import { NotificationPriority } from './notification-types';
+import type { Notification, NotificationFilter } from './notification-types';
+import { emailService, EmailRecipient } from './email';
+import { notificationStorage } from './notification-storage';
 import { logger } from '@/lib/logger';
+
+// Re-export values from notification-types
+export {
+  NotificationType,
+  NotificationPriority,
+} from './notification-types';
+
+// Re-export types for convenience
+export type { Notification, NotificationFilter } from './notification-types';
 
 /**
  * Priority order (lower number = higher priority)

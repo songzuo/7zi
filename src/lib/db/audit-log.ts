@@ -3,7 +3,7 @@
  * Tracks all sensitive operations for compliance and security auditing
  */
 
-import { getDatabaseAsync } from './index';
+import { getDatabaseAsync } from './connection';
 import { logger } from '../logger';
 
 /**
