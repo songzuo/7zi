@@ -1,4 +1,4 @@
-'use memo';
+'use client';
 
 /**
  * 骨架屏组件
@@ -26,7 +26,7 @@ interface SkeletonProps {
   children?: ReactNode;
 }
 
-export const Skeleton = forwardRef<HTMLDivElement, SkeletonProps>(
+export const Skeleton = memo(forwardRef<HTMLDivElement, SkeletonProps>(
   ({ className, animate = true, style, children, ...props }, ref) => {
     return (
       <div
@@ -43,7 +43,7 @@ export const Skeleton = forwardRef<HTMLDivElement, SkeletonProps>(
       </div>
     );
   }
-);
+));
 Skeleton.displayName = 'Skeleton';
 
 // ============================================

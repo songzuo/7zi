@@ -1,10 +1,10 @@
-'use memo';
+'use client';
 
 /**
  * Button 组件 - 按钮组件
  * 支持多种变体、大小、状态，包含增强的交互反馈
- * 
- * @version 1.1.0
+ *
+ * @version 1.1.1
  * @date 2026-03-29
  */
 
@@ -46,7 +46,7 @@ interface RippleProps {
 // Button 组件
 // ============================================
 
-export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+const ButtonBase = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
       variant = 'primary',
@@ -230,6 +230,10 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   }
 );
 
+ButtonBase.displayName = 'Button';
+
+// 使用 React.memo 优化性能
+export const Button = React.memo(ButtonBase);
 Button.displayName = 'Button';
 
 // ============================================
@@ -243,7 +247,7 @@ export interface IconButtonProps extends Omit<ButtonProps, 'children'> {
   'aria-label': string;
 }
 
-export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
+const IconButtonBase = React.forwardRef<HTMLButtonElement, IconButtonProps>(
   ({ icon, size = 'md', className, ...props }, ref) => {
     const sizeStyles = {
       xs: 'p-1',
@@ -266,6 +270,10 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
   }
 );
 
+IconButtonBase.displayName = 'IconButton';
+
+// 使用 React.memo 优化性能
+export const IconButton = React.memo(IconButtonBase);
 IconButton.displayName = 'IconButton';
 
 // ============================================
@@ -283,12 +291,12 @@ export interface ButtonGroupProps {
   className?: string;
 }
 
-export function ButtonGroup({
+const ButtonGroupBase = ({
   children,
   orientation = 'horizontal',
   gap = 'sm',
   className,
-}: ButtonGroupProps) {
+}: ButtonGroupProps) => {
   const gapStyles = {
     none: 'gap-0',
     sm: 'gap-1',
@@ -309,6 +317,14 @@ export function ButtonGroup({
       {children}
     </div>
   );
-}
+};
+
+// 使用 React.memo 优化性能
+export const ButtonGroup = React.memo(ButtonGroupBase);
+ButtonGroup.displayName = 'ButtonGroup';
+
+// ============================================
+// 导出
+// ============================================
 
 export default Button;

@@ -1,4 +1,4 @@
-'use memo';
+'use client';
 
 /**
  * 任务卡片组件 - 展示增强的交互反馈
@@ -7,7 +7,7 @@
  * @date 2026-03-29
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, memo } from 'react';
 import clsx from 'clsx';
 import { Card, CardHeader, CardBody, CardActions, CardBadge, CardMeta } from '../ui/Card';
 import { Button } from '../ui/Button';
@@ -63,7 +63,7 @@ const PRIORITY_CONFIG: Record<Task['priority'], { label: string; color: 'gray' |
 // TaskCard 组件
 // ============================================
 
-export function TaskCard({ task, loading, onEdit, onDelete, onStatusChange }: TaskCardProps) {
+const TaskCardBase = ({ task, loading, onEdit, onDelete, onStatusChange }: TaskCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const handleEdit = useCallback(() => {
@@ -218,7 +218,11 @@ export function TaskCard({ task, loading, onEdit, onDelete, onStatusChange }: Ta
       </CardActions>
     </Card>
   );
-}
+};
+
+// 使用 React.memo 优化性能
+export const TaskCard = React.memo(TaskCardBase);
+TaskCard.displayName = 'TaskCard';
 
 // ============================================
 // 任务列表组件
@@ -232,7 +236,7 @@ export interface TaskListProps {
   onStatusChange?: (taskId: string, status: Task['status']) => void;
 }
 
-export function TaskList({ tasks, loading, onEdit, onDelete, onStatusChange }: TaskListProps) {
+const TaskListBase = ({ tasks, loading, onEdit, onDelete, onStatusChange }: TaskListProps) => {
   if (loading) {
     return (
       <div className="space-y-4">
@@ -282,7 +286,12 @@ export interface TaskStatusToggleProps {
   disabled?: boolean;
 }
 
-export function TaskStatusToggle({ currentStatus, onStatusChange, disabled }: TaskStatusToggleProps) {
+export const TaskStatusToggle = memo(function TaskStatusToggle({ currentStatus, onStatusChange, disabled }: TaskStatusToggleProps) {
+  const handleStatusClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    const status = e.currentTarget.dataset.status as Task['status'];
+    onStatusChange(status);
+  }, [onStatusChange]);
+
   return (
     <div className="inline-flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
       {(Object.keys(STATUS_CONFIG) as Task['status'][]).map(status => {
@@ -292,7 +301,8 @@ export function TaskStatusToggle({ currentStatus, onStatusChange, disabled }: Ta
         return (
           <button
             key={status}
-            onClick={() => onStatusChange(status)}
+            data-status={status}
+            onClick={handleStatusClick}
             disabled={disabled}
             className={clsx(
               'px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-200',
@@ -309,10 +319,14 @@ export function TaskStatusToggle({ currentStatus, onStatusChange, disabled }: Ta
       })}
     </div>
   );
-}
+});
+TaskStatusToggle.displayName = 'TaskStatusToggle';
 
 // ============================================
 // 导出
 // ============================================
+
+export const TaskList = React.memo(TaskListBase);
+TaskList.displayName = 'TaskList';
 
 export default TaskCard;

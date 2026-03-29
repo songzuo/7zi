@@ -127,21 +127,29 @@ export function EnhancedPerformanceDashboard({
   };
 
   const checkBudgetAlarms = async () => {
-    const triggeredAlarms = await budgetManager.checkAlarms(
-      webVitalsMonitor.getMetrics(),
-      customMetricsTracker.getMetrics()
-    );
-    if (triggeredAlarms.length > 0) {
-      setBudgetAlarms([...budgetAlarms, ...triggeredAlarms]);
+    try {
+      const triggeredAlarms = await budgetManager.checkAlarms(
+        webVitalsMonitor.getMetrics(),
+        customMetricsTracker.getMetrics()
+      );
+      if (triggeredAlarms.length > 0) {
+        setBudgetAlarms([...budgetAlarms, ...triggeredAlarms]);
+      }
+    } catch (error) {
+      console.error('[PerformanceDashboard] Failed to check budget alarms:', error);
     }
   };
 
   const handleClearData = async () => {
     if (confirm('Are you sure you want to clear all monitoring data?')) {
-      await monitor.clearAllData();
-      budgetManager.clearAllNotifications();
-      setBudgetAlarms([]);
-      loadMetrics();
+      try {
+        await monitor.clearAllData();
+        budgetManager.clearAllNotifications();
+        setBudgetAlarms([]);
+        loadMetrics();
+      } catch (error) {
+        console.error('[PerformanceDashboard] Failed to clear data:', error);
+      }
     }
   };
 

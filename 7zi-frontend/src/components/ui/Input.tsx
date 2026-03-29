@@ -1,14 +1,14 @@
-'use memo';
+'use client';
 
 /**
  * Input 组件 - 输入框组件
  * 支持文本、密码、邮箱等多种类型，包含增强的验证反馈
- * 
- * @version 1.1.0
+ *
+ * @version 1.1.1
  * @date 2026-03-29
  */
 
-import React, { forwardRef, useState, useCallback, useEffect } from 'react';
+import React, { forwardRef, useState, useCallback, memo } from 'react';
 import clsx from 'clsx';
 
 // ============================================
@@ -50,7 +50,7 @@ interface ValidationIconProps {
   state: 'valid' | 'invalid' | 'warning';
 }
 
-const ValidationIcon: React.FC<ValidationIconProps> = ({ state }) => {
+const ValidationIcon = memo<ValidationIconProps>(({ state }) => {
   if (state === 'valid') {
     return (
       <svg
@@ -106,7 +106,8 @@ const ValidationIcon: React.FC<ValidationIconProps> = ({ state }) => {
   }
 
   return null;
-};
+});
+ValidationIcon.displayName = 'ValidationIcon';
 
 // ============================================
 // 密码可见性切换按钮
@@ -117,7 +118,7 @@ interface PasswordToggleProps {
   onToggle: () => void;
 }
 
-const PasswordToggle: React.FC<PasswordToggleProps> = ({ visible, onToggle }) => {
+const PasswordToggle = memo<PasswordToggleProps>(({ visible, onToggle }) => {
   return (
     <button
       type="button"
@@ -162,13 +163,14 @@ const PasswordToggle: React.FC<PasswordToggleProps> = ({ visible, onToggle }) =>
       )}
     </button>
   );
-};
+});
+PasswordToggle.displayName = 'PasswordToggle';
 
 // ============================================
 // Input 组件
 // ============================================
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(
+const InputBase = forwardRef<HTMLInputElement, InputProps>(
   (
     {
       label,
@@ -395,6 +397,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
   }
 );
 
+InputBase.displayName = 'Input';
+
+// 使用 React.memo 优化性能
+export const Input = React.memo(InputBase);
 Input.displayName = 'Input';
 
 // ============================================
@@ -414,7 +420,7 @@ export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextArea
   maxLength?: number;
 }
 
-export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
+const TextareaBase = forwardRef<HTMLTextAreaElement, TextareaProps>(
   (
     {
       label,
@@ -497,6 +503,10 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   }
 );
 
+TextareaBase.displayName = 'Textarea';
+
+// 使用 React.memo 优化性能
+export const Textarea = React.memo(TextareaBase);
 Textarea.displayName = 'Textarea';
 
 // ============================================

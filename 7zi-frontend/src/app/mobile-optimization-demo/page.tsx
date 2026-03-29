@@ -12,7 +12,8 @@
 
 import { useState } from 'react';
 import { LazyImage } from '@/components/ui/LazyImage';
-import { useIsMobile, useDeviceType, useSwipe } from '@/hooks/useMediaQuery';
+import { useIsMobile, useDeviceType } from '@/hooks/useMediaQuery';
+import { useSwipe } from '@/hooks/useTouchGestures';
 import { useTouchGestures, usePinchToZoom } from '@/hooks/useTouchGestures';
 import { Card, CardHeader, CardBody, CardTitle, CardText } from '@/components/ui/Card';
 

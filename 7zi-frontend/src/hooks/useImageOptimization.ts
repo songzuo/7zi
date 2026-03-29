@@ -228,11 +228,23 @@ export async function compressImage(
     const img = new Image()
     const reader = new FileReader()
     
+    const handleReaderError = (error: ProgressEvent<FileReader>) => {
+      const err = new Error(`[ImageOptimization] Failed to read file: ${file.name}`)
+      console.error(err, error)
+      reject(err)
+    }
+    
+    const handleImageError = () => {
+      const err = new Error(`[ImageOptimization] Failed to load image: ${file.name}`)
+      console.error(err)
+      reject(err)
+    }
+    
     reader.onload = (e) => {
       img.src = e.target?.result as string
     }
     
-    reader.onerror = reject
+    reader.onerror = handleReaderError
     reader.readAsDataURL(file)
     
     img.onload = () => {
@@ -252,7 +264,9 @@ export async function compressImage(
       
       const ctx = canvas.getContext('2d')
       if (!ctx) {
-        reject(new Error('Failed to get canvas context'))
+        const err = new Error('[ImageOptimization] Failed to get canvas context')
+        console.error(err)
+        reject(err)
         return
       }
       
@@ -263,7 +277,9 @@ export async function compressImage(
           if (blob) {
             resolve(blob)
           } else {
-            reject(new Error('Failed to compress image'))
+            const err = new Error(`[ImageOptimization] Failed to compress image: ${file.name}`)
+            console.error(err)
+            reject(err)
           }
         },
         'image/webp',
@@ -271,7 +287,7 @@ export async function compressImage(
       )
     }
     
-    img.onerror = reject
+    img.onerror = handleImageError
   })
 }
 

@@ -1,3 +1,4 @@
+'use client';
 'use memo';
 
 /**
@@ -11,7 +12,7 @@ import { SmartPrefetch, PrefetchLink, useSmartPrefetch } from '@/components/perf
 import { Button, IconButton, ButtonGroup } from '@/components/ui/Button';
 import { Card, CardHeader, CardBody, CardFooter, CardImage, CardBadge, CardActions } from '@/components/ui/Card';
 import { Input, Textarea } from '@/components/ui/Input';
-import { Skeleton, SkeletonCard, SkeletonList, LoadingWrapper } from '@/components/ui/Skeleton';
+import { Skeleton, SkeletonText, SkeletonCard, SkeletonList, LoadingWrapper } from '@/components/ui/Skeleton';
 import { NavigationWithSkeleton } from '@/components/ui/NavigationSkeleton';
 import { TaskCard, TaskList, TaskStatusToggle } from '@/components/ui/TaskCard';
 
@@ -299,6 +300,7 @@ function TaskCardExample() {
       priority: 'high' as const,
       assignee: '张三',
       dueDate: '2026-03-29',
+      createdAt: '2026-03-20',
     },
     {
       id: '2',
@@ -308,6 +310,7 @@ function TaskCardExample() {
       priority: 'high' as const,
       assignee: '李四',
       dueDate: '2026-03-30',
+      createdAt: '2026-03-21',
     },
     {
       id: '3',
@@ -317,6 +320,7 @@ function TaskCardExample() {
       priority: 'medium' as const,
       assignee: '王五',
       dueDate: '2026-03-31',
+      createdAt: '2026-03-22',
     },
   ];
 

@@ -29,44 +29,56 @@ function DemoContent() {
   const [showCenter, setShowCenter] = useState(false);
 
   const sendTestNotification = async (type: NotificationType) => {
-    await fetch('/api/notifications', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        type,
-        priority: NotificationPriority.MEDIUM,
-        title: `Test ${type} Notification`,
-        message: `This is a test ${type} notification sent at ${new Date().toLocaleTimeString()}`,
-        data: { test: true, type, timestamp: Date.now() },
-      }),
-    });
+    try {
+      await fetch('/api/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type,
+          priority: NotificationPriority.MEDIUM,
+          title: `Test ${type} Notification`,
+          message: `This is a test ${type} notification sent at ${new Date().toLocaleTimeString()}`,
+          data: { test: true, type, timestamp: Date.now() },
+        }),
+      });
+    } catch (error) {
+      console.error('[NotificationDemo] Failed to send test notification:', error);
+    }
   };
 
   const sendTaskNotification = async () => {
-    await fetch('/api/notifications', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        type: NotificationType.TASK_ASSIGNED,
-        priority: NotificationPriority.HIGH,
-        title: 'New Task Assigned',
-        message: 'You have been assigned to review PR #1234',
-        data: {
-          taskId: 'task-123',
-          taskName: 'Review Feature X',
-          priority: 'high',
-        },
-      }),
-    });
+    try {
+      await fetch('/api/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: NotificationType.TASK_ASSIGNED,
+          priority: NotificationPriority.HIGH,
+          title: 'New Task Assigned',
+          message: 'You have been assigned to review PR #1234',
+          data: {
+            taskId: 'task-123',
+            taskName: 'Review Feature X',
+            priority: 'high',
+          },
+        }),
+      });
+    } catch (error) {
+      console.error('[NotificationDemo] Failed to send task notification:', error);
+    }
   };
 
   const clearNotifications = async () => {
-    const notificationIds = notifications.map(n => n.id);
-    await Promise.all(
-      notificationIds.map(id =>
-        fetch(`/api/notifications/${id}`, { method: 'DELETE' })
-      )
-    );
+    try {
+      const notificationIds = notifications.map(n => n.id);
+      await Promise.all(
+        notificationIds.map(id =>
+          fetch(`/api/notifications/${id}`, { method: 'DELETE' })
+        )
+      );
+    } catch (error) {
+      console.error('[NotificationDemo] Failed to clear notifications:', error);
+    }
   };
 
   return (
