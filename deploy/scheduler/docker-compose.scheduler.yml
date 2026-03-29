@@ -1,0 +1,153 @@
+# ============================================
+# AgentScheduler Docker Compose
+# 调度器 + Redis + 可选监控
+# ============================================
+
+version: '3.8'
+
+services:
+  # ==========================================
+  # 调度器服务
+  # ==========================================
+  scheduler:
+    build:
+      context: ../..
+      dockerfile: deploy/scheduler/Dockerfile.scheduler
+      target: runtime
+    image: 7zi/scheduler:latest
+    container_name: 7zi-scheduler
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      # 基础配置
+      - NODE_ENV=production
+      - PORT=3001
+      - SCHEDULER_HOST=0.0.0.0
+      
+      # Redis 配置
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PREFIX=scheduler:
+      
+      # 调度器配置
+      - SCHEDULER_AUTO_START=true
+      - SCHEDULER_INTERVAL=30000
+      - SCHEDULER_MAX_BATCH_SIZE=10
+      
+      # 日志配置
+      - LOG_LEVEL=info
+      - LOG_FORMAT=json
+      
+      # 性能配置
+      - NODE_OPTIONS=--max-old-space-size=512
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - scheduler-network
+    volumes:
+      - scheduler-data:/app/data
+      - scheduler-logs:/app/logs
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+  # ==========================================
+  # Redis 服务 - 调度器状态存储
+  # ==========================================
+  redis:
+    image: redis:7-alpine
+    container_name: 7zi-scheduler-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --save 60 1000
+    volumes:
+      - redis-data:/data
+    networks:
+      - scheduler-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # ==========================================
+  # Prometheus 监控 (可选)
+  # ==========================================
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: 7zi-scheduler-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - scheduler-network
+    profiles:
+      - monitoring
+    depends_on:
+      - scheduler
+
+  # ==========================================
+  # Grafana 可视化 (可选)
+  # ==========================================
+  grafana:
+    image: grafana/grafana:10.2.2
+    container_name: 7zi-scheduler-grafana
+    restart: unless-stopped
+    ports:
+      - "3002:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana-dashboards:/etc/grafana/provisioning/dashboards:ro
+    networks:
+      - scheduler-network
+    profiles:
+      - monitoring
+    depends_on:
+      - prometheus
+
+# ==========================================
+# 网络配置
+# ==========================================
+networks:
+  scheduler-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+# ==========================================
+# 数据卷
+# ==========================================
+volumes:
+  scheduler-data:
+    driver: local
+  scheduler-logs:
+    driver: local
+  redis-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local

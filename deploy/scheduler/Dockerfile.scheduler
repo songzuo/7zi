@@ -1,0 +1,106 @@
+# ============================================
+# AgentScheduler Dockerfile
+# 独立调度器服务 - 基于 Node.js 18+
+# ============================================
+
+# ============================================
+# Stage 1: Builder (构建阶段)
+# ============================================
+FROM node:22-alpine AS builder
+
+WORKDIR /app
+
+# 安装构建工具
+RUN apk add --no-cache libc6-compat python3 make g++
+
+# 复制依赖描述文件
+COPY src/lib/agent-scheduler/package.json src/lib/agent-scheduler/pnpm-lock.yaml* ./ 2>/dev/null || true
+
+# 安装 pnpm
+RUN npm install -g pnpm
+
+# 安装依赖
+RUN pnpm install --frozen-lockfile 2>/dev/null || \
+    (echo "No pnpm-lock.yaml found, using npm" && \
+    COPY src/lib/agent-scheduler/package.json ./ && \
+    npm ci)
+
+# 复制调度器源代码
+COPY src/lib/agent-scheduler/ ./
+
+# 复制 TypeScript 配置
+COPY tsconfig.json ./
+
+# 构建 TypeScript
+RUN npm run build:scheduler 2>/dev/null || \
+    npx tsc --project . 2>/dev/null || \
+    echo "Using pre-built JS files"
+
+# ============================================
+# Stage 2: Runtime (运行阶段)
+# ============================================
+FROM node:22-alpine AS runtime
+
+WORKDIR /app
+
+# 安装运行时依赖
+RUN apk add --no-cache libc6-compat
+
+# 安装 pnpm
+RUN npm install -g pnpm
+
+# 创建非 root 用户
+RUN addgroup -g 1001 -S scheduler && \
+    adduser -S -D -H -u 1001 -s /sbin/nologin -G scheduler scheduler
+
+# 从构建阶段复制构建产物
+COPY --from=builder --chown=scheduler:scheduler /app/dist ./dist
+COPY --from=builder --chown=scheduler:scheduler /app/node_modules ./node_modules
+COPY --from=builder --chown=scheduler:scheduler /app/package.json ./
+
+# 切换到非 root 用户
+USER scheduler
+
+# 环境变量
+ENV NODE_ENV=production
+ENV PORT=3001
+ENV SCHEDULER_HOST=0.0.0.0
+
+# 暴露端口
+EXPOSE 3001
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD node -e "require('http').get('http://localhost:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+
+# 启动调度器服务
+CMD ["node", "dist/index.js"]
+
+# ============================================
+# Stage 3: Dev (开发阶段 - 可选)
+# ============================================
+FROM node:22-alpine AS dev
+
+WORKDIR /app
+
+# 安装开发工具
+RUN apk add --no-cache libc6-compat python3 make g++
+
+# 安装 pnpm
+RUN npm install -g pnpm
+
+# 复制调度器源代码
+COPY src/lib/agent-scheduler/ ./
+
+# 安装所有依赖（包括 devDependencies）
+RUN pnpm install 2>/dev/null || npm install
+
+# 环境变量
+ENV NODE_ENV=development
+ENV PORT=3001
+
+# 暴露端口
+EXPOSE 3001
+
+# 启动开发服务器（支持热重载）
+CMD ["pnpm", "dev"] || ["npm", "run", "dev"]

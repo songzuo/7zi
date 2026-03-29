@@ -1,0 +1,16 @@
+# ============================================
+# Grafana Dashboard - AgentScheduler
+# 自动化监控仪表板配置
+# ============================================
+
+apiVersion: 1
+
+providers:
+  - name: 'AgentScheduler Dashboards'
+    orgId: 1
+    folder: 'AgentScheduler'
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /etc/grafana/provisioning/dashboards
