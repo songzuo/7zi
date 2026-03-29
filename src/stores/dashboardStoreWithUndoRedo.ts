@@ -474,6 +474,8 @@ export const useDashboardStore = create<DashboardStateWithUndoRedo>()(
                   useDashboardStore.getState().removeMember(memberId);
                 }
               );
+            }).catch(() => {
+              // Silently ignore undo-redo recording errors
             });
           }
         },
