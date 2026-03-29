@@ -1,7 +1,7 @@
 # 📚 7zi Studio 文档中心索引
 
 **最后更新**: 2026-03-29
-**版本**: v1.3.0 ✅ 已发布 | v1.4.0 🚀 开发中
+**版本**: v1.3.0 ✅ 已发布 | v1.4.0 ✅ 已发布
 
 ---
 
@@ -13,7 +13,8 @@
 - **[QUICKSTART.md](./QUICKSTART.md)** - 5 分钟快速部署
 - **[DEPLOYMENT.md](./DEPLOYMENT.md)** - 部署文档（生产环境配置）
 - **[CHANGELOG.md](../CHANGELOG.md)** - 版本变更日志
-- **[v1.4.0 规划文档](../V140_PLANNING_20260329.md)** - v1.4.0 详细规划 🚀 开发中
+- **[WHATS_NEW_v1.4.0.md](./WHATS_NEW_v1.4.0.md)** - v1.4.0 功能展示 ⭐ 新发布
+- **[PROMOTION_MATERIALS_v140.md](./PROMOTION_MATERIALS_v140.md)** - v1.4.0 推广素材 ⭐ 新发布
 - **[v1.3.0 规划文档](./v1.3.0-PLANNING.md)** - v1.3.0 详细规划 ✅ 已完成
 - **[RELEASE_NOTES_v1.1.0.md](./RELEASE_NOTES_v1.1.0.md)** - v1.1.0 发布说明
 - **[RELEASE_NOTES_v1.0.9.md](./RELEASE_NOTES_v1.0.9.md)** - v1.0.9 发布说明
@@ -87,6 +88,8 @@
 ### 🔄 通信与集成
 
 - **[WEBSOCKET.md](./WEBSOCKET.md)** - WebSocket 实时通信 ⭐
+- **[WHATS_NEW_v1.4.0.md](./WHATS_NEW_v1.4.0.md)** - WebSocket v1.4.0 新功能展示 ⭐
+- **[ADR-0008: WebSocket 房间系统设计](./adr/0008-websocket-room-system-design.md)** - 多房间、权限控制、消息持久化
 - **[LOADING-SYSTEM.md](./LOADING-SYSTEM.md)** - 全局加载系统 ⭐ (v1.1.0 新增)
 - **[GITHUB-INTEGRATION.md](./GITHUB-INTEGRATION.md)** - GitHub 集成
 - **[GMAIL-INTEGRATION.md](./GMAIL-INTEGRATION.md)** - Gmail 集成

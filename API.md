@@ -4,10 +4,10 @@ Complete API documentation for the 7zi AI Team Management Platform.
 
 ---
 
-**Last Updated:** 2026-03-26
-**Version:** v1.2.0
+**Last Updated:** 2026-03-29
+**Version:** v1.4.0
 **Reviewer:** AI Documentation Agent
-**Total Endpoints:** 50+ (including 15+ RBAC endpoints)
+**Total Endpoints:** 60+ (including 15+ RBAC endpoints, 30+ WebSocket APIs)
 
 ---
 
@@ -3820,27 +3820,183 @@ Create a new task.
 #### Backup Jobs
 **Endpoint:** `GET /api/backup/jobs`
 
-### 🌐 WebSocket APIs
+### 🌐 WebSocket APIs (v1.4.0 增强)
 
-#### WebSocket Connection
+v1.4.0 引入了完整的 WebSocket 高级功能，包括房间管理、权限控制和消息持久化系统。
+
+#### HTTP 端点
+
+##### WebSocket Connection
 **Endpoint:** `GET /api/ws`
 
 Upgrade to WebSocket connection for real-time updates.
 
-#### WebSocket Stats
+##### WebSocket Stats
 **Endpoint:** `GET /api/ws/stats`
 
 Get WebSocket server statistics.
 
-#### Room Info
+##### Room Info
 **Endpoint:** `GET /api/ws/rooms/[roomId]`
 
 Get information about a specific room.
 
-#### Broadcast
+##### Broadcast
 **Endpoint:** `POST /api/ws/broadcast`
 
 Broadcast message to all connected clients.
+
+---
+
+#### WebSocket 高级功能 API
+
+以下是通过 WebSocket 消息发送的 API。
+
+##### 🏠 房间管理 API
+
+| 消息类型 | 描述 | 权限要求 |
+|---------|------|----------|
+| `createRoom` | 创建新房间 | 无 |
+| `joinRoom` | 加入房间 | `room:join` |
+| `leaveRoom` | 离开房间 | 无 |
+| `kickUser` | 踢出用户 | `room:kick` |
+| `banUser` | 封禁用户 | `room:ban` |
+| `unbanUser` | 解除封禁 | `room:ban` |
+| `changeUserRole` | 更改用户角色 | `room:manage` |
+| `inviteUser` | 邀请用户 | `room:invite` |
+| `updateCursor` | 更新光标位置 | 无 |
+| `updateTyping` | 更新输入状态 | 无 |
+
+**房间类型:** `task` | `project` | `chat` | `document` | `voice` | `video`
+
+**房间可见性:** `public` | `private` | `invite-only`
+
+**创建房间示例:**
+```json
+{
+  "type": "createRoom",
+  "roomId": "room_123",
+  "name": "Engineering Team",
+  "roomType": "project",
+  "documentId": "doc_456",
+  "visibility": "private",
+  "ownerId": "user_789",
+  "config": {
+    "maxParticipants": 50,
+    "messageHistoryEnabled": true,
+    "persistenceEnabled": true
+  }
+}
+```
+
+**加入房间示例:**
+```json
+{
+  "type": "joinRoom",
+  "roomId": "room_123",
+  "userId": "user_789",
+  "userName": "John Doe",
+  "role": "member"
+}
+```
+
+##### 🔐 权限控制 API
+
+| 消息类型 | 描述 | 权限要求 |
+|---------|------|----------|
+| `grantPermission` | 授予权限 | `admin:manage_permissions` |
+| `revokePermission` | 撤销权限 | `admin:manage_permissions` |
+| `checkPermission` | 检查权限 | 无 |
+| `getUserPermissions` | 获取用户权限 | 无 |
+
+**用户角色:** `owner` | `admin` | `moderator` | `member` | `guest`
+
+**权限类型:**
+- 房间权限: `room:join`, `room:leave`, `room:manage`, `room:view`, `room:invite`, `room:kick`, `room:ban`
+- 消息权限: `message:send`, `message:edit`, `message:delete`, `message:react`, `message:pin`, `message:view_history`
+- 管理权限: `admin:manage_users`, `admin:manage_rooms`, `admin:manage_permissions`, `admin:ban_users`, `admin:view_logs`, `admin:system_announce`
+
+**授予权限示例:**
+```json
+{
+  "type": "grantPermission",
+  "roomId": "room_123",
+  "userId": "user_789",
+  "targetUserId": "user_001",
+  "permission": "message:delete",
+  "expiresAt": "2026-04-29T12:00:00.000Z"
+}
+```
+
+##### 💬 消息持久化 API
+
+| 消息类型 | 描述 | 权限要求 |
+|---------|------|----------|
+| `storeMessage` | 存储消息 | `message:send` |
+| `editMessage` | 编辑消息 | `message:edit` |
+| `deleteMessage` | 删除消息 | `message:delete` |
+| `addReaction` | 添加反应 | `message:react` |
+| `removeReaction` | 移除反应 | `message:react` |
+| `pinMessage` | 置顶消息 | `message:pin` |
+| `unpinMessage` | 取消置顶 | `message:pin` |
+| `getHistory` | 获取历史 | `message:view_history` |
+| `getPinnedMessages` | 获取置顶消息 | `message:view_history` |
+
+**存储消息示例:**
+```json
+{
+  "type": "storeMessage",
+  "roomId": "room_123",
+  "message": {
+    "id": "msg_001",
+    "userId": "user_789",
+    "userName": "John Doe",
+    "type": "chat",
+    "content": "Hello everyone!",
+    "replyTo": "msg_000"
+  }
+}
+```
+
+**获取历史示例:**
+```json
+{
+  "type": "getHistory",
+  "roomId": "room_123",
+  "options": {
+    "limit": 50,
+    "offset": 0,
+    "includeDeleted": false,
+    "type": "chat"
+  }
+}
+```
+
+##### 📊 配置参数
+
+**房间配置 (RoomConfig):**
+| 参数 | 类型 | 默认值 | 描述 |
+|------|------|--------|------|
+| `maxParticipants` | number | 100 | 最大参与者数量 |
+| `messageHistoryEnabled` | boolean | true | 启用消息历史 |
+| `persistenceEnabled` | boolean | true | 启用持久化 |
+| `autoCleanupMinutes` | number | 30 | 自动清理时间(分钟) |
+| `allowGuests` | boolean | true | 允许访客 |
+| `enforcePermissions` | boolean | true | 强制权限检查 |
+
+**消息存储配置:**
+| 参数 | 默认值 | 描述 |
+|------|--------|------|
+| `maxHistorySize` | 10000 | 每房间最大消息数 |
+| `offlineMessageTTL` | 7天 | 离线消息存活时间 |
+| `maxOfflineMessages` | 100 | 每用户最大离线消息数 |
+
+##### 🔗 相关文档
+
+- [WebSocket v1.4.0 实现报告](./WEBSOCKET_V1.4.0_IMPLEMENTATION_REPORT.md)
+- [房间管理源码](./src/lib/websocket/rooms.ts)
+- [权限控制源码](./src/lib/websocket/permissions.ts)
+- [消息存储源码](./src/lib/websocket/message-store.ts)
 
 ### 🤖 A2A Registry APIs
 
@@ -4656,3 +4812,33 @@ export async function refreshDashboard(userId: string) {
 ---
 
 *Server Actions 新 API 文档添加于 v1.3.0 - 2026-03-27*
+
+---
+
+## 📝 v1.4.0 更新记录 (2026-03-29)
+
+### 新增内容
+
+- **WebSocket 高级功能 API**
+  - 房间管理 API: `createRoom`, `joinRoom`, `leaveRoom`, `kickUser`, `banUser`, `unbanUser`, `changeUserRole`, `inviteUser`, `updateCursor`, `updateTyping`
+  - 权限控制 API: `grantPermission`, `revokePermission`, `checkPermission`, `getUserPermissions`
+  - 消息持久化 API: `storeMessage`, `editMessage`, `deleteMessage`, `addReaction`, `removeReaction`, `pinMessage`, `unpinMessage`, `getHistory`, `getPinnedMessages`
+  
+- **配置参数文档**
+  - 房间配置 (RoomConfig)
+  - 消息存储配置
+
+- **权限系统文档**
+  - 5 种用户角色: owner, admin, moderator, member, guest
+  - 16 种权限: 房间权限(7种) + 消息权限(6种) + 管理权限(6种)
+
+### 相关文件
+
+- `src/lib/websocket/rooms.ts` - 房间管理实现 (847 行)
+- `src/lib/websocket/permissions.ts` - 权限控制实现 (436 行)
+- `src/lib/websocket/message-store.ts` - 消息存储实现 (623 行)
+- `tests/lib/websocket/` - 测试文件 (86 测试, 100% 通过)
+
+---
+
+*API 文档由 AI 主管维护 - 2026-03-29*

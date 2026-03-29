@@ -255,7 +255,7 @@ release/<version>            # 发布版本
 
 **关键变更**:
 ```markdown
-**技术栈**: Next.js 15.2.1 + React 19.2.4 + TypeScript 5
+**技术栈**: Next.js 16.2.1 + React 19.2.4 + TypeScript 5
 - App Router 结构符合 Next.js 15 最佳实践
 | Next.js 15 | ✅ 优秀 | 继续使用 |
 7zi-Frontend 项目整体架构设计合理，遵循 Next.js 15 最佳实践...

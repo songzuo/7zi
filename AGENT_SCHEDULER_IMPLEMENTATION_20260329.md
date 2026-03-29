@@ -411,14 +411,15 @@ function SchedulerDashboard() {
    - 性能测试
    - 并发测试
 
-3. **配置文件** (预计 0.5 天)
-   - `agent-capabilities.json` - Agent 能力配置
-   - `scheduling-rules.json` - 调度规则配置
+3. ~~**配置文件** (预计 0.5 天)~~ ✅ **已完成 (2026-03-29)**
+   - ✅ `agent-capabilities.json` - Agent 能力配置
+   - ✅ `scheduling-rules.json` - 调度规则配置
+   - ✅ `environment.ts` - 环境配置
 
-4. **监控和日志** (预计 0.5 天)
-   - 性能监控集成
-   - 日志记录
-   - 错误追踪
+4. ~~**部署文档** (预计 0.5 天)~~ ✅ **已完成 (2026-03-29)**
+   - ✅ `DEPLOY_AGENT_SCHEDULER.md` - 完整部署文档
+   - ✅ 环境要求、安装步骤、配置说明
+   - ✅ 部署脚本、监控和日志
 
 ### 优化建议
 
@@ -484,9 +485,10 @@ function SchedulerDashboard() {
 - [x] Zustand Store 状态管理
 - [x] 单元测试（52 个）
 - [x] 开发报告文档
+- [x] **配置文件** (2026-03-29 完成)
+- [x] **部署文档** (2026-03-29 完成)
 - [ ] Dashboard UI 组件（待实现）
 - [ ] 集成测试（待实现）
-- [ ] 配置文件（待实现）
 
 ---
 
