@@ -1,0 +1,63 @@
+{
+  "rooms": {
+    "title": "房间",
+    "subtitle": "管理您的 WebSocket 房间",
+    "create": "创建房间",
+    "join": "加入房间",
+    "leave": "离开",
+    "leaveConfirm": "确定要离开这个房间吗？",
+    "joined": "已加入",
+    "created": "已创建",
+    "filter": {
+      "all": "全部房间",
+      "myCreated": "我创建的房间",
+      "myJoined": "我加入的房间"
+    },
+    "roomName": "房间名称",
+    "roomDescription": "描述",
+    "roomPassword": "密码（可选）",
+    "members": "成员",
+    "online": "在线",
+    "lastActivity": "最后活动",
+    "creator": "创建者",
+    "createdAt": "创建时间",
+    "settings": "设置",
+    "invite": "邀请",
+    "inviteCode": "邀请码",
+    "inviteLink": "邀请链接",
+    "copy": "复制",
+    "copied": "已复制！",
+    "share": "分享",
+    "rename": "重命名",
+    "changePassword": "修改密码",
+    "transferOwnership": "转让所有权",
+    "transferTo": "转让给",
+    "transferConfirm": "确定要将所有权转让给 {{name}} 吗？",
+    "delete": "删除房间",
+    "deleteConfirm": "确定要删除这个房间吗？此操作无法撤销。",
+    "status": {
+      "connected": "已连接",
+      "connecting": "连接中",
+      "disconnected": "已断开",
+      "reconnecting": "重连中"
+    },
+    "messages": {
+      "createSuccess": "房间创建成功",
+      "joinSuccess": "成功加入房间",
+      "leaveSuccess": "成功离开房间",
+      "updateSuccess": "房间更新成功",
+      "deleteSuccess": "房间删除成功",
+      "error": "发生错误",
+      "invalidCode": "无效的邀请码",
+      "alreadyJoined": "您已经加入了这个房间",
+      "notInRoom": "您不在这个房间中"
+    },
+    "placeholder": {
+      "searchRooms": "搜索房间...",
+      "enterRoomName": "输入房间名称",
+      "enterDescription": "输入描述（可选）",
+      "enterPassword": "输入密码（可选）",
+      "enterInviteCode": "输入邀请码"
+    }
+  }
+}

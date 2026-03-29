@@ -670,4 +670,158 @@ describe('RoomManager', () => {
       expect(onRoomDestroyed).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('Invite System', () => {
+    it('should invite a user to a private room', () => {
+      manager.create({
+        id: roomId,
+        type: 'chat',
+        documentId: 'doc1',
+        visibility: 'private',
+        ownerId: user1Id,
+      });
+
+      manager.join(roomId, {
+        userId: user1Id,
+        userName: user1Name,
+      });
+
+      const result = manager.invite(roomId, user2Id, user1Id);
+
+      expect(result.success).toBe(true);
+      const room = manager.get(roomId);
+      expect(room?.invites.has(user2Id)).toBe(true);
+    });
+
+    it('should not invite user without permission', () => {
+      manager.create({
+        id: roomId,
+        type: 'chat',
+        documentId: 'doc1',
+        visibility: 'private',
+        ownerId: user1Id,
+      });
+
+      manager.join(roomId, {
+        userId: user1Id,
+        userName: user1Name,
+      });
+
+      manager.join(roomId, {
+        userId: user2Id,
+        userName: user2Name,
+      });
+
+      // user2 (member) tries to invite user3
+      const result = manager.invite(roomId, adminId, user2Id);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('No permission to invite users');
+    });
+
+    it('should allow invited user to join private room', () => {
+      manager.create({
+        id: roomId,
+        type: 'chat',
+        documentId: 'doc1',
+        visibility: 'private',
+        ownerId: user1Id,
+      });
+
+      manager.join(roomId, {
+        userId: user1Id,
+        userName: user1Name,
+      });
+
+      manager.invite(roomId, user2Id, user1Id);
+
+      const result = manager.join(roomId, {
+        userId: user2Id,
+        userName: user2Name,
+      });
+
+      expect(result.success).toBe(true);
+      expect(manager.getParticipants(roomId)).toHaveLength(2);
+    });
+
+    it('should not invite user to non-existent room', () => {
+      const result = manager.invite('nonexistent-room', user2Id, user1Id);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Room not found');
+    });
+
+    it('should allow owner to invite users', () => {
+      manager.create({
+        id: roomId,
+        type: 'chat',
+        documentId: 'doc1',
+        visibility: 'private',
+        ownerId: user1Id,
+      });
+
+      manager.join(roomId, {
+        userId: user1Id,
+        userName: user1Name,
+      });
+
+      // Owner invites multiple users
+      const result1 = manager.invite(roomId, user2Id, user1Id);
+      const result2 = manager.invite(roomId, adminId, user1Id);
+
+      expect(result1.success).toBe(true);
+      expect(result2.success).toBe(true);
+
+      const room = manager.get(roomId);
+      expect(room?.invites.size).toBe(2);
+    });
+
+    it('should handle multiple invites gracefully', () => {
+      manager.create({
+        id: roomId,
+        type: 'chat',
+        documentId: 'doc1',
+        visibility: 'private',
+        ownerId: user1Id,
+      });
+
+      manager.join(roomId, {
+        userId: user1Id,
+        userName: user1Name,
+      });
+
+      // Invite same user twice
+      const result1 = manager.invite(roomId, user2Id, user1Id);
+      const result2 = manager.invite(roomId, user2Id, user1Id);
+
+      expect(result1.success).toBe(true);
+      expect(result2.success).toBe(true);
+
+      const room = manager.get(roomId);
+      expect(room?.invites.size).toBe(1);
+    });
+
+    it('should allow admins to invite users', () => {
+      manager.create({
+        id: roomId,
+        type: 'chat',
+        documentId: 'doc1',
+        visibility: 'private',
+        ownerId: user1Id,
+      });
+
+      manager.join(roomId, {
+        userId: user1Id,
+        userName: user1Name,
+      });
+
+      // User with admin permissions (owner automatically has admin permissions)
+      // Owner invites another user
+      const result = manager.invite(roomId, user2Id, user1Id);
+
+      expect(result.success).toBe(true);
+      const room = manager.get(roomId);
+      expect(room?.invites.has(user2Id)).toBe(true);
+    });
+  });
 });

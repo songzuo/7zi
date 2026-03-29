@@ -113,6 +113,6 @@ export interface AlertStats {
   alertsByLevel: Record<AlertLevel, number>;
   alertsByMetric: Record<string, number>;
   acknowledgedCount: number;
-  resolvedCount;
+  resolvedCount: number;
   avgResponseTime: number;
 }

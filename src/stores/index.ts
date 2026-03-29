@@ -130,3 +130,26 @@ export type {
   SidebarState,
   FormDraft,
 } from './uiStore';
+
+// ============================================================================
+// Permission Store
+// ============================================================================
+export {
+  usePermissionStore,
+  usePermissions,
+  useRoles,
+  useUserId,
+  usePermissionLoading,
+  usePermissionError,
+  usePermissionInitialized,
+  useIsAdmin,
+  useIsManagerOrAdmin,
+  useIsMemberOrHigher,
+  useIsGuest,
+  usePermissionActions,
+  usePermissionHelpers,
+} from './permissionStore';
+
+export type {
+  PermissionState,
+} from './permissionStore';

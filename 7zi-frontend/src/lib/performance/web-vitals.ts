@@ -135,7 +135,7 @@ export class WebVitalsMonitor {
   private handleMetric(name: keyof WebVitalsMetrics, metric: Metric): void {
     this.metrics[name] = metric.value;
 
-    const threshold = this.config.reportThresholds[name];
+    const threshold = (this.config.reportThresholds as Record<string, number | undefined>)[name];
     if (threshold) {
       const rating = getRating(metric.value, threshold, name);
       metric.rating = rating;
@@ -178,7 +178,7 @@ export class WebVitalsMonitor {
    */
   isMetricGood(name: keyof WebVitalsMetrics): boolean {
     const value = this.metrics[name];
-    const threshold = this.config.reportThresholds[name];
+    const threshold = (this.config.reportThresholds as Record<string, number | undefined>)[name];
     if (!value || threshold === undefined) return false;
     return getRating(value, threshold, name) === 'good';
   }

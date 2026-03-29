@@ -12,11 +12,11 @@ import { renderHook, act } from '@testing-library/react';
 import { useWebSocketStore } from '../websocket-store';
 
 // Mock Socket.IO
-jest.mock('socket.io-client', () => ({
-  io: jest.fn(() => ({
-    on: jest.fn(),
-    emit: jest.fn(),
-    disconnect: jest.fn(),
+vi.mock('socket.io-client', () => ({
+  io: vi.fn(() => ({
+    on: vi.fn(),
+    emit: vi.fn(),
+    disconnect: vi.fn(),
   })),
 }));
 
@@ -160,7 +160,7 @@ describe('useWebSocketStore', () => {
     it('未连接时发送消息应该警告', () => {
       const { result } = renderHook(() => useWebSocketStore());
 
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation();
 
       act(() => {
         result.current.sendMessage('chat', { text: 'Hello' });

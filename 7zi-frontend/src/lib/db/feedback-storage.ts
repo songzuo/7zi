@@ -203,9 +203,9 @@ export class FeedbackStorage {
       this.createTables();
       this.createIndexes();
 
-      logger.log('[FeedbackStorage] Database initialized at:', this.dbPath);
+      logger.info('[FeedbackStorage] Database initialized at:', { path: this.dbPath });
     } catch (error) {
-      logger.error('[FeedbackStorage] Failed to initialize database:', error);
+      logger.error('[FeedbackStorage] Failed to initialize database:', error as Error);
       throw error;
     }
   }
@@ -399,7 +399,7 @@ export class FeedbackStorage {
         if (key === 'attachments' || key === 'tags') {
           updateValues[key] = JSON.stringify(value);
         } else {
-          updateValues[key] = value;
+          updateValues[key] = value as string | number;
         }
       }
     }

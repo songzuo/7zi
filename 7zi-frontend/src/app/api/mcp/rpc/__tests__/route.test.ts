@@ -25,7 +25,9 @@ describe('MCP JSON-RPC API Route', () => {
 
   describe('OPTIONS /api/mcp/rpc', () => {
     it('should handle CORS preflight request', async () => {
-      const response = await OPTIONS();
+      const url = new URL('http://localhost/api/mcp/rpc');
+      const request = new NextRequest(url, { method: 'OPTIONS' });
+      const response = await OPTIONS(request);
 
       expect(response.status).toBe(204);
       expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*');
@@ -40,7 +42,9 @@ describe('MCP JSON-RPC API Route', () => {
 
   describe('GET /api/mcp/rpc', () => {
     it('should return MCP server information', async () => {
-      const response = await GET();
+      const url = new URL('http://localhost/api/mcp/rpc');
+      const request = new NextRequest(url);
+      const response = await GET(request);
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -64,7 +68,7 @@ describe('MCP JSON-RPC API Route', () => {
   describe('POST /api/mcp/rpc', () => {
     it('should handle valid JSON-RPC request', async () => {
       const mockResponse = {
-        jsonrpc: '2.0',
+        jsonrpc: '2.0' as const,
         id: 1,
         result: {
           tools: [
@@ -99,7 +103,7 @@ describe('MCP JSON-RPC API Route', () => {
 
     it('should handle tools/list request', async () => {
       const mockResponse = {
-        jsonrpc: '2.0',
+        jsonrpc: '2.0' as const,
         id: 1,
         result: {
           tools: [
@@ -134,7 +138,7 @@ describe('MCP JSON-RPC API Route', () => {
 
     it('should handle tools/call request', async () => {
       const mockResponse = {
-        jsonrpc: '2.0',
+        jsonrpc: '2.0' as const,
         id: 2,
         result: {
           content: [
@@ -297,7 +301,7 @@ describe('MCP JSON-RPC API Route', () => {
 
     it('should handle error responses from MCP server', async () => {
       const mockResponse = {
-        jsonrpc: '2.0',
+        jsonrpc: '2.0' as const,
         id: 1,
         error: {
           code: -32601,
@@ -328,17 +332,17 @@ describe('MCP JSON-RPC API Route', () => {
     it('should handle batch requests', async () => {
       const mockResponse = [
         {
-          jsonrpc: '2.0',
+          jsonrpc: '2.0' as const,
           id: 1,
           result: { tools: [] },
         },
         {
-          jsonrpc: '2.0',
+          jsonrpc: '2.0' as const,
           id: 2,
           result: { content: [] },
         },
       ];
-      vi.mocked(mcpServer.handleRequest).mockResolvedValue(mockResponse);
+      vi.mocked(mcpServer.handleRequest).mockResolvedValue(mockResponse as unknown as Awaited<ReturnType<typeof mcpServer.handleRequest>>);
 
       const url = new URL('http://localhost/api/mcp/rpc');
       const request = new NextRequest(url, {

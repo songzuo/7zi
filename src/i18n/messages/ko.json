@@ -810,5 +810,53 @@
       "size": "파일 크기는 {size}MB를 초과할 수 없습니다",
       "type": "지원되지 않는 파일 형식입니다"
     }
+  },
+  "agentDashboard": {
+    "pageTitle": "AI 팀 스케줄러",
+    "activeTasks": "활성 작업",
+    "avgResponse": "평균 응답",
+    "completedToday": "오늘 완료",
+    "teamEfficiency": "팀 효율성",
+    "taskName": "작업 이름",
+    "assignee": "담당자",
+    "status": "상태",
+    "progress": "진행률",
+    "estimatedTime": "예상 시간",
+    "pending": "대기 중",
+    "inProgress": "진행 중",
+    "completed": "완료",
+    "failed": "실패",
+    "cancelled": "취소됨",
+    "allTasks": "전체",
+    "online": "온라인",
+    "busy": "바쁨",
+    "idle": "대기",
+    "offline": "오프라인",
+    "teamStatus": "팀 상태",
+    "taskList": "작업 목록",
+    "loading": "로딩 중...",
+    "noTasks": "작업 없음",
+    "noAgents": "에이전트 없음",
+    "priority": {
+      "urgent": "긴급",
+      "high": "높음",
+      "medium": "보통",
+      "low": "낮음"
+    },
+    "agentTypes": {
+      "strategic": "전략",
+      "research": "연구",
+      "technical": "기술",
+      "execution": "실행",
+      "operations": "운영",
+      "quality": "품질",
+      "creative": "크리에이티브",
+      "marketing": "마케팅",
+      "business": "비즈니스"
+    },
+    "refreshInterval": "실시간 업데이트",
+    "totalTasks": "총 작업",
+    "pendingTasks": "대기 중",
+    "completedTasks": "완료"
   }
 }

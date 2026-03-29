@@ -21,8 +21,9 @@ export type {
 // Config
 export { DEFAULT_MONITORING_CONFIG, ENV_SPECIFIC_CONFIG, getMonitoringConfig } from './config';
 
-// Storage
-export { MonitoringStorage, MemoryStorage, LocalStorageStorage } from './storage';
+// Storage - export type for interface when isolatedModules is enabled
+export type { MonitoringStorage } from './storage';
+export { MemoryStorage, LocalStorageStorage } from './storage';
 
 // Utilities
 export {

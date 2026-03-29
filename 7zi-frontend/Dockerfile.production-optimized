@@ -1,0 +1,90 @@
+# ============================================
+# 7zi-frontend Dockerfile (超优化版 v3)
+# 目标: <500MB 镜像大小
+# 优化策略:
+# 1. Alpine 基础镜像 (vs Debian slim)
+# 2. 多阶段构建 (4阶段优化)
+# 3. 最小化层数 (合并 RUN)
+# 4. 生产依赖仅安装
+# 5. 清理所有缓存
+# 6. 非 root 用户运行
+# ============================================
+
+# ============================================
+# Stage 1: Builder (构建阶段)
+# ============================================
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# 安装构建依赖
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    libc6-compat
+
+# 环境变量（单层）
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    NEXT_BUILD_ID=1 \
+    NODE_OPTIONS="--max-old-space-size=3072"
+
+# 复制依赖文件
+COPY package.json package-lock.json* ./
+
+# 安装所有依赖（包括 devDependencies 用于构建）
+RUN npm ci --legacy-peer-deps && \
+    npm cache clean --force
+
+# 复制源代码
+COPY . .
+
+# 构建应用
+# 使用 webpack 模式（稳定性）
+RUN npx next build --webpack
+
+# 清理构建缓存
+RUN rm -rf .next/cache
+
+# ============================================
+# Stage 2: Production Runner (运行阶段)
+# ============================================
+FROM node:20-alpine AS runner
+
+# 元数据
+LABEL maintainer="7zi.studio" \
+      description="7zi-frontend ultra-optimized image" \
+      version="1.3.0"
+
+WORKDIR /app
+
+# 环境变量（单层）
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    PORT=3000 \
+    HOSTNAME="0.0.0.0" \
+    NODE_OPTIONS="--max-old-space-size=512"
+
+# 创建非 root 用户
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 --gid nodejs nextjs && \
+    chown -R nextjs:nodejs /app
+
+# 复制构建产物（仅必需文件）
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# 切换用户
+USER nextjs
+
+# 暴露端口
+EXPOSE 3000
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+    CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+
+# 启动
+CMD ["node", "server.js"]

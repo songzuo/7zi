@@ -100,7 +100,7 @@ describe('AuditLogger', () => {
 
   describe('logPermissionChange', () => {
     it('should log permission grant', async () => {
-      const log = await AuditLogger.logPermissionChange('permission.granted', {
+      const log = await AuditLogger.logPermissionChange(AuditEventType.PERMISSION_GRANTED, {
         actorUserId: 'admin-1',
         actorUsername: 'admin',
         targetUserId: 'user-123',
@@ -119,7 +119,7 @@ describe('AuditLogger', () => {
     });
 
     it('should log permission revoke', async () => {
-      const log = await AuditLogger.logPermissionChange('permission.revoked', {
+      const log = await AuditLogger.logPermissionChange(AuditEventType.PERMISSION_REVOKED, {
         actorUserId: 'admin-1',
         actorUsername: 'admin',
         targetUserId: 'user-123',
@@ -137,7 +137,7 @@ describe('AuditLogger', () => {
 
   describe('logDataAccess', () => {
     it('should log data read', async () => {
-      const log = await AuditLogger.logDataAccess('data.read', {
+      const log = await AuditLogger.logDataAccess(AuditEventType.DATA_READ, {
         userId: 'user-123',
         username: 'testuser',
         ipAddress: '192.168.1.5',
@@ -157,7 +157,7 @@ describe('AuditLogger', () => {
     });
 
     it('should log data creation', async () => {
-      const log = await AuditLogger.logDataAccess('data.created', {
+      const log = await AuditLogger.logDataAccess(AuditEventType.DATA_CREATED, {
         userId: 'user-123',
         username: 'testuser',
         ipAddress: '192.168.1.5',
@@ -235,7 +235,7 @@ describe('AuditLogger', () => {
 
   describe('logSecurityEvent', () => {
     it('should log security violation', async () => {
-      const log = await AuditLogger.logSecurityEvent('security.violation', {
+      const log = await AuditLogger.logSecurityEvent(AuditEventType.SECURITY_VIOLATION, {
         userId: 'user-123',
         username: 'testuser',
         ipAddress: '192.168.1.8',
@@ -252,7 +252,7 @@ describe('AuditLogger', () => {
     });
 
     it('should log critical security alert', async () => {
-      const log = await AuditLogger.logSecurityEvent('security.alert', {
+      const log = await AuditLogger.logSecurityEvent(AuditEventType.SECURITY_ALERT, {
         ipAddress: '192.168.1.8',
         message: 'SQL injection attempt detected',
         details: { payload: "' OR '1'='1" },

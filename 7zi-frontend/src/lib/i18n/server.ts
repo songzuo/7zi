@@ -13,12 +13,14 @@ import zhAuth from '@/locales/zh/auth.json';
 import zhNavigation from '@/locales/zh/navigation.json';
 import zhErrors from '@/locales/zh/errors.json';
 import zhDashboard from '@/locales/zh/dashboard.json';
+import zhRooms from '@/locales/zh/rooms.json';
 
 import enCommon from '@/locales/en/common.json';
 import enAuth from '@/locales/en/auth.json';
 import enNavigation from '@/locales/en/navigation.json';
 import enErrors from '@/locales/en/errors.json';
 import enDashboard from '@/locales/en/dashboard.json';
+import enRooms from '@/locales/en/rooms.json';
 
 import { defaultLanguage, supportedLanguages } from './config';
 
@@ -30,6 +32,7 @@ const resources = {
     navigation: zhNavigation,
     errors: zhErrors,
     dashboard: zhDashboard,
+    rooms: zhRooms,
   },
   en: {
     common: enCommon,
@@ -37,6 +40,7 @@ const resources = {
     navigation: enNavigation,
     errors: enErrors,
     dashboard: enDashboard,
+    rooms: enRooms,
   },
 };
 
@@ -75,5 +79,5 @@ export async function createServerI18n(lng: string = defaultLanguage, ns: string
  */
 export async function getT(lng?: string, ns: string = 'common') {
   const i18nInstance = await createServerI18n(lng, ns);
-  return i18nInstance.getFixedT(lng, ns);
+  return i18nInstance.getFixedT(lng ?? 'en', ns);
 }

@@ -59,6 +59,30 @@
   - 公开组件
   - API 端点列表
 
+#### 📁 API 专项文档 (v1.4.0 新增)
+
+- **[api/ratings.md](./api/ratings.md)** - 评分 API 文档 ⭐
+  - 评分 CRUD 操作
+  - 多目标类型评分 (Agent、任务、功能、项目)
+  - 评分投票和统计
+
+- **[api/search.md](./api/search.md)** - 搜索 API 文档 ⭐
+  - 全局多实体搜索
+  - 高级过滤和模糊匹配
+  - 自动完成和搜索历史
+
+- **[api/websocket.md](./api/websocket.md)** - WebSocket API 文档 ⭐
+  - 房间系统管理
+  - 权限控制 (5 种角色、16 种权限)
+  - 消息持久化和离线队列
+
+- **[api/agent-scheduler.md](./api/agent-scheduler.md)** - Agent 调度系统 API ⭐
+  - Agent 注册和心跳
+  - 任务队列管理
+  - JSON-RPC 接口
+
+#### 其他 API 文档
+
 - **[API-REFERENCE.md](./API-REFERENCE.md)** - API 参考手册
 - **[REST-API.md](./REST-API.md)** - REST API 规范
 - **[API-ENDPOINTS.md](./API-ENDPOINTS.md)** - API 端点列表
@@ -373,21 +397,43 @@ docs/
 - ✅ 更新 CHANGELOG.md - 完整的 v1.3.0 变更日志
 - ✅ 创建 V140_PLANNING_20260329.md - v1.4.0 规划文档
 
-### v1.4.0 (2026-03-29 开始) 🚀 开发中
+### v1.4.0 (2026-03-29) ✅ 已发布 🎉
 
-#### 核心目标
+#### 核心成就
 
-1. **AI Agent 智能调度系统** - 基于 AGENTS.md 团队架构的智能任务调度
-2. **性能监控升级** - 智能异常检测、根因分析、性能预算控制
-3. **WebSocket 高级功能** - 房间管理、权限控制、消息持久化
-4. **React Compiler 可选功能** - 可选编译模式、兼容性验证
+- **🔄 WebSocket 高级功能** - 100% 完成
+  - 房间系统 - 多房间支持、公开/私有/仅邀请三种可见性
+  - 权限控制 - 5 种角色、16 种权限、RBAC 集成
+  - 消息持久化 - 内存存储、离线队列、历史查询
 
-#### Sprint 1 目标 (2026-03-29 ~ 2026-04-04)
+- **🤖 AI Agent 智能调度系统** - 100% 完成
+  - 能力模型 - 11 位 Agent 完整能力定义
+  - 调度算法 - 多维度评分 (能力 40% + 负载 30% + 性能 20% + 响应 10%)
+  - Dashboard UI - AgentStatusPanel、TaskQueueView、ScheduleHistory、ManualOverride
 
-- AI Agent 能力模型设计
-- 调度算法核心实现
-- Dashboard 开发
-- 性能监控异常检测启动
+- **📊 性能监控升级** - 60% 完成
+  - 异常检测 - Z-score 算法、基准线自动学习、98.91% 测试覆盖率
+
+- **⚡ React Compiler 可选功能** - 100% 完成
+  - 环境变量控制 - ENABLE_REACT_COMPILER、REACT_COMPILER_MODE
+  - 兼容性检测 - 自动扫描不兼容组件
+  - 回滚机制 - 一键禁用、零停机切换
+
+#### 代码统计
+
+- **WebSocket v1.4.0**: 1,906 行实现 + 86 测试 (100% 通过)
+- **Agent Scheduler**: 2,952 行核心 + 3,058 行 Dashboard + 122 测试 (100% 覆盖)
+- **Performance Monitor**: 271 行 + 76 测试 (98.91% 覆盖)
+- **总计**: 5,129 行代码 + 284 测试
+
+#### 相关文档
+
+- **[RELEASE_NOTES_v1.4.0.md](../RELEASE_NOTES_v1.4.0.md)** - 完整发布说明
+- **[WHATS_NEW_v1.4.0.md](./WHATS_NEW_v1.4.0.md)** - 功能展示
+- **[ADR-0006](./adr/0006-agent-scheduler-architecture.md)** - Agent Scheduler 架构决策
+- **[ADR-0007](./adr/0007-performance-monitoring-architecture.md)** - 性能监控架构决策
+- **[ADR-0008](./adr/0008-websocket-room-system-design.md)** - WebSocket 房间系统设计
+- **[ADR-0009](./adr/0009-react-compiler-adoption-strategy.md)** - React Compiler 采用策略
 
 ---
 

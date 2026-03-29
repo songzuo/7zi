@@ -1,0 +1,3202 @@
+src/proxy.ts:242 - proxy
+src/proxy.ts:286 - config
+src/app/error.tsx:3 - default
+src/app/global-error.tsx:9 - default
+src/app/layout.tsx:101 - default
+src/app/layout.tsx:23 - metadata
+src/app/manifest.ts:8 - default
+src/app/not-found.tsx:8 - default
+src/app/page.tsx:8 - default
+src/app/viewport.tsx:16 - viewport (used in module)
+src/app/viewport.tsx:60 - Viewport
+src/components/BugReportForm.tsx:33 - BugReportForm (used in module)
+src/components/BugReportForm.tsx:16 - BugReportData (used in module)
+src/components/BugReportForm.tsx:265 - default
+src/components/ErrorBoundary.tsx:198 - default
+src/components/ErrorBoundaryWrapper.tsx:182 - AsyncErrorBoundary
+src/components/ErrorBoundaryWrapper.tsx:193 - default
+src/components/ErrorDisplay.tsx:387 - default
+src/components/ExportPanel.tsx:51 - ExportPanel (used in module)
+src/components/ExportPanel.tsx:362 - QuickExportButton
+src/components/ExportPanel.tsx:22 - ExportPanelProps (used in module)
+src/components/ExportPanel.tsx:350 - QuickExportButtonProps (used in module)
+src/components/ExportPanel.tsx:428 - default
+src/components/FeedbackModal.tsx:41 - FeedbackModal (used in module)
+src/components/FeedbackModal.tsx:19 - FeedbackData (used in module)
+src/components/FeedbackModal.tsx:298 - default
+src/components/Footer.i18n.example.tsx:15 - FooterWithI18n
+src/components/Footer.tsx:160 - default
+src/components/GlobalLoader.tsx:236 - default
+src/components/index.ts:2 - ClientProviders
+src/components/index.ts:5 - ThemeProvider
+src/components/index.ts:5 - useTheme (used in module)
+src/components/index.ts:9 - useSettings
+src/components/index.ts:10 - useThemeFromSettings
+src/components/index.ts:11 - useLanguage
+src/components/index.ts:12 - useNotificationPreferences
+src/components/index.ts:13 - usePreferencesLoaded
+src/components/index.ts:14 - useDarkMode
+src/components/index.ts:17 - Theme
+src/components/index.ts:18 - Locale
+src/components/index.ts:19 - UserSettings
+src/components/index.ts:20 - NotificationPreferences
+src/components/index.ts:24 - SettingsPanel
+src/components/index.ts:24 - SettingsPanelCompact
+src/components/index.ts:25 - SettingsButton
+src/components/index.ts:28 - AIChatComponent
+src/components/index.ts:31 - GitHubActivity
+src/components/index.ts:32 - ProjectDashboard
+src/components/index.ts:35 - Hero3D
+src/components/index.ts:39 - Button
+src/components/index.ts:40 - ButtonGroup
+src/components/index.ts:41 - IconButton
+src/components/index.ts:42 - Tooltip
+src/components/index.ts:43 - SimpleTooltip
+src/components/index.ts:44 - withTooltip
+src/components/index.ts:45 - InfoTooltip
+src/components/index.ts:48 - ButtonProps
+src/components/index.ts:49 - ButtonGroupProps
+src/components/index.ts:50 - IconButtonProps
+src/components/index.ts:51 - ButtonVariant
+src/components/index.ts:52 - ButtonSize
+src/components/index.ts:53 - TooltipProps
+src/components/index.ts:54 - SimpleTooltipProps
+src/components/index.ts:55 - InfoTooltipProps
+src/components/index.ts:56 - TooltipPosition
+src/components/index.ts:57 - TooltipSize
+src/components/index.ts:61 - OptimizedImage
+src/components/index.ts:61 - ResponsiveImage
+src/components/index.ts:62 - OptimizedImageProps
+src/components/index.ts:66 - LazyAIChat
+src/components/index.ts:67 - LazyProjectDashboard
+src/components/index.ts:68 - LazyGitHubActivity
+src/components/index.ts:69 - LazyTaskBoard
+src/components/index.ts:70 - LazyRealtimeDashboard
+src/components/index.ts:71 - LazyTeamActivityTracker
+src/components/index.ts:72 - LazyAnalyticsDashboard
+src/components/index.ts:73 - LazyMetricsDashboard
+src/components/index.ts:74 - LazyKnowledgeLatticeScene
+src/components/index.ts:75 - LazyMeetingRoom
+src/components/index.ts:76 - LazyDataExportImport
+src/components/index.ts:77 - LazyGlobalSearch
+src/components/index.ts:78 - LazyAnimatedProgressBar
+src/components/index.ts:79 - LazyUserSettings
+src/components/index.ts:80 - LazyFeedbackManagement
+src/components/index.ts:81 - LazyEnhancedFeedbackModal
+src/components/index.ts:82 - LazyLazyLoadImage
+src/components/index.ts:83 - preloadComponents
+src/components/index.ts:87 - PerformanceMonitor
+src/components/index.ts:87 - ResourceTimingMonitor
+src/components/index.ts:90 - HealthDashboard
+src/components/index.ts:91 - HealthMetric
+src/components/index.ts:91 - HealthDashboardProps
+src/components/index.ts:95 - SkeletonText
+src/components/index.ts:96 - SkeletonAvatar
+src/components/index.ts:97 - SkeletonCard
+src/components/index.ts:98 - SkeletonList
+src/components/index.ts:99 - SkeletonTable
+src/components/index.ts:100 - SkeletonStatCard
+src/components/index.ts:101 - SkeletonNav
+src/components/index.ts:102 - SkeletonPage
+src/components/index.ts:106 - ErrorBoundary
+src/components/index.ts:107 - ErrorDisplay
+src/components/index.ts:108 - ErrorBoundaryWrapper
+src/components/index.ts:108 - withErrorBoundary
+src/components/index.ts:112 - createPageErrorBoundary
+src/components/index.ts:113 - HomeError
+src/components/index.ts:114 - AboutError
+src/components/index.ts:115 - BlogError
+src/components/index.ts:116 - BlogSlugError
+src/components/index.ts:117 - ContactError
+src/components/index.ts:118 - DashboardError
+src/components/index.ts:119 - TeamError
+src/components/index.ts:123 - ContactForm
+src/components/index.ts:124 - SocialLinks
+src/components/index.ts:127 - Analytics
+src/components/index.ts:130 - Footer
+src/components/index.ts:134 - StatusBadge
+src/components/index.ts:135 - ProgressBar
+src/components/index.ts:136 - Avatar
+src/components/index.ts:137 - Card
+src/components/index.ts:138 - EmptyState
+src/components/index.ts:139 - StatCard
+src/components/index.ts:140 - TimeAgo
+src/components/index.ts:146 - LoadingSpinner
+src/components/index.ts:148 - LoadingVariant
+src/components/index.ts:149 - LoadingSize
+src/components/index.ts:150 - LoadingColor
+src/components/index.ts:153 - GlobalLoader
+src/components/index.ts:153 - MinimalLoader
+src/components/index.ts:154 - LoaderVariant
+src/components/LazyComponents.tsx:427 - createLoadingFallback
+src/components/LazyComponents.tsx:439 - preloadComponent
+src/components/LoadingSpinner.tsx:262 - default
+src/components/MobileMenu.tsx:32 - MobileMenu (used in module)
+src/components/OptimizedImage.tsx:190 - default
+src/components/PageLoadingTemplate.tsx:89 - MinimalPageLoading
+src/components/PageLoadingTemplate.tsx:139 - TableLoading
+src/components/PageLoadingTemplate.tsx:166 - ListLoading
+src/components/PerformanceMonitor.tsx:215 - default
+src/components/PerformanceOptimizer.tsx:48 - PerformanceOptimizer (used in module)
+src/components/PerformanceOptimizer.tsx:191 - useComponentRenderTiming
+src/components/PerformanceOptimizer.tsx:229 - useApiTiming
+src/components/PerformanceOptimizer.tsx:266 - useResourceTiming
+src/components/SearchFilter.tsx:22 - SearchFilterProps (used in module)
+src/components/SEO.tsx:167 - ServiceSchema
+src/components/SEO.tsx:221 - ProductSchema
+src/components/SEO.tsx:285 - Breadcrumbs
+src/components/SEO.tsx:322 - CanonicalUrl
+src/components/SEO.tsx:344 - HreflangLinks
+src/components/SEO.tsx:362 - default
+src/components/SettingsButton.tsx:97 - default
+src/components/SettingsPanel.tsx:292 - default
+src/components/SocialLinks.tsx:142 - default
+src/components/StarRating.tsx:120 - default
+src/components/ThemeProvider.tsx:20 - Theme (used in module)
+src/data/projects.ts:259 - getProjectBySlug
+src/data/projects.ts:263 - getProjectsByCategory
+src/data/projects.ts:1 - Project (used in module)
+src/data/projects.ts:24 - projects (used in module)
+src/data/projects.ts:251 - categories
+src/hooks/index.ts:1 - useLocalStorage
+src/hooks/index.ts:1 - useSessionStorage
+src/hooks/index.ts:2 - useFetch
+src/hooks/index.ts:2 - useGitHub
+src/hooks/index.ts:3 - useGitHubData
+src/hooks/index.ts:3 - getMockCommits
+src/hooks/index.ts:3 - getMockStats
+src/hooks/index.ts:3 - getMockIssues
+src/hooks/index.ts:5 - useIntersectionObserver
+src/hooks/index.ts:6 - useAnimateOnView
+src/hooks/index.ts:7 - useCountUp
+src/hooks/index.ts:12 - useInView
+src/hooks/index.ts:13 - usePreload
+src/hooks/index.ts:14 - useDebounce
+src/hooks/index.ts:15 - useThrottle
+src/hooks/index.ts:16 - useDevicePerformance
+src/hooks/index.ts:17 - useUserPreferences
+src/hooks/index.ts:18 - useMounted
+src/hooks/index.ts:19 - useWindowSize
+src/hooks/index.ts:20 - useScrollPosition
+src/hooks/index.ts:28 - useWebSocket
+src/hooks/index.ts:28 - useTaskStatusUpdates
+src/hooks/index.ts:30 - WebSocketConfig
+src/hooks/index.ts:31 - WebSocketMessage
+src/hooks/index.ts:32 - TaskStatusUpdate
+src/hooks/index.ts:33 - WebSocketState
+src/hooks/index.ts:34 - UseWebSocketReturn
+src/hooks/useBatchSelection.ts:14 - UseBatchSelectionOptions (used in module)
+src/hooks/useBatchSelection.ts:25 - UseBatchSelectionReturn (used in module)
+src/hooks/useDashboardData.ts:6 - GitHubIssue (used in module)
+src/hooks/useDashboardData.ts:17 - GitHubCommit (used in module)
+src/hooks/useDashboardData.ts:27 - ActivityItem (used in module)
+src/hooks/useDebounce.ts:16 - useDebounce (used in module)
+src/hooks/useDebounce.ts:32 - default
+src/hooks/useNotifications.ts:19 - NotificationInput (used in module)
+src/hooks/useNotifications.ts:171 - default
+src/hooks/usePerformance.ts:267 - default
+src/hooks/useWebRTCMeeting.ts:18 - PeerConnection
+src/hooks/useWebRTCMeeting.ts:46 - UseWebRTCMeetingReturn (used in module)
+src/i18n/client.ts:11 - useLocale
+src/i18n/hooks.ts:69 - useCommonTranslations
+src/i18n/hooks.ts:76 - useNavTranslations
+src/i18n/hooks.ts:83 - useHomeTranslations
+src/i18n/hooks.ts:90 - useAboutTranslations
+src/i18n/hooks.ts:97 - useTeamTranslations
+src/i18n/hooks.ts:104 - usePortfolioTranslations
+src/i18n/hooks.ts:111 - useContactTranslations
+src/i18n/hooks.ts:118 - useDashboardTranslations
+src/i18n/hooks.ts:125 - useFooterTranslations
+src/i18n/hooks.ts:159 - getLocaleName
+src/i18n/hooks.ts:181 - getLocaleTag (used in module)
+src/i18n/hooks.ts:203 - isRTL (used in module)
+src/i18n/hooks.ts:217 - getTextDirection
+src/i18n/hooks.ts:230 - formatDate
+src/i18n/hooks.ts:246 - formatNumber
+src/i18n/hooks.ts:258 - formatCurrency
+src/i18n/hooks.ts:136 - TranslateFunction
+src/i18n/hooks.ts:141 - TranslateWithParams
+src/i18n/index.ts:1 - locales
+src/i18n/index.ts:1 - defaultLocale
+src/i18n/index.ts:1 - Locale
+src/i18n/index.ts:2 - getServerTranslations
+src/i18n/index.ts:2 - formatDate
+src/i18n/index.ts:2 - formatNumber
+src/i18n/request.ts:4 - default
+src/i18n/routing.ts:5 - routing (used in module)
+src/i18n/routing.ts:13 - redirect
+src/i18n/routing.ts:13 - getPathname
+src/lib/code-splitting.tsx:137 - preloadChunk (used in module)
+src/lib/code-splitting.tsx:146 - preloadThreeJS
+src/lib/code-splitting.tsx:194 - useLazyLoad
+src/lib/code-splitting.tsx:231 - getCodeSplittingBestPractices
+src/lib/code-splitting.tsx:34 - ThreeJS
+src/lib/code-splitting.tsx:45 - ReactThreeFiber
+src/lib/code-splitting.tsx:56 - ReactThreeDrei
+src/lib/code-splitting.tsx:71 - OptimizedKnowledgeLatticeScene
+src/lib/code-splitting.tsx:90 - ExcelJS
+src/lib/csv-export.ts:20 - CSVColumn (used in module)
+src/lib/data-import-export.ts:18 - ImportFormat (used in module)
+src/lib/data-import-export.ts:54 - ImportResult (used in module)
+src/lib/data-import-export.ts:81 - getTableSchema (used in module)
+src/lib/date-i18n.ts:13 - formatTimeAgo
+src/lib/date-i18n.ts:55 - formatDate
+src/lib/date-i18n.ts:77 - formatDateTime
+src/lib/date-i18n.ts:101 - formatTime
+src/lib/date-i18n.ts:120 - isToday
+src/lib/date-i18n.ts:134 - isYesterday
+src/lib/emailjs.ts:88 - getLocalizedSubject
+src/lib/error-handling.ts:15 - ApiErrorResponse
+src/lib/error-handling.ts:16 - ApiSuccessResponse
+src/lib/error-handling.ts:17 - ApiResponse
+src/lib/error-handling.ts:18 - ApiErrorCode
+src/lib/error-handling.ts:19 - STATUS_CODE_TO_ERROR
+src/lib/error-handling.ts:20 - ERROR_CODE_TO_STATUS
+src/lib/error-handling.ts:21 - ERROR_MESSAGES
+src/lib/error-handling.ts:24 - ApiError
+src/lib/error-handling.ts:25 - ValidationError
+src/lib/error-handling.ts:30 - success
+src/lib/error-handling.ts:31 - apiError
+src/lib/error-handling.ts:32 - badRequest
+src/lib/error-handling.ts:33 - unauthorized
+src/lib/error-handling.ts:34 - forbidden
+src/lib/error-handling.ts:35 - notFound
+src/lib/error-handling.ts:36 - conflict
+src/lib/error-handling.ts:37 - tooManyRequests
+src/lib/error-handling.ts:38 - internalError
+src/lib/error-handling.ts:39 - serviceUnavailable
+src/lib/error-handling.ts:42 - withApiHandler
+src/lib/error-handling.ts:43 - parseResponse
+src/lib/error-handling.ts:52 - logApiError
+src/lib/error-handling.ts:53 - withErrorLogging
+src/lib/error-handling.ts:56 - extractErrorInfo
+src/lib/error-handling.ts:57 - isRetryableError
+src/lib/error-handling.ts:58 - getRetryDelay
+src/lib/error-handling.ts:61 - ErrorLoggingMiddlewareConfig
+src/lib/error-handling.ts:70 - ComponentFallback
+src/lib/error-handling.ts:71 - withFallback
+src/lib/error-handling.ts:72 - FallbackVariant
+src/lib/error-handling.ts:73 - ComponentFallbackProps
+src/lib/error-handling.ts:78 - AsyncBoundary
+src/lib/error-handling.ts:79 - AsyncBoundaryFn
+src/lib/error-handling.ts:80 - AsyncStatus
+src/lib/error-handling.ts:81 - AsyncBoundaryProps
+src/lib/error-handling.ts:82 - AsyncBoundaryFnProps
+src/lib/error-handling.ts:83 - AsyncChildren
+src/lib/error-handling.ts:92 - CircuitBreaker
+src/lib/error-handling.ts:93 - CircuitBreakerRegistry
+src/lib/error-handling.ts:94 - CircuitBreakerOpenError
+src/lib/error-handling.ts:95 - withCircuitBreaker
+src/lib/error-handling.ts:96 - getCircuitBreaker
+src/lib/error-handling.ts:97 - CircuitState
+src/lib/error-handling.ts:98 - CircuitBreakerConfig
+src/lib/error-handling.ts:103 - DegradationManager
+src/lib/error-handling.ts:104 - FeatureFlags
+src/lib/error-handling.ts:105 - NetworkCondition
+src/lib/error-handling.ts:106 - withDegradation
+src/lib/error-handling.ts:107 - getDegradationManager
+src/lib/error-handling.ts:108 - getNetworkCondition
+src/lib/error-handling.ts:109 - DegradationStrategy
+src/lib/error-handling.ts:110 - DegradationConfig
+src/lib/error-handling.ts:111 - DegradationLevel
+src/lib/error-handling.ts:120 - TrackedError
+src/lib/error-handling.ts:121 - captureError
+src/lib/error-handling.ts:122 - withErrorTracking
+src/lib/error-handling.ts:123 - handleApiError
+src/lib/error-handling.ts:124 - addBreadcrumb
+src/lib/error-handling.ts:127 - ErrorCategory
+src/lib/error-handling.ts:128 - ErrorSeverity
+src/lib/error-handling.ts:137 - UIErrorBoundary
+src/lib/error-handling.ts:138 - PageErrorBoundary
+src/lib/error-handling.ts:139 - ErrorBoundaryProps
+src/lib/error-handling.ts:141 - ErrorDisplayProps
+src/lib/error-handling.ts:141 - ErrorVariant
+src/lib/error-handling.ts:141 - ErrorType
+src/lib/error-handling.ts:148 - logger
+src/lib/error-handling.ts:149 - log
+src/lib/error-handling.ts:153 - LogLevel
+src/lib/error-handling.ts:154 - LogEntry
+src/lib/error-handling.ts:158 - createAppError
+src/lib/error-handling.ts:159 - formatErrorMessage
+src/lib/error-handling.ts:160 - isNetworkError
+src/lib/error-handling.ts:161 - getErrorCode
+src/lib/error-handling.ts:162 - getUserFriendlyMessage
+src/lib/error-handling.ts:163 - AppError
+src/lib/error-handling.ts:167 - setupGlobalErrorHandlers
+src/lib/error-handling.ts:168 - setupBrowserErrorHandlers
+src/lib/error-handling.ts:172 - retry
+src/lib/error-handling.ts:173 - retryWithResult
+src/lib/error-handling.ts:174 - retryFetch
+src/lib/error-handling.ts:175 - RetryCache
+src/lib/error-handling.ts:176 - createRetryCache
+src/lib/error-handling.ts:179 - RetryOptions
+src/lib/error-handling.ts:180 - RetryResult
+src/lib/errors-i18n.ts:52 - getErrorMessage (used in module)
+src/lib/errors-i18n.ts:63 - getHttpErrorMessage
+src/lib/errors-i18n.ts:86 - getErrorFromException
+src/lib/errors-i18n.ts:123 - formatErrorMessage
+src/lib/errors-i18n.ts:160 - createErrorResponse
+src/lib/errors-i18n.ts:13 - I18nErrorType (used in module)
+src/lib/errors-i18n.ts:150 - ErrorResponse (used in module)
+src/lib/inp-optimization.ts:38 - runInIdle
+src/lib/inp-optimization.ts:84 - processBatch
+src/lib/inp-optimization.ts:107 - scheduleIdleTask
+src/lib/inp-optimization.ts:125 - cancelIdleTask
+src/lib/inp-optimization.ts:147 - addPassiveEventListener
+src/lib/inp-optimization.ts:168 - delegateEvent
+src/lib/inp-optimization.ts:197 - runInWorker
+src/lib/inp-optimization.ts:255 - optimizeInput
+src/lib/inp-optimization.ts:275 - optimizeClick
+src/lib/inp-optimization.ts:298 - optimizeAnimation
+src/lib/inp-optimization.ts:331 - batchDOMUpdates
+src/lib/inp-optimization.ts:346 - observeLongTasks (used in module)
+src/lib/inp-optimization.ts:371 - observeInteractionDelay (used in module)
+src/lib/inp-optimization.ts:19 - debounce (used in module)
+src/lib/inp-optimization.ts:20 - throttle (used in module)
+src/lib/lcp-optimization.ts:29 - preloadLCPImage
+src/lib/lcp-optimization.ts:52 - preloadCriticalFonts (used in module)
+src/lib/lcp-optimization.ts:73 - preconnectToCDNs (used in module)
+src/lib/lcp-optimization.ts:119 - optimizeLCPImage
+src/lib/lcp-optimization.ts:144 - generateSrcSet
+src/lib/lcp-optimization.ts:156 - generateSizes
+src/lib/lcp-optimization.ts:178 - optimizeFontDisplay (used in module)
+src/lib/lcp-optimization.ts:199 - preloadAndUseCriticalFont
+src/lib/lcp-optimization.ts:228 - inlineCriticalCSS
+src/lib/lcp-optimization.ts:241 - loadCSSAsync
+src/lib/lcp-optimization.ts:263 - deferNonCriticalJS
+src/lib/lcp-optimization.ts:275 - loadJSWhenIdle
+src/lib/lcp-optimization.ts:315 - markLCPElement
+src/lib/logger.mock.ts:8 - logger
+src/lib/notification-preferences.ts:89 - getUserPreferences (used in module)
+src/lib/notification-preferences.ts:113 - getUserPreferencesMap (used in module)
+src/lib/notification-preferences.ts:155 - updateUserPreferences (used in module)
+src/lib/notification-preferences.ts:220 - updateUserPreferencesFromMap (used in module)
+src/lib/notification-preferences.ts:239 - resetUserPreferences (used in module)
+src/lib/notification-preferences.ts:247 - deleteUserPreferences (used in module)
+src/lib/notification-preferences.ts:263 - shouldSendNotification (used in module)
+src/lib/notification-preferences.ts:290 - getUsersWithNotificationEnabled (used in module)
+src/lib/notification-preferences.ts:12 - NotificationChannel (used in module)
+src/lib/notification-preferences.ts:13 - NotificationEventType (used in module)
+src/lib/notification-preferences.ts:15 - NotificationPreference (used in module)
+src/lib/notification-preferences.ts:30 - NotificationPreferenceKey (used in module)
+src/lib/notification-preferences.ts:32 - NotificationPreferencesMap (used in module)
+src/lib/notification-preferences.ts:41 - DEFAULT_PREFERENCES (used in module)
+src/lib/notification-preferences.ts:354 - default
+src/lib/performance-monitor.ts:52 - getCoreWebVitals
+src/lib/performance-monitor.ts:101 - reportMetrics
+src/lib/performance-monitor.ts:116 - areAllMetricsGood
+src/lib/performance-monitor.ts:123 - getPerformanceSummary
+src/lib/performance-monitor.ts:186 - measureNavigationTiming
+src/lib/performance-monitor.ts:205 - getMemoryUsage
+src/lib/performance-monitor.ts:9 - PERFORMANCE_METRICS (used in module)
+src/lib/performance-monitor.ts:18 - MetricData (used in module)
+src/lib/performance-monitor.ts:162 - PerformanceMonitor
+src/lib/performance-optimization.ts:20 - RunInChunksOptions
+src/lib/permissions.ts:549 - hasPermission (used in module)
+src/lib/permissions.ts:566 - hasAnyPermission
+src/lib/permissions.ts:576 - hasAllPermissions
+src/lib/permissions.ts:586 - hasRole
+src/lib/permissions.ts:596 - canAccessResource
+src/lib/permissions.ts:637 - canExecuteAction (used in module)
+src/lib/permissions.ts:663 - getUserMaxLevel (used in module)
+src/lib/permissions.ts:674 - hasRoleLevel (used in module)
+src/lib/permissions.ts:716 - createPermissionMiddleware
+src/lib/permissions.ts:745 - RequirePermission
+src/lib/permissions.ts:789 - RequireAnyPermission
+src/lib/permissions.ts:833 - RequireAllPermissions
+src/lib/permissions.ts:873 - RequireRoleLevel
+src/lib/permissions.ts:906 - createUserWithRoles
+src/lib/permissions.ts:924 - parsePermission
+src/lib/permissions.ts:935 - buildPermission
+src/lib/permissions.ts:945 - getPermissionDescription
+src/lib/permissions.ts:953 - isValidPermission
+src/lib/permissions.ts:78 - PermissionDefinition (used in module)
+src/lib/permissions.ts:90 - RoleDefinition (used in module)
+src/lib/permissions.ts:102 - ResourceAccessRule
+src/lib/permissions.ts:112 - PermissionCheckResult (used in module)
+src/lib/permissions.ts:122 - PermissionContext (used in module)
+src/lib/permissions.ts:137 - SYSTEM_PERMISSIONS (used in module)
+src/lib/permissions.ts:294 - SUPER_ADMIN_ROLE (used in module)
+src/lib/permissions.ts:306 - ADMIN_ROLE (used in module)
+src/lib/permissions.ts:331 - TEAM_LEADER_ROLE (used in module)
+src/lib/permissions.ts:351 - DEVELOPER_ROLE (used in module)
+src/lib/permissions.ts:368 - USER_ROLE (used in module)
+src/lib/permissions.ts:384 - GUEST_ROLE (used in module)
+src/lib/permissions.ts:398 - SYSTEM_ROLES (used in module)
+src/lib/permissions.ts:414 - PermissionManager (used in module)
+src/lib/permissions.ts:532 - permissionManager (used in module)
+src/lib/permissions.ts:541 - UserWithRoles (used in module)
+src/lib/permissions.ts:685 - PermissionDeniedError (used in module)
+src/lib/permissions.ts:699 - ApiContext (used in module)
+src/lib/permissions.ts:706 - PermissionMiddlewareOptions (used in module)
+src/lib/react-19-examples.tsx:401 - LargeListExample (used in module)
+src/lib/react-19-examples.tsx:402 - StateUpdateExample (used in module)
+src/lib/react-19-examples.tsx:403 - CombinedExample (used in module)
+src/lib/react-19-examples.tsx:404 - OptimizedList (used in module)
+src/lib/react-19-examples.tsx:405 - DataTable (used in module)
+src/lib/search-filter.test.ts:245 - runAllTests (used in module)
+src/lib/theme-enhanced.ts:12 - isSystemDark (used in module)
+src/lib/theme-enhanced.ts:20 - listenSystemThemeChange
+src/lib/theme-enhanced.ts:39 - getEffectiveTheme (used in module)
+src/lib/theme-enhanced.ts:49 - applyTheme
+src/lib/theme-enhanced.ts:70 - enableThemeTransition
+src/lib/theme-enhanced.ts:93 - getImageFilter
+src/lib/theme-enhanced.ts:104 - getChartColors
+src/lib/theme-enhanced.ts:117 - preventThemeFlash
+src/lib/theme-enhanced.ts:7 - Theme (used in module)
+src/lib/theme-script-inline.ts:13 - getThemeScriptInline
+src/lib/threejs-optimize.tsx:183 - useLazyLoad3D (used in module)
+src/lib/threejs-optimize.tsx:215 - getThreeJSBundleAdvice (used in module)
+src/lib/threejs-optimize.tsx:234 - disposeThreeJSResources (used in module)
+src/lib/threejs-optimize.tsx:21 - ThreeJSComponentProps
+src/lib/threejs-optimize.tsx:25 - ThreeJSComponentOptions (used in module)
+src/lib/threejs-optimize.tsx:52 - LazyKnowledgeLatticeScene (used in module)
+src/lib/threejs-optimize.tsx:172 - preloadManager (used in module)
+src/lib/threejs-optimize.tsx:263 - default
+src/lib/timing.ts:18 - TimingMark
+src/lib/timing.ts:25 - TimingMeasure
+src/lib/timing.ts:33 - TimingEntry
+src/lib/timing.ts:461 - default
+src/lib/user-preferences.ts:14 - UserPreferences (used in module)
+src/lib/user-preferences.ts:113 - UseUserPreferencesReturn (used in module)
+src/lib/utils.deepClone.test-light.ts:46 - runDeepClonePerformanceTests (used in module)
+src/lib/utils.deepClone.test.ts:62 - runDeepClonePerformanceTests (used in module)
+src/lib/utils.ts:30 - debounce
+src/lib/utils.ts:30 - throttle
+src/lib/utils.ts:30 - memoize
+src/lib/utils.ts:30 - sleep
+src/lib/utils.ts:68 - isInViewport
+src/lib/utils.ts:69 - scrollToElement
+src/lib/utils.ts:70 - addEventListener
+src/lib/utils.ts:71 - getElementById
+src/lib/utils.ts:72 - querySelector
+src/lib/utils.ts:73 - querySelectorAll
+src/lib/utils.ts:74 - debounceDOM
+src/lib/utils.ts:75 - throttleDOM
+src/lib/utils.ts:76 - observeIntersection
+src/lib/utils.ts:77 - observeResize
+src/lib/utils.ts:78 - addClassWithDelay
+src/lib/utils.ts:79 - toggleClass
+src/lib/utils.ts:80 - hasAllClasses
+src/lib/utils.ts:81 - hasAnyClass
+src/lib/utils.ts:82 - getComputedStyleValue
+src/lib/utils.ts:90 - downloadFile
+src/lib/utils.ts:92 - updateQueryParams
+src/lib/utils.ts:97 - optimizeImageUrl
+src/lib/utils.ts:97 - preloadResources
+src/lib/utils.ts:97 - lazyLoadComponent
+src/lib/utils.ts:114 - formatTimeAgo
+src/lib/utils.ts:115 - formatDate
+src/lib/utils.ts:116 - formatDateTime
+src/lib/utils.ts:117 - isToday
+src/lib/utils.ts:118 - isYesterday
+src/lib/web-vitals-db.ts:583 - closeWebVitalsDB
+src/lib/web-vitals-db.ts:17 - WebVitalMetric (used in module)
+src/lib/web-vitals-db.ts:42 - WebVitalStats
+src/lib/web-vitals-db.ts:54 - AggregateStats (used in module)
+src/lib/web-vitals-db.ts:590 - default
+src/middleware/auth.ts:82 - authenticateRequest
+src/middleware/auth.ts:134 - withUserAuth (used in module)
+src/middleware/auth.ts:135 - withPermissions
+src/middleware/auth.ts:136 - withAnyPermission
+src/middleware/auth.ts:137 - withRole
+src/middleware/auth.ts:138 - withAnyRole
+src/middleware/auth.ts:139 - withAdmin
+src/middleware/auth.ts:140 - withManagerOrAdmin
+src/middleware/auth.ts:141 - withOptionalAuth
+src/middleware/auth.ts:142 - RBACUserContext
+src/middleware/index.ts:140 - withPublicApiSecurity
+src/middleware/index.ts:157 - withInternalApiSecurity
+src/middleware/index.ts:38 - createCorsMiddleware
+src/middleware/index.ts:39 - corsPolicies
+src/middleware/index.ts:40 - createCorsErrorResponse
+src/middleware/index.ts:41 - getEnvironmentOrigins
+src/middleware/index.ts:42 - CorsConfig (used in module)
+src/middleware/index.ts:50 - createCsrfMiddleware
+src/middleware/index.ts:51 - createCsrfErrorResponse
+src/middleware/index.ts:52 - validateRequestCsrf
+src/middleware/index.ts:53 - generateCsrfToken
+src/middleware/index.ts:54 - CsrfProtectionConfig (used in module)
+src/middleware/index.ts:62 - withSmartRateLimit
+src/middleware/index.ts:63 - getRateLimitStatus
+src/middleware/index.ts:64 - clearRateLimit
+src/middleware/index.ts:65 - clearAllRateLimits
+src/middleware/index.ts:66 - getRateLimitStats
+src/middleware/index.ts:67 - performPeriodicCleanup
+src/middleware/index.ts:68 - startPeriodicCleanup
+src/middleware/index.ts:69 - stopPeriodicCleanup
+src/middleware/index.ts:70 - RateLimitEntry
+src/middleware/index.ts:71 - RateLimitConfig (used in module)
+src/middleware/index.ts:78 - ApiPerformanceCollector
+src/middleware/index.ts:79 - apiPerformanceCollector
+src/middleware/index.ts:80 - withApiPerformanceTracking
+src/middleware/index.ts:81 - getApiPerformanceReport
+src/middleware/index.ts:82 - clearApiPerformanceData
+src/middleware/index.ts:83 - ApiPerformanceData
+src/middleware/index.ts:84 - ApiPerformanceMetrics
+src/middleware/index.ts:91 - withMonitoring
+src/middleware/index.ts:92 - withGETMonitoring
+src/middleware/index.ts:93 - withPOSTMonitoring
+src/middleware/index.ts:94 - withPUTMonitoring
+src/middleware/index.ts:95 - withDELETEMonitoring
+src/middleware/index.ts:96 - getMonitoringStats
+src/middleware/index.ts:97 - resetMonitoringStats
+src/middleware/index.ts:98 - MonitoringOptions
+src/middleware/index.ts:99 - MonitoringStats
+src/middleware/index.ts:106 - getQueryMetrics
+src/middleware/index.ts:107 - getQueryMetricsSummary
+src/middleware/index.ts:108 - QueryMetrics
+src/stores/dashboardStore.ts:28 - AIMember
+src/stores/dashboardStoreWithUndoRedo.ts:17 - DashboardState (used in module)
+src/stores/dashboardStoreWithUndoRedo.ts:45 - DashboardStateWithUndoRedo (used in module)
+src/stores/dashboardStoreWithUndoRedo.ts:60 - ActivityItem (used in module)
+src/stores/dashboardStoreWithUndoRedo.ts:302 - useDashboardStore (used in module)
+src/stores/dashboardStoreWithUndoRedo.ts:508 - useMembers
+src/stores/dashboardStoreWithUndoRedo.ts:513 - useIssues
+src/stores/dashboardStoreWithUndoRedo.ts:518 - useActivities
+src/stores/dashboardStoreWithUndoRedo.ts:523 - useDashboardLoading
+src/stores/dashboardStoreWithUndoRedo.ts:528 - useDashboardError
+src/stores/dashboardStoreWithUndoRedo.ts:533 - useLastUpdated
+src/stores/dashboardStoreWithUndoRedo.ts:538 - useDashboardStats
+src/stores/dashboardStoreWithUndoRedo.ts:552 - useMembersByStatus
+src/stores/dashboardStoreWithUndoRedo.ts:563 - useMember
+src/stores/dashboardStoreWithUndoRedo.ts:573 - useDashboardUndoRedo
+src/stores/dashboardStoreWithUndoRedo.ts:589 - getDashboardSnapshot
+src/stores/dashboardStoreWithUndoRedo.ts:594 - setDashboardConfig
+src/stores/dashboardStoreWithUndoRedo.ts:601 - refreshDashboardData
+src/stores/index.ts:10 - useDashboardStore
+src/stores/index.ts:11 - useMembers
+src/stores/index.ts:12 - useIssues
+src/stores/index.ts:13 - useActivities
+src/stores/index.ts:14 - useDashboardLoading
+src/stores/index.ts:15 - useDashboardError
+src/stores/index.ts:16 - useLastUpdated
+src/stores/index.ts:17 - useDashboardStats
+src/stores/index.ts:18 - useMembersByStatus
+src/stores/index.ts:19 - useMember
+src/stores/index.ts:20 - getDashboardSnapshot
+src/stores/index.ts:21 - setDashboardConfig
+src/stores/index.ts:22 - refreshDashboardData
+src/stores/index.ts:26 - ActivityItem
+src/stores/index.ts:27 - DashboardStats
+src/stores/index.ts:34 - useWalletStore
+src/stores/index.ts:35 - useWalletBalance
+src/stores/index.ts:36 - useWallets
+src/stores/index.ts:37 - useTransactionHistory
+src/stores/index.ts:41 - AgentWallet
+src/stores/index.ts:42 - Transaction
+src/stores/index.ts:43 - TransferRequest
+src/stores/index.ts:44 - TransferResult
+src/stores/index.ts:45 - WalletConfig
+src/stores/index.ts:52 - usePreferencesStore
+src/stores/index.ts:53 - useSettings
+src/stores/index.ts:54 - useTheme
+src/stores/index.ts:55 - useLanguage
+src/stores/index.ts:56 - useNotificationPreferences
+src/stores/index.ts:57 - usePreferencesLoaded
+src/stores/index.ts:58 - useDarkMode
+src/stores/index.ts:59 - getSettings
+src/stores/index.ts:60 - setPreferencesTheme
+src/stores/index.ts:61 - toggleTheme
+src/stores/index.ts:62 - setPreferencesLanguage
+src/stores/index.ts:66 - Theme
+src/stores/index.ts:67 - NotificationPreferences
+src/stores/index.ts:68 - UserSettings
+src/stores/index.ts:75 - useFilterStore
+src/stores/index.ts:76 - useFilters
+src/stores/index.ts:77 - useSort
+src/stores/index.ts:78 - usePagination
+src/stores/index.ts:79 - useFilterConfig
+src/stores/index.ts:80 - useFilterActions
+src/stores/index.ts:81 - useSearchActions
+src/stores/index.ts:82 - useSortActions
+src/stores/index.ts:83 - usePaginationActions
+src/stores/index.ts:84 - useHasActiveFilters
+src/stores/index.ts:85 - useTotalPages
+src/stores/index.ts:86 - getFilterConfigExport
+src/stores/index.ts:87 - setFilterConfigExport
+src/stores/index.ts:91 - FilterOperator
+src/stores/index.ts:92 - FilterCondition
+src/stores/index.ts:93 - SortDirection
+src/stores/index.ts:94 - SortCondition
+src/stores/index.ts:95 - PaginationState
+src/stores/index.ts:96 - FiltersState
+src/stores/index.ts:97 - FilterConfig
+src/stores/index.ts:104 - useUIStore
+src/stores/index.ts:105 - useSidebar
+src/stores/index.ts:106 - useActiveModal
+src/stores/index.ts:107 - useToasts
+src/stores/index.ts:108 - useToastCount
+src/stores/index.ts:109 - useGlobalLoading
+src/stores/index.ts:110 - useFormDraft
+src/stores/index.ts:111 - useHasFormDraft
+src/stores/index.ts:112 - useModalActions
+src/stores/index.ts:113 - useToastActions
+src/stores/index.ts:114 - useLoadingActions
+src/stores/index.ts:115 - useFormDraftActions
+src/stores/index.ts:116 - useHasOpenModal
+src/stores/index.ts:117 - useHasToasts
+src/stores/index.ts:118 - useToastsByType
+src/stores/index.ts:119 - toast
+src/stores/index.ts:120 - openModal
+src/stores/index.ts:121 - closeModal
+src/stores/index.ts:122 - setGlobalLoading
+src/stores/index.ts:126 - Toast
+src/stores/index.ts:127 - ToastType
+src/stores/index.ts:128 - ToastPriority
+src/stores/index.ts:129 - Modal
+src/stores/index.ts:130 - SidebarState
+src/stores/index.ts:131 - FormDraft
+src/stores/walletStore.ts:38 - TransactionType (used in module)
+src/stores/walletStore.ts:39 - TransactionStatus (used in module)
+src/styles/classes.ts:10 - inputBaseClasses
+src/styles/classes.ts:19 - inputErrorClasses
+src/styles/classes.ts:23 - labelClasses
+src/styles/classes.ts:29 - errorMessageClasses
+src/styles/classes.ts:37 - buttonPrimaryClasses
+src/styles/classes.ts:46 - buttonSecondaryClasses
+src/styles/classes.ts:55 - buttonGhostClasses
+src/styles/classes.ts:66 - cardBaseClasses
+src/styles/classes.ts:72 - cardHoverClasses
+src/styles/classes.ts:81 - badgeBaseClasses
+src/styles/classes.ts:90 - gradientPrimary
+src/styles/classes.ts:94 - gradientSecondary
+src/styles/classes.ts:103 - textGradientClasses
+src/styles/classes.ts:112 - fadeInClasses
+src/styles/classes.ts:116 - slideInClasses
+src/test/setup-db-mock.ts:84 - getMockDatabase
+src/test/setup-db-mock.ts:123 - mockTableData
+src/test/setup-db-mock.ts:142 - mockAuthData
+src/test/setup-db-mock.ts:178 - mockPerformanceAnalyzer
+src/test/setup-db-mock.ts:209 - mockTokenData
+src/test/setup-db-mock.ts:239 - mockDatabaseError
+src/test/setup-db-mock.ts:258 - useMockDatabase
+src/test/test-env.ts:46 - TEST_CONFIG
+src/test/test-utils.tsx:28 - createTestWrapper (used in module)
+src/test/vi-mocks.ts:938 - insertTestRow
+src/test/vi-mocks.ts:950 - clearAllTables (used in module)
+src/test/vi-mocks.ts:959 - clearTable
+src/test/vi-mocks.ts:968 - getMockDb
+src/types/browser-extensions.d.ts:79 - hasWebKitAudioContext
+src/types/browser-extensions.d.ts:86 - hasNavigatorStandalone
+src/types/browser-extensions.d.ts:93 - hasNavigatorConnection
+src/types/browser-extensions.d.ts:100 - getAudioContext
+src/types/browser-extensions.d.ts:14 - WindowWithWebKitAudioContext (used in module)
+src/types/browser-extensions.d.ts:21 - NavigatorWithStandalone (used in module)
+src/types/browser-extensions.d.ts:28 - WindowWithDebugVars
+src/types/browser-extensions.d.ts:50 - NetworkConnection (used in module)
+src/types/browser-extensions.d.ts:68 - NavigatorWithConnection (used in module)
+src/types/feedback.ts:90 - Attachment (used in module)
+src/types/feedback.ts:103 - FeedbackStats (used in module)
+src/types/index.ts:10 - GitHubIssue
+src/types/index.ts:23 - GitHubCommit
+src/types/index.ts:33 - GitHubStats
+src/types/index.ts:43 - ActivityType
+src/types/index.ts:45 - ActivityItem
+src/types/index.ts:61 - MemberStatus
+src/types/index.ts:63 - StatusConfig
+src/types/index.ts:69 - STATUS_CONFIG
+src/types/index.ts:101 - ProjectStatus
+src/types/index.ts:103 - PROJECT_STATUS_CONFIG
+src/types/index.ts:122 - ACTIVITY_TYPE_CONFIG
+src/types/index.ts:154 - BaseComponentProps
+src/types/index.ts:158 - LoadingProps
+src/types/index.ts:162 - ErrorProps
+src/types/index.ts:18 - TransactionType
+src/types/index.ts:23 - TransactionStatus
+src/types/index.ts:28 - WalletConfig
+src/types/index.ts:46 - AgentWallet
+src/types/index.ts:72 - Transaction
+src/types/index.ts:106 - TransferRequest
+src/types/index.ts:118 - TransferResult
+src/types/index.ts:131 - DEFAULT_WALLET_CONFIG
+src/types/index.ts:143 - TRANSACTION_TYPE_CONFIG
+src/types/index.ts:174 - TRANSACTION_STATUS_CONFIG
+src/types/index.ts:15 - SearchTarget
+src/types/index.ts:20 - SearchConfig
+src/types/index.ts:46 - SearchResult
+src/types/index.ts:69 - FilterType
+src/types/index.ts:74 - FilterConfig
+src/types/index.ts:94 - FilterOption
+src/types/index.ts:112 - ActiveFilters
+src/types/index.ts:124 - SortDirection
+src/types/index.ts:129 - SortConfig
+src/types/index.ts:145 - TaskStatusFilter
+src/types/index.ts:150 - TaskPriorityFilter
+src/types/index.ts:155 - TaskLabelFilter
+src/types/index.ts:165 - TaskAssigneeFilter
+src/types/index.ts:179 - SearchFilterState
+src/types/index.ts:193 - SearchFilterResult
+src/types/index.ts:213 - IssueSearchFilterState
+src/types/index.ts:225 - ISSUE_FILTER_CONFIGS
+src/types/index.ts:256 - ISSUE_SORT_CONFIGS
+src/types/index.ts:94 - getStatusColor
+src/types/index.ts:101 - getStatusBgColor
+src/types/index.ts:14 - MemberCategory
+src/types/index.ts:20 - UnifiedTeamMember
+src/types/index.ts:52 - TeamMember
+src/types/index.ts:53 - AIMember
+src/types/index.ts:59 - MEMBER_STATUS_CONFIG
+src/types/message-sync.ts:10 - MessagePlatform (used in module)
+src/types/message-sync.ts:18 - MessageType (used in module)
+src/types/message-sync.ts:27 - MessageStatus (used in module)
+src/types/message-sync.ts:35 - SyncDirection (used in module)
+src/types/message-sync.ts:41 - SyncPriority (used in module)
+src/types/message-sync.ts:52 - Message (used in module)
+src/types/message-sync.ts:75 - SyncMessage
+src/types/message-sync.ts:86 - SyncAck
+src/types/message-sync.ts:94 - SyncBatch
+src/types/message-sync.ts:102 - SyncQuery
+src/types/message-sync.ts:114 - PlatformSyncState
+src/types/message-sync.ts:133 - SyncConfig
+src/types/message-sync.ts:150 - RoomSyncContext
+src/types/message-sync.ts:163 - SyncStatistics
+src/types/message-sync.ts:178 - MessageEvent
+src/types/message-sync.ts:185 - SyncEvent
+src/types/message-sync.ts:198 - PlatformEvent
+src/types/notifications.ts:139 - BulkNotificationAction
+src/types/performance.ts:11 - PerformanceMetrics (used in module)
+src/types/performance.ts:32 - MetricsHistory
+src/types/performance.ts:41 - AlertThreshold
+src/types/performance.ts:55 - PerformanceAlert (used in module)
+src/types/performance.ts:70 - PerformanceDashboardState
+src/types/performance.ts:83 - MetricsApiResponse
+src/types/performance.ts:90 - MetricsHistoryResponse
+src/types/voice-meeting.ts:11 - MeetingStatus (used in module)
+src/types/voice-meeting.ts:13 - ParticipantRole (used in module)
+src/types/voice-meeting.ts:15 - MeetingSettings (used in module)
+src/types/voice-meeting.ts:23 - CreateMeetingRequest
+src/types/voice-meeting.ts:30 - CreateMeetingResponse
+src/types/voice-meeting.ts:35 - JoinMeetingRequest
+src/types/voice-meeting.ts:40 - JoinMeetingResponse
+src/types/voice-meeting.ts:49 - Participant (used in module)
+src/types/voice-meeting.ts:63 - ParticipantState
+src/types/voice-meeting.ts:75 - Meeting (used in module)
+src/types/voice-meeting.ts:95 - RecordingStatus (used in module)
+src/types/voice-meeting.ts:97 - Recording
+src/types/voice-meeting.ts:111 - CreateRecordingRequest
+src/types/voice-meeting.ts:115 - UpdateRecordingRequest
+src/types/voice-meeting.ts:128 - WebRTCSignal
+src/types/voice-meeting.ts:135 - PeerConnection
+src/types/voice-meeting.ts:145 - MeetingRoom
+src/types/voice-meeting.ts:155 - JoinRoomPayload
+src/types/voice-meeting.ts:167 - OfferPayload
+src/types/voice-meeting.ts:173 - AnswerPayload
+src/types/voice-meeting.ts:179 - IceCandidatePayload
+src/types/voice-meeting.ts:189 - MeetingStatistics
+src/types/voice-meeting.ts:199 - ParticipantStatistics
+src/types/voice-meeting.ts:213 - MeetingErrorCode (used in module)
+src/types/voice-meeting.ts:224 - MeetingError
+src/types/voice-meeting.ts:234 - AudioConstraints (used in module)
+src/types/voice-meeting.ts:242 - AudioSettings
+src/types/voice-meeting.ts:252 - VoiceMeetingSocketEvent
+src/app/[locale]/error.tsx:3 - default
+src/app/[locale]/layout.tsx:89 - generateMetadata
+src/app/[locale]/layout.tsx:171 - default
+src/app/[locale]/not-found.tsx:11 - default
+src/app/[locale]/not-found.tsx:108 - dynamic
+src/app/[locale]/page.tsx:35 - generateMetadata
+src/app/[locale]/page.tsx:173 - default
+src/app/[locale]/viewport.tsx:16 - viewport (used in module)
+src/app/[locale]/viewport.tsx:60 - Viewport
+src/app/collaboration-demo/layout.tsx:8 - default
+src/app/collaboration-demo/layout.tsx:3 - metadata
+src/app/collaboration-demo/page.tsx:22 - default
+src/app/offline/page.tsx:7 - default
+src/app/sse-demo/page.tsx:11 - default
+src/app/test-error/page.tsx:22 - default
+src/app/test-error/page.tsx:20 - dynamic
+src/app/undo-redo-example/page.tsx:33 - default
+src/app/undo-redo-example/page.tsx:8 - dynamic
+src/components/analytics/DateRangePicker.tsx:177 - default
+src/components/analytics/ErrorBoundary.tsx:156 - withAnalyticsErrorBoundary
+src/components/analytics/FilterPanel.tsx:253 - default
+src/components/analytics/index.ts:6 - MetricCard
+src/components/analytics/index.ts:7 - MetricCardProps
+src/components/analytics/index.ts:9 - AnalyticsChart
+src/components/analytics/index.ts:10 - AnalyticsChartProps
+src/components/analytics/index.ts:12 - DateRangePicker
+src/components/analytics/index.ts:13 - DateRangePickerProps
+src/components/analytics/index.ts:15 - FilterPanel
+src/components/analytics/index.ts:16 - FilterPanelProps
+src/components/analytics/index.ts:18 - AnalyticsDashboard
+src/components/analytics/index.ts:19 - AnalyticsDashboardProps
+src/components/analytics/index.ts:22 - RealtimeConnectionStatus
+src/components/analytics/index.ts:23 - RealtimeConnectionStatusProps
+src/components/analytics/index.ts:25 - RealtimeTaskStatusChart
+src/components/analytics/index.ts:26 - RealtimeTaskStatusChartProps
+src/components/analytics/index.ts:28 - RealtimeTeamEfficiency
+src/components/analytics/index.ts:29 - RealtimeTeamEfficiencyProps
+src/components/analytics/index.ts:31 - RealtimeMetricsDashboard
+src/components/analytics/index.ts:32 - RealtimeMetricsDashboardProps
+src/components/analytics/index.ts:35 - PerformanceMetrics
+src/components/analytics/index.ts:36 - PerformanceMetricsProps
+src/components/analytics/index.ts:38 - RealTimeCharts
+src/components/analytics/index.ts:39 - RealTimeChartsProps
+src/components/analytics/index.ts:41 - PageLoadWaterfall
+src/components/analytics/index.ts:42 - PageLoadWaterfallProps
+src/components/analytics/index.ts:44 - PerformanceMonitoringDashboard
+src/components/analytics/index.ts:45 - PerformanceMonitoringDashboardProps
+src/components/analytics/MetricCard.tsx:258 - default
+src/components/analytics/PageLoadWaterfall.tsx:18 - ResourceTiming (used in module)
+src/components/analytics/PageLoadWaterfall.tsx:27 - CriticalTiming (used in module)
+src/components/analytics/PageLoadWaterfall.tsx:399 - default
+src/components/analytics/PerformanceMetrics.tsx:297 - default
+src/components/analytics/PerformanceMonitoringDashboard.tsx:280 - default
+src/components/analytics/RealTimeCharts.tsx:291 - default
+src/components/analytics/RealtimeConnectionStatus.tsx:271 - default
+src/components/analytics/RealtimeMetricsDashboard.tsx:222 - default
+src/components/analytics/RealtimeTaskStatusChart.tsx:300 - default
+src/components/analytics/RealtimeTeamEfficiency.tsx:401 - default
+src/components/analytics/Skeleton.tsx:15 - Skeleton (used in module)
+src/components/analytics/VirtualizedList.tsx:19 - VirtualizedList (used in module)
+src/components/analytics/VirtualizedList.tsx:92 - VirtualizedTable
+src/components/analytics/VirtualizedList.tsx:153 - useVirtualContainerHeight
+src/components/chat/index.ts:10 - teamMembers
+src/components/chat/index.ts:10 - quickActions
+src/components/chat/index.ts:10 - initialMessage
+src/components/chat/index.ts:13 - ChatMessage
+src/components/chat/index.ts:13 - TypingIndicator
+src/components/chat/index.ts:14 - ChatInput
+src/components/chat/index.ts:15 - QuickActions
+src/components/chat/index.ts:16 - TeamStatusPanel
+src/components/chat/index.ts:17 - MemberSelector
+src/components/chat/index.ts:18 - ChatHeader
+src/components/chat/index.ts:21 - useChat
+src/components/chat/index.ts:11 - Message
+src/components/chat/index.ts:25 - TeamMember
+src/components/chat/index.ts:25 - MemberStatus
+src/components/chat/index.ts:30 - ChatProps
+src/components/chat/index.ts:40 - ChatMessageProps
+src/components/chat/index.ts:50 - ChatInputProps
+src/components/chat/index.ts:64 - QuickActionsProps
+src/components/chat/index.ts:74 - TeamStatusPanelProps
+src/components/chat/index.ts:82 - MemberSelectorProps
+src/components/collaboration/RemoteSelection.tsx:35 - RemoteSelectionHighlight (used in module)
+src/components/collaboration/RemoteSelection.tsx:77 - SelectionHighlighter
+src/components/collaboration/RemoteSelection.tsx:169 - CursorWithSelection (used in module)
+src/components/collaboration/RemoteSelection.tsx:237 - SelectionManager
+src/components/collaboration/RemoteSelection.tsx:16 - RemoteSelection (used in module)
+src/components/collaboration/RemoteSelection.tsx:300 - default
+src/components/collaboration/TaskEditor.tsx:28 - TaskEditor (used in module)
+src/components/collaboration/TaskEditor.tsx:313 - TaskEditorPage
+src/components/collaboration/TaskEditor.tsx:337 - default
+src/components/collaboration/TaskEditorCollaboration.tsx:35 - TaskEditorCollaboration (used in module)
+src/components/collaboration/TaskEditorCollaboration.tsx:279 - CollaborationToggle
+src/components/collaboration/TaskEditorCollaboration.tsx:313 - CollaborationStatus
+src/components/collaboration/TaskEditorCollaboration.tsx:330 - default
+src/components/dashboard/ActivityChart.tsx:42 - ActivityChartProps (used in module)
+src/components/dashboard/ActivityChart.tsx:105 - ActivityChart (used in module)
+src/components/dashboard/RevenueChart.tsx:39 - RevenueChartProps (used in module)
+src/components/dashboard/RevenueChart.tsx:96 - RevenueChart (used in module)
+src/components/dashboard/StatsCard.tsx:17 - StatsCardProps (used in module)
+src/components/dashboard/StatsCard.tsx:85 - StatsCard (used in module)
+src/components/dashboard/StatsCard.tsx:174 - default
+src/components/DataExportImport/index.tsx:67 - DataExportImport (used in module)
+src/components/errors/index.tsx:21 - createPageErrorBoundary (used in module)
+src/components/errors/index.tsx:42 - HomeError
+src/components/errors/index.tsx:43 - AboutError
+src/components/errors/index.tsx:44 - BlogError
+src/components/errors/index.tsx:45 - BlogSlugError
+src/components/errors/index.tsx:46 - ContactError
+src/components/errors/index.tsx:47 - DashboardError
+src/components/errors/index.tsx:48 - TeamError
+src/components/errors/index.tsx:51 - UnauthorizedPage
+src/components/errors/index.tsx:52 - ForbiddenPage
+src/components/examples/StoreUsageExample.tsx:21 - StoreUsageExample
+src/components/examples/TaskStatusExample.tsx:13 - TaskStatusExample
+src/components/fallbacks/AsyncBoundary.tsx:369 - default
+src/components/fallbacks/ComponentFallback.tsx:276 - default
+src/components/form/FormField.tsx:270 - default
+src/components/form/index.ts:4 - FormField
+src/components/form/index.ts:4 - Input
+src/components/form/index.ts:4 - Textarea
+src/components/form/index.ts:4 - Select
+src/components/form/index.ts:4 - Checkbox
+src/components/form/index.ts:5 - FormFieldProps
+src/components/form/index.ts:5 - InputProps
+src/components/form/index.ts:5 - TextareaProps
+src/components/form/index.ts:5 - SelectProps
+src/components/form/index.ts:5 - CheckboxProps
+src/components/form/index.ts:6 - useFieldValidation
+src/components/form/index.ts:7 - UseFieldValidationOptions
+src/components/form/index.ts:7 - UseFieldValidationReturn
+src/components/form/index.ts:7 - ValidationFunction
+src/components/form/index.ts:7 - ValidateOn
+src/components/form/useFieldValidation.ts:10 - InputElementType (used in module)
+src/components/form/useFieldValidation.ts:180 - default
+src/components/knowledge-lattice/KnowledgeLattice3D.tsx:27 - default
+src/components/mobile/SwipeContainer.tsx:24 - SwipeContainer
+src/components/mobile/SwipeContainer.tsx:117 - HorizontalScroll
+src/components/mobile/SwipeContainer.tsx:166 - PullToRefresh
+src/components/multimodal/AudioTranscriptionResult.tsx:17 - AudioTranscriptionResult
+src/components/multimodal/AudioUploader.tsx:27 - AudioUploader
+src/components/multimodal/ImageAnalysisResult.tsx:16 - ImageAnalysisResult
+src/components/multimodal/ImageUploader.tsx:21 - ImageUploader
+src/components/NotificationCenter/index.ts:6 - NotificationCenter
+src/components/NotificationCenter/index.ts:6 - NotificationCenterDefault
+src/components/NotificationCenter/index.ts:7 - NotificationItem
+src/components/NotificationCenter/index.ts:8 - NotificationBadge
+src/components/NotificationCenter/index.ts:11 - Notification
+src/components/NotificationCenter/index.ts:12 - NotificationCenterProps
+src/components/NotificationCenter/index.ts:13 - NotificationItemProps
+src/components/NotificationCenter/index.ts:14 - NotificationBadgeProps
+src/components/NotificationCenter/index.ts:15 - NotificationType
+src/components/NotificationCenter/index.ts:16 - NotificationPriority
+src/components/NotificationCenter/NotificationBadge.tsx:30 - default
+src/components/NotificationCenter/NotificationFilter.tsx:49 - NotificationFilter (used in module)
+src/components/NotificationCenter/NotificationFilter.tsx:118 - default
+src/components/NotificationCenter/NotificationItem.tsx:180 - default
+src/components/rating/index.ts:5 - StarRating
+src/components/rating/index.ts:6 - StarRatingProps
+src/components/rating/index.ts:8 - ReviewItem
+src/components/rating/index.ts:9 - ReviewItemProps
+src/components/rating/index.ts:11 - RatingList
+src/components/rating/index.ts:12 - RatingListProps
+src/components/rating/index.ts:14 - RatingStats
+src/components/rating/index.ts:15 - RatingStatsProps
+src/components/rating/RatingList.tsx:389 - default
+src/components/rating/RatingStats.tsx:156 - default
+src/components/rating/ReviewItem.tsx:322 - default
+src/components/rating/StarRating.tsx:164 - default
+src/components/realtime/index.ts:7 - NotificationPanel
+src/components/realtime/index.ts:8 - NotificationPanelProps
+src/components/realtime/index.ts:10 - TaskUpdateFeed
+src/components/realtime/index.ts:11 - TaskUpdateFeedProps
+src/components/realtime/index.ts:14 - useRealtimeNotifications
+src/components/realtime/index.ts:15 - useTaskRealtime
+src/components/realtime/index.ts:19 - RealtimeNotification
+src/components/realtime/index.ts:20 - RealtimeNotificationType
+src/components/realtime/index.ts:21 - NotificationCategory
+src/components/realtime/NotificationPanel.tsx:367 - default
+src/components/realtime/TaskUpdateFeed.tsx:29 - TaskUpdateItem (used in module)
+src/components/realtime/TaskUpdateFeed.tsx:178 - default
+src/components/search/SearchHistory.tsx:27 - SearchHistory
+src/components/search/SearchResults.tsx:31 - SearchResults
+src/components/settings/NotificationPreferences.tsx:15 - NotificationChannel (used in module)
+src/components/settings/NotificationPreferences.tsx:16 - NotificationEventType (used in module)
+src/components/settings/NotificationPreferences.tsx:18 - NotificationPreferencesMap (used in module)
+src/components/settings/NotificationPreferences.tsx:27 - CHANNEL_INFO (used in module)
+src/components/settings/NotificationPreferences.tsx:34 - EVENT_INFO (used in module)
+src/components/settings/NotificationPreferences.tsx:509 - default
+src/components/shared/index.ts:23 - StatusBadge
+src/components/shared/index.ts:53 - ProgressBar
+src/components/shared/index.ts:102 - Avatar
+src/components/shared/index.ts:160 - Card
+src/components/shared/index.ts:198 - EmptyState
+src/components/shared/index.ts:227 - StatCard
+src/components/shared/index.ts:258 - TimeAgo
+src/components/team/index.ts:10 - TeamMember
+src/components/team/index.ts:17 - CollaborationItem
+src/components/team/index.ts:26 - TeamStats
+src/components/team/index.ts:32 - TeamMemberCategory
+src/components/team/index.ts:7 - TEAM_MEMBERS
+src/components/team/index.ts:21 - COLLABORATION_ITEMS
+src/components/team/index.ts:28 - BASE_URL
+src/components/team/index.ts:17 - TeamMemberCard
+src/components/team/index.ts:15 - CollaborationItemCard
+src/components/team/index.ts:18 - TeamHeroSection
+src/components/team/index.ts:54 - getTeamMemberTranslations
+src/components/team/index.ts:80 - getCollaborationTranslations
+src/components/team/index.ts:7 - TeamTranslations
+src/components/team/index.ts:40 - GetTranslationsFunction
+src/components/ui/Button.tsx:220 - default
+src/components/ui/index.ts:11 - Button
+src/components/ui/index.ts:12 - ButtonGroup
+src/components/ui/index.ts:13 - IconButton
+src/components/ui/index.ts:16 - ButtonProps
+src/components/ui/index.ts:17 - ButtonGroupProps
+src/components/ui/index.ts:18 - IconButtonProps
+src/components/ui/index.ts:19 - ButtonVariant
+src/components/ui/index.ts:20 - ButtonSize
+src/components/ui/index.ts:25 - Card
+src/components/ui/index.ts:26 - CardContent
+src/components/ui/index.ts:27 - CardHeader
+src/components/ui/index.ts:28 - CardTitle
+src/components/ui/index.ts:32 - Badge
+src/components/ui/index.ts:33 - BadgeProps
+src/components/ui/index.ts:36 - Input
+src/components/ui/index.ts:37 - InputProps
+src/components/ui/index.ts:38 - Select
+src/components/ui/index.ts:39 - SelectProps
+src/components/ui/index.ts:43 - Tooltip
+src/components/ui/index.ts:44 - SimpleTooltip
+src/components/ui/index.ts:45 - withTooltip
+src/components/ui/index.ts:46 - InfoTooltip
+src/components/ui/index.ts:49 - TooltipProps
+src/components/ui/index.ts:50 - SimpleTooltipProps
+src/components/ui/index.ts:51 - InfoTooltipProps
+src/components/ui/index.ts:52 - TooltipPosition
+src/components/ui/index.ts:53 - TooltipSize
+src/components/ui/ThemeSelector.tsx:235 - ThemeToggleCycle
+src/components/ui/Tooltip.tsx:270 - default
+src/components/undo-redo/HistoryViewer.tsx:25 - HistoryEntry (used in module)
+src/components/undo-redo/index.ts:7 - UndoRedo
+src/components/undo-redo/index.ts:8 - UndoRedoShortcuts
+src/components/undo-redo/index.ts:9 - UndoRedoProps
+src/components/undo-redo/index.ts:10 - UndoRedoShortcutsProps
+src/components/undo-redo/index.ts:14 - HistoryViewer
+src/components/undo-redo/index.ts:15 - HistoryMiniView
+src/components/undo-redo/index.ts:16 - HistoryViewerProps
+src/components/undo-redo/index.ts:17 - HistoryMiniViewProps
+src/components/UserProfile/index.ts:1 - default (used in module)
+src/components/UserProfile/index.ts:2 - UserProfile
+src/components/UserSettings/index.ts:7 - UserProfile
+src/components/UserSettings/index.ts:8 - SecuritySettings
+src/components/UserSettings/index.ts:9 - NotificationPreferences
+src/components/UserSettings/index.ts:10 - PrivacySettings
+src/components/UserSettings/index.ts:11 - FormErrors
+src/components/UserSettings/index.ts:12 - PasswordForm
+src/components/UserSettings/index.ts:13 - SaveStatus
+src/components/UserSettings/index.ts:14 - ThemeValue
+src/components/UserSettings/index.ts:15 - NavItem
+src/components/UserSettings/index.ts:20 - validateNickname
+src/components/UserSettings/index.ts:21 - validateBio
+src/components/UserSettings/index.ts:22 - validatePassword
+src/components/UserSettings/index.ts:23 - validateConfirmPassword
+src/components/UserSettings/index.ts:27 - ToggleSwitch
+src/components/UserSettings/index.ts:28 - ToggleSwitchProps
+src/components/UserSettings/index.ts:30 - SectionCard
+src/components/UserSettings/index.ts:31 - SectionCardProps
+src/components/UserSettings/index.ts:33 - AvatarUpload
+src/components/UserSettings/index.ts:34 - AvatarUploadProps
+src/components/UserSettings/index.ts:37 - UserSettingsPage
+src/components/UserSettings/index.ts:38 - default (used in module)
+src/components/websocket/WebSocketErrorBoundary.tsx:141 - withWebSocketErrorBoundary
+src/components/websocket/WebSocketErrorBoundary.tsx:24 - WebSocketErrorBoundary (used in module)
+src/components/websocket/WebSocketErrorBoundary.tsx:159 - default
+src/components/websocket/WebSocketStatusIndicator.tsx:142 - WebSocketStatusDot
+src/components/websocket/WebSocketStatusIndicator.tsx:12 - WebSocketStatusIndicatorProps (used in module)
+src/features/notifications/index.ts:6 - NotificationService
+src/features/notifications/index.ts:7 - notificationService
+src/features/notifications/index.ts:8 - NotificationSubscription
+src/features/notifications/index.ts:9 - NotificationFilter
+src/features/notifications/index.ts:25 - UserNotificationPreferences
+src/features/notifications/index.ts:41 - NotificationDeliveryOptions
+src/features/notifications/index.ts:52 - EnhancedNotificationService
+src/features/notifications/index.ts:574 - enhancedNotificationService
+src/features/notifications/index.ts:15 - NotificationStorage
+src/features/notifications/index.ts:594 - notificationStorage
+src/lib/a2a/executor.ts:22 - ExecutionEventBus (used in module)
+src/lib/a2a/message-queue.ts:8 - QueueListener (used in module)
+src/lib/a2a/task-store.ts:8 - TaskWithPriority (used in module)
+src/lib/a2a/task-store.ts:16 - TaskStore (used in module)
+src/lib/a2a/types.ts:23 - Part (used in module)
+src/lib/a2a/types.ts:63 - Skill (used in module)
+src/lib/a2a/types.ts:73 - AgentCapabilities (used in module)
+src/lib/a2a/types.ts:80 - SecurityScheme (used in module)
+src/lib/a2a/types.ts:121 - SendMessageConfiguration (used in module)
+src/lib/a2a/types.ts:155 - PushNotificationConfig (used in module)
+src/lib/a2a/types.ts:209 - JsonRpcBatchResponse
+src/lib/a2a/types.ts:271 - TaskWithPriority
+src/lib/agent/auth-service-optimized.ts:47 - generateApiKey (used in module)
+src/lib/agent/auth-service-optimized.ts:56 - hashApiKey (used in module)
+src/lib/agent/auth-service-optimized.ts:63 - validateApiKeyFormat
+src/lib/agent/auth-service-optimized.ts:70 - registerAgent
+src/lib/agent/auth-service-optimized.ts:104 - authenticateAgent
+src/lib/agent/auth-service-optimized.ts:143 - generateAgentToken (used in module)
+src/lib/agent/auth-service-optimized.ts:190 - verifyAgentToken
+src/lib/agent/auth-service-optimized.ts:215 - refreshAgentToken
+src/lib/agent/auth-service-optimized.ts:310 - hasPermission (used in module)
+src/lib/agent/auth-service-optimized.ts:328 - hasAnyPermission
+src/lib/agent/auth-service-optimized.ts:332 - hasAllPermissions
+src/lib/agent/index.ts:11 - generateApiKey
+src/lib/agent/index.ts:12 - hashApiKey
+src/lib/agent/index.ts:13 - validateApiKeyFormat
+src/lib/agent/index.ts:14 - registerAgent
+src/lib/agent/index.ts:15 - authenticateAgent
+src/lib/agent/index.ts:16 - generateAgentToken
+src/lib/agent/index.ts:17 - verifyAgentToken
+src/lib/agent/index.ts:18 - refreshAgentToken
+src/lib/agent/index.ts:19 - hasPermission
+src/lib/agent/index.ts:20 - hasAnyPermission
+src/lib/agent/index.ts:21 - hasAllPermissions
+src/lib/agent/index.ts:26 - initializeAgentTables
+src/lib/agent/index.ts:27 - createAgent
+src/lib/agent/index.ts:28 - getAgentById
+src/lib/agent/index.ts:29 - getAllAgents
+src/lib/agent/index.ts:30 - updateAgent
+src/lib/agent/index.ts:31 - updateAgentStatus
+src/lib/agent/index.ts:32 - deleteAgent
+src/lib/agent/index.ts:33 - updateAgentLastActive
+src/lib/agent/index.ts:34 - validateAgentApiKey
+src/lib/agent/index.ts:35 - mapRowToAgent
+src/lib/agent/index.ts:36 - getAgentDataAccessLog
+src/lib/agent/index.ts:37 - logDataAccess
+src/lib/agent/index.ts:42 - initializeWalletTables
+src/lib/agent/index.ts:43 - createWallet
+src/lib/agent/index.ts:44 - getWalletByAgentId
+src/lib/agent/index.ts:45 - getWalletBalance
+src/lib/agent/index.ts:46 - deposit
+src/lib/agent/index.ts:47 - withdraw
+src/lib/agent/index.ts:48 - transfer
+src/lib/agent/index.ts:49 - getTransactions
+src/lib/agent/index.ts:50 - getWalletStats
+src/lib/agent/index.ts:55 - withAgentAuth
+src/lib/agent/index.ts:56 - withPermissions
+src/lib/agent/index.ts:57 - withAnyPermission
+src/lib/agent/index.ts:58 - AgentContext
+src/lib/agent/index.ts:13 - AgentStatus
+src/lib/agent/index.ts:23 - AgentType
+src/lib/agent/index.ts:33 - AgentRole
+src/lib/agent/index.ts:51 - AgentProvider
+src/lib/agent/index.ts:64 - TransactionType
+src/lib/agent/index.ts:83 - WalletStatus
+src/lib/agent/index.ts:92 - TransactionStatus
+src/lib/agent/index.ts:102 - DataType
+src/lib/agent/index.ts:116 - DataAction
+src/lib/agent/index.ts:127 - WalletOperation
+src/lib/agent/index.ts:142 - Agent
+src/lib/agent/index.ts:164 - AgentMetadata
+src/lib/agent/index.ts:177 - AgentToken
+src/lib/agent/index.ts:196 - AgentAuthRequest
+src/lib/agent/index.ts:205 - AgentRegisterRequest
+src/lib/agent/index.ts:217 - AgentAuthResponse
+src/lib/agent/index.ts:229 - TokenRefreshRequest
+src/lib/agent/index.ts:236 - AgentDataAccess
+src/lib/agent/index.ts:249 - AgentDataRequest
+src/lib/agent/index.ts:262 - ApiAgentToken
+src/lib/agent/index.ts:272 - CreateAgentRequest
+src/lib/agent/index.ts:287 - UpdateAgentRequest
+src/lib/agent/index.ts:302 - WalletOperationRequest
+src/lib/agent/index.ts:317 - AgentWallet
+src/lib/agent/index.ts:331 - WalletTransaction
+src/lib/agent/index.ts:355 - AgentApiResponse
+src/lib/agent/index.ts:372 - ApiResponse
+src/lib/agent/index.ts:382 - PaginationRequest
+src/lib/agent/index.ts:392 - PaginatedResponse
+src/lib/agent/repository-optimized-v2.ts:167 - getAgentById (used in module)
+src/lib/agent/repository-optimized-v2.ts:187 - getAllAgents
+src/lib/agent/repository-optimized-v2.ts:222 - updateAgent (used in module)
+src/lib/agent/repository-optimized-v2.ts:288 - deleteAgent
+src/lib/agent/repository-optimized-v2.ts:301 - validateAgentApiKey
+src/lib/agent/repository-optimized-v2.ts:325 - createAgentToken (used in module)
+src/lib/agent/repository-optimized-v2.ts:372 - validateAgentToken
+src/lib/agent/repository-optimized-v2.ts:410 - refreshAgentToken
+src/lib/agent/repository-optimized-v2.ts:435 - revokeAgentToken
+src/lib/agent/repository-optimized-v2.ts:448 - logDataAccess
+src/lib/agent/repository-optimized-v2.ts:490 - getAgentDataAccessLog
+src/lib/agent/repository-optimized-v2.ts:557 - updateAgentStatus
+src/lib/agent/repository-optimized-v2.ts:564 - updateAgentLastActive
+src/lib/agent/repository-optimized.ts:187 - getAllAgents
+src/lib/agent/repository-optimized.ts:235 - getAgentsByIds
+src/lib/agent/repository-optimized.ts:250 - getAgentWithTokens
+src/lib/agent/repository-optimized.ts:305 - updateAgent
+src/lib/agent/repository-optimized.ts:375 - deleteAgent
+src/lib/agent/repository-optimized.ts:396 - getAgentStats
+src/lib/agent/repository-optimized.ts:469 - getAgentsWithWallets
+src/lib/agent/repository-optimized.ts:542 - validateAgentApiKey
+src/lib/agent/repository-optimized.ts:543 - createAgentToken
+src/lib/agent/repository-optimized.ts:544 - validateAgentToken
+src/lib/agent/repository-optimized.ts:545 - refreshAgentToken
+src/lib/agent/repository-optimized.ts:546 - revokeAgentToken
+src/lib/agent/repository-optimized.ts:547 - logDataAccess
+src/lib/agent/repository-optimized.ts:548 - getAgentDataAccessLog
+src/lib/agent/repository-optimized.ts:549 - updateAgentStatus
+src/lib/agent/repository-optimized.ts:550 - updateAgentLastActive
+src/lib/agent/repository-optimized.ts:13 - AgentStatus (used in module)
+src/lib/agent/repository-optimized.ts:23 - AgentType (used in module)
+src/lib/agent/repository-optimized.ts:33 - AgentRole
+src/lib/agent/repository-optimized.ts:51 - AgentProvider (used in module)
+src/lib/agent/repository-optimized.ts:64 - TransactionType
+src/lib/agent/repository-optimized.ts:83 - WalletStatus
+src/lib/agent/repository-optimized.ts:92 - TransactionStatus
+src/lib/agent/repository-optimized.ts:102 - DataType
+src/lib/agent/repository-optimized.ts:116 - DataAction
+src/lib/agent/repository-optimized.ts:127 - WalletOperation
+src/lib/agent/repository-optimized.ts:142 - Agent (used in module)
+src/lib/agent/repository-optimized.ts:164 - AgentMetadata
+src/lib/agent/repository-optimized.ts:177 - AgentToken (used in module)
+src/lib/agent/repository-optimized.ts:196 - AgentAuthRequest
+src/lib/agent/repository-optimized.ts:205 - AgentRegisterRequest
+src/lib/agent/repository-optimized.ts:217 - AgentAuthResponse
+src/lib/agent/repository-optimized.ts:229 - TokenRefreshRequest
+src/lib/agent/repository-optimized.ts:236 - AgentDataAccess
+src/lib/agent/repository-optimized.ts:249 - AgentDataRequest
+src/lib/agent/repository-optimized.ts:262 - ApiAgentToken
+src/lib/agent/repository-optimized.ts:272 - CreateAgentRequest (used in module)
+src/lib/agent/repository-optimized.ts:287 - UpdateAgentRequest (used in module)
+src/lib/agent/repository-optimized.ts:302 - WalletOperationRequest
+src/lib/agent/repository-optimized.ts:317 - AgentWallet
+src/lib/agent/repository-optimized.ts:331 - WalletTransaction
+src/lib/agent/repository-optimized.ts:355 - AgentApiResponse
+src/lib/agent/repository-optimized.ts:372 - ApiResponse
+src/lib/agent/repository-optimized.ts:382 - PaginationRequest
+src/lib/agent/repository-optimized.ts:392 - PaginatedResponse
+src/lib/agent/repository.ts:572 - getAgentStats
+src/lib/agent/wallet-repository-optimized-v2.ts:114 - getWalletByAgentId (used in module)
+src/lib/agent/wallet-repository-optimized-v2.ts:129 - getWalletById (used in module)
+src/lib/agent/wallet-repository-optimized-v2.ts:144 - getOrCreateWallet (used in module)
+src/lib/agent/wallet-repository-optimized-v2.ts:153 - getWalletBalance
+src/lib/agent/wallet-repository-optimized-v2.ts:292 - withdraw
+src/lib/agent/wallet-repository-optimized-v2.ts:331 - transfer
+src/lib/agent/wallet-repository-optimized-v2.ts:403 - consume
+src/lib/agent/wallet-repository-optimized-v2.ts:442 - reward
+src/lib/agent/wallet-repository-optimized-v2.ts:454 - refund
+src/lib/agent/wallet-repository-optimized-v2.ts:466 - freezeBalance
+src/lib/agent/wallet-repository-optimized-v2.ts:492 - unfreezeBalance
+src/lib/agent/wallet-repository-optimized-v2.ts:522 - getTransactions
+src/lib/agent/wallet-repository-optimized.ts:29 - initializeWalletTables (used in module)
+src/lib/agent/wallet-repository-optimized.ts:90 - getWalletByAgentId (used in module)
+src/lib/agent/wallet-repository-optimized.ts:111 - getOrCreateWallet (used in module)
+src/lib/agent/wallet-repository-optimized.ts:121 - createWallet (used in module)
+src/lib/agent/wallet-repository-optimized.ts:154 - getWalletBalance
+src/lib/agent/wallet-repository-optimized.ts:169 - getTransactions
+src/lib/agent/wallet-repository-optimized.ts:233 - getWalletStats
+src/lib/agent/wallet-repository-optimized.ts:306 - getWalletWithRecentTransactions
+src/lib/agent/wallet-repository-optimized.ts:338 - getWalletsByAgentIds
+src/lib/agent/wallet-repository-optimized.ts:387 - deposit
+src/lib/agent/wallet-repository-optimized.ts:423 - withdraw
+src/lib/agent/wallet-repository-optimized.ts:467 - transfer
+src/lib/agent/wallet-repository-optimized.ts:579 - createTransaction (used in module)
+src/lib/agent/wallet-repository-optimized.ts:580 - updateTransactionStatus (used in module)
+src/lib/agent/wallet-repository-optimized.ts:581 - freezeBalance
+src/lib/agent/wallet-repository-optimized.ts:582 - unfreezeBalance
+src/lib/agent/wallet-repository-optimized.ts:583 - getWalletById
+src/lib/agent/wallet-repository-optimized.ts:584 - consume
+src/lib/agent/wallet-repository-optimized.ts:585 - reward
+src/lib/agent/wallet-repository-optimized.ts:586 - refund
+src/lib/agent/wallet-repository-optimized.ts:13 - AgentStatus
+src/lib/agent/wallet-repository-optimized.ts:23 - AgentType
+src/lib/agent/wallet-repository-optimized.ts:33 - AgentRole
+src/lib/agent/wallet-repository-optimized.ts:51 - AgentProvider
+src/lib/agent/wallet-repository-optimized.ts:64 - TransactionType (used in module)
+src/lib/agent/wallet-repository-optimized.ts:83 - WalletStatus
+src/lib/agent/wallet-repository-optimized.ts:92 - TransactionStatus (used in module)
+src/lib/agent/wallet-repository-optimized.ts:102 - DataType
+src/lib/agent/wallet-repository-optimized.ts:116 - DataAction
+src/lib/agent/wallet-repository-optimized.ts:127 - WalletOperation
+src/lib/agent/wallet-repository-optimized.ts:142 - Agent
+src/lib/agent/wallet-repository-optimized.ts:164 - AgentMetadata
+src/lib/agent/wallet-repository-optimized.ts:177 - AgentToken
+src/lib/agent/wallet-repository-optimized.ts:196 - AgentAuthRequest
+src/lib/agent/wallet-repository-optimized.ts:205 - AgentRegisterRequest
+src/lib/agent/wallet-repository-optimized.ts:217 - AgentAuthResponse
+src/lib/agent/wallet-repository-optimized.ts:229 - TokenRefreshRequest
+src/lib/agent/wallet-repository-optimized.ts:236 - AgentDataAccess
+src/lib/agent/wallet-repository-optimized.ts:249 - AgentDataRequest
+src/lib/agent/wallet-repository-optimized.ts:262 - ApiAgentToken
+src/lib/agent/wallet-repository-optimized.ts:272 - CreateAgentRequest
+src/lib/agent/wallet-repository-optimized.ts:287 - UpdateAgentRequest
+src/lib/agent/wallet-repository-optimized.ts:302 - WalletOperationRequest
+src/lib/agent/wallet-repository-optimized.ts:317 - AgentWallet (used in module)
+src/lib/agent/wallet-repository-optimized.ts:331 - WalletTransaction (used in module)
+src/lib/agent/wallet-repository-optimized.ts:355 - AgentApiResponse
+src/lib/agent/wallet-repository-optimized.ts:372 - ApiResponse
+src/lib/agent/wallet-repository-optimized.ts:382 - PaginationRequest
+src/lib/agent/wallet-repository-optimized.ts:392 - PaginatedResponse
+src/lib/agent/wallet-repository.ts:138 - getOrCreateWallet (used in module)
+src/lib/api/api-logger.ts:28 - generateRequestId (used in module)
+src/lib/api/api-logger.ts:35 - getUserAgent (used in module)
+src/lib/api/api-logger.ts:45 - getClientIp (used in module)
+src/lib/api/api-logger.ts:74 - createRequestMetadata (used in module)
+src/lib/api/api-logger.ts:170 - withApiLogging
+src/lib/api/api-logger.ts:206 - extractPath
+src/lib/api/api-logger.ts:259 - logValidationError
+src/lib/api/api-performance-logger.ts:46 - logApiPerformance
+src/lib/api/api-performance-logger.ts:99 - checkSlowQuery
+src/lib/api/api-performance-logger.ts:128 - withPerformanceTracking
+src/lib/api/api-performance-logger.ts:167 - getPerformanceSummary
+src/lib/api/api-performance-logger.ts:14 - PERFORMANCE_THRESHOLDS (used in module)
+src/lib/api/api-performance-logger.ts:24 - PerformanceMetadata (used in module)
+src/lib/api/api-performance-logger.ts:32 - PerformanceSummary (used in module)
+src/lib/api/api-response-wrapper.ts:281 - isSuccessResponse (used in module)
+src/lib/api/api-response-wrapper.ts:290 - isErrorResponse (used in module)
+src/lib/api/enhanced-error-handler.ts:97 - createEnhancedErrorResponse (used in module)
+src/lib/api/enhanced-error-handler.ts:184 - createValidationErrorResponse
+src/lib/api/enhanced-error-handler.ts:198 - createNotFoundErrorResponse
+src/lib/api/enhanced-error-handler.ts:212 - createUnauthorizedErrorResponse
+src/lib/api/enhanced-error-handler.ts:225 - createForbiddenErrorResponse
+src/lib/api/enhanced-error-handler.ts:238 - createRateLimitErrorResponse
+src/lib/api/enhanced-error-handler.ts:253 - createServiceUnavailableErrorResponse
+src/lib/api/enhanced-error-handler.ts:268 - createNetworkErrorResponse
+src/lib/api/enhanced-error-handler.ts:283 - createTimeoutErrorResponse
+src/lib/api/enhanced-error-handler.ts:301 - withEnhancedErrorHandling
+src/lib/api/enhanced-error-handler.ts:26 - ApiErrorType (used in module)
+src/lib/api/enhanced-error-handler.ts:59 - EnhancedApiError (used in module)
+src/lib/api/enhanced-error-handler.ts:81 - EnhancedErrorResponse (used in module)
+src/lib/api/error-handler.ts:296 - createMissingTokenError
+src/lib/api/error-handler.ts:44 - ErrorResponse (used in module)
+src/lib/api/error-handler.ts:66 - SuccessResponse (used in module)
+src/lib/api/error-logger.ts:303 - extractUserId
+src/lib/api/error-logger.ts:314 - calculateDuration (used in module)
+src/lib/api/error-logger.ts:368 - createPerformanceLogger
+src/lib/api/error-logger.ts:40 - ErrorLogContext (used in module)
+src/lib/api/error-logger.ts:62 - ErrorLogData (used in module)
+src/lib/api/error-logger.ts:82 - SuccessLogData (used in module)
+src/lib/api/error-logger.ts:414 - ErrorStatistics (used in module)
+src/lib/api/error-logger.ts:469 - globalErrorStats
+src/lib/api/error-middleware.ts:36 - withApiErrorMiddleware (used in module)
+src/lib/api/error-middleware.ts:110 - withApiProtection
+src/lib/api/error-middleware.ts:130 - validateRequestHeaders
+src/lib/api/error-middleware.ts:151 - createApiErrorHandler
+src/lib/api/error-middleware.ts:14 - ApiErrorMiddlewareOptions (used in module)
+src/lib/api/error-types.ts:29 - ErrorTypeValue
+src/lib/api/github-helper.ts:11 - GitHubAPIOptions (used in module)
+src/lib/api/retry-decorator.ts:157 - withRetry
+src/lib/api/retry-decorator.ts:23 - RetryConfig (used in module)
+src/lib/api/retry-decorator.ts:243 - RetryPresets
+src/lib/api/timeout-wrapper.ts:57 - withTimeout (used in module)
+src/lib/api/timeout-wrapper.ts:127 - withTimeoutPromise
+src/lib/api/timeout-wrapper.ts:157 - withTimeoutApi
+src/lib/api/timeout-wrapper.ts:215 - withTimeoutDefault
+src/lib/api/timeout-wrapper.ts:244 - withMeasurement (used in module)
+src/lib/api/timeout-wrapper.ts:269 - withTimeoutAndMeasurement
+src/lib/api/timeout-wrapper.ts:24 - TimeoutError (used in module)
+src/lib/api/timeout-wrapper.ts:180 - TimeoutPresets
+src/lib/api/user-messages.ts:304 - getUserFriendlyErrorSync
+src/lib/api/user-messages.ts:449 - getCustomErrorMessage
+src/lib/api/user-messages.ts:24 - UserError (used in module)
+src/lib/api/user-messages.ts:426 - CUSTOM_ERROR_MESSAGES (used in module)
+src/lib/api/utils.ts:162 - createPaginatedSuccessResponse
+src/lib/api/utils.ts:198 - parsePaginationParams
+src/lib/api/utils.ts:17 - PasswordStrengthResult (used in module)
+src/lib/api/validation.ts:17 - emailSchema
+src/lib/api/validation.ts:31 - passwordSchema
+src/lib/api/validation.ts:103 - jsonRpcVersionSchema (used in module)
+src/lib/approval/index.ts:25 - requiresApproval (used in module)
+src/lib/approval/index.ts:32 - createApprovalRequest
+src/lib/approval/index.ts:48 - getPendingApprovals (used in module)
+src/lib/approval/index.ts:55 - getMyRequests (used in module)
+src/lib/approval/index.ts:62 - approveApproval
+src/lib/approval/index.ts:69 - rejectApproval
+src/lib/approval/index.ts:76 - cancelApproval
+src/lib/approval/index.ts:13 - ApprovalWorkflowService (used in module)
+src/lib/approval/index.ts:11 - ApprovalStatus
+src/lib/approval/index.ts:22 - ApprovalType (used in module)
+src/lib/approval/index.ts:47 - ApprovalPriority
+src/lib/approval/index.ts:57 - ApprovalRequest (used in module)
+src/lib/approval/index.ts:100 - ApprovalApprover
+src/lib/approval/index.ts:115 - CreateApprovalRequest
+src/lib/approval/index.ts:132 - ApprovalActionRequest
+src/lib/approval/index.ts:141 - ApprovalWorkflowConfig
+src/lib/approval/index.ts:166 - ApprovalStats
+src/lib/approval/index.ts:187 - ApprovalListQuery
+src/lib/approval/index.ts:206 - ApprovalListResult
+src/lib/approval/index.ts:217 - ApprovalRequiredConfig
+src/lib/approval/index.ts:234 - SENSITIVE_PERMISSIONS
+src/lib/approval/index.ts:246 - DEFAULT_WORKFLOW_CONFIGS
+src/lib/approval/index.ts:324 - ApprovalStatusLabels
+src/lib/approval/index.ts:335 - ApprovalTypeLabels
+src/lib/approval/index.ts:353 - ApprovalPriorityLabels
+src/lib/approval/index.ts:363 - ApprovalPriorityColors
+src/lib/auth/index.ts:12 - UserStatus
+src/lib/auth/index.ts:23 - UserRole
+src/lib/auth/index.ts:33 - User
+src/lib/auth/index.ts:53 - UserToken
+src/lib/auth/index.ts:67 - LoginRequest
+src/lib/auth/index.ts:76 - LoginSuccessResponse
+src/lib/auth/index.ts:87 - LoginFailureResponse
+src/lib/auth/index.ts:95 - LoginResponse
+src/lib/auth/index.ts:100 - RegisterRequest
+src/lib/auth/index.ts:111 - RegisterResponse
+src/lib/auth/index.ts:120 - RefreshTokenRequest
+src/lib/auth/index.ts:127 - RefreshTokenSuccessResponse
+src/lib/auth/index.ts:137 - RefreshTokenFailureResponse
+src/lib/auth/index.ts:145 - RefreshTokenResponse
+src/lib/auth/index.ts:150 - UserContext
+src/lib/auth/index.ts:163 - CreateUserRequest
+src/lib/auth/index.ts:177 - UpdateUserRequest
+src/lib/auth/index.ts:192 - ChangePasswordRequest
+src/lib/auth/index.ts:200 - ForgotPasswordRequest
+src/lib/auth/index.ts:207 - ResetPasswordRequest
+src/lib/auth/index.ts:88 - verifyJwtToken
+src/lib/auth/index.ts:116 - registerUser
+src/lib/auth/index.ts:162 - loginUser
+src/lib/auth/index.ts:232 - logoutUser
+src/lib/auth/index.ts:248 - refreshToken
+src/lib/auth/index.ts:318 - authenticateToken
+src/lib/auth/index.ts:356 - changePassword
+src/lib/auth/index.ts:406 - initiatePasswordReset
+src/lib/auth/index.ts:430 - resetPassword
+src/lib/auth/index.ts:501 - hasPermission
+src/lib/auth/index.ts:523 - hasAnyPermission
+src/lib/auth/index.ts:530 - hasAllPermissions
+src/lib/auth/index.ts:20 - hashPassword
+src/lib/auth/index.ts:29 - verifyPassword
+src/lib/auth/index.ts:52 - initializeUserTables
+src/lib/auth/index.ts:128 - createUser
+src/lib/auth/index.ts:175 - getUserById
+src/lib/auth/index.ts:190 - getUserByEmail
+src/lib/auth/index.ts:229 - getAllUsers
+src/lib/auth/index.ts:275 - getAllUsersPaginated
+src/lib/auth/index.ts:300 - getUsersCount
+src/lib/auth/index.ts:332 - updateUser
+src/lib/auth/index.ts:394 - deleteUser
+src/lib/auth/index.ts:407 - createUserToken
+src/lib/auth/index.ts:451 - validateUserToken
+src/lib/auth/index.ts:488 - getUserByRefreshToken
+src/lib/auth/index.ts:518 - refreshUserToken
+src/lib/auth/index.ts:561 - revokeUserToken
+src/lib/auth/index.ts:574 - revokeAllUserTokens
+src/lib/auth/index.ts:585 - updateLastLogin
+src/lib/auth/index.ts:596 - createPasswordResetToken
+src/lib/auth/index.ts:618 - validatePasswordResetToken
+src/lib/auth/index.ts:639 - deletePasswordResetToken
+src/lib/auth/index.ts:650 - getDefaultPermissions
+src/lib/auth/index.ts:205 - PaginationOptions
+src/lib/auth/index.ts:213 - PaginatedResult
+src/lib/auth/index.ts:29 - withUserAuth
+src/lib/auth/index.ts:88 - withPermissions
+src/lib/auth/index.ts:123 - withAnyPermission
+src/lib/auth/index.ts:158 - withRole
+src/lib/auth/index.ts:193 - withAnyRole
+src/lib/auth/index.ts:228 - withAdmin
+src/lib/auth/index.ts:238 - withManagerOrAdmin
+src/lib/auth/index.ts:248 - withOptionalAuth
+src/lib/auth/index.ts:17 - RBACUserContext
+src/lib/auth/jwt.ts:37 - TokenVerifyResult (used in module)
+src/lib/auth/jwt.ts:46 - TokenDecodeResult (used in module)
+src/lib/auth/middleware.ts:88 - withPermissions
+src/lib/auth/middleware.ts:123 - withAnyPermission
+src/lib/auth/middleware.ts:158 - withRole
+src/lib/auth/middleware.ts:193 - withAnyRole
+src/lib/auth/middleware.ts:228 - withAdmin
+src/lib/auth/middleware.ts:238 - withManagerOrAdmin
+src/lib/auth/middleware.ts:248 - withOptionalAuth
+src/lib/auth/middleware.ts:17 - RBACUserContext
+src/lib/auth/permission-migration.ts:12 - LEGACY_TO_NEW_PERMISSIONS (used in module)
+src/lib/auth/permission-migration.ts:78 - NEW_TO_LEGACY_PERMISSIONS (used in module)
+src/lib/auth/repository-optimized.ts:29 - generateUserListCacheKey
+src/lib/auth/repository-optimized.ts:68 - getAllUsersPaginated (used in module)
+src/lib/auth/repository-optimized.ts:144 - batchGetUsersById
+src/lib/auth/repository-optimized.ts:175 - getUsersByStatus
+src/lib/auth/repository-optimized.ts:203 - getUsersByRole
+src/lib/auth/repository-optimized.ts:231 - searchUsers
+src/lib/auth/repository-optimized.ts:257 - getUserStatistics
+src/lib/auth/repository-optimized.ts:322 - getUsersWithRecentActivity
+src/lib/auth/repository-optimized.ts:378 - getAllUsers
+src/lib/auth/service-unified.ts:98 - verifyJwtToken (used in module)
+src/lib/auth/service-unified.ts:127 - registerUser
+src/lib/auth/service-unified.ts:219 - logoutUser
+src/lib/auth/service-unified.ts:232 - refreshToken (used in module)
+src/lib/auth/service-unified.ts:294 - authenticateToken
+src/lib/auth/service-unified.ts:333 - changePassword
+src/lib/auth/service-unified.ts:365 - initiatePasswordReset
+src/lib/auth/service-unified.ts:387 - resetPassword
+src/lib/auth/service-unified.ts:439 - hasPermission (used in module)
+src/lib/auth/service-unified.ts:461 - hasAnyPermission
+src/lib/auth/service-unified.ts:468 - hasAllPermissions
+src/lib/backup/encryption.ts:149 - validateEncryptionKey
+src/lib/backup/encryption.ts:157 - hashPassword
+src/lib/backup/encryption.ts:169 - verifyPassword
+src/lib/backup/index.ts:6 - createBackup
+src/lib/backup/index.ts:6 - listBackups
+src/lib/backup/index.ts:6 - getBackup
+src/lib/backup/index.ts:6 - deleteBackup
+src/lib/backup/index.ts:6 - restoreBackup
+src/lib/backup/index.ts:7 - scheduleBackup
+src/lib/backup/index.ts:7 - getScheduledBackups
+src/lib/backup/index.ts:7 - cancelScheduledBackup
+src/lib/backup/index.ts:7 - runScheduledBackups
+src/lib/backup/index.ts:8 - exportData
+src/lib/backup/index.ts:8 - importData
+src/lib/backup/index.ts:8 - exportToCSV
+src/lib/backup/index.ts:8 - importFromCSV
+src/lib/backup/index.ts:9 - compressBackup
+src/lib/backup/index.ts:9 - decompressBackup
+src/lib/backup/index.ts:10 - encryptBackup
+src/lib/backup/index.ts:10 - decryptBackup
+src/lib/backup/index.ts:11 - BackupManager
+src/lib/backup/index.ts:10 - BackupFrequency
+src/lib/backup/index.ts:20 - BackupStatus
+src/lib/backup/index.ts:31 - CompressionAlgorithm
+src/lib/backup/index.ts:41 - EncryptionAlgorithm
+src/lib/backup/index.ts:50 - ExportFormat
+src/lib/backup/index.ts:59 - BackupMetadata
+src/lib/backup/index.ts:79 - BackupConfig
+src/lib/backup/index.ts:98 - BackupJob
+src/lib/backup/index.ts:112 - ExportOptions
+src/lib/backup/index.ts:126 - ImportOptions
+src/lib/backup/index.ts:136 - RestoreOptions
+src/lib/backup/index.ts:147 - BackupStatistics
+src/lib/backup/index.ts:161 - BackupNotification
+src/lib/backup/index.ts:173 - BackupConfigSchema
+src/lib/backup/index.ts:186 - RestoreOptionsSchema
+src/lib/backup/index.ts:194 - ExportOptionsSchema
+src/lib/backup/index.ts:208 - BackupEventType
+src/lib/backup/index.ts:222 - BackupEvent
+src/lib/backup/scheduler.ts:393 - getJobsForSchedule
+src/lib/cache/index.ts:7 - LRUCache
+src/lib/cache/index.ts:7 - createCache
+src/lib/collaboration/manager.ts:31 - OperationHistoryEntry (used in module)
+src/lib/collaboration/manager.ts:595 - default
+src/lib/collaboration/rooms.ts:76 - generateUniqueId (used in module)
+src/lib/collaboration/rooms.ts:113 - isValidRoomId (used in module)
+src/lib/collaboration/rooms.ts:124 - getRoomType
+src/lib/collaboration/rooms.ts:132 - getEntityId
+src/lib/collaboration/rooms.ts:172 - sanitizeRoomUser (used in module)
+src/lib/collaboration/rooms.ts:187 - getTypingUsers (used in module)
+src/lib/collaboration/rooms.ts:194 - isUserTyping (used in module)
+src/lib/collaboration/rooms.ts:202 - getActiveUsers (used in module)
+src/lib/collaboration/rooms.ts:214 - getRoomStats (used in module)
+src/lib/collaboration/rooms.ts:231 - isRoomIdle (used in module)
+src/lib/collaboration/rooms.ts:239 - shouldCleanupRoom (used in module)
+src/lib/collaboration/rooms.ts:250 - getCleanupDelay (used in module)
+src/lib/collaboration/rooms.ts:299 - validateRoomJoin (used in module)
+src/lib/collaboration/rooms.ts:334 - createDefaultRoomName (used in module)
+src/lib/collaboration/rooms.ts:348 - truncateRoomName (used in module)
+src/lib/collaboration/rooms.ts:359 - formatRoomAge (used in module)
+src/lib/collaboration/rooms.ts:381 - formatIdleTime (used in module)
+src/lib/collaboration/rooms.ts:14 - RoomInfo (used in module)
+src/lib/collaboration/rooms.ts:25 - RoomUserInfo (used in module)
+src/lib/collaboration/rooms.ts:35 - CreateRoomOptions (used in module)
+src/lib/collaboration/rooms.ts:405 - RoomHelpers (used in module)
+src/lib/collaboration/rooms.ts:434 - default
+src/lib/collaboration/server.ts:34 - RoomConfig
+src/lib/crypto/index.ts:15 - encryptApiKey (used in module)
+src/lib/crypto/index.ts:30 - decryptApiKey (used in module)
+src/lib/crypto/index.ts:45 - getEncryptionSecret (used in module)
+src/lib/crypto/index.ts:60 - generateSecureToken
+src/lib/crypto/index.ts:69 - generateUUID (used in module)
+src/lib/crypto/index.ts:79 - encryptSensitiveData
+src/lib/crypto/index.ts:89 - decryptSensitiveData
+src/lib/db/audit-log.ts:94 - AuditLogQuery (used in module)
+src/lib/db/connection-pool.ts:53 - PoolStats (used in module)
+src/lib/db/connection-pool.ts:64 - HealthCheckResult (used in module)
+src/lib/db/enhanced-db.ts:6 - EnhancedDatabase (used in module)
+src/lib/db/index-analyzer.ts:348 - default
+src/lib/db/index-unified.ts:107 - getDatabaseAsync (used in module)
+src/lib/db/index-unified.ts:115 - getDatabase (used in module)
+src/lib/db/index-unified.ts:352 - closeDatabase (used in module)
+src/lib/db/index-unified.ts:368 - getDatabaseStats (used in module)
+src/lib/db/index-unified.ts:390 - vacuumDatabase (used in module)
+src/lib/db/index-unified.ts:408 - analyzeDatabase (used in module)
+src/lib/db/index-unified.ts:426 - getDatabaseSize (used in module)
+src/lib/db/index-unified.ts:459 - migrate (used in module)
+src/lib/db/index-unified.ts:473 - optimizeDatabase (used in module)
+src/lib/db/index-unified.ts:487 - getDatabaseHealth (used in module)
+src/lib/db/index-unified.ts:38 - DatabaseResult (used in module)
+src/lib/db/index-unified.ts:43 - DatabaseStatement (used in module)
+src/lib/db/index-unified.ts:49 - DatabaseConnection (used in module)
+src/lib/db/index-unified.ts:502 - default
+src/lib/db/index-unified.ts:76 - batchInsert
+src/lib/db/index-unified.ts:244 - batchUpdate
+src/lib/db/index-unified.ts:414 - batchDelete
+src/lib/db/index-unified.ts:452 - batchExecute
+src/lib/db/index-unified.ts:491 - calculateOptimalBatchSize
+src/lib/db/index-unified.ts:534 - analyzeBatchPerformance
+src/lib/db/index-unified.ts:15 - BatchInsertOptions
+src/lib/db/index-unified.ts:30 - BatchUpdateOptions
+src/lib/db/index-unified.ts:41 - BatchResult
+src/lib/db/index-unified.ts:512 - BatchPerformanceMetrics
+src/lib/db/index-unified.ts:43 - getOptimizedFeedbackStats
+src/lib/db/index-unified.ts:144 - getOptimizedRatingStats
+src/lib/db/index-unified.ts:226 - batchLoad
+src/lib/db/index-unified.ts:267 - paginate
+src/lib/db/index-unified.ts:306 - getFeedbacksWithAttachments
+src/lib/db/index-unified.ts:337 - getRatingWithVotes
+src/lib/db/index-unified.ts:368 - getFeedbackStatsByStatuses
+src/lib/db/index-unified.ts:389 - getRatingStatsByValues
+src/lib/db/index-unified.ts:12 - FeedbackAttachmentRow
+src/lib/db/index-unified.ts:22 - HelpfulVoteRow
+src/lib/db/index-unified.ts:34 - OptimizedFeedbackStats
+src/lib/db/index-unified.ts:136 - OptimizedRatingStats
+src/lib/db/index-unified.ts:259 - PaginatedResult
+src/lib/db/migrations.ts:337 - analyzeSlowQueries (used in module)
+src/lib/db/migrations.ts:399 - cleanupOldData (used in module)
+src/lib/db/migrations.ts:11 - Migration (used in module)
+src/lib/db/migrations.ts:534 - default
+src/lib/db/pagination.ts:211 - executePaginatedQuery (used in module)
+src/lib/db/pagination.ts:230 - executeCursorPaginatedQuery (used in module)
+src/lib/db/pagination.ts:318 - calculatePageFromCursor
+src/lib/db/pagination.ts:334 - mergePaginationMeta
+src/lib/db/pagination.ts:35 - PaginationMeta (used in module)
+src/lib/db/pagination.ts:50 - CursorPaginationMeta (used in module)
+src/lib/db/pagination.ts:70 - CursorPaginatedResult (used in module)
+src/lib/db/pagination.ts:344 - default
+src/lib/db/performance-analyzer.ts:17 - QueryPerformance (used in module)
+src/lib/db/performance-analyzer.ts:25 - SlowQuery (used in module)
+src/lib/db/performance-analyzer.ts:33 - TableAnalysis (used in module)
+src/lib/db/performance-analyzer.ts:489 - default
+src/lib/db/performance-logger.ts:405 - default
+src/lib/db/slow-query-logger.ts:58 - PerformanceAlert (used in module)
+src/lib/db/slow-query-logger.ts:464 - default
+src/lib/errors/index.ts:111 - createAppError
+src/lib/errors/index.ts:138 - formatErrorMessage
+src/lib/errors/index.ts:146 - isNetworkError
+src/lib/errors/index.ts:154 - getErrorCode
+src/lib/errors/index.ts:162 - getUserFriendlyMessage
+src/lib/errors/index.ts:25 - UnifiedErrorInfo
+src/lib/errors/index.ts:29 - UnifiedErrorType (used in module)
+src/lib/errors/index.ts:30 - ErrorCodes (used in module)
+src/lib/errors/index.ts:31 - STATUS_CODE_TO_ERROR_TYPE
+src/lib/errors/index.ts:32 - isRetryableErrorType
+src/lib/errors/index.ts:33 - getDefaultStatusCode
+src/lib/errors/index.ts:41 - UnifiedAppError (used in module)
+src/lib/errors/index.ts:42 - toUnifiedError (used in module)
+src/lib/errors/index.ts:43 - isUnifiedError (used in module)
+src/lib/errors/index.ts:44 - extractErrorInfo (used in module)
+src/lib/errors/index.ts:52 - UnifiedErrorResponse
+src/lib/errors/index.ts:53 - UnifiedSuccessResponse
+src/lib/errors/index.ts:57 - createUnifiedErrorResponse
+src/lib/errors/index.ts:60 - createNotFoundErrorResponse
+src/lib/errors/index.ts:61 - createUnauthorizedErrorResponse
+src/lib/errors/index.ts:62 - createForbiddenErrorResponse
+src/lib/errors/index.ts:63 - createRateLimitErrorResponse
+src/lib/errors/index.ts:64 - createInternalErrorResponse
+src/lib/errors/index.ts:65 - createServiceUnavailableErrorResponse
+src/lib/errors/index.ts:66 - createNetworkErrorResponse
+src/lib/errors/index.ts:67 - createTimeoutErrorResponse
+src/lib/errors/index.ts:68 - createRegistrationFailedErrorResponse
+src/lib/errors/index.ts:69 - createWeakPasswordErrorResponse
+src/lib/errors/index.ts:70 - createMissingTokenErrorResponse
+src/lib/errors/index.ts:71 - createConflictErrorResponse
+src/lib/errors/index.ts:73 - parseUnifiedResponse
+src/lib/errors/index.ts:101 - AppError
+src/lib/errors/index.ts:106 - legacyErrorCodes
+src/lib/export/index.ts:512 - downloadExport
+src/lib/export/index.ts:23 - ExportFormat (used in module)
+src/lib/export/index.ts:28 - ExcelColumnStyle (used in module)
+src/lib/export/index.ts:42 - ExcelOptions (used in module)
+src/lib/export/index.ts:86 - ExportConfig (used in module)
+src/lib/export/index.ts:116 - ExportResult (used in module)
+src/lib/export/index.ts:134 - ExportTemplate (used in module)
+src/lib/export/index.ts:154 - MultiSheetConfig (used in module)
+src/lib/export/types.ts:5 - ExportFormat (used in module)
+src/lib/export/types.ts:7 - ExportEntityType
+src/lib/export/types.ts:9 - ExportOptions
+src/lib/export/types.ts:20 - ExportResult (used in module)
+src/lib/export/types.ts:28 - ExportProgress
+src/lib/export/types.ts:41 - ExportField
+src/lib/export/types.ts:48 - ExportableEntity
+src/lib/feedback/anti-spam.ts:35 - getAntiSpamConfig (used in module)
+src/lib/feedback/anti-spam.ts:304 - getSpamStatistics
+src/lib/feedback/notifications.ts:23 - createFeedbackNotification (used in module)
+src/lib/feedback/notifications.ts:81 - getUnreadFeedbackNotifications
+src/lib/feedback/notifications.ts:131 - markFeedbackNotificationsAsRead
+src/lib/feedback/notifications.ts:154 - markAllFeedbackNotificationsAsRead
+src/lib/feedback/notifications.ts:176 - getUnreadFeedbackNotificationCount
+src/lib/feedback/notifications.ts:195 - sendFeedbackEmail (used in module)
+src/lib/feedback/notifications.ts:281 - notifyHighPriorityFeedback (used in module)
+src/lib/feedback/notifications.ts:291 - notifyFeedbackResolved (used in module)
+src/lib/feedback/notifications.ts:301 - processFeedbackNotifications
+src/lib/feedback/notifications.ts:13 - FeedbackNotificationType (used in module)
+src/lib/hooks/useRealtimeAnalytics.ts:320 - default
+src/lib/hooks/useWebVitals.ts:247 - useRealtimePerformance
+src/lib/hooks/useWebVitals.ts:125 - UseWebVitalsOptions (used in module)
+src/lib/hooks/useWebVitals.ts:238 - UseRealtimePerformanceOptions (used in module)
+src/lib/keyboard-shortcuts/index.ts:10 - ShortcutManager
+src/lib/keyboard-shortcuts/index.ts:11 - getShortcutManager
+src/lib/keyboard-shortcuts/index.ts:12 - initShortcutManager
+src/lib/keyboard-shortcuts/index.ts:13 - destroyShortcutManager
+src/lib/keyboard-shortcuts/index.ts:17 - KeyboardShortcut
+src/lib/keyboard-shortcuts/index.ts:18 - ShortcutManagerConfig
+src/lib/keyboard-shortcuts/index.ts:19 - ContextChangeListener
+src/lib/keyboard-shortcuts/index.ts:20 - ShortcutTriggerListener
+src/lib/keyboard-shortcuts/index.ts:25 - DEFAULT_SHORTCUTS
+src/lib/keyboard-shortcuts/index.ts:26 - SHORTCUT_CATEGORIES
+src/lib/keyboard-shortcuts/index.ts:27 - MODIFIER_KEYS
+src/lib/keyboard-shortcuts/index.ts:28 - getShortcutDisplayText
+src/lib/keyboard-shortcuts/index.ts:29 - DEFAULT_USER_SHORTCUTS
+src/lib/keyboard-shortcuts/index.ts:32 - ShortcutContext
+src/lib/keyboard-shortcuts/index.ts:36 - useKeyboardShortcuts
+src/lib/keyboard-shortcuts/index.ts:37 - useShortcut
+src/lib/keyboard-shortcuts/index.ts:38 - useShortcuts
+src/lib/keyboard-shortcuts/index.ts:39 - useContextualShortcuts
+src/lib/keyboard-shortcuts/index.ts:40 - useShortcutsDisplay
+src/lib/keyboard-shortcuts/index.ts:41 - useGlobalShortcuts
+src/lib/keyboard-shortcuts/index.ts:42 - useInitShortcuts
+src/lib/keyboard-shortcuts/index.ts:43 - useShortcutCustomization
+src/lib/keyboard-shortcuts/index.ts:44 - useShortcutManager
+src/lib/keyboard-shortcuts/index.ts:48 - UseKeyboardShortcutsOptions
+src/lib/keyboard-shortcuts/index.ts:49 - ShortcutProviderProps
+src/lib/keyboard-shortcuts/index.ts:54 - ShortcutTooltip
+src/lib/keyboard-shortcuts/index.ts:55 - ShortcutBadge
+src/lib/keyboard-shortcuts/index.ts:56 - ShortcutDisplay
+src/lib/keyboard-shortcuts/index.ts:57 - ShortcutMenuButton
+src/lib/keyboard-shortcuts/index.ts:58 - withShortcutTooltip
+src/lib/keyboard-shortcuts/index.ts:62 - ShortcutTooltipProps
+src/lib/keyboard-shortcuts/index.ts:63 - ShortcutBadgeProps
+src/lib/keyboard-shortcuts/index.ts:64 - ShortcutDisplayProps
+src/lib/keyboard-shortcuts/index.ts:65 - ShortcutMenuButtonProps
+src/lib/keyboard-shortcuts/shortcut-tooltip.tsx:364 - default
+src/lib/logger/index.ts:465 - default
+src/lib/logger/utils.ts:4 - LogEntry (used in module)
+src/lib/mcp/http-transport.ts:271 - default
+src/lib/mcp/index.ts:9 - SevenZiMcpServer
+src/lib/mcp/index.ts:9 - getMcpServer
+src/lib/mcp/index.ts:9 - mcpServer
+src/lib/mcp/index.ts:9 - McpServerConfig
+src/lib/mcp/index.ts:9 - ToolDefinition
+src/lib/mcp/index.ts:10 - MCPHttpTransport
+src/lib/mcp/index.ts:10 - sessionManager
+src/lib/mcp/index.ts:10 - toSSE
+src/lib/mcp/index.ts:10 - parseSSE
+src/lib/mcp/index.ts:10 - MCPSessionManager
+src/lib/mcp/index.ts:11 - toolRegistry
+src/lib/mcp/index.ts:11 - ToolRegistry
+src/lib/mcp/index.ts:11 - initializeDefaultTools
+src/lib/mcp/index.ts:11 - ToolCategory
+src/lib/mcp/index.ts:11 - ExtendedToolDefinition
+src/lib/mcp/server.ts:496 - default (used in module)
+src/lib/mcp/tools.ts:241 - default
+src/lib/middleware/api-performance.ts:45 - RoutePerformanceStats (used in module)
+src/lib/middleware/api-performance.ts:363 - ApiMetricsSummary (used in module)
+src/lib/middleware/brute-force-protection.ts:29 - BruteForceConfig (used in module)
+src/lib/middleware/compression.ts:130 - detectEncoding (used in module)
+src/lib/middleware/compression.ts:212 - decompressData
+src/lib/middleware/compression.ts:227 - withCompression
+src/lib/middleware/compression.ts:301 - getCompressionStats
+src/lib/middleware/compression.ts:308 - getCompressionRatio (used in module)
+src/lib/middleware/compression.ts:315 - resetCompressionStats
+src/lib/middleware/compression.ts:322 - formatCompressionStats
+src/lib/middleware/compression.ts:36 - CompressionConfig (used in module)
+src/lib/middleware/compression.ts:42 - DEFAULT_COMPRESSION_CONFIG (used in module)
+src/lib/middleware/compression.ts:345 - CompressionConfigSchema (used in module)
+src/lib/middleware/compression.ts:346 - CompressionStatsCollector (used in module)
+src/lib/middleware/compression.ts:350 - statsCollector (used in module)
+src/lib/middleware/crawler-detection.ts:474 - startCrawlerCleanup (used in module)
+src/lib/middleware/crawler-detection.ts:486 - stopCrawlerCleanup
+src/lib/middleware/crawler-detection.ts:19 - CrawlerDetectionConfig (used in module)
+src/lib/middleware/crawler-detection.ts:41 - CrawlerDetectionResult (used in module)
+src/lib/middleware/crawler-detection.ts:49 - FrequencyTracker (used in module)
+src/lib/middleware/db-performance.ts:510 - exportMetrics
+src/lib/middleware/index.ts:18 - ApiPerformanceCollector
+src/lib/middleware/index.ts:19 - apiPerformanceCollector
+src/lib/middleware/index.ts:20 - withApiPerformanceTracking
+src/lib/middleware/index.ts:21 - getApiPerformanceReport
+src/lib/middleware/index.ts:22 - clearApiPerformanceData
+src/lib/middleware/index.ts:23 - ApiPerformanceData
+src/lib/middleware/index.ts:24 - ApiPerformanceMetrics
+src/lib/middleware/index.ts:31 - withMonitoring
+src/lib/middleware/index.ts:32 - withGETMonitoring
+src/lib/middleware/index.ts:33 - withPOSTMonitoring
+src/lib/middleware/index.ts:34 - withPUTMonitoring
+src/lib/middleware/index.ts:35 - withDELETEMonitoring
+src/lib/middleware/index.ts:36 - getMonitoringStats
+src/lib/middleware/index.ts:37 - resetMonitoringStats
+src/lib/middleware/index.ts:38 - MonitoringOptions
+src/lib/middleware/index.ts:39 - MonitoringStats
+src/lib/middleware/index.ts:46 - withRateLimit
+src/lib/middleware/index.ts:47 - getRateLimitStats
+src/lib/middleware/index.ts:48 - performPeriodicCleanup
+src/lib/middleware/index.ts:49 - startPeriodicCleanup
+src/lib/middleware/index.ts:50 - stopPeriodicCleanup
+src/lib/middleware/index.ts:52 - RateLimitEntry
+src/lib/middleware/index.ts:52 - RateLimitConfig
+src/lib/middleware/index.ts:58 - withCsrfProtection
+src/lib/middleware/index.ts:59 - createCsrfMiddleware
+src/lib/middleware/index.ts:60 - createCsrfErrorResponse
+src/lib/middleware/index.ts:61 - validateRequestCsrf
+src/lib/middleware/index.ts:62 - generateCsrfToken
+src/lib/middleware/index.ts:63 - CsrfProtectionConfig
+src/lib/middleware/index.ts:70 - withCors
+src/lib/middleware/index.ts:71 - createCorsMiddleware
+src/lib/middleware/index.ts:72 - corsPolicies
+src/lib/middleware/index.ts:73 - createCorsErrorResponse
+src/lib/middleware/index.ts:74 - getEnvironmentOrigins
+src/lib/middleware/index.ts:75 - CorsConfig
+src/lib/middleware/index.ts:82 - getQueryMetrics
+src/lib/middleware/index.ts:83 - getQueryMetricsSummary
+src/lib/middleware/index.ts:84 - QueryMetrics
+src/lib/middleware/input-sanitization.ts:383 - sanitizeBoolean
+src/lib/middleware/input-sanitization.ts:410 - sanitizeArray (used in module)
+src/lib/middleware/input-sanitization.ts:457 - sanitizeObject (used in module)
+src/lib/middleware/input-sanitization.ts:624 - sanitize (used in module)
+src/lib/middleware/input-sanitization.ts:631 - validateAndSanitize
+src/lib/middleware/security-headers.ts:419 - getCSPNonce
+src/lib/middleware/security-headers.ts:467 - getAPIRouteCSP
+src/lib/middleware/security.ts:411 - withPublicSecurity
+src/lib/middleware/security.ts:420 - withAuthSecurity
+src/lib/middleware/security.ts:439 - withProtectedSecurity
+src/lib/middleware/security.ts:454 - withAdminSecurity
+src/lib/middleware/security.ts:467 - getSanitizedBody
+src/lib/middleware/security.ts:476 - getSanitizedQuery
+src/lib/middleware/security.ts:500 - getSecurityContext
+src/lib/middleware/security.ts:30 - SecurityMiddlewareConfig (used in module)
+src/lib/middleware/security.ts:485 - SecurityContext (used in module)
+src/lib/middleware/user-rate-limit.ts:348 - startUserRateLimitCleanup (used in module)
+src/lib/middleware/user-rate-limit.ts:360 - stopUserRateLimitCleanup
+src/lib/middleware/user-rate-limit.ts:20 - UserRateLimitConfig (used in module)
+src/lib/middleware/user-rate-limit.ts:26 - UserRateLimitEntry (used in module)
+src/lib/middleware/with-request-id.ts:40 - generateRequestId (used in module)
+src/lib/middleware/with-request-id.ts:167 - withRequestId
+src/lib/middleware/with-request-id.ts:258 - createRequestLoggerForHandler
+src/lib/middleware/with-request-id.ts:273 - getRequestId
+src/lib/monitoring/anomaly-detector.ts:259 - calculateMean (used in module)
+src/lib/monitoring/anomaly-detector.ts:267 - calculateStdDev
+src/lib/monitoring/anomaly-detector.ts:278 - calculateZScore (used in module)
+src/lib/monitoring/anomaly-detector.ts:286 - detectAnomalyZScore
+src/lib/monitoring/anomaly-detector.ts:10 - Baseline (used in module)
+src/lib/monitoring/anomaly-detector.ts:23 - AnomalyResult (used in module)
+src/lib/monitoring/anomaly-detector.ts:32 - AnomalyDetectorConfig (used in module)
+src/lib/monitoring/anomaly-detector.ts:50 - AnomalyDetector (used in module)
+src/lib/monitoring/anomaly-detector.ts:313 - anomalyDetector
+src/lib/monitoring/anomaly-detector.ts:315 - default
+src/lib/monitoring/constants.ts:7 - TIME_INTERVALS
+src/lib/monitoring/constants.ts:17 - SIZE_LIMITS
+src/lib/monitoring/constants.ts:28 - ALERT_THRESHOLDS
+src/lib/monitoring/constants.ts:38 - HTTP_STATUS
+src/lib/monitoring/constants.ts:44 - PERFORMANCE_WEIGHTS
+src/lib/monitoring/constants.ts:53 - SCORE_THRESHOLDS
+src/lib/monitoring/constants.ts:59 - CLEANUP_CUTOFF
+src/lib/monitoring/constants.ts:62 - RESOURCE_PATTERNS
+src/lib/monitoring/constants.ts:71 - PERFORMANCE_COLORS
+src/lib/monitoring/constants.ts:78 - SCORE_LABELS
+src/lib/monitoring/constants.ts:85 - SEVERITY_COLORS
+src/lib/monitoring/constants.ts:93 - SEVERITY_LABELS
+src/lib/monitoring/index.ts:17 - initWebVitalsMonitoring
+src/lib/monitoring/index.ts:18 - observePerformance
+src/lib/monitoring/index.ts:19 - getCurrentVitals
+src/lib/monitoring/index.ts:26 - CORE_WEB_VITALS_THRESHOLDS
+src/lib/monitoring/index.ts:27 - CUSTOM_METRICS_CONFIG
+src/lib/monitoring/index.ts:28 - ALERT_CONFIG
+src/lib/monitoring/index.ts:29 - REPORTING_CONFIG
+src/lib/monitoring/index.ts:30 - REALTIME_CONFIG
+src/lib/monitoring/index.ts:31 - ENVIRONMENT_CONFIG
+src/lib/monitoring/index.ts:32 - getMetricRating
+src/lib/monitoring/index.ts:33 - shouldReport
+src/lib/monitoring/index.ts:34 - getEnvironmentConfig
+src/lib/monitoring/index.ts:35 - getConfig
+src/lib/monitoring/index.ts:36 - MetricRating
+src/lib/monitoring/index.ts:37 - AlertLevel
+src/lib/monitoring/index.ts:38 - Environment
+src/lib/monitoring/index.ts:45 - performanceCollector
+src/lib/monitoring/index.ts:46 - initPerformanceMonitoring
+src/lib/monitoring/index.ts:47 - recordCustomMetric
+src/lib/monitoring/index.ts:48 - getPerformanceSummary
+src/lib/monitoring/index.ts:49 - onPerformanceMetric
+src/lib/monitoring/index.ts:50 - onPerformanceAlert
+src/lib/monitoring/index.ts:51 - trackApiPerformance
+src/lib/monitoring/index.ts:52 - trackRenderPerformance
+src/lib/monitoring/index.ts:53 - PerformanceMetric
+src/lib/monitoring/index.ts:54 - CustomMetric
+src/lib/monitoring/index.ts:55 - PerformanceAlert
+src/lib/monitoring/index.ts:62 - performanceAlertManager
+src/lib/monitoring/index.ts:63 - defaultAlertRules
+src/lib/monitoring/index.ts:64 - AlertRecord
+src/lib/monitoring/index.ts:65 - AlertRule
+src/lib/monitoring/index.ts:72 - TrackedError
+src/lib/monitoring/index.ts:73 - ErrorCategory
+src/lib/monitoring/index.ts:74 - ErrorSeverity
+src/lib/monitoring/index.ts:75 - captureError
+src/lib/monitoring/index.ts:76 - withErrorTracking
+src/lib/monitoring/index.ts:77 - handleApiError
+src/lib/monitoring/index.ts:78 - addBreadcrumb
+src/lib/monitoring/index.ts:85 - sendAlert
+src/lib/monitoring/index.ts:86 - sendSlackAlert
+src/lib/monitoring/index.ts:87 - sendEmailAlert
+src/lib/monitoring/index.ts:88 - alerts
+src/lib/monitoring/index.ts:89 - AlertSeverity
+src/lib/monitoring/index.ts:90 - AlertConfig
+src/lib/monitoring/index.ts:97 - basicHealthCheck
+src/lib/monitoring/index.ts:98 - detailedHealthCheck
+src/lib/monitoring/index.ts:99 - healthResponse
+src/lib/monitoring/index.ts:100 - probes
+src/lib/monitoring/index.ts:101 - HealthStatus
+src/lib/monitoring/index.ts:102 - CheckResult
+src/lib/monitoring/index.ts:116 - PrometheusExporter
+src/lib/monitoring/index.ts:117 - prometheusExporter
+src/lib/monitoring/index.ts:118 - exportPrometheusMetrics
+src/lib/monitoring/index.ts:119 - Metric
+src/lib/monitoring/index.ts:120 - HistogramMetric
+src/lib/monitoring/index.ts:121 - MetricType
+src/lib/monitoring/performance-trend-aggregation.test.ts:12 - TrendAggregationOptions (used in module)
+src/lib/monitoring/performance-trend-aggregation.test.ts:18 - AggregatedTrend (used in module)
+src/lib/monitoring/performance-trend-aggregation.test.ts:29 - TrendSnapshot (used in module)
+src/lib/monitoring/performance-trend.test.ts:27 - TrendData (used in module)
+src/lib/monitoring/sentry-test.ts:12 - testSentryIntegration
+src/lib/monitoring/sentry-test.ts:48 - getSentryStatus
+src/lib/monitoring/sentry-test.ts:63 - logSentryStatus
+src/lib/monitoring/use-performance.tsx:382 - ApiStats (used in module)
+src/lib/monitoring/use-performance.tsx:382 - UseApiPerformanceOptions (used in module)
+src/lib/monitoring/use-performance.tsx:382 - MemoryInfo (used in module)
+src/lib/monitoring/utils.ts:11 - getPerformanceScoreColor
+src/lib/monitoring/utils.ts:20 - getPerformanceScoreLabel
+src/lib/monitoring/utils.ts:29 - getPerformanceColor
+src/lib/monitoring/utils.ts:43 - calculatePerformanceScore
+src/lib/monitoring/utils.ts:75 - getResourceType
+src/lib/monitoring/utils.ts:94 - getAlertKey
+src/lib/monitoring/utils.ts:105 - isAboveThreshold
+src/lib/monitoring/utils.ts:112 - formatDuration
+src/lib/monitoring/utils.ts:119 - truncateObject
+src/lib/monitoring/utils.ts:134 - getPerformanceNow
+src/lib/monitoring/utils.ts:144 - isBrowser (used in module)
+src/lib/monitoring/utils.ts:151 - isFeatureSupported
+src/lib/monitoring/utils.ts:167 - setIntervalSafe
+src/lib/monitoring/utils.ts:180 - clearIntervalSafe
+src/lib/monitoring/utils.ts:191 - addEventListenerSafe
+src/lib/multimodal/image-utils.ts:87 - resizeImage
+src/lib/multimodal/image-utils.ts:124 - getImageDimensions
+src/lib/multimodal/image-utils.ts:135 - imageToBuffer
+src/lib/multimodal/image-utils.ts:151 - generateThumbnail
+src/lib/multimodal/image-utils.ts:166 - getImageMetadata
+src/lib/multimodal/image-utils.ts:8 - ImageDimensions (used in module)
+src/lib/multimodal/image-utils.ts:13 - ValidationResult (used in module)
+src/lib/multimodal/types.ts:27 - DetectedObject (used in module)
+src/lib/multimodal/types.ts:101 - ImageProcessingProgress
+src/lib/multimodal/types.ts:107 - AudioProcessingProgress
+src/lib/multimodal/types.ts:115 - BailianImageObject (used in module)
+src/lib/multimodal/types.ts:126 - BailianImageOutput (used in module)
+src/lib/multimodal/types.ts:137 - BailianTranscriptionSegment (used in module)
+src/lib/multimodal/types.ts:145 - BailianTranscriptionOutput (used in module)
+src/lib/multimodal/types.ts:158 - VolcengineBBox (used in module)
+src/lib/multimodal/types.ts:165 - VolcengineObject (used in module)
+src/lib/multimodal/types.ts:178 - VolcengineTranscriptionSegment (used in module)
+src/lib/notifications/index.ts:6 - useNotificationStore
+src/lib/notifications/index.ts:6 - useFetchNotifications
+src/lib/notifications/index.ts:6 - useCreateNotification
+src/lib/notifications/index.ts:7 - NotificationState
+src/lib/notifications/index.ts:11 - Notification
+src/lib/notifications/index.ts:12 - CreateNotificationDto
+src/lib/notifications/index.ts:13 - UpdateNotificationDto
+src/lib/notifications/index.ts:14 - NotificationFilters
+src/lib/notifications/index.ts:15 - NotificationListResponse
+src/lib/notifications/index.ts:16 - NotificationStats
+src/lib/notifications/index.ts:17 - NotificationPreferences
+src/lib/notifications/index.ts:18 - NotificationTemplate
+src/lib/notifications/index.ts:19 - NotificationEvent
+src/lib/notifications/index.ts:20 - NotificationStatus
+src/lib/notifications/index.ts:24 - NotificationType
+src/lib/notifications/index.ts:25 - NotificationPriority
+src/lib/notifications/index.ts:28 - NOTIFICATION_TEMPLATES
+src/lib/notifications/store.ts:211 - selectUnreadCount
+src/lib/notifications/store.ts:212 - selectNotifications
+src/lib/notifications/store.ts:213 - selectPreferences
+src/lib/notifications/store.ts:214 - selectIsLoading
+src/lib/notifications/store.ts:303 - default
+src/lib/offline/index.ts:9 - SyncOperationType
+src/lib/offline/index.ts:10 - SyncStatus
+src/lib/offline/index.ts:11 - PendingOperation
+src/lib/offline/index.ts:12 - SyncQueue
+src/lib/offline/index.ts:13 - OfflineData
+src/lib/offline/index.ts:14 - SyncResult
+src/lib/offline/index.ts:15 - SyncError
+src/lib/offline/index.ts:16 - NetworkStatus
+src/lib/offline/index.ts:17 - SyncConfig
+src/lib/offline/index.ts:18 - OfflineEntityType
+src/lib/offline/index.ts:22 - DEFAULT_SYNC_CONFIG
+src/lib/offline/index.ts:23 - STORAGE_KEYS
+src/lib/offline/index.ts:24 - OFFLINE_ENTITIES
+src/lib/offline/index.ts:29 - saveOfflineData
+src/lib/offline/index.ts:30 - batchSaveOfflineData
+src/lib/offline/index.ts:31 - getOfflineData
+src/lib/offline/index.ts:32 - getAllOfflineData
+src/lib/offline/index.ts:33 - getUnsyncedData
+src/lib/offline/index.ts:34 - deleteOfflineData
+src/lib/offline/index.ts:35 - clearOfflineData
+src/lib/offline/index.ts:36 - addPendingOperation
+src/lib/offline/index.ts:37 - updatePendingOperation
+src/lib/offline/index.ts:38 - getPendingOperations
+src/lib/offline/index.ts:39 - deletePendingOperation
+src/lib/offline/index.ts:40 - clearPendingOperations
+src/lib/offline/index.ts:41 - getPendingOperationsCount
+src/lib/offline/index.ts:42 - saveNetworkStatus
+src/lib/offline/index.ts:43 - getNetworkStatus
+src/lib/offline/index.ts:44 - generateId
+src/lib/offline/index.ts:45 - closeDatabase
+src/lib/offline/index.ts:46 - isIndexedDBAvailable
+src/lib/offline/index.ts:51 - useSyncManager
+src/lib/offline/index.ts:52 - initNetworkListener
+src/lib/offline/index.ts:53 - getSyncSummary
+src/lib/offline/index.ts:54 - createSyncOperation
+src/lib/offline/index.ts:59 - useOfflineSync
+src/lib/offline/index.ts:60 - useNetworkStatus
+src/lib/offline/index.ts:61 - useOnline
+src/lib/offline/index.ts:62 - usePendingCount
+src/lib/offline/index.ts:63 - useOfflineData
+src/lib/offline/index.ts:64 - useOfflineReady
+src/lib/offline/useOfflineSync.ts:276 - default
+src/lib/performance/api-response-tracker.ts:45 - ApiTrackerConfig (used in module)
+src/lib/permissions/index.ts:6 - Permission
+src/lib/permissions/index.ts:7 - Role
+src/lib/permissions/index.ts:8 - PermissionContext
+src/lib/permissions/index.ts:8 - RoleDefinition
+src/lib/permissions/index.ts:11 - getRoleDefinition
+src/lib/permissions/index.ts:12 - getPermissionsForRoles
+src/lib/permissions/index.ts:13 - hasRolePermission
+src/lib/permissions/index.ts:14 - hasPermission
+src/lib/permissions/index.ts:15 - hasAnyPermission
+src/lib/permissions/index.ts:16 - hasAllPermissions
+src/lib/permissions/index.ts:17 - hasRole
+src/lib/permissions/index.ts:18 - hasAnyRole
+src/lib/permissions/index.ts:19 - hasAllRoles
+src/lib/permissions/index.ts:22 - withRole
+src/lib/permissions/index.ts:23 - withAnyRole
+src/lib/permissions/index.ts:24 - withAllRoles
+src/lib/permissions/index.ts:25 - withPermissions
+src/lib/permissions/index.ts:26 - withAnyPermission
+src/lib/permissions/index.ts:29 - initializeRbacTables
+src/lib/permissions/index.ts:30 - getAllRoles
+src/lib/permissions/index.ts:31 - getAllPermissions
+src/lib/permissions/index.ts:32 - getPermissionsByRole
+src/lib/permissions/index.ts:33 - assignPermissionsToRole
+src/lib/permissions/index.ts:34 - removePermissionsFromRole
+src/lib/permissions/index.ts:35 - addRolesToUser
+src/lib/permissions/index.ts:36 - removeRolesFromUser
+src/lib/permissions/index.ts:37 - getUserRoles
+src/lib/permissions/index.ts:40 - seedDefaultRolesAndPermissions
+src/lib/permissions/middleware.ts:95 - withPermissionContext (used in module)
+src/lib/permissions/middleware.ts:119 - requirePermissionContext (used in module)
+src/lib/permissions/middleware.ts:251 - withAdmin
+src/lib/permissions/middleware.ts:261 - withManagerOrAdmin
+src/lib/permissions/middleware.ts:271 - withMemberOrHigher
+src/lib/permissions/middleware.ts:281 - withPermissionOrRole
+src/lib/permissions/middleware.ts:307 - withPermissionAndRole
+src/lib/permissions/middleware.ts:341 - withOptionalPermissionContext
+src/lib/permissions/migrations.ts:12 - migrate (used in module)
+src/lib/permissions/migrations.ts:106 - rollback (used in module)
+src/lib/permissions/migrations.ts:134 - getMigrationStatus (used in module)
+src/lib/permissions/migrations.ts:151 - default
+src/lib/permissions/rbac.ts:207 - getAllRoleDefinitions
+src/lib/permissions/rbac.ts:326 - isGuest
+src/lib/permissions/rbac.ts:344 - matchesPermissionPattern
+src/lib/permissions/rbac.ts:18 - RoleDefinition (used in module)
+src/lib/permissions/rbac.ts:19 - PermissionContext (used in module)
+src/lib/permissions/rbac.ts:20 - PermissionCheckResult (used in module)
+src/lib/permissions/rbac.ts:21 - PermissionAction (used in module)
+src/lib/permissions/rbac.ts:22 - ParsedPermission (used in module)
+src/lib/prefetch/index.ts:9 - UserBehaviorAnalyzer
+src/lib/prefetch/index.ts:10 - globalBehaviorAnalyzer
+src/lib/prefetch/index.ts:11 - UserBehaviorPattern
+src/lib/prefetch/index.ts:12 - UserSession
+src/lib/prefetch/index.ts:13 - UserBehaviorData
+src/lib/prefetch/index.ts:18 - PredictivePrefetcher
+src/lib/prefetch/index.ts:19 - globalPrefetcher
+src/lib/prefetch/index.ts:20 - UserContext
+src/lib/prefetch/index.ts:21 - PrefetchPrediction
+src/lib/prefetch/index.ts:22 - PredictivePrefetchResult
+src/lib/prefetch/index.ts:27 - RoutePrefetcher
+src/lib/prefetch/index.ts:28 - ResourcePriorityManager
+src/lib/prefetch/index.ts:29 - globalRoutePrefetcher
+src/lib/prefetch/index.ts:30 - ROUTE_PREFETCH_CONFIGS
+src/lib/prefetch/index.ts:31 - RoutePrefetchConfig
+src/lib/prefetch/index.ts:32 - PrefetchContext
+src/lib/prefetch/index.ts:37 - ResourcePrefetcher
+src/lib/prefetch/index.ts:38 - globalResourcePrefetcher
+src/lib/prefetch/index.ts:39 - PREFETCH_PRESETS
+src/lib/prefetch/index.ts:40 - ResourceConfig
+src/lib/prefetch/index.ts:41 - ResourcePrefetchResult
+src/lib/prefetch/index.ts:42 - ViewportBasedConfig
+src/lib/prefetch/index.ts:47 - PrefetchProvider
+src/lib/prefetch/index.ts:48 - usePrefetchContext
+src/lib/prefetch/index.ts:49 - PrefetchProviderProps
+src/lib/prefetch/index.ts:50 - PrefetchMetrics
+src/lib/prefetch/index.ts:55 - usePrefetch
+src/lib/prefetch/index.ts:56 - useBatchPrefetch
+src/lib/prefetch/index.ts:57 - UsePrefetchOptions
+src/lib/prefetch/index.ts:58 - PrefetchResult (used in module)
+src/lib/prefetch/index.ts:62 - usePredictivePrefetch
+src/lib/prefetch/index.ts:63 - UsePredictivePrefetchOptions
+src/lib/prefetch/index.ts:64 - PredictionResult
+src/lib/prefetch/index.ts:68 - useResourceHint
+src/lib/prefetch/index.ts:69 - useBatchResourceHints
+src/lib/prefetch/index.ts:70 - useDnsPrefetch
+src/lib/prefetch/index.ts:71 - usePreconnect
+src/lib/prefetch/index.ts:72 - usePrefetchImages
+src/lib/prefetch/index.ts:73 - usePreloadFonts
+src/lib/prefetch/index.ts:74 - useAllResourceHints
+src/lib/prefetch/index.ts:75 - useSmartResourceHints
+src/lib/prefetch/index.ts:76 - ResourceHintConfig
+src/lib/prefetch/index.ts:77 - ResourceHintResult
+src/lib/prefetch/predictive-prefetcher.ts:420 - usePredictivePrefetch
+src/lib/prefetch/predictive-prefetcher.ts:10 - UserBehaviorPattern (used in module)
+src/lib/prefetch/prefetch-provider.tsx:393 - default
+src/lib/rate-limit/config.ts:69 - validateRateLimitConfig
+src/lib/rate-limit/config.ts:99 - getDefaultRateLimitConfig (used in module)
+src/lib/rate-limit/event-logger.ts:14 - storeRateLimitEvent
+src/lib/rate-limit/event-logger.ts:38 - getRateLimitEvents (used in module)
+src/lib/rate-limit/event-logger.ts:93 - getRateLimitStats
+src/lib/rate-limit/event-logger.ts:125 - cleanupOldRateLimitEvents
+src/lib/rate-limit/event-logger.ts:156 - getTopOffenders
+src/lib/rate-limit/index.ts:379 - withRateLimit
+src/lib/rate-limit/index.ts:480 - getRateLimitStatus
+src/lib/rate-limit/index.ts:21 - RateLimitAlgorithm (used in module)
+src/lib/rate-limit/index.ts:26 - RateLimitConfig (used in module)
+src/lib/rate-limit/index.ts:45 - RateLimitResult (used in module)
+src/lib/rate-limit/index.ts:528 - DEFAULT_LIMITS (used in module)
+src/lib/rate-limit/memory-store.ts:337 - closeMemoryStore
+src/lib/rate-limit/middleware.ts:302 - withRateLimit
+src/lib/rate-limit/middleware.ts:421 - createRateLimitMiddleware
+src/lib/rate-limit/middleware.ts:384 - MiddlewareConfig (used in module)
+src/lib/rate-limit/sliding-window.ts:244 - resetSlidingWindow
+src/lib/rate-limit/sliding-window.ts:271 - cleanupSlidingWindows
+src/lib/rate-limit/sliding-window.ts:18 - SlidingWindowResult (used in module)
+src/lib/rate-limit/storage-factory.ts:43 - getStorageType (used in module)
+src/lib/rate-limit/storage-factory.ts:64 - getStorageStatus
+src/lib/rate-limit/storage-factory.ts:102 - getMemoryStorage
+src/lib/rate-limit/storage-factory.ts:109 - withFallback
+src/lib/rate-limit/storage-factory.ts:167 - clearRedisAvailabilityCache
+src/lib/rate-limit/storage-factory.ts:14 - StorageConfig (used in module)
+src/lib/rate-limit/storage-factory.ts:29 - StorageType (used in module)
+src/lib/rate-limit/storage-factory.ts:34 - StorageStatus (used in module)
+src/lib/rate-limit/token-bucket.ts:247 - resetTokenBucket
+src/lib/rate-limit/token-bucket.ts:268 - setTokenBucketCapacity
+src/lib/rate-limit/token-bucket.ts:289 - addTokensToBucket
+src/lib/rate-limit/token-bucket.ts:325 - consumeTokens
+src/lib/rate-limit/token-bucket.ts:18 - TokenBucketResult (used in module)
+src/lib/react-compiler/index.ts:7 - getReactCompilerConfig
+src/lib/react-compiler/index.ts:8 - shouldCompile
+src/lib/react-compiler/index.ts:9 - getNextReactCompilerConfig
+src/lib/react-compiler/index.ts:10 - DEFAULT_REACT_COMPILER_CONFIG
+src/lib/react-compiler/index.ts:11 - ReactCompilerConfig
+src/lib/react-compiler/index.ts:16 - ComponentScanner
+src/lib/react-compiler/index.ts:17 - quickScan
+src/lib/react-compiler/index.ts:18 - CompilerIssue
+src/lib/react-compiler/index.ts:19 - IncompatibilityReport
+src/lib/react-compiler/index.ts:20 - ScanResult
+src/lib/react-compiler/index.ts:25 - PerformanceMeasurer
+src/lib/react-compiler/index.ts:26 - usePerformanceTracker
+src/lib/react-compiler/index.ts:27 - PerformanceMetrics
+src/lib/react-compiler/index.ts:28 - PerformanceComparison
+src/lib/react-compiler/index.ts:29 - BenchmarkResult
+src/lib/react-compiler/index.ts:34 - MigrationGuideGenerator
+src/lib/react-compiler/index.ts:35 - generateBatchGuides
+src/lib/react-compiler/index.ts:36 - MigrationStep
+src/lib/react-compiler/index.ts:37 - MigrationGuide
+src/lib/realtime/examples.tsx:22 - BasicWebSocketExample (used in module)
+src/lib/realtime/examples.tsx:97 - RealtimeChatExample (used in module)
+src/lib/realtime/examples.tsx:180 - EnhancedWebSocketExample (used in module)
+src/lib/realtime/examples.tsx:304 - NotificationServiceExample (used in module)
+src/lib/realtime/examples.tsx:431 - WebSocketDashboard (used in module)
+src/lib/realtime/examples.tsx:475 - default
+src/lib/realtime/index.ts:13 - useWebSocket
+src/lib/realtime/index.ts:13 - createMessage
+src/lib/realtime/index.ts:13 - isMessageType
+src/lib/realtime/index.ts:16 - default
+src/lib/realtime/index.ts:25 - notificationStore
+src/lib/realtime/index.ts:29 - RetryManager
+src/lib/realtime/index.ts:30 - retryManager
+src/lib/realtime/index.ts:31 - withRetry
+src/lib/realtime/index.ts:32 - calculateBackoffDelay
+src/lib/realtime/index.ts:33 - RetryOptions
+src/lib/realtime/index.ts:34 - RetryState
+src/lib/realtime/index.ts:35 - RetryEntry
+src/lib/realtime/index.ts:9 - generateMessageId
+src/lib/realtime/index.ts:16 - createWebSocketMessage
+src/lib/realtime/index.ts:41 - isValidWebSocketMessage
+src/lib/realtime/index.ts:62 - parseWebSocketMessage
+src/lib/realtime/index.ts:9 - WebSocketMessage
+src/lib/realtime/index.ts:20 - RealtimeNotificationType
+src/lib/realtime/index.ts:30 - NotificationCategory
+src/lib/realtime/index.ts:32 - RealtimeNotification
+src/lib/realtime/index.ts:53 - ConnectionState
+src/lib/realtime/index.ts:64 - ChannelSubscription
+src/lib/realtime/index.ts:74 - TaskStatusChangedPayload
+src/lib/realtime/index.ts:81 - TaskAssignedPayload
+src/lib/realtime/index.ts:88 - TaskCommentPayload
+src/lib/realtime/index.ts:95 - TaskDeletedPayload
+src/lib/realtime/index.ts:101 - TaskUpdatedPayload
+src/lib/realtime/index.ts:108 - MemberOnlinePayload
+src/lib/realtime/index.ts:113 - MemberOfflinePayload
+src/lib/realtime/index.ts:118 - MemberStatusChangedPayload
+src/lib/realtime/index.ts:124 - SystemAnnouncementPayload
+src/lib/realtime/index.ts:130 - ProjectUpdatedPayload
+src/lib/realtime/index.ts:137 - NotificationPayload
+src/lib/realtime/index.ts:15 - NotificationEvent
+src/lib/realtime/index.ts:34 - NotificationSubscription
+src/lib/realtime/index.ts:41 - BroadcastOptions
+src/lib/realtime/index.ts:50 - OfflineQueueEntry
+src/lib/realtime/index.ts:58 - NotificationError
+src/lib/realtime/index.ts:1037 - notificationService
+src/lib/realtime/index.ts:92 - readStatusStore
+src/lib/realtime/notification-hooks.ts:275 - useNotificationHistory
+src/lib/realtime/notification-hooks.ts:14 - NotificationPreferences (used in module)
+src/lib/realtime/notification-hooks.ts:43 - NotificationHistoryItem (used in module)
+src/lib/realtime/notification-hooks.ts:50 - NotificationStats (used in module)
+src/lib/realtime/notification-provider.tsx:91 - NotificationProvider (used in module)
+src/lib/realtime/notification-provider.tsx:478 - useNotificationContext
+src/lib/realtime/notification-provider.tsx:487 - NotificationContextValue (used in module)
+src/lib/realtime/notification-provider.tsx:487 - NotificationProviderProps (used in module)
+src/lib/realtime/notification-provider.tsx:489 - default
+src/lib/realtime/server.ts:134 - default
+src/lib/realtime/useEnhancedWebSocket.ts:25 - WebSocketConfig (used in module)
+src/lib/realtime/useEnhancedWebSocket.ts:39 - WebSocketStats (used in module)
+src/lib/realtime/useEnhancedWebSocket.ts:52 - MessagePriority (used in module)
+src/lib/realtime/useEnhancedWebSocket.ts:60 - PrioritizedWebSocketMessage (used in module)
+src/lib/realtime/useEnhancedWebSocket.ts:66 - UseEnhancedWebSocketReturn (used in module)
+src/lib/realtime/useEnhancedWebSocket.ts:682 - default
+src/lib/realtime/useRealtimeNotifications.ts:20 - NotificationFilter (used in module)
+src/lib/realtime/useRealtimeNotifications.ts:29 - UseRealtimeNotificationsReturn (used in module)
+src/lib/realtime/useRealtimeNotifications.ts:433 - default
+src/lib/realtime/useTaskRealtime.ts:23 - TaskRealtimeUpdate (used in module)
+src/lib/realtime/useTaskRealtime.ts:30 - UseTaskRealtimeReturn (used in module)
+src/lib/realtime/useTaskRealtime.ts:242 - default
+src/lib/realtime/useWebSocket.ts:18 - WebSocketStatus (used in module)
+src/lib/realtime/useWebSocket.ts:29 - WebSocketOptions (used in module)
+src/lib/realtime/useWebSocket.ts:36 - UseWebSocketReturn (used in module)
+src/lib/realtime/useWebSocket.ts:361 - default
+src/lib/redis/client.ts:119 - closeRedisClient (used in module)
+src/lib/search/index.ts:12 - searchItems
+src/lib/search/index.ts:13 - highlightSearchTerm (used in module)
+src/lib/search/index.ts:14 - applyFilters
+src/lib/search/index.ts:15 - applySort
+src/lib/search/index.ts:16 - extractFilterOptions
+src/lib/search/index.ts:17 - extractLabelOptions
+src/lib/search/index.ts:18 - extractAssigneeOptions
+src/lib/search/index.ts:19 - applySearchFilterSort
+src/lib/search/index.ts:20 - hasActiveFilters
+src/lib/search/index.ts:21 - clearAllFilters
+src/lib/search/index.ts:22 - clearAllCaches
+src/lib/search/index.ts:23 - getCacheStats
+src/lib/search/index.ts:24 - toggleSortDirection
+src/lib/search/index.ts:33 - debounce
+src/lib/search/index.ts:34 - debounceLeading
+src/lib/search/index.ts:35 - debounceCancellable
+src/lib/search/index.ts:36 - throttle
+src/lib/search/index.ts:37 - createSearchDebounce
+src/lib/search/index.ts:38 - DebounceManager
+src/lib/search/index.ts:39 - getGlobalDebounceManager
+src/lib/search/index.ts:40 - resetGlobalDebounceManager
+src/lib/search/index.ts:41 - SEARCH_DEBOUNCE_DELAYS
+src/lib/search/index.ts:46 - multiFieldSearch
+src/lib/search/index.ts:47 - createMultiFieldConfig
+src/lib/search/index.ts:48 - createRequiredFieldsConfig
+src/lib/search/index.ts:49 - toStandardSearchResult
+src/lib/search/index.ts:50 - getMultiFieldSearchStats
+src/lib/search/index.ts:59 - AdvancedSearchManager
+src/lib/search/index.ts:60 - getGlobalSearchManager
+src/lib/search/index.ts:61 - resetGlobalSearchManager
+src/lib/search/index.ts:62 - fuseHighlightSearchTerm
+src/lib/search/index.ts:63 - parseSearchQuery
+src/lib/search/index.ts:64 - buildSearchQuery
+src/lib/search/index.ts:69 - SearchIndexManager
+src/lib/search/index.ts:70 - getGlobalIndexManager
+src/lib/search/index.ts:71 - resetGlobalIndexManager
+src/lib/search/index.ts:72 - convertIssueToTaskEntity
+src/lib/search/index.ts:73 - convertToProjectEntity
+src/lib/search/index.ts:74 - convertToMemberEntity
+src/lib/search/index.ts:75 - convertToAgentEntity
+src/lib/search/index.ts:80 - SearchHistoryManager
+src/lib/search/index.ts:81 - getGlobalHistoryManager
+src/lib/search/index.ts:82 - resetGlobalHistoryManager
+src/lib/search/index.ts:91 - MultiFieldSearchConfig (used in module)
+src/lib/search/index.ts:92 - FieldSearchConfig
+src/lib/search/index.ts:93 - MultiFieldSearchResult
+src/lib/search/index.ts:94 - FieldMatch
+src/lib/search/index.ts:99 - SearchHistoryEntry (used in module)
+src/lib/search/index.ts:100 - AutocompleteSuggestion
+src/lib/search/index.ts:101 - SearchIndex
+src/lib/search/index.ts:105 - AutocompleteSuggestionType
+src/lib/search/index.ts:110 - SearchIndexConfig
+src/lib/search/index.ts:111 - SearchIndexMetadata
+src/lib/search/index.ts:112 - UnifiedEntity
+src/lib/search/index.ts:113 - TaskEntity
+src/lib/search/index.ts:114 - ProjectEntity
+src/lib/search/index.ts:115 - MemberEntity
+src/lib/search/index.ts:116 - AgentEntity
+src/lib/search/index.ts:121 - HistoryEntry
+src/lib/search/index.ts:122 - SearchHistoryStorage
+src/lib/search/index.ts:129 - SearchConfig
+src/lib/search/index.ts:129 - SearchResult (used in module)
+src/lib/search/index.ts:129 - FilterConfig
+src/lib/search/index.ts:129 - SortConfig (used in module)
+src/lib/search/index.ts:129 - ActiveFilters
+src/lib/search/index.ts:138 - SearchEvent
+src/lib/search/index.ts:150 - SearchPerformanceMetrics (used in module)
+src/lib/search/index.ts:161 - SearchOptions (used in module)
+src/lib/search/index.ts:179 - CompleteSearchResult
+src/lib/search/index.ts:202 - DEFAULT_SEARCH_OPTIONS
+src/lib/search/index.ts:211 - PERFORMANCE_THRESHOLDS
+src/lib/search/index.ts:225 - CACHE_SIZES
+src/lib/search/types.ts:69 - AutocompleteResult
+src/lib/search/types.ts:135 - SearchFilters (used in module)
+src/lib/search/types.ts:174 - SearchStatistics
+src/lib/search/types.ts:196 - SearchCacheEntry
+src/lib/search/types.ts:210 - CacheStatistics
+src/lib/search/types.ts:230 - SearchableEntity (used in module)
+src/lib/search/types.ts:333 - SearchPreferences (used in module)
+src/lib/search/types.ts:357 - DEFAULT_SEARCH_PREFERENCES
+src/lib/search/types.ts:376 - SearchEventType (used in module)
+src/lib/search/types.ts:387 - SearchEvent (used in module)
+src/lib/search/types.ts:396 - SearchEventListener
+src/lib/search/types.ts:405 - SearchResultsByType
+src/lib/search/types.ts:412 - SearchIndexOptions
+src/lib/seo/metadata.ts:8 - PageMetadata (used in module)
+src/lib/seo/metadata.ts:20 - siteConfig (used in module)
+src/lib/services/email.ts:12 - EmailConfig (used in module)
+src/lib/services/email.ts:30 - EmailNotification (used in module)
+src/lib/services/email.ts:44 - EmailService (used in module)
+src/lib/services/notification-enhanced.ts:25 - UserNotificationPreferences (used in module)
+src/lib/services/notification-enhanced.ts:41 - NotificationDeliveryOptions (used in module)
+src/lib/services/notification-enhanced.ts:574 - enhancedNotificationService
+src/lib/services/notification-storage.ts:15 - NotificationStorage (used in module)
+src/lib/sse/index.ts:9 - getSSEHeaders
+src/lib/sse/index.ts:21 - formatSSEEvent
+src/lib/sse/index.ts:44 - parseSSEMessage
+src/lib/sse/index.ts:82 - isValidSSEConnection
+src/lib/sse/index.ts:90 - getClientIP
+src/lib/sse/index.ts:194 - getGlobalStreamManager
+src/lib/sse/index.ts:210 - resetGlobalStreamManager
+src/lib/sse/index.ts:11 - SSEClient
+src/lib/sse/index.ts:22 - SSEStreamManager
+src/lib/sse/index.ts:50 - useSSE
+src/lib/sse/index.ts:204 - useHealthSSE
+src/lib/tools/executor.ts:18 - ToolExecutionResult (used in module)
+src/lib/tools/executor.ts:337 - WebTools (used in module)
+src/lib/undo-redo/index.ts:63 - useUndoRedo (used in module)
+src/lib/undo-redo/index.ts:89 - useUndoRedoGroup
+src/lib/undo-redo/index.ts:128 - useUndoRedoShortcuts
+src/lib/undo-redo/index.ts:11 - HistoryEntry
+src/lib/undo-redo/index.ts:12 - HistoryConfig
+src/lib/undo-redo/index.ts:13 - HistoryState
+src/lib/undo-redo/index.ts:14 - UndoRedoState
+src/lib/undo-redo/index.ts:15 - UndoRedoAction
+src/lib/undo-redo/index.ts:16 - HistoryGroup
+src/lib/undo-redo/index.ts:17 - HistoryExport
+src/lib/undo-redo/index.ts:18 - HistoryStatistics
+src/lib/undo-redo/index.ts:19 - UndoRedoEvent
+src/lib/undo-redo/index.ts:20 - UndoRedoListener
+src/lib/undo-redo/index.ts:21 - UndoRedoMiddlewareConfig
+src/lib/undo-redo/index.ts:29 - undoRedo
+src/lib/undo-redo/index.ts:30 - undoRedoImpl
+src/lib/undo-redo/index.ts:34 - UndoRedoStoreActions
+src/lib/undo-redo/index.ts:42 - useUndoRedoManager (used in module)
+src/lib/undo-redo/index.ts:43 - useCanUndo (used in module)
+src/lib/undo-redo/index.ts:44 - useCanRedo (used in module)
+src/lib/undo-redo/index.ts:45 - useHistory
+src/lib/undo-redo/index.ts:46 - useHistoryStats
+src/lib/undo-redo/index.ts:47 - useCurrentHistoryIndex
+src/lib/undo-redo/index.ts:48 - createHistoryEntry
+src/lib/undo-redo/index.ts:49 - pushOperation
+src/lib/undo-redo/index.ts:50 - executeOperation
+src/lib/utils/async.ts:398 - LRUCache (used in module)
+src/lib/utils/async.ts:398 - createCache (used in module)
+src/lib/utils/breakpoints.ts:38 - isAtLeastBreakpoint
+src/lib/utils/breakpoints.ts:47 - getCurrentBreakpoint
+src/lib/utils/breakpoints.ts:64 - useBreakpoint
+src/lib/utils/breakpoints.ts:21 - BreakpointKey (used in module)
+src/lib/utils/index.ts:19 - debounce
+src/lib/utils/index.ts:20 - throttle
+src/lib/utils/index.ts:21 - memoize
+src/lib/utils/index.ts:22 - sleep
+src/lib/utils/index.ts:23 - retry
+src/lib/utils/index.ts:27 - deepClone
+src/lib/utils/index.ts:30 - formatFileSize
+src/lib/utils/index.ts:30 - formatNumber
+src/lib/utils/index.ts:33 - generateId
+src/lib/utils/index.ts:33 - generateUUID
+src/lib/utils/index.ts:36 - LRUCache
+src/lib/utils/index.ts:36 - createCache
+src/lib/utils/index.ts:40 - formatTimeAgo
+src/lib/utils/index.ts:41 - formatDate
+src/lib/utils/index.ts:42 - formatDateTime
+src/lib/utils/index.ts:43 - isToday
+src/lib/utils/index.ts:44 - isYesterday
+src/lib/utils/index.ts:48 - batch
+src/lib/utils/index.ts:48 - shuffle
+src/lib/utils/index.ts:48 - randomItem
+src/lib/utils/index.ts:48 - unique
+src/lib/utils/index.ts:48 - groupBy
+src/lib/utils/index.ts:48 - pick
+src/lib/utils/index.ts:48 - omit
+src/lib/utils/index.ts:51 - clamp
+src/lib/utils/index.ts:51 - mapRange
+src/lib/utils/index.ts:51 - lerp
+src/lib/utils/index.ts:54 - isEmpty
+src/lib/utils/index.ts:54 - isValidEmail
+src/lib/utils/index.ts:54 - isValidUrl
+src/lib/utils/index.ts:58 - isClient
+src/lib/utils/index.ts:59 - isServer
+src/lib/utils/index.ts:60 - isBrowser
+src/lib/utils/index.ts:61 - isNode
+src/lib/utils/index.ts:62 - isTouchDevice
+src/lib/utils/index.ts:63 - getDeviceType
+src/lib/utils/index.ts:64 - prefersReducedMotion
+src/lib/utils/index.ts:65 - prefersDarkMode
+src/lib/utils/index.ts:66 - prefersLightMode
+src/lib/utils/index.ts:70 - getViewportSize
+src/lib/utils/index.ts:74 - isInViewport
+src/lib/utils/index.ts:75 - scrollToElement
+src/lib/utils/index.ts:76 - addEventListener
+src/lib/utils/index.ts:77 - getElementById
+src/lib/utils/index.ts:78 - querySelector
+src/lib/utils/index.ts:79 - querySelectorAll
+src/lib/utils/index.ts:80 - debounceDOM
+src/lib/utils/index.ts:81 - throttleDOM
+src/lib/utils/index.ts:82 - observeIntersection
+src/lib/utils/index.ts:83 - observeResize
+src/lib/utils/index.ts:84 - addClassWithDelay
+src/lib/utils/index.ts:85 - toggleClass
+src/lib/utils/index.ts:86 - hasAllClasses
+src/lib/utils/index.ts:87 - hasAnyClass
+src/lib/utils/index.ts:88 - getComputedStyleValue
+src/lib/utils/index.ts:93 - copyToClipboard
+src/lib/utils/index.ts:94 - readFromClipboard
+src/lib/utils/index.ts:95 - downloadFile
+src/lib/utils/index.ts:96 - getQueryParams
+src/lib/utils/index.ts:97 - updateQueryParams
+src/lib/utils/index.ts:101 - optimizeImageUrl
+src/lib/utils/index.ts:101 - preloadResources
+src/lib/utils/index.ts:101 - lazyLoadComponent
+src/lib/utils/index.ts:104 - cn
+src/lib/validation/data-converter.ts:14 - ConvertOptions (used in module)
+src/lib/validation/form-validator.ts:14 - ValidationRule (used in module)
+src/lib/validation/form-validator.ts:28 - FieldValidationConfig (used in module)
+src/lib/validation/form-validator.ts:36 - ValidationResult (used in module)
+src/lib/validation/form-validator.ts:45 - ValidationOptions (used in module)
+src/lib/validation/index.ts:13 - useFormValidation
+src/lib/validation/index.ts:4 - ValidationRule
+src/lib/validation/index.ts:9 - FieldValidators
+src/lib/validation/index.ts:17 - ValidationSchema
+src/lib/validation/index.ts:21 - ValidationErrors
+src/lib/validation/index.ts:25 - ValidationState
+src/lib/validation/index.ts:33 - ValidationOptions
+src/lib/validation/index.ts:95 - minLength
+src/lib/validation/index.ts:105 - maxLength
+src/lib/validation/index.ts:115 - pattern
+src/lib/validation/index.ts:124 - phone
+src/lib/validation/index.ts:149 - numeric
+src/lib/validation/index.ts:158 - integer
+src/lib/validation/index.ts:167 - range
+src/lib/validation/index.ts:181 - confirmPassword
+src/lib/validation/index.ts:195 - compose
+src/lib/validation/index.ts:209 - validators
+src/lib/validation/index.ts:9 - getRequiredErrorMessage
+src/lib/validation/index.ts:16 - getMinLengthErrorMessage
+src/lib/validation/index.ts:23 - getMaxLengthErrorMessage
+src/lib/validation/index.ts:30 - getRangeErrorMessage
+src/lib/validation/index.ts:37 - getPatternErrorMessage
+src/lib/validation/index.ts:44 - getEmailErrorMessage
+src/lib/validation/index.ts:51 - getPhoneErrorMessage
+src/lib/validation/index.ts:58 - getUrlErrorMessage
+src/lib/validation/index.ts:65 - getNumericErrorMessage
+src/lib/validation/index.ts:72 - getIntegerErrorMessage
+src/lib/validation/index.ts:79 - getConfirmPasswordErrorMessage
+src/lib/validation/useFormValidation.ts:323 - default
+src/lib/voice-meeting/signaling.ts:169 - handleJoinRoom (used in module)
+src/lib/voice-meeting/signaling.ts:230 - handleLeaveRoom (used in module)
+src/lib/voice-meeting/signaling.ts:275 - handleOffer (used in module)
+src/lib/voice-meeting/signaling.ts:304 - handleAnswer (used in module)
+src/lib/voice-meeting/signaling.ts:333 - handleIceCandidate (used in module)
+src/lib/voice-meeting/signaling.ts:362 - handleMuteStateChanged (used in module)
+src/lib/voice-meeting/signaling.ts:393 - handleMuteParticipant (used in module)
+src/lib/voice-meeting/signaling.ts:431 - handleRemoveParticipant (used in module)
+src/lib/voice-meeting/signaling.ts:484 - handleLockRoom (used in module)
+src/lib/voice-meeting/signaling.ts:520 - getMeetingRoom
+src/lib/voice-meeting/signaling.ts:527 - getAllMeetingRooms
+src/lib/voice-meeting/signaling.ts:534 - cleanupInactiveRooms (used in module)
+src/lib/voice-meeting/signaling.ts:17 - MeetingParticipant (used in module)
+src/lib/voice-meeting/signaling.ts:29 - MeetingRoom (used in module)
+src/lib/voice-meeting/signaling.ts:39 - JoinRoomPayload (used in module)
+src/lib/voice-meeting/signaling.ts:51 - OfferPayload (used in module)
+src/lib/voice-meeting/signaling.ts:57 - AnswerPayload (used in module)
+src/lib/voice-meeting/signaling.ts:63 - IceCandidatePayload (used in module)
+src/lib/websocket/index.ts:9 - getServer
+src/lib/websocket/index.ts:10 - getStats
+src/lib/websocket/index.ts:11 - getRoomInfo
+src/lib/websocket/index.ts:12 - getAllRooms
+src/lib/websocket/index.ts:13 - broadcastSystemAnnouncement
+src/lib/websocket/index.ts:14 - broadcastTaskStatusUpdate
+src/lib/websocket/index.ts:15 - broadcastTaskStatusToUser
+src/lib/websocket/index.ts:16 - createWebSocketServer
+src/lib/websocket/index.ts:20 - AuthenticatedSocket
+src/lib/websocket/index.ts:21 - TaskStatusUpdate
+src/lib/websocket/index.ts:22 - RoomUser (used in module)
+src/lib/websocket/index.ts:26 - WebSocketMessage
+src/lib/websocket/index.ts:30 - getRoomManager
+src/lib/websocket/index.ts:31 - resetRoomManager
+src/lib/websocket/index.ts:34 - RoomType
+src/lib/websocket/index.ts:35 - RoomVisibility
+src/lib/websocket/index.ts:36 - RoomParticipant
+src/lib/websocket/index.ts:37 - RoomConfig
+src/lib/websocket/index.ts:38 - RoomData
+src/lib/websocket/index.ts:39 - Room
+src/lib/websocket/index.ts:40 - CreateRoomOptions
+src/lib/websocket/index.ts:41 - JoinRoomOptions
+src/lib/websocket/index.ts:42 - RoomEventCallbacks
+src/lib/websocket/index.ts:47 - getPermissionManager
+src/lib/websocket/index.ts:48 - resetPermissionManager
+src/lib/websocket/index.ts:49 - createPermissionChecker
+src/lib/websocket/index.ts:50 - checkPermissions
+src/lib/websocket/index.ts:51 - DEFAULT_ROLE_PERMISSIONS
+src/lib/websocket/index.ts:54 - RoomPermission
+src/lib/websocket/index.ts:55 - MessagePermission
+src/lib/websocket/index.ts:56 - AdminPermission
+src/lib/websocket/index.ts:57 - Permission
+src/lib/websocket/index.ts:58 - UserRole
+src/lib/websocket/index.ts:59 - PermissionGrant
+src/lib/websocket/index.ts:60 - UserRoomPermissions
+src/lib/websocket/index.ts:61 - PermissionManager
+src/lib/websocket/index.ts:66 - getMessageStore
+src/lib/websocket/index.ts:67 - resetMessageStore
+src/lib/websocket/index.ts:70 - StoredMessage
+src/lib/websocket/index.ts:71 - MessageReaction
+src/lib/websocket/index.ts:72 - OfflineMessage
+src/lib/websocket/index.ts:73 - MessageHistoryOptions
+src/lib/websocket/index.ts:74 - MessageStoreStats
+src/lib/websocket/index.ts:75 - MessageStore
+src/lib/websocket/index.ts:79 - useCollaboration
+src/lib/websocket/index.ts:81 - ConnectionState
+src/lib/websocket/index.ts:82 - CollaborationRoomUser
+src/lib/websocket/index.ts:83 - CollaborationConfig
+src/lib/websocket/index.ts:84 - CollaborationState
+src/lib/websocket/index.ts:85 - CollaborationActions
+src/lib/websocket/index.ts:461 - isAuthMessage
+src/lib/websocket/index.ts:465 - isRoomMessage
+src/lib/websocket/index.ts:476 - isDocumentMessage
+src/lib/websocket/index.ts:486 - isCursorMessage
+src/lib/websocket/index.ts:492 - isPresenceMessage
+src/lib/websocket/index.ts:498 - isTaskMessage
+src/lib/websocket/index.ts:506 - isSystemMessage
+src/lib/websocket/index.ts:516 - createMessage
+src/lib/websocket/index.ts:526 - createRoomJoinedMessage
+src/lib/websocket/index.ts:538 - createCursorUpdate
+src/lib/websocket/index.ts:554 - createTaskStatusUpdate
+src/lib/websocket/index.ts:12 - BaseMessage
+src/lib/websocket/index.ts:30 - AuthMessage
+src/lib/websocket/index.ts:45 - RoomJoinMessage
+src/lib/websocket/index.ts:55 - RoomJoinedMessage
+src/lib/websocket/index.ts:64 - RoomLeaveMessage
+src/lib/websocket/index.ts:71 - RoomLeftMessage
+src/lib/websocket/index.ts:78 - RoomUserJoinedMessage
+src/lib/websocket/index.ts:86 - RoomUserLeftMessage
+src/lib/websocket/index.ts:94 - RoomUserListMessage
+src/lib/websocket/index.ts:106 - DocumentState
+src/lib/websocket/index.ts:111 - DocumentOpenMessage
+src/lib/websocket/index.ts:119 - DocumentOpenedMessage
+src/lib/websocket/index.ts:128 - DocumentOperation
+src/lib/websocket/index.ts:135 - DocumentOperationMessage
+src/lib/websocket/index.ts:143 - DocumentOperationAppliedMessage
+src/lib/websocket/index.ts:155 - DocumentSyncMessage
+src/lib/websocket/index.ts:162 - DocumentSyncedMessage
+src/lib/websocket/index.ts:174 - CursorPosition
+src/lib/websocket/index.ts:179 - CursorSelection
+src/lib/websocket/index.ts:184 - CursorUpdate
+src/lib/websocket/index.ts:192 - CursorMoveMessage
+src/lib/websocket/index.ts:201 - CursorUpdateMessage
+src/lib/websocket/index.ts:210 - SelectionUpdate
+src/lib/websocket/index.ts:217 - SelectionUpdateMessage
+src/lib/websocket/index.ts:226 - PresenceTypingMessage
+src/lib/websocket/index.ts:234 - PresenceTypingUpdatedMessage
+src/lib/websocket/index.ts:243 - PresenceUpdate
+src/lib/websocket/index.ts:269 - TaskStatusUpdateMessage
+src/lib/websocket/index.ts:274 - TaskStatusChangedMessage
+src/lib/websocket/index.ts:290 - TaskAssignedMessage
+src/lib/websocket/index.ts:306 - TaskCommentMessage
+src/lib/websocket/index.ts:325 - MemberStatusChangedMessage
+src/lib/websocket/index.ts:340 - SystemErrorMessage
+src/lib/websocket/index.ts:348 - SystemAnnouncementMessage
+src/lib/websocket/index.ts:362 - ProjectUpdatedMessage
+src/lib/websocket/index.ts:377 - NotificationMessage
+src/lib/websocket/index.ts:415 - CollaborationMessage
+src/lib/websocket/index.ts:427 - WebSocketMessageType
+src/lib/websocket/server.ts:71 - Room (used in module)
+src/lib/websocket/server.ts:832 - default
+src/lib/websocket/useCollaboration.ts:190 - useCollaboration (used in module)
+src/lib/websocket/useCollaboration.ts:78 - ReconnectionState (used in module)
+src/lib/websocket/useCollaboration.ts:84 - DisconnectReason (used in module)
+src/lib/websocket/useCollaboration.ts:92 - ConnectionContext (used in module)
+src/lib/websocket/useCollaboration.ts:99 - ConnectionQualityMetrics (used in module)
+src/test/api/test-helpers.ts:11 - mockRequest (used in module)
+src/test/api/test-helpers.ts:49 - mockFormDataRequest
+src/test/api/test-helpers.ts:68 - parseJsonResponse (used in module)
+src/test/api/test-helpers.ts:75 - expectSuccessResponse
+src/test/api/test-helpers.ts:85 - expectErrorResponse (used in module)
+src/test/api/test-helpers.ts:97 - expectValidationError
+src/test/api/test-helpers.ts:111 - expectAuthError
+src/test/api/test-helpers.ts:125 - expectNotFoundError
+src/test/api/test-helpers.ts:139 - expectRateLimitError
+src/test/api/test-helpers.ts:149 - expectUnauthorizedError
+src/test/api/test-helpers.ts:163 - expectForbiddenError
+src/test/api/test-helpers.ts:177 - expectInternalError
+src/test/api/test-helpers.ts:187 - mockAuthRequest (used in module)
+src/test/api/test-helpers.ts:207 - mockAdminRequest
+src/test/api/test-helpers.ts:225 - testHandlerErrors
+src/test/mocks/api-mocks.ts:102 - createMockCookieStore
+src/test/mocks/api-mocks.ts:132 - createMockResponse
+src/test/mocks/api-mocks.ts:178 - parseResponseJson
+src/test/mocks/api-mocks.ts:185 - assertSuccessResponse
+src/test/mocks/api-mocks.ts:168 - TEST_URLS
+src/test/utils/mock-request.ts:98 - createMockGetRequest
+src/test/utils/mock-request.ts:105 - createMockPostRequest
+src/test/utils/mock-request.ts:118 - createMockPutRequest
+src/test/utils/mock-request.ts:131 - createMockDeleteRequest
+src/app/[locale]/about/error.tsx:3 - default
+src/app/[locale]/about/loading.tsx:9 - default
+src/app/[locale]/about/page.tsx:34 - generateMetadata
+src/app/[locale]/about/page.tsx:26 - revalidate
+src/app/[locale]/analytics/page.tsx:17 - generateMetadata
+src/app/[locale]/analytics/page.tsx:34 - default
+src/app/[locale]/analytics/page.tsx:50 - dynamic
+src/app/[locale]/blog/error.tsx:3 - default
+src/app/[locale]/blog/loading.tsx:9 - default
+src/app/[locale]/blog/page.tsx:11 - generateMetadata
+src/app/[locale]/blog/page.tsx:133 - default
+src/app/[locale]/contact/error.tsx:3 - default
+src/app/[locale]/contact/loading.tsx:9 - default
+src/app/[locale]/contact/page.tsx:38 - generateMetadata
+src/app/[locale]/contact/page.tsx:134 - default
+src/app/[locale]/contact/page.tsx:30 - revalidate
+src/app/[locale]/dashboard/error.tsx:3 - default
+src/app/[locale]/dashboard/loading.tsx:10 - default
+src/app/[locale]/dashboard/page.tsx:8 - default
+src/app/[locale]/dashboard/page.tsx:1 - dynamic
+src/app/[locale]/knowledge-lattice/page.tsx:73 - default
+src/app/[locale]/knowledge-lattice/page.tsx:4 - metadata
+src/app/[locale]/portfolio/data.ts:245 - getProjectsByCategory
+src/app/[locale]/portfolio/error.tsx:7 - createPageErrorBoundary (used in module)
+src/app/[locale]/portfolio/error.tsx:5 - default
+src/app/[locale]/portfolio/loading.tsx:9 - default
+src/app/[locale]/portfolio/page.tsx:42 - generateMetadata
+src/app/[locale]/portfolio/page.tsx:158 - default
+src/app/[locale]/portfolio/page.tsx:34 - revalidate
+src/app/[locale]/scheduler/page.tsx:8 - default
+src/app/[locale]/scheduler/page.tsx:1 - dynamic
+src/app/[locale]/settings/error.tsx:7 - createPageErrorBoundary (used in module)
+src/app/[locale]/settings/error.tsx:5 - default
+src/app/[locale]/tasks/error.tsx:7 - createPageErrorBoundary (used in module)
+src/app/[locale]/tasks/error.tsx:5 - default
+src/app/[locale]/tasks/loading.tsx:10 - default
+src/app/[locale]/tasks/page.tsx:22 - default
+src/app/[locale]/tasks/page.tsx:9 - dynamic
+src/app/[locale]/team/error.tsx:3 - default
+src/app/[locale]/team/page.tsx:34 - generateMetadata
+src/app/[locale]/team/page.tsx:26 - revalidate
+src/app/api/csp-violation/route.ts:7 - POST
+src/app/api/csp-violation/route.ts:55 - GET
+src/app/api/projects/rate-limit-example.ts:83 - GET_STATUS
+src/app/api/projects/rate-limit-example.ts:16 - GET
+src/app/api/projects/rate-limit-example.ts:45 - POST
+src/app/api/revalidate/route_new_api.ts:27 - updateUserCache
+src/app/api/revalidate/route_new_api.ts:50 - refreshNotificationCount
+src/app/api/revalidate/route_new_api.ts:64 - updateBlogPost
+src/app/api/revalidate/route_new_api.ts:81 - refreshDashboard
+src/app/api/revalidate/route_new_api.ts:95 - revalidateEverything
+src/app/api/tasks/rate-limit-example.ts:81 - GET_STATUS
+src/app/api/tasks/rate-limit-example.ts:16 - GET
+src/app/api/tasks/rate-limit-example.ts:45 - POST
+src/app/api/tasks/route.ts:23 - TaskPriority (used in module)
+src/app/api/tasks/route.ts:28 - TaskStatus (used in module)
+src/app/api/tasks/route.ts:33 - Task (used in module)
+src/app/api/tasks/route.ts:59 - CreateTaskRequest (used in module)
+src/app/api/tasks/route.ts:77 - UpdateTaskRequest (used in module)
+src/app/api/tasks/route.ts:95 - TaskQueryParams (used in module)
+src/app/api/tasks/route.ts:119 - PaginatedResponse (used in module)
+src/app/demo/websocket/page.tsx:19 - default
+src/app/demo/websocket/page.tsx:14 - dynamic
+src/app/examples/realtime-dashboard/page.tsx:21 - default
+src/app/examples/realtime-dashboard/page.tsx:12 - dynamic
+src/components/analytics/examples/RealtimeUsageExample.tsx:15 - ExampleBasicDashboard
+src/components/analytics/examples/RealtimeUsageExample.tsx:45 - ExampleCustomDashboard
+src/components/analytics/examples/RealtimeUsageExample.tsx:105 - ExampleEnglishDashboard
+src/components/analytics/examples/RealtimeUsageExample.tsx:123 - ExampleMinimalDashboard
+src/components/analytics/examples/RealtimeUsageExample.tsx:141 - ExampleWithErrorHandling
+src/components/analytics/examples/RealtimeUsageExample.tsx:209 - default
+src/components/rating/__tests__/test-utils.tsx:12 - TestWrapper (used in module)
+src/components/rating/__tests__/test-utils.tsx:23 - renderWithProviders
+src/components/ui/__tests__/responsive-helpers.ts:24 - resizeTo (used in module)
+src/components/ui/__tests__/responsive-helpers.ts:32 - resizeToWidth (used in module)
+src/components/ui/__tests__/responsive-helpers.ts:40 - isBreakpoint (used in module)
+src/components/ui/__tests__/responsive-helpers.ts:47 - getCurrentBreakpoint (used in module)
+src/components/ui/__tests__/responsive-helpers.ts:61 - testBreakpoints (used in module)
+src/components/ui/__tests__/responsive-helpers.ts:76 - expectResponsiveClasses (used in module)
+src/components/ui/__tests__/responsive-helpers.ts:95 - isMobile (used in module)
+src/components/ui/__tests__/responsive-helpers.ts:102 - isTablet (used in module)
+src/components/ui/__tests__/responsive-helpers.ts:109 - isDesktop (used in module)
+src/components/ui/__tests__/responsive-helpers.ts:116 - isTouchDevice (used in module)
+src/components/ui/__tests__/responsive-helpers.ts:128 - getOrientation (used in module)
+src/components/ui/__tests__/responsive-helpers.ts:135 - simulateTouch (used in module)
+src/components/ui/__tests__/responsive-helpers.ts:170 - simulateKeyNavigation (used in module)
+src/components/ui/__tests__/responsive-helpers.ts:180 - expectTouchTargetSize (used in module)
+src/components/ui/__tests__/responsive-helpers.ts:189 - expectAccessibleContrast (used in module)
+src/components/ui/__tests__/responsive-helpers.ts:221 - verifyFocusOrder (used in module)
+src/components/ui/__tests__/responsive-helpers.ts:235 - expectAriaAttributes (used in module)
+src/components/ui/__tests__/responsive-helpers.ts:247 - expectRole (used in module)
+src/components/ui/__tests__/responsive-helpers.ts:254 - expectAccessibleName (used in module)
+src/components/ui/__tests__/responsive-helpers.ts:10 - BREAKPOINTS (used in module)
+src/components/ui/__tests__/responsive-helpers.ts:19 - Breakpoint (used in module)
+src/components/ui/__tests__/responsive-helpers.ts:264 - default
+src/features/notifications/services/notification.ts:13 - NotificationType (used in module)
+src/features/notifications/services/notification.ts:28 - NotificationPriority (used in module)
+src/features/notifications/services/notification.ts:38 - Notification (used in module)
+src/features/notifications/types/index.ts:2 - Notification
+src/features/notifications/types/index.ts:12 - NotificationPreferences
+src/features/notifications/types/index.ts:19 - NotificationStats
+src/lib/agent/communication/index.ts:10 - MessageBuilder
+src/lib/agent/communication/index.ts:9 - MessageType
+src/lib/agent/communication/index.ts:63 - MessagePriority
+src/lib/agent/communication/index.ts:73 - MessageStatus
+src/lib/agent/communication/index.ts:85 - PROTOCOL_VERSION
+src/lib/agent/communication/index.ts:90 - AgentMessageEnvelope
+src/lib/agent/communication/index.ts:119 - AgentEndpoint
+src/lib/agent/communication/index.ts:129 - MessageMetadata
+src/lib/agent/communication/index.ts:142 - MessageAck
+src/lib/agent/communication/index.ts:155 - TaskPayload
+src/lib/agent/communication/index.ts:170 - CollaborationPayload
+src/lib/agent/communication/index.ts:182 - DataPayload
+src/lib/agent/communication/index.ts:197 - NotificationPayload
+src/lib/agent/communication/index.ts:213 - HeartbeatPayload
+src/lib/agent/communication/index.ts:224 - CapabilityPayload
+src/lib/agent/communication/index.ts:234 - MeetingPayload
+src/lib/agent/communication/index.ts:248 - VotePayload
+src/lib/agent/communication/index.ts:261 - VoteOption
+src/lib/agent/communication/index.ts:270 - VoteResult
+src/lib/agent/communication/index.ts:285 - MessageHandler
+src/lib/agent/communication/index.ts:292 - MessageFilter
+src/lib/agent/communication/index.ts:299 - MessageTransformer
+src/lib/agent/communication/index.ts:306 - CommunicationConfig
+src/lib/agent/communication/index.ts:334 - CommunicationStats
+src/lib/agent/communication/index.ts:347 - MessageSubscription
+src/lib/agent/communication/message-builder.ts:243 - Message
+src/lib/agent/communication/message-builder.ts:567 - MessageParser
+src/lib/agent-scheduler/config/environment.ts:141 - getEnvironmentConfig (used in module)
+src/lib/agent-scheduler/config/environment.ts:160 - validateEnvironment
+src/lib/agent-scheduler/config/environment.ts:6 - Environment (used in module)
+src/lib/agent-scheduler/config/environment.ts:8 - SchedulerEnvironmentConfig (used in module)
+src/lib/agent-scheduler/config/environment.ts:55 - developmentConfig (used in module)
+src/lib/agent-scheduler/config/environment.ts:83 - testingConfig (used in module)
+src/lib/agent-scheduler/config/environment.ts:111 - productionConfig (used in module)
+src/lib/agent-scheduler/config/environment.ts:189 - default
+src/lib/agent-scheduler/core/load-balancer.ts:29 - LoadBalanceResult (used in module)
+src/lib/agent-scheduler/core/matching.ts:13 - MatchResult (used in module)
+src/lib/agent-scheduler/core/ranking.ts:11 - RankedTask (used in module)
+src/lib/agent-scheduler/dashboard/AgentStatusPanel.tsx:506 - default
+src/lib/agent-scheduler/dashboard/Dashboard.tsx:470 - default
+src/lib/agent-scheduler/dashboard/index.ts:7 - Dashboard
+src/lib/agent-scheduler/dashboard/index.ts:10 - AgentStatusPanel
+src/lib/agent-scheduler/dashboard/index.ts:11 - TaskQueueView
+src/lib/agent-scheduler/dashboard/index.ts:12 - ScheduleHistory
+src/lib/agent-scheduler/dashboard/index.ts:13 - ManualOverride
+src/lib/agent-scheduler/dashboard/index.ts:16 - DashboardTab
+src/lib/agent-scheduler/dashboard/ManualOverride.tsx:704 - default
+src/lib/agent-scheduler/dashboard/ScheduleHistory.tsx:606 - default
+src/lib/agent-scheduler/models/agent-capability.ts:302 - createAgentCapability (used in module)
+src/lib/agent-scheduler/models/agent-capability.ts:21 - AgentCapabilities (used in module)
+src/lib/agent-scheduler/models/agent-capability.ts:77 - AGENT_CAPABILITIES_CONFIG (used in module)
+src/lib/agent-scheduler/models/schedule-decision.ts:52 - SchedulingMetrics (used in module)
+src/lib/agent-scheduler/stores/scheduler-store.ts:310 - selectScheduler
+src/lib/agent-scheduler/stores/scheduler-store.ts:312 - selectTasks
+src/lib/agent-scheduler/stores/scheduler-store.ts:315 - selectSelectedTask
+src/lib/agent-scheduler/stores/scheduler-store.ts:319 - selectSelectedAgent
+src/lib/agent-scheduler/stores/scheduler-store.ts:323 - selectStats
+src/lib/agent-scheduler/stores/scheduler-store.ts:324 - selectIsLoading
+src/lib/agent-scheduler/stores/scheduler-store.ts:325 - selectError
+src/lib/agent-scheduler/stores/scheduler-store.ts:340 - selectTaskByStatus
+src/lib/agent-scheduler/stores/scheduler-store.ts:344 - selectTasksByAgent
+src/lib/agent-scheduler/stores/scheduler-store.ts:348 - selectUrgentTasks
+src/lib/agent-scheduler/stores/scheduler-store.ts:354 - selectOverdueTasks
+src/lib/agent-scheduler/stores/scheduler-store.ts:364 - selectAgentUtilization
+src/lib/db/query-builder/index.ts:10 - QueryCondition
+src/lib/db/query-builder/index.ts:11 - JoinConfig
+src/lib/db/query-builder/index.ts:12 - SubqueryConfig
+src/lib/db/query-builder/index.ts:13 - PaginationOptions
+src/lib/db/query-builder/index.ts:14 - SortOptions
+src/lib/db/query-builder/index.ts:15 - QueryBuilderConfig
+src/lib/db/query-builder/index.ts:16 - BuiltQuery
+src/lib/db/query-builder/index.ts:17 - BatchResult
+src/lib/db/query-builder/index.ts:18 - QueryCacheConfig
+src/lib/db/query-builder/index.ts:22 - QueryBuilder
+src/lib/db/query-builder/index.ts:23 - buildQuery
+src/lib/db/query-builder/index.ts:24 - buildWhereQuery
+src/lib/db/query-builder/index.ts:29 - PreparedStatementCache
+src/lib/db/query-builder/index.ts:33 - getCacheStats
+src/lib/db/query-builder/index.ts:33 - clearAllCaches
+src/lib/db/query-builder/index.ts:37 - executeQuery
+src/lib/db/query-builder/index.ts:38 - batchInsert
+src/lib/db/query-builder/index.ts:39 - batchUpdate
+src/lib/db/query-builder/index.ts:40 - batchDelete
+src/lib/middleware/__tests__/api-examples.test.ts:22 - GET_publicEndpoint
+src/lib/middleware/__tests__/api-examples.test.ts:45 - GET_protectedEndpoint
+src/lib/middleware/__tests__/api-examples.test.ts:118 - POST_adminEndpoint
+src/lib/middleware/__tests__/api-examples.test.ts:214 - GET_sensitiveData
+src/lib/middleware/__tests__/api-examples.test.ts:300 - POST_batchOperations
+src/lib/middleware/__tests__/api-examples.test.ts:403 - GET_rateLimitStatus
+src/lib/middleware/__tests__/api-examples.test.ts:441 - POST_overrideRateLimit
+src/lib/monitoring/hooks/index.ts:9 - usePerformanceMonitor
+src/lib/monitoring/hooks/index.ts:10 - useRenderPerformance
+src/lib/monitoring/hooks/index.ts:11 - useApiPerformance
+src/lib/monitoring/hooks/index.ts:12 - useRouteChangePerformance
+src/lib/monitoring/hooks/index.ts:13 - useMemoryUsage
+src/lib/monitoring/hooks/index.ts:14 - PerformanceScore
+src/lib/monitoring/hooks/index.ts:15 - PerformanceSummary
+src/lib/monitoring/hooks/index.ts:16 - UsePerformanceMonitorOptions
+src/lib/monitoring/hooks/index.ts:17 - UsePerformanceMonitorReturn
+src/lib/monitoring/root-cause/bottleneck-detector.ts:748 - default
+src/lib/monitoring/root-cause/index.ts:7 - PerformanceWaterfall
+src/lib/monitoring/root-cause/index.ts:8 - performanceWaterfall
+src/lib/monitoring/root-cause/index.ts:9 - ResourceTiming
+src/lib/monitoring/root-cause/index.ts:10 - ResourceBreakdown
+src/lib/monitoring/root-cause/index.ts:11 - WaterfallEntry
+src/lib/monitoring/root-cause/index.ts:12 - WaterfallAnalysis
+src/lib/monitoring/root-cause/index.ts:13 - CriticalPathSegment
+src/lib/monitoring/root-cause/index.ts:14 - createMockResourceTiming
+src/lib/monitoring/root-cause/index.ts:15 - fromPerformanceResourceTiming
+src/lib/monitoring/root-cause/index.ts:19 - SlowRequestTracker
+src/lib/monitoring/root-cause/index.ts:20 - slowRequestTracker
+src/lib/monitoring/root-cause/index.ts:21 - RequestTiming
+src/lib/monitoring/root-cause/index.ts:22 - SlowRequestAnalysis
+src/lib/monitoring/root-cause/index.ts:23 - RequestBottleneck
+src/lib/monitoring/root-cause/index.ts:24 - SlowRequestThresholds
+src/lib/monitoring/root-cause/index.ts:25 - SlowRequestStats
+src/lib/monitoring/root-cause/index.ts:26 - createMockRequestTiming
+src/lib/monitoring/root-cause/index.ts:27 - measureRequestTiming
+src/lib/monitoring/root-cause/index.ts:31 - BottleneckDetector
+src/lib/monitoring/root-cause/index.ts:32 - bottleneckDetector
+src/lib/monitoring/root-cause/index.ts:33 - Bottleneck
+src/lib/monitoring/root-cause/index.ts:34 - BottleneckAnalysis
+src/lib/monitoring/root-cause/index.ts:35 - BottleneckRecommendation
+src/lib/monitoring/root-cause/index.ts:36 - PerformanceProfile
+src/lib/monitoring/root-cause/index.ts:37 - createMockPerformanceProfile
+src/lib/monitoring/root-cause/performance-waterfall.ts:438 - default
+src/lib/monitoring/root-cause/slow-request-tracker.ts:539 - default
+src/lib/performance-monitoring/alerting/alert-stats.ts:17 - AlertTimeSeries (used in module)
+src/lib/performance-monitoring/alerting/alert-stats.ts:28 - AlertTrend (used in module)
+src/lib/performance-monitoring/alerting/alert-stats.ts:41 - AgentAlertStats (used in module)
+src/lib/performance-monitoring/alerting/alert-stats.ts:58 - AlertMetricsReport (used in module)
+src/lib/performance-monitoring/alerting/alert-stats.ts:99 - StatsOptions (used in module)
+src/lib/performance-monitoring/alerting/alert-stats.ts:120 - AlertStatsCollector
+src/lib/performance-monitoring/alerting/escalation-policy.ts:16 - EscalationAction (used in module)
+src/lib/performance-monitoring/alerting/escalation-policy.ts:25 - EscalationStep (used in module)
+src/lib/performance-monitoring/alerting/escalation-policy.ts:52 - EscalationCondition (used in module)
+src/lib/performance-monitoring/alerting/escalation-policy.ts:69 - EscalationPolicy (used in module)
+src/lib/performance-monitoring/alerting/escalation-policy.ts:92 - EscalationState (used in module)
+src/lib/performance-monitoring/alerting/escalation-policy.ts:115 - EscalationActionRecord (used in module)
+src/lib/performance-monitoring/alerting/escalation-policy.ts:130 - EscalationOptions (used in module)
+src/lib/performance-monitoring/alerting/escalation-policy.ts:162 - EscalationPolicyManager
+src/lib/performance-monitoring/alerting/index.ts:13 - PerformanceAlerter
+src/lib/performance-monitoring/alerting/index.ts:13 - DashboardChannel
+src/lib/performance-monitoring/alerting/index.ts:14 - performanceAlerter
+src/lib/performance-monitoring/alerting/index.ts:21 - AlertLevel
+src/lib/performance-monitoring/alerting/index.ts:22 - AlertStatus
+src/lib/performance-monitoring/alerting/index.ts:23 - AlertCategory
+src/lib/performance-monitoring/alerting/index.ts:24 - PerformanceAlert
+src/lib/performance-monitoring/alerting/index.ts:25 - AlertConfig
+src/lib/performance-monitoring/alerting/index.ts:26 - SuppressionRule
+src/lib/performance-monitoring/alerting/index.ts:27 - AlertFilter
+src/lib/performance-monitoring/alerting/index.ts:28 - AggregatedAlertGroup
+src/lib/performance-monitoring/alerting/index.ts:29 - AlertHistoryEntry
+src/lib/performance-monitoring/alerting/index.ts:30 - AlertAction
+src/lib/performance-monitoring/alerting/index.ts:31 - AlertStats
+src/lib/performance-monitoring/alerting/index.ts:32 - AlertChannel
+src/lib/performance-monitoring/alerting/index.ts:33 - DashboardAlertMessage
+src/lib/performance-monitoring/alerting/index.ts:41 - generateAlertId
+src/lib/performance-monitoring/alerting/index.ts:42 - getLevelPriority
+src/lib/performance-monitoring/alerting/index.ts:43 - compareLevels
+src/lib/performance-monitoring/alerting/index.ts:44 - meetsMinLevel
+src/lib/performance-monitoring/alerting/index.ts:45 - getLevelDisplay
+src/lib/performance-monitoring/alerting/index.ts:46 - defaultDeduplicationKey
+src/lib/performance-monitoring/alerting/index.ts:47 - createPerformanceAlert
+src/lib/performance-monitoring/alerting/index.ts:48 - formatAlertForLog
+src/lib/performance-monitoring/alerting/index.ts:49 - filterAlerts
+src/lib/performance-monitoring/alerting/index.ts:56 - default
+src/lib/performance-monitoring/budget-control/budget-checker.ts:563 - default
+src/lib/performance-monitoring/budget-control/budget-parser.ts:357 - default
+src/lib/performance-monitoring/budget-control/demo.ts:121 - demoBudgetChecker (used in module)
+src/lib/performance-monitoring/budget-control/demo.ts:121 - demoBudgetConfig (used in module)
+src/lib/performance-monitoring/budget-control/demo.ts:121 - demoBudgetLinter (used in module)
+src/lib/performance-monitoring/budget-control/index.ts:7 - BudgetChecker
+src/lib/performance-monitoring/budget-control/index.ts:8 - budgetChecker
+src/lib/performance-monitoring/budget-control/index.ts:9 - checkMetricAgainstBudget
+src/lib/performance-monitoring/budget-control/index.ts:10 - formatBudgetViolation
+src/lib/performance-monitoring/budget-control/index.ts:11 - getCoreWebVitalsThresholds
+src/lib/performance-monitoring/budget-control/index.ts:15 - BudgetConfig
+src/lib/performance-monitoring/budget-control/index.ts:16 - Budget
+src/lib/performance-monitoring/budget-control/index.ts:17 - TimingBudget
+src/lib/performance-monitoring/budget-control/index.ts:18 - PerformanceMetrics
+src/lib/performance-monitoring/budget-control/index.ts:19 - BudgetCheckResult
+src/lib/performance-monitoring/budget-control/index.ts:20 - BudgetViolation
+src/lib/performance-monitoring/budget-control/index.ts:21 - BudgetCheckerConfig
+src/lib/performance-monitoring/budget-control/index.ts:25 - BudgetParser
+src/lib/performance-monitoring/budget-control/index.ts:26 - budgetParser
+src/lib/performance-monitoring/budget-control/index.ts:27 - VALID_METRICS
+src/lib/performance-monitoring/budget-control/index.ts:28 - DEFAULT_TOLERANCES
+src/lib/performance-monitoring/budget-control/index.ts:29 - RECOMMENDED_BUDGETS
+src/lib/performance-monitoring/budget-control/index.ts:33 - BudgetParseResult
+src/lib/performance-monitoring/budget-control/index.ts:34 - BudgetValidationError
+src/lib/performance-monitoring/root-cause-analysis/call-chain-tracer.ts:929 - default
+src/lib/performance-monitoring/root-cause-analysis/causality-analyzer.ts:887 - default
+src/lib/performance-monitoring/root-cause-analysis/correlation-engine.ts:727 - default
+src/lib/performance-monitoring/root-cause-analysis/index.ts:28 - RootCauseAnalyzer (used in module)
+src/lib/performance-monitoring/root-cause-analysis/index.ts:28 - default (used in module)
+src/lib/performance-monitoring/root-cause-analysis/index.ts:31 - CorrelationEngine
+src/lib/performance-monitoring/root-cause-analysis/index.ts:32 - CausalityAnalyzer
+src/lib/performance-monitoring/root-cause-analysis/index.ts:33 - CallChainTracer
+src/lib/performance-monitoring/root-cause-analysis/index.ts:39 - DatabaseTracker
+src/lib/performance-monitoring/root-cause-analysis/index.ts:40 - APITracker
+src/lib/performance-monitoring/root-cause-analysis/index.ts:41 - RenderingTracker
+src/lib/performance-monitoring/root-cause-analysis/index.ts:49 - SeverityLevel
+src/lib/performance-monitoring/root-cause-analysis/index.ts:50 - Severity
+src/lib/performance-monitoring/root-cause-analysis/index.ts:53 - RootCauseType
+src/lib/performance-monitoring/root-cause-analysis/index.ts:56 - DatabaseIssueType
+src/lib/performance-monitoring/root-cause-analysis/index.ts:57 - DatabaseQuery
+src/lib/performance-monitoring/root-cause-analysis/index.ts:58 - ExecutionPlan
+src/lib/performance-monitoring/root-cause-analysis/index.ts:59 - DatabaseAnalysis
+src/lib/performance-monitoring/root-cause-analysis/index.ts:60 - QueryStatistics
+src/lib/performance-monitoring/root-cause-analysis/index.ts:61 - DatabaseIssue
+src/lib/performance-monitoring/root-cause-analysis/index.ts:62 - DatabaseRecommendation
+src/lib/performance-monitoring/root-cause-analysis/index.ts:65 - APIIssueType
+src/lib/performance-monitoring/root-cause-analysis/index.ts:66 - APIRequest
+src/lib/performance-monitoring/root-cause-analysis/index.ts:67 - APIAnalysis
+src/lib/performance-monitoring/root-cause-analysis/index.ts:68 - APIStatistics
+src/lib/performance-monitoring/root-cause-analysis/index.ts:69 - APIIssue
+src/lib/performance-monitoring/root-cause-analysis/index.ts:70 - ErrorRateAnalysis
+src/lib/performance-monitoring/root-cause-analysis/index.ts:71 - APIRecommendation
+src/lib/performance-monitoring/root-cause-analysis/index.ts:74 - RenderingIssueType
+src/lib/performance-monitoring/root-cause-analysis/index.ts:75 - RenderingMetrics
+src/lib/performance-monitoring/root-cause-analysis/index.ts:76 - RenderingAnalysis
+src/lib/performance-monitoring/root-cause-analysis/index.ts:77 - RenderingIssue
+src/lib/performance-monitoring/root-cause-analysis/index.ts:78 - RenderingBottleneck
+src/lib/performance-monitoring/root-cause-analysis/index.ts:79 - RenderingRecommendation
+src/lib/performance-monitoring/root-cause-analysis/index.ts:82 - WaterfallEntry
+src/lib/performance-monitoring/root-cause-analysis/index.ts:83 - CriticalPathNode
+src/lib/performance-monitoring/root-cause-analysis/index.ts:84 - WaterfallAnalysis
+src/lib/performance-monitoring/root-cause-analysis/index.ts:85 - WaterfallBottleneck
+src/lib/performance-monitoring/root-cause-analysis/index.ts:86 - OptimizationOpportunity
+src/lib/performance-monitoring/root-cause-analysis/index.ts:87 - WaterfallSummary
+src/lib/performance-monitoring/root-cause-analysis/index.ts:90 - RootCause
+src/lib/performance-monitoring/root-cause-analysis/index.ts:91 - Impact
+src/lib/performance-monitoring/root-cause-analysis/index.ts:92 - FixRecommendation
+src/lib/performance-monitoring/root-cause-analysis/index.ts:93 - AnalysisReport
+src/lib/performance-monitoring/root-cause-analysis/index.ts:94 - ReportSummary
+src/lib/performance-monitoring/root-cause-analysis/index.ts:95 - PrioritizedAction
+src/lib/performance-monitoring/root-cause-analysis/index.ts:96 - PerformanceMetrics
+src/lib/performance-monitoring/root-cause-analysis/index.ts:99 - RootCauseAnalysisConfig
+src/lib/performance-monitoring/root-cause-analysis/index.ts:107 - AnomalyEvent
+src/lib/performance-monitoring/root-cause-analysis/index.ts:108 - EventContext
+src/lib/performance-monitoring/root-cause-analysis/index.ts:109 - Correlation
+src/lib/performance-monitoring/root-cause-analysis/index.ts:110 - CorrelationType
+src/lib/performance-monitoring/root-cause-analysis/index.ts:111 - CorrelationPattern
+src/lib/performance-monitoring/root-cause-analysis/index.ts:112 - CorrelationGroup
+src/lib/performance-monitoring/root-cause-analysis/index.ts:113 - CorrelationConfig
+src/lib/performance-monitoring/root-cause-analysis/index.ts:116 - DEFAULT_CORRELATION_CONFIG
+src/lib/performance-monitoring/root-cause-analysis/index.ts:123 - TimeSeriesPoint
+src/lib/performance-monitoring/root-cause-analysis/index.ts:124 - CausalChain
+src/lib/performance-monitoring/root-cause-analysis/index.ts:125 - CausalNode
+src/lib/performance-monitoring/root-cause-analysis/index.ts:126 - CausalTimeline
+src/lib/performance-monitoring/root-cause-analysis/index.ts:127 - CausalInterval
+src/lib/performance-monitoring/root-cause-analysis/index.ts:128 - CausalAnalysis
+src/lib/performance-monitoring/root-cause-analysis/index.ts:129 - CausalityRule
+src/lib/performance-monitoring/root-cause-analysis/index.ts:130 - CausalityConfig
+src/lib/performance-monitoring/root-cause-analysis/index.ts:133 - DEFAULT_CAUSALITY_CONFIG
+src/lib/performance-monitoring/root-cause-analysis/index.ts:140 - CallNode
+src/lib/performance-monitoring/root-cause-analysis/index.ts:141 - CallNodeType
+src/lib/performance-monitoring/root-cause-analysis/index.ts:142 - CallNodeMetadata
+src/lib/performance-monitoring/root-cause-analysis/index.ts:143 - CallNodeMetrics
+src/lib/performance-monitoring/root-cause-analysis/index.ts:144 - CallChain
+src/lib/performance-monitoring/root-cause-analysis/index.ts:145 - CallChainAnalysis
+src/lib/performance-monitoring/root-cause-analysis/index.ts:146 - CallChainSummary
+src/lib/performance-monitoring/root-cause-analysis/index.ts:147 - CallBottleneck
+src/lib/performance-monitoring/root-cause-analysis/index.ts:148 - HotPath (used in module)
+src/lib/performance-monitoring/root-cause-analysis/index.ts:149 - CriticalPath
+src/lib/performance-monitoring/root-cause-analysis/index.ts:150 - CallChainRecommendation
+src/lib/performance-monitoring/root-cause-analysis/index.ts:151 - CallChainConfig
+src/lib/performance-monitoring/root-cause-analysis/index.ts:154 - DEFAULT_CALL_CHAIN_CONFIG
+src/lib/performance-monitoring/root-cause-analysis/index.ts:160 - DEFAULT_CONFIG
+src/lib/performance-monitoring/root-cause-analysis/index.ts:167 - SlowRequestTrace
+src/lib/performance-monitoring/root-cause-analysis/index.ts:168 - TimelineEntry
+src/lib/performance-monitoring/root-cause-analysis/index.ts:169 - ResourceAnalysis
+src/lib/performance-monitoring/root-cause-analysis/index.ts:170 - ResourceBottleneck
+src/lib/performance-monitoring/root-cause-analysis/index.ts:202 - integrateWithAnomalyDetection
+src/lib/performance-monitoring/root-cause-analysis/index.ts:222 - MODULE_INFO
+src/lib/prefetch/hooks/use-predictive-prefetch.ts:326 - default
+src/lib/prefetch/hooks/use-prefetch.ts:292 - default
+src/lib/prefetch/hooks/use-resource-hint.ts:424 - default
+src/lib/react-compiler/dashboard/CompilerDashboard.tsx:11 - ReactCompilerToggle
+src/lib/react-compiler/dashboard/CompilerDashboard.tsx:104 - ComponentScannerDashboard
+src/lib/react-compiler/dashboard/CompilerDiagnostics.tsx:363 - CompilerDiagnostics (used in module)
+src/lib/react-compiler/dashboard/CompilerDiagnostics.tsx:658 - default
+src/lib/react-compiler/diagnostics/index.ts:270 - quickScan
+src/lib/react-compiler/diagnostics/index.ts:278 - quickCheck
+src/lib/react-compiler/diagnostics/index.ts:17 - ReactCompilerDiagnostics (used in module)
+src/lib/react-compiler/diagnostics/migration-guide.ts:9 - MigrationStep (used in module)
+src/lib/react-compiler/diagnostics/migration-guide.ts:19 - ComponentMigration (used in module)
+src/lib/react-compiler/performance/tracker.ts:231 - getPerformanceTracker (used in module)
+src/lib/react-compiler/performance/tracker.ts:245 - usePerformanceTracking
+src/lib/react-compiler/performance/tracker.ts:262 - useRenderCount
+src/lib/react-compiler/performance/tracker.ts:275 - usePerformanceStats
+src/lib/react-compiler/performance/tracker.ts:15 - PerformanceSnapshot (used in module)
+src/lib/react-compiler/performance/tracker.ts:24 - PerformanceComparison (used in module)
+src/lib/react-compiler/performance/tracker.ts:35 - PerformanceStats (used in module)
+src/lib/react-compiler/performance/tracker.ts:42 - PerformanceEventHandler (used in module)
+src/lib/react-compiler/performance/tracker.ts:44 - PerformanceEvent (used in module)
+src/lib/react-compiler/performance/tracker.ts:59 - PerformanceTracker (used in module)
+src/lib/security/rate-limit/index.ts:8 - SlidingWindow
+src/lib/security/rate-limit/index.ts:9 - SlidingWindowOptions
+src/lib/security/rate-limit/index.ts:9 - SlidingWindowResult
+src/lib/security/rate-limit/index.ts:11 - TokenBucket
+src/lib/security/rate-limit/index.ts:12 - TokenBucketOptions
+src/lib/security/rate-limit/index.ts:12 - TokenBucketResult
+src/lib/security/rate-limit/index.ts:16 - DistributedRateLimiter
+src/lib/security/rate-limit/index.ts:17 - KeyGenerators
+src/lib/security/rate-limit/index.ts:20 - RateLimitConfig
+src/lib/security/rate-limit/index.ts:21 - RateLimitResult
+src/lib/security/rate-limit/index.ts:22 - RateLimitInfo
+src/lib/security/rate-limit/index.ts:26 - RedisAdapter
+src/lib/security/rate-limit/index.ts:28 - RedisConfig
+src/lib/security/rate-limit/index.ts:29 - RedisAdapterOptions
+src/lib/security/rate-limit/index.ts:34 - createRateLimitMiddleware
+src/lib/security/rate-limit/index.ts:35 - setRateLimitHeaders
+src/lib/security/rate-limit/index.ts:36 - createRateLimitExceededResponse
+src/lib/security/rate-limit/index.ts:37 - createCustomRateLimitResponse
+src/lib/security/rate-limit/index.ts:38 - withRateLimit
+src/lib/security/rate-limit/index.ts:39 - expressRateLimitMiddleware
+src/lib/security/rate-limit/index.ts:40 - withRateLimitInfo
+src/lib/security/rate-limit/index.ts:42 - RateLimitMiddlewareOptions
+src/lib/security/rate-limit/index.ts:46 - RateLimitConfigManager
+src/lib/security/rate-limit/index.ts:47 - PresetConfigs
+src/lib/security/rate-limit/index.ts:48 - defaultConfigManager
+src/lib/security/rate-limit/index.ts:49 - CommonRouteConfigs
+src/lib/security/rate-limit/index.ts:52 - RouteConfig
+src/lib/security/rbac/audit-logger.ts:613 - logPermissionChange (used in module)
+src/lib/security/rbac/audit-logger.ts:629 - logRoleAssignment (used in module)
+src/lib/security/rbac/audit-logger.ts:645 - logPermissionCheck (used in module)
+src/lib/security/rbac/audit-logger.ts:660 - logSensitiveOperation (used in module)
+src/lib/security/rbac/audit-logger.ts:677 - logSecurityEvent (used in module)
+src/lib/security/rbac/audit-logger.ts:689 - generateAuditReport (used in module)
+src/lib/security/rbac/audit-logger.ts:704 - readAuditLogs (used in module)
+src/lib/security/rbac/audit-logger.ts:711 - readSensitiveLogs (used in module)
+src/lib/security/rbac/audit-logger.ts:718 - readSecurityLogs (used in module)
+src/lib/security/rbac/audit-logger.ts:608 - auditLogger (used in module)
+src/lib/security/rbac/index.ts:9 - RBACCache
+src/lib/security/rbac/index.ts:10 - rbacCache
+src/lib/security/rbac/index.ts:11 - cacheUserPermissions
+src/lib/security/rbac/index.ts:12 - getCachedPermissions
+src/lib/security/rbac/index.ts:13 - invalidatePermissionCache
+src/lib/security/rbac/index.ts:14 - invalidatePermissionCacheByRole
+src/lib/security/rbac/index.ts:15 - getCacheStats
+src/lib/security/rbac/index.ts:16 - CacheConfig
+src/lib/security/rbac/index.ts:17 - CacheStats
+src/lib/security/rbac/index.ts:22 - PermissionInheritance
+src/lib/security/rbac/index.ts:23 - permissionInheritance
+src/lib/security/rbac/index.ts:24 - calculateInheritedPermissions
+src/lib/security/rbac/index.ts:25 - calculatePermissionsForRoles
+src/lib/security/rbac/index.ts:26 - checkOverride
+src/lib/security/rbac/index.ts:27 - applyPermissionOverrides
+src/lib/security/rbac/index.ts:28 - getSubRoles
+src/lib/security/rbac/index.ts:29 - getParentRoles
+src/lib/security/rbac/index.ts:30 - InheritanceStrategy
+src/lib/security/rbac/index.ts:31 - PermissionOverride
+src/lib/security/rbac/index.ts:32 - InheritanceResult
+src/lib/security/rbac/index.ts:37 - AuditLogger
+src/lib/security/rbac/index.ts:38 - auditLogger
+src/lib/security/rbac/index.ts:39 - logPermissionChange
+src/lib/security/rbac/index.ts:40 - logRoleAssignment
+src/lib/security/rbac/index.ts:41 - logPermissionCheck
+src/lib/security/rbac/index.ts:42 - logSensitiveOperation
+src/lib/security/rbac/index.ts:43 - logSecurityEvent
+src/lib/security/rbac/index.ts:44 - generateAuditReport
+src/lib/security/rbac/index.ts:45 - readAuditLogs
+src/lib/security/rbac/index.ts:46 - readSensitiveLogs
+src/lib/security/rbac/index.ts:47 - readSecurityLogs
+src/lib/security/rbac/index.ts:48 - AuditEventType
+src/lib/security/rbac/index.ts:49 - AuditEventLevel
+src/lib/security/rbac/index.ts:50 - AuditEvent
+src/lib/security/rbac/index.ts:51 - AuditReport
+src/lib/security/rbac/index.ts:52 - ReadOptions
+src/lib/security/rbac/index.ts:53 - MemoryAuditLogStorage
+src/lib/security/rbac/index.ts:54 - AuditLogStorage
+src/lib/types/analytics/index.ts:7 - AnalyticsMetrics
+src/lib/types/analytics/index.ts:8 - AgentMetrics
+src/lib/types/analytics/index.ts:9 - AgentProviderMetrics
+src/lib/types/analytics/index.ts:10 - UserMetrics
+src/lib/types/analytics/index.ts:11 - TaskMetrics
+src/lib/types/analytics/index.ts:12 - RevenueMetrics
+src/lib/types/analytics/index.ts:13 - PerformanceMetrics
+src/lib/types/analytics/index.ts:14 - TimeSeriesDataPoint
+src/lib/types/analytics/index.ts:15 - TimeRange
+src/lib/types/analytics/index.ts:16 - DateRange
+src/lib/types/analytics/index.ts:17 - AnalyticsFilters
+src/lib/types/analytics/index.ts:18 - ChartType
+src/lib/types/analytics/index.ts:19 - ChartConfig
+src/lib/types/analytics/index.ts:20 - DashboardWidget
+src/lib/types/analytics/index.ts:21 - DashboardLayout
+src/lib/types/analytics/index.ts:22 - ExportFormat
+src/lib/types/analytics/index.ts:23 - ExportOptions
+src/lib/types/analytics/index.ts:24 - AnalyticsResponse
+src/lib/types/analytics/index.ts:25 - AnalyticsError
+src/lib/types/analytics/index.ts:26 - Statistic
+src/lib/types/analytics/index.ts:27 - TrendAnalysis
+src/lib/types/analytics/index.ts:32 - WebSocketStatus
+src/lib/types/analytics/index.ts:33 - WebSocketConnectionMetrics
+src/lib/types/analytics/index.ts:34 - TaskStatusDistribution
+src/lib/types/analytics/index.ts:35 - TaskStatusHistoryPoint
+src/lib/types/analytics/index.ts:36 - TeamEfficiencyMetrics
+src/lib/types/analytics/index.ts:37 - AgentEfficiencyRecord
+src/lib/types/analytics/index.ts:38 - RealtimePerformanceMetrics
+src/lib/types/analytics/index.ts:39 - RealtimeUpdateMessage
+src/lib/types/analytics/index.ts:40 - RealtimeAnalyticsState
+src/lib/types/analytics/index.ts:41 - RealtimeWebSocketConfig
+src/lib/websocket/dashboard/RoomList.tsx:282 - RoomList (used in module)
+src/lib/websocket/dashboard/RoomList.tsx:272 - RoomListProps (used in module)
+src/lib/websocket/dashboard/RoomList.tsx:488 - default
+src/lib/websocket/dashboard/RoomView.tsx:457 - RoomView (used in module)
+src/lib/websocket/dashboard/RoomView.tsx:451 - RoomViewProps (used in module)
+src/lib/websocket/dashboard/RoomView.tsx:600 - default
+src/lib/websocket/dashboard/websocket-store.ts:324 - selectCurrentRoom
+src/lib/websocket/dashboard/websocket-store.ts:325 - selectCurrentMessages
+src/lib/websocket/dashboard/websocket-store.ts:326 - selectCurrentParticipants
+src/lib/websocket/dashboard/websocket-store.ts:327 - selectFilteredRooms
+src/app/[locale]/analytics/test/page.tsx:8 - default
+src/app/[locale]/blog/[slug]/error.tsx:3 - default
+src/app/[locale]/blog/[slug]/page.tsx:146 - default
+src/app/[locale]/portfolio/[slug]/error.tsx:7 - createPageErrorBoundary (used in module)
+src/app/[locale]/portfolio/[slug]/error.tsx:5 - default
+src/app/[locale]/portfolio/[slug]/page.tsx:28 - generateMetadata
+src/app/[locale]/portfolio/[slug]/page.tsx:68 - default
+src/app/api/__tests__/mocks/data.ts:6 - MockUser (used in module)
+src/app/api/__tests__/mocks/data.ts:17 - MockTask (used in module)
+src/app/api/__tests__/mocks/data.ts:30 - MockProject (used in module)
+src/app/api/__tests__/mocks/handlers.ts:13 - authHandlers (used in module)
+src/app/api/__tests__/mocks/handlers.ts:327 - healthHandlers (used in module)
+src/app/api/__tests__/mocks/handlers.ts:379 - handlers (used in module)
+src/app/api/a2a/queue/route.ts:17 - GET
+src/app/api/a2a/queue/route.ts:51 - POST
+src/app/api/a2a/queue/route.ts:105 - DELETE
+src/app/api/a2a/registry/route.ts:18 - GET
+src/app/api/a2a/registry/route.ts:73 - POST
+src/app/api/auth/login/route-unified.ts:64 - POST
+src/app/api/data/import/route.ts:33 - ImportInfoResponse
+src/app/api/demo/task-status/route.ts:11 - POST
+src/app/api/demo/task-status/route.ts:66 - GET
+src/app/api/feedback/[id]/route.ts:9 - GET
+src/app/api/feedback/[id]/route.ts:29 - DELETE
+src/app/api/feedback/[id]/route.ts:20 - PATCH (used in module)
+src/app/api/github/issues/route.ts:63 - GET
+src/app/api/metrics/prometheus/route.ts:20 - GET
+src/app/api/metrics/prometheus/route.ts:55 - dynamic
+src/app/api/multimodal/audio/route.ts:110 - runtime
+src/app/api/multimodal/audio/route.ts:111 - maxDuration
+src/app/api/multimodal/image/route.ts:86 - runtime
+src/app/api/multimodal/image/route.ts:87 - maxDuration
+src/app/api/performance/alerts/route.ts:396 - alertRules (used in module)
+src/app/api/performance/alerts/route.ts:396 - activeAlerts (used in module)
+src/app/api/performance/clear/route.ts:61 - POST
+src/app/api/performance/clear/route.ts:66 - dynamic
+src/app/api/ratings/[id]/route.ts:9 - GET
+src/app/api/ratings/[id]/route.ts:20 - DELETE
+src/app/api/rbac/system/route.ts:19 - GET
+src/app/api/rbac/system/route.ts:53 - POST
+src/app/api/rbac/system/route.ts:121 - DELETE
+src/app/api/search/autocomplete/route.ts:13 - GET
+src/app/api/search/history/route.ts:15 - GET
+src/app/api/search/history/route.ts:74 - POST
+src/app/api/search/history/route.ts:109 - DELETE
+src/app/api/stream/analytics/route.ts:155 - GET
+src/lib/performance-monitoring/alerting/channels/index.ts:45 - createChannel (used in module)
+src/lib/performance-monitoring/alerting/channels/index.ts:70 - createChannels
+src/lib/performance-monitoring/alerting/channels/index.ts:10 - EmailChannel (used in module)
+src/lib/performance-monitoring/alerting/channels/index.ts:11 - SlackChannel (used in module)
+src/lib/performance-monitoring/alerting/channels/index.ts:12 - PagerDutyChannel (used in module)
+src/lib/performance-monitoring/alerting/channels/index.ts:18 - EmailConfig (used in module)
+src/lib/performance-monitoring/alerting/channels/index.ts:18 - EmailAlertOptions (used in module)
+src/lib/performance-monitoring/alerting/channels/index.ts:19 - SlackConfig (used in module)
+src/lib/performance-monitoring/alerting/channels/index.ts:19 - SlackAlertOptions (used in module)
+src/lib/performance-monitoring/alerting/channels/index.ts:20 - PagerDutyConfig (used in module)
+src/lib/performance-monitoring/alerting/channels/index.ts:20 - PagerDutyAlertOptions (used in module)
+src/lib/performance-monitoring/alerting/channels/index.ts:34 - ChannelType (used in module)
+src/lib/performance-monitoring/alerting/channels/index.ts:36 - ChannelConfig (used in module)
+src/lib/security/rate-limit/examples/api-route-integration.ts:29 - POST_login_basic
+src/lib/security/rate-limit/examples/api-route-integration.ts:100 - GET_protected_api
+src/lib/security/rate-limit/examples/api-route-integration.ts:131 - POST_multi_level_limit
+src/lib/security/rate-limit/examples/api-route-integration.ts:191 - POST_upload
+src/lib/security/rate-limit/examples/api-route-integration.ts:222 - GET_custom_limit
+src/lib/security/rate-limit/examples/api-route-integration.ts:248 - POST_payment
+src/lib/security/rate-limit/examples/api-route-integration.ts:322 - rateLimitMiddleware
+src/lib/security/rate-limit/examples/api-route-integration.ts:57 - POST_register
+src/app/api/a2a/registry/[id]/route.ts:22 - GET
+src/app/api/a2a/registry/[id]/route.ts:55 - PUT
+src/app/api/a2a/registry/[id]/route.ts:110 - DELETE
+src/app/api/a2a/registry/[id]/route.ts:146 - PATCH
+src/app/api/rbac/roles/[roleId]/route.ts:27 - GET
+src/app/api/rbac/roles/[roleId]/route.ts:81 - PUT
+src/app/api/rbac/roles/[roleId]/route.ts:196 - DELETE
+src/app/api/rbac/roles/[roleId]/permissions/route.ts:24 - GET
+src/app/api/rbac/roles/[roleId]/permissions/route.ts:76 - POST
+src/app/api/rbac/roles/[roleId]/permissions/route.ts:184 - DELETE
+src/app/api/rbac/users/[userId]/permissions/route.ts:28 - GET
+src/app/api/rbac/users/[userId]/permissions/route.ts:82 - POST
+src/app/api/rbac/users/[userId]/roles/route.ts:25 - GET
+src/app/api/rbac/users/[userId]/roles/route.ts:77 - POST
+src/app/api/rbac/users/[userId]/roles/route.ts:157 - DELETE

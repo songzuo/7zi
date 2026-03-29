@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { IMAGE_PRESETS, PLACEHOLDER_COLORS } from '../components/OptimizedImage'
+import { IMAGE_PRESETS, PLACEHOLDER_COLORS } from '../OptimizedImage'
 
 describe('Image Optimization', () => {
   describe('IMAGE_PRESETS', () => {

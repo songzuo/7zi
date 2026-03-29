@@ -1,0 +1,287 @@
+name: CD (Blue-Green)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+      quick_mode:
+        description: 'Quick deployment (skip some tests)'
+        required: false
+        default: 'false'
+        type: boolean
+
+env:
+  NODE_VERSION: '20.x'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: 7zi-frontend
+
+# 并发控制：同一分支同时只能运行一个部署
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  # ============================================
+  # 构建并推送 Docker 镜像 (优化版)
+  # ============================================
+  build-and-push:
+    name: 🐳 Build & Push Docker Image
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1  # 浅克隆加速
+
+      # 缓存优化：使用 pnpm 缓存
+      - name: Setup Node.js with Cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      # 缓存优化：缓存 node_modules
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        id: cache-node-modules
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+
+      - name: Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: npm ci --prefer-offline --no-audit
+
+      # 缓存优化：缓存 Next.js 构建
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: |
+            .next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-
+
+      # 并行构建：使用 Turbopack 加速
+      - name: Build Next.js app (with Turbopack)
+        run: npm run build
+        env:
+          NODE_ENV: production
+          NEXT_TELEMETRY_DISABLED: 1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      # 缓存优化：Docker 层缓存
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: |
+            type=gha,scope=${{ github.ref_name }}
+            type=registry,ref=${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}:cache
+          cache-to: type=gha,mode=max,scope=${{ github.ref_name }}
+          build-args: |
+            NODE_ENV=production
+          platforms: linux/amd64
+
+  # ============================================
+  # 蓝绿部署到生产环境
+  # ============================================
+  deploy-production:
+    name: 🚀 Blue-Green Deploy
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    timeout-minutes: 10
+    environment:
+      name: production
+      url: https://7zi.com
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.PRODUCTION_HOST }} >> ~/.ssh/known_hosts
+
+      # 使用蓝绿部署脚本
+      - name: Execute Blue-Green Deployment
+        id: deploy
+        run: |
+          ssh root@${{ secrets.PRODUCTION_HOST }} << 'ENDSSH'
+            # 蓝绿部署脚本路径
+            DEPLOY_SCRIPT="/root/7zi-frontend/scripts/deploy/blue-green-deploy.sh"
+            IMAGE_TAG="${{ needs.build-and-push.outputs.image-tag }}"
+
+            # 拉取最新代码
+            cd /root/7zi-frontend
+            git pull origin main
+
+            # 执行蓝绿部署
+            chmod +x $DEPLOY_SCRIPT
+            $DEPLOY_SCRIPT auto $IMAGE_TAG
+
+            # 获取部署结果
+            DEPLOY_EXIT_CODE=$?
+            echo "deploy_exit_code=$DEPLOY_EXIT_CODE" >> $GITHUB_OUTPUT
+            exit $DEPLOY_EXIT_CODE
+          ENDSSH
+
+      - name: Health check
+        run: |
+          max_attempts=30
+          attempt=1
+
+          while [ $attempt -le $max_attempts ]; do
+            if curl -f -s https://7zi.com/api/health > /dev/null 2>&1; then
+              echo "✅ Health check passed!"
+              exit 0
+            fi
+
+            echo "Attempt $attempt/$max_attempts failed. Retrying in 5 seconds..."
+            sleep 5
+            ((attempt++))
+          done
+
+          echo "❌ Health check failed after $max_attempts attempts"
+          exit 1
+
+      - name: Run deployment verification
+        run: |
+          ssh root@${{ secrets.PRODUCTION_HOST }} << 'ENDSSH'
+            /root/7zi-frontend/scripts/deploy/verify-deploy.sh production
+          ENDSSH
+
+      - name: Notify deployment success
+        if: success()
+        run: |
+          echo "🎉 Blue-Green Deployment successful!"
+          echo "Image: ${{ needs.build-and-push.outputs.image-tag }}"
+          echo "Time: $(date)"
+
+      - name: Notify deployment failure
+        if: failure()
+        run: |
+          echo "❌ Deployment failed! Initiating rollback..."
+          ssh root@${{ secrets.PRODUCTION_HOST }} << 'ENDSSH'
+            /root/7zi-frontend/scripts/deploy/rollback.sh --force
+          ENDSSH
+
+  # ============================================
+  # 冒烟测试
+  # ============================================
+  smoke-tests:
+    name: 🧪 Smoke Tests
+    runs-on: ubuntu-latest
+    needs: deploy-production
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run smoke tests
+        run: npx playwright test --grep @smoke
+        env:
+          BASE_URL: https://7zi.com
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-test-results
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
+  # ============================================
+  # 性能检查
+  # ============================================
+  performance-check:
+    name: 📊 Performance Check
+    runs-on: ubuntu-latest
+    needs: deploy-production
+    timeout-minutes: 5
+    steps:
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          urls: |
+            https://7zi.com
+            https://7zi.com/about
+            https://7zi.com/contact
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+  # ============================================
+  # 部署总结
+  # ============================================
+  summary:
+    name: 📋 Deployment Summary
+    runs-on: ubuntu-latest
+    needs: [build-and-push, deploy-production, smoke-tests, performance-check]
+    if: always()
+    steps:
+      - name: Generate summary
+        run: |
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Step | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Build & Push | ${{ needs.build-and-push.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Deploy | ${{ needs.deploy-production.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Smoke Tests | ${{ needs.smoke-tests.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Performance | ${{ needs.performance-check.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Image:** \`${{ needs.build-and-push.outputs.image-tag }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Time:** $(date)" >> $GITHUB_STEP_SUMMARY

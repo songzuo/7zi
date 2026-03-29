@@ -11,26 +11,31 @@ import { useNotifications } from '../useNotifications';
 // Mock Socket.IO client
 vi.mock('socket.io-client', () => ({
   default: vi.fn(() => {
-    const mockSocket = {
+    const callbacks: Record<string, any> = {};
+    const mockSocket: {
+      connected: boolean;
+      on: any;
+      emit: any;
+      disconnect: any;
+      callbacks: Record<string, any>;
+    } = {
       connected: false,
       on: vi.fn((event: string, callback: any) => {
-        // Store callbacks for later invocation
-        if (!mockSocket.callbacks) mockSocket.callbacks = {};
-        mockSocket.callbacks[event] = callback;
+        callbacks[event] = callback;
         return mockSocket;
       }),
       emit: vi.fn(),
       disconnect: vi.fn(() => {
         mockSocket.connected = false;
       }),
-      callbacks: {} as Record<string, any>,
+      callbacks,
     };
 
     // Simulate immediate connection
     setTimeout(() => {
       mockSocket.connected = true;
-      if (mockSocket.callbacks.connect) {
-        mockSocket.callbacks.connect();
+      if (callbacks.connect) {
+        callbacks.connect();
       }
     }, 10);
 

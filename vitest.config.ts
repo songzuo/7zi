@@ -27,7 +27,7 @@ export default defineConfig({
   maxMemoryUsage: 2048, // 限制每个 worker 的内存使用为 2GB
 
   test: {
-    environment: 'jsdom',
+    environment: 'node', // 使用 Node.js 环境以支持 better-sqlite3
     globals: true,
     setupFiles: [path.resolve(__dirname, './tests/setup.ts')],
     include: ['src/**/*.{test,spec}.{js,ts,jsx,tsx}', 'app/**/*.{test,spec}.{js,ts,jsx,tsx}', 'tests/**/*.{test,spec}.{js,ts,jsx,tsx}'],
@@ -38,8 +38,8 @@ export default defineConfig({
     // 测试超时配置
     testTimeout: 60000,  // 增加到 60 秒以防止慢测试超时
     hookTimeout: 10000,
-    // 失败时重试
-    retry: 1,
+    // 失败时不重试
+    retry: 0,
 
     // 文件级别的超时配置
     fileTimeout: 180000,  // 增加到 180 秒

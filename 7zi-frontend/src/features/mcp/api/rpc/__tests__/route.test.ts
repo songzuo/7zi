@@ -338,7 +338,7 @@ describe('MCP JSON-RPC API Route', () => {
           result: { content: [] },
         },
       ];
-      vi.mocked(mcpServer.handleRequest).mockResolvedValue(mockResponse);
+      vi.mocked(mcpServer.handleRequest).mockResolvedValue(mockResponse as unknown as Awaited<ReturnType<typeof mcpServer.handleRequest>>);
 
       const url = new URL('http://localhost/api/mcp/rpc');
       const request = new NextRequest(url, {

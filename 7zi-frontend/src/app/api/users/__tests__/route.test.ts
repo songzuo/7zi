@@ -4,7 +4,7 @@
  * 测试用户管理 API 路由的权限控制和响应
  */
 
-import { describe, it, expect, beforeEach, vi } from '@jest/globals';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 import { GET, POST } from '../route';
 import { Permissions } from '@/lib/permissions';
@@ -14,7 +14,7 @@ vi.mock('@/lib/permissions', async () => {
   const actual = await vi.importActual<typeof import('@/lib/permissions')>('../permissions');
   return {
     ...actual,
-    RequirePermission: vi.fn((resourceType, action) => {
+    RequirePermission: vi.fn((resourceType: string, action: string) => {
       return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
         const originalMethod = descriptor.value;
         descriptor.value = async function (ctx: any, ...args: any[]) {
@@ -38,7 +38,7 @@ vi.mock('@/lib/permissions', async () => {
         };
       };
     }),
-    RequireAnyPermission: vi.fn((requirements) => {
+    RequireAnyPermission: vi.fn((requirements: any) => {
       return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
         const originalMethod = descriptor.value;
         descriptor.value = async function (ctx: any, ...args: any[]) {
@@ -47,7 +47,7 @@ vi.mock('@/lib/permissions', async () => {
         };
       };
     }),
-    RequireAllPermissions: vi.fn((requirements) => {
+    RequireAllPermissions: vi.fn((requirements: any) => {
       return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
         const originalMethod = descriptor.value;
         descriptor.value = async function (ctx: any, ...args: any[]) {
@@ -56,7 +56,7 @@ vi.mock('@/lib/permissions', async () => {
         };
       };
     }),
-    RequireRoleLevel: vi.fn((level) => {
+    RequireRoleLevel: vi.fn((level: any) => {
       return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
         const originalMethod = descriptor.value;
         descriptor.value = async function (ctx: any, ...args: any[]) {

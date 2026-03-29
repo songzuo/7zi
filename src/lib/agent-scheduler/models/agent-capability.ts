@@ -5,64 +5,62 @@
 
 export type AgentProvider = 'minimax' | 'bailian' | 'volcengine' | 'self-claude';
 
-export type TaskType = 
-  | 'architecture' 
-  | 'research' 
-  | 'implementation' 
-  | 'testing' 
-  | 'devops' 
-  | 'design' 
-  | 'marketing' 
-  | 'sales' 
-  | 'finance' 
-  | 'media' 
+export type TaskType =
+  | 'architecture'
+  | 'research'
+  | 'implementation'
+  | 'testing'
+  | 'devops'
+  | 'design'
+  | 'marketing'
+  | 'sales'
+  | 'finance'
+  | 'media'
   | 'general';
-
-export interface AgentCapabilities {
-  /** Technologies and frameworks the agent is proficient in */
-  techStack: string[];
-  
-  /** Types of tasks the agent can handle */
-  taskTypes: TaskType[];
-  
-  /** Maximum concurrent tasks the agent can handle */
-  concurrency: number;
-  
-  /** Average response time in seconds */
-  avgResponseTime: number;
-  
-  /** Task success rate (0-1) */
-  successRate: number;
-  
-  /** Specialized domains or areas */
-  specializations?: string[];
-}
 
 export interface AgentCapability {
   /** Unique identifier for the agent */
   agentId: string;
-  
+
   /** Human-readable name */
   name: string;
-  
+
   /** AI provider */
   provider: AgentProvider;
-  
+
   /** Agent capabilities */
-  capabilities: AgentCapabilities;
-  
+  capabilities: {
+    /** Technologies and frameworks the agent is proficient in */
+    techStack: string[];
+
+    /** Types of tasks the agent can handle */
+    taskTypes: TaskType[];
+
+    /** Maximum concurrent tasks the agent can handle */
+    concurrency: number;
+
+    /** Average response time in seconds */
+    avgResponseTime: number;
+
+    /** Task success rate (0-1) */
+    successRate: number;
+
+    /** Specialized domains or areas */
+    specializations?: string[];
+  };
+
   /** Current workload percentage (0-100) */
   currentLoad: number;
-  
+
   /** Whether the agent is available for new tasks */
   availability: boolean;
-  
+
   /** Last active timestamp (Unix timestamp) */
   lastActiveTime: number;
-  
+
   /** Agent role in the team */
   role: string;
-  
+
   /** Performance metrics */
   metrics?: {
     totalTasksCompleted: number;
@@ -73,8 +71,9 @@ export interface AgentCapability {
 
 /**
  * Agent capability configuration for the 11 AI team members
+ * @internal This is internal configuration used by initializeAgents
  */
-export const AGENT_CAPABILITIES_CONFIG: Record<string, Omit<AgentCapability, 'currentLoad' | 'availability' | 'lastActiveTime'>> = {
+const AGENT_CAPABILITIES_CONFIG: Record<string, Omit<AgentCapability, 'currentLoad' | 'availability' | 'lastActiveTime'>> = {
   'agent-expert': {
     agentId: 'agent-expert',
     name: '智能体世界专家',
@@ -298,8 +297,9 @@ export const AGENT_CAPABILITIES_CONFIG: Record<string, Omit<AgentCapability, 'cu
 
 /**
  * Create an agent capability instance with default runtime values
+ * @internal Used by initializeAgents
  */
-export function createAgentCapability(
+function createAgentCapability(
   config: Omit<AgentCapability, 'currentLoad' | 'availability' | 'lastActiveTime'>
 ): AgentCapability {
   return {
@@ -315,10 +315,10 @@ export function createAgentCapability(
  */
 export function initializeAgents(): Map<string, AgentCapability> {
   const agents = new Map<string, AgentCapability>();
-  
+
   for (const [id, config] of Object.entries(AGENT_CAPABILITIES_CONFIG)) {
     agents.set(id, createAgentCapability(config));
   }
-  
+
   return agents;
 }

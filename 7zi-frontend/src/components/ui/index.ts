@@ -34,7 +34,7 @@ export type { ModalProps } from './Modal';
 export { ThemeSwitcher } from './ThemeSwitcher';
 export type { ThemeSwitcherProps } from './ThemeSwitcher';
 
-export { LazyImage, BackgroundImage, ImageGallery } from './LazyImage';
+export { LazyImage } from './LazyImage';
 export type { 
   LazyImageProps, 
   ImageSize 

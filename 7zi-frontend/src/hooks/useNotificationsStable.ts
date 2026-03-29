@@ -12,7 +12,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
-import {
+import type {
   Notification,
   NotificationType,
   NotificationPriority,

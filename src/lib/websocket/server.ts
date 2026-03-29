@@ -15,8 +15,8 @@ import { NextRequest } from 'next/server';
 import { verifyJwtToken } from '@/lib/auth/service';
 import { getUserById } from '@/lib/auth/repository';
 import { logger } from '@/lib/logger';
-import type { Socket } from 'socket.io';
 import { setupVoiceMeetingHandlers } from '@/lib/voice-meeting/signaling';
+import type { AuthenticatedSocket } from './types';
 
 // ============================================================================
 // Core Module Imports (v1.4.0)
@@ -49,36 +49,11 @@ import {
   type MessageHistoryOptions,
 } from './message-store';
 
-// ============================================================================
-// Types
-// ============================================================================
-
-export interface AuthenticatedSocket extends Socket {
-  data: {
-    user: {
-      id: string;
-      name: string;
-      email?: string;
-      avatar?: string;
-    };
-    lastHeartbeat: number;
-    rooms: Set<string>;
-  };
-}
-
-interface WebSocketMessage {
-  type: string;
-  id: string;
-  timestamp: string;
-  roomId?: string;
-  userId?: string;
-  payload?: unknown;
-}
-
-// Re-export types from core modules
+// Re-export types from core modules and shared types
 export type { RoomType as WsRoomType, RoomVisibility, UserRole, RoomParticipant } from './rooms';
 export type { Permission } from './permissions';
 export type { StoredMessage, MessageHistoryOptions } from './message-store';
+export type { AuthenticatedSocket, WebSocketMessage } from './types';
 
 // ============================================================================
 // Global Server Instance
@@ -1102,7 +1077,7 @@ function setupServer(ioServer: SocketIOServer): void {
   initializeCoreModules();
 
   // Use authentication middleware
-  ioServer.use(authenticateSocket as (socket: Socket, next: (err?: Error) => void) => void);
+  ioServer.use(authenticateSocket);
 
   // Handle connections
   ioServer.on('connection', (socket) => {

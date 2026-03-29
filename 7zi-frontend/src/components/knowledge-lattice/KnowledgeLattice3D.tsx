@@ -69,7 +69,8 @@ export function KnowledgeLattice3D({ nodes = [] }: KnowledgeLattice3DProps) {
     // Add connections (lines between nodes)
     displayNodes.forEach((node, i) => {
       node.connections.forEach((connIndex) => {
-        if (connIndex < displayNodes.length) {
+        const connIdx = typeof connIndex === 'number' ? connIndex : parseInt(connIndex, 10);
+        if (connIdx < displayNodes.length) {
           const points: THREE.Vector3[] = [];
           points.push(new THREE.Vector3(
             (i % 5 - 2) * 10,
@@ -77,8 +78,8 @@ export function KnowledgeLattice3D({ nodes = [] }: KnowledgeLattice3DProps) {
             0
           ));
           points.push(new THREE.Vector3(
-            (connIndex % 5 - 2) * 10,
-            Math.floor(connIndex / 5) * 10 - 20,
+            (connIdx % 5 - 2) * 10,
+            Math.floor(connIdx / 5) * 10 - 20,
             0
           ));
 

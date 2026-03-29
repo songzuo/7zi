@@ -97,8 +97,8 @@ export interface SecurityHeadersConfig {
 const DEFAULT_CONFIG: SecurityHeadersConfig = {
   contentSecurityPolicy: {
     defaultSrc: ["'self'"],
-    scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-    styleSrc: ["'self'", "'unsafe-inline'"],
+    scriptSrc: ["'self'"],
+    styleSrc: ["'self'", "'unsafe-inline'"], // Keep unsafe-inline for styles (can be replaced with hash/nonce)
     imgSrc: ["'self'", 'data:', 'https:'],
     fontSrc: ["'self'", 'data:', 'https:'],
     connectSrc: ["'self'"],

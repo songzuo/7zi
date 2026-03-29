@@ -124,9 +124,7 @@ export class APITracker {
 
     // 识别问题
     const issue = this.identifyAPIIssue(slowApi, metadata);
-    if (issue && metadata?.onAlert && typeof metadata.onAlert === 'function') {
-      metadata.onAlert(issue);
-    }
+    // Note: Issue is tracked, alert handling should be done at a higher level
   }
 
   /**

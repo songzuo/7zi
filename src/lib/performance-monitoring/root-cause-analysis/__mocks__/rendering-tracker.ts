@@ -4,19 +4,19 @@
 
 import { vi } from 'vitest';
 
-export const RenderingTracker = vi.fn().mockImplementation(() => ({
-  trackMetrics: vi.fn(),
-  getMetrics: vi.fn().mockReturnValue([]),
-  getLongTasks: vi.fn().mockReturnValue([]),
-  analyze: vi.fn().mockReturnValue({
+export class RenderingTracker {
+  trackMetrics = vi.fn();
+  getMetrics = vi.fn().mockReturnValue([]);
+  getLongTasks = vi.fn().mockReturnValue([]);
+  analyze = vi.fn().mockReturnValue({
     metrics: [],
     longTaskDuration: 0,
     totalBlockingTime: 0,
     criticalIssues: []
-  }),
-  clearHistory: vi.fn(),
-  updateConfig: vi.fn()
-}));
+  });
+  clearHistory = vi.fn();
+  updateConfig = vi.fn();
+}
 
 export const RenderingMetricsMock = {
   lcp: 2500,

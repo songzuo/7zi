@@ -40,6 +40,8 @@ export interface AnomalyDetectionConfig {
     isolationForest: {
       enabled: boolean;
       contamination: number; // 异常数据比例期望，默认 0.1
+      numTrees?: number; // 树的数量
+      subSamplingSize?: number; // 子采样大小
     };
     threshold: {
       enabled: boolean;

@@ -85,7 +85,7 @@ export class EnhancedNotificationService {
         });
       }
 
-      logger.log('[EnhancedNotificationService] Initialized');
+      logger.info('[EnhancedNotificationService] Initialized');
     } catch (error) {
       logger.error('[EnhancedNotificationService] Failed to initialize:', error);
       throw error;
@@ -615,7 +615,7 @@ export class EnhancedNotificationService {
         this.storageInitialized = false;
       }
 
-      logger.log('[EnhancedNotificationService] Shut down successfully');
+      logger.info('[EnhancedNotificationService] Shut down successfully');
     } catch (error) {
       logger.error('[EnhancedNotificationService] Error during shutdown:', error);
       throw error;

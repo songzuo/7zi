@@ -17,7 +17,7 @@ export interface MCPRequest {
 export interface MCPResponse {
   jsonrpc: "2.0";
   id: string | number;
-  result?: Record<string, unknown>;
+  result?: Record<string, unknown> | ToolResult;
   error?: {
     code: number;
     message: string;
@@ -273,12 +273,22 @@ export class MCPServer {
           };
 
         case "tools/call":
+          if (!request.params?.name || typeof request.params.name !== 'string') {
+            return {
+              jsonrpc: "2.0",
+              id: request.id,
+              error: {
+                code: -32602,
+                message: "Invalid params: name is required",
+              },
+            };
+          }
           return {
             jsonrpc: "2.0",
             id: request.id,
             result: await this.callTool(
-              request.params.name,
-              request.params.arguments
+              request.params.name as string,
+              (request.params.arguments || {}) as Record<string, unknown>
             ),
           };
 

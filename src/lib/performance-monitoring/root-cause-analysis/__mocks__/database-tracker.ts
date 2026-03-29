@@ -4,10 +4,10 @@
 
 import { vi } from 'vitest';
 
-export const DatabaseTracker = vi.fn().mockImplementation(() => ({
-  trackQuery: vi.fn().mockReturnValue('query-id-123'),
-  getHistory: vi.fn().mockReturnValue([]),
-  analyze: vi.fn().mockReturnValue({
+export class DatabaseTracker {
+  trackQuery = vi.fn().mockReturnValue('query-id-123');
+  getHistory = vi.fn().mockReturnValue([]);
+  analyze = vi.fn().mockReturnValue({
     queryStatistics: {
       totalQueries: 0,
       averageDuration: 0,
@@ -16,10 +16,10 @@ export const DatabaseTracker = vi.fn().mockImplementation(() => ({
       topSlowQueries: []
     },
     criticalIssues: []
-  }),
-  clearHistory: vi.fn(),
-  updateConfig: vi.fn()
-}));
+  });
+  clearHistory = vi.fn();
+  updateConfig = vi.fn();
+}
 
 export const DatabaseQueryMock = {
   id: 'query-1',

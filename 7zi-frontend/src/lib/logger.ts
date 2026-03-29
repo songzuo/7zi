@@ -111,23 +111,27 @@ export class Logger {
     const timestamp = new Date().toISOString();
     const logData = this.config.sanitizeSensitiveData ? sanitizeData(data) : data;
 
-    const logObject = {
+    const errorInfo = error ? {
+      error: {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+      }
+    } : {};
+
+    const prodInfo = process.env.NODE_ENV === 'production' ? {
+      env: process.env.NODE_ENV,
+      version: process.env.npm_package_version,
+    } : {};
+
+    const logObject: Record<string, unknown> = {
       timestamp,
       level,
       context: this.context,
       message,
-      ...(logData && { data: logData }),
-      ...(error && { 
-        error: {
-          name: error.name,
-          message: error.message,
-          stack: error.stack,
-        }
-      }),
-      ...(process.env.NODE_ENV === 'production' && {
-        env: process.env.NODE_ENV,
-        version: process.env.npm_package_version,
-      }),
+      ...(logData && typeof logData === 'object' ? { data: logData } : {}),
+      ...errorInfo,
+      ...prodInfo,
     };
 
     if (this.config.format === 'json') {

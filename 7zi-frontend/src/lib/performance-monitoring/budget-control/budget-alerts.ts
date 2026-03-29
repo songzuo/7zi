@@ -14,6 +14,9 @@ import {
   PageBudget,
 } from './types';
 
+// Re-export types from budget-config for convenience
+export type { BudgetConfigOptions, BudgetValidationResult } from './budget-config';
+
 /**
  * Alert level based on violation severity
  */
@@ -58,11 +61,11 @@ export class BudgetAlertManager {
   constructor(
     config: Partial<BudgetAlertConfig> = {},
     alerter?: PerformanceAlerter,
-    budgetChecker?: BudgetChecker
+    budgetCheckerInstance?: BudgetChecker
   ) {
     this.config = { ...DEFAULT_BUDGET_ALERT_CONFIG, ...config };
     this.alerter = alerter || performanceAlerter;
-    this.budgetChecker = budgetChecker || budgetChecker;
+    this.budgetChecker = budgetCheckerInstance || budgetChecker;
   }
 
   /**

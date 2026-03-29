@@ -15,7 +15,7 @@ import clsx from 'clsx';
 // 类型定义
 // ============================================
 
-export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
+export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'prefix'> {
   /** 标签 */
   label?: string;
   /** 错误信息 */

@@ -17,11 +17,6 @@ vi.mock('../services/notification', () => ({
   },
 }));
 
-// Mock setInterval
-vi.mock('node:timers', () => ({
-  setInterval: vi.fn(),
-}));
-
 describe('Socket.IO Initialization', () => {
   let mockHttpServer: HTTPServer;
   let mockIOServer: SocketIOServer;
@@ -37,7 +32,7 @@ describe('Socket.IO Initialization', () => {
     // Create mock Socket.IO server
     mockIOServer = {
       on: vi.fn(),
-      to: vi.fn(),
+      to: vi.fn(() => mockIOServer),
       emit: vi.fn(),
     } as unknown as SocketIOServer;
 
@@ -48,7 +43,7 @@ describe('Socket.IO Initialization', () => {
     vi.mocked(notificationService.getIO).mockReturnValue(mockIOServer);
 
     // Mock notificationService.initialize
-    vi.mocked(notificationService.initialize).mockReturnValue(undefined);
+    vi.mocked(notificationService.initialize).mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -117,10 +112,12 @@ describe('Socket.IO Initialization', () => {
   describe('Periodic Cleanup', () => {
     it('should call cleanupExpired periodically', () => {
       const setIntervalSpy = vi.spyOn(global, 'setInterval').mockImplementation(
-        (callback: () => void, _delay: number) => {
+        (callback: TimerHandler) => {
           // Call immediately for testing
-          callback();
-          return 1 as NodeJS.Timeout;
+          if (typeof callback === 'function') {
+            callback();
+          }
+          return 1 as unknown as NodeJS.Timeout;
         }
       );
 

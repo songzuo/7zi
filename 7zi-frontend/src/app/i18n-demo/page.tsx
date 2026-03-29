@@ -27,7 +27,7 @@ export default async function I18nDemoPage() {
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
             📱 语言切换器
           </h2>
-          
+
           <div className="space-y-6">
             {/* Dropdown 模式 */}
             <div>
@@ -60,18 +60,18 @@ export default async function I18nDemoPage() {
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
             🖥️ 服务端翻译示例
           </h2>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div className="border rounded-lg p-4">
               <h3 className="font-medium text-gray-900 mb-2">common:welcome</h3>
               <p className="text-2xl text-blue-600">{t('welcome')}</p>
             </div>
-            
+
             <div className="border rounded-lg p-4">
               <h3 className="font-medium text-gray-900 mb-2">common:appName</h3>
               <p className="text-2xl text-green-600">{t('appName')}</p>
             </div>
-            
+
             <div className="border rounded-lg p-4">
               <h3 className="font-medium text-gray-900 mb-2">common:settings</h3>
               <p className="text-2xl text-purple-600">{t('settings')}</p>

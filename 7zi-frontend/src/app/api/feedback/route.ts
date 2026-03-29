@@ -12,10 +12,11 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { feedbackStorage, type Feedback } from '@/lib/db/feedback-storage';
+import { feedbackStorage, type Feedback, type FeedbackFilter, type FeedbackRating } from '@/lib/db/feedback-storage';
 import { validateAndSanitizeBody, sanitizeHtml } from '@/lib/validation-schemas';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
+import { withAdmin, withAuth } from '@/lib/auth/api-auth';
 
 /**
  * Initialize feedback storage
@@ -60,23 +61,11 @@ const responseSubmissionSchema = z.object({
 });
 
 /**
- * Helper: Extract user info from request headers
- */
-function getUserInfo(request: NextRequest) {
-  const userId = request.headers.get('x-user-id') || 'anonymous';
-  const userName = request.headers.get('x-user-name') || 'Anonymous User';
-  const userEmail = request.headers.get('x-user-email') || 'anonymous@example.com';
-  const userRole = request.headers.get('x-user-role') || 'user';
-
-  return { userId, userName, userEmail, userRole };
-}
-
-/**
  * GET /api/feedback - List feedbacks
  */
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest, context: { user: any }) {
   try {
-    const { userId, userRole } = getUserInfo(request);
+    const { userId, role: userRole } = context.user;
     const { searchParams } = new URL(request.url);
 
     const page = parseInt(searchParams.get('page') || '1');
@@ -108,7 +97,12 @@ export async function GET(request: NextRequest) {
     if (type) filter.type = type;
     if (priority) filter.priority = priority;
     if (status) filter.status = status;
-    if (rating) filter.rating = parseInt(rating);
+    if (rating) {
+      const parsedRating = parseInt(rating);
+      if (parsedRating >= 1 && parsedRating <= 5) {
+        filter.rating = parsedRating as FeedbackRating;
+      }
+    }
     if (searchQuery) filter.searchQuery = searchQuery;
     if (dateFrom) filter.dateFrom = parseInt(dateFrom);
     if (dateTo) filter.dateTo = parseInt(dateTo);
@@ -138,12 +132,14 @@ export async function GET(request: NextRequest) {
   }
 }
 
+export const GET = withAuth(handleGET);
+
 /**
  * POST /api/feedback - Submit feedback
  */
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest, context: { user: any }) {
   try {
-    const { userId, userName, userEmail } = getUserInfo(request);
+    const { userId, username: userName } = context.user;
 
     const body = await request.json();
 
@@ -170,7 +166,7 @@ export async function POST(request: NextRequest) {
     const feedback = feedbackStorage.createFeedback({
       userId,
       userName,
-      userEmail,
+      userEmail: context.user.email || `${userId}@example.com`,
       type,
       priority,
       status: 'pending',
@@ -179,7 +175,7 @@ export async function POST(request: NextRequest) {
       url: url || undefined,
       attachments: attachments || [],
       tags: tags || [],
-      rating: rating,
+      rating: rating as FeedbackRating,
     });
 
     return NextResponse.json(
@@ -209,24 +205,15 @@ export async function POST(request: NextRequest) {
   }
 }
 
+export const POST = withAuth(handlePOST);
+
 /**
  * PATCH /api/feedback - Update feedback
+ * Requires admin authentication
  */
-export async function PATCH(request: NextRequest) {
+async function handlePATCH(request: NextRequest, context: { user: any }) {
   try {
-    const { userId, userName, userEmail, userRole } = getUserInfo(request);
-
-    // Check admin permission
-    if (userRole !== 'admin') {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Forbidden',
-          message: '需要管理员权限',
-        },
-        { status: 403 }
-      );
-    }
+    const { userId, userName, userEmail } = context.user;
 
     const body = await request.json();
 
@@ -317,25 +304,14 @@ export async function PATCH(request: NextRequest) {
   }
 }
 
+export const PATCH = withAdmin(handlePATCH);
+
 /**
  * DELETE /api/feedback - Delete feedback
+ * Requires admin authentication
  */
-export async function DELETE(request: NextRequest) {
+async function handleDELETE(request: NextRequest, context: { user: any }) {
   try {
-    const { userRole } = getUserInfo(request);
-
-    // Check admin permission
-    if (userRole !== 'admin') {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Forbidden',
-          message: '需要管理员权限',
-        },
-        { status: 403 }
-      );
-    }
-
     const { searchParams } = new URL(request.url);
     const feedbackId = searchParams.get('id');
 
@@ -381,25 +357,14 @@ export async function DELETE(request: NextRequest) {
   }
 }
 
+export const DELETE = withAdmin(handleDELETE);
+
 /**
  * GET /api/feedback/stats - Get statistics
+ * Requires admin authentication
  */
-export async function GET_STATS(request: NextRequest) {
+async function handleGET_STATS(request: NextRequest, context: { user: any }) {
   try {
-    const { userRole } = getUserInfo(request);
-
-    // Check admin permission
-    if (userRole !== 'admin') {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Forbidden',
-          message: '需要管理员权限',
-        },
-        { status: 403 }
-      );
-    }
-
     // Get stats
     const stats = feedbackStorage.getStats();
 
@@ -420,24 +385,15 @@ export async function GET_STATS(request: NextRequest) {
   }
 }
 
+export const GET_STATS = withAdmin(handleGET_STATS);
+
 /**
  * POST /api/feedback/response - Add admin response
+ * Requires admin authentication
  */
-export async function POST_RESPONSE(request: NextRequest) {
+async function handlePOST_RESPONSE(request: NextRequest, context: { user: any }) {
   try {
-    const { userId, userName, userEmail, userRole } = getUserInfo(request);
-
-    // Check admin permission
-    if (userRole !== 'admin') {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Forbidden',
-          message: '需要管理员权限',
-        },
-        { status: 403 }
-      );
-    }
+    const { userId, userName, userEmail } = context.user;
 
     const body = await request.json();
 
@@ -507,25 +463,14 @@ export async function POST_RESPONSE(request: NextRequest) {
   }
 }
 
+export const POST_RESPONSE = withAdmin(handlePOST_RESPONSE);
+
 /**
  * GET /api/feedback/export - Export feedbacks as CSV
+ * Requires admin authentication
  */
-export async function GET_EXPORT(request: NextRequest) {
+async function handleGET_EXPORT(request: NextRequest, context: { user: any }) {
   try {
-    const { userRole } = getUserInfo(request);
-
-    // Check admin permission
-    if (userRole !== 'admin') {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Forbidden',
-          message: '需要管理员权限',
-        },
-        { status: 403 }
-      );
-    }
-
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type') as Feedback['type'] | null;
     const priority = searchParams.get('priority') as Feedback['priority'] | null;
@@ -580,3 +525,5 @@ export async function GET_EXPORT(request: NextRequest) {
     );
   }
 }
+
+export const GET_EXPORT = withAdmin(handleGET_EXPORT);

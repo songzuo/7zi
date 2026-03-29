@@ -75,7 +75,8 @@ describe('RateLimiter', () => {
       // 应该再次允许请求
       const newResult = await shortLimiter.check('test-key');
       expect(newResult.allowed).toBe(true);
-      expect(newResult.count).toBe(1);
+      // expect(newResult.count).toBe(1); // count 属性不存在，改用 limit - remaining
+      expect(newResult.limit - newResult.remaining).toBe(1);
     });
 
     it('should handle multiple keys independently', async () => {
@@ -121,12 +122,13 @@ describe('RateLimiter', () => {
 
       // peek 应该返回 2 而不增加计数
       const peekResult = await limiter.peek(key);
-      expect(peekResult.count).toBe(2);
+      // count = limit - remaining
+      expect(peekResult.limit - peekResult.remaining).toBe(2);
       expect(peekResult.remaining).toBe(3);
 
       // 再次检查确认 peek 没有增加计数
       const checkResult = await limiter.check(key);
-      expect(checkResult.count).toBe(3);
+      expect(checkResult.limit - checkResult.remaining).toBe(3);
     });
 
     it('should return null for non-existent key', async () => {
@@ -134,7 +136,8 @@ describe('RateLimiter', () => {
 
       expect(peekResult.allowed).toBe(true);
       expect(peekResult.remaining).toBe(5);
-      expect(peekResult.count).toBe(0);
+      // count = limit - remaining = 5 - 5 = 0
+      expect(peekResult.limit - peekResult.remaining).toBe(0);
     });
   });
 

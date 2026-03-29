@@ -6,7 +6,7 @@
 
 import { v4 as uuidv4 } from 'uuid';
 import { AuditLogEntry, AuditEventType, AuditLogLevel, AuditLogQuery, AuditLogStats } from './types';
-import { InMemoryStorage } from '../db/storage';
+import { InMemoryStorage } from '@/lib/db/storage';
 
 /**
  * 审计日志存储

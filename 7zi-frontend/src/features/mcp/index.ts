@@ -3,9 +3,15 @@
  * Model Context Protocol 功能模块
  */
 
-// Lib
-export * from './lib/server';
-export * from './lib/types';
+// Types - 统一从 lib/types 导出
+export type {
+  MCPRequest,
+  MCPResponse,
+} from './lib/types';
 
-// Types
+// Server implementation
+export { MCPServer, mcpServer } from './lib/server';
+export type { ToolDefinition, ToolResult } from './lib/server';
+
+// Additional types
 export * from './types';

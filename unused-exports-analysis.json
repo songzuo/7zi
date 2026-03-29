@@ -1,0 +1,6596 @@
+{
+  "stats": {
+    "analyzedFiles": 520,
+    "filesWithExports": 2863,
+    "totalImports": 13789,
+    "filesWithUnusedExports": 471,
+    "totalUnusedExports": 3301
+  },
+  "unusedExports": [
+    {
+      "file": "src/lib/a2a/agent-card.ts",
+      "unused": [
+        "createAgentCard",
+        "createExtendedAgentCard",
+        "getAgentCard",
+        "getExtendedAgentCard",
+        "resetAgentCards"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/a2a/agent-registry.ts",
+      "unused": [
+        "InMemoryAgentRegistry",
+        "FileAgentRegistry",
+        "getAgentRegistry",
+        "resetAgentRegistry"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/a2a/executor.ts",
+      "unused": [
+        "ExecutionEventBus",
+        "SevenZiExecutor",
+        "createSevenZiExecutor"
+      ],
+      "used": [
+        "RequestContext",
+        "AgentExecutor",
+        "SimpleEventBus"
+      ]
+    },
+    {
+      "file": "src/lib/a2a/jsonrpc-handler.ts",
+      "unused": [
+        "RequestHandlerOptions",
+        "A2ARequestHandler",
+        "createRequestHandler"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/a2a/message-queue.ts",
+      "unused": [
+        "QueueListener",
+        "PriorityMessageQueue",
+        "FileMessageQueue",
+        "getMessageQueue",
+        "resetMessageQueue"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/a2a/task-store.ts",
+      "unused": [
+        "TaskWithPriority",
+        "TaskStore",
+        "getTaskStore"
+      ],
+      "used": [
+        "InMemoryTaskStore"
+      ]
+    },
+    {
+      "file": "src/lib/a2a/types.ts",
+      "unused": [
+        "Part",
+        "Skill",
+        "AgentCapabilities",
+        "SecurityScheme",
+        "AgentCard",
+        "SendMessageConfiguration",
+        "PushNotificationConfig",
+        "StreamEvent",
+        "JsonRpcError",
+        "JsonRpcBatchResponse",
+        "TaskWithPriority"
+      ],
+      "used": [
+        "TaskState",
+        "TaskStatus",
+        "Message",
+        "Artifact",
+        "Task",
+        "SendMessageRequest",
+        "GetTaskRequest",
+        "ListTasksRequest",
+        "ListTasksResponse",
+        "CancelTaskRequest",
+        "TaskStatusUpdateEvent",
+        "TaskArtifactUpdateEvent",
+        "JsonRpcRequest",
+        "JsonRpcResponse",
+        "TaskPriority",
+        "QueueMessage",
+        "MessageQueue",
+        "QueueConfig",
+        "AgentRegistration",
+        "AgentRegistry",
+        "QueueEvent",
+        "A2AErrorCodes"
+      ]
+    },
+    {
+      "file": "src/lib/agent/auth-service-optimized.ts",
+      "unused": [
+        "generateApiKey",
+        "hashApiKey",
+        "validateApiKeyFormat",
+        "hasPermission",
+        "hasAnyPermission",
+        "hasAllPermissions"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/agent/auth-service.ts",
+      "unused": [
+        "generateApiKey",
+        "hashApiKey",
+        "validateApiKeyFormat",
+        "hasAnyPermission"
+      ],
+      "used": [
+        "hasPermission",
+        "hasAllPermissions"
+      ]
+    },
+    {
+      "file": "src/lib/agent/communication/index.ts",
+      "unused": [
+        "MessageBuilder"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/agent/communication/message-builder.ts",
+      "unused": [
+        "MessageBuilder",
+        "Message",
+        "MessageParser"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/agent/communication/types.ts",
+      "unused": [
+        "MessageAck",
+        "TaskPayload",
+        "CollaborationPayload",
+        "DataPayload",
+        "NotificationPayload",
+        "HeartbeatPayload",
+        "CapabilityPayload",
+        "MeetingPayload",
+        "VotePayload",
+        "VoteOption",
+        "VoteResult",
+        "MessageHandler",
+        "MessageFilter",
+        "MessageTransformer",
+        "CommunicationConfig",
+        "CommunicationStats",
+        "MessageSubscription"
+      ],
+      "used": [
+        "PROTOCOL_VERSION",
+        "AgentMessageEnvelope",
+        "AgentEndpoint",
+        "MessageMetadata"
+      ]
+    },
+    {
+      "file": "src/lib/agent/index.ts",
+      "unused": [
+        "generateApiKey",
+        "hashApiKey",
+        "validateApiKeyFormat",
+        "registerAgent",
+        "authenticateAgent",
+        "generateAgentToken",
+        "verifyAgentToken",
+        "refreshAgentToken",
+        "hasPermission",
+        "hasAnyPermission",
+        "hasAllPermissions",
+        "initializeAgentTables",
+        "createAgent",
+        "getAgentById",
+        "getAllAgents",
+        "updateAgent",
+        "updateAgentStatus",
+        "deleteAgent",
+        "updateAgentLastActive",
+        "validateAgentApiKey",
+        "mapRowToAgent",
+        "getAgentDataAccessLog",
+        "logDataAccess",
+        "initializeWalletTables",
+        "createWallet",
+        "getWalletByAgentId",
+        "getWalletBalance",
+        "deposit",
+        "withdraw",
+        "transfer",
+        "getTransactions",
+        "getWalletStats",
+        "withAgentAuth",
+        "withPermissions",
+        "withAnyPermission",
+        "type AgentContext"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/agent/middleware.ts",
+      "unused": [
+        "withPermissions",
+        "withAnyPermission",
+        "AgentContext"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/agent/repository-optimized.ts",
+      "unused": [
+        "validateAgentApiKey",
+        "createAgentToken",
+        "validateAgentToken",
+        "refreshAgentToken",
+        "revokeAgentToken",
+        "logDataAccess",
+        "getAgentDataAccessLog",
+        "updateAgentStatus",
+        "updateAgentLastActive"
+      ],
+      "used": [
+        "mapRowToAgent"
+      ]
+    },
+    {
+      "file": "src/lib/agent/types.ts",
+      "unused": [
+        "AgentMetadata",
+        "AgentAuthResponse",
+        "TokenRefreshRequest",
+        "AgentDataRequest",
+        "ApiAgentToken",
+        "ApiResponse",
+        "PaginationRequest",
+        "PaginatedResponse"
+      ],
+      "used": [
+        "Agent",
+        "AgentToken",
+        "AgentAuthRequest",
+        "AgentRegisterRequest",
+        "AgentDataAccess",
+        "CreateAgentRequest",
+        "UpdateAgentRequest",
+        "WalletOperationRequest",
+        "AgentWallet",
+        "WalletTransaction",
+        "AgentApiResponse"
+      ]
+    },
+    {
+      "file": "src/lib/agent/wallet-repository-optimized.ts",
+      "unused": [
+        "createTransaction",
+        "updateTransactionStatus",
+        "freezeBalance",
+        "unfreezeBalance",
+        "getWalletById",
+        "consume",
+        "reward",
+        "refund"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/agent-scheduler/config/environment.ts",
+      "unused": [
+        "Environment",
+        "SchedulerEnvironmentConfig",
+        "developmentConfig",
+        "testingConfig",
+        "productionConfig",
+        "getEnvironmentConfig",
+        "validateEnvironment",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/agent-scheduler/core/load-balancer.ts",
+      "unused": [
+        "LoadBalanceResult"
+      ],
+      "used": [
+        "LoadBalanceConfig",
+        "LoadBalancer"
+      ]
+    },
+    {
+      "file": "src/lib/agent-scheduler/core/matching.ts",
+      "unused": [
+        "MatchResult"
+      ],
+      "used": [
+        "TaskMatcher"
+      ]
+    },
+    {
+      "file": "src/lib/agent-scheduler/core/ranking.ts",
+      "unused": [
+        "RankedTask"
+      ],
+      "used": [
+        "TaskRanker"
+      ]
+    },
+    {
+      "file": "src/lib/agent-scheduler/dashboard/AgentStatusPanel.tsx",
+      "unused": [
+        "default"
+      ],
+      "used": [
+        "AgentStatusPanel"
+      ]
+    },
+    {
+      "file": "src/lib/agent-scheduler/dashboard/Dashboard.tsx",
+      "unused": [
+        "DashboardTab",
+        "Dashboard",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/agent-scheduler/dashboard/ManualOverride.tsx",
+      "unused": [
+        "default"
+      ],
+      "used": [
+        "ManualOverride"
+      ]
+    },
+    {
+      "file": "src/lib/agent-scheduler/dashboard/ScheduleHistory.tsx",
+      "unused": [
+        "default"
+      ],
+      "used": [
+        "ScheduleHistory"
+      ]
+    },
+    {
+      "file": "src/lib/agent-scheduler/dashboard/index.ts",
+      "unused": [
+        "Dashboard",
+        "AgentStatusPanel",
+        "TaskQueueView",
+        "ScheduleHistory",
+        "ManualOverride"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/agent-scheduler/models/agent-capability.ts",
+      "unused": [
+        "AgentCapabilities",
+        "AGENT_CAPABILITIES_CONFIG",
+        "createAgentCapability"
+      ],
+      "used": [
+        "AgentProvider",
+        "TaskType",
+        "AgentCapability",
+        "initializeAgents"
+      ]
+    },
+    {
+      "file": "src/lib/agent-scheduler/models/schedule-decision.ts",
+      "unused": [
+        "SchedulingMetrics"
+      ],
+      "used": [
+        "ScheduleDecision",
+        "ScheduleHistory",
+        "createScheduleDecision"
+      ]
+    },
+    {
+      "file": "src/lib/agent-scheduler/stores/scheduler-store.ts",
+      "unused": [
+        "selectScheduler",
+        "selectTasks",
+        "selectSelectedTask",
+        "selectSelectedAgent",
+        "selectStats",
+        "selectIsLoading",
+        "selectError",
+        "selectTaskByStatus",
+        "selectTasksByAgent",
+        "selectUrgentTasks",
+        "selectOverdueTasks",
+        "selectAgentUtilization"
+      ],
+      "used": [
+        "useSchedulerStore",
+        "selectAgents",
+        "selectPendingTasks",
+        "selectRecentDecisions",
+        "selectAgentAvailability"
+      ]
+    },
+    {
+      "file": "src/lib/api/api-error.ts",
+      "unused": [
+        "STATUS_CODE_TO_ERROR",
+        "ERROR_CODE_TO_STATUS",
+        "ERROR_MESSAGES",
+        "ValidationError"
+      ],
+      "used": [
+        "ApiErrorResponse",
+        "ApiSuccessResponse",
+        "ApiResponse",
+        "ApiError"
+      ]
+    },
+    {
+      "file": "src/lib/api/api-logger.ts",
+      "unused": [
+        "RequestMetadata",
+        "generateRequestId",
+        "getUserAgent",
+        "getClientIp",
+        "createRequestMetadata",
+        "logRequestStart",
+        "logRequestComplete",
+        "logRequestError",
+        "withApiLogging",
+        "setRequestIdContext",
+        "createRequestLogger",
+        "extractPath",
+        "sanitizeUrlForLogging",
+        "logValidationError",
+        "logAuthError"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/api/api-performance-logger.ts",
+      "unused": [
+        "PERFORMANCE_THRESHOLDS",
+        "PerformanceMetadata",
+        "PerformanceSummary",
+        "logApiPerformance",
+        "checkSlowQuery",
+        "withPerformanceTracking",
+        "getPerformanceSummary"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/api/api-response-wrapper.ts",
+      "unused": [
+        "success",
+        "error",
+        "badRequest",
+        "unauthorized",
+        "forbidden",
+        "notFound",
+        "conflict",
+        "tooManyRequests",
+        "internalError",
+        "serviceUnavailable",
+        "GET",
+        "withApiHandler",
+        "isSuccessResponse",
+        "isErrorResponse"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/api/enhanced-error-handler.ts",
+      "unused": [
+        "EnhancedApiError",
+        "EnhancedErrorResponse",
+        "createEnhancedErrorResponse",
+        "createValidationErrorResponse",
+        "createNotFoundErrorResponse",
+        "createUnauthorizedErrorResponse",
+        "createForbiddenErrorResponse",
+        "createRateLimitErrorResponse",
+        "createServiceUnavailableErrorResponse",
+        "createNetworkErrorResponse",
+        "createTimeoutErrorResponse",
+        "withEnhancedErrorHandling"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/api/error-handler.ts",
+      "unused": [
+        "ApiError",
+        "ErrorResponse",
+        "SuccessResponse",
+        "createSuccessResponse",
+        "GET",
+        "withErrorHandling"
+      ],
+      "used": [
+        "ErrorType"
+      ]
+    },
+    {
+      "file": "src/lib/api/error-logger.ts",
+      "unused": [
+        "ErrorLogContext",
+        "ErrorLogData",
+        "SuccessLogData",
+        "logApiError",
+        "logApiSuccess",
+        "createApiContext",
+        "extractUserId",
+        "calculateDuration",
+        "createPerformanceLogger",
+        "ErrorStatistics",
+        "globalErrorStats"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/api/error-middleware.ts",
+      "unused": [
+        "ApiErrorMiddlewareOptions",
+        "GET",
+        "withApiErrorMiddleware",
+        "POST",
+        "withApiProtection",
+        "validateRequestHeaders",
+        "createApiErrorHandler"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/api/error-types.ts",
+      "unused": [
+        "ErrorTypeValue"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/api/github-helper.ts",
+      "unused": [
+        "GitHubAPIOptions",
+        "handleGitHubError"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/api/retry-decorator.ts",
+      "unused": [
+        "RetryConfig",
+        "withRetry",
+        "RetryPresets"
+      ],
+      "used": [
+        "getRetryInfo"
+      ]
+    },
+    {
+      "file": "src/lib/api/timeout-wrapper.ts",
+      "unused": [
+        "TimeoutError",
+        "withTimeout",
+        "withTimeoutApi",
+        "TimeoutPresets"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/api/user-messages.ts",
+      "unused": [
+        "UserError",
+        "getUserFriendlyErrorSync",
+        "CUSTOM_ERROR_MESSAGES",
+        "getCustomErrorMessage"
+      ],
+      "used": [
+        "SupportedLocale",
+        "getLocaleFromRequest"
+      ]
+    },
+    {
+      "file": "src/lib/api/utils.ts",
+      "unused": [
+        "PasswordStrengthResult",
+        "validateEmail",
+        "validatePasswordStrength",
+        "setAuthCookies",
+        "clearAuthCookies",
+        "createSuccessResponse",
+        "createPaginatedSuccessResponse",
+        "parsePaginationParams",
+        "createSimpleSuccessResponse",
+        "createErrorResponse"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/api/validation.ts",
+      "unused": [
+        "emailSchema",
+        "passwordSchema",
+        "paginationSchema",
+        "ownerRepoSchema",
+        "githubCommitsQuerySchema",
+        "githubIssuesQuerySchema",
+        "statusQuerySchema",
+        "healthQuerySchema",
+        "databaseActionSchema",
+        "jsonRpcVersionSchema",
+        "jsonRpcRequestSchema",
+        "jsonRpcBatchRequestSchema",
+        "jsonRpcResponseSchema",
+        "csrfTokenSchema",
+        "successResponseSchema",
+        "paginatedResponseSchema",
+        "validateQuery",
+        "validateBody",
+        "formatValidationErrors",
+        "withQueryValidation"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/approval/index.ts",
+      "unused": [
+        "requiresApproval",
+        "createApprovalRequest",
+        "getPendingApprovals",
+        "getMyRequests",
+        "approveApproval",
+        "rejectApproval",
+        "cancelApproval",
+        "ApprovalWorkflowService"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/approval/types.ts",
+      "unused": [
+        "ApprovalActionRequest",
+        "ApprovalRequiredConfig",
+        "ApprovalStatusLabels",
+        "ApprovalTypeLabels",
+        "ApprovalPriorityLabels",
+        "ApprovalPriorityColors"
+      ],
+      "used": [
+        "ApprovalRequest",
+        "ApprovalApprover",
+        "CreateApprovalRequest",
+        "ApprovalWorkflowConfig",
+        "ApprovalStats",
+        "ApprovalListQuery",
+        "ApprovalListResult",
+        "SENSITIVE_PERMISSIONS",
+        "DEFAULT_WORKFLOW_CONFIGS"
+      ]
+    },
+    {
+      "file": "src/lib/auth/__mocks__/jose.ts",
+      "unused": [
+        "SignJWT",
+        "jwtVerify",
+        "decodeJwt",
+        "jwtSign"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/auth/jwt.ts",
+      "unused": [
+        "JwtPayload",
+        "TokenVerifyResult",
+        "TokenDecodeResult",
+        "UserContext",
+        "decode",
+        "isTokenExpired",
+        "getTokenTimeRemaining",
+        "isValidTokenFormat"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/auth/middleware-rbac.ts",
+      "unused": [
+        "RBACUserContext",
+        "withPermissions",
+        "withAnyPermission",
+        "withRole",
+        "withAnyRole",
+        "withAdmin",
+        "withManagerOrAdmin"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/auth/permission-migration.ts",
+      "unused": [
+        "LEGACY_TO_NEW_PERMISSIONS",
+        "NEW_TO_LEGACY_PERMISSIONS",
+        "convertLegacyPermissions",
+        "convertPermissionsToLegacy",
+        "normalizePermissions",
+        "isLegacyPermissionFormat",
+        "permissionsAreEquivalent",
+        "mergePermissions"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/auth/repository-optimized.ts",
+      "unused": [
+        "generateUserListCacheKey"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/auth/repository.ts",
+      "unused": [
+        "PaginationOptions",
+        "PaginatedResult",
+        "getDefaultPermissions"
+      ],
+      "used": [
+        "hashPassword",
+        "verifyPassword"
+      ]
+    },
+    {
+      "file": "src/lib/auth/service-unified.ts",
+      "unused": [
+        "hasPermission",
+        "hasAnyPermission",
+        "hasAllPermissions"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/auth/service.ts",
+      "unused": [
+        "hasPermission",
+        "hasAnyPermission",
+        "hasAllPermissions"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/auth/types.ts",
+      "unused": [
+        "ChangePasswordRequest",
+        "ForgotPasswordRequest",
+        "ResetPasswordRequest"
+      ],
+      "used": [
+        "User",
+        "UserToken",
+        "LoginRequest",
+        "LoginSuccessResponse",
+        "LoginFailureResponse",
+        "LoginResponse",
+        "RegisterRequest",
+        "RegisterResponse",
+        "RefreshTokenRequest",
+        "RefreshTokenSuccessResponse",
+        "RefreshTokenFailureResponse",
+        "RefreshTokenResponse",
+        "UserContext",
+        "CreateUserRequest",
+        "UpdateUserRequest"
+      ]
+    },
+    {
+      "file": "src/lib/backup/compression.ts",
+      "unused": [
+        "calculateCompressionRatio",
+        "estimateCompressedSize"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/backup/encryption.ts",
+      "unused": [
+        "validateEncryptionKey"
+      ],
+      "used": [
+        "generateEncryptionKey"
+      ]
+    },
+    {
+      "file": "src/lib/backup/index.ts",
+      "unused": [
+        "createBackup",
+        "listBackups",
+        "getBackup",
+        "deleteBackup",
+        "restoreBackup",
+        "scheduleBackup",
+        "getScheduledBackups",
+        "cancelScheduledBackup",
+        "runScheduledBackups",
+        "exportData",
+        "importData",
+        "exportToCSV",
+        "importFromCSV",
+        "compressBackup",
+        "decompressBackup",
+        "encryptBackup",
+        "decryptBackup",
+        "BackupManager"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/backup/manager.ts",
+      "unused": [
+        "BackupManager"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/backup/types.ts",
+      "unused": [
+        "BackupNotification",
+        "BackupConfigSchema",
+        "RestoreOptionsSchema",
+        "ExportOptionsSchema"
+      ],
+      "used": [
+        "BackupMetadata",
+        "BackupConfig",
+        "BackupJob",
+        "ExportOptions",
+        "ImportOptions",
+        "RestoreOptions",
+        "BackupStatistics",
+        "BackupEvent"
+      ]
+    },
+    {
+      "file": "src/lib/cache/CacheManager.ts",
+      "unused": [
+        "CacheManager",
+        "getCacheManager",
+        "CachePresets"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/cache/index.ts",
+      "unused": [
+        "LRUCache",
+        "createCache"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/cache/lru-cache.ts",
+      "unused": [
+        "LRUCache",
+        "createCache"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/code-splitting.tsx",
+      "unused": [
+        "ThreeJS",
+        "ReactThreeFiber",
+        "ReactThreeDrei",
+        "OptimizedKnowledgeLatticeScene",
+        "ExcelJS",
+        "ChartJS",
+        "MarkdownParser",
+        "preloadChunk",
+        "preloadThreeJS",
+        "useLazyLoad",
+        "getCodeSplittingBestPractices"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/collaboration/manager.ts",
+      "unused": [
+        "Operation",
+        "DocumentState",
+        "OperationHistoryEntry",
+        "Cursor",
+        "Presence",
+        "transform",
+        "applyOperation",
+        "applyOperationToContent",
+        "composeOperations",
+        "DocumentManager",
+        "CursorManager",
+        "PresenceManager",
+        "CollaborationManager",
+        "default"
+      ],
+      "used": [
+        "getCollaborationManager"
+      ]
+    },
+    {
+      "file": "src/lib/collaboration/rooms.ts",
+      "unused": [
+        "RoomInfo",
+        "RoomUserInfo",
+        "CreateRoomOptions",
+        "generateTaskRoomId",
+        "generateProjectRoomId",
+        "generateChatRoomId",
+        "generateDocumentRoomId",
+        "generateUniqueId",
+        "isValidRoomType",
+        "parseRoomId",
+        "isValidRoomId",
+        "getRoomType",
+        "getEntityId",
+        "isTaskRoom",
+        "isProjectRoom",
+        "isChatRoom",
+        "isDocumentRoom",
+        "sanitizeRoomUser",
+        "getTypingUsers",
+        "isUserTyping",
+        "getActiveUsers",
+        "getRoomStats",
+        "isRoomIdle",
+        "shouldCleanupRoom",
+        "getCleanupDelay",
+        "validateRoomOptions",
+        "validateRoomJoin",
+        "createDefaultRoomName",
+        "truncateRoomName",
+        "formatRoomAge",
+        "formatIdleTime",
+        "RoomHelpers",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/collaboration/server.ts",
+      "unused": [
+        "RoomUser",
+        "Room",
+        "RoomConfig"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/crypto/index.ts",
+      "unused": [
+        "generateUUID",
+        "encryptSensitiveData",
+        "decryptSensitiveData"
+      ],
+      "used": [
+        "encryptApiKey",
+        "decryptApiKey",
+        "getEncryptionSecret",
+        "generateSecureToken"
+      ]
+    },
+    {
+      "file": "src/lib/csrf.ts",
+      "unused": [
+        "clearCsrfToken",
+        "validateCsrfToken"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/csv-export.ts",
+      "unused": [
+        "CSVColumn",
+        "CSVData",
+        "convertToCSV",
+        "downloadCSV",
+        "exportToCSV",
+        "generateCSVFilename"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/data-import-export.ts",
+      "unused": [
+        "ExportFormat",
+        "ImportFormat",
+        "ImportMode",
+        "ExportOptions",
+        "ImportOptions",
+        "ExportResult",
+        "ImportResult",
+        "getTableSchema",
+        "getSupportedTables",
+        "isValidTable",
+        "validateExportOptions",
+        "validateImportOptions",
+        "exportToCSV",
+        "exportToJSON",
+        "parseCSV",
+        "parseJSON",
+        "getExportFileName"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/date-i18n.ts",
+      "unused": [
+        "formatTimeAgo",
+        "formatDate",
+        "formatDateTime",
+        "formatTime",
+        "isToday",
+        "isYesterday"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/date.ts",
+      "unused": [
+        "formatTimeAgo",
+        "formatDate",
+        "formatDateTime",
+        "isToday",
+        "isYesterday"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/db/audit-log.ts",
+      "unused": [
+        "AuditLog",
+        "AuditLogQuery"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/db/batch-operations.ts",
+      "unused": [
+        "BatchInsertOptions",
+        "BatchUpdateOptions",
+        "BatchResult",
+        "calculateOptimalBatchSize",
+        "BatchPerformanceMetrics",
+        "analyzeBatchPerformance"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/db/cache.ts",
+      "unused": [
+        "CacheEntry",
+        "CacheStats",
+        "CacheConfig",
+        "MemoizationOptions",
+        "MemoizedEntry",
+        "MemoizationStats",
+        "MemoizationCache",
+        "memoization",
+        "memoize",
+        "memoizeSync",
+        "memoizedQuery",
+        "cached",
+        "cachedWithInvalidation",
+        "startCacheCleanup",
+        "getCacheStats"
+      ],
+      "used": [
+        "CacheKeyGenerator",
+        "CacheInvalidator"
+      ]
+    },
+    {
+      "file": "src/lib/db/connection-pool.ts",
+      "unused": [
+        "PoolConfig",
+        "PooledConnection",
+        "PoolStats",
+        "HealthCheckResult",
+        "getConnectionPool",
+        "resetConnectionPool",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/db/connection.ts",
+      "unused": [
+        "DatabaseResult",
+        "DatabaseStatement"
+      ],
+      "used": [
+        "DatabaseConnection",
+        "getDatabase",
+        "closeDatabase",
+        "getDatabaseStats",
+        "vacuumDatabase",
+        "analyzeDatabase",
+        "getDatabaseSize"
+      ]
+    },
+    {
+      "file": "src/lib/db/enhanced-db.ts",
+      "unused": [
+        "EnhancedDatabase"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/db/feedback.ts",
+      "unused": [
+        "FeedbackStatistics",
+        "RatingStatistics"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/db/index-analyzer.ts",
+      "unused": [
+        "IndexInfo",
+        "IndexUsageReport",
+        "generateIndexOptimizationSuggestions"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/db/index-unified.ts",
+      "unused": [
+        "DatabaseResult",
+        "DatabaseStatement",
+        "DatabaseConnection",
+        "getDatabase",
+        "closeDatabase",
+        "getDatabaseStats",
+        "vacuumDatabase",
+        "analyzeDatabase",
+        "getDatabaseSize"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/db/index.ts",
+      "unused": [
+        "closeDatabase",
+        "getDatabaseStats",
+        "vacuumDatabase",
+        "analyzeDatabase",
+        "getDatabaseSize",
+        "migrate",
+        "optimizeDatabase",
+        "getDatabaseHealth",
+        "type DatabaseConnection",
+        "type DatabaseResult",
+        "type DatabaseStatement"
+      ],
+      "used": [
+        "getDatabase",
+        "getDatabaseAsync"
+      ]
+    },
+    {
+      "file": "src/lib/db/migrations.ts",
+      "unused": [
+        "Migration",
+        "DatabaseHealthResult"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/db/nplus1-detector.ts",
+      "unused": [
+        "QueryPattern",
+        "BatchQueryOption",
+        "resetNPlus1Detector"
+      ],
+      "used": [
+        "NPlus1Detection",
+        "getNPlus1Detector"
+      ]
+    },
+    {
+      "file": "src/lib/db/optimization-init.ts",
+      "unused": [
+        "cleanupDatabaseOptimization",
+        "getOptimizationStatus"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/db/pagination.ts",
+      "unused": [
+        "PaginationOptions",
+        "PaginationMeta",
+        "CursorPaginationMeta",
+        "PaginatedResult",
+        "CursorPaginatedResult",
+        "parsePaginationOptions",
+        "buildPaginationClause",
+        "paginate",
+        "paginateWithCursor",
+        "buildPaginatedQuery",
+        "addCursorToWhereClause",
+        "validatePaginationParams",
+        "getDefaultPaginationOptions",
+        "calculatePageFromCursor",
+        "mergePaginationMeta"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/db/performance-analyzer.ts",
+      "unused": [
+        "QueryPerformance",
+        "SlowQuery",
+        "TableAnalysis",
+        "PerformanceReport"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/db/performance-logger.ts",
+      "unused": [
+        "PerformanceLoggerConfig",
+        "PerformanceSummary",
+        "getPerformanceLogger",
+        "resetPerformanceLogger",
+        "wrapDatabaseWithLogging",
+        "trackRequestStart",
+        "trackRequestEnd",
+        "getPerformanceReport",
+        "getPerformanceHealth"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/db/query-builder/index.ts",
+      "unused": [
+        "QueryBuilder",
+        "buildQuery",
+        "buildWhereQuery",
+        "PreparedStatementCache",
+        "getCacheStats",
+        "clearAllCaches",
+        "executeQuery",
+        "batchInsert",
+        "batchUpdate",
+        "batchDelete"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/db/query-builder/query-builder.ts",
+      "unused": [
+        "QueryCondition",
+        "JoinConfig",
+        "SubqueryConfig",
+        "PaginationOptions",
+        "SortOptions",
+        "QueryBuilderConfig",
+        "buildQuery",
+        "buildWhereQuery"
+      ],
+      "used": [
+        "BuiltQuery",
+        "BatchResult",
+        "QueryCacheConfig",
+        "QueryBuilder"
+      ]
+    },
+    {
+      "file": "src/lib/db/query-builder/query-cache.ts",
+      "unused": [
+        "getCacheStats",
+        "clearAllCaches"
+      ],
+      "used": [
+        "PreparedStatementCache"
+      ]
+    },
+    {
+      "file": "src/lib/db/query-builder/query-executor.ts",
+      "unused": [
+        "executeQuery",
+        "batchInsert",
+        "batchUpdate",
+        "batchDelete"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/db/query-builder.ts",
+      "unused": [
+        "QueryCondition",
+        "JoinConfig",
+        "SubqueryConfig",
+        "PaginationOptions",
+        "SortOptions",
+        "QueryBuilderConfig",
+        "BuiltQuery",
+        "BatchResult",
+        "QueryCacheConfig",
+        "QueryBuilder",
+        "buildQuery",
+        "executeQuery",
+        "batchInsert",
+        "batchUpdate",
+        "batchDelete",
+        "clearAllCaches",
+        "getCacheStats"
+      ],
+      "used": [
+        "buildWhereQuery"
+      ]
+    },
+    {
+      "file": "src/lib/db/query-optimizations.ts",
+      "unused": [
+        "FeedbackAttachmentRow",
+        "HelpfulVoteRow",
+        "OptimizedFeedbackStats",
+        "OptimizedRatingStats",
+        "PaginatedResult"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/db/slow-query-logger.ts",
+      "unused": [
+        "SlowQueryLog",
+        "QueryMetrics",
+        "PerformanceAlert",
+        "SlowQueryLogger",
+        "resetSlowQueryLogger",
+        "default"
+      ],
+      "used": [
+        "getSlowQueryLogger"
+      ]
+    },
+    {
+      "file": "src/lib/db/types.ts",
+      "unused": [
+        "DatabaseHealth",
+        "DatabaseResult",
+        "DatabaseStatement",
+        "DatabaseConnection",
+        "PerformanceReport",
+        "SlowQuery",
+        "TableAnalysis",
+        "TableIndex",
+        "DatabaseSizeInfo",
+        "MissingIndex",
+        "CacheStatistics"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/db/user-preferences.ts",
+      "unused": [
+        "UserPreferences"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/emailjs.ts",
+      "unused": [
+        "EMAILJS_CONFIG",
+        "isEmailJSConfigured",
+        "EmailTemplateParams",
+        "SUBJECT_MAP",
+        "getSubjectLabel",
+        "getLocalizedSubject"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/error-handling.ts",
+      "unused": [
+        "// Types\n  type ApiErrorResponse",
+        "type ApiSuccessResponse",
+        "type ApiResponse",
+        "ApiErrorCode",
+        "STATUS_CODE_TO_ERROR",
+        "ERROR_CODE_TO_STATUS",
+        "ERROR_MESSAGES",
+        "// Error classes\n  ApiError",
+        "ValidationError",
+        "// Response wrappers\n  success",
+        "error",
+        "badRequest",
+        "unauthorized",
+        "forbidden",
+        "notFound",
+        "conflict",
+        "tooManyRequests",
+        "internalError",
+        "serviceUnavailable",
+        "// Handler wrapper\n  withApiHandler",
+        "parseResponse",
+        "// Main functions\n  logApiError",
+        "withErrorLogging",
+        "// Utilities\n  extractErrorInfo",
+        "isRetryableError",
+        "getRetryDelay",
+        "// Configuration\n  type ErrorLoggingMiddlewareConfig",
+        "// Component fallback\n  ComponentFallback",
+        "withFallback",
+        "type FallbackVariant",
+        "type ComponentFallbackProps",
+        "// Async boundary\n  AsyncBoundary",
+        "AsyncBoundaryFn",
+        "type AsyncStatus",
+        "type AsyncBoundaryProps",
+        "type AsyncBoundaryFnProps",
+        "type AsyncChildren",
+        "// Circuit breaker\n  CircuitBreaker",
+        "CircuitBreakerRegistry",
+        "CircuitBreakerOpenError",
+        "withCircuitBreaker",
+        "getCircuitBreaker",
+        "CircuitState",
+        "type CircuitBreakerConfig",
+        "// Graceful degradation\n  DegradationManager",
+        "FeatureFlags",
+        "NetworkCondition",
+        "withDegradation",
+        "getDegradationManager",
+        "getNetworkCondition",
+        "type DegradationStrategy",
+        "type DegradationConfig",
+        "type DegradationLevel",
+        "// Error tracking\n  TrackedError",
+        "captureError",
+        "withErrorTracking",
+        "handleApiError",
+        "addBreadcrumb",
+        "// Types\n  ErrorCategory",
+        "ErrorSeverity",
+        "// React error boundaries\n  ErrorBoundary",
+        "ErrorBoundary",
+        "type ErrorBoundaryProps",
+        "logger",
+        "log",
+        "createAppError",
+        "formatErrorMessage",
+        "isNetworkError",
+        "getErrorCode",
+        "getUserFriendlyMessage",
+        "type AppError",
+        "setupGlobalErrorHandlers",
+        "setupBrowserErrorHandlers",
+        "retry",
+        "retryWithResult",
+        "retryFetch",
+        "RetryCache",
+        "createRetryCache",
+        "// Types\n  type RetryOptions",
+        "type RetryResult"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/errors/index.ts",
+      "unused": [
+        "createAppError",
+        "formatErrorMessage",
+        "isNetworkError",
+        "getErrorCode",
+        "getUserFriendlyMessage",
+        "UnifiedErrorType",
+        "ErrorCodes",
+        "STATUS_CODE_TO_ERROR_TYPE",
+        "isRetryableErrorType",
+        "getDefaultStatusCode",
+        "UnifiedAppError",
+        "toUnifiedError",
+        "isUnifiedError",
+        "extractErrorInfo",
+        "createUnifiedErrorResponse",
+        "createUnifiedSuccessResponse",
+        "createValidationErrorResponse",
+        "createNotFoundErrorResponse",
+        "createUnauthorizedErrorResponse",
+        "createForbiddenErrorResponse",
+        "createRateLimitErrorResponse",
+        "createInternalErrorResponse",
+        "createServiceUnavailableErrorResponse",
+        "createNetworkErrorResponse",
+        "createTimeoutErrorResponse",
+        "createRegistrationFailedErrorResponse",
+        "createWeakPasswordErrorResponse",
+        "createMissingTokenErrorResponse",
+        "createConflictErrorResponse",
+        "withUnifiedErrorHandling",
+        "parseUnifiedResponse"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/errors/unified-response.ts",
+      "unused": [
+        "UnifiedErrorResponse",
+        "UnifiedSuccessResponse",
+        "createUnifiedErrorResponse",
+        "createUnifiedSuccessResponse",
+        "createValidationErrorResponse",
+        "createNotFoundErrorResponse",
+        "createUnauthorizedErrorResponse",
+        "createForbiddenErrorResponse",
+        "createRateLimitErrorResponse",
+        "createInternalErrorResponse",
+        "createServiceUnavailableErrorResponse",
+        "createNetworkErrorResponse",
+        "createTimeoutErrorResponse",
+        "createRegistrationFailedErrorResponse",
+        "createWeakPasswordErrorResponse",
+        "createMissingTokenErrorResponse",
+        "createConflictErrorResponse",
+        "POST",
+        "withUnifiedErrorHandling",
+        "parseUnifiedResponse"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/errors/unified-types.ts",
+      "unused": [
+        "STATUS_CODE_TO_ERROR_TYPE"
+      ],
+      "used": [
+        "ErrorCodes",
+        "UnifiedErrorInfo",
+        "isRetryableErrorType",
+        "getDefaultStatusCode"
+      ]
+    },
+    {
+      "file": "src/lib/errors-i18n.ts",
+      "unused": [
+        "I18nErrorType",
+        "getErrorMessage",
+        "getHttpErrorMessage",
+        "getErrorFromException",
+        "formatErrorMessage",
+        "ErrorResponse",
+        "createErrorResponse"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/errors.ts",
+      "unused": [
+        "AppError",
+        "createAppError",
+        "formatErrorMessage",
+        "isNetworkError",
+        "ErrorCodes",
+        "getErrorCode",
+        "getUserFriendlyMessage"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/export/index.ts",
+      "unused": [
+        "ExportFormat",
+        "ExcelColumnStyle",
+        "ExcelOptions",
+        "ExportField",
+        "ExportConfig",
+        "ExportResult",
+        "ExportTemplate",
+        "MultiSheetConfig",
+        "DataExporter",
+        "downloadExport",
+        "createFields",
+        "dateFormatter",
+        "booleanFormatter",
+        "arrayFormatter",
+        "truncateFormatter",
+        "numberFormatter",
+        "currencyFormatter",
+        "percentFormatter",
+        "enumFormatter",
+        "linkFormatter",
+        "jsonFormatter",
+        "conditionalFormatter",
+        "registerTemplate",
+        "getTemplate",
+        "getAllTemplates",
+        "deleteTemplate",
+        "createEnhancedFields",
+        "getFieldsByGroup",
+        "sortFields"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/export/types.ts",
+      "unused": [
+        "ExportFormat",
+        "ExportEntityType",
+        "ExportOptions",
+        "ExportResult",
+        "ExportProgress",
+        "ExportField",
+        "ExportableEntity"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/fallback/circuit-breaker.ts",
+      "unused": [
+        "CircuitBreakerOpenError",
+        "CircuitBreakerRegistry",
+        "getCircuitBreaker",
+        "withCircuitBreaker"
+      ],
+      "used": [
+        "CircuitBreakerConfig",
+        "CircuitBreaker"
+      ]
+    },
+    {
+      "file": "src/lib/fallback/graceful-degradation.ts",
+      "unused": [
+        "DegradationLevel",
+        "DegradationStrategy",
+        "DegradationConfig",
+        "FeatureFlags",
+        "DegradationManager",
+        "withDegradation",
+        "NetworkCondition",
+        "getDegradationManager",
+        "getNetworkCondition"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/global-error-handlers.ts",
+      "unused": [
+        "setupGlobalErrorHandlers",
+        "setupBrowserErrorHandlers"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/hooks/useRealtimeAnalytics.ts",
+      "unused": [
+        "useRealtimeAnalytics",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/hooks/useWebVitals.ts",
+      "unused": [
+        "WebVitalsMetrics",
+        "MetricEntry",
+        "UseWebVitalsOptions",
+        "useWebVitals",
+        "UseRealtimePerformanceOptions",
+        "useRealtimePerformance"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/inp-optimization.ts",
+      "unused": [
+        "debounce",
+        "throttle",
+        "scheduleIdleTask",
+        "cancelIdleTask",
+        "addPassiveEventListener",
+        "delegateEvent",
+        "runInWorker",
+        "optimizeInput",
+        "optimizeClick",
+        "optimizeAnimation",
+        "batchDOMUpdates",
+        "observeLongTasks",
+        "observeInteractionDelay",
+        "initINPOptimizations"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/keyboard-shortcuts/index.ts",
+      "unused": [
+        "ShortcutManager",
+        "getShortcutManager",
+        "initShortcutManager",
+        "destroyShortcutManager",
+        "DEFAULT_SHORTCUTS",
+        "SHORTCUT_CATEGORIES",
+        "MODIFIER_KEYS",
+        "getShortcutDisplayText",
+        "DEFAULT_USER_SHORTCUTS",
+        "useKeyboardShortcuts",
+        "useShortcut",
+        "useShortcuts",
+        "useContextualShortcuts",
+        "useShortcutsDisplay",
+        "useGlobalShortcuts",
+        "useInitShortcuts",
+        "useShortcutCustomization",
+        "useShortcutManager",
+        "ShortcutTooltip",
+        "ShortcutBadge",
+        "ShortcutDisplay",
+        "ShortcutMenuButton",
+        "withShortcutTooltip"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/keyboard-shortcuts/shortcut-config.ts",
+      "unused": [
+        "MODIFIER_KEYS",
+        "DEFAULT_USER_SHORTCUTS"
+      ],
+      "used": [
+        "ShortcutContext",
+        "DEFAULT_SHORTCUTS",
+        "SHORTCUT_CATEGORIES",
+        "getShortcutDisplayText"
+      ]
+    },
+    {
+      "file": "src/lib/keyboard-shortcuts/shortcut-manager.ts",
+      "unused": [
+        "ShortcutManagerConfig",
+        "ContextChangeListener",
+        "ShortcutTriggerListener"
+      ],
+      "used": [
+        "KeyboardShortcut",
+        "ShortcutManager",
+        "getShortcutManager",
+        "initShortcutManager",
+        "destroyShortcutManager"
+      ]
+    },
+    {
+      "file": "src/lib/keyboard-shortcuts/shortcut-tooltip.tsx",
+      "unused": [
+        "ShortcutTooltipProps",
+        "ShortcutTooltip",
+        "ShortcutBadgeProps",
+        "ShortcutBadge",
+        "ShortcutDisplayProps",
+        "ShortcutDisplay",
+        "ShortcutMenuButtonProps",
+        "ShortcutMenuButton",
+        "withShortcutTooltip",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/keyboard-shortcuts/use-keyboard-shortcuts.ts",
+      "unused": [
+        "UseKeyboardShortcutsOptions",
+        "useShortcut",
+        "useShortcuts",
+        "useContextualShortcuts",
+        "useGlobalShortcuts",
+        "useInitShortcuts",
+        "useShortcutCustomization",
+        "ShortcutProviderProps",
+        "useShortcutManager"
+      ],
+      "used": [
+        "useKeyboardShortcuts",
+        "useShortcutsDisplay"
+      ]
+    },
+    {
+      "file": "src/lib/lcp-optimization.ts",
+      "unused": [
+        "preloadLCPImage",
+        "preloadCriticalFonts",
+        "preconnectToCDNs",
+        "optimizeLCPImage",
+        "generateSrcSet",
+        "generateSizes",
+        "optimizeFontDisplay",
+        "preloadAndUseCriticalFont",
+        "inlineCriticalCSS",
+        "loadCSSAsync",
+        "deferNonCriticalJS",
+        "loadJSWhenIdle",
+        "markLCPElement",
+        "initLCPOptimizations"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/logger/activity-types.ts",
+      "unused": [
+        "ActivityLogEntry",
+        "ActivityFilters",
+        "ActivityStatistics",
+        "BatchWriteOptions",
+        "ActivityTrackingOptions"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/logger/index.ts",
+      "unused": [
+        "LogLevel",
+        "LogCategory",
+        "LogEntry",
+        "LoggerConfig",
+        "log",
+        "default"
+      ],
+      "used": [
+        "logger"
+      ]
+    },
+    {
+      "file": "src/lib/logger/utils.ts",
+      "unused": [
+        "LogEntry",
+        "LogLevel",
+        "LogCategory",
+        "LoggerConfig",
+        "LOG_LEVEL_PRIORITY",
+        "STYLE_PREFIXES",
+        "createLogEntry",
+        "sanitize",
+        "shouldLog"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/logger.mock.ts",
+      "unused": [
+        "logger"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/mcp/http-transport.ts",
+      "unused": [
+        "toSSE",
+        "parseSSE",
+        "MCPSessionManager",
+        "sessionManager",
+        "MCPHttpTransport",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/mcp/index.ts",
+      "unused": [
+        "SevenZiMcpServer",
+        "getMcpServer",
+        "mcpServer",
+        "type McpServerConfig",
+        "type ToolDefinition",
+        "MCPHttpTransport",
+        "sessionManager",
+        "toSSE",
+        "parseSSE",
+        "MCPSessionManager",
+        "toolRegistry",
+        "ToolRegistry",
+        "initializeDefaultTools",
+        "type ToolCategory",
+        "type ExtendedToolDefinition"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/mcp/server.ts",
+      "unused": [
+        "McpServerConfig",
+        "ToolDefinition",
+        "SevenZiMcpServer",
+        "mcpServer",
+        "default"
+      ],
+      "used": [
+        "getMcpServer"
+      ]
+    },
+    {
+      "file": "src/lib/mcp/tools.ts",
+      "unused": [
+        "ToolCategory",
+        "ExtendedToolDefinition",
+        "ToolRegistry",
+        "toolRegistry",
+        "initializeDefaultTools",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/middleware/api-error-logging.ts",
+      "unused": [
+        "ErrorLoggingMiddlewareConfig",
+        "GET",
+        "withErrorLogging",
+        "isRetryableError",
+        "getRetryDelay"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/middleware/api-performance.ts",
+      "unused": [
+        "ApiPerformanceData",
+        "ApiPerformanceMetrics",
+        "RoutePerformanceStats",
+        "ApiPerformanceCollector",
+        "apiPerformanceCollector",
+        "withApiPerformanceTracking",
+        "getApiPerformanceReport",
+        "ApiMetricsSummary",
+        "getApiMetricsSummary",
+        "getApiMetrics",
+        "getRecentMetrics",
+        "clearApiMetrics",
+        "clearApiPerformanceData"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/middleware/brute-force-protection.ts",
+      "unused": [
+        "BruteForceConfig",
+        "checkBruteForceProtection",
+        "recordFailedAttempt",
+        "clearFailedAttempts",
+        "getBruteForceStatus",
+        "cleanupExpiredEntries",
+        "getBruteForceStats"
+      ],
+      "used": [
+        "withBruteForceProtection"
+      ]
+    },
+    {
+      "file": "src/lib/middleware/compression.ts",
+      "unused": [
+        "CompressionConfig",
+        "DEFAULT_COMPRESSION_CONFIG",
+        "detectEncoding",
+        "withCompression",
+        "getCompressionStats",
+        "getCompressionRatio",
+        "resetCompressionStats",
+        "formatCompressionStats",
+        "CompressionConfigSchema",
+        "CompressionStatsCollector",
+        "statsCollector"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/middleware/cors.ts",
+      "unused": [
+        "CORSConfig",
+        "setCORSHeaders",
+        "handlePreflight",
+        "createCORSConfig",
+        "validateCORSConfig",
+        "getCORSConfig"
+      ],
+      "used": [
+        "withCORS"
+      ]
+    },
+    {
+      "file": "src/lib/middleware/crawler-detection.ts",
+      "unused": [
+        "CrawlerDetectionConfig",
+        "CrawlerDetectionResult",
+        "FrequencyTracker",
+        "withCrawlerDetection",
+        "startCrawlerCleanup",
+        "stopCrawlerCleanup",
+        "getFrequencyStats",
+        "clearFrequencyData",
+        "getAllFrequencyStats",
+        "blacklistIP",
+        "whitelistIP",
+        "getCrawlerDetectionStats"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/middleware/csrf.ts",
+      "unused": [
+        "CsrfProtectionConfig",
+        "withCsrfProtection",
+        "createCsrfErrorResponse",
+        "createCsrfMiddleware"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/middleware/db-performance.ts",
+      "unused": [
+        "QueryMetrics",
+        "getQueryMetrics",
+        "clearQueryMetrics",
+        "getRecentQueryMetrics",
+        "exportMetrics"
+      ],
+      "used": [
+        "getQueryMetricsSummary",
+        "withPerformanceLogging",
+        "getQueryInsights"
+      ]
+    },
+    {
+      "file": "src/lib/middleware/index.ts",
+      "unused": [
+        "ApiPerformanceCollector",
+        "apiPerformanceCollector",
+        "withApiPerformanceTracking",
+        "getApiPerformanceReport",
+        "clearApiPerformanceData",
+        "type ApiPerformanceData",
+        "type ApiPerformanceMetrics",
+        "withMonitoring",
+        "withGETMonitoring",
+        "withPOSTMonitoring",
+        "withPUTMonitoring",
+        "withDELETEMonitoring",
+        "getMonitoringStats",
+        "resetMonitoringStats",
+        "type MonitoringOptions",
+        "type MonitoringStats",
+        "withRateLimit",
+        "getRateLimitStats",
+        "performPeriodicCleanup",
+        "startPeriodicCleanup",
+        "stopPeriodicCleanup",
+        "withCsrfProtection",
+        "createCsrfMiddleware",
+        "createCsrfErrorResponse",
+        "validateRequestCsrf",
+        "generateCsrfToken",
+        "type CsrfProtectionConfig",
+        "withCors",
+        "createCorsMiddleware",
+        "corsPolicies",
+        "createCorsErrorResponse",
+        "getEnvironmentOrigins",
+        "type CorsConfig",
+        "getQueryMetrics",
+        "getQueryMetricsSummary",
+        "type QueryMetrics"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/middleware/input-sanitization.ts",
+      "unused": [
+        "SanitizationOptions",
+        "sanitizeString",
+        "sanitizeNumber",
+        "sanitizeBoolean",
+        "sanitizeArray",
+        "sanitizeObject",
+        "sanitize",
+        "validateAndSanitize",
+        "detectSQLInjection",
+        "detectNoSQLInjection",
+        "detectXSS",
+        "detectPathTraversal",
+        "detectCommandInjection",
+        "securityCheck"
+      ],
+      "used": [
+        "sanitizeValue",
+        "sanitizeRequestBody",
+        "sanitizeQueryParams"
+      ]
+    },
+    {
+      "file": "src/lib/middleware/monitoring-wrapper.ts",
+      "unused": [
+        "GET",
+        "POST",
+        "MonitoringOptions",
+        "MonitoringStats",
+        "withMonitoring",
+        "getMonitoringStats",
+        "resetMonitoringStats",
+        "withGETMonitoring",
+        "withPOSTMonitoring",
+        "withPUTMonitoring",
+        "withDELETEMonitoring"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/middleware/rate-limit.ts",
+      "unused": [
+        "RateLimitEntry",
+        "RateLimitConfig",
+        "withSmartRateLimit",
+        "getRateLimitStatus",
+        "clearRateLimit",
+        "clearAllRateLimits",
+        "performPeriodicCleanup",
+        "startPeriodicCleanup",
+        "stopPeriodicCleanup",
+        "getRateLimitStats"
+      ],
+      "used": [
+        "withRateLimit"
+      ]
+    },
+    {
+      "file": "src/lib/middleware/security-headers.ts",
+      "unused": [
+        "SecurityHeadersConfig",
+        "setSecurityHeaders",
+        "createSecurityConfig",
+        "getCSPNonce",
+        "validateCSPConfig",
+        "getAPIRouteCSP"
+      ],
+      "used": [
+        "withSecurityHeaders"
+      ]
+    },
+    {
+      "file": "src/lib/middleware/security.ts",
+      "unused": [
+        "SecurityMiddlewareConfig",
+        "withSecurity",
+        "SecurityConfigs",
+        "withPublicSecurity",
+        "withAuthSecurity",
+        "withProtectedSecurity",
+        "withAdminSecurity",
+        "getSanitizedBody",
+        "getSanitizedQuery",
+        "SecurityContext",
+        "getSecurityContext"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/middleware/user-rate-limit.ts",
+      "unused": [
+        "UserRateLimitConfig",
+        "UserRateLimitEntry",
+        "getUserIdFromApiKey",
+        "getUserRateLimitConfig",
+        "checkUserRateLimit",
+        "getUserRateLimitStatus",
+        "clearUserRateLimit",
+        "clearAllUserRateLimits",
+        "getUserRateLimitStats",
+        "cleanupUserRateLimits",
+        "startUserRateLimitCleanup",
+        "stopUserRateLimitCleanup"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/middleware/with-request-id.ts",
+      "unused": [
+        "GET",
+        "generateRequestId",
+        "withRequestId",
+        "createRequestLoggerForHandler",
+        "getRequestId"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/monitoring/alerts.ts",
+      "unused": [
+        "AlertSeverity",
+        "AlertConfig",
+        "alerts"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/monitoring/anomaly-detector.ts",
+      "unused": [
+        "Baseline",
+        "AnomalyResult",
+        "AnomalyDetectorConfig",
+        "AnomalyDetector",
+        "calculateMean",
+        "calculateStdDev",
+        "calculateZScore",
+        "detectAnomalyZScore",
+        "anomalyDetector",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/monitoring/constants.ts",
+      "unused": [
+        "TIME_INTERVALS",
+        "SIZE_LIMITS",
+        "ALERT_THRESHOLDS",
+        "HTTP_STATUS",
+        "PERFORMANCE_WEIGHTS",
+        "SCORE_THRESHOLDS",
+        "CLEANUP_CUTOFF",
+        "RESOURCE_PATTERNS",
+        "PERFORMANCE_COLORS",
+        "SCORE_LABELS",
+        "SEVERITY_COLORS",
+        "SEVERITY_LABELS"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/monitoring/errors.ts",
+      "unused": [
+        "TrackedError",
+        "withErrorTracking",
+        "handleApiError",
+        "addBreadcrumb"
+      ],
+      "used": [
+        "captureError"
+      ]
+    },
+    {
+      "file": "src/lib/monitoring/health.ts",
+      "unused": [
+        "HealthStatus",
+        "CheckResult",
+        "basicHealthCheck",
+        "healthResponse",
+        "probes"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/monitoring/hooks/index.ts",
+      "unused": [
+        "usePerformanceMonitor",
+        "useRenderPerformance",
+        "useApiPerformance",
+        "useRouteChangePerformance",
+        "useMemoryUsage",
+        "PerformanceScore",
+        "type PerformanceSummary",
+        "type UsePerformanceMonitorOptions",
+        "type UsePerformanceMonitorReturn"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/monitoring/index.ts",
+      "unused": [
+        "initWebVitalsMonitoring",
+        "observePerformance",
+        "getCurrentVitals",
+        "CORE_WEB_VITALS_THRESHOLDS",
+        "CUSTOM_METRICS_CONFIG",
+        "ALERT_CONFIG",
+        "REPORTING_CONFIG",
+        "REALTIME_CONFIG",
+        "ENVIRONMENT_CONFIG",
+        "getMetricRating",
+        "shouldReport",
+        "getEnvironmentConfig",
+        "getConfig",
+        "type MetricRating",
+        "type AlertLevel",
+        "type Environment",
+        "performanceCollector",
+        "initPerformanceMonitoring",
+        "recordCustomMetric",
+        "getPerformanceSummary",
+        "onPerformanceMetric",
+        "onPerformanceAlert",
+        "trackApiPerformance",
+        "trackRenderPerformance",
+        "type PerformanceMetric",
+        "type CustomMetric",
+        "type PerformanceAlert",
+        "performanceAlertManager",
+        "defaultAlertRules",
+        "type AlertRecord",
+        "type AlertRule",
+        "TrackedError",
+        "ErrorCategory",
+        "ErrorSeverity",
+        "captureError",
+        "withErrorTracking",
+        "handleApiError",
+        "addBreadcrumb",
+        "sendAlert",
+        "sendSlackAlert",
+        "sendEmailAlert",
+        "alerts",
+        "type AlertSeverity",
+        "type AlertConfig",
+        "basicHealthCheck",
+        "detailedHealthCheck",
+        "healthResponse",
+        "probes",
+        "type HealthStatus",
+        "type CheckResult",
+        "PrometheusExporter",
+        "prometheusExporter",
+        "exportPrometheusMetrics",
+        "type Metric",
+        "type HistogramMetric",
+        "type MetricType"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/monitoring/performance-metrics.ts",
+      "unused": [
+        "queueMetric",
+        "initPerformanceMonitoring",
+        "recordCustomMetric",
+        "recordApiResponse",
+        "recordComponentRender",
+        "flushMetrics"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/monitoring/performance.alerts.ts",
+      "unused": [
+        "defaultAlertRules",
+        "performanceAlertManager"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/monitoring/performance.config.ts",
+      "unused": [
+        "REALTIME_CONFIG",
+        "ENVIRONMENT_CONFIG",
+        "getEnvironmentConfig",
+        "getConfig",
+        "MetricRating",
+        "AlertLevel",
+        "Environment"
+      ],
+      "used": [
+        "CORE_WEB_VITALS_THRESHOLDS",
+        "CUSTOM_METRICS_CONFIG",
+        "ALERT_CONFIG",
+        "REPORTING_CONFIG",
+        "getMetricRating",
+        "shouldReport"
+      ]
+    },
+    {
+      "file": "src/lib/monitoring/performance.monitor.ts",
+      "unused": [
+        "PerformanceMetric",
+        "CustomMetric",
+        "PerformanceAlert",
+        "initPerformanceMonitoring",
+        "trackApiPerformance",
+        "trackRenderPerformance"
+      ],
+      "used": [
+        "performanceCollector",
+        "recordCustomMetric",
+        "getPerformanceSummary",
+        "onPerformanceMetric",
+        "onPerformanceAlert"
+      ]
+    },
+    {
+      "file": "src/lib/monitoring/prometheus.ts",
+      "unused": [
+        "MetricType",
+        "Metric",
+        "HistogramMetric",
+        "PrometheusExporter",
+        "prometheusExporter"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/monitoring/root-cause/bottleneck-detector.ts",
+      "unused": [
+        "Bottleneck",
+        "BottleneckAnalysis",
+        "BottleneckRecommendation",
+        "PerformanceProfile",
+        "BottleneckDetector",
+        "createMockPerformanceProfile",
+        "bottleneckDetector",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/monitoring/root-cause/index.ts",
+      "unused": [
+        "PerformanceWaterfall",
+        "performanceWaterfall",
+        "type ResourceTiming",
+        "type ResourceBreakdown",
+        "type WaterfallEntry",
+        "type WaterfallAnalysis",
+        "type CriticalPathSegment",
+        "createMockResourceTiming",
+        "fromPerformanceResourceTiming",
+        "SlowRequestTracker",
+        "slowRequestTracker",
+        "type RequestTiming",
+        "type SlowRequestAnalysis",
+        "type RequestBottleneck",
+        "type SlowRequestThresholds",
+        "type SlowRequestStats",
+        "createMockRequestTiming",
+        "measureRequestTiming",
+        "BottleneckDetector",
+        "bottleneckDetector",
+        "type Bottleneck",
+        "type BottleneckAnalysis",
+        "type BottleneckRecommendation",
+        "type PerformanceProfile",
+        "createMockPerformanceProfile"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/monitoring/root-cause/performance-waterfall.ts",
+      "unused": [
+        "ResourceTiming",
+        "ResourceBreakdown",
+        "WaterfallEntry",
+        "WaterfallAnalysis",
+        "CriticalPathSegment",
+        "PerformanceWaterfall",
+        "createMockResourceTiming",
+        "fromPerformanceResourceTiming",
+        "performanceWaterfall",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/monitoring/root-cause/slow-request-tracker.ts",
+      "unused": [
+        "RequestTiming",
+        "SlowRequestAnalysis",
+        "RequestBottleneck",
+        "SlowRequestThresholds",
+        "SlowRequestStats",
+        "SlowRequestTracker",
+        "createMockRequestTiming",
+        "slowRequestTracker",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/monitoring/sentry-test.ts",
+      "unused": [
+        "testSentryIntegration",
+        "getSentryStatus",
+        "logSentryStatus"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/monitoring/use-performance.tsx",
+      "unused": [
+        "usePerformanceMonitor",
+        "useRenderPerformance",
+        "useApiPerformance",
+        "useRouteChangePerformance",
+        "useMemoryUsage",
+        "PerformanceScore"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/monitoring/utils.ts",
+      "unused": [
+        "getPerformanceScoreColor",
+        "getPerformanceScoreLabel",
+        "getPerformanceColor",
+        "calculatePerformanceScore",
+        "getResourceType",
+        "getAlertKey",
+        "isAboveThreshold",
+        "formatDuration",
+        "truncateObject",
+        "getPerformanceNow",
+        "isBrowser",
+        "isFeatureSupported",
+        "setIntervalSafe",
+        "clearIntervalSafe",
+        "addEventListenerSafe"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/monitoring/web-vitals.ts",
+      "unused": [
+        "markTiming",
+        "measureTiming",
+        "getTimingEntries",
+        "clearTiming",
+        "optimizeLCP",
+        "optimizeFID_INP",
+        "initWebVitalsMonitoring",
+        "observePerformance",
+        "// Legacy export for backwards compatibility\n  initWebVitalsMonitoring"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/multimodal/audio-utils.ts",
+      "unused": [
+        "AudioMetadata",
+        "ValidationResult",
+        "formatDuration",
+        "calculateAudioSize"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/multimodal/image-utils.ts",
+      "unused": [
+        "ImageDimensions",
+        "ValidationResult"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/multimodal/multimodal-service.ts",
+      "unused": [
+        "MultimodalService",
+        "getMultimodalService"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/multimodal/types.ts",
+      "unused": [
+        "ImageUploadOptions",
+        "ImageRecognitionResult",
+        "ImageData",
+        "DetectedObject",
+        "AudioTranscriptionOptions",
+        "AudioTranscriptionResult",
+        "TranscriptionData",
+        "TranscriptionSegment",
+        "MultimodalProvider",
+        "ProviderImplementation",
+        "ProviderConfig",
+        "ImageProcessingProgress",
+        "AudioProcessingProgress",
+        "BailianImageObject",
+        "BailianImageOutput",
+        "BailianImageResponse",
+        "BailianTranscriptionSegment",
+        "BailianTranscriptionOutput",
+        "BailianTranscriptionResponse",
+        "VolcengineBBox",
+        "VolcengineObject",
+        "VolcengineImageResponse",
+        "VolcengineTranscriptionSegment",
+        "VolcengineTranscriptionResponse"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/notification-preferences.ts",
+      "unused": [
+        "NotificationChannel",
+        "NotificationEventType",
+        "NotificationPreference",
+        "NotificationPreferenceKey",
+        "NotificationPreferencesMap",
+        "DEFAULT_PREFERENCES"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/notifications/index.ts",
+      "unused": [
+        "useNotificationStore",
+        "useFetchNotifications",
+        "useCreateNotification",
+        "NotificationType",
+        "NotificationPriority",
+        "NOTIFICATION_TEMPLATES"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/notifications/store.ts",
+      "unused": [
+        "NotificationState",
+        "useNotificationStore",
+        "selectUnreadCount",
+        "selectNotifications",
+        "selectPreferences",
+        "selectIsLoading",
+        "useFetchNotifications",
+        "useCreateNotification",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/number-i18n.ts",
+      "unused": [
+        "formatNumber",
+        "formatCurrency",
+        "formatPercent",
+        "formatFileSize",
+        "formatNumberShort"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/offline/index.ts",
+      "unused": [
+        "DEFAULT_SYNC_CONFIG",
+        "STORAGE_KEYS",
+        "OFFLINE_ENTITIES",
+        "saveOfflineData",
+        "batchSaveOfflineData",
+        "getOfflineData",
+        "getAllOfflineData",
+        "getUnsyncedData",
+        "deleteOfflineData",
+        "clearOfflineData",
+        "addPendingOperation",
+        "updatePendingOperation",
+        "getPendingOperations",
+        "deletePendingOperation",
+        "clearPendingOperations",
+        "getPendingOperationsCount",
+        "saveNetworkStatus",
+        "getNetworkStatus",
+        "generateId",
+        "closeDatabase",
+        "isIndexedDBAvailable",
+        "useSyncManager",
+        "initNetworkListener",
+        "getSyncSummary",
+        "createSyncOperation",
+        "useOfflineSync",
+        "useNetworkStatus",
+        "useOnline",
+        "usePendingCount",
+        "useOfflineData",
+        "useOfflineReady"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/offline/offline-store.ts",
+      "unused": [
+        "generateOfflineId",
+        "closeDatabase",
+        "isIndexedDBAvailable",
+        "getDBConnection",
+        "STORES"
+      ],
+      "used": [
+        "generateId"
+      ]
+    },
+    {
+      "file": "src/lib/offline/sync-manager.ts",
+      "unused": [
+        "getSyncSummary",
+        "default"
+      ],
+      "used": [
+        "useSyncManager",
+        "initNetworkListener"
+      ]
+    },
+    {
+      "file": "src/lib/offline/types.ts",
+      "unused": [
+        "SyncOperationType",
+        "SyncStatus",
+        "PendingOperation",
+        "SyncQueue",
+        "OfflineData",
+        "SyncResult",
+        "SyncError",
+        "NetworkStatus",
+        "SyncConfig",
+        "STORAGE_KEYS",
+        "OfflineEntityType"
+      ],
+      "used": [
+        "DEFAULT_SYNC_CONFIG",
+        "OFFLINE_ENTITIES"
+      ]
+    },
+    {
+      "file": "src/lib/offline/useOfflineSync.ts",
+      "unused": [
+        "useOfflineSync",
+        "useNetworkStatus",
+        "useOnline",
+        "usePendingCount",
+        "useOfflineData",
+        "useOfflineReady",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/performance/api-response-tracker.ts",
+      "unused": [
+        "ApiRequestMetric",
+        "EndpointStats",
+        "ApiTrackerConfig",
+        "ApiResponseTimeTracker",
+        "apiResponseTracker",
+        "trackApiResponse",
+        "getApiPerformanceReport"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/performance-monitor.ts",
+      "unused": [
+        "PERFORMANCE_METRICS",
+        "MetricData",
+        "reportMetrics",
+        "areAllMetricsGood",
+        "getPerformanceSummary",
+        "PerformanceMonitor",
+        "measureNavigationTiming",
+        "getMemoryUsage"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/performance-monitoring/alerting/alert-stats.ts",
+      "unused": [
+        "AlertTimeSeries",
+        "AlertTrend",
+        "AgentAlertStats",
+        "AlertMetricsReport",
+        "StatsOptions",
+        "AlertStatsCollector"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/performance-monitoring/alerting/alerter.ts",
+      "unused": [
+        "AlertLevel",
+        "AlertStatus",
+        "AlertCategory",
+        "PerformanceAlert",
+        "AlertConfig",
+        "SuppressionRule",
+        "AlertFilter",
+        "AggregatedAlertGroup",
+        "AlertHistoryEntry",
+        "AlertAction",
+        "AlertStats",
+        "AlertChannel",
+        "DashboardAlertMessage",
+        "getLevelPriority",
+        "compareLevels",
+        "meetsMinLevel",
+        "getLevelDisplay",
+        "generateAlertId",
+        "defaultDeduplicationKey",
+        "PerformanceAlerter",
+        "DashboardChannel",
+        "createPerformanceAlert",
+        "formatAlertForLog",
+        "filterAlerts",
+        "performanceAlerter",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/performance-monitoring/alerting/channels/email.ts",
+      "unused": [
+        "EmailConfig",
+        "EmailAlertOptions"
+      ],
+      "used": [
+        "EmailChannel"
+      ]
+    },
+    {
+      "file": "src/lib/performance-monitoring/alerting/channels/index.ts",
+      "unused": [
+        "ChannelType",
+        "ChannelConfig",
+        "createChannel",
+        "createChannels",
+        "EmailChannel",
+        "SlackChannel",
+        "PagerDutyChannel"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/performance-monitoring/alerting/channels/pagerduty.ts",
+      "unused": [
+        "PagerDutyConfig",
+        "PagerDutyAlertOptions"
+      ],
+      "used": [
+        "PagerDutyChannel"
+      ]
+    },
+    {
+      "file": "src/lib/performance-monitoring/alerting/channels/slack.ts",
+      "unused": [
+        "SlackConfig",
+        "SlackAlertOptions"
+      ],
+      "used": [
+        "SlackChannel"
+      ]
+    },
+    {
+      "file": "src/lib/performance-monitoring/alerting/escalation-policy.ts",
+      "unused": [
+        "EscalationAction",
+        "EscalationStep",
+        "EscalationCondition",
+        "EscalationPolicy",
+        "EscalationState",
+        "EscalationActionRecord",
+        "EscalationOptions",
+        "EscalationPolicyManager"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/performance-monitoring/alerting/index.ts",
+      "unused": [
+        "PerformanceAlerter",
+        "DashboardChannel",
+        "performanceAlerter",
+        "generateAlertId",
+        "getLevelPriority",
+        "compareLevels",
+        "meetsMinLevel",
+        "getLevelDisplay",
+        "defaultDeduplicationKey",
+        "createPerformanceAlert",
+        "formatAlertForLog",
+        "filterAlerts",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/performance-monitoring/budget-control/budget-checker.ts",
+      "unused": [
+        "BudgetConfig",
+        "Budget",
+        "TimingBudget",
+        "PerformanceMetrics",
+        "BudgetCheckResult",
+        "BudgetViolation",
+        "BudgetCheckerConfig",
+        "checkMetricAgainstBudget",
+        "formatBudgetViolation",
+        "getCoreWebVitalsThresholds",
+        "default"
+      ],
+      "used": [
+        "BudgetChecker",
+        "budgetChecker"
+      ]
+    },
+    {
+      "file": "src/lib/performance-monitoring/budget-control/budget-config.ts",
+      "unused": [
+        "BudgetConfigManager"
+      ],
+      "used": [
+        "DEFAULT_THRESHOLDS",
+        "budgetConfig"
+      ]
+    },
+    {
+      "file": "src/lib/performance-monitoring/budget-control/budget-parser.ts",
+      "unused": [
+        "BudgetParseResult",
+        "BudgetValidationError",
+        "VALID_METRICS",
+        "DEFAULT_TOLERANCES",
+        "RECOMMENDED_BUDGETS",
+        "budgetParser",
+        "default"
+      ],
+      "used": [
+        "BudgetParser"
+      ]
+    },
+    {
+      "file": "src/lib/performance-monitoring/budget-control/demo.ts",
+      "unused": [
+        "demoBudgetChecker",
+        "demoBudgetConfig",
+        "demoBudgetLinter"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/performance-monitoring/budget-control/index.ts",
+      "unused": [
+        "BudgetChecker",
+        "budgetChecker",
+        "checkMetricAgainstBudget",
+        "formatBudgetViolation",
+        "getCoreWebVitalsThresholds",
+        "BudgetParser",
+        "budgetParser",
+        "VALID_METRICS",
+        "DEFAULT_TOLERANCES",
+        "RECOMMENDED_BUDGETS"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/performance-monitoring/root-cause-analysis/analyzer.ts",
+      "unused": [
+        "RootCauseAnalyzer",
+        "SlowRequestTrace",
+        "TimelineEntry",
+        "ResourceAnalysis",
+        "ResourceBottleneck",
+        "HotPath"
+      ],
+      "used": [
+        "default"
+      ]
+    },
+    {
+      "file": "src/lib/performance-monitoring/root-cause-analysis/call-chain-tracer.ts",
+      "unused": [
+        "CallNode",
+        "CallNodeType",
+        "CallNodeMetadata",
+        "CallNodeMetrics",
+        "CallChain",
+        "CallChainAnalysis",
+        "CallChainSummary",
+        "CallBottleneck",
+        "HotPath",
+        "CriticalPath",
+        "CallChainRecommendation",
+        "CallChainConfig",
+        "DEFAULT_CALL_CHAIN_CONFIG",
+        "CallChainTracer",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/performance-monitoring/root-cause-analysis/causality-analyzer.ts",
+      "unused": [
+        "TimeSeriesPoint",
+        "CausalChain",
+        "CausalNode",
+        "CausalTimeline",
+        "CausalInterval",
+        "CausalAnalysis",
+        "CausalityRule",
+        "CausalityConfig",
+        "DEFAULT_CAUSALITY_CONFIG",
+        "CausalityAnalyzer",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/performance-monitoring/root-cause-analysis/correlation-engine.ts",
+      "unused": [
+        "AnomalyEvent",
+        "EventContext",
+        "Correlation",
+        "CorrelationType",
+        "CorrelationPattern",
+        "CorrelationGroup",
+        "CorrelationConfig",
+        "DEFAULT_CORRELATION_CONFIG",
+        "CorrelationEngine",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/performance-monitoring/root-cause-analysis/index.ts",
+      "unused": [
+        "integrateWithAnomalyDetection",
+        "MODULE_INFO",
+        "default",
+        "RootCauseAnalyzer",
+        "CorrelationEngine",
+        "CausalityAnalyzer",
+        "CallChainTracer",
+        "DatabaseTracker",
+        "APITracker",
+        "RenderingTracker",
+        "DEFAULT_CORRELATION_CONFIG",
+        "DEFAULT_CAUSALITY_CONFIG",
+        "DEFAULT_CALL_CHAIN_CONFIG",
+        "DEFAULT_CONFIG"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/performance-monitoring/root-cause-analysis/types.ts",
+      "unused": [
+        "WaterfallSummary"
+      ],
+      "used": [
+        "SeverityLevel",
+        "Severity",
+        "RootCauseType",
+        "DatabaseIssueType",
+        "DatabaseQuery",
+        "ExecutionPlan",
+        "DatabaseAnalysis",
+        "QueryStatistics",
+        "DatabaseIssue",
+        "DatabaseRecommendation",
+        "APIIssueType",
+        "APIRequest",
+        "APIAnalysis",
+        "APIStatistics",
+        "APIIssue",
+        "ErrorRateAnalysis",
+        "APIRecommendation",
+        "RenderingIssueType",
+        "RenderingMetrics",
+        "RenderingAnalysis",
+        "RenderingIssue",
+        "RenderingBottleneck",
+        "RenderingRecommendation",
+        "WaterfallEntry",
+        "CriticalPathNode",
+        "WaterfallAnalysis",
+        "WaterfallBottleneck",
+        "OptimizationOpportunity",
+        "RootCause",
+        "Impact",
+        "FixRecommendation",
+        "AnalysisReport",
+        "ReportSummary",
+        "PrioritizedAction",
+        "PerformanceMetrics",
+        "RootCauseAnalysisConfig",
+        "DEFAULT_CONFIG"
+      ]
+    },
+    {
+      "file": "src/lib/performance-optimization.ts",
+      "unused": [
+        "RunInChunksOptions",
+        "preloadCriticalResources",
+        "preconnectToDomains",
+        "removeUnusedCSS",
+        "deferNonCriticalScripts",
+        "scheduleIdleTask",
+        "cancelIdleTask",
+        "performanceMark",
+        "performanceMeasure",
+        "clearPerformanceMarks",
+        "clearPerformanceMeasures",
+        "getPerformanceMeasures",
+        "measureSync",
+        "lazyLoadImages",
+        "setImageFormatSupport",
+        "initPerformanceOptimizations"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/permissions/index.ts",
+      "unused": [
+        "Permission",
+        "Role",
+        "getRoleDefinition",
+        "getPermissionsForRoles",
+        "hasRolePermission",
+        "hasPermission",
+        "hasAnyPermission",
+        "hasAllPermissions",
+        "hasRole",
+        "hasAnyRole",
+        "hasAllRoles",
+        "withRole",
+        "withAnyRole",
+        "withAllRoles",
+        "withPermissions",
+        "withAnyPermission",
+        "initializeRbacTables",
+        "getAllRoles",
+        "getAllPermissions",
+        "getPermissionsByRole",
+        "assignPermissionsToRole",
+        "removePermissionsFromRole",
+        "addRolesToUser",
+        "removeRolesFromUser",
+        "getUserRoles",
+        "seedDefaultRolesAndPermissions"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/permissions/middleware.ts",
+      "unused": [
+        "withPermissions",
+        "withAnyPermission",
+        "withRole",
+        "withAnyRole",
+        "withAllRoles",
+        "withAdmin",
+        "withManagerOrAdmin",
+        "withMemberOrHigher",
+        "withPermissionOrRole",
+        "withPermissionAndRole"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/permissions/rbac.ts",
+      "unused": [
+        "getAllRoleDefinitions",
+        "hasRolePermission",
+        "isAdmin",
+        "isManagerOrAdmin",
+        "isMemberOrHigher",
+        "isGuest",
+        "parsePermission",
+        "matchesPermissionPattern",
+        "getPermissionsForResource",
+        "getPermissionsForAction",
+        "createPermissionContext",
+        "Role",
+        "Permission"
+      ],
+      "used": [
+        "getRoleDefinition",
+        "getPermissionsForRoles",
+        "hasPermission",
+        "hasAnyPermission",
+        "hasAllPermissions",
+        "hasRole",
+        "hasAnyRole",
+        "hasAllRoles"
+      ]
+    },
+    {
+      "file": "src/lib/permissions.ts",
+      "unused": [
+        "Permission",
+        "PermissionDefinition",
+        "RoleDefinition",
+        "ResourceAccessRule",
+        "PermissionCheckResult",
+        "PermissionContext",
+        "SYSTEM_PERMISSIONS",
+        "SUPER_ADMIN_ROLE",
+        "ADMIN_ROLE",
+        "TEAM_LEADER_ROLE",
+        "DEVELOPER_ROLE",
+        "USER_ROLE",
+        "GUEST_ROLE",
+        "SYSTEM_ROLES",
+        "PermissionManager",
+        "permissionManager",
+        "UserWithRoles",
+        "hasPermission",
+        "hasAnyPermission",
+        "hasAllPermissions",
+        "hasRole",
+        "canAccessResource",
+        "canExecuteAction",
+        "getUserMaxLevel",
+        "hasRoleLevel",
+        "PermissionDeniedError",
+        "ApiContext",
+        "PermissionMiddlewareOptions",
+        "createPermissionMiddleware",
+        "RequirePermission",
+        "RequireAnyPermission",
+        "RequireAllPermissions",
+        "RequireRoleLevel",
+        "createUserWithRoles",
+        "parsePermission",
+        "buildPermission",
+        "getPermissionDescription",
+        "isValidPermission",
+        "Permissions"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/prefetch/hooks/use-predictive-prefetch.ts",
+      "unused": [
+        "UsePredictivePrefetchOptions",
+        "PredictionResult",
+        "usePredictivePrefetch",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/prefetch/hooks/use-prefetch.ts",
+      "unused": [
+        "UsePrefetchOptions",
+        "PrefetchResult",
+        "usePrefetch",
+        "useBatchPrefetch",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/prefetch/hooks/use-resource-hint.ts",
+      "unused": [
+        "ResourceHintConfig",
+        "ResourceHintResult",
+        "useResourceHint",
+        "useBatchResourceHints",
+        "useDnsPrefetch",
+        "usePreconnect",
+        "usePrefetchImages",
+        "usePreloadFonts",
+        "useAllResourceHints",
+        "useSmartResourceHints",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/prefetch/index.ts",
+      "unused": [
+        "UserBehaviorAnalyzer",
+        "globalBehaviorAnalyzer",
+        "type UserBehaviorPattern",
+        "type UserSession",
+        "type UserBehaviorData",
+        "PredictivePrefetcher",
+        "globalPrefetcher",
+        "type UserContext",
+        "type PrefetchPrediction",
+        "type PrefetchResult",
+        "RoutePrefetcher",
+        "ResourcePriorityManager",
+        "globalRoutePrefetcher",
+        "ROUTE_PREFETCH_CONFIGS",
+        "type RoutePrefetchConfig",
+        "type PrefetchContext",
+        "ResourcePrefetcher",
+        "globalResourcePrefetcher",
+        "PREFETCH_PRESETS",
+        "type ResourceConfig",
+        "type ViewportBasedConfig",
+        "PrefetchProvider",
+        "usePrefetchContext",
+        "type PrefetchProviderProps",
+        "type PrefetchMetrics",
+        "usePrefetch",
+        "useBatchPrefetch",
+        "type UsePrefetchOptions",
+        "usePredictivePrefetch",
+        "type UsePredictivePrefetchOptions",
+        "type PredictionResult",
+        "useResourceHint",
+        "useBatchResourceHints",
+        "useDnsPrefetch",
+        "usePreconnect",
+        "usePrefetchImages",
+        "usePreloadFonts",
+        "useAllResourceHints",
+        "useSmartResourceHints",
+        "type ResourceHintConfig",
+        "type ResourceHintResult"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/prefetch/predictive-prefetcher.ts",
+      "unused": [
+        "UserBehaviorPattern",
+        "UserContext",
+        "PrefetchResult",
+        "usePredictivePrefetch"
+      ],
+      "used": [
+        "PrefetchPrediction",
+        "PredictivePrefetcher",
+        "globalPrefetcher"
+      ]
+    },
+    {
+      "file": "src/lib/prefetch/prefetch-provider.tsx",
+      "unused": [
+        "PrefetchProviderProps",
+        "PrefetchMetrics",
+        "PrefetchProvider",
+        "usePrefetchContext",
+        "default"
+      ],
+      "used": [
+        "PrefetchContext"
+      ]
+    },
+    {
+      "file": "src/lib/prefetch/resource-prefetcher.ts",
+      "unused": [
+        "ResourceConfig",
+        "PrefetchResult",
+        "ViewportBasedConfig",
+        "PREFETCH_PRESETS"
+      ],
+      "used": [
+        "ResourcePrefetcher",
+        "globalResourcePrefetcher"
+      ]
+    },
+    {
+      "file": "src/lib/prefetch/route-prefetcher.ts",
+      "unused": [
+        "RoutePrefetchConfig",
+        "PrefetchContext",
+        "ROUTE_PREFETCH_CONFIGS",
+        "ResourcePriorityManager"
+      ],
+      "used": [
+        "RoutePrefetcher",
+        "globalRoutePrefetcher"
+      ]
+    },
+    {
+      "file": "src/lib/prefetch/user-behavior.ts",
+      "unused": [
+        "UserBehaviorPattern",
+        "UserSession",
+        "UserBehaviorData"
+      ],
+      "used": [
+        "UserBehaviorAnalyzer",
+        "globalBehaviorAnalyzer"
+      ]
+    },
+    {
+      "file": "src/lib/rate-limit/config.ts",
+      "unused": [
+        "validateRateLimitConfig",
+        "getDefaultRateLimitConfig"
+      ],
+      "used": [
+        "RateLimitEnvironmentConfig",
+        "getRateLimitEnvConfig",
+        "mergeRateLimitConfig"
+      ]
+    },
+    {
+      "file": "src/lib/rate-limit/index.ts",
+      "unused": [
+        "RateLimitAlgorithm",
+        "RateLimitConfig",
+        "RateLimitResult",
+        "withRateLimit",
+        "DEFAULT_LIMITS"
+      ],
+      "used": [
+        "RateLimitEvent"
+      ]
+    },
+    {
+      "file": "src/lib/rate-limit/middleware.ts",
+      "unused": [
+        "GET",
+        "withRateLimit",
+        "MiddlewareConfig",
+        "middleware",
+        "config",
+        "createRateLimitMiddleware"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/rate-limit/sliding-window.ts",
+      "unused": [
+        "SlidingWindowResult"
+      ],
+      "used": [
+        "SlidingWindowConfig"
+      ]
+    },
+    {
+      "file": "src/lib/rate-limit/storage-factory.ts",
+      "unused": [
+        "StorageConfig",
+        "StorageType",
+        "StorageStatus",
+        "getMemoryStorage",
+        "clearRedisAvailabilityCache"
+      ],
+      "used": [
+        "shouldUseRedis"
+      ]
+    },
+    {
+      "file": "src/lib/rate-limit/token-bucket.ts",
+      "unused": [
+        "TokenBucketResult"
+      ],
+      "used": [
+        "TokenBucketConfig"
+      ]
+    },
+    {
+      "file": "src/lib/react-19-examples.tsx",
+      "unused": [
+        "LargeListExample",
+        "StateUpdateExample",
+        "CombinedExample",
+        "OptimizedList",
+        "DataTable"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/react-compiler/config/compiler.config.ts",
+      "unused": [
+        "shouldCompile",
+        "getNextReactCompilerConfig",
+        "DEFAULT_REACT_COMPILER_CONFIG"
+      ],
+      "used": [
+        "ReactCompilerConfig",
+        "getReactCompilerConfig"
+      ]
+    },
+    {
+      "file": "src/lib/react-compiler/dashboard/CompilerDashboard.tsx",
+      "unused": [
+        "ReactCompilerToggle",
+        "ComponentScannerDashboard"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/react-compiler/dashboard/CompilerDiagnostics.tsx",
+      "unused": [
+        "CompilerDiagnostics",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/react-compiler/diagnostics/index.ts",
+      "unused": [
+        "ReactCompilerDiagnostics"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/react-compiler/diagnostics/migration-guide.ts",
+      "unused": [
+        "MigrationStep",
+        "ComponentMigration"
+      ],
+      "used": [
+        "MigrationGuide"
+      ]
+    },
+    {
+      "file": "src/lib/react-compiler/diagnostics/reporter.ts",
+      "unused": [
+        "ReportOptions",
+        "generateMarkdownReport",
+        "generateHTMLReport",
+        "reportToString"
+      ],
+      "used": [
+        "CompatibilityReport",
+        "generateCompatibilityReport"
+      ]
+    },
+    {
+      "file": "src/lib/react-compiler/index.ts",
+      "unused": [
+        "getReactCompilerConfig",
+        "shouldCompile",
+        "getNextReactCompilerConfig",
+        "DEFAULT_REACT_COMPILER_CONFIG",
+        "type ReactCompilerConfig",
+        "ComponentScanner",
+        "quickScan",
+        "type CompilerIssue",
+        "type IncompatibilityReport",
+        "type ScanResult",
+        "PerformanceMeasurer",
+        "usePerformanceTracker",
+        "type PerformanceMetrics",
+        "type PerformanceComparison",
+        "type BenchmarkResult",
+        "MigrationGuideGenerator",
+        "generateBatchGuides",
+        "type MigrationStep",
+        "type MigrationGuide"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/react-compiler/migration/guide-generator.ts",
+      "unused": [
+        "MigrationStep",
+        "MigrationGuide",
+        "MigrationGuideGenerator",
+        "generateBatchGuides"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/react-compiler/performance/measurer.ts",
+      "unused": [
+        "PerformanceMetrics",
+        "PerformanceComparison",
+        "BenchmarkResult",
+        "PerformanceMeasurer",
+        "usePerformanceTracker"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/react-compiler/performance/tracker.ts",
+      "unused": [
+        "PerformanceSnapshot",
+        "PerformanceComparison",
+        "PerformanceStats",
+        "PerformanceEventHandler",
+        "PerformanceEvent",
+        "PerformanceTracker",
+        "getPerformanceTracker",
+        "usePerformanceTracking",
+        "useRenderCount",
+        "usePerformanceStats"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/realtime/examples.tsx",
+      "unused": [
+        "BasicWebSocketExample",
+        "RealtimeChatExample",
+        "EnhancedWebSocketExample",
+        "NotificationServiceExample",
+        "WebSocketDashboard",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/realtime/index.ts",
+      "unused": [
+        "useWebSocket",
+        "createMessage",
+        "isMessageType",
+        "useEnhancedWebSocket",
+        "useRealtimeNotificationStore",
+        "RetryManager",
+        "retryManager",
+        "withRetry",
+        "calculateBackoffDelay",
+        "type RetryOptions",
+        "type RetryState",
+        "type RetryEntry"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/realtime/notification-hooks.ts",
+      "unused": [
+        "NotificationPreferences",
+        "NotificationHistoryItem",
+        "NotificationStats",
+        "useNotificationHistory"
+      ],
+      "used": [
+        "useNotificationPreferences",
+        "useNotificationBatching"
+      ]
+    },
+    {
+      "file": "src/lib/realtime/notification-provider.tsx",
+      "unused": [
+        "NotificationProvider",
+        "useNotificationContext",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/realtime/notification-service.ts",
+      "unused": [
+        "NotificationEvent",
+        "NotificationSubscription",
+        "BroadcastOptions",
+        "NotificationError",
+        "default"
+      ],
+      "used": [
+        "OfflineQueueEntry",
+        "notificationService"
+      ]
+    },
+    {
+      "file": "src/lib/realtime/read-status.ts",
+      "unused": [
+        "default"
+      ],
+      "used": [
+        "readStatusStore"
+      ]
+    },
+    {
+      "file": "src/lib/realtime/retry-manager.ts",
+      "unused": [
+        "RetryOptions",
+        "RetryState",
+        "RetryEntry",
+        "RetryTask",
+        "RetryManager",
+        "retryManager",
+        "calculateBackoffDelay"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/realtime/server.ts",
+      "unused": [
+        "default"
+      ],
+      "used": [
+        "notificationServer"
+      ]
+    },
+    {
+      "file": "src/lib/realtime/types.ts",
+      "unused": [
+        "WebSocketMessage",
+        "RealtimeNotificationType",
+        "NotificationCategory",
+        "RealtimeNotification",
+        "ConnectionState",
+        "ChannelSubscription",
+        "TaskStatusChangedPayload",
+        "TaskAssignedPayload",
+        "TaskCommentPayload",
+        "TaskDeletedPayload",
+        "TaskUpdatedPayload",
+        "MemberOnlinePayload",
+        "MemberOfflinePayload",
+        "MemberStatusChangedPayload",
+        "SystemAnnouncementPayload",
+        "ProjectUpdatedPayload",
+        "NotificationPayload"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/realtime/useEnhancedWebSocket.ts",
+      "unused": [
+        "WebSocketConfig",
+        "WebSocketStats",
+        "PrioritizedWebSocketMessage",
+        "UseEnhancedWebSocketReturn",
+        "default"
+      ],
+      "used": [
+        "ConnectionState",
+        "useEnhancedWebSocket"
+      ]
+    },
+    {
+      "file": "src/lib/realtime/useRealtimeNotifications.ts",
+      "unused": [
+        "NotificationFilter",
+        "UseRealtimeNotificationsReturn",
+        "useRealtimeNotifications",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/realtime/useTaskRealtime.ts",
+      "unused": [
+        "TaskRealtimeUpdate",
+        "UseTaskRealtimeReturn",
+        "useTaskRealtime",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/realtime/useWebSocket.ts",
+      "unused": [
+        "WebSocketStatus",
+        "SimpleWebSocketConfig",
+        "WebSocketOptions",
+        "UseWebSocketReturn",
+        "default"
+      ],
+      "used": [
+        "useWebSocket",
+        "generateMessageId",
+        "createMessage",
+        "isMessageType"
+      ]
+    },
+    {
+      "file": "src/lib/realtime/utils.ts",
+      "unused": [
+        "generateMessageId",
+        "createWebSocketMessage",
+        "isMessageType",
+        "isValidWebSocketMessage",
+        "parseWebSocketMessage"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/search/advanced-search.ts",
+      "unused": [
+        "SearchHistoryEntry",
+        "AutocompleteSuggestion",
+        "SearchIndex",
+        "AdvancedSearchManager",
+        "getGlobalSearchManager",
+        "resetGlobalSearchManager",
+        "highlightSearchTerm",
+        "parseSearchQuery",
+        "buildSearchQuery"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/search/debounce.ts",
+      "unused": [
+        "debounce",
+        "debounceLeading",
+        "debounceCancellable",
+        "throttle",
+        "SEARCH_DEBOUNCE_DELAYS",
+        "createSearchDebounce",
+        "DebounceManager",
+        "getGlobalDebounceManager",
+        "resetGlobalDebounceManager"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/search/history-manager.ts",
+      "unused": [
+        "SearchHistoryManager",
+        "getGlobalHistoryManager",
+        "resetGlobalHistoryManager"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/search/index-manager.ts",
+      "unused": [
+        "SearchIndexManager",
+        "getGlobalIndexManager",
+        "resetGlobalIndexManager",
+        "convertIssueToTaskEntity",
+        "convertToProjectEntity",
+        "convertToMemberEntity",
+        "convertToAgentEntity"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/search/index.ts",
+      "unused": [
+        "SearchEvent",
+        "SearchPerformanceMetrics",
+        "SearchOptions",
+        "CompleteSearchResult",
+        "DEFAULT_SEARCH_OPTIONS",
+        "PERFORMANCE_THRESHOLDS",
+        "CACHE_SIZES",
+        "searchItems",
+        "highlightSearchTerm",
+        "applyFilters",
+        "applySort",
+        "extractFilterOptions",
+        "extractLabelOptions",
+        "extractAssigneeOptions",
+        "applySearchFilterSort",
+        "hasActiveFilters",
+        "clearAllFilters",
+        "clearAllCaches",
+        "getCacheStats",
+        "toggleSortDirection",
+        "// Debouncing\n  debounce",
+        "debounceLeading",
+        "debounceCancellable",
+        "throttle",
+        "createSearchDebounce",
+        "DebounceManager",
+        "getGlobalDebounceManager",
+        "resetGlobalDebounceManager",
+        "SEARCH_DEBOUNCE_DELAYS",
+        "// Multi-field search\n  multiFieldSearch",
+        "createMultiFieldConfig",
+        "createRequiredFieldsConfig",
+        "toStandardSearchResult",
+        "getMultiFieldSearchStats",
+        "// Advanced search (Fuse.js integration)\n  AdvancedSearchManager",
+        "getGlobalSearchManager",
+        "resetGlobalSearchManager",
+        "parseSearchQuery",
+        "buildSearchQuery",
+        "// Search index manager\n  SearchIndexManager",
+        "getGlobalIndexManager",
+        "resetGlobalIndexManager",
+        "convertIssueToTaskEntity",
+        "convertToProjectEntity",
+        "convertToMemberEntity",
+        "convertToAgentEntity",
+        "// Search history manager\n  SearchHistoryManager",
+        "getGlobalHistoryManager",
+        "resetGlobalHistoryManager"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/search/multi-field-search.ts",
+      "unused": [
+        "MultiFieldSearchConfig",
+        "FieldSearchConfig",
+        "MultiFieldSearchResult",
+        "FieldMatch",
+        "multiFieldSearch",
+        "createMultiFieldConfig",
+        "createRequiredFieldsConfig",
+        "toStandardSearchResult",
+        "getMultiFieldSearchStats"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/search/types.ts",
+      "unused": [
+        "SearchHistoryEntry",
+        "SearchHistoryStorage",
+        "AutocompleteSuggestionType",
+        "AutocompleteSuggestion",
+        "AutocompleteResult",
+        "SearchIndexMetadata",
+        "SearchIndexConfig",
+        "AdvancedSearchQuery",
+        "SearchFilters",
+        "PaginatedSearchResult",
+        "SearchStatistics",
+        "SearchCacheEntry",
+        "CacheStatistics",
+        "SearchableEntity",
+        "TaskEntity",
+        "ProjectEntity",
+        "MemberEntity",
+        "AgentEntity",
+        "UnifiedEntity",
+        "SearchPreferences",
+        "DEFAULT_SEARCH_PREFERENCES",
+        "SearchEventType",
+        "SearchEvent",
+        "SearchEventListener",
+        "SearchResultsByType",
+        "SearchIndexOptions"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/search-filter.ts",
+      "unused": [
+        "searchItems",
+        "highlightSearchTerm",
+        "applyFilters",
+        "extractFilterOptions",
+        "extractLabelOptions",
+        "extractAssigneeOptions",
+        "applySort",
+        "toggleSortDirection",
+        "applySearchFilterSort",
+        "hasActiveFilters",
+        "clearAllFilters",
+        "clearAllCaches",
+        "getCacheStats"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/security/rate-limit/algorithms/sliding-window.ts",
+      "unused": [
+        "SlidingWindowOptions",
+        "SlidingWindowResult"
+      ],
+      "used": [
+        "SlidingWindow"
+      ]
+    },
+    {
+      "file": "src/lib/security/rate-limit/algorithms/token-bucket.ts",
+      "unused": [
+        "TokenBucketOptions",
+        "TokenBucketResult"
+      ],
+      "used": [
+        "TokenBucket"
+      ]
+    },
+    {
+      "file": "src/lib/security/rate-limit/examples/api-route-integration.ts",
+      "unused": [
+        "POST_register"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/security/rate-limit/index.ts",
+      "unused": [
+        "SlidingWindow",
+        "TokenBucket",
+        "RedisAdapter",
+        "createRateLimitMiddleware",
+        "setRateLimitHeaders",
+        "createRateLimitExceededResponse",
+        "createCustomRateLimitResponse",
+        "withRateLimit",
+        "expressRateLimitMiddleware",
+        "withRateLimitInfo",
+        "RateLimitConfigManager",
+        "PresetConfigs",
+        "defaultConfigManager",
+        "CommonRouteConfigs"
+      ],
+      "used": [
+        "DistributedRateLimiter",
+        "KeyGenerators"
+      ]
+    },
+    {
+      "file": "src/lib/security/rate-limit/rate-limit-config.ts",
+      "unused": [
+        "PresetConfigs",
+        "RouteConfig",
+        "RateLimitConfigManager",
+        "defaultConfigManager",
+        "CommonRouteConfigs"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/security/rate-limit/rate-limit-middleware.ts",
+      "unused": [
+        "RateLimitMiddlewareOptions",
+        "createRateLimitMiddleware",
+        "setRateLimitHeaders",
+        "createRateLimitExceededResponse",
+        "createCustomRateLimitResponse",
+        "withRateLimit",
+        "expressRateLimitMiddleware",
+        "withRateLimitInfo"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/security/rate-limit/rate-limiter.ts",
+      "unused": [
+        "RateLimitInfo",
+        "KeyGenerators"
+      ],
+      "used": [
+        "RateLimitConfig",
+        "RateLimitResult",
+        "DistributedRateLimiter"
+      ]
+    },
+    {
+      "file": "src/lib/security/rate-limit/redis-adapter.ts",
+      "unused": [
+        "RedisConfig",
+        "RedisAdapterOptions"
+      ],
+      "used": [
+        "RedisAdapter"
+      ]
+    },
+    {
+      "file": "src/lib/security/rbac/audit-logger.ts",
+      "unused": [
+        "AuditEvent",
+        "AuditReport",
+        "ReadOptions",
+        "MemoryAuditLogStorage",
+        "AuditLogger",
+        "auditLogger"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/security/rbac/index.ts",
+      "unused": [
+        "RBACCache",
+        "rbacCache",
+        "cacheUserPermissions",
+        "getCachedPermissions",
+        "invalidatePermissionCache",
+        "invalidatePermissionCacheByRole",
+        "getCacheStats",
+        "type CacheConfig",
+        "type CacheStats",
+        "PermissionInheritance",
+        "permissionInheritance",
+        "calculateInheritedPermissions",
+        "calculatePermissionsForRoles",
+        "checkOverride",
+        "applyPermissionOverrides",
+        "getSubRoles",
+        "getParentRoles",
+        "InheritanceStrategy",
+        "type PermissionOverride",
+        "type InheritanceResult",
+        "AuditLogger",
+        "auditLogger",
+        "logPermissionChange",
+        "logRoleAssignment",
+        "logPermissionCheck",
+        "logSensitiveOperation",
+        "logSecurityEvent",
+        "generateAuditReport",
+        "readAuditLogs",
+        "readSensitiveLogs",
+        "readSecurityLogs",
+        "AuditEventType",
+        "AuditEventLevel",
+        "type AuditEvent",
+        "type AuditReport",
+        "type ReadOptions",
+        "MemoryAuditLogStorage",
+        "type AuditLogStorage"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/security/rbac/permission-inheritance.ts",
+      "unused": [
+        "PermissionOverride",
+        "InheritanceResult",
+        "PermissionInheritance",
+        "permissionInheritance",
+        "calculateInheritedPermissions",
+        "calculatePermissionsForRoles",
+        "checkOverride",
+        "applyPermissionOverrides",
+        "getSubRoles",
+        "getParentRoles"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/security/rbac/rbac-cache.ts",
+      "unused": [
+        "CacheConfig",
+        "CacheStats",
+        "RBACCache",
+        "rbacCache",
+        "getCacheStats"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/seo/metadata.ts",
+      "unused": [
+        "PageMetadata",
+        "siteConfig",
+        "generatePageMetadata",
+        "pageMetadataConfig"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/seo-metadata.ts",
+      "unused": [
+        "seoConfig",
+        "pageSeoConfigs",
+        "generatePageMetadata",
+        "generateHreflangLinks",
+        "generateWebSiteSchema",
+        "generateOrganizationSchema",
+        "generateBreadcrumbSchema",
+        "generateFAQSchema",
+        "generateServiceSchema",
+        "generateLocalBusinessSchema",
+        "generatePageSchemas",
+        "getAllLanguageAlternates"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/services/email.ts",
+      "unused": [
+        "EmailConfig",
+        "EmailRecipient",
+        "EmailNotification",
+        "EmailService",
+        "emailService"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/services/notification-enhanced.ts",
+      "unused": [
+        "UserNotificationPreferences",
+        "NotificationDeliveryOptions",
+        "EnhancedNotificationService",
+        "enhancedNotificationService"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/services/notification-storage.ts",
+      "unused": [
+        "NotificationStorage",
+        "notificationStorage"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/services/notification.ts",
+      "unused": [
+        "Notification",
+        "NotificationSubscription",
+        "NotificationFilter",
+        "NotificationService",
+        "notificationService"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/sse/stream.ts",
+      "unused": [
+        "SSEClient",
+        "SSEStreamManager",
+        "getGlobalStreamManager",
+        "resetGlobalStreamManager"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/sse/useSSE.ts",
+      "unused": [
+        "useSSE",
+        "useHealthSSE"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/sse/utils.ts",
+      "unused": [
+        "parseSSEMessage",
+        "isValidSSEConnection",
+        "getClientIP"
+      ],
+      "used": [
+        "getSSEHeaders",
+        "formatSSEEvent"
+      ]
+    },
+    {
+      "file": "src/lib/theme-enhanced.ts",
+      "unused": [
+        "Theme",
+        "isSystemDark",
+        "listenSystemThemeChange",
+        "getEffectiveTheme",
+        "applyTheme",
+        "enableThemeTransition",
+        "getImageFilter",
+        "getChartColors",
+        "preventThemeFlash"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/theme-script-inline.ts",
+      "unused": [
+        "getThemeScriptInline"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/threejs-optimize.tsx",
+      "unused": [
+        "ThreeJSComponentProps",
+        "ThreeJSComponentOptions",
+        "LazyKnowledgeLatticeScene",
+        "preloadManager",
+        "useLazyLoad3D",
+        "getThreeJSBundleAdvice",
+        "disposeThreeJSResources"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/timing.ts",
+      "unused": [
+        "TimingMark",
+        "TimingMeasure",
+        "TimingEntry",
+        "performanceMark",
+        "performanceClearMark",
+        "performanceMeasure",
+        "performanceClearMeasure",
+        "getEntriesByType",
+        "getEntriesByName",
+        "getMarks",
+        "getMeasures",
+        "observePerformance",
+        "usePerformanceMark",
+        "useRenderTiming",
+        "useLongTaskObserver",
+        "useLayoutShiftObserver",
+        "useAsyncTiming",
+        "withTiming",
+        "createTimedFetch",
+        "getNavigationTiming",
+        "getResourceTiming",
+        "formatDuration"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/tools/executor.ts",
+      "unused": [
+        "ToolExecutionResult",
+        "PathSecurity",
+        "FileTools",
+        "CommandTools",
+        "WebTools",
+        "ToolExecutor"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/types/analytics/realtime.ts",
+      "unused": [
+        "WebSocketStatus",
+        "WebSocketConnectionMetrics",
+        "TaskStatusDistribution",
+        "TaskStatusHistoryPoint",
+        "TeamEfficiencyMetrics",
+        "AgentEfficiencyRecord",
+        "RealtimePerformanceMetrics",
+        "RealtimeUpdateMessage",
+        "RealtimeAnalyticsState",
+        "RealtimeWebSocketConfig"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/types/analytics.ts",
+      "unused": [
+        "AnalyticsMetrics",
+        "AgentMetrics",
+        "AgentProviderMetrics",
+        "UserMetrics",
+        "TaskMetrics",
+        "RevenueMetrics",
+        "PerformanceMetrics",
+        "TimeSeriesDataPoint",
+        "TimeRange",
+        "DateRange",
+        "AnalyticsFilters",
+        "ChartType",
+        "ChartConfig",
+        "DashboardWidget",
+        "DashboardLayout",
+        "ExportFormat",
+        "ExportOptions",
+        "AnalyticsResponse",
+        "PaginatedResponse",
+        "AnalyticsError",
+        "Statistic",
+        "TrendAnalysis"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/undo-redo/index.ts",
+      "unused": [
+        "useUndoRedo",
+        "useUndoRedoGroup",
+        "useUndoRedoShortcuts",
+        "undoRedo",
+        "undoRedoImpl",
+        "useUndoRedoManager",
+        "useCanUndo",
+        "useCanRedo",
+        "useHistory",
+        "useHistoryStats",
+        "useCurrentHistoryIndex",
+        "createHistoryEntry",
+        "pushOperation",
+        "executeOperation"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/undo-redo/manager.ts",
+      "unused": [
+        "useHistory",
+        "useHistoryStats",
+        "useCurrentHistoryIndex",
+        "createHistoryEntry",
+        "pushOperation",
+        "executeOperation"
+      ],
+      "used": [
+        "useUndoRedoManager",
+        "useCanUndo",
+        "useCanRedo"
+      ]
+    },
+    {
+      "file": "src/lib/undo-redo/middleware.ts",
+      "unused": [
+        "UndoRedoStoreActions",
+        "undoRedoImpl",
+        "undoRedo"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/undo-redo/types.ts",
+      "unused": [
+        "HistoryEntry",
+        "HistoryConfig",
+        "HistoryState",
+        "UndoRedoState",
+        "UndoRedoAction",
+        "HistoryGroup",
+        "HistoryExport",
+        "HistoryStatistics",
+        "UndoRedoMiddlewareConfig",
+        "UndoRedoEvent",
+        "UndoRedoListener"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/user-preferences.ts",
+      "unused": [
+        "UserPreferences",
+        "UseUserPreferencesReturn",
+        "useUserPreferences"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/utils/array.ts",
+      "unused": [
+        "batch",
+        "shuffle",
+        "randomItem",
+        "unique",
+        "groupBy",
+        "pick",
+        "omit"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/utils/async.ts",
+      "unused": [
+        "sleep",
+        "LRUCache",
+        "createCache"
+      ],
+      "used": [
+        "debounce",
+        "throttle",
+        "memoize"
+      ]
+    },
+    {
+      "file": "src/lib/utils/breakpoints.ts",
+      "unused": [
+        "BREAKPOINTS",
+        "BreakpointKey",
+        "isBelowBreakpoint",
+        "isAtLeastBreakpoint",
+        "getCurrentBreakpoint",
+        "useBreakpoint"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/utils/browser.ts",
+      "unused": [
+        "getQueryParams",
+        "updateQueryParams",
+        "downloadFile"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/utils/clone.ts",
+      "unused": [
+        "deepClone"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/utils/dom.ts",
+      "unused": [
+        "isInViewport",
+        "scrollToElement",
+        "addEventListener",
+        "getElementById",
+        "querySelectorAll",
+        "querySelector",
+        "debounceDOM",
+        "throttleDOM",
+        "observeIntersection",
+        "observeResize",
+        "addClassWithDelay",
+        "toggleClass",
+        "hasAllClasses",
+        "hasAnyClass",
+        "getComputedStyleValue"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/utils/download.ts",
+      "unused": [
+        "downloadFile",
+        "downloadJson",
+        "downloadCsv",
+        "createDownloadLink"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/utils/env.ts",
+      "unused": [
+        "isServer",
+        "isBrowser",
+        "isNode",
+        "prefersReducedMotion",
+        "prefersDarkMode",
+        "prefersLightMode",
+        "isTouchDevice",
+        "getDeviceType",
+        "getViewportSize"
+      ],
+      "used": [
+        "isClient"
+      ]
+    },
+    {
+      "file": "src/lib/utils/format.ts",
+      "unused": [
+        "formatFileSize",
+        "formatNumber"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/utils/id.ts",
+      "unused": [
+        "generateId",
+        "generateUUID"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/utils/index.ts",
+      "unused": [
+        "debounce",
+        "throttle",
+        "memoize",
+        "sleep",
+        "retry",
+        "deepClone",
+        "formatFileSize",
+        "formatNumber",
+        "generateId",
+        "generateUUID",
+        "LRUCache",
+        "createCache",
+        "formatTimeAgo",
+        "formatDate",
+        "formatDateTime",
+        "isToday",
+        "isYesterday",
+        "batch",
+        "shuffle",
+        "randomItem",
+        "unique",
+        "groupBy",
+        "pick",
+        "omit",
+        "clamp",
+        "mapRange",
+        "lerp",
+        "isEmpty",
+        "isValidEmail",
+        "isValidUrl",
+        "isClient",
+        "isServer",
+        "isBrowser",
+        "isNode",
+        "isTouchDevice",
+        "getDeviceType",
+        "prefersReducedMotion",
+        "prefersDarkMode",
+        "prefersLightMode",
+        "getViewportSize",
+        "isInViewport",
+        "scrollToElement",
+        "addEventListener",
+        "getElementById",
+        "querySelector",
+        "querySelectorAll",
+        "debounceDOM",
+        "throttleDOM",
+        "observeIntersection",
+        "observeResize",
+        "addClassWithDelay",
+        "toggleClass",
+        "hasAllClasses",
+        "hasAnyClass",
+        "getComputedStyleValue",
+        "copyToClipboard",
+        "readFromClipboard",
+        "downloadFile",
+        "getQueryParams",
+        "updateQueryParams",
+        "optimizeImageUrl",
+        "preloadResources",
+        "lazyLoadComponent",
+        "cn"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/utils/math.ts",
+      "unused": [
+        "clamp",
+        "mapRange",
+        "lerp"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/utils/perf.ts",
+      "unused": [
+        "optimizeImageUrl",
+        "preloadResources",
+        "lazyLoadComponent"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/utils/retry.ts",
+      "unused": [
+        "RetryOptions",
+        "RetryResult",
+        "RetryCache",
+        "createRetryCache"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/utils/ui.ts",
+      "unused": [
+        "cn"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/utils/validation.ts",
+      "unused": [
+        "isValidEmail",
+        "isValidUrl",
+        "isEmpty"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/utils.deepClone.test-light.ts",
+      "unused": [
+        "runDeepClonePerformanceTests"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/utils.ts",
+      "unused": [
+        "generateUUID",
+        "debounce",
+        "throttle",
+        "memoize",
+        "sleep",
+        "retry",
+        "LRUCache",
+        "createCache",
+        "batch",
+        "shuffle",
+        "randomItem",
+        "unique",
+        "groupBy",
+        "pick",
+        "omit",
+        "clamp",
+        "mapRange",
+        "lerp",
+        "isEmpty",
+        "isValidEmail",
+        "isValidUrl",
+        "isClient",
+        "isServer",
+        "isBrowser",
+        "isNode",
+        "isTouchDevice",
+        "getDeviceType",
+        "prefersReducedMotion",
+        "prefersDarkMode",
+        "prefersLightMode",
+        "getViewportSize",
+        "isInViewport",
+        "scrollToElement",
+        "addEventListener",
+        "getElementById",
+        "querySelector",
+        "querySelectorAll",
+        "debounceDOM",
+        "throttleDOM",
+        "observeIntersection",
+        "observeResize",
+        "addClassWithDelay",
+        "toggleClass",
+        "hasAllClasses",
+        "hasAnyClass",
+        "getComputedStyleValue",
+        "copyToClipboard",
+        "readFromClipboard",
+        "downloadFile",
+        "getQueryParams",
+        "updateQueryParams",
+        "optimizeImageUrl",
+        "preloadResources",
+        "lazyLoadComponent",
+        "cn",
+        "formatFileSize",
+        "formatNumber",
+        "formatTimeAgo",
+        "formatDate",
+        "formatDateTime",
+        "isToday",
+        "isYesterday"
+      ],
+      "used": [
+        "generateId",
+        "deepClone"
+      ]
+    },
+    {
+      "file": "src/lib/validation/data-converter.ts",
+      "unused": [
+        "ConvertOptions",
+        "FieldMapping",
+        "cleanString",
+        "cleanNumber",
+        "cleanBoolean",
+        "cleanArray",
+        "cleanObject",
+        "renameFields",
+        "flattenObject",
+        "unflattenObject",
+        "convertToType",
+        "queryStringToObj",
+        "objToQueryString",
+        "objectToPairs",
+        "pairsToObject",
+        "objectToFormData",
+        "formDataToObject",
+        "convertAndValidate"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/validation/form-validator.ts",
+      "unused": [
+        "ValidationRule",
+        "FieldValidationConfig",
+        "ValidationResult",
+        "ValidationOptions",
+        "validateRequired",
+        "validateLength",
+        "validateRange",
+        "validateEmail",
+        "validatePhone",
+        "validateUrl",
+        "validatePassword",
+        "validateIdCard",
+        "validateDate",
+        "FormValidator",
+        "createFormValidator",
+        "validateValue",
+        "validationRules"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/validation/index.ts",
+      "unused": [
+        "useFormValidation"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/validation/types.ts",
+      "unused": [
+        "ValidationRule",
+        "FieldValidators",
+        "ValidationSchema",
+        "ValidationErrors",
+        "ValidationState",
+        "ValidationOptions"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/validation/useFormValidation.ts",
+      "unused": [
+        "useFormValidation",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/validation/validators.ts",
+      "unused": [
+        "required",
+        "email",
+        "minLength",
+        "maxLength",
+        "pattern",
+        "phone",
+        "url",
+        "numeric",
+        "integer",
+        "range",
+        "confirmPassword",
+        "compose",
+        "validators",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/voice-meeting/signaling.ts",
+      "unused": [
+        "MeetingParticipant",
+        "MeetingRoom",
+        "JoinRoomPayload",
+        "OfferPayload",
+        "AnswerPayload",
+        "IceCandidatePayload",
+        "handleJoinRoom",
+        "handleLeaveRoom",
+        "handleOffer",
+        "handleAnswer",
+        "handleIceCandidate",
+        "handleMuteStateChanged",
+        "handleMuteParticipant",
+        "handleRemoveParticipant",
+        "handleLockRoom",
+        "getMeetingRoom",
+        "getAllMeetingRooms",
+        "cleanupInactiveRooms",
+        "setupVoiceMeetingHandlers"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/web-vitals-db.ts",
+      "unused": [
+        "WebVitalMetric",
+        "WebVitalStats",
+        "AggregateStats",
+        "getWebVitalsDB",
+        "closeWebVitalsDB",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/websocket/dashboard/RoomList.tsx",
+      "unused": [
+        "RoomListProps",
+        "RoomList",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/websocket/dashboard/RoomView.tsx",
+      "unused": [
+        "RoomViewProps",
+        "RoomView",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/websocket/dashboard/websocket-store.ts",
+      "unused": [
+        "selectCurrentRoom",
+        "selectCurrentMessages",
+        "selectCurrentParticipants",
+        "selectFilteredRooms"
+      ],
+      "used": [
+        "useWebSocketStore"
+      ]
+    },
+    {
+      "file": "src/lib/websocket/index.ts",
+      "unused": [
+        "getServer",
+        "getStats",
+        "getRoomInfo",
+        "getAllRooms",
+        "broadcastSystemAnnouncement",
+        "broadcastTaskStatusUpdate",
+        "broadcastTaskStatusToUser",
+        "createServer",
+        "getRoomManager",
+        "resetRoomManager",
+        "getPermissionManager",
+        "resetPermissionManager",
+        "createPermissionChecker",
+        "checkPermissions",
+        "DEFAULT_ROLE_PERMISSIONS",
+        "getMessageStore",
+        "resetMessageStore",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/websocket/message-store.ts",
+      "unused": [
+        "MessageReaction",
+        "OfflineMessage",
+        "MessageHistoryOptions",
+        "MessageStoreStats",
+        "resetMessageStore"
+      ],
+      "used": [
+        "StoredMessage",
+        "MessageStore",
+        "getMessageStore"
+      ]
+    },
+    {
+      "file": "src/lib/websocket/permissions.ts",
+      "unused": [
+        "RoomPermission",
+        "MessagePermission",
+        "AdminPermission",
+        "PermissionGrant",
+        "UserRoomPermissions",
+        "DEFAULT_ROLE_PERMISSIONS",
+        "createPermissionChecker",
+        "checkPermissions",
+        "resetPermissionManager"
+      ],
+      "used": [
+        "Permission",
+        "UserRole",
+        "PermissionManager",
+        "getPermissionManager"
+      ]
+    },
+    {
+      "file": "src/lib/websocket/rooms.ts",
+      "unused": [
+        "RoomType",
+        "RoomVisibility",
+        "RoomParticipant",
+        "RoomConfig",
+        "RoomData",
+        "Room",
+        "CreateRoomOptions",
+        "JoinRoomOptions",
+        "RoomEventCallbacks",
+        "RoomManager",
+        "getRoomManager",
+        "resetRoomManager"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/websocket/server.ts",
+      "unused": [
+        "AuthenticatedSocket",
+        "RoomUser",
+        "Room",
+        "TaskStatusUpdate",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/websocket/types.ts",
+      "unused": [
+        "BaseMessage",
+        "WebSocketMessage",
+        "AuthMessage",
+        "RoomJoinMessage",
+        "RoomJoinedMessage",
+        "RoomLeaveMessage",
+        "RoomLeftMessage",
+        "RoomUserJoinedMessage",
+        "RoomUserLeftMessage",
+        "RoomUserListMessage",
+        "DocumentState",
+        "DocumentOpenMessage",
+        "DocumentOpenedMessage",
+        "DocumentOperation",
+        "DocumentOperationMessage",
+        "DocumentOperationAppliedMessage",
+        "DocumentSyncMessage",
+        "DocumentSyncedMessage",
+        "CursorPosition",
+        "CursorSelection",
+        "CursorUpdate",
+        "CursorMoveMessage",
+        "CursorUpdateMessage",
+        "SelectionUpdate",
+        "SelectionUpdateMessage",
+        "PresenceTypingMessage",
+        "PresenceTypingUpdatedMessage",
+        "PresenceUpdate",
+        "TaskStatusUpdate",
+        "TaskStatusUpdateMessage",
+        "TaskStatusChangedMessage",
+        "TaskAssignedMessage",
+        "TaskCommentMessage",
+        "MemberStatusChangedMessage",
+        "SystemErrorMessage",
+        "SystemAnnouncementMessage",
+        "ProjectUpdatedMessage",
+        "NotificationMessage",
+        "RoomUser",
+        "CollaborationMessage",
+        "WebSocketMessageType",
+        "isAuthMessage",
+        "isRoomMessage",
+        "isDocumentMessage",
+        "isCursorMessage",
+        "isPresenceMessage",
+        "isTaskMessage",
+        "isSystemMessage",
+        "createMessage",
+        "createRoomJoinedMessage",
+        "createCursorUpdate",
+        "createTaskStatusUpdate"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/lib/websocket/useCollaboration.ts",
+      "unused": [
+        "ConnectionState",
+        "ReconnectionState",
+        "DisconnectReason",
+        "ConnectionContext",
+        "ConnectionQualityMetrics",
+        "RoomUser",
+        "CollaborationConfig",
+        "CollaborationState",
+        "CollaborationActions",
+        "useCollaboration",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/AIChat.tsx",
+      "unused": [
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/ActivityLog.tsx",
+      "unused": [
+        "ActivityItem",
+        "ActivityLog"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/Analytics.tsx",
+      "unused": [
+        "Analytics",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/AnimatedProgressBar.tsx",
+      "unused": [
+        "WaveProgress",
+        "SegmentedProgress",
+        "GradientProgress",
+        "StepProgress",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/BackupList.tsx",
+      "unused": [
+        "BackupList"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/BugReportForm.tsx",
+      "unused": [
+        "BugReportData",
+        "BugReportForm",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/ClientAnalytics.tsx",
+      "unused": [
+        "ClientAnalytics"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/ContactForm.tsx",
+      "unused": [
+        "ContactForm"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/DataExportImport/index.tsx",
+      "unused": [
+        "DataExportImport"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/DataExportPanel.tsx",
+      "unused": [
+        "DataExportPanel"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/EnhancedFeedbackModal.tsx",
+      "unused": [
+        "EnhancedFeedbackModal",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/ErrorBoundary.tsx",
+      "unused": [
+        "ErrorBoundaryProps",
+        "ErrorBoundary",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/ErrorBoundaryWrapper.tsx",
+      "unused": [
+        "ErrorBoundaryWrapper",
+        "withErrorBoundary",
+        "AsyncErrorBoundary",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/ErrorDisplay.tsx",
+      "unused": [
+        "ErrorVariant",
+        "ErrorDisplayProps",
+        "default"
+      ],
+      "used": [
+        "ErrorType",
+        "ErrorDisplay"
+      ]
+    },
+    {
+      "file": "src/components/ExportPanel.tsx",
+      "unused": [
+        "ExportPanelProps",
+        "ExportPanel",
+        "QuickExportButtonProps",
+        "QuickExportButton",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/FeedbackModal.tsx",
+      "unused": [
+        "FeedbackData",
+        "FeedbackModal",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/Footer.i18n.example.tsx",
+      "unused": [
+        "FooterWithI18n"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/Footer.tsx",
+      "unused": [
+        "Footer",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/GitHubActivity.tsx",
+      "unused": [
+        "GitHubActivity"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/GlobalLoader.tsx",
+      "unused": [
+        "LoaderVariant",
+        "GlobalLoader",
+        "MinimalLoader",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/HealthDashboard.tsx",
+      "unused": [
+        "HealthDashboard"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/Hero3D.tsx",
+      "unused": [
+        "Hero3D"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/LanguageSwitcher.tsx",
+      "unused": [
+        "LanguageSwitcher"
+      ],
+      "used": [
+        "LanguageSwitcherCompact"
+      ]
+    },
+    {
+      "file": "src/components/LazyComponents.tsx",
+      "unused": [
+        "LoadingFallback",
+        "LazyAIChat",
+        "LazyGitHubActivity",
+        "LazyProjectDashboard",
+        "LazyTaskBoard",
+        "LazyActivityLog",
+        "LazyRealtimeDashboard",
+        "LazyTeamActivityTracker",
+        "LazyAnalyticsDashboard",
+        "LazyMetricsDashboard",
+        "LazyKnowledgeLatticeScene",
+        "LazyMeetingRoom",
+        "LazyCollaboration",
+        "LazyDataExportImport",
+        "LazyGlobalSearch",
+        "LazyAnimatedProgressBar",
+        "LazyUserSettings",
+        "LazyFeedbackManagement",
+        "LazyEnhancedFeedbackModal",
+        "LazyLazyLoadImage",
+        "LazyPerformanceDashboard",
+        "LazySimplePerformanceDashboard",
+        "createLoadingFallback",
+        "preloadComponent",
+        "preloadComponents"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/LazyLoadImage.tsx",
+      "unused": [
+        "PlaceholderType",
+        "ImageFit",
+        "LazyLoadImageProps",
+        "LazyLoadImage",
+        "GalleryImageItem",
+        "ImageGallery",
+        "ResponsiveLazyImage",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/LoadingSpinner.tsx",
+      "unused": [
+        "LoadingVariant",
+        "LoadingSize",
+        "LoadingColor",
+        "default"
+      ],
+      "used": [
+        "LoadingSpinner"
+      ]
+    },
+    {
+      "file": "src/components/MemberCard.tsx",
+      "unused": [
+        "AIMember",
+        "MemberCard"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/MobileMenu.tsx",
+      "unused": [
+        "MobileMenu",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/Navigation.tsx",
+      "unused": [
+        "Navigation"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/NotificationCenter/NotificationBadge.tsx",
+      "unused": [
+        "default"
+      ],
+      "used": [
+        "NotificationBadge"
+      ]
+    },
+    {
+      "file": "src/components/NotificationCenter/NotificationCenter.tsx",
+      "unused": [
+        "NotificationCenter",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/NotificationCenter/NotificationFilter.tsx",
+      "unused": [
+        "NotificationFilter",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/NotificationCenter/NotificationItem.tsx",
+      "unused": [
+        "default"
+      ],
+      "used": [
+        "NotificationItem"
+      ]
+    },
+    {
+      "file": "src/components/NotificationCenter/index.ts",
+      "unused": [
+        "NotificationCenter",
+        "default",
+        "NotificationItem",
+        "NotificationBadge"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/NotificationCenter/types.ts",
+      "unused": [
+        "NotificationType",
+        "NotificationPriority",
+        "Notification",
+        "NotificationCenterProps",
+        "NotificationItemProps",
+        "NotificationBadgeProps"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/OptimizedImage.tsx",
+      "unused": [
+        "OptimizedImage",
+        "ResponsiveImage",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/PWAInstallPrompt.tsx",
+      "unused": [
+        "PWAInstallPrompt"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/PageLoadingTemplate.tsx",
+      "unused": [
+        "MinimalPageLoading",
+        "CardGridLoading",
+        "TableLoading",
+        "ListLoading",
+        "DashboardLoading",
+        "TasksLoading",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/PerformanceMonitor.tsx",
+      "unused": [
+        "PerformanceMonitor",
+        "ResourceTimingMonitor",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/PerformanceOptimizer.tsx",
+      "unused": [
+        "PerformanceOptimizer",
+        "useComponentRenderTiming",
+        "useApiTiming",
+        "useResourceTiming",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/ProjectDashboard.tsx",
+      "unused": [
+        "ProjectDashboard"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/Providers.tsx",
+      "unused": [
+        "Providers"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/RealtimeDashboard.tsx",
+      "unused": [
+        "PerformanceMetric",
+        "TeamEfficiency",
+        "RealtimeStats",
+        "RealtimeDashboard",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/SEO.tsx",
+      "unused": [
+        "StructuredData",
+        "ArticleSchema",
+        "ServiceSchema",
+        "ProductSchema",
+        "Breadcrumbs",
+        "CanonicalUrl",
+        "HreflangLinks",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/SearchFilter.tsx",
+      "unused": [
+        "SearchFilterProps",
+        "SearchFilter"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/ServiceWorkerRegistration.tsx",
+      "unused": [
+        "ServiceWorkerRegistration"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/SettingsButton.tsx",
+      "unused": [
+        "default"
+      ],
+      "used": [
+        "SettingsButton"
+      ]
+    },
+    {
+      "file": "src/components/SettingsPanel.tsx",
+      "unused": [
+        "SettingsPanelCompact",
+        "default"
+      ],
+      "used": [
+        "SettingsPanel"
+      ]
+    },
+    {
+      "file": "src/components/Skeleton.tsx",
+      "unused": [
+        "SkeletonText",
+        "SkeletonAvatar",
+        "SkeletonCard",
+        "SkeletonList",
+        "SkeletonTable",
+        "SkeletonStatCard",
+        "SkeletonNav",
+        "SkeletonPage",
+        "SkeletonBase",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/SocialLinks.tsx",
+      "unused": [
+        "default"
+      ],
+      "used": [
+        "SocialLinks"
+      ]
+    },
+    {
+      "file": "src/components/StarRating.tsx",
+      "unused": [
+        "default"
+      ],
+      "used": [
+        "StarRating"
+      ]
+    },
+    {
+      "file": "src/components/TaskBoard.tsx",
+      "unused": [
+        "TaskBoard"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/TaskBoardSearch.tsx",
+      "unused": [
+        "TaskBoardSearch"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/TeamActivityTracker.tsx",
+      "unused": [
+        "ActivityType",
+        "TeamActivity",
+        "ActivityFilter",
+        "MemberActivityStats",
+        "TeamActivityTracker",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/ThemeProvider.tsx",
+      "unused": [
+        "useTheme",
+        "ThemeProvider"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/UserProfile/UserProfile.tsx",
+      "unused": [
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/UserProfile/index.ts",
+      "unused": [
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/UserSettings/AvatarUpload.tsx",
+      "unused": [
+        "AvatarUploadProps"
+      ],
+      "used": [
+        "default"
+      ]
+    },
+    {
+      "file": "src/components/UserSettings/SectionCard.tsx",
+      "unused": [
+        "SectionCardProps"
+      ],
+      "used": [
+        "default"
+      ]
+    },
+    {
+      "file": "src/components/UserSettings/ToggleSwitch.tsx",
+      "unused": [
+        "ToggleSwitchProps"
+      ],
+      "used": [
+        "default"
+      ]
+    },
+    {
+      "file": "src/components/UserSettings/UserSettingsPage.tsx",
+      "unused": [
+        "UserSettingsPage",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/UserSettings/index.ts",
+      "unused": [
+        "validateNickname",
+        "validateBio",
+        "validatePassword",
+        "validateConfirmPassword",
+        "default",
+        "UserSettingsPage"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/UserSettings/types.ts",
+      "unused": [
+        "UserProfile",
+        "SecuritySettings",
+        "NotificationPreferences",
+        "PrivacySettings",
+        "FormErrors",
+        "PasswordForm",
+        "SaveStatus",
+        "ThemeValue",
+        "NavItem"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/WebSocketStatusIndicator.tsx",
+      "unused": [
+        "WebSocketStatusIndicator"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/admin/FeedbackManagementPanel.tsx",
+      "unused": [
+        "FeedbackManagementPanel",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/analytics/AnalyticsChart.tsx",
+      "unused": [
+        "AnalyticsChartProps",
+        "default"
+      ],
+      "used": [
+        "AnalyticsChart"
+      ]
+    },
+    {
+      "file": "src/components/analytics/AnalyticsDashboard.tsx",
+      "unused": [
+        "AnalyticsDashboardProps",
+        "AnalyticsDashboard",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/analytics/DateRangePicker.tsx",
+      "unused": [
+        "DateRangePickerProps",
+        "default"
+      ],
+      "used": [
+        "DateRangePicker"
+      ]
+    },
+    {
+      "file": "src/components/analytics/ErrorBoundary.tsx",
+      "unused": [
+        "withAnalyticsErrorBoundary"
+      ],
+      "used": [
+        "AnalyticsErrorBoundary"
+      ]
+    },
+    {
+      "file": "src/components/analytics/FilterPanel.tsx",
+      "unused": [
+        "FilterPanelProps",
+        "default"
+      ],
+      "used": [
+        "FilterPanel"
+      ]
+    },
+    {
+      "file": "src/components/analytics/MetricCard.tsx",
+      "unused": [
+        "MetricCardProps",
+        "default"
+      ],
+      "used": [
+        "MetricCard"
+      ]
+    },
+    {
+      "file": "src/components/analytics/PageLoadWaterfall.tsx",
+      "unused": [
+        "ResourceTiming",
+        "CriticalTiming",
+        "PageLoadWaterfallProps",
+        "default"
+      ],
+      "used": [
+        "PageLoadWaterfall"
+      ]
+    },
+    {
+      "file": "src/components/analytics/PerformanceMetrics.tsx",
+      "unused": [
+        "PerformanceMetricsProps",
+        "default"
+      ],
+      "used": [
+        "PerformanceMetrics"
+      ]
+    },
+    {
+      "file": "src/components/analytics/PerformanceMonitoringDashboard.tsx",
+      "unused": [
+        "PerformanceMonitoringDashboardProps",
+        "PerformanceMonitoringDashboard",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/analytics/RealTimeCharts.tsx",
+      "unused": [
+        "RealTimeChartsProps",
+        "default"
+      ],
+      "used": [
+        "RealTimeCharts"
+      ]
+    },
+    {
+      "file": "src/components/analytics/RealtimeConnectionStatus.tsx",
+      "unused": [
+        "RealtimeConnectionStatusProps",
+        "default"
+      ],
+      "used": [
+        "RealtimeConnectionStatus"
+      ]
+    },
+    {
+      "file": "src/components/analytics/RealtimeMetricsDashboard.tsx",
+      "unused": [
+        "RealtimeMetricsDashboardProps",
+        "RealtimeMetricsDashboard",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/analytics/RealtimeTaskStatusChart.tsx",
+      "unused": [
+        "RealtimeTaskStatusChartProps",
+        "default"
+      ],
+      "used": [
+        "RealtimeTaskStatusChart"
+      ]
+    },
+    {
+      "file": "src/components/analytics/RealtimeTeamEfficiency.tsx",
+      "unused": [
+        "RealtimeTeamEfficiencyProps",
+        "default"
+      ],
+      "used": [
+        "RealtimeTeamEfficiency"
+      ]
+    },
+    {
+      "file": "src/components/analytics/Skeleton.tsx",
+      "unused": [
+        "Skeleton"
+      ],
+      "used": [
+        "MetricCardSkeleton",
+        "ChartSkeleton",
+        "LoadingOverlay",
+        "MetricsGridSkeleton"
+      ]
+    },
+    {
+      "file": "src/components/analytics/VirtualizedList.tsx",
+      "unused": [
+        "VirtualizedList",
+        "VirtualizedTable",
+        "useVirtualContainerHeight"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/analytics/examples/RealtimeUsageExample.tsx",
+      "unused": [
+        "ExampleBasicDashboard",
+        "ExampleCustomDashboard",
+        "ExampleEnglishDashboard",
+        "ExampleMinimalDashboard",
+        "ExampleWithErrorHandling",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/analytics/index.ts",
+      "unused": [
+        "MetricCard",
+        "AnalyticsChart",
+        "DateRangePicker",
+        "FilterPanel",
+        "AnalyticsDashboard",
+        "RealtimeConnectionStatus",
+        "RealtimeTaskStatusChart",
+        "RealtimeTeamEfficiency",
+        "RealtimeMetricsDashboard",
+        "PerformanceMetrics",
+        "RealTimeCharts",
+        "PageLoadWaterfall",
+        "PerformanceMonitoringDashboard"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/chat/ChatHeader.tsx",
+      "unused": [
+        "ChatHeader"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/chat/ChatInput.tsx",
+      "unused": [
+        "ChatInput"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/chat/ChatMessage.tsx",
+      "unused": [
+        "ChatMessage",
+        "TypingIndicator"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/chat/QuickActions.tsx",
+      "unused": [
+        "QuickActions"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/chat/TeamStatusPanel.tsx",
+      "unused": [
+        "TeamStatusPanel"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/chat/index.ts",
+      "unused": [
+        "teamMembers",
+        "quickActions",
+        "initialMessage",
+        "ChatInput",
+        "MemberSelector"
+      ],
+      "used": [
+        "ChatMessage",
+        "TypingIndicator",
+        "QuickActions",
+        "TeamStatusPanel",
+        "ChatHeader",
+        "useChat"
+      ]
+    },
+    {
+      "file": "src/components/chat/types.ts",
+      "unused": [
+        "ChatProps",
+        "ChatMessageProps",
+        "ChatInputProps",
+        "QuickActionsProps",
+        "TeamStatusPanelProps",
+        "MemberSelectorProps"
+      ],
+      "used": [
+        "Message"
+      ]
+    },
+    {
+      "file": "src/components/chat/useChat.ts",
+      "unused": [
+        "useChat"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/collaboration/RemoteSelection.tsx",
+      "unused": [
+        "RemoteSelection",
+        "RemoteSelectionHighlight",
+        "SelectionHighlighter",
+        "CursorWithSelection",
+        "SelectionManager",
+        "default"
+      ],
+      "used": [
+        "TypingIndicator"
+      ]
+    },
+    {
+      "file": "src/components/collaboration/TaskEditor.tsx",
+      "unused": [
+        "TaskEditor",
+        "TaskEditorPage",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/collaboration/TaskEditorCollaboration.tsx",
+      "unused": [
+        "TaskEditorCollaboration",
+        "CollaborationToggle",
+        "CollaborationStatus",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/dashboard/ActivityChart.tsx",
+      "unused": [
+        "ActivityDataPoint",
+        "ActivityChartProps",
+        "ActivityChart",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/dashboard/RevenueChart.tsx",
+      "unused": [
+        "RevenueDataPoint",
+        "RevenueChartProps",
+        "RevenueChart",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/dashboard/StatsCard.tsx",
+      "unused": [
+        "StatsCardProps",
+        "StatsCard",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/errors/ForbiddenPage.tsx",
+      "unused": [
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/errors/UnauthorizedPage.tsx",
+      "unused": [
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/errors/index.tsx",
+      "unused": [
+        "createPageErrorBoundary",
+        "HomeError",
+        "AboutError",
+        "BlogError",
+        "BlogSlugError",
+        "ContactError",
+        "DashboardError",
+        "TeamError",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/examples/StoreUsageExample.tsx",
+      "unused": [
+        "StoreUsageExample"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/examples/TaskStatusExample.tsx",
+      "unused": [
+        "TaskStatusExample"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/fallbacks/AsyncBoundary.tsx",
+      "unused": [
+        "AsyncStatus",
+        "AsyncBoundaryProps",
+        "AsyncChildren",
+        "AsyncBoundary",
+        "AsyncBoundaryFnProps",
+        "AsyncBoundaryFn",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/fallbacks/ComponentFallback.tsx",
+      "unused": [
+        "ComponentFallbackProps",
+        "withFallback",
+        "default"
+      ],
+      "used": [
+        "FallbackVariant",
+        "ComponentFallback"
+      ]
+    },
+    {
+      "file": "src/components/form/FormField.tsx",
+      "unused": [
+        "FormFieldProps",
+        "FormField",
+        "InputProps",
+        "Input",
+        "TextareaProps",
+        "Textarea",
+        "SelectProps",
+        "Select",
+        "CheckboxProps",
+        "Checkbox",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/form/index.ts",
+      "unused": [
+        "FormField",
+        "Input",
+        "Textarea",
+        "Select",
+        "Checkbox",
+        "useFieldValidation"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/form/useFieldValidation.ts",
+      "unused": [
+        "ValidationFunction",
+        "ValidateOn",
+        "InputElementType",
+        "UseFieldValidationReturn",
+        "default"
+      ],
+      "used": [
+        "UseFieldValidationOptions",
+        "useFieldValidation"
+      ]
+    },
+    {
+      "file": "src/components/index.ts",
+      "unused": [
+        "ClientProviders",
+        "ThemeProvider",
+        "useTheme",
+        "useSettings",
+        "useLanguage",
+        "useNotificationPreferences",
+        "usePreferencesLoaded",
+        "useDarkMode",
+        "SettingsPanel",
+        "SettingsPanelCompact",
+        "SettingsButton",
+        "default",
+        "GitHubActivity",
+        "ProjectDashboard",
+        "Hero3D",
+        "Button",
+        "ButtonGroup",
+        "IconButton",
+        "Tooltip",
+        "SimpleTooltip",
+        "withTooltip",
+        "InfoTooltip",
+        "OptimizedImage",
+        "ResponsiveImage",
+        "LazyAIChat",
+        "LazyProjectDashboard",
+        "LazyGitHubActivity",
+        "LazyTaskBoard",
+        "LazyRealtimeDashboard",
+        "LazyTeamActivityTracker",
+        "LazyAnalyticsDashboard",
+        "LazyMetricsDashboard",
+        "LazyKnowledgeLatticeScene",
+        "LazyMeetingRoom",
+        "LazyDataExportImport",
+        "LazyGlobalSearch",
+        "LazyAnimatedProgressBar",
+        "LazyUserSettings",
+        "LazyFeedbackManagement",
+        "LazyEnhancedFeedbackModal",
+        "LazyLazyLoadImage",
+        "preloadComponents",
+        "PerformanceMonitor",
+        "ResourceTimingMonitor",
+        "HealthDashboard",
+        "SkeletonText",
+        "SkeletonAvatar",
+        "SkeletonCard",
+        "SkeletonList",
+        "SkeletonTable",
+        "SkeletonStatCard",
+        "SkeletonNav",
+        "SkeletonPage",
+        "ErrorBoundary",
+        "ErrorDisplay",
+        "ErrorBoundaryWrapper",
+        "withErrorBoundary",
+        "createPageErrorBoundary",
+        "HomeError",
+        "AboutError",
+        "BlogError",
+        "BlogSlugError",
+        "ContactError",
+        "DashboardError",
+        "TeamError",
+        "ContactForm",
+        "SocialLinks",
+        "Analytics",
+        "Footer",
+        "StatusBadge",
+        "ProgressBar",
+        "Avatar",
+        "Card",
+        "EmptyState",
+        "StatCard",
+        "TimeAgo",
+        "LoadingSpinner",
+        "GlobalLoader",
+        "MinimalLoader"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/knowledge-lattice/KnowledgeLattice3D.tsx",
+      "unused": [
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/knowledge-lattice/KnowledgeLatticeScene.tsx",
+      "unused": [
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/meeting/MeetingRoom.tsx",
+      "unused": [
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/mobile/SwipeContainer.tsx",
+      "unused": [
+        "SwipeContainer",
+        "HorizontalScroll",
+        "PullToRefresh"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/mobile/TaskCardMobile.tsx",
+      "unused": [
+        "TaskCardMobile"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/monitoring/MetricsDashboard.tsx",
+      "unused": [
+        "MetricsDashboard"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/multimodal/AudioTranscriptionResult.tsx",
+      "unused": [
+        "AudioTranscriptionResult"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/multimodal/AudioUploader.tsx",
+      "unused": [
+        "AudioUploader"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/multimodal/ImageAnalysisResult.tsx",
+      "unused": [
+        "ImageAnalysisResult"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/multimodal/ImageUploader.tsx",
+      "unused": [
+        "ImageUploader"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/rating/RatingList.tsx",
+      "unused": [
+        "RatingListProps",
+        "RatingList",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/rating/RatingStats.tsx",
+      "unused": [
+        "RatingStatsProps",
+        "RatingStats",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/rating/ReviewItem.tsx",
+      "unused": [
+        "ReviewItemProps",
+        "default"
+      ],
+      "used": [
+        "ReviewItem"
+      ]
+    },
+    {
+      "file": "src/components/rating/StarRating.tsx",
+      "unused": [
+        "StarRatingProps",
+        "StarRating",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/rating/index.ts",
+      "unused": [
+        "StarRating",
+        "ReviewItem",
+        "RatingList",
+        "RatingStats"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/realtime/NotificationPanel.tsx",
+      "unused": [
+        "NotificationPanelProps",
+        "NotificationPanel",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/realtime/TaskUpdateFeed.tsx",
+      "unused": [
+        "TaskUpdateItem",
+        "TaskUpdateFeedProps",
+        "TaskUpdateFeed",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/realtime/index.ts",
+      "unused": [
+        "NotificationPanel",
+        "TaskUpdateFeed",
+        "useRealtimeNotifications",
+        "useTaskRealtime"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/search/GlobalSearch.tsx",
+      "unused": [
+        "GlobalSearch"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/search/SearchHistory.tsx",
+      "unused": [
+        "SearchHistory"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/search/SearchResults.tsx",
+      "unused": [
+        "SearchResults"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/seo/JsonLd.tsx",
+      "unused": [
+        "OrganizationJsonLd",
+        "WebSiteJsonLd",
+        "BreadcrumbJsonLd",
+        "SoftwareApplicationJsonLd"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/settings/NotificationPreferences.tsx",
+      "unused": [
+        "NotificationChannel",
+        "NotificationEventType",
+        "NotificationPreferencesMap",
+        "CHANNEL_INFO",
+        "EVENT_INFO",
+        "NotificationPreferences",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/shared/ui.tsx",
+      "unused": [
+        "StatusBadge",
+        "ProgressBar",
+        "Avatar",
+        "Card",
+        "EmptyState",
+        "StatCard",
+        "TimeAgo"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/team/CollaborationItemCard.tsx",
+      "unused": [
+        "CollaborationItemCard"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/team/TeamHeroSection.tsx",
+      "unused": [
+        "TeamHeroSection"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/team/TeamMemberCard.tsx",
+      "unused": [
+        "TeamMemberCard"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/team/constants.ts",
+      "unused": [
+        "TEAM_MEMBERS",
+        "COLLABORATION_ITEMS",
+        "BASE_URL"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/team/translations.ts",
+      "unused": [
+        "TeamTranslations",
+        "GetTranslationsFunction"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/team/types.ts",
+      "unused": [
+        "TeamMember",
+        "CollaborationItem",
+        "TeamStats",
+        "TeamMemberCategory"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/ui/Badge.tsx",
+      "unused": [
+        "BadgeProps",
+        "Badge"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/ui/Button.tsx",
+      "unused": [
+        "ButtonVariant",
+        "ButtonSize",
+        "ButtonProps",
+        "Button",
+        "ButtonGroupProps",
+        "ButtonGroup",
+        "IconButtonProps",
+        "IconButton",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/ui/Card.tsx",
+      "unused": [
+        "Card",
+        "CardContent",
+        "CardHeader",
+        "CardTitle"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/ui/Checkbox.tsx",
+      "unused": [
+        "Checkbox"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/ui/Input.tsx",
+      "unused": [
+        "InputProps",
+        "Input"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/ui/Select.tsx",
+      "unused": [
+        "SelectProps",
+        "Select"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/ui/ThemeSelector.tsx",
+      "unused": [
+        "ThemeSelector",
+        "ThemeToggleCycle"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/ui/Tooltip.tsx",
+      "unused": [
+        "TooltipPosition",
+        "TooltipSize",
+        "TooltipProps",
+        "Tooltip",
+        "SimpleTooltipProps",
+        "SimpleTooltip",
+        "withTooltip",
+        "InfoTooltipProps",
+        "InfoTooltip",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/ui/index.ts",
+      "unused": [
+        "Button",
+        "ButtonGroup",
+        "IconButton",
+        "Card",
+        "CardContent",
+        "CardHeader",
+        "CardTitle",
+        "Badge",
+        "Input",
+        "Select",
+        "Tooltip",
+        "SimpleTooltip",
+        "withTooltip",
+        "InfoTooltip"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/undo-redo/HistoryViewer.tsx",
+      "unused": [
+        "HistoryEntry",
+        "HistoryViewerProps",
+        "HistoryViewer",
+        "HistoryMiniViewProps",
+        "HistoryMiniView"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/undo-redo/UndoRedo.tsx",
+      "unused": [
+        "UndoRedoProps",
+        "UndoRedo",
+        "UndoRedoShortcutsProps",
+        "UndoRedoShortcuts"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/undo-redo/index.ts",
+      "unused": [
+        "UndoRedo",
+        "UndoRedoShortcuts",
+        "type UndoRedoProps",
+        "type UndoRedoShortcutsProps",
+        "HistoryViewer",
+        "HistoryMiniView",
+        "type HistoryViewerProps",
+        "type HistoryMiniViewProps"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/websocket/WebSocketErrorBoundary.tsx",
+      "unused": [
+        "WebSocketErrorBoundary",
+        "withWebSocketErrorBoundary",
+        "default"
+      ],
+      "used": []
+    },
+    {
+      "file": "src/components/websocket/WebSocketStatusIndicator.tsx",
+      "unused": [
+        "WebSocketStatusIndicatorProps",
+        "WebSocketStatusIndicator",
+        "WebSocketStatusDot"
+      ],
+      "used": []
+    }
+  ]
+}

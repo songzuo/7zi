@@ -1,0 +1,300 @@
+/**
+ * Critical CSS - 首屏关键样式
+ * 
+ * 此文件包含首屏渲染所需的最小 CSS 集合
+ * 应内联到 <head> 中以消除渲染阻塞
+ * 
+ * 大小目标: < 14KB (压缩前)
+ */
+
+/* ============================================
+   主题变量 (必需)
+   ============================================ */
+
+:root {
+  /* 基础颜色 */
+  --background: #ffffff;
+  --foreground: #171717;
+  
+  /* 主题色 */
+  --primary: #06b6d4;
+  --primary-foreground: #ffffff;
+  
+  /* 边框和输入 */
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  
+  /* 导航 */
+  --nav-bg: #ffffff;
+  --nav-border: #e5e7eb;
+  --nav-text: #374151;
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --primary: #22d3ee;
+  --border: #27272a;
+  --nav-bg: #18181b;
+  --nav-text: #a1a1aa;
+}
+
+/* ============================================
+   基础重置 (必需)
+   ============================================ */
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 防止主题闪烁 */
+html:not(.dark):not(.light) {
+  visibility: hidden;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* ============================================
+   导航样式 (首屏可见)
+   ============================================ */
+
+nav {
+  background: var(--nav-bg);
+  border-bottom: 1px solid var(--nav-border);
+}
+
+nav a {
+  color: var(--nav-text);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+nav a:hover {
+  color: var(--primary);
+}
+
+/* ============================================
+   Hero 区域 (LCP 元素)
+   ============================================ */
+
+.hero-section {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to bottom right, #fafafa, #ffffff, #f4f4f5);
+}
+
+.dark .hero-section {
+  background: linear-gradient(to bottom right, #09090b, #0a0a0a, #18181b);
+}
+
+/* Hero 标题 */
+.hero-title {
+  font-size: 4rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--foreground);
+}
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+}
+
+/* Hero 描述 */
+.hero-description {
+  font-size: 1.25rem;
+  color: #71717a;
+  max-width: 48rem;
+  margin-top: 1.5rem;
+}
+
+/* CTA 按钮 */
+.cta-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  background: var(--foreground);
+  color: var(--background);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.25);
+}
+
+.cta-button:active {
+  transform: scale(0.97);
+}
+
+/* ============================================
+   统计数据区域
+   ============================================ */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  max-width: 40rem;
+  margin: 4rem auto 0;
+}
+
+@media (max-width: 640px) {
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(to right, #06b6d4, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: #71717a;
+  margin-top: 0.25rem;
+}
+
+/* ============================================
+   骨架屏样式
+   ============================================ */
+
+.skeleton {
+  background: linear-gradient(90deg, #f4f4f5 25%, #e4e4e7 50%, #f4f4f5 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+.dark .skeleton {
+  background: linear-gradient(90deg, #27272a 25%, #3f3f46 50%, #27272a 75%);
+  background-size: 200% 100%;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ============================================
+   响应式基础
+   ============================================ */
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+  
+  .hero-description {
+    font-size: 1rem;
+  }
+  
+  .cta-button {
+    width: 100%;
+  }
+}
+
+/* ============================================
+   文本截断 (辅助类)
+   ============================================ */
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ============================================
+   品牌颜色 (Tailwind 兼容)
+   ============================================ */
+
+.text-cyan-500 {
+  color: #06b6d4;
+}
+
+.text-purple-500 {
+  color: #a855f7;
+}
+
+.text-pink-500 {
+  color: #ec4899;
+}
+
+.bg-cyan-500 {
+  background-color: #06b6d4;
+}
+
+.bg-gradient-to-r {
+  background-image: linear-gradient(to right, var(--tw-gradient-stops));
+}
+
+.from-cyan-500 {
+  --tw-gradient-from: #06b6d4;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, transparent);
+}
+
+.to-purple-600 {
+  --tw-gradient-to: #9333ea;
+}
+
+/* ============================================
+   Focus 可访问性
+   ============================================ */
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   滚动条基础
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #a1a1aa;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #52525b;
+}

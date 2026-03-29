@@ -8,7 +8,7 @@
 import type { Server as SocketIOServer } from 'socket.io';
 import { logger } from '@/lib/logger';
 import type { Socket } from 'socket.io';
-import type { AuthenticatedSocket } from '@/lib/websocket/server';
+import type { AuthenticatedSocket } from '@/lib/websocket/types';
 
 // ============================================================================
 // Types

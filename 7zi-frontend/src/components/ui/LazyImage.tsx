@@ -327,7 +327,6 @@ export function LazyImage({
             onLoad={handleLoad}
             onError={handleError}
             className="object-cover w-full h-full"
-            srcSet={generateSrcSet()}
           />
         </div>
       )}

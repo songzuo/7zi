@@ -292,7 +292,7 @@ export function EnhancedPerformanceDashboard({
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {(['LCP', 'FID', 'CLS', 'INP'] as const).map((name) => {
+            {(['LCP', 'INP', 'CLS', 'TTFB'] as const).map((name) => {
               const value = webVitals[name];
               const rating = value !== undefined ? getWebVitalRating(name, value) : null;
               const Icon = getWebVitalIcon(name);

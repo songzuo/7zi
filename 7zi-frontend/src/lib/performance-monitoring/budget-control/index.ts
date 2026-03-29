@@ -21,7 +21,7 @@ export type {
   BudgetAlertConfig,
   BudgetConfigOptions,
   BudgetValidationResult,
-} from './budget-config';
+} from './budget-alerts';
 
 // Default configs
 export { DEFAULT_BUDGET_CONFIG } from './types';

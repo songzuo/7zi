@@ -31,10 +31,10 @@ interface TranslationFunctionWithI18n extends TranslationFunction {
  * @returns 翻译函数和当前语言
  */
 export async function useServerTranslation(options: UseServerTranslationOptions = {}) {
-  const t = await getT(options.lng, Array.isArray(options.ns) ? options.ns[0] : options.ns) as TranslationFunctionWithI18n;
+  const t = await getT(options.lng, Array.isArray(options.ns) ? options.ns[0] : options.ns) as TranslationFunction;
   
   // 获取当前语言（如果未提供，从翻译函数推断）
-  const currentLng = options.lng || t.i18n?.language || 'zh';
+  const currentLng = options.lng || 'zh';
   
   return {
     t,

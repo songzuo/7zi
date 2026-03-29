@@ -13,6 +13,9 @@ import { Button } from '@/components/ui/Button';
 import { MessageSquare, Lightbulb } from 'lucide-react';
 import type { FeedbackData } from '@/components/feedback/FeedbackModal';
 
+// Note: metadata cannot be exported from 'use client' components
+// Use layout.tsx or a separate metadata file for SEO metadata
+
 export default function FeedbackPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [useEnhanced, setUseEnhanced] = useState(true);

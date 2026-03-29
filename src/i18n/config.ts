@@ -51,6 +51,15 @@ export const pathnames: Pathnames<typeof locales> = {
     es: '/dashboard',
     fr: '/dashboard',
     de: '/dashboard'
+  },
+  '/agent-dashboard': {
+    zh: '/agent-dashboard',
+    en: '/agent-dashboard',
+    ja: '/agent-dashboard',
+    ko: '/agent-dashboard',
+    es: '/agent-dashboard',
+    fr: '/agent-dashboard',
+    de: '/agent-dashboard'
   }
 };
 
