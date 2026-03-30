@@ -102,11 +102,11 @@ describe('EnhancedNotificationService', () => {
     // Default mock: return preferences with email enabled for all priorities
     vi.mocked(notificationStorage.getUserPreferences).mockReturnValue({
       userId: 'default-user',
-      emailEnabled: true,
+      emailEnabled: 1,
       emailThreshold: 'low',
-      pushEnabled: true,
+      pushEnabled: 1,
       pushThreshold: 'low',
-      digestEnabled: false,
+      digestEnabled: 0,
       digestFrequency: 'daily',
       quietHoursStart: null,
       quietHoursEnd: null,

@@ -344,7 +344,7 @@ export const RecentActivity: React.FC<RecentActivityProps> = ({
 
   if (loading) {
     return (
-      <Card className={className}>
+      <Card className={typeof className === 'string' ? className : undefined}>
         <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-700">
           <h3 className="text-base font-semibold text-zinc-900 dark:text-white">
             {headerText}
@@ -356,7 +356,7 @@ export const RecentActivity: React.FC<RecentActivityProps> = ({
   }
 
   return (
-    <Card className={className}>
+    <Card className={typeof className === 'string' ? className : undefined}>
       <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-700 flex items-center justify-between">
         <h3 className="text-base font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
           <Activity className="w-4 h-4" />

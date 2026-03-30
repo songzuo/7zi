@@ -149,7 +149,7 @@ describe('其他核心模块导入验证', () => {
   });
 
   it('应该能够导入性能监控模块', async () => {
-    const perfModule = await import('../performance');
+    const perfModule = await import('../performance-monitor');
 
     expect(perfModule).toBeDefined();
     expect(typeof perfModule).toBe('object');

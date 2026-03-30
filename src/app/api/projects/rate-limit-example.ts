@@ -68,11 +68,8 @@ export const POST = withRateLimit(
     }
   },
   {
-    algorithm: 'token-bucket',
-    limit: 30,
-    window: 60,
-    burstCapacity: 45,
-    refillRate: 0.5,
+    windowMs: 60000, // 1 minute
+    maxRequests: 30,
   }
 );
 

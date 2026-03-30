@@ -16,7 +16,7 @@ import type {
 /**
  * Historical time record for a specific agent and task type
  */
-interface TimeRecord {
+export interface TimeRecord {
   timestamp: number;
   executionTime: number;
   inputSize?: number;
@@ -28,7 +28,7 @@ interface TimeRecord {
 /**
  * Feature weights for time prediction
  */
-interface FeatureWeights {
+export interface FeatureWeights {
   inputSizeWeight: number;    // Input size factor (0-1)
   agentLoadWeight: number;     // Agent load factor (0-1)
   timeOfDayWeight: number;     // Time of day factor (0-1)
@@ -39,7 +39,7 @@ interface FeatureWeights {
 /**
  * Prior knowledge for Bayesian estimation
  */
-interface PriorKnowledge {
+export interface PriorKnowledge {
   taskType: TaskType;
   meanTime: number;
   variance: number;
@@ -49,7 +49,7 @@ interface PriorKnowledge {
 /**
  * Configuration for time prediction model
  */
-interface TimePredictionConfig {
+export interface TimePredictionConfig {
   /**
    * Maximum history size per agent/task type
    */
@@ -495,7 +495,7 @@ export class TaskTimePredictor {
   importData(data: any): void {
     if (data.historicalTimes) {
       this.historicalTimes = new Map(
-        Object.entries(data.historicalTimes).map(([k, v]) => [k, v as TimeRecord[]])
+        Object.entries(data.historicalTimes).map(([k, v]) => [k, Array.from(v as TimeRecord[])])
       );
     }
     if (data.priors) {

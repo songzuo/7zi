@@ -21,16 +21,7 @@ export {
   hasAllPermissions,
 } from './auth-service';
 
-export {
-  generateApiKey as generateApiKeyOptimized,
-  hashApiKey as hashApiKeyOptimized,
-  validateApiKeyFormat as validateApiKeyFormatOptimized,
-  registerAgent as registerAgentOptimized,
-  authenticateAgent as authenticateAgentOptimized,
-  generateAgentToken as generateAgentTokenOptimized,
-  verifyAgentToken as verifyAgentTokenOptimized,
-  refreshAgentToken as refreshAgentTokenOptimized,
-} from './auth-service-optimized';
+
 
 // 数据仓库
 export {
@@ -48,17 +39,7 @@ export {
   logDataAccess,
 } from './repository';
 
-export {
-  initializeAgentTables as initializeAgentTablesOptimized,
-  createAgent as createAgentOptimized,
-  getAgentById as getAgentByIdOptimized,
-  getAllAgents as getAllAgentsOptimized,
-  updateAgent as updateAgentOptimized,
-  updateAgentStatus as updateAgentStatusOptimized,
-  deleteAgent as deleteAgentOptimized,
-  updateAgentLastActive as updateAgentLastActiveOptimized,
-  validateAgentApiKey as validateAgentApiKeyOptimized,
-} from './repository-optimized';
+
 
 export {
   initializeAgentTables as initializeAgentTablesV2,
@@ -85,17 +66,7 @@ export {
   getWalletStats,
 } from './wallet-repository';
 
-export {
-  initializeWalletTables as initializeWalletTablesOptimized,
-  createWallet as createWalletOptimized,
-  getWalletByAgentId as getWalletByAgentIdOptimized,
-  getWalletBalance as getWalletBalanceOptimized,
-  deposit as depositOptimized,
-  withdraw as withdrawOptimized,
-  transfer as transferOptimized,
-  getTransactions as getTransactionsOptimized,
-  getWalletStats as getWalletStatsOptimized,
-} from './wallet-repository-optimized';
+
 
 export {
   initializeWalletTables as initializeWalletTablesV2,

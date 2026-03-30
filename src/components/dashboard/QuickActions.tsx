@@ -346,7 +346,7 @@ QuickActionButton.displayName = 'QuickActionButton';
 // ============================================================================
 
 const QuickActionsSkeleton: React.FC<{ columns: number; size: 'sm' | 'md' | 'lg' }> = ({ columns, size }) => {
-  const gridCols = {
+  const gridCols: Record<number, string> = {
     2: 'grid-cols-2',
     3: 'grid-cols-1 sm:grid-cols-3',
     4: 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4',
@@ -384,7 +384,7 @@ export const QuickActions: React.FC<QuickActionsProps> = ({
   size = 'md',
 }) => {
   const headerText = locale === 'zh' ? '快捷操作' : 'Quick Actions';
-  const gridCols = {
+  const gridCols: Record<number, string> = {
     2: 'grid-cols-2',
     3: 'grid-cols-1 sm:grid-cols-3',
     4: 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4',
@@ -392,14 +392,14 @@ export const QuickActions: React.FC<QuickActionsProps> = ({
 
   if (loading) {
     return (
-      <Card className={className}>
+      <Card className={typeof className === 'string' ? className : undefined}>
         <QuickActionsSkeleton columns={columns} size={size} />
       </Card>
     );
   }
 
   return (
-    <Card className={className}>
+    <Card className={typeof className === 'string' ? className : undefined}>
       <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-700">
         <h3 className="text-base font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
           <Zap className="w-4 h-4" />

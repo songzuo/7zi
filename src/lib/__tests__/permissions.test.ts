@@ -9,6 +9,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import {
   Role,
   Permission,
+  Permissions,
   hasPermission,
   hasAnyPermission,
   hasAllPermissions,
@@ -56,7 +57,8 @@ describe('权限检查函数测试', () => {
         customPermissions: ['custom:feature:access'],
       };
 
-      expect(hasPermission(context, 'custom:feature:access' as Permission)).toBe(true);
+      // Permission type is string, so this is allowed
+      expect(hasPermission(context, 'custom:feature:access')).toBe(true);
     });
   });
 
@@ -65,10 +67,10 @@ describe('权限检查函数测试', () => {
       const context: PermissionContext = {
         userId: 'user1',
         roles: [Role.MEMBER],
-        permissions: [Permission.USER_READ, Permission.TASK_READ],
+        permissions: [Permissions.USER_READ, Permissions.TASK_READ],
       };
 
-      const required = [Permission.USER_READ, Permission.USER_DELETE, Permission.ADMIN];
+      const required = [Permissions.USER_READ, Permissions.USER_DELETE, Permissions.SYSTEM_CONFIG];
       expect(hasAnyPermission(context, required)).toBe(true);
     });
 
@@ -76,10 +78,10 @@ describe('权限检查函数测试', () => {
       const context: PermissionContext = {
         userId: 'user1',
         roles: [Role.VIEWER],
-        permissions: [Permission.USER_READ],
+        permissions: [Permissions.USER_READ],
       };
 
-      const required = [Permission.USER_DELETE, Permission.ADMIN, Permission.SYSTEM_MANAGE];
+      const required = [Permissions.USER_DELETE, Permissions.SYSTEM_CONFIG, Permissions.SYSTEM_LOG];
       expect(hasAnyPermission(context, required)).toBe(false);
     });
 
@@ -117,14 +119,14 @@ describe('权限检查函数测试', () => {
       const context: PermissionContext = {
         userId: 'user1',
         roles: [Role.MEMBER],
-        permissions: [Permission.USER_READ],
+        permissions: [Permissions.USER_READ],
       };
 
-      const required = [Permission.USER_READ, Permission.USER_DELETE, Permission.ADMIN];
+      const required = [Permissions.USER_READ, Permissions.USER_DELETE, Permissions.SYSTEM_CONFIG];
       const result = hasAllPermissions(context, required);
 
       expect(result.allowed).toBe(false);
-      expect(result.missingPermissions).toEqual([Permission.USER_DELETE, Permission.ADMIN]);
+      expect(result.missingPermissions).toEqual([Permissions.USER_DELETE, Permissions.SYSTEM_CONFIG]);
       expect(result.reason).toContain('Missing permissions');
     });
 

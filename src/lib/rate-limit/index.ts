@@ -14,30 +14,25 @@ export { checkTokenBucket, getTokenBucketStatus } from './token-bucket';
 export type { TokenBucketConfig, TokenBucketResult } from './token-bucket';
 
 // Middleware
-export {
-  withRateLimit,
-  DEFAULT_LIMITS,
-} from './middleware';
-export type {
-  RateLimitAlgorithm,
-  RateLimitConfig,
-  RateLimitResult,
-  RateLimitEvent,
-} from './middleware';
+export { withRateLimit, createRateLimitMiddleware } from './middleware';
+export type { MiddlewareConfig } from './middleware';
 
 // Status
 export { getRateLimitStatus } from './status';
 
-// Event logger
-export { eventLogger } from './event-logger';
-
 // Memory store
-export { createMemoryStore } from './memory-store';
-export type { MemoryStore } from './memory-store';
+export { getMemoryStore } from './memory-store';
+export type { MemoryRateLimitStore } from './memory-store';
 
 // Storage factory
-export { createStorageAdapter } from './storage-factory';
-export type { StorageAdapter } from './storage-factory';
+export {
+  getStorageType,
+  getStorageStatus,
+  shouldUseRedis,
+  getMemoryStorage,
+  withFallback,
+} from './storage-factory';
+export type { StorageConfig, StorageType, StorageStatus } from './storage-factory';
 
 // Enhanced algorithms from security/rate-limit
 export { SlidingWindow } from './algorithms/sliding-window';
@@ -52,8 +47,8 @@ export {
   KeyGenerators,
 } from './distributed-rate-limiter';
 export type {
-  RateLimitConfig as DLConfig,
-  RateLimitResult as DLResult,
+  RateLimitConfig,
+  RateLimitResult,
   RateLimitInfo,
 } from './distributed-rate-limiter';
 
@@ -66,7 +61,7 @@ export type {
 
 // Enhanced middleware
 export {
-  createRateLimitMiddleware,
+  createRateLimitMiddleware as createEnhancedRateLimitMiddleware,
   setRateLimitHeaders,
   createRateLimitExceededResponse,
   createCustomRateLimitResponse,

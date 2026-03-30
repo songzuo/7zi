@@ -51,3 +51,11 @@ export {
   useLazyImage,
   useResponsiveImageSize,
 } from './useImagePreload';
+
+export {
+  useRoomWebSocket,
+  type UseRoomWebSocketOptions,
+  type UseRoomWebSocketReturn,
+  type RoomWebSocketEvent,
+  type RoomWebSocketEventData,
+} from './useRoomWebSocket';

@@ -409,7 +409,7 @@ export const RoomCreateModal: React.FC<RoomCreateModalProps> = ({
                 </div>
 
                 {/* 自动清理时间 */}
-                {visibility !== 'project' && (
+                {type !== 'project' && (
                   <div>
                     <label htmlFor="auto-cleanup" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                       {t('autoCleanup')}

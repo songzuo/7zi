@@ -5,7 +5,7 @@
  * 支持 per-route 配置
  */
 
-import { RateLimitConfig } from './rate-limiter';
+import { RateLimitConfig } from './distributed-rate-limiter';
 
 /**
  * 预设配置
