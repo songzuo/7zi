@@ -5,15 +5,16 @@
  * 
  * 用于实时显示所有 Agent 的状态、当前任务和资源使用情况
  * 
- * @version 1.0.0
+ * @version 1.1.0
  * @date 2026-03-30
  * @author 🎨 设计师 (AI Agent)
  */
 
 import React, { useState, useCallback, useMemo, useEffect, memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import { formatDistanceToNow } from 'date-fns';
-import { zhCN } from 'date-fns/locale';
+import { zhCN, enUS } from 'date-fns/locale';
 import { Card, CardHeader, CardBody, CardActions, CardBadge } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { SkeletonCard } from '@/components/ui/Skeleton';
@@ -105,23 +106,23 @@ export interface AgentStatusPanelProps {
 // 配置映射
 // ============================================
 
-const STATUS_CONFIG: Record<Agent['status'], { 
-  label: string; 
+// 颜色配置（不含文本，文本通过 i18n 动态获取）
+const STATUS_COLORS: Record<Agent['status'], { 
   color: 'green' | 'blue' | 'gray' | 'red';
   dotColor: string;
 }> = {
-  active: { label: '活跃', color: 'green', dotColor: 'bg-green-500' },
-  idle: { label: '空闲', color: 'blue', dotColor: 'bg-blue-500' },
-  offline: { label: '离线', color: 'gray', dotColor: 'bg-gray-400' },
-  error: { label: '错误', color: 'red', dotColor: 'bg-red-500' },
+  active: { color: 'green', dotColor: 'bg-green-500' },
+  idle: { color: 'blue', dotColor: 'bg-blue-500' },
+  offline: { color: 'gray', dotColor: 'bg-gray-400' },
+  error: { color: 'red', dotColor: 'bg-red-500' },
 };
 
-const TYPE_CONFIG: Record<Agent['type'], { label: string; icon: string }> = {
-  designer: { label: '设计师', icon: '🎨' },
-  developer: { label: '开发者', icon: '💻' },
-  tester: { label: '测试员', icon: '🧪' },
-  manager: { label: '管理者', icon: '📋' },
-  custom: { label: '自定义', icon: '⚙️' },
+const TYPE_ICONS: Record<Agent['type'], string> = {
+  designer: '🎨',
+  developer: '💻',
+  tester: '🧪',
+  manager: '📋',
+  custom: '⚙️',
 };
 
 // ============================================
@@ -208,8 +209,9 @@ const AgentCard = memo(function AgentCard({
   onViewDetails,
   onToggle 
 }: AgentCardProps) {
-  const statusConfig = STATUS_CONFIG[agent.status];
-  const typeConfig = TYPE_CONFIG[agent.type];
+  const { t, i18n } = useTranslation('dashboard');
+  const statusConfig = STATUS_COLORS[agent.status];
+  const typeIcon = TYPE_ICONS[agent.type];
 
   const handleViewDetails = useCallback(() => {
     onViewDetails?.(agent);
@@ -223,12 +225,12 @@ const AgentCard = memo(function AgentCard({
     try {
       return formatDistanceToNow(new Date(agent.lastActiveAt), { 
         addSuffix: true, 
-        locale: zhCN 
+        locale: i18n.language === 'zh' ? zhCN : enUS 
       });
     } catch {
-      return '未知';
+      return 'Unknown';
     }
-  }, [agent.lastActiveAt]);
+  }, [agent.lastActiveAt, i18n.language]);
 
   return (
     <Card
@@ -250,17 +252,17 @@ const AgentCard = memo(function AgentCard({
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-lg">{typeConfig.icon}</span>
+              <span className="text-lg">{typeIcon}</span>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 {agent.name}
               </h3>
             </div>
             <div className="flex items-center gap-2">
               <CardBadge color={statusConfig.color} variant="soft" size="sm">
-                {statusConfig.label}
+                {t(`agent.status.${agent.status}`)}
               </CardBadge>
               <span className="text-xs text-gray-500 dark:text-gray-400">
-                {typeConfig.label}
+                {t(`agent.type.${agent.type}`)}
               </span>
             </div>
           </div>
@@ -281,7 +283,9 @@ const AgentCard = memo(function AgentCard({
         {agent.currentTask && (
           <div className="mb-3">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs text-gray-500 dark:text-gray-400">当前任务</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                {t('agent.currentTask')}
+              </span>
               <span className="text-xs text-gray-500 dark:text-gray-400">
                 {agent.currentTask.type}
               </span>
@@ -299,8 +303,8 @@ const AgentCard = memo(function AgentCard({
         {/* 资源使用情况 */}
         {showResourceDetails && agent.resourceUsage && (
           <div className="space-y-1.5 mb-3">
-            <ResourceBar value={agent.resourceUsage.cpu} label="CPU" />
-            <ResourceBar value={agent.resourceUsage.memory} label="内存" />
+            <ResourceBar value={agent.resourceUsage.cpu} label={t('agent.resource.cpu')} />
+            <ResourceBar value={agent.resourceUsage.memory} label={t('agent.resource.memory')} />
           </div>
         )}
 
@@ -309,7 +313,7 @@ const AgentCard = memo(function AgentCard({
           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <span>最后活动: {lastActiveText}</span>
+          <span>{t('agent.lastActive')}: {lastActiveText}</span>
         </div>
       </CardBody>
 
@@ -319,14 +323,14 @@ const AgentCard = memo(function AgentCard({
           size="sm"
           onClick={handleViewDetails}
         >
-          详情
+          {t('agent.details')}
         </Button>
         <Button
           variant={agent.enabled ? 'danger' : 'ghost'}
           size="sm"
           onClick={handleToggle}
         >
-          {agent.enabled ? '禁用' : '启用'}
+          {agent.enabled ? t('agent.disable') : t('agent.enable')}
         </Button>
       </CardActions>
     </Card>
@@ -342,6 +346,8 @@ interface StatsSummaryProps {
 }
 
 const StatsSummary = memo(function StatsSummary({ agents }: StatsSummaryProps) {
+  const { t } = useTranslation('dashboard');
+
   const stats = useMemo(() => {
     const total = agents.length;
     const active = agents.filter(a => a.status === 'active').length;
@@ -363,43 +369,43 @@ const StatsSummary = memo(function StatsSummary({ agents }: StatsSummaryProps) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
       <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-        <div className="text-xs text-gray-500 dark:text-gray-400">总计</div>
+        <div className="text-xs text-gray-500 dark:text-gray-400">{t('stats.total')}</div>
         <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</div>
       </div>
       <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
         <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
           <span className="w-2 h-2 rounded-full bg-green-500" />
-          活跃
+          {t('agent.status.active')}
         </div>
         <div className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.active}</div>
       </div>
       <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
         <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
           <span className="w-2 h-2 rounded-full bg-blue-500" />
-          空闲
+          {t('agent.status.idle')}
         </div>
         <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.idle}</div>
       </div>
       <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
         <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
           <span className="w-2 h-2 rounded-full bg-gray-400" />
-          离线
+          {t('agent.status.offline')}
         </div>
         <div className="text-2xl font-bold text-gray-600 dark:text-gray-400">{stats.offline}</div>
       </div>
       <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
         <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
           <span className="w-2 h-2 rounded-full bg-red-500" />
-          错误
+          {t('agent.status.error')}
         </div>
         <div className="text-2xl font-bold text-red-600 dark:text-red-400">{stats.error}</div>
       </div>
       <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-        <div className="text-xs text-gray-500 dark:text-gray-400">平均 CPU</div>
+        <div className="text-xs text-gray-500 dark:text-gray-400">{t('stats.avgCpu')}</div>
         <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.avgCpu.toFixed(0)}%</div>
       </div>
       <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-        <div className="text-xs text-gray-500 dark:text-gray-400">平均内存</div>
+        <div className="text-xs text-gray-500 dark:text-gray-400">{t('stats.avgMemory')}</div>
         <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.avgMemory.toFixed(0)}%</div>
       </div>
     </div>
@@ -425,6 +431,7 @@ const FilterBar = memo(function FilterBar({
   onStatusChange,
   onRefresh,
 }: FilterBarProps) {
+  const { t } = useTranslation('dashboard');
   const statusOptions: (Agent['status'] | 'all')[] = ['all', 'active', 'idle', 'offline', 'error'];
 
   return (
@@ -448,7 +455,7 @@ const FilterBar = memo(function FilterBar({
           type="text"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="搜索 Agent..."
+          placeholder={t('agent.searchPlaceholder')}
           className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
@@ -457,7 +464,7 @@ const FilterBar = memo(function FilterBar({
       <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
         {statusOptions.map((status) => {
           const isActive = status === selectedStatus;
-          const label = status === 'all' ? '全部' : STATUS_CONFIG[status].label;
+          const label = status === 'all' ? t('filters.all') : t(`agent.status.${status}`);
           
           return (
             <button
@@ -488,7 +495,7 @@ const FilterBar = memo(function FilterBar({
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
-          刷新
+          {t('actions.refresh')}
         </Button>
       )}
     </div>
@@ -511,6 +518,8 @@ export const AgentStatusPanel = memo(function AgentStatusPanel({
   refreshInterval,
   statusFilter,
 }: AgentStatusPanelProps) {
+  const { t } = useTranslation('dashboard');
+  
   // 状态
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<Agent['status'] | 'all'>(
@@ -540,8 +549,7 @@ export const AgentStatusPanel = memo(function AgentStatusPanel({
       const query = searchQuery.toLowerCase().trim();
       result = result.filter(agent => 
         agent.name.toLowerCase().includes(query) ||
-        agent.description?.toLowerCase().includes(query) ||
-        TYPE_CONFIG[agent.type].label.includes(query)
+        agent.description?.toLowerCase().includes(query)
       );
     }
 
@@ -576,13 +584,13 @@ export const AgentStatusPanel = memo(function AgentStatusPanel({
       <div className={clsx('text-center py-12 px-4', className)}>
         <div className="text-6xl mb-4">🤖</div>
         <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-          暂无 Agent
+          {t('agent.noAgents')}
         </h3>
         <p className="text-gray-600 dark:text-gray-400 mb-4">
-          还没有注册任何 AI Agent
+          {t('agent.noAgentsDescription')}
         </p>
         <Button variant="primary" onClick={onRefresh}>
-          刷新
+          {t('actions.refresh')}
         </Button>
       </div>
     );
@@ -593,10 +601,10 @@ export const AgentStatusPanel = memo(function AgentStatusPanel({
       {/* 标题区域 */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-          Agent 状态监控
+          {t('agent.title')}
         </h2>
         <span className="text-sm text-gray-500 dark:text-gray-400">
-          共 {agents.length} 个 Agent
+          {t('agent.count', { count: agents.length })}
         </span>
       </div>
 
@@ -620,7 +628,7 @@ export const AgentStatusPanel = memo(function AgentStatusPanel({
         <div className="text-center py-8">
           <div className="text-4xl mb-3">🔍</div>
           <p className="text-gray-600 dark:text-gray-400">
-            没有找到匹配的 Agent
+            {t('agent.noMatching')}
           </p>
         </div>
       ) : (
@@ -646,7 +654,7 @@ export const AgentStatusPanel = memo(function AgentStatusPanel({
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
               >
-                上一页
+                {t('agent.previousPage')}
               </Button>
               <span className="text-sm text-gray-500 dark:text-gray-400">
                 {currentPage} / {totalPages}
@@ -657,7 +665,7 @@ export const AgentStatusPanel = memo(function AgentStatusPanel({
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
               >
-                下一页
+                {t('agent.nextPage')}
               </Button>
             </div>
           )}

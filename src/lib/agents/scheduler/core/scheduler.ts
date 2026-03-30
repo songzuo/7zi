@@ -9,6 +9,7 @@ import { ScheduleDecision, ScheduleHistory, createScheduleDecision } from '../mo
 import { TaskMatcher } from './matching';
 import { TaskRanker } from './ranking';
 import { LoadBalancer, LoadBalanceConfig } from './load-balancer';
+import { AdaptiveLearner, LearningConfig } from './adaptive-learner';
 
 /**
  * Scheduler configuration
@@ -16,19 +17,19 @@ import { LoadBalancer, LoadBalanceConfig } from './load-balancer';
 export interface SchedulerConfig {
   /** Enable automatic scheduling */
   autoSchedule: boolean;
-  
+
   /** Enable manual override */
   allowManualOverride: boolean;
-  
+
   /** Maximum tasks to schedule per batch */
   maxBatchSize: number;
-  
+
   /** Scheduling interval in milliseconds */
   schedulingInterval: number;
-  
+
   /** Load balancing configuration */
   loadBalance: LoadBalanceConfig;
-  
+
   /** Weights for agent scoring */
   scoringWeights?: {
     capability?: number;
@@ -36,6 +37,12 @@ export interface SchedulerConfig {
     performance?: number;
     response?: number;
   };
+
+  /** Learning system configuration */
+  learning?: LearningConfig;
+
+  /** Enable adaptive learning */
+  enableLearning?: boolean;
 }
 
 /**
@@ -51,7 +58,8 @@ const DEFAULT_CONFIG: SchedulerConfig = {
     busyThreshold: 70,
     preferLowLoad: true,
     considerSpecialization: true
-  }
+  },
+  enableLearning: true
 };
 
 /**
@@ -80,6 +88,7 @@ export class AgentScheduler {
   private loadBalancer: LoadBalancer;
   private config: SchedulerConfig;
   private schedulingIntervalId?: NodeJS.Timeout;
+  private learner: AdaptiveLearner;
 
   constructor(config?: Partial<SchedulerConfig>) {
     this.config = { ...DEFAULT_CONFIG, ...config };
@@ -89,6 +98,7 @@ export class AgentScheduler {
     this.taskMatcher = new TaskMatcher();
     this.taskRanker = new TaskRanker();
     this.loadBalancer = new LoadBalancer(this.config.loadBalance);
+    this.learner = new AdaptiveLearner(this.config.learning);
   }
 
   /**
@@ -165,11 +175,20 @@ export class AgentScheduler {
       return null;
     }
 
+    // Get optimized weights from learner if enabled
+    let weights = this.config.scoringWeights;
+    if (this.config.enableLearning) {
+      const optimizedWeights = this.learner.getOptimizedWeights(task.type, this.agents);
+      if (optimizedWeights) {
+        weights = { ...weights, ...optimizedWeights };
+      }
+    }
+
     // Find best candidate
     const matchResult = this.taskMatcher.findBestCandidate(
       task,
       this.agents,
-      this.config.scoringWeights
+      weights
     );
 
     if (!matchResult) {
@@ -185,7 +204,7 @@ export class AgentScheduler {
     const scores = this.taskMatcher.calculateMatchScore(
       agent,
       task,
-      this.config.scoringWeights
+      weights
     );
 
     // Get alternative agents
@@ -193,7 +212,7 @@ export class AgentScheduler {
     const ranked = this.taskMatcher.rankCandidates(
       task,
       candidates,
-      this.config.scoringWeights
+      weights
     );
     const alternatives = this.taskMatcher.getAlternativeCandidates(ranked, 3);
 
@@ -368,18 +387,26 @@ export class AgentScheduler {
 
     // Update task status
     this.taskQueue.updateTaskStatus(taskId, 'completed');
-    
+
     // Update agent load
     this.updateAgentLoad(task.assignedAgent, -task.estimatedDuration);
-    
+
     // Record completion
     this.scheduleHistory.recordCompletion(
       taskId,
       true,
       task.estimatedDuration
     );
-    
+
     this.loadBalancer.recordTaskCompletion(task.assignedAgent, true);
+
+    // Record in learner for adaptive learning
+    if (this.config.enableLearning) {
+      const decision = this.scheduleHistory.getDecision(taskId);
+      if (decision) {
+        this.learner.recordDecision(decision, true, task.estimatedDuration);
+      }
+    }
   }
 
   /**
@@ -393,21 +420,29 @@ export class AgentScheduler {
 
     // Set error message on task
     task.error = error;
-    
+
     // Update task status
     this.taskQueue.updateTaskStatus(taskId, 'failed');
-    
+
     // Update agent load
     this.updateAgentLoad(task.assignedAgent, -task.estimatedDuration);
-    
+
     // Record failure
     this.scheduleHistory.recordCompletion(
       taskId,
       false,
       task.estimatedDuration
     );
-    
+
     this.loadBalancer.recordTaskCompletion(task.assignedAgent, false);
+
+    // Record in learner for adaptive learning
+    if (this.config.enableLearning) {
+      const decision = this.scheduleHistory.getDecision(taskId);
+      if (decision) {
+        this.learner.recordDecision(decision, false, task.estimatedDuration);
+      }
+    }
   }
 
   /**
@@ -554,6 +589,7 @@ export class AgentScheduler {
     this.agents = initializeAgents();
     this.scheduleHistory.clear();
     this.loadBalancer.reset();
+    this.learner.clear();
   }
 
   /**
@@ -561,9 +597,13 @@ export class AgentScheduler {
    */
   updateConfig(config: Partial<SchedulerConfig>): void {
     this.config = { ...this.config, ...config };
-    
+
     if (config.loadBalance) {
       this.loadBalancer.updateConfig(config.loadBalance);
+    }
+
+    if (config.learning) {
+      this.learner.updateConfig(config.learning);
     }
 
     // Restart auto scheduling if interval changed
@@ -576,6 +616,35 @@ export class AgentScheduler {
   }
 
   /**
+   * Get learning summary
+   */
+  getLearningSummary(): ReturnType<AdaptiveLearner['getSummary']> {
+    return this.learner.getSummary();
+  }
+
+  /**
+   * Get weight adjustments from learner
+   */
+  getWeightAdjustments(): ReturnType<AdaptiveLearner['getWeightAdjustments']> {
+    return this.learner.getWeightAdjustments(this.agents);
+  }
+
+  /**
+   * Apply suggested weight adjustments
+   */
+  applyWeightAdjustments(): void {
+    const adjustments = this.getWeightAdjustments();
+    this.learner.applyWeightAdjustments(adjustments);
+  }
+
+  /**
+   * Get adaptive learner instance
+   */
+  getLearner(): AdaptiveLearner {
+    return this.learner;
+  }
+
+  /**
    * Export scheduler state
    */
   export(): string {
@@ -583,7 +652,8 @@ export class AgentScheduler {
       config: this.config,
       agents: Array.from(this.agents.entries()),
       tasks: this.taskQueue.getAllTasks(),
-      history: this.scheduleHistory.export()
+      history: this.scheduleHistory.export(),
+      learning: this.learner.exportData()
     }, null, 2);
   }
 }

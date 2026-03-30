@@ -233,6 +233,7 @@ class AgentScheduler {
     const task = this.tasks.get(request.taskId);
     if (!task) return false;
 
+    // Set status first
     if (request.status) {
       task.status = request.status;
       task.updatedAt = Date.now();
@@ -241,7 +242,27 @@ class AgentScheduler {
         task.completedAt = Date.now();
       }
 
-      // If task completed or failed, free up the agent
+      // If failed and retries remain, reschedule
+      // Do this BEFORE freeing the agent to avoid immediate reassignment
+      if (request.status === 'failed' && task.retries < task.maxRetries) {
+        task.retries++;
+        task.status = 'pending';
+        task.updatedAt = Date.now();
+        task.agentId = undefined;
+        
+        // Set error before rescheduling
+        if (request.error) {
+          task.error = request.error;
+        }
+        
+        this.addToQueue(task);
+        this.scheduleNextTask();
+        
+        this.tasks.set(request.taskId, task);
+        return true;
+      }
+
+      // Free up the agent if task completed or failed (and not rescheduled)
       if ((request.status === 'completed' || request.status === 'failed') && task.agentId) {
         const agent = this.agents.get(task.agentId);
         if (agent && agent.status === 'busy') {
@@ -250,24 +271,16 @@ class AgentScheduler {
           this.scheduleNextTask();
         }
       }
-
-      // If failed and retries remain, reschedule
-      if (request.status === 'failed' && task.retries < task.maxRetries) {
-        task.retries++;
-        task.status = 'pending';
-        task.updatedAt = Date.now();
-        task.agentId = undefined;
-        this.addToQueue(task);
-        this.scheduleNextTask();
-      }
     }
 
+    // Set output if provided
     if (request.output) {
       task.output = request.output;
       task.updatedAt = Date.now();
     }
 
-    if (request.error) {
+    // Set error if provided (and not already set above)
+    if (request.error && task.status !== 'pending') {
       task.error = request.error;
       task.updatedAt = Date.now();
     }
@@ -361,6 +374,9 @@ class AgentScheduler {
     this.taskQueue = [];
   }
 }
+
+// Export class for testing
+export { AgentScheduler };
 
 // Export singleton instance
 export const agentScheduler = new AgentScheduler();

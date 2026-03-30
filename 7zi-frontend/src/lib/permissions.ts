@@ -220,6 +220,14 @@ export const SYSTEM_PERMISSIONS: PermissionDefinition[] = [
     isSystem: true,
   },
   {
+    id: 'project:read',
+    name: '读取项目',
+    description: '读取项目信息',
+    resourceType: ResourceType.PROJECT,
+    actionType: ActionType.READ,
+    isSystem: true,
+  },
+  {
     id: 'project:update',
     name: '更新项目',
     description: '更新项目信息',
@@ -233,6 +241,16 @@ export const SYSTEM_PERMISSIONS: PermissionDefinition[] = [
     description: '删除项目',
     resourceType: ResourceType.PROJECT,
     actionType: ActionType.DELETE,
+    isSystem: true,
+  },
+
+  // 团队
+  {
+    id: 'team:read',
+    name: '读取团队',
+    description: '读取团队信息',
+    resourceType: ResourceType.TEAM,
+    actionType: ActionType.READ,
     isSystem: true,
   },
 
@@ -350,10 +368,9 @@ export const TEAM_LEADER_ROLE: RoleDefinition = {
 export const DEVELOPER_ROLE: RoleDefinition = {
   id: 'developer',
   name: '开发者',
-  description: '可以创建和编辑项目',
+  description: '可以查看项目',
   permissions: [
-    'project:create',
-    'project:update',
+    'project:read',
     'data:export',
     'mcp:execute',
   ],

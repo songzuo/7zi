@@ -13,7 +13,8 @@
  */
 
 import { useToast as useToastContext } from './ToastProvider';
-import type { ToastOptions, ToastType } from './ToastProvider';
+import type { ToastOptions } from './ToastProvider';
+import type { ToastType } from './Toast';
 
 /**
  * useToast hook
@@ -222,5 +223,6 @@ export function usePersistentToast() {
 }
 
 // Re-export types for convenience
-export type { ToastOptions, ToastType } from './ToastProvider';
+export type { ToastOptions } from './ToastProvider';
 export type { ToastValue } from './ToastProvider';
+export type { ToastType } from './Toast';

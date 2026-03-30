@@ -3,11 +3,12 @@
 /**
  * Dashboard 页面 - AI Agent 调度监控面板
  * 
- * @version 1.5.0
+ * @version 1.6.0
  * @date 2026-03-30
  */
 
 import React, { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AgentStatusPanel, Agent } from './AgentStatusPanel';
 
 // ============================================
@@ -129,6 +130,7 @@ const MOCK_AGENTS: Agent[] = [
 // ============================================
 
 export default function DashboardPage() {
+  const { t } = useTranslation('dashboard');
   const [agents, setAgents] = useState<Agent[]>(MOCK_AGENTS);
 
   const handleRefresh = useCallback(() => {
@@ -156,10 +158,10 @@ export default function DashboardPage() {
         {/* 页面标题 */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            AI Agent 调度 Dashboard
+            AI Agent {t('title')}
           </h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            v1.5.0 - 实时监控和管理您的 AI Agent 团队
+            {t('subtitle')}
           </p>
         </div>
 

@@ -966,7 +966,7 @@ MESSAGE="❌ CI/CD Pipeline 失败
 #### 6.2.2 GitHub Secrets 配置
 
 ```yaml
-SLACK_WEBHOOK_URL: "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
+SLACK_WEBHOOK_URL: "YOUR_SLACK_WEBHOOK_URL"
 ```
 
 #### 6.2.3 Slack 消息格式

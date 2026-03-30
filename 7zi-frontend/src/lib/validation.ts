@@ -74,8 +74,24 @@ export function isValidDate(date: unknown): boolean {
   if (typeof date !== 'string' && !(date instanceof Date)) {
     return false;
   }
-  const d = typeof date === 'string' ? new Date(date) : date;
-  return !isNaN(d.getTime());
+  if (typeof date === 'string') {
+    // Check format matches YYYY-MM-DD or YYYY/MM/DD
+    if (!/^\d{4}[-/]\d{2}[-/]\d{2}/.test(date)) {
+      return false;
+    }
+    const d = new Date(date);
+    if (isNaN(d.getTime())) {
+      return false;
+    }
+    // Normalize the date string to YYYY-MM-DD for comparison
+    const normalized = date.replace(/\//g, '-');
+    const [year, month, day] = normalized.split('T')[0].split('-').map(Number);
+    if (d.getFullYear() !== year || d.getMonth() + 1 !== month || d.getDate() !== day) {
+      return false;
+    }
+    return true;
+  }
+  return !isNaN(date.getTime());
 }
 
 // ============================================================================
@@ -94,8 +110,9 @@ export function isValidEmail(email: string): boolean {
  */
 export function isValidUrl(url: string): boolean {
   try {
-    new URL(url);
-    return true;
+    const parsed = new URL(url);
+    // Only allow http and https schemes
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
   } catch {
     return false;
   }
@@ -196,6 +213,10 @@ export function isValidHexColor(color: string): boolean {
  * 验证正则表达式
  */
 export function isValidRegex(pattern: string): boolean {
+  // Empty pattern is not valid
+  if (!pattern) {
+    return false;
+  }
   try {
     new RegExp(pattern);
     return true;

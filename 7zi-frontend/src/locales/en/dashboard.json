@@ -6,6 +6,7 @@
   "goodMorning": "Good morning",
   "goodAfternoon": "Good afternoon",
   "goodEvening": "Good evening",
+  "subtitle": "v1.5.0 - Monitor and manage your AI Agent team in real-time",
   "stats": {
     "title": "Statistics",
     "total": "Total",
@@ -15,7 +16,41 @@
     "thisYear": "This Year",
     "growth": "Growth",
     "decline": "Decline",
-    "trend": "Trend"
+    "trend": "Trend",
+    "avgCpu": "Avg CPU",
+    "avgMemory": "Avg Memory"
+  },
+  "agent": {
+    "title": "Agent Status Monitor",
+    "count": "{{count}} Agents",
+    "searchPlaceholder": "Search Agent...",
+    "noAgents": "No Agents",
+    "noAgentsDescription": "No AI Agents registered yet",
+    "noMatching": "No matching Agents found",
+    "currentTask": "Current Task",
+    "lastActive": "Last active",
+    "details": "Details",
+    "enable": "Enable",
+    "disable": "Disable",
+    "previousPage": "Previous",
+    "nextPage": "Next",
+    "status": {
+      "active": "Active",
+      "idle": "Idle",
+      "offline": "Offline",
+      "error": "Error"
+    },
+    "type": {
+      "designer": "Designer",
+      "developer": "Developer",
+      "tester": "Tester",
+      "manager": "Manager",
+      "custom": "Custom"
+    },
+    "resource": {
+      "cpu": "CPU",
+      "memory": "Memory"
+    }
   },
   "charts": {
     "title": "Charts",
@@ -78,6 +113,7 @@
   },
   "filters": {
     "title": "Filters",
+    "all": "All",
     "dateRange": "Date Range",
     "today": "Today",
     "yesterday": "Yesterday",

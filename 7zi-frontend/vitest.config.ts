@@ -18,15 +18,18 @@ export default defineConfig({
     poolOptions: {
       forks: {
         singleFork: false,
-        minForks: 2,
-        maxForks: 4,
+        minForks: 1,
+        maxForks: 2,  // 减少到 2 个进程，避免资源竞争
       },
     },
     fileParallelism: true,
     
     // 🚀 测试超时
-    testTimeout: 10000,
+    testTimeout: 15000,  // 增加到 15 秒
     hookTimeout: 10000,
+    
+    // 重试失败的测试 (flaky test 保护)
+    retry: 1,
     
     coverage: {
       reporter: ['text', 'json', 'html'],

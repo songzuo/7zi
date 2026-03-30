@@ -1,6 +1,7 @@
 /**
  * AgentStatusPanel.spec.tsx
  * Tests for AgentStatusPanel component
+ * @vitest-environment jsdom
  */
 
 import React from 'react';

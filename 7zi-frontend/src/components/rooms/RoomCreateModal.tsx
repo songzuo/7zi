@@ -247,25 +247,25 @@ export function RoomCreateModal({
         {/* Password (for private rooms) */}
         {visibility === 'private' && (
           <div className="animate-fadeIn">
-            <Input
-              label={t('roomPassword', '密码')}
-              type={showPassword ? 'text' : 'password'}
-              placeholder={t('placeholder.enterPassword', '输入密码')}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              error={errors.password}
-              required
-              disabled={isLoading}
-              rightElement={
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                >
-                  {showPassword ? '🙈' : '👁️'}
-                </button>
-              }
-            />
+            <div className="relative">
+              <Input
+                label={t('roomPassword', '密码')}
+                type={showPassword ? 'text' : 'password'}
+                placeholder={t('placeholder.enterPassword', '输入密码')}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                error={errors.password}
+                required
+                disabled={isLoading}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-8 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                {showPassword ? '🙈' : '👁️'}
+              </button>
+            </div>
           </div>
         )}
 

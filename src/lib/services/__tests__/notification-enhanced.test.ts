@@ -99,7 +99,19 @@ describe('EnhancedNotificationService', () => {
     vi.mocked(notificationStorage.markAsRead).mockReturnValue(true);
     vi.mocked(notificationStorage.markAllAsRead).mockReturnValue(0);
     vi.mocked(notificationStorage.deleteNotification).mockReturnValue(true);
-    vi.mocked(notificationStorage.getUserPreferences).mockReturnValue(null);
+    // Default mock: return preferences with email enabled for all priorities
+    vi.mocked(notificationStorage.getUserPreferences).mockReturnValue({
+      userId: 'default-user',
+      emailEnabled: true,
+      emailThreshold: 'low',
+      pushEnabled: true,
+      pushThreshold: 'low',
+      digestEnabled: false,
+      digestFrequency: 'daily',
+      quietHoursStart: null,
+      quietHoursEnd: null,
+      timezone: 'UTC',
+    });
     vi.mocked(notificationStorage.setUserPreferences).mockReturnValue(undefined);
     vi.mocked(notificationStorage.getStats).mockReturnValue({
       totalNotifications: 0,
@@ -405,6 +417,7 @@ describe('EnhancedNotificationService', () => {
         priority: NotificationPriority.URGENT,
         title: 'Test Notification',
         message: 'Test message',
+        userId: 'user-123', // Add userId to enable email sending attempt
       };
 
       const result = await service.notify(notification);
@@ -781,11 +794,11 @@ describe('EnhancedNotificationService', () => {
       expect(notificationStorage.setUserPreferences).toHaveBeenCalledWith(
         'user-123',
         expect.objectContaining({
-          emailEnabled: 1,
+          emailEnabled: true,
           emailThreshold: 'high',
-          pushEnabled: 1,
+          pushEnabled: true,
           pushThreshold: 'medium',
-          digestEnabled: 0,
+          digestEnabled: false,
           digestFrequency: 'daily',
           quietHoursStart: '22:00',
           quietHoursEnd: '08:00',

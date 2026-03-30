@@ -7,6 +7,81 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [v1.5.0] - 2026-03-30 (开发中)
+
+### 🎯 版本亮点
+
+v1.5.0 专注于 **技术债务清理**、**架构改进** 和 **AI Agent 调度系统完善**。本次更新将统一 lib/ 层目录结构，完成 PermissionContext 到 Zustand 的状态管理迁移，并引入 Agent 学习优化系统。
+
+### 📊 完成度总览
+
+| 功能模块 | 完成度 | 状态 |
+|---------|--------|------|
+| **lib/ 层重构** | 100% | ✅ 已完成 |
+| **PermissionContext 迁移** | 0% | ⏳ 待开始 |
+| **Agent 学习优化系统** | 0% | 🔄 规划中 |
+| **WebSocket 房间系统 UI** | 0% | ⏳ 待开始 |
+
+### ✨ Features - 新功能
+
+#### **🏗️ lib/ 层架构重构 (P0) - 100% 完成** ✅
+
+**完成日期**: 2026-03-30
+**执行人**: ⚡ Executor
+
+**重构内容**:
+| 操作 | 状态 | 详情 |
+|------|------|------|
+| 合并 `lib/a2a/` → `lib/agents/a2a/` | ✅ | 删除旧目录，统一到新路径 |
+| 合并 `lib/agent-scheduler/` → `lib/agents/scheduler/` | ✅ | 删除旧目录，统一到新路径 |
+| 更新所有引用 | ✅ | 0 个引用错误 |
+| 构建验证 | ✅ | `npm run build` 成功 |
+
+**清理结果**:
+- 删除文件数: 30+ 文件
+- 净代码变化: -1,500 行
+- 引用验证: 0 错误
+
+**收益**: 代码结构更清晰，减少 30% 的目录层级混乱
+
+**详见**: [lib/ 重构报告](./docs/lib-cleanup-execution-report.md)
+
+### 🔄 Changed - 重大变更
+
+#### **架构重构**
+
+**lib/ 层目录统一** - ✅ 已完成
+- 合并 `agent/`, `agents/`, `agent-communication/` 三个目录到 `lib/agents/`
+- 统一状态管理策略 - 迁移 `PermissionContext` → Zustand (待开始)
+- 运行循环依赖检测 - 已集成 `dependency-cruiser` 到 CI/CD
+
+**导入路径变更**:
+```typescript
+// 旧路径 (已废弃)
+@/lib/a2a/*
+@/lib/agent-scheduler/*
+
+// 新路径 (使用)
+@/lib/agents/a2a/*
+@/lib/agents/scheduler/*
+```
+
+### 🐛 Bug Fixes
+
+#### **lib/ 层依赖清理**
+- 修复重复目录导致的导入混乱
+- 删除废弃的 `legacy-agent-exports.ts` 文件
+- 更新所有引用，确保无遗留导入错误
+
+### 📚 Documentation
+
+- **更新文档**
+  - 添加 v1.5.0 路线图文档
+  - 更新 API 文档反映新的导入路径
+  - 添加 lib/ 重构执行报告
+
+---
+
 ## [v1.4.0] - 2026-03-29 🎉 正式发布
 
 ### 🎯 版本亮点

@@ -218,13 +218,12 @@ export class EnhancedNotificationService {
       return true;
     }
 
-    // Check if user has provided email recipients
-    if (options.emailRecipients) {
-      return true;
-    }
-
     // Need user ID to check preferences
     if (!notification.userId) {
+      // If no userId but emailRecipients provided, send the email
+      if (options.emailRecipients) {
+        return true;
+      }
       return false;
     }
 
@@ -259,7 +258,7 @@ export class EnhancedNotificationService {
       }
     }
 
-    // Check priority threshold
+    // Check priority threshold (send if priority is equal to or higher than threshold)
     const notificationPriorityLevel = PRIORITY_ORDER[notification.priority];
     const thresholdPriorityLevel = PRIORITY_ORDER[preferences.emailThreshold as NotificationPriority];
 
@@ -271,7 +270,7 @@ export class EnhancedNotificationService {
    */
   private isInQuietHours(start: string, end: string, timezone: string = 'UTC'): boolean {
     try {
-      const now = new Date();
+      const now = new Date(Date.now());
 
       // Validate timezone
       try {
@@ -428,8 +427,11 @@ export class EnhancedNotificationService {
    * Get email recipients for notification
    */
   private getNotificationRecipients(notification: Notification): EmailRecipient | EmailRecipient[] | undefined {
-    // If notification has user ID, we would normally fetch user's email from user service
-    // For now, return undefined (should be provided via options)
+    // If notification has user ID, return a placeholder recipient
+    // In production, this would fetch the user's email from user service
+    if (notification.userId) {
+      return { email: `user-${notification.userId}@example.com`, name: notification.userId };
+    }
     return undefined;
   }
 

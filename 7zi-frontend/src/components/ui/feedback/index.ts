@@ -69,9 +69,6 @@ export {
 export {
   default as ErrorBoundary,
   ErrorFallback,
-  SimpleErrorFallback,
-  FullErrorFallback,
-  CardErrorFallback,
   useErrorBoundary,
   withErrorBoundary,
 } from './ErrorBoundary';

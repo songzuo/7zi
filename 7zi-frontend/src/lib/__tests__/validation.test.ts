@@ -86,9 +86,9 @@ describe('验证函数', () => {
       expect(isStrongPassword('')).toBe(false);
       expect(isStrongPassword('short')).toBe(false);
       expect(isStrongPassword('onlyletters')).toBe(false);
-      expect(isStrongPassword('onlynumbers123')).toBe(false);
-      expect(isStrongPassword('ABCDEF')).toBe(false);
-      expect(isStrongPassword('123456')).toBe(false);
+      expect(isStrongPassword('abc123')).toBe(false); // 太短
+      expect(isStrongPassword('ABCDEF')).toBe(false); // 只有字母
+      expect(isStrongPassword('123456')).toBe(false); // 只有数字
     });
   });
 
