@@ -1,468 +1,211 @@
 /**
- * Room List Component
- *
- * Display all rooms the user has joined or created
- * Supports filtering and room management actions
- *
- * Features:
- * - Display all rooms with name, member count, online status, last activity
- * - Create room / Join room / Leave room
- * - Filter: All / My Created / My Joined
- * - Search functionality
- * - Responsive design (mobile-first)
+ * RoomList 组件 - 房间列表
+ * @version 1.0.0
  */
 
 'use client';
 
-import { useState, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useRouter } from 'next/navigation';
-import clsx from 'clsx';
-import type { RoomFilter } from '@/stores/room-store';
-import { useRoomStore } from '@/stores/room-store';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
-import { Modal } from '@/components/ui/Modal';
-import { Input } from '@/components/ui/Input';
-import { RoomStatusIndicator } from './RoomStatusIndicator';
-import { RoomTypeSelector, RoomTypeBadge, type RoomType } from './RoomTypeSelector';
-import type { CreateRoomRequest, JoinRoomRequest } from '@/types/rooms';
+import { RoomCard } from './RoomCard';
+import { roomsClient } from '@/lib/api/rooms/client';
+import type { Room, RoomVisibility } from '@/lib/api/rooms/types';
 
-export interface RoomListProps {
-  /** Additional CSS classes */
+// 简单的空状态组件（临时）
+const EmptyState: React.FC<{
+  icon?: string;
+  title: string;
+  description: string;
+  children?: React.ReactNode;
+}> = ({ icon, title, description, children }) => (
+  <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+    {icon && <div className="text-6xl mb-4">{icon}</div>}
+    <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">{title}</h3>
+    <p className="text-gray-600 dark:text-gray-400 mb-4">{description}</p>
+    {children}
+  </div>
+);
+
+interface RoomListProps {
+  onRoomSelect?: (room: Room) => void;
+  onCreateRoom?: () => void;
   className?: string;
 }
 
-/**
- * Filter Options
- */
-const FILTER_OPTIONS: { value: RoomFilter; label: string }[] = [
-  { value: 'all', label: 'all' },
-  { value: 'myCreated', label: 'myCreated' },
-  { value: 'myJoined', label: 'myJoined' },
-];
+export const RoomList: React.FC<RoomListProps> = ({
+  onRoomSelect,
+  onCreateRoom,
+  className,
+}) => {
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<{
+    visibility?: RoomVisibility;
+    search?: string;
+  }>({});
+  const [error, setError] = useState<string | null>(null);
 
-/**
- * Room List Component
- */
-export function RoomList({ className }: RoomListProps) {
-  const { t } = useTranslation('rooms');
-  const router = useRouter();
-  const {
-    rooms,
-    currentRoom,
-    filter,
-    searchQuery,
-    isLoading,
-    error,
-    setCurrentRoom,
-    setFilter,
-    setSearchQuery,
-    setLoading,
-    setError,
-    removeRoom,
-    getFilteredRooms,
-  } = useRoomStore();
-
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showJoinModal, setShowJoinModal] = useState(false);
-  const [createRoomType, setCreateRoomType] = useState<RoomType>('chat');
-  const [createForm, setCreateForm] = useState<CreateRoomRequest>({
-    name: '',
-    description: '',
-    password: '',
-  });
-  const [joinForm, setJoinForm] = useState<JoinRoomRequest>({
-    inviteCode: '',
-    password: '',
-  });
-
-  const filteredRooms = getFilteredRooms();
-
-  // Filter change handler
-  const handleFilterChange = (newFilter: RoomFilter) => {
-    setFilter(newFilter);
-  };
-
-  // Search change handler
-  const handleSearchChange = (value: string) => {
-    setSearchQuery(value);
-  };
-
-  // Create room handler
-  const handleCreateRoom = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!createForm.name.trim()) return;
-
-    setLoading(true);
-    setError(null);
-
+  // 加载房间列表
+  const loadRooms = async () => {
     try {
-      // TODO: Replace with actual API call
-      const response = await fetch('/api/rooms', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(createForm),
-      });
-
-      if (!response.ok) {
-        throw new Error(t('messages.error'));
-      }
-
-      const newRoom = await response.json();
-
-      // Add room to store
-      // This will be replaced with actual WebSocket events
-      setShowCreateModal(false);
-      setCreateForm({ name: '', description: '', password: '' });
-
-      // Navigate to new room
-      router.push(`/rooms/${newRoom.id}`);
+      setLoading(true);
+      setError(null);
+      const response = await roomsClient.getRooms(filter);
+      setRooms(response.rooms);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('messages.error'));
+      console.error('Failed to load rooms:', err);
+      setError('加载房间失败');
     } finally {
       setLoading(false);
     }
   };
 
-  // Join room handler
-  const handleJoinRoom = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    loadRooms();
+  }, [filter]);
 
-    if (!joinForm.inviteCode.trim()) return;
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      // TODO: Replace with actual API call
-      const response = await fetch('/api/rooms/join', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(joinForm),
-      });
-
-      if (!response.ok) {
-        throw new Error(t('messages.error'));
-      }
-
-      const room = await response.json();
-
-      setShowJoinModal(false);
-      setJoinForm({ inviteCode: '', password: '' });
-
-      // Navigate to room
-      router.push(`/rooms/${room.id}`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('messages.error'));
-    } finally {
-      setLoading(false);
-    }
+  // 搜索处理
+  const handleSearch = (query: string) => {
+    setFilter((prev) => ({ ...prev, search: query || undefined }));
   };
 
-  // Leave room handler
-  const handleLeaveRoom = async (roomId: string) => {
-    if (!confirm(t('leaveConfirm'))) return;
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      // TODO: Replace with actual API call
-      const response = await fetch(`/api/rooms/${roomId}/leave`, {
-        method: 'POST',
-      });
-
-      if (!response.ok) {
-        throw new Error(t('messages.error'));
-      }
-
-      // Remove from store
-      removeRoom(roomId);
-
-      // If current room, clear it
-      if (currentRoom?.id === roomId) {
-        setCurrentRoom(null);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('messages.error'));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Format time
-  const formatTime = (timestamp: number) => {
-    const now = Date.now();
-    const diff = now - timestamp;
-
-    if (diff < 60000) return t('common.today');
-    if (diff < 3600000) return `${Math.floor(diff / 60000)}m`;
-    if (diff < 86400000) return `${Math.floor(diff / 3600000)}h`;
-    return `${Math.floor(diff / 86400000)}d`;
+  // 过滤器处理
+  const handleFilter = (visibility?: RoomVisibility) => {
+    setFilter((prev) => ({ ...prev, visibility }));
   };
 
   return (
-    <div className={clsx('space-y-4', className)}>
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            {t('title')}
-          </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            {t('subtitle')}
-          </p>
-        </div>
-
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setShowJoinModal(true)}
-          >
-            {t('join')}
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => setShowCreateModal(true)}
-          >
-            {t('create')}
-          </Button>
-        </div>
-      </div>
-
-      {/* Filters and Search */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        {/* Search */}
-        <div className="flex-1">
-          <Input
-            type="search"
-            placeholder={t('placeholder.searchRooms')}
-            value={searchQuery}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            className="w-full"
+    <div className={className}>
+      {/* 顶部操作栏 */}
+      <div className="mb-4 space-y-3">
+        {/* 搜索框 */}
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="搜索房间..."
+            className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+            onChange={(e) => handleSearch(e.target.value)}
           />
-        </div>
-
-        {/* Filter Tabs */}
-        <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
-          {FILTER_OPTIONS.map((option) => (
-            <button
-              key={option.value}
-              onClick={() => handleFilterChange(option.value)}
-              className={clsx(
-                'px-4 py-2 rounded-md text-sm font-medium transition-colors',
-                filter === option.value
-                  ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-              )}
-              type="button"
-            >
-              {t(`filter.${option.label}`)}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Error Message */}
-      {error && (
-        <div className="bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 text-red-800 dark:text-red-200 px-4 py-3 rounded-lg">
-          {error}
-        </div>
-      )}
-
-      {/* Room List */}
-      {isLoading ? (
-        <div className="text-center py-12">
-          <div className="inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{t('loading')}</p>
-        </div>
-      ) : filteredRooms.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg border border-dashed border-gray-300 dark:border-gray-700">
-          <p className="text-gray-600 dark:text-gray-400">
-            {searchQuery ? 'No rooms found' : 'No rooms yet'}
-          </p>
-        </div>
-      ) : (
-        <div className="grid gap-4">
-          {filteredRooms.map((room) => (
-            <div
-              key={room.id}
-              className={clsx(
-                'bg-white dark:bg-gray-800 rounded-lg border transition-all',
-                currentRoom?.id === room.id
-                  ? 'border-blue-500 dark:border-blue-500 shadow-md ring-2 ring-blue-500 ring-opacity-20'
-                  : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-md'
-              )}
-            >
-              <div className="p-4">
-                {/* Room Header */}
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate">
-                      {room.name}
-                    </h3>
-                    {room.description && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400 truncate mt-1">
-                        {room.description}
-                      </p>
-                    )}
-                  </div>
-
-                  <RoomStatusIndicator
-                    status="connected"
-                    onlineCount={room.onlineCount}
-                    totalCount={room.memberCount}
-                    size="sm"
-                  />
-                </div>
-
-                {/* Room Info */}
-                <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-3">
-                  <div className="flex items-center gap-1">
-                    <span className="text-gray-400">👤</span>
-                    <span>{room.memberCount}</span>
-                  </div>
-
-                  <div className="flex items-center gap-1">
-                    <span className="text-green-500">●</span>
-                    <span>{room.onlineCount}</span>
-                  </div>
-
-                  <div className="flex items-center gap-1">
-                    <span className="text-gray-400">⏱️</span>
-                    <span>{formatTime(room.lastActivityAt)}</span>
-                  </div>
-
-                  <div className="flex items-center gap-1">
-                    <span className="text-gray-400">👑</span>
-                    <span className="truncate max-w-[100px]">{room.ownerName}</span>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="flex gap-2">
-                  <Button
-                    variant={currentRoom?.id === room.id ? 'primary' : 'outline'}
-                    size="sm"
-                    onClick={() => {
-                      setCurrentRoom(room);
-                      router.push(`/rooms/${room.id}`);
-                    }}
-                  >
-                    {currentRoom?.id === room.id ? t('joined') : t('join')}
-                  </Button>
-
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleLeaveRoom(room.id)}
-                  >
-                    {t('leave')}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Create Room Modal */}
-      <Modal
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        title={t('create')}
-      >
-        <form onSubmit={handleCreateRoom} className="space-y-4">
-          {/* Room Type Selector */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {t('roomType')}
-            </label>
-            <RoomTypeSelector
-              selectedType={createRoomType}
-              onChange={setCreateRoomType}
-              compact
+          <svg
+            className="absolute left-3 top-2.5 w-5 h-5 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
             />
-          </div>
+          </svg>
+        </div>
 
-          <Input
-            label={t('roomName')}
-            placeholder={t('placeholder.enterRoomName')}
-            value={createForm.name}
-            onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })}
-            required
-          />
-
-          <Input
-            label={t('roomDescription')}
-            placeholder={t('placeholder.enterDescription')}
-            value={createForm.description}
-            onChange={(e) => setCreateForm({ ...createForm, description: e.target.value })}
-          />
-
-          <Input
-            label={t('roomPassword')}
-            type="password"
-            placeholder={t('placeholder.enterPassword')}
-            value={createForm.password}
-            onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
-          />
-
-          <div className="flex gap-3 pt-4">
+        {/* 过滤器和操作按钮 */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Button
-              variant="ghost"
-              onClick={() => setShowCreateModal(false)}
-              type="button"
+              variant={filter.visibility === undefined ? 'primary' : 'ghost'}
+              size="sm"
+              onClick={() => handleFilter(undefined)}
             >
-              {t('cancel')}
+              全部
             </Button>
-            <Button type="submit" loading={isLoading}>
-              {t('confirm')}
-            </Button>
-          </div>
-        </form>
-      </Modal>
-
-      {/* Join Room Modal */}
-      <Modal
-        isOpen={showJoinModal}
-        onClose={() => setShowJoinModal(false)}
-        title={t('join')}
-      >
-        <form onSubmit={handleJoinRoom} className="space-y-4">
-          <Input
-            label={t('inviteCode')}
-            placeholder={t('placeholder.enterInviteCode')}
-            value={joinForm.inviteCode}
-            onChange={(e) => setJoinForm({ ...joinForm, inviteCode: e.target.value })}
-            required
-          />
-
-          <Input
-            label={t('roomPassword')}
-            type="password"
-            placeholder={t('placeholder.enterPassword')}
-            value={joinForm.password}
-            onChange={(e) => setJoinForm({ ...joinForm, password: e.target.value })}
-          />
-
-          <div className="flex gap-3 pt-4">
             <Button
-              variant="ghost"
-              onClick={() => setShowJoinModal(false)}
-              type="button"
+              variant={filter.visibility === 'public' ? 'primary' : 'ghost'}
+              size="sm"
+              onClick={() => handleFilter('public')}
             >
-              {t('cancel')}
+              🌐 公开
             </Button>
-            <Button type="submit" loading={isLoading}>
-              {t('confirm')}
+            <Button
+              variant={filter.visibility === 'private' ? 'primary' : 'ghost'}
+              size="sm"
+              onClick={() => handleFilter('private')}
+            >
+              🔒 私有
+            </Button>
+            <Button
+              variant={filter.visibility === 'unlisted' ? 'primary' : 'ghost'}
+              size="sm"
+              onClick={() => handleFilter('unlisted')}
+            >
+              🔗 不公开
             </Button>
           </div>
-        </form>
-      </Modal>
+
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={loadRooms} loading={loading}>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
+              </svg>
+              刷新
+            </Button>
+            {onCreateRoom && (
+              <Button variant="primary" size="sm" onClick={onCreateRoom}>
+                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                创建房间
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* 错误提示 */}
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg dark:bg-red-900/20 dark:border-red-800">
+          <p className="text-red-600 dark:text-red-400">{error}</p>
+        </div>
+      )}
+
+      {/* 加载状态 */}
+      {loading && (
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      )}
+
+      {/* 空状态 */}
+      {!loading && rooms.length === 0 && (
+        <EmptyState
+          icon="🏠"
+          title="暂无房间"
+          description="还没有可用的房间，创建一个吧！"
+        >
+          {onCreateRoom && (
+            <Button variant="primary" onClick={onCreateRoom}>
+              创建第一个房间
+            </Button>
+          )}
+        </EmptyState>
+      )}
+
+      {/* 房间列表 */}
+      {!loading && rooms.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {rooms.map((room) => (
+            <RoomCard
+              key={room.id}
+              room={room}
+              onClick={() => onRoomSelect?.(room)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
-}
+};
 
 export default RoomList;

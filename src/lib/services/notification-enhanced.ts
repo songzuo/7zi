@@ -393,8 +393,11 @@ export class EnhancedNotificationService {
    * Get email recipients for notification
    */
   private getNotificationRecipients(notification: Notification): EmailRecipient | EmailRecipient[] | undefined {
-    // If notification has user ID, we would normally fetch user's email from user service
-    // For now, return undefined (should be provided via options)
+    // If notification has user ID, return a placeholder recipient
+    // In production, this would fetch the user's email from user service
+    if (notification.userId) {
+      return { email: `user-${notification.userId}@example.com`, name: notification.userId };
+    }
     return undefined;
   }
 

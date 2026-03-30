@@ -159,9 +159,37 @@ export async function POST(request: NextRequest) {
     const ctx: ApiContext = { user, request };
     const projectController = new ProjectController();
 
-    const body = await request.json();
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch (error) {
+      return createErrorResponse(
+        new Error('Invalid JSON'),
+        400,
+        {}
+      );
+    }
 
-    return await projectController.createProject(ctx, body);
+    // Validate required fields
+    if (!body || typeof body !== 'object') {
+      return createErrorResponse(
+        new Error('Invalid request body'),
+        400,
+        {}
+      );
+    }
+
+    const data = body as ProjectCreateData;
+
+    if (!data.name || typeof data.name !== 'string' || data.name.trim().length === 0) {
+      return createErrorResponse(
+        new Error('Project name is required'),
+        400,
+        {}
+      );
+    }
+
+    return await projectController.createProject(ctx, data);
   } catch (error) {
     if (error instanceof PermissionDeniedError) {
       return createForbiddenError(error.message, {

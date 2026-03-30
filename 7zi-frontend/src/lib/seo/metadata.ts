@@ -82,13 +82,13 @@ export const pageMetadataConfig: Record<string, PageMetadata> = {
   },
   feedback: {
     title: '用户反馈',
-    description: '提交您的反馈和建议，帮助我们改进产品体验',
+    description: '提交您的反馈和建议，帮助我们持续改进产品体验和服务质量，您的意见对我们非常重要',
     keywords: ['反馈', '建议', '用户反馈'],
     noIndex: false,
   },
   knowledgeLattice: {
     title: '知识图谱 3D 可视化',
-    description: '交互式 3D 知识图谱可视化，展示知识节点之间的连接关系',
+    description: '交互式 3D 知识图谱可视化演示，展示知识节点之间的连接关系，支持拖拽、缩放和筛选功能',
     keywords: ['知识图谱', '3D 可视化', 'Three.js', 'Knowledge Graph'],
     image: '/images/og-knowledge-lattice.jpg',
   },
@@ -109,7 +109,7 @@ export const pageMetadataConfig: Record<string, PageMetadata> = {
   },
   monitoringExample: {
     title: '监控示例',
-    description: '前端监控示例 - 性能监控、错误追踪、用户行为分析',
+    description: '前端监控示例演示 - 实时性能监控、错误追踪、用户行为分析，帮助优化应用性能',
     keywords: ['监控', 'Monitoring', 'APM', '性能分析'],
   },
 }

@@ -320,7 +320,11 @@ export class InMemoryStorage<T = unknown> {
    * 执行事务
    */
   transaction(operations: TransactionOperation[]): boolean {
-    const backup = new Map(this.store);
+    // Deep copy the store for backup (including all StorageItem properties)
+    const backup = new Map<string, StorageItem<T>>();
+    for (const [key, item] of this.store.entries()) {
+      backup.set(key, { ...item });
+    }
 
     try {
       for (const op of operations) {
@@ -342,8 +346,11 @@ export class InMemoryStorage<T = unknown> {
       }
       return true;
     } catch (error) {
-      // 回滚
-      this.store = backup;
+      // 回滚 - restore full backup
+      this.store.clear();
+      for (const [key, item] of backup.entries()) {
+        this.store.set(key, { ...item });
+      }
       return false;
     }
   }

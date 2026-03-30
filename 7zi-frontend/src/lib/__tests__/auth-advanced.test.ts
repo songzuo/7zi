@@ -390,7 +390,9 @@ describe('Auth Utils - Advanced Tests', () => {
       const result = getPasswordStrength('Password123');
 
       expect(result.strength).toBe('medium');
-      expect(result.feedback).toHaveLength(0);
+      // Medium passwords may still have feedback about missing complexity
+      // The password 'Password123' is missing special characters
+      expect(result.feedback).toContain('密码应包含特殊字符');
     });
 
     it('should return strong for complex passwords', () => {

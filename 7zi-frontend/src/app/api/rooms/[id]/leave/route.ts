@@ -38,24 +38,26 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // 检查是否是房主（房主不能离开房间，只能删除或转让）
-    if (room.ownerId === userId) {
+    // 不能让房主离开房间（只能删除或转让）
+    if (member.role === 'owner') {
       return NextResponse.json(
-        { success: false, error: 'Room owner cannot leave. Transfer ownership or delete the room instead.' },
+        { success: false, error: 'Owner cannot leave room. Delete the room or transfer ownership first.' },
         { status: 400 }
       );
     }
 
     const updatedRoom = roomStore.leaveRoom(id, userId);
 
+    if (!updatedRoom) {
+      return NextResponse.json(
+        { success: false, error: 'Failed to leave room' },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({
       success: true,
-      data: {
-        room: updatedRoom ? {
-          id: updatedRoom.id,
-          name: updatedRoom.name,
-        } : null,
-      },
+      data: { message: 'Left room successfully' },
     });
   } catch (error) {
     console.error('Failed to leave room:', error);

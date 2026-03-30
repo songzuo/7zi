@@ -15,8 +15,8 @@ export type { AuthState, User } from './auth-store';
 
 // 权限状态管理
 export { usePermissionStore } from './permission-store';
-export type { PermissionState, UserPermissionState } from './permission-store';
-export { Permissions, ResourceType, ActionType } from './permission-store';
+export type { PermissionState, UserPermissionState, ResourceType, ActionType } from './permission-store';
+export { Permissions } from './permission-store';
 export {
   useHasPermission,
   useHasAnyPermission,

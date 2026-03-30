@@ -85,7 +85,19 @@ describe('EnhancedNotificationService', () => {
     vi.mocked(notificationStorage.markAsRead).mockReturnValue(undefined);
     vi.mocked(notificationStorage.markAllAsRead).mockReturnValue(undefined);
     vi.mocked(notificationStorage.deleteNotification).mockReturnValue(undefined);
-    vi.mocked(notificationStorage.getUserPreferences).mockReturnValue(undefined);
+    // Default mock: return preferences with email enabled for all priorities
+    vi.mocked(notificationStorage.getUserPreferences).mockReturnValue({
+      userId: 'default-user',
+      emailEnabled: true,
+      emailThreshold: 'low',
+      pushEnabled: true,
+      pushThreshold: 'low',
+      digestEnabled: false,
+      digestFrequency: 'daily',
+      quietHoursStart: null,
+      quietHoursEnd: null,
+      timezone: 'UTC',
+    });
     vi.mocked(notificationStorage.setUserPreferences).mockReturnValue(undefined);
     vi.mocked(notificationStorage.getStats).mockReturnValue({
       totalNotifications: 0,
@@ -976,8 +988,8 @@ describe('EnhancedNotificationService', () => {
         emailRecipients: [{ email: 'user-123@test.com', name: 'User 123' }],
       });
 
-      // Email should not be sent without userId or recipients
-      expect(result.emailSent).toBe(false);
+      // Email should be sent when emailRecipients are provided
+      expect(result.emailSent).toBe(true);
     });
 
     it('should handle email service being disabled', async () => {

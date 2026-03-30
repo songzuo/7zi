@@ -1,10 +1,9 @@
 /**
- * Room API Module
+ * Room API Index
  *
- * 导出房间相关的所有 API 功能
+ * 导出房间相关的所有 API 客户端函数
  */
 
-export * from './store';
-export * from './client';
+export { roomsClient, RoomWebSocket, createRoomWebSocket } from './client';
 export { roomStore } from './store';
-export { roomApi, createRoom, getRooms, getRoomById, joinRoom, leaveRoom, deleteRoom } from './client';
+export type * from './types';

@@ -32,7 +32,8 @@ import {
   createUserWithRoles,
   PermissionDefinition,
 } from '@/lib/permissions';
-import { User } from './auth-store';
+import { User as AuthStoreUser } from './auth-store';
+import { User } from '@/lib/auth';
 
 /**
  * 用户角色信息
@@ -54,7 +55,7 @@ export interface PermissionState {
   error: string | null;
 
   // 权限操作
-  initializePermissions: (user: User, roleIds: string[]) => void;
+  initializePermissions: (user: AuthStoreUser, roleIds: string[]) => void;
   clearPermissions: () => void;
 
   // 权限检查方法
@@ -114,11 +115,22 @@ export const usePermissionStore = create<PermissionState>()(
       /**
        * 初始化用户权限
        */
-      initializePermissions: (user: User, roleIds: string[]) => {
+      initializePermissions: (user: AuthStoreUser, roleIds: string[]) => {
         set({ isLoading: true, error: null });
 
         try {
-          const userWithRoles = createUserWithRoles(user, roleIds);
+          // 转换 User 类型以符合权限系统的要求
+          const permissionUser: User = {
+            id: user.id,
+            username: user.name,
+            email: user.email,
+            role: user.role as any, // 类型转换
+            permissions: [], // 将从角色中获取
+            createdAt: new Date(user.createdAt || new Date()),
+            updatedAt: new Date(user.updatedAt || new Date()),
+          };
+
+          const userWithRoles = createUserWithRoles(permissionUser, roleIds);
 
           // 获取角色权限
           const permissions = roleIds.flatMap(id =>
@@ -421,11 +433,11 @@ export const useEffectivePermissions = () => {
 /**
  * 导出权限常量
  */
-export {
+export { SYSTEM_ROLES } from '@/lib/permissions';
+export type {
   ResourceType,
   ActionType,
   Permission,
-  SYSTEM_ROLES,
   PermissionDefinition,
   RoleDefinition,
   PermissionCheckResult,

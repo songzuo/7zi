@@ -81,7 +81,8 @@ describe('SEO - Robots.txt 验证', () => {
         return
       }
 
-      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.com'
+      // 使用与 sitemap.ts 和 robots.ts 一致的默认域名
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.studio'
       expect(robots.sitemap).toContain(baseUrl)
     })
   })

@@ -247,11 +247,9 @@ describe('/api/health - Integration Tests', () => {
       const memoryLimit = data.data.checks.memory.limit;
       const usagePercent = (memoryUsed / memoryLimit) * 100;
 
-      if (usagePercent > 90) {
-        expect(data.data.checks.memory.status).toBe('warning');
-      } else {
-        expect(data.data.checks.memory.status).toBe('ok');
-      }
+      // Memory status should be 'warning' if over 90%, otherwise 'ok'
+      const expectedStatus = usagePercent > 90 ? 'warning' : 'ok';
+      expect(data.data.checks.memory.status).toBe(expectedStatus);
     });
   });
 

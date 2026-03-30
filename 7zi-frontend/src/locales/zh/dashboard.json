@@ -6,6 +6,7 @@
   "goodMorning": "早上好",
   "goodAfternoon": "下午好",
   "goodEvening": "晚上好",
+  "subtitle": "v1.5.0 - 实时监控和管理您的 AI Agent 团队",
   "stats": {
     "title": "统计数据",
     "total": "总计",
@@ -15,7 +16,41 @@
     "thisYear": "今年",
     "growth": "增长",
     "decline": "下降",
-    "trend": "趋势"
+    "trend": "趋势",
+    "avgCpu": "平均 CPU",
+    "avgMemory": "平均内存"
+  },
+  "agent": {
+    "title": "Agent 状态监控",
+    "count": "共 {{count}} 个 Agent",
+    "searchPlaceholder": "搜索 Agent...",
+    "noAgents": "暂无 Agent",
+    "noAgentsDescription": "还没有注册任何 AI Agent",
+    "noMatching": "没有找到匹配的 Agent",
+    "currentTask": "当前任务",
+    "lastActive": "最后活动",
+    "details": "详情",
+    "enable": "启用",
+    "disable": "禁用",
+    "previousPage": "上一页",
+    "nextPage": "下一页",
+    "status": {
+      "active": "活跃",
+      "idle": "空闲",
+      "offline": "离线",
+      "error": "错误"
+    },
+    "type": {
+      "designer": "设计师",
+      "developer": "开发者",
+      "tester": "测试员",
+      "manager": "管理者",
+      "custom": "自定义"
+    },
+    "resource": {
+      "cpu": "CPU",
+      "memory": "内存"
+    }
   },
   "charts": {
     "title": "图表",
@@ -78,6 +113,7 @@
   },
   "filters": {
     "title": "筛选",
+    "all": "全部",
     "dateRange": "日期范围",
     "today": "今天",
     "yesterday": "昨天",

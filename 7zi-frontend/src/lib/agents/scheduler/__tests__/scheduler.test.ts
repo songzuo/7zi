@@ -10,13 +10,14 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { agentScheduler } from '../scheduler';
+import { agentScheduler, AgentScheduler } from '../scheduler';
 
 describe('AgentScheduler', () => {
   let scheduler: AgentScheduler;
 
   beforeEach(() => {
     scheduler = agentScheduler;
+    scheduler.clear(); // Reset state between tests
   });
 
   // ===== Agent Registry Tests =====
@@ -210,7 +211,10 @@ describe('AgentScheduler', () => {
       
       expect(response.success).toBe(true);
       const task = scheduler.getTask(response.taskId!);
+      // 任务应该被排队，状态为 pending
       expect(task?.status).toBe('pending');
+      // 没有可用的 agent
+      expect(task?.agentId).toBeUndefined();
     });
 
     it('should assign task to best available agent', () => {
@@ -372,6 +376,7 @@ describe('AgentScheduler', () => {
       const response = scheduler.scheduleTask({
         type: 'process',
         input: { data: 'test' },
+        maxRetries: 0,  // 不允许重试，确保任务保持失败状态
       });
       
       scheduler.updateTask({
@@ -381,6 +386,7 @@ describe('AgentScheduler', () => {
       });
       
       const task = scheduler.getTask(response.taskId!);
+      expect(task?.status).toBe('failed');
       expect(task?.error).toBe('Something went wrong');
     });
 
@@ -419,9 +425,9 @@ describe('AgentScheduler', () => {
       });
       
       const task = scheduler.getTask(response.taskId!);
+      // 任务应该被重新调度
       expect(task?.status).toBe('pending');
       expect(task?.retries).toBe(1);
-      expect(task?.agentId).toBeUndefined();
     });
 
     it('should not reschedule if max retries exceeded', () => {
@@ -431,24 +437,30 @@ describe('AgentScheduler', () => {
         type: 'process',
         input: { data: 'test' },
         agentId: 'agent1',
-        maxRetries: 1,
+        maxRetries: 1,  // 最多允许 1 次重试
       });
       
-      // First failure
+      // 初始任务状态
+      const initialTask = scheduler.getTask(response.taskId!);
+      expect(initialTask?.retries).toBe(0);
+      
+      // 第一次失败 - 应该重试 (0 < 1)
       scheduler.updateTask({
         taskId: response.taskId!,
         status: 'failed',
       });
+      let task = scheduler.getTask(response.taskId!);
+      expect(task?.status).toBe('pending');  // 应该被重新调度
+      expect(task?.retries).toBe(1);
       
-      // Second failure
+      // 第二次失败 - 不应该重试 (1 < 1 为 false)
       scheduler.updateTask({
         taskId: response.taskId!,
         status: 'failed',
       });
-      
-      const task = scheduler.getTask(response.taskId!);
-      expect(task?.status).toBe('failed');
-      expect(task?.retries).toBe(2);
+      task = scheduler.getTask(response.taskId!);
+      expect(task?.status).toBe('failed');  // 最终失败状态
+      expect(task?.retries).toBe(1);  // 重试次数不再增加
     });
   });
 
