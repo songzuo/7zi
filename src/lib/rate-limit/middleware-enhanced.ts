@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { DistributedRateLimiter, RateLimitResult } from './rate-limiter';
+import { DistributedRateLimiter, RateLimitResult } from './distributed-rate-limiter';
 
 export interface RateLimitMiddlewareOptions {
   limiter: DistributedRateLimiter;

@@ -68,9 +68,8 @@ export const POST = withRateLimit(
     }
   },
   {
-    algorithm: 'sliding-window',
-    limit: 30, // Stricter limit for POST
-    window: 60,
+    windowMs: 60000, // 1 minute
+    maxRequests: 30, // Stricter limit for POST
   }
 );
 

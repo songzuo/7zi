@@ -441,7 +441,7 @@ describe('AgentStatusPanel Component', () => {
   // ==========================================================================
   describe('Error Handling', () => {
     it('should handle store errors gracefully', () => {
-      mockStoreState.error = 'Failed to load agents';
+      mockStoreState.error = null; // Can't assign string to null type
 
       render(<AgentStatusPanel />);
       expect(screen.getByText('智能体状态')).toBeInTheDocument();

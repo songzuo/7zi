@@ -185,10 +185,9 @@ describe('AgentStatusPanel', () => {
         />
       );
 
-      expect(screen.getByText('Designer')).toBeInTheDocument();
-      expect(screen.getByText('Developer')).toBeInTheDocument();
-      expect(screen.getByText('Tester')).toBeInTheDocument();
-      expect(screen.getByText('Manager')).toBeInTheDocument();
+      // 使用 role 或者查询所有元素
+      const agentNames = screen.getAllByText(/Designer|Developer|Tester|Manager/);
+      expect(agentNames.length).toBe(4);
     });
 
     it('应该显示统计概览', () => {
@@ -281,8 +280,11 @@ describe('AgentStatusPanel', () => {
         />
       );
 
-      expect(screen.getByText('Designer')).toBeInTheDocument();
-      expect(screen.getByText('Designer')).toBeInTheDocument();
+      // 检查所有 agent 名称都存在
+      expect(screen.getByText(/Designer/)).toBeInTheDocument();
+      expect(screen.getByText(/Developer/)).toBeInTheDocument();
+      expect(screen.getByText(/Tester/)).toBeInTheDocument();
+      expect(screen.getByText(/Manager/)).toBeInTheDocument();
     });
 
     it('应该显示当前任务信息', () => {
@@ -295,9 +297,9 @@ describe('AgentStatusPanel', () => {
         />
       );
 
-      expect(screen.getByText('Design Dashboard')).toBeInTheDocument();
-      expect(screen.getByText('design')).toBeInTheDocument();
-      expect(screen.getByText('65%')).toBeInTheDocument();
+      expect(screen.getByText(/Design Dashboard/)).toBeInTheDocument();
+      expect(screen.getByText(/design/)).toBeInTheDocument();
+      expect(screen.getByText(/65%/)).toBeInTheDocument();
     });
 
     it('应该显示资源使用情况', () => {
@@ -311,8 +313,9 @@ describe('AgentStatusPanel', () => {
         />
       );
 
-      expect(screen.getByText('CPU')).toBeInTheDocument();
-      expect(screen.getByText('Memory')).toBeInTheDocument();
+      // 检查是否有 CPU 和 Memory 标签（有多个 agent）
+      expect(screen.queryAllByText(/CPU/).length).toBeGreaterThan(0);
+      expect(screen.queryAllByText(/Memory/).length).toBeGreaterThan(0);
     });
 
     it('应该显示状态徽章', () => {
@@ -325,9 +328,9 @@ describe('AgentStatusPanel', () => {
         />
       );
 
-      expect(screen.getByText('Active')).toBeInTheDocument();
-      expect(screen.getByText('Idle')).toBeInTheDocument();
-      expect(screen.getByText('Offline')).toBeInTheDocument();
+      expect(screen.getByText(/Active/)).toBeInTheDocument();
+      expect(screen.getByText(/Idle/)).toBeInTheDocument();
+      expect(screen.getByText(/Offline/)).toBeInTheDocument();
     });
   });
 
@@ -342,9 +345,9 @@ describe('AgentStatusPanel', () => {
         />
       );
 
-      // 点击 Active 筛选
-      const activeButton = screen.getByText('Active');
-      fireEvent.click(activeButton);
+      // 点击 Active 筛选按钮（使用 role 查询）
+      const activeButtons = screen.getAllByRole('button', { name: 'Active' });
+      fireEvent.click(activeButtons[0]);
 
       await waitFor(() => {
         expect(screen.getByText('Designer')).toBeInTheDocument();
@@ -387,9 +390,9 @@ describe('AgentStatusPanel', () => {
         />
       );
 
-      // 先筛选 Active
-      const activeButton = screen.getByText('Active');
-      fireEvent.click(activeButton);
+      // 先筛选 Active（使用 role 查询）
+      const activeButtons = screen.getAllByRole('button', { name: 'Active' });
+      fireEvent.click(activeButtons[0]);
 
       // 再搜索
       const searchInput = screen.getByPlaceholderText('Search agents...');
@@ -454,17 +457,8 @@ describe('AgentStatusPanel', () => {
     });
 
     it('点击 Enable 按钮应该触发 onToggleAgent', () => {
-      const agents = [
-        ...MOCK_AGENTS,
-        {
-          id: 'agent-5',
-          name: 'Test Agent',
-          type: 'custom' as const,
-          status: 'offline' as const,
-          enabled: false,
-          lastActiveAt: new Date().toISOString(),
-        },
-      ];
+      // 使用包含 enabled=false 的 agent
+      const agents = MOCK_AGENTS.filter(a => !a.enabled); // 只取 enabled=false 的
 
       render(
         <AgentStatusPanel
@@ -476,10 +470,12 @@ describe('AgentStatusPanel', () => {
       );
 
       const enableButtons = screen.getAllByText('Enable');
+      expect(enableButtons.length).toBeGreaterThan(0);
+      
       fireEvent.click(enableButtons[0]);
 
       expect(mockOnToggleAgent).toHaveBeenCalledTimes(1);
-      expect(mockOnToggleAgent).toHaveBeenCalledWith('agent-5', true);
+      expect(mockOnToggleAgent).toHaveBeenCalledWith('agent-4', true); // Manager
     });
   });
 
@@ -640,8 +636,12 @@ describe('AgentStatusPanel', () => {
         />
       );
 
-      expect(screen.getByText('CPU')).toBeInTheDocument();
-      expect(screen.getByText('Memory')).toBeInTheDocument();
+      // 检查是否有多个 CPU 标签（因为多个 agent）
+      const cpuElements = screen.queryAllByText('CPU');
+      expect(cpuElements.length).toBeGreaterThan(0);
+
+      const memoryElements = screen.queryAllByText('Memory');
+      expect(memoryElements.length).toBeGreaterThan(0);
     });
 
     it('showResourceDetails=false 不应该显示资源使用情况', () => {
@@ -655,7 +655,7 @@ describe('AgentStatusPanel', () => {
         />
       );
 
-      // 资源信息不应该显示
+      // 资源信息不应该显示（只有 4 个 agent，如果有显示的话应该至少有 4 个）
       const cpuElements = screen.queryAllByText('CPU');
       expect(cpuElements.length).toBe(0);
     });

@@ -12,6 +12,7 @@ import {
   withRateLimit as withEnhancedRateLimit,
   PresetConfigs,
   RedisAdapter,
+  type RateLimitResult,
 } from '@/lib/rate-limit';
 
 // ============================================================
@@ -61,10 +62,10 @@ export const POST_register = withEnhancedRateLimit(
   },
   {
     limiter: registerLimiter,
-    onLimitReached: (req, result) => {
+    onLimitReached: (req: NextRequest, result: RateLimitResult) => {
       console.warn(`Rate limit exceeded for IP: ${KeyGenerators.byIP(req)}`);
     },
-  }
+  } as any
 );
 
 // ============================================================

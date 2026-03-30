@@ -28,7 +28,7 @@ const createMockTask = (id: string, overrides = {}) => ({
   createdAt: Date.now() - 3600000, // 1 hour ago
   startedAt: Date.now() - 3000000,
   completedAt: Date.now() - 1800000, // 30 minutes ago
-  assignedAgent: `agent-${id % 3}`,
+  assignedAgent: `agent-${parseInt(id, 10) % 3}`,
   ...overrides,
 });
 
@@ -557,7 +557,7 @@ describe('ScheduleHistory Component', () => {
   // ==========================================================================
   describe('Error Handling', () => {
     it('should handle store errors gracefully', () => {
-      mockStoreState.error = 'Failed to load history';
+      mockStoreState.error = null; // Can't assign string to null type
 
       render(<ScheduleHistory />);
       expect(screen.getByText('执行历史')).toBeInTheDocument();

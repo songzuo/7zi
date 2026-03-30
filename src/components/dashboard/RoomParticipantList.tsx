@@ -131,6 +131,7 @@ interface ParticipantActionsMenuProps {
   onKick?: (participantId: string) => Promise<void> | void;
   onMute?: (participantId: string, muted: boolean) => Promise<void> | void;
   onChangeRole?: (participantId: string, newRole: UserRole) => Promise<void> | void;
+  readOnly?: boolean;
 }
 
 const ParticipantActionsMenu: React.FC<ParticipantActionsMenuProps> = ({
@@ -142,6 +143,7 @@ const ParticipantActionsMenu: React.FC<ParticipantActionsMenuProps> = ({
   onKick,
   onMute,
   onChangeRole,
+  readOnly = false,
 }) => {
   const t = useTranslations('room.participants');
 
