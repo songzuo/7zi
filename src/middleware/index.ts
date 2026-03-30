@@ -31,6 +31,30 @@ import { withCsrfProtection as _withCsrfProtection } from '../lib/middleware/csr
 import { withRateLimit as _withRateLimit } from '../lib/middleware/rate-limit';
 
 // ============================================
+// Authentication Middleware
+// ============================================
+export {
+  withAuth,
+  authenticateRequest,
+  RATE_LIMIT_CONFIG,
+  withUserAuth,
+  withPermissions,
+  withAnyPermission,
+  withRole,
+  withAnyRole,
+  withAdmin,
+  withManagerOrAdmin,
+  withOptionalAuth,
+  type RBACUserContext,
+} from './auth';
+
+// Re-export types from auth middleware
+export type {
+  UserContext,
+  UserRole,
+} from '@/lib/auth/types';
+
+// ============================================
 // CORS Middleware
 // ============================================
 export {

@@ -1,10 +1,12 @@
 /**
- * 根布局文件 - 包含图片优化配置和主题管理
+ * 根布局文件 - 包含图片优化配置、主题管理和 i18n
  */
 
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+import { I18nProvider } from './providers/I18nProvider'
+import { PermissionProvider } from './providers/PermissionProvider'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -26,6 +28,7 @@ const jsonLd = {
 }
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.com'),
   title: '7zi Frontend - 图片优化示例',
   description: 'Next.js 图片优化最佳实践展示',
   keywords: ['Next.js', 'Image Optimization', 'WebP', 'AVIF', 'Performance'],
@@ -58,7 +61,11 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
       </head>
       <body className={inter.className}>
-        {children}
+        <I18nProvider>
+          <PermissionProvider>
+            {children}
+          </PermissionProvider>
+        </I18nProvider>
       </body>
     </html>
   )

@@ -38,6 +38,12 @@ export default function HomePage() {
           
           <div className="grid grid-cols-2 gap-4 text-sm">
             <Link
+              href="/pricing"
+              className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+            >
+              定价方案
+            </Link>
+            <Link
               href="/notification-demo"
               className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition"
             >

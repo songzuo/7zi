@@ -106,5 +106,9 @@
   "active": "活跃",
   "inactive": "不活跃",
   "enabled": "已启用",
-  "disabled": "已禁用"
+  "disabled": "已禁用",
+  "pricing": "定价",
+  "features": "功能",
+  "faq": "常见问题",
+  "contact": "联系我们"
 }

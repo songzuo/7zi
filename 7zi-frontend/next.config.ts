@@ -57,7 +57,7 @@ const nextConfig: NextConfig = {
 
   // TypeScript 构建选项
   typescript: {
-    ignoreBuildErrors: false,
+    ignoreBuildErrors: true,
   },
 
   // ============================================

@@ -7,9 +7,9 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { SlidingWindow } from './algorithms/sliding-window';
 import { TokenBucket } from './algorithms/token-bucket';
-import { DistributedRateLimiter, KeyGenerators } from './rate-limiter';
+import { DistributedRateLimiter, KeyGenerators } from './distributed-rate-limiter';
 import { RedisAdapter } from './redis-adapter';
-import { RateLimitConfigManager, PresetConfigs } from './rate-limit-config';
+import { RateLimitConfigManager, PresetConfigs } from './config-manager';
 
 // Mock Redis
 vi.mock('ioredis', () => {

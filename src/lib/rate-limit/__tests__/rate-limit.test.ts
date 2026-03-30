@@ -154,8 +154,8 @@ describe('Rate Limit Middleware', () => {
         return new Response(JSON.stringify({ success: true }));
       },
       {
-        limit: 5,
-        window: 30,
+        maxRequests: 5,
+        windowMs: 30000,
       }
     );
 

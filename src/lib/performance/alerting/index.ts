@@ -3,7 +3,7 @@
  * 
  * Multi-level alert system with suppression, aggregation, and history tracking
  * 
- * @module performance-monitoring/alerting
+ * @module performance/alerting
  */
 
 // ========================================

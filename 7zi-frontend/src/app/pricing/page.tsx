@@ -1,0 +1,623 @@
+'use client'
+
+import { useState } from 'react'
+import { Check, X, Mail, ArrowRight, Star, Zap, Shield, Users, Headphones, Globe } from 'lucide-react'
+import { Navigation } from '@/components/ui/Navigation'
+
+type PricingTier = 'free' | 'pro' | 'enterprise'
+
+interface PricingCardProps {
+  tier: PricingTier
+  isYearly: boolean
+  isPopular?: boolean
+}
+
+interface PricingFeatures {
+  [key: string]: {
+    free: boolean | string
+    pro: boolean | string
+    enterprise: boolean | string
+  }
+}
+
+interface Translations {
+  title: string
+  subtitle: string
+  billing: {
+    monthly: string
+    yearly: string
+    save: string
+  }
+  tiers: {
+    free: {
+      name: string
+      description: string
+      price: string
+      cta: string
+    }
+    pro: {
+      name: string
+      description: string
+      price: string
+      cta: string
+      popular: string
+    }
+    enterprise: {
+      name: string
+      description: string
+      price: string
+      cta: string
+    }
+  }
+  features: {
+    basic: string
+    advanced: string
+    collaboration: string
+    support: string
+    integrations: string
+    storage: string
+    bandwidth: string
+    users: string
+    apiCalls: string
+    customDomain: string
+    analytics: string
+    priority: string
+  }
+  comparison: {
+    title: string
+    description: string
+  }
+  form: {
+    title: string
+    subtitle: string
+    email: string
+    submit: string
+    success: string
+    error: string
+    privacy: string
+  }
+  faq: {
+    title: string
+    items: Array<{
+      question: string
+      answer: string
+    }>
+  }
+}
+
+const zhTranslations: Translations = {
+  title: '选择适合您的计划',
+  subtitle: '灵活的定价方案，满足个人和团队的各种需求',
+  billing: {
+    monthly: '按月付费',
+    yearly: '按年付费',
+    save: '节省 20%'
+  },
+  tiers: {
+    free: {
+      name: '免费版',
+      description: '适合个人用户和轻度使用',
+      price: '¥0',
+      cta: '开始使用'
+    },
+    pro: {
+      name: '专业版',
+      description: '适合小型团队和专业人士',
+      price: '¥99',
+      popular: '最受欢迎'
+    },
+    enterprise: {
+      name: '企业版',
+      description: '适合大型组织和复杂需求',
+      price: '¥399',
+      cta: '联系销售'
+    }
+  },
+  features: {
+    basic: '基础功能',
+    advanced: '高级功能',
+    collaboration: '团队协作',
+    support: '技术支持',
+    integrations: '集成功能',
+    storage: '存储空间',
+    bandwidth: '带宽限制',
+    users: '用户数量',
+    apiCalls: 'API 调用',
+    customDomain: '自定义域名',
+    analytics: '数据分析',
+    priority: '优先支持'
+  },
+  comparison: {
+    title: '功能对比',
+    description: '详细了解各版本的功能差异'
+  },
+  form: {
+    title: '获取专业报价',
+    subtitle: '提交您的信息，我们的销售团队将尽快与您联系',
+    email: '邮箱地址',
+    submit: '提交申请',
+    success: '提交成功！我们会尽快与您联系。',
+    error: '提交失败，请稍后重试。',
+    privacy: '提交即表示您同意我们的隐私政策'
+  },
+  faq: {
+    title: '常见问题',
+    items: [
+      {
+        question: '免费版可以商用吗？',
+        answer: '可以。免费版包含所有基础功能，适合个人和小团队使用。'
+      },
+      {
+        question: '可以随时升级或降级吗？',
+        answer: '可以。您可以随时在账户设置中更改您的订阅计划。'
+      },
+      {
+        question: '支持退款吗？',
+        answer: '我们提供 30 天无理由退款保证，让您放心使用。'
+      },
+      {
+        question: '企业版包含哪些服务？',
+        answer: '企业版包含专属客户经理、定制化功能、SLA 保证以及优先技术支持。'
+      }
+    ]
+  }
+}
+
+const enTranslations: Translations = {
+  title: 'Choose Your Plan',
+  subtitle: 'Flexible pricing for individuals and teams of all sizes',
+  billing: {
+    monthly: 'Monthly',
+    yearly: 'Yearly',
+    save: 'Save 20%'
+  },
+  tiers: {
+    free: {
+      name: 'Free',
+      description: 'Perfect for individuals and casual use',
+      price: '$0',
+      cta: 'Get Started'
+    },
+    pro: {
+      name: 'Pro',
+      description: 'Best for small teams and professionals',
+      price: '$99',
+      popular: 'Most Popular'
+    },
+    enterprise: {
+      name: 'Enterprise',
+      description: 'Ideal for large organizations',
+      price: '$399',
+      cta: 'Contact Sales'
+    }
+  },
+  features: {
+    basic: 'Basic Features',
+    advanced: 'Advanced Features',
+    collaboration: 'Team Collaboration',
+    support: 'Technical Support',
+    integrations: 'Integrations',
+    storage: 'Storage',
+    bandwidth: 'Bandwidth',
+    users: 'Users',
+    apiCalls: 'API Calls',
+    customDomain: 'Custom Domain',
+    analytics: 'Analytics',
+    priority: 'Priority Support'
+  },
+  comparison: {
+    title: 'Feature Comparison',
+    description: 'Compare all features across different plans'
+  },
+  form: {
+    title: 'Get Custom Quote',
+    subtitle: 'Submit your information and our sales team will contact you soon',
+    email: 'Email Address',
+    submit: 'Submit Request',
+    success: 'Success! We will contact you soon.',
+    error: 'Submission failed, please try again later.',
+    privacy: 'By submitting, you agree to our Privacy Policy'
+  },
+  faq: {
+    title: 'Frequently Asked Questions',
+    items: [
+      {
+        question: 'Can I use the free plan for commercial purposes?',
+        answer: 'Yes. The free plan includes all basic features and is suitable for individuals and small teams.'
+      },
+      {
+        question: 'Can I upgrade or downgrade anytime?',
+        answer: 'Yes. You can change your subscription plan anytime in your account settings.'
+      },
+      {
+        question: 'Do you offer refunds?',
+        answer: 'We offer a 30-day no-questions-asked refund policy.'
+      },
+      {
+        question: 'What services are included in the Enterprise plan?',
+        answer: 'The Enterprise plan includes a dedicated account manager, customized features, SLA guarantee, and priority technical support.'
+      }
+    ]
+  }
+}
+
+const featuresData: PricingFeatures = {
+  basic: { free: true, pro: true, enterprise: true },
+  advanced: { free: false, pro: true, enterprise: true },
+  collaboration: { free: false, pro: true, enterprise: true },
+  support: { free: '社区支持', pro: '邮件支持', enterprise: '专属支持' },
+  integrations: { free: '5 个', pro: '50 个', enterprise: '无限' },
+  storage: { free: '1 GB', pro: '100 GB', enterprise: '无限' },
+  bandwidth: { free: '10 GB/月', pro: '1 TB/月', enterprise: '无限' },
+  users: { free: '1 人', pro: '10 人', enterprise: '无限' },
+  apiCalls: { free: '1,000/月', pro: '100,000/月', enterprise: '无限' },
+  customDomain: { free: false, pro: true, enterprise: true },
+  analytics: { free: '基础', pro: '高级', enterprise: '定制' },
+  priority: { free: false, pro: true, enterprise: true }
+}
+
+export default function PricingPage() {
+  const [isYearly, setIsYearly] = useState(false)
+  const [language, setLanguage] = useState<'zh' | 'en'>('zh')
+  const [email, setEmail] = useState('')
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [expandedFaq, setExpandedFaq] = useState<number | null>(null)
+
+  const t = language === 'zh' ? zhTranslations : enTranslations
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email) return
+
+    try {
+      // TODO: Integrate with backend API
+      console.log('Email submitted:', email)
+      setSubmitStatus('success')
+      setEmail('')
+    } catch (error) {
+      console.error('Error submitting email:', error)
+      setSubmitStatus('error')
+    }
+  }
+
+  const PricingCard = ({ tier, isYearly, isPopular }: PricingCardProps) => {
+    const tierData = t.tiers[tier]
+    const isFree = tier === 'free'
+    const isEnterprise = tier === 'enterprise'
+
+    return (
+      <div
+        className={`
+          relative rounded-2xl p-8 transition-all duration-300
+          ${isPopular ? 'bg-gradient-to-b from-blue-500 to-blue-600 text-white shadow-xl scale-105' : 'bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl'}
+        `}
+      >
+        {isPopular && (
+          <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+            <span className="bg-yellow-400 text-yellow-900 px-4 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
+              <Star className="w-4 h-4" />
+              {tierData.popular}
+            </span>
+          </div>
+        )}
+
+        <div className="text-center mb-6">
+          <h3 className="text-2xl font-bold mb-2">{tierData.name}</h3>
+          <p className={`text-sm ${isPopular ? 'text-blue-100' : 'text-gray-600 dark:text-gray-400'}`}>
+            {tierData.description}
+          </p>
+        </div>
+
+        <div className="text-center mb-6">
+          <div className="flex items-baseline justify-center gap-1">
+            <span className="text-4xl font-bold">{tierData.price}</span>
+            {!isEnterprise && (
+              <span className={isPopular ? 'text-blue-100' : 'text-gray-600 dark:text-gray-400'}>
+                /{isYearly ? '年' : '月'}
+              </span>
+            )}
+          </div>
+          {isYearly && !isFree && !isEnterprise && (
+            <p className="text-sm text-green-400 mt-2">{t.billing.save}</p>
+          )}
+        </div>
+
+        <button
+          className={`
+            w-full py-3 px-6 rounded-lg font-semibold transition-all duration-200
+            ${isPopular
+              ? 'bg-white text-blue-600 hover:bg-blue-50'
+              : 'bg-blue-600 text-white hover:bg-blue-700'
+            }
+          `}
+        >
+          {tierData.cta}
+          {!isEnterprise && <ArrowRight className="inline w-4 h-4 ml-2" />}
+        </button>
+
+        <ul className="mt-8 space-y-4">
+          {Object.entries(featuresData).map(([feature, values]) => {
+            const value = values[tier]
+            const hasFeature = value === true || (typeof value === 'string' && value !== '社区支持')
+            const featureLabel = t.features[feature as keyof typeof t.features]
+
+            return (
+              <li key={feature} className="flex items-start gap-3">
+                {hasFeature ? (
+                  <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-green-500" />
+                ) : (
+                  <X className="w-5 h-5 flex-shrink-0 mt-0.5 text-gray-400" />
+                )}
+                <span className={isPopular ? '' : 'text-gray-700 dark:text-gray-300'}>
+                  {featureLabel}
+                  {typeof value === 'string' && value !== '社区支持' && (
+                    <span className={`ml-2 text-sm ${isPopular ? 'text-blue-100' : 'text-gray-500'}`}>
+                      ({value})
+                    </span>
+                  )}
+                </span>
+              </li>
+            )
+          })}
+        </ul>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      {/* Header */}
+      <Navigation language={language} onLanguageChange={setLanguage} />
+
+      {/* Hero Section */}
+      <section className="container mx-auto px-4 py-16 text-center">
+        <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 dark:text-white">
+          {t.title}
+        </h2>
+        <p className="text-xl text-gray-600 dark:text-gray-400 mb-8">
+          {t.subtitle}
+        </p>
+
+        {/* Billing Toggle */}
+        <div className="flex items-center justify-center gap-4 mb-12">
+          <span className={!isYearly ? 'text-blue-600 font-semibold' : 'text-gray-600 dark:text-gray-400'}>
+            {t.billing.monthly}
+          </span>
+          <button
+            onClick={() => setIsYearly(!isYearly)}
+            className={`relative w-16 h-8 rounded-full transition-colors ${
+              isYearly ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
+            }`}
+          >
+            <div
+              className={`absolute top-1 w-6 h-6 bg-white rounded-full transition-all ${
+                isYearly ? 'left-9' : 'left-1'
+              }`}
+            />
+          </button>
+          <span className={isYearly ? 'text-blue-600 font-semibold' : 'text-gray-600 dark:text-gray-400'}>
+            {t.billing.yearly}
+          </span>
+        </div>
+
+        {/* Pricing Cards */}
+        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <PricingCard tier="free" isYearly={isYearly} />
+          <PricingCard tier="pro" isYearly={isYearly} isPopular />
+          <PricingCard tier="enterprise" isYearly={isYearly} />
+        </div>
+      </section>
+
+      {/* Feature Comparison */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="max-w-6xl mx-auto">
+          <h3 className="text-3xl font-bold text-center mb-4 text-gray-900 dark:text-white">
+            {t.comparison.title}
+          </h3>
+          <p className="text-center text-gray-600 dark:text-gray-400 mb-12">
+            {t.comparison.description}
+          </p>
+
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-50 dark:bg-gray-700">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">
+                    功能
+                  </th>
+                  <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900 dark:text-white">
+                    {t.tiers.free.name}
+                  </th>
+                  <th className="px-6 py-4 text-center text-sm font-semibold text-blue-600">
+                    {t.tiers.pro.name}
+                  </th>
+                  <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900 dark:text-white">
+                    {t.tiers.enterprise.name}
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {Object.entries(featuresData).map(([feature, values]) => {
+                  const featureLabel = t.features[feature as keyof typeof t.features]
+                  return (
+                    <tr key={feature} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                      <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                        {featureLabel}
+                      </td>
+                      {(['free', 'pro', 'enterprise'] as const).map((tier) => {
+                        const value = values[tier]
+                        const hasFeature = value === true || (typeof value === 'string' && value !== '社区支持')
+                        return (
+                          <td key={tier} className="px-6 py-4 text-center">
+                            {hasFeature ? (
+                              <span className="flex items-center justify-center gap-2">
+                                <Check className="w-5 h-5 text-green-500" />
+                                {typeof value === 'string' && value !== '社区支持' && (
+                                  <span className="text-sm text-gray-600 dark:text-gray-400">{value}</span>
+                                )}
+                              </span>
+                            ) : (
+                              <X className="w-5 h-5 text-gray-400 mx-auto" />
+                            )}
+                          </td>
+                        )
+                      })}
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* Email Collection Form */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="max-w-2xl mx-auto bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-8 shadow-xl text-white">
+          <div className="text-center mb-8">
+            <Mail className="w-12 h-12 mx-auto mb-4 opacity-90" />
+            <h3 className="text-3xl font-bold mb-2">{t.form.title}</h3>
+            <p className="text-blue-100">{t.form.subtitle}</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={t.form.email}
+                className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white"
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-white text-blue-600 py-3 px-6 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
+            >
+              {t.form.submit}
+            </button>
+
+            {submitStatus === 'success' && (
+              <div className="bg-green-500 text-white p-3 rounded-lg text-center">
+                {t.form.success}
+              </div>
+            )}
+
+            {submitStatus === 'error' && (
+              <div className="bg-red-500 text-white p-3 rounded-lg text-center">
+                {t.form.error}
+              </div>
+            )}
+
+            <p className="text-sm text-blue-100 text-center">
+              {t.form.privacy}
+            </p>
+          </form>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="max-w-3xl mx-auto">
+          <h3 className="text-3xl font-bold text-center mb-12 text-gray-900 dark:text-white">
+            {t.faq.title}
+          </h3>
+
+          <div className="space-y-4">
+            {t.faq.items.map((item, index) => (
+              <div
+                key={index}
+                className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden"
+              >
+                <button
+                  onClick={() => setExpandedFaq(expandedFaq === index ? null : index)}
+                  className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                >
+                  <span className="font-semibold text-gray-900 dark:text-white">
+                    {item.question}
+                  </span>
+                  <ChevronDown
+                    className={`w-5 h-5 text-gray-500 transition-transform ${
+                      expandedFaq === index ? 'rotate-180' : ''
+                    }`}
+                  />
+                </button>
+
+                {expandedFaq === index && (
+                  <div className="px-6 pb-4 text-gray-600 dark:text-gray-400">
+                    {item.answer}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="max-w-4xl mx-auto bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-12 shadow-xl text-white text-center">
+          <Zap className="w-16 h-16 mx-auto mb-6 opacity-90" />
+          <h3 className="text-3xl font-bold mb-4">
+            {language === 'zh' ? '准备好开始了吗？' : 'Ready to get started?'}
+          </h3>
+          <p className="text-xl mb-8 opacity-90">
+            {language === 'zh'
+              ? '加入数千名用户，体验 7zi 的强大功能'
+              : 'Join thousands of users and experience the power of 7zi'}
+          </p>
+          <button className="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-blue-50 transition-colors inline-flex items-center gap-2">
+            {t.tiers.free.cta}
+            <ArrowRight className="w-5 h-5" />
+          </button>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-6">
+              <span className="text-2xl font-bold text-blue-600">7zi</span>
+              <div className="flex gap-4">
+                <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 transition-colors">
+                  <Users className="w-5 h-5" />
+                </a>
+                <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 transition-colors">
+                  <Shield className="w-5 h-5" />
+                </a>
+                <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 transition-colors">
+                  <Globe className="w-5 h-5" />
+                </a>
+              </div>
+            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              © 2026 7zi. {language === 'zh' ? '保留所有权利' : 'All rights reserved'}
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  )
+}
+
+// ChevronDown component for FAQ
+function ChevronDown({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M19 9l-7 7-7-7"
+      />
+    </svg>
+  )
+}

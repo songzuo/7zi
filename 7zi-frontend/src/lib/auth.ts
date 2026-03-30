@@ -430,3 +430,50 @@ export function generateSecurePassword(length = 16): string {
     .sort(() => Math.random() - 0.5)
     .join('');
 }
+
+/**
+ * === v1.5.0 Migration Support ===
+ *
+ * 导出新的 PermissionContext 类型和函数，提供向后兼容
+ */
+
+// 重新导出新系统的类型（使用别名避免冲突）
+export {
+  Role as NewRole,
+  Permission as NewPermission,
+  type User as NewUser,
+  type CheckPermissionOptions,
+  type PermissionCheckResult,
+} from '@/contexts/PermissionContext/types';
+
+// 重新导出新系统的工具函数
+export {
+  getDefaultPermissions as newGetDefaultPermissions,
+  checkPermission as newCheckPermission,
+  checkAnyPermission,
+  checkAllPermissions,
+  checkRole as newCheckRole,
+  checkIsAdmin,
+  checkResourceAccess,
+  checkPermissions,
+  createUser,
+  createUserFromPayload,
+} from '@/contexts/PermissionContext/utils';
+
+// 重新导出 Context 和 Hook
+export {
+  PermissionProvider as NewPermissionProvider,
+  usePermission,
+  type PermissionContextType,
+} from '@/contexts/PermissionContext';
+
+// 重新导出权限守卫组件
+export {
+  PermissionGuard,
+  AdminGuard,
+  RoleGuard,
+  type PermissionGuardProps,
+  type AdminGuardProps,
+  type RoleGuardProps,
+} from '@/contexts/PermissionContext/components';
+
