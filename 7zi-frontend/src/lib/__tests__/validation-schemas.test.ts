@@ -390,7 +390,7 @@ describe('Sanitization Functions', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues.length).toBeGreaterThan(0);
+        expect(result.errors.length).toBeGreaterThan(0);
       }
     });
 
@@ -407,7 +407,7 @@ describe('Sanitization Functions', () => {
       expect(result.success).toBe(false); // 因为清理后的用户名包含特殊字符可能仍然无效
       if (!result.success) {
         // 验证了输入被清理过
-        expect(result.error).toBeDefined();
+        expect(result.errors).toBeDefined();
       }
     });
   });

@@ -4,7 +4,7 @@
  */
 
 import { getT } from '@/lib/i18n/server';
-import type { TranslationFunction, i18n as I18nInstance } from 'i18next';
+import type { TFunction } from 'i18next';
 
 interface UseServerTranslationOptions {
   /**
@@ -21,8 +21,8 @@ interface UseServerTranslationOptions {
 /**
  * i18next TranslationFunction with i18n instance
  */
-interface TranslationFunctionWithI18n extends TranslationFunction {
-  i18n?: I18nInstance;
+interface TranslationFunctionWithI18n extends TFunction {
+  i18n?: any;
 }
 
 /**
@@ -31,7 +31,7 @@ interface TranslationFunctionWithI18n extends TranslationFunction {
  * @returns 翻译函数和当前语言
  */
 export async function useServerTranslation(options: UseServerTranslationOptions = {}) {
-  const t = await getT(options.lng, Array.isArray(options.ns) ? options.ns[0] : options.ns) as TranslationFunction;
+  const t = await getT(options.lng, Array.isArray(options.ns) ? options.ns[0] : options.ns) as TFunction;
   
   // 获取当前语言（如果未提供，从翻译函数推断）
   const currentLng = options.lng || 'zh';
@@ -42,4 +42,4 @@ export async function useServerTranslation(options: UseServerTranslationOptions 
   };
 }
 
-export type { TranslationFunction };
+export type { TFunction as TranslationFunction };

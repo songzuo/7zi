@@ -327,7 +327,7 @@ export function searchItems<T extends object>(
   const includeHighlights = config.includeHighlights !== false;
   const minScore = config.minScore ?? 0;
 
-  // 预处理搜索查询
+  // 预处理搜索查询（仅在非大小写敏感时转换为小写）
   const searchQuery = caseSensitive ? query : query.toLowerCase();
 
   for (const item of items) {
@@ -364,7 +364,12 @@ export function searchItems<T extends object>(
         const index = text.indexOf(searchQuery);
         if (index !== -1) {
           match = true;
-          score = (2 + (1 - index / text.length) * 0.5) * weight; // 位置越靠前分数越高
+          // Use position-based scoring: matches at the beginning get higher scores
+          // Absolute position is more important than relative position
+          // Score: 2.5 at position 0, decreasing by 0.1 for each position
+          score = (2.5 - index * 0.05) * weight;
+          // Cap minimum score at 1.0
+          score = Math.max(score, 1.0);
           matchType = 'substring';
           start = index;
           end = index + searchQuery.length;
@@ -627,13 +632,33 @@ export function extractLabelOptions(issues: Array<{ labels?: Array<{ name: strin
     return cached;
   }
 
-  const options = extractOptions(
-    issues,
-    (issue) => issue.labels?.[0]?.name || null,
-    (name, count, issue) => ({
-      color: issue.labels?.[0]?.color ? `#${issue.labels[0].color}` : undefined,
-    })
-  );
+  // Flatten all labels from all issues
+  const allLabels: Array<{ name: string; color: string }> = [];
+  for (const issue of issues) {
+    if (issue.labels) {
+      allLabels.push(...issue.labels);
+    }
+  }
+
+  const uniqueValues = new Map<string, { count: number; color: string }>();
+
+  for (const label of allLabels) {
+    const existing = uniqueValues.get(label.name);
+    if (existing) {
+      existing.count++;
+    } else {
+      uniqueValues.set(label.name, { count: 1, color: label.color });
+    }
+  }
+
+  const options = Array.from(uniqueValues.entries())
+    .map(([value, { count, color }]) => ({
+      value,
+      label: value,
+      count,
+      color: `#${color}`,
+    }))
+    .sort((a, b) => b.count - a.count);
 
   // 缓存结果
   unifiedCache.set(cacheKey, options);

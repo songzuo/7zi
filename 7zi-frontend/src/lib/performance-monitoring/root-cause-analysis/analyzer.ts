@@ -42,6 +42,30 @@ export class RootCauseAnalyzer {
   analyze(metric: string, value: number, context: PerformanceContext): RootCause {
     const candidates: RootCauseCandidate[] = [];
 
+    // First, track all data so trackers have it
+    if (context.slowQueries && context.slowQueries.length > 0) {
+      for (const query of context.slowQueries) {
+        this.databaseTracker.trackQuery(
+          query.query,
+          query.duration,
+          query.rowCount,
+          { table: query.table, type: query.type }
+        );
+      }
+    }
+    
+    if (context.slowApis && context.slowApis.length > 0) {
+      for (const api of context.slowApis) {
+        this.apiTracker.trackApiCall(
+          api.endpoint,
+          api.method,
+          api.duration,
+          api.statusCode,
+          { error: api.error, requestSize: api.requestSize, responseSize: api.responseSize }
+        );
+      }
+    }
+
     // 检查数据库查询
     if (context.slowQueries && context.slowQueries.length > 0) {
       const dbCandidate = this.analyzeDatabaseIssues(context.slowQueries);
@@ -134,16 +158,16 @@ export class RootCauseAnalyzer {
 
     // 确定严重程度
     let severity: 'low' | 'medium' | 'high' | 'critical' = 'low';
-    if (avgDuration > this.config.slowQueryThreshold * 5 || totalSlowQueries > 10) {
+    if (avgDuration > this.config.slowQueryThreshold * 3 || totalSlowQueries > 10) {
       severity = 'critical';
-    } else if (avgDuration > this.config.slowQueryThreshold * 3 || totalSlowQueries > 5) {
+    } else if (avgDuration > this.config.slowQueryThreshold * 2 || totalSlowQueries > 5) {
       severity = 'high';
-    } else if (avgDuration > this.config.slowQueryThreshold * 2 || totalSlowQueries > 2) {
+    } else if (avgDuration > this.config.slowQueryThreshold || totalSlowQueries > 2) {
       severity = 'medium';
     }
 
     // 计算置信度
-    const confidence = Math.min(avgDuration / (this.config.slowQueryThreshold * 5), 1);
+    const confidence = Math.min(avgDuration / (this.config.slowQueryThreshold * 2.5), 1);
 
     // 生成建议
     const suggestedActions = new Set<string>();
@@ -189,11 +213,9 @@ export class RootCauseAnalyzer {
    * 分析 API 调用
    */
   private analyzeApiIssues(apis: SlowAPICall[]): RootCauseCandidate | null {
-    const issues = this.apiTracker.identifyAPIIssues(apis);
+    if (apis.length === 0) return null;
     
-    if (issues.length === 0 && apis.length === 0) return null;
-    // 即使没有识别到具体问题，如果API调用多也应该返回候选
-    if (issues.length === 0 && apis.length <= 2) return null;
+    const issues = this.apiTracker.identifyAPIIssues(apis);
 
     // 统计
     const totalSlowApis = apis.length;
@@ -224,10 +246,13 @@ export class RootCauseAnalyzer {
       totalSlowApis > 5
     ) {
       severity = 'medium';
+    } else if (avgDuration > this.config.slowAPIThreshold) {
+      // Even with lower averages, if it's above threshold, at least medium
+      severity = 'medium';
     }
 
     // 计算置信度
-    const confidence = Math.min(avgDuration / (this.config.slowAPIThreshold * 5), 1);
+    const confidence = Math.min(avgDuration / (this.config.slowAPIThreshold * 2.5), 1);
 
     // 生成建议
     const suggestedActions = new Set<string>();
@@ -330,8 +355,8 @@ export class RootCauseAnalyzer {
     }
 
     // 计算置信度
-    const blockingTimeScore = Math.min(rendering.totalBlockingTime / 1000, 1);
-    const longTaskScore = Math.min(rendering.longTasks / 50, 1);
+    const blockingTimeScore = Math.min(rendering.totalBlockingTime / 500, 1);  // Increased from 1000
+    const longTaskScore = Math.min(rendering.longTasks / 25, 1);  // Increased from 50
     const confidence = (blockingTimeScore + longTaskScore) / 2;
 
     // 生成建议

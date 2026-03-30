@@ -2,7 +2,20 @@
  * 首页 - 重定向到图片优化示例
  */
 
+import type { Metadata } from 'next'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: '7zi Frontend - Next.js 图片优化示例',
+  description: 'Next.js 图片优化最佳实践展示，包含 WebP/AVIF 自动转换、响应式图片、懒加载等特性',
+  keywords: ['Next.js', 'Image Optimization', 'WebP', 'AVIF', 'Performance', 'React', '图片优化'],
+  openGraph: {
+    title: '7zi Frontend - Next.js 图片优化示例',
+    description: 'Next.js 图片优化最佳实践展示',
+    type: 'website',
+    locale: 'zh_CN',
+  },
+}
 
 export default function HomePage() {
   return (

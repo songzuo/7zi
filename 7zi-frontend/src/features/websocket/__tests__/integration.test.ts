@@ -53,7 +53,11 @@ describe('WebSocketAdvancedService Integration', () => {
         'Owner'
       );
 
+      // User2 加入房间后，让其成为 guest（无发送权限）
       await service.joinRoom(room.id, 'user2', 'Jane');
+
+      // 更新用户角色为 guest
+      service.updateMemberRole(room.id, 'user1', 'user2', 'guest');
 
       await expect(
         service.sendMessage(
@@ -274,12 +278,14 @@ describe('WebSocketAdvancedService Integration', () => {
 
       await service.joinRoom(room.id, 'user2', 'Jane');
 
-      // User goes offline
-      service.userOffline('user2');
+      // 记录离线时间
+      const offlineTime = Date.now();
+      service.setUserOfflineTime('user2', offlineTime);
 
-      // Send messages while user2 is offline
-      await new Promise(resolve => setTimeout(resolve, 10));
+      // 等待一小段时间确保时间差异
+      await new Promise(resolve => setTimeout(resolve, 5));
 
+      // 发送离线消息
       await service.sendMessage(
         room.id,
         'user1',
@@ -288,10 +294,10 @@ describe('WebSocketAdvancedService Integration', () => {
         'text'
       );
 
-      // User comes online
+      // 用户上线
       service.userOnline('user2');
 
-      // Sync offline messages
+      // 同步离线消息
       const offlineMessages = await service.syncOfflineMessages('user2');
 
       expect(offlineMessages.length).toBeGreaterThan(0);
@@ -310,12 +316,19 @@ describe('WebSocketAdvancedService Integration', () => {
 
       await service.joinRoom(room.id, 'user2', 'Jane');
 
-      service.userOffline('user2');
+      // 记录离线时间
+      const offlineTime = Date.now();
+      service.setUserOfflineTime('user2', offlineTime);
 
+      // 等待一小段时间确保时间差异
+      await new Promise(resolve => setTimeout(resolve, 5));
+
+      // 发送3条消息
       await service.sendMessage(room.id, 'user1', 'Owner', { text: 'Msg 1' }, 'text');
       await service.sendMessage(room.id, 'user1', 'Owner', { text: 'Msg 2' }, 'text');
       await service.sendMessage(room.id, 'user1', 'Owner', { text: 'Msg 3' }, 'text');
 
+      // 用户上线
       service.userOnline('user2');
 
       const unreadCounts = await service.getUnreadCounts('user2');

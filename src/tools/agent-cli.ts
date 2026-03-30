@@ -10,17 +10,17 @@ import {
   AgentScheduler, 
   SchedulerConfig,
   SchedulingResult
-} from '../lib/agent-scheduler/core/scheduler';
+} from '../lib/agents/scheduler/core/scheduler';
 import { 
   Task, 
   TaskPriority, 
   TaskType,
   createTask 
-} from '../lib/agent-scheduler/models/task-model';
+} from '../lib/agents/scheduler/models/task-model';
 import { 
   AgentCapability,
   TaskType as AgentTaskType 
-} from '../lib/agent-scheduler/models/agent-capability';
+} from '../lib/agents/scheduler/models/agent-capability';
 
 // Global scheduler instance (in real implementation, this would connect to a running service)
 let scheduler: AgentScheduler | null = null;

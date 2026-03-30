@@ -52,7 +52,7 @@ export function sanitizeObjectFromPrototypePollution<T extends Record<string, un
   for (const key in result) {
     const value = result[key];
     if (value && typeof value === 'object' && !Array.isArray(value)) {
-      result[key] = sanitizeObjectFromPrototypePollution(value);
+      (result as Record<string, unknown>)[key] = sanitizeObjectFromPrototypePollution(value as Record<string, unknown>);
     }
   }
 

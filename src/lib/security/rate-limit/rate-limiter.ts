@@ -14,6 +14,7 @@ export interface RateLimitConfig {
   windowMs: number;                              // 时间窗口（毫秒）
   maxRequests: number;                           // 窗口内最大请求数
   algorithm: 'sliding-window' | 'token-bucket'; // 算法类型
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   keyGenerator: (req: any) => string;            // 键生成器
   skipSuccessfulRequests?: boolean;              // 是否跳过成功的请求不计入限制
   skipFailedRequests?: boolean;                  // 是否跳过失败的请求不计入限制
@@ -67,6 +68,7 @@ export class DistributedRateLimiter {
    * @param req 请求对象
    * @returns 速率限制结果
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async check(req: any): Promise<RateLimitResult> {
     const key = this.config.keyGenerator(req);
 
@@ -177,6 +179,7 @@ export class DistributedRateLimiter {
    * 记录成功的请求（如果配置了 skipSuccessfulRequests）
    * @param req 请求对象
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async recordSuccess(req: any): Promise<void> {
     if (this.config.skipSuccessfulRequests) {
       // 不计入限制
@@ -189,6 +192,7 @@ export class DistributedRateLimiter {
    * 记录失败的请求（如果配置了 skipFailedRequests）
    * @param req 请求对象
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async recordFailure(req: any): Promise<void> {
     if (this.config.skipFailedRequests) {
       // 需要从计数中减去
@@ -217,6 +221,7 @@ export class DistributedRateLimiter {
    * 重置指定键的速率限制
    * @param req 请求对象
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async reset(req: any): Promise<void> {
     const key = this.config.keyGenerator(req);
 
@@ -297,6 +302,7 @@ export const KeyGenerators = {
   /**
    * IP 级别限制
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   byIP: (req: any): string => {
     const ip = req.headers?.['x-forwarded-for']?.split(',')[0]?.trim()
       || req.headers?.['x-real-ip']
@@ -309,6 +315,7 @@ export const KeyGenerators = {
   /**
    * 用户级别限制（需要 auth middleware）
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   byUser: (req: any): string => {
     const userId = req.user?.id || req.auth?.userId || 'anonymous';
     return `user:${userId}`;
@@ -317,6 +324,7 @@ export const KeyGenerators = {
   /**
    * API 级别限制（基于路径）
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   byAPI: (req: any): string => {
     const path = req.path || req.url?.split('?')[0] || 'unknown';
     return `api:${path}`;
@@ -325,6 +333,7 @@ export const KeyGenerators = {
   /**
    * 组合限制（用户 + IP）
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   byUserAndIP: (req: any): string => {
     const userId = req.user?.id || req.auth?.userId || 'anonymous';
     const ip = req.headers?.['x-forwarded-for']?.split(',')[0]?.trim()
@@ -338,6 +347,7 @@ export const KeyGenerators = {
   /**
    * 自定义键生成器
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   custom: (generator: (req: any) => string): ((req: any) => string) => {
     return generator;
   },

@@ -62,14 +62,17 @@ export async function encryptGCM(
   password: string,
   options: EncryptionOptions = {}
 ): Promise<EncryptedData> {
-  const opts = { ...DEFAULT_OPTIONS, ...options };
+  const keySize = options.keySize ?? DEFAULT_OPTIONS.keySize!;
+  const ivSize = options.ivSize ?? DEFAULT_OPTIONS.ivSize!;
+  const saltSize = options.saltSize ?? DEFAULT_OPTIONS.saltSize!;
+  const authTagSize = options.authTagSize ?? DEFAULT_OPTIONS.authTagSize!;
 
   // Generate random salt and IV
-  const salt = randomBytes(opts.saltSize);
-  const iv = randomBytes(opts.ivSize);
+  const salt = randomBytes(saltSize);
+  const iv = randomBytes(ivSize);
 
   // Derive key from password
-  const key = await deriveKey(password, salt, opts.keySize);
+  const key = await deriveKey(password, salt, keySize);
 
   // Convert data to JSON string
   const plaintext = JSON.stringify(data);
@@ -107,8 +110,8 @@ export async function decryptGCM<T = unknown>(
   password: string,
   options: EncryptionOptions = {}
 ): Promise<T> {
-  const opts = { ...DEFAULT_OPTIONS, ...options };
-
+  const keySize = options.keySize ?? DEFAULT_OPTIONS.keySize!;
+  
   // Decode base64 strings
   const salt = Buffer.from(encrypted.salt, 'base64');
   const iv = Buffer.from(encrypted.iv, 'base64');
@@ -116,7 +119,7 @@ export async function decryptGCM<T = unknown>(
   const encryptedData = Buffer.from(encrypted.data, 'base64');
 
   // Derive key from password
-  const key = await deriveKey(password, salt, opts.keySize);
+  const key = await deriveKey(password, salt, keySize);
 
   // Create decipher
   const decipher = createDecipheriv('aes-256-gcm', key, iv);
@@ -192,7 +195,7 @@ export async function encryptSensitiveFields<T extends Record<string, unknown>>(
     const value = result[field];
     if (value !== undefined && value !== null) {
       const encrypted = await encryptApiKeyGCM(String(value), password);
-      (result as any)[`_encrypted_${field}`] = encrypted;
+      (result as any)[`_encrypted_${String(field)}`] = encrypted;
       delete (result as any)[field];
     }
   }

@@ -220,7 +220,7 @@ describe('MCP JSON-RPC API Route', () => {
       expect(response.status).toBe(400);
       expect(data).toEqual({
         jsonrpc: '2.0' as const,
-        id: null,
+        id: 1,
         error: {
           code: -32600,
           message: 'Invalid Request: jsonrpc version must be 2.0',

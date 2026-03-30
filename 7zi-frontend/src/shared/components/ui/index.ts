@@ -28,5 +28,5 @@ export type {
   CardTextProps 
 } from './Card';
 
-export { Modal } from './Modal';
-export type { ModalProps } from './Modal';
+export { Modal } from '../../components/ui/Modal';
+export type { ModalProps } from '../../components/ui/Modal';

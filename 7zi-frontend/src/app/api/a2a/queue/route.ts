@@ -5,8 +5,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { agentScheduler } from '@/lib/agent-scheduler/scheduler';
-import type { ScheduleTaskRequest, UpdateTaskRequest } from '@/lib/agent-scheduler/types';
+import { agentScheduler } from '@/lib/agents/scheduler/scheduler';
+import type { ScheduleTaskRequest, UpdateTaskRequest } from '@/lib/agents/scheduler/types';
 import {
   createSuccessResponse,
   createErrorResponse,

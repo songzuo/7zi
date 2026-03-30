@@ -112,8 +112,3 @@ export function getSupportedImageFormats(): SupportedImageFormats {
     avif: canvas.toDataURL('image/avif').indexOf('data:image/avif') === 0,
   };
 }
-
-/**
- * 导出所有图片工具函数和类型
- */
-export type { CompressImageOptions, SupportedImageFormats };

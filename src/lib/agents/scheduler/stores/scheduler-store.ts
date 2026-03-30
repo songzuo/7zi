@@ -63,7 +63,7 @@ interface SchedulerState {
   setAgentAvailability: (agentId: string, available: boolean) => void;
   refresh: () => void;
   clearError: () => void;
-  updateConfig: (config: any) => void;
+  updateConfig: (config: unknown) => void;
 }
 
 /**
@@ -122,10 +122,11 @@ export const useSchedulerStore = create<SchedulerState>((set, get) => ({
           averageConfidence: metrics.averageConfidence
         }
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to initialize scheduler';
       set({
         isLoading: false,
-        error: error.message || 'Failed to initialize scheduler'
+        error: message
       });
     }
   },
@@ -201,10 +202,11 @@ export const useSchedulerStore = create<SchedulerState>((set, get) => ({
       const decision = await scheduler.scheduleTask(taskId);
       get().refresh();
       return decision;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to schedule task';
       set({
         isLoading: false,
-        error: error.message || 'Failed to schedule task'
+        error: message
       });
       return null;
     }
@@ -222,10 +224,11 @@ export const useSchedulerStore = create<SchedulerState>((set, get) => ({
     try {
       await scheduler.scheduleNextBatch();
       get().refresh();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to schedule batch';
       set({
         isLoading: false,
-        error: error.message || 'Failed to schedule batch'
+        error: message
       });
     }
   },
@@ -295,11 +298,12 @@ export const useSchedulerStore = create<SchedulerState>((set, get) => ({
   /**
    * Update scheduler configuration
    */
-  updateConfig: (config: any) => {
+  updateConfig: (config: unknown) => {
     const { scheduler } = get();
     if (!scheduler) return;
-
-    scheduler.updateConfig(config);
+    if (typeof config === 'object' && config !== null) {
+      scheduler.updateConfig(config as Record<string, unknown>);
+    }
     get().refresh();
   }
 }));

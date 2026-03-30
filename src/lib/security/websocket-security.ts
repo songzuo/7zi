@@ -291,7 +291,7 @@ class WSSecurityManager {
       logger.warn(`Message too large`, { size, maxSize, isBinary });
       return {
         valid: false,
-        reason: `Message too large (${size} > ${maxMaxSize})`,
+        reason: `Message too large (${size} > ${maxSize})`,
       };
     }
 
@@ -416,7 +416,8 @@ export function getWSSecurityManager(config?: WSSecurityConfig): WSSecurityManag
   if (!instance) {
     instance = new WSSecurityManager(config);
   } else if (config) {
-    // Update config if provided
+    // Update config if provided - eslint-disable for internal property access
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (instance as any).config = { ...DEFAULT_CONFIG, ...config };
   }
 
@@ -440,7 +441,7 @@ export function destroyWSSecurityManager(): void {
 /**
  * Get client IP from socket
  */
-export function getClientIP(socket: any): string {
+export function getClientIP(socket: { handshake?: { address?: string; headers?: Record<string, string> }; request?: { socket?: { remoteAddress?: string } } }): string {
   return (
     socket.handshake?.address ||
     socket.handshake?.headers?.['x-forwarded-for']?.split(',')[0]?.trim() ||

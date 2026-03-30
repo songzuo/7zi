@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: 'Validation Error',
-          errors: validationResult.errors.issues.map(err => ({
+          errors: validationResult.errors.map((err: z.ZodIssue) => ({
             field: err.path.join('.'),
             message: err.message,
           })),

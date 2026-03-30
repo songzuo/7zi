@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { EnhancedPerformanceDashboard } from '@/components/EnhancedPerformanceDashboard';
+import { EnhancedPerformanceDashboard } from '@/features/monitoring';
 import {
   monitoredFetch,
   monitor,

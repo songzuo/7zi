@@ -8,8 +8,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getAgentRegistry } from '@/lib/a2a/agent-registry';
-import { AgentRegistration } from '@/lib/a2a/types';
+import { getAgentRegistry } from '@/lib/agents/a2a/agent-registry';
+import { AgentRegistration } from '@/lib/agents/a2a/types';
 
 /**
  * GET /api/a2a/registry

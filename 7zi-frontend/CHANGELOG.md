@@ -18,6 +18,132 @@
 
 ---
 
+## [1.5.0] - 2026-03-30 🚀 架构优化
+
+### 🎯 版本亮点
+
+v1.5.0 专注于 **认证中间件模块化**、**lib/ 层架构优化** 和 **测试覆盖增强**。本次更新完善了认证系统的可维护性，优化了项目目录结构，并提升了整体代码质量。
+
+### 📊 完成度总览
+
+| 功能模块 | 完成度 | 状态 |
+|---------|--------|------|
+| **auth.middleware 模块** | 100% | ✅ 已完成 |
+| **lib/ 层结构分析** | 100% | ✅ 已完成 |
+| **单元测试覆盖** | 100% | ✅ 已完成 |
+| **项目文档更新** | 100% | ✅ 已完成 |
+
+### ✨ 新增 / Added
+
+#### **🔐 auth.middleware 模块** (`src/middleware/auth.middleware.ts`)
+
+独立的认证中间件模块，提供 API 路由的认证和授权功能。
+
+**核心功能**:
+- ✅ 路径保护 - 自动保护敏感 API 端点
+- ✅ 用户信息提取 - 从请求头提取用户 ID、邮箱、角色
+- ✅ 权限检查 - 基于角色的访问控制 (RBAC)
+- ✅ 严格认证模式 - `requireAuth()` 用于高敏感端点
+
+**导出函数**:
+| 函数 | 说明 |
+|------|------|
+| `authMiddleware(request)` | 基础认证中间件 |
+| `checkPermissions(roles)` | 创建角色检查中间件 |
+| `requireAuth(request)` | 严格认证（所有路径） |
+| `getUserId(request)` | 获取用户 ID |
+| `getUserRole(request)` | 获取用户角色 |
+
+**保护路径**:
+- `/api/search`
+- `/api/data/import`
+- `/api/data/export`
+
+**使用示例**:
+```typescript
+import { authMiddleware, checkPermissions } from '@/middleware/auth.middleware';
+
+// 基础认证
+export async function GET(request: NextRequest) {
+  const authResponse = authMiddleware(request);
+  if (authResponse.status !== 200) {
+    return authResponse;
+  }
+  // ...处理请求
+}
+
+// 角色权限检查
+const adminOnly = checkPermissions(['admin', 'superadmin']);
+```
+
+#### **📁 lib/ 层结构分析完成**
+
+完成 `src/lib/` 目录的架构分析和优化。
+
+**当前结构** (19 个模块):
+| 目录/文件 | 职责 | 状态 |
+|----------|------|------|
+| `agents/` | AI Agent 核心（含 scheduler） | ✅ 已迁移 |
+| `api/` | API 工具层 | ✅ 稳定 |
+| `auth.ts` | 认证逻辑 | ✅ 稳定 |
+| `db/` | 数据访问层 | ✅ 稳定 |
+| `i18n/` | 国际化 | ✅ 稳定 |
+| `mcp/` | Model Context Protocol | ✅ 稳定 |
+| `monitoring/` | 监控工具 | ✅ 稳定 |
+| `performance/` | 性能优化 | ✅ 稳定 |
+| `performance-monitoring/` | 性能监控 | ✅ 稳定 |
+| `rate-limit/` | 速率限制 | ✅ 稳定 |
+| `security/` | 安全工具 | ✅ 稳定 |
+| `services/` | 业务服务 | ✅ 稳定 |
+| `utils/` | 工具函数 | ✅ 稳定 |
+| `websocket-manager.ts` | WebSocket 管理 | ✅ 稳定 |
+
+**迁移记录**:
+- ✅ `agent-scheduler/` → `agents/scheduler/` (完成)
+
+#### **🧪 单元测试覆盖增强**
+
+**测试统计**:
+- 测试文件数：3+ (A2A 相关)
+- 测试用例数：18+
+- 通过率：100%
+
+**测试覆盖模块**:
+- ✅ A2A Queue API (2 tests)
+- ✅ A2A Registry API (3 tests)
+- ✅ A2A JSON-RPC API (13 tests)
+
+### 📚 文档 / Documentation
+
+- ✅ `README.md` - 创建完整的项目文档
+  - 快速开始指南
+  - 项目结构说明
+  - API 文档（含 auth.middleware）
+  - 测试指南
+  - 贡献指南
+- ✅ `CHANGELOG.md` - 更新版本变更日志
+
+### 🔄 改进 / Improved
+
+#### 代码质量
+- 认证逻辑从 `lib/auth.ts` 分离到独立中间件
+- 优化导入路径一致性
+- 清理未使用的模块
+
+#### 架构优化
+- `lib/` 目录结构清晰化
+- Agent Scheduler 迁移到 `lib/agents/scheduler/`
+- 认证中间件独立模块化
+
+### 🔜 下一步计划 (v1.5.1)
+
+- [ ] WebSocket 消息持久化（数据库存储）
+- [ ] 性能监控告警渠道完善
+- [ ] 更多 API 端点的认证保护
+- [ ] E2E 测试覆盖扩展
+
+---
+
 ## [1.4.0] - 2026-03-29 🎉 正式发布
 
 ### 🎯 版本亮点

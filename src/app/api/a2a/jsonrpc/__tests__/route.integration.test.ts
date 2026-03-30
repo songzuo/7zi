@@ -6,11 +6,11 @@
 import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 import { POST, OPTIONS } from '@/app/api/a2a/jsonrpc/route';
-import { getTaskStore } from '@/lib/a2a/task-store';
-import { createRequestHandler } from '@/lib/a2a/jsonrpc-handler';
-import { createSevenZiExecutor } from '@/lib/a2a/executor';
-import { getAgentCard, getExtendedAgentCard, resetAgentCards } from '@/lib/a2a/agent-card';
-import { type Task, type JsonRpcResponse } from '@/lib/a2a/types';
+import { getTaskStore } from '@/lib/agents/a2a/task-store';
+import { createRequestHandler } from '@/lib/agents/a2a/jsonrpc-handler';
+import { createSevenZiExecutor } from '@/lib/agents/a2a/executor';
+import { getAgentCard, getExtendedAgentCard, resetAgentCards } from '@/lib/agents/a2a/agent-card';
+import { type Task, type JsonRpcResponse } from '@/lib/agents/a2a/types';
 
 // Mock logger
 vi.mock('@/lib/logger', () => ({

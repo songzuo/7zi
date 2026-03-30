@@ -154,12 +154,12 @@ export type {
 // ============================================================================
 
 export {
-  setSecurityHeaders,
-  withSecurityHeaders,
-  createSecurityConfig,
-  getCSPNonce,
-  validateCSPConfig,
-  getAPIRouteCSP,
+  applySecurityHeaders,
+  getSecurityHeaders,
+  generateCSP,
+  generateHSTS,
+  generatePermissionsPolicy,
+  getSecurityConfig,
 } from './headers';
 
 export type {

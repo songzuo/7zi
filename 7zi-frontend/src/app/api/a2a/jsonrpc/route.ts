@@ -6,8 +6,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { agentScheduler } from '@/lib/agent-scheduler/scheduler';
-import type { JSONRPCRequest, JSONRPCResponse } from '@/lib/agent-scheduler/types';
+import { agentScheduler } from '@/lib/agents/scheduler/scheduler';
+import type { JSONRPCRequest, JSONRPCResponse } from '@/lib/agents/scheduler/types';
 import { authenticateJWT } from '@/lib/auth/api-auth';
 
 export async function POST(request: NextRequest) {
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
         result: result.data,
         id: body.id,
       };
-      return NextResponse.json(successResponse);
+      return NextResponse.json(successResponse, { status: result.httpStatus || 200 });
     } else {
       const errorResponse: JSONRPCResponse = {
         jsonrpc: '2.0',
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
         },
         id: body.id,
       };
-      return NextResponse.json(errorResponse, { status: result.httpStatus });
+      return NextResponse.json(errorResponse, { status: result.httpStatus || 400 });
     }
   } catch (error) {
     console.error('JSON-RPC error:', error);

@@ -11,8 +11,8 @@ import {
   CardImage,
   CardTitle,
   CardText,
-} from '../components/ui/Card';
-import { Button } from '../components/ui/Button';
+} from '../../components/ui/Card';
+import { Button } from '../../components/ui/Button';
 
 const meta: Meta<typeof Card> = {
   title: 'Components/Card',

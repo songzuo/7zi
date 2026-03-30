@@ -64,22 +64,19 @@ describe('GET /api/health', () => {
       const mockCacheManager = getCacheManager();
 
       const mockHealthStatus = {
-        success: true,
-        data: {
-          status: 'healthy' as const,
-          timestamp: new Date().toISOString(),
-          uptime: 123.456,
-          version: '1.0.0',
-          checks: {
-            memory: {
-              status: 'ok',
-              used: 100,
-              limit: 512,
-            },
-            node: {
-              status: 'ok',
-              version: 'v20.0.0',
-            },
+        status: 'healthy' as const,
+        timestamp: new Date().toISOString(),
+        uptime: 123.456,
+        version: '1.0.0',
+        checks: {
+          memory: {
+            status: 'ok',
+            used: 100,
+            limit: 512,
+          },
+          node: {
+            status: 'ok',
+            version: 'v20.0.0',
           },
         },
       };
@@ -90,9 +87,8 @@ describe('GET /api/health', () => {
       const data = await response.json();
 
       expect(response.status).toBe(200);
-      expect(data.success).toBe(true);
-      expect(data.data.status).toBe('healthy');
-      expect(data.data.checks.memory.status).toBe('ok');
+      expect(data.status).toBe('healthy');
+      expect(data.checks.memory.status).toBe('ok');
       expect(mockCacheManager.getOrSet).toHaveBeenCalled();
     });
 

@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getAgentRegistry } from '@/lib/a2a/agent-registry';
+import { getAgentRegistry } from '@/lib/agents/a2a/agent-registry';
 
 interface RouteContext {
   params: {

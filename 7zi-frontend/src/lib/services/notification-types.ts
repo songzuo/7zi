@@ -62,4 +62,8 @@ export interface NotificationFilter {
   taskId?: string;
   read?: boolean;
   since?: number;
+  limit?: number;
+  offset?: number;
+  startTime?: number;
+  endTime?: number;
 }

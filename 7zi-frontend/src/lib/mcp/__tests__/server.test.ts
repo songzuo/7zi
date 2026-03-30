@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MCPServer, mcpServer } from '../server';
+import type { MCPResponse } from '../server';
 
 describe('MCPServer', () => {
   let server: MCPServer;
@@ -166,12 +167,16 @@ describe('MCPServer', () => {
       };
 
       const response = await server.handleRequest(request);
+      
+      // Check that response is not an array
+      expect(Array.isArray(response)).toBe(false);
+      const singleResponse = response as MCPResponse;
 
-      expect(response.jsonrpc).toBe('2.0');
-      expect(response.id).toBe(1);
-      expect(response).not.toHaveProperty('error');
-      expect(response).toHaveProperty('result');
-      expect(response.result).toHaveProperty('tools');
+      expect(singleResponse.jsonrpc).toBe('2.0');
+      expect(singleResponse.id).toBe(1);
+      expect(singleResponse).not.toHaveProperty('error');
+      expect(singleResponse).toHaveProperty('result');
+      expect(singleResponse.result).toHaveProperty('tools');
     });
 
     it('应该处理 tools/call 请求', async () => {
@@ -186,11 +191,14 @@ describe('MCPServer', () => {
       };
 
       const response = await server.handleRequest(request);
+      
+      expect(Array.isArray(response)).toBe(false);
+      const singleResponse = response as MCPResponse;
 
-      expect(response.jsonrpc).toBe('2.0');
-      expect(response.id).toBe(2);
-      expect(response).toHaveProperty('result');
-      expect(response.result).toHaveProperty('content');
+      expect(singleResponse.jsonrpc).toBe('2.0');
+      expect(singleResponse.id).toBe(2);
+      expect(singleResponse).toHaveProperty('result');
+      expect(singleResponse.result).toHaveProperty('content');
     });
 
     it('应该返回方法未找到错误', async () => {
@@ -201,12 +209,15 @@ describe('MCPServer', () => {
       };
 
       const response = await server.handleRequest(request);
+      
+      expect(Array.isArray(response)).toBe(false);
+      const singleResponse = response as MCPResponse;
 
-      expect(response.jsonrpc).toBe('2.0');
-      expect(response.id).toBe(3);
-      expect(response).toHaveProperty('error');
-      expect(response.error?.code).toBe(-32601);
-      expect(response.error?.message).toContain('Method not found');
+      expect(singleResponse.jsonrpc).toBe('2.0');
+      expect(singleResponse.id).toBe(3);
+      expect(singleResponse).toHaveProperty('error');
+      expect(singleResponse.error?.code).toBe(-32601);
+      expect(singleResponse.error?.message).toContain('Method not found');
     });
 
     it('应该处理内部错误', async () => {
@@ -222,10 +233,13 @@ describe('MCPServer', () => {
       };
 
       const response = await server.handleRequest(request);
+      
+      expect(Array.isArray(response)).toBe(false);
+      const singleResponse = response as MCPResponse;
 
-      expect(response.jsonrpc).toBe('2.0');
-      expect(response.id).toBe(4);
-      expect(response).toHaveProperty('result');
+      expect(singleResponse.jsonrpc).toBe('2.0');
+      expect(singleResponse.id).toBe(4);
+      expect(singleResponse).toHaveProperty('result');
     });
 
     it('应该保留请求中的 id', async () => {
@@ -237,8 +251,9 @@ describe('MCPServer', () => {
       };
 
       const response = await server.handleRequest(request);
-
-      expect(response.id).toBe(testId);
+      
+      expect(Array.isArray(response)).toBe(false);
+      expect((response as MCPResponse).id).toBe(testId);
     });
 
     it('应该处理字符串类型的 id', async () => {
@@ -249,8 +264,9 @@ describe('MCPServer', () => {
       };
 
       const response = await server.handleRequest(request);
-
-      expect(response.id).toBe('string-id');
+      
+      expect(Array.isArray(response)).toBe(false);
+      expect((response as MCPResponse).id).toBe('string-id');
     });
 
     it('应该处理数字类型的 id', async () => {
@@ -261,8 +277,9 @@ describe('MCPServer', () => {
       };
 
       const response = await server.handleRequest(request);
-
-      expect(response.id).toBe(12345);
+      
+      expect(Array.isArray(response)).toBe(false);
+      expect((response as MCPResponse).id).toBe(12345);
     });
   });
 
@@ -333,8 +350,10 @@ describe('MCPServer', () => {
 
       expect(responses).toHaveLength(3);
       responses.forEach((response, index) => {
-        expect(response.id).toBe(index + 1);
-        expect(response.result).toHaveProperty('tools');
+        expect(Array.isArray(response)).toBe(false);
+        const singleResponse = response as MCPResponse;
+        expect(singleResponse.id).toBe(index + 1);
+        expect(singleResponse.result).toHaveProperty('tools');
       });
     });
 

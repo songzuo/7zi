@@ -2,9 +2,17 @@
  * Zod Validation Schemas
  *
  * 使用 Zod 定义的输入验证模式，防止注入攻击
+ *
+ * 注意：此文件中的安全清理函数（sanitizeSqlString, sanitizeNoSqlString 等）
+ * 专门用于防止注入攻击，比 validation.ts 中的 sanitizeHtmlBasic 更全面。
  */
 
 import { z } from 'zod';
+import { PATTERNS } from './validation';
+
+// ============================================================================
+// Core String Validations (使用共享的正则模式)
+// ============================================================================
 
 /**
  * 通用字符串验证
@@ -20,13 +28,13 @@ export const uuidSchema = z.string().uuid('无效的 UUID 格式');
 export const idSchema = z.union([uuidSchema, z.string().min(1, 'ID 不能为空')]);
 
 /**
- * 用户名验证
+ * 用户名验证（使用共享模式）
  */
 export const usernameSchema = z
   .string()
   .min(3, '用户名至少 3 个字符')
   .max(20, '用户名最多 20 个字符')
-  .regex(/^[a-zA-Z0-9_]+$/, '用户名只能包含字母、数字和下划线');
+  .regex(PATTERNS.username, '用户名只能包含字母、数字和下划线');
 
 /**
  * 密码验证
@@ -46,11 +54,11 @@ export const strongPasswordSchema = passwordSchema.regex(
 );
 
 /**
- * 手机号验证（中国大陆）
+ * 手机号验证（中国大陆，使用共享模式）
  */
 export const phoneNumberSchema = z
   .string()
-  .regex(/^1[3-9]\d{9}$/, '手机号格式无效');
+  .regex(PATTERNS.phoneCN, '手机号格式无效');
 
 /**
  * URL 验证
@@ -58,14 +66,11 @@ export const phoneNumberSchema = z
 export const urlSchema = z.string().url('URL 格式无效');
 
 /**
- * IP 地址验证
+ * IP 地址验证（IPv4，使用共享模式）
  */
 export const ipv4Schema = z
   .string()
-  .regex(
-    /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/,
-    'IPv4 地址格式无效'
-  );
+  .regex(PATTERNS.ipv4, 'IPv4 地址格式无效');
 
 /**
  * 分页参数验证
@@ -198,7 +203,7 @@ export const createNotificationSchema = z.object({
   type: z.enum(['info', 'warning', 'error', 'success']),
   title: nonEmptyString.max(100),
   message: z.string().max(500),
-  data: z.record(z.unknown()).optional(),
+  data: z.record(z.string(), z.unknown()).optional(),
 });
 
 /**
@@ -310,7 +315,7 @@ export async function validateAndSanitizeBody<T extends Record<string, unknown>>
   body: unknown,
   schema: z.ZodSchema<T>,
   sanitizeType: 'sql' | 'nosql' | 'html' | 'command' | 'general' = 'general'
-): Promise<{ success: true; data: T } | { success: false; errors: z.ZodError }> {
+): Promise<{ success: true; data: T } | { success: false; errors: z.ZodIssue[] }> {
   // 先清理输入
   const sanitizedBody = typeof body === 'object' && body !== null
     ? sanitizeObject(body as Record<string, unknown>, sanitizeType)
@@ -323,20 +328,22 @@ export async function validateAndSanitizeBody<T extends Record<string, unknown>>
     return { success: true, data: result.data };
   }
 
-  return { success: false, errors: result.error };
+  return { success: false, errors: result.error.issues };
 }
 
 /**
  * 创建验证错误响应
  */
-export function createValidationErrorResponse(error: z.ZodError): Response {
-  const errors = error.errors.map((err) => ({
+export function createValidationErrorResponse(error: z.ZodIssue[] | z.ZodError): Response {
+  const issues = Array.isArray(error) ? error : error.issues;
+  const errors = issues.map((err) => ({
     field: err.path.join('.'),
     message: err.message,
   }));
 
   return new Response(
     JSON.stringify({
+      success: false,
       error: 'Validation Error',
       errors,
     }),

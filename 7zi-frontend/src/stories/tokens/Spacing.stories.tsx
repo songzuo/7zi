@@ -50,7 +50,7 @@ const SpacingRuler = () => (
 );
 
 // 所有间距
-export const AllSpacing: Story = {
+export const AllSpacing: StoryObj = {
   render: () => (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-900">间距系统 (Spacing Scale)</h2>
@@ -63,7 +63,7 @@ export const AllSpacing: Story = {
 };
 
 // 间距示例
-export const SpacingExamples: Story = {
+export const SpacingExamples: StoryObj = {
   render: () => {
     const examples = [
       { label: '小间距 (spacing-2, spacing-3)', spacing: 'p-3 space-y-2' },
@@ -99,7 +99,7 @@ export const SpacingExamples: Story = {
 };
 
 // 卡片间距
-export const CardSpacing: Story = {
+export const CardSpacing: StoryObj = {
   render: () => {
     return (
       <div className="space-y-6">
@@ -138,7 +138,7 @@ export const CardSpacing: Story = {
 };
 
 // 间距对照表
-export const SpacingReference: Story = {
+export const SpacingReference: StoryObj = {
   render: () => {
     const reference = [
       { size: '0.25rem (4px)', usage: '图标与文字之间' },
@@ -207,7 +207,7 @@ export const SpacingReference: Story = {
 };
 
 // 负间距
-export const NegativeSpacing: Story = {
+export const NegativeSpacing: StoryObj = {
   render: () => {
     return (
       <div className="space-y-6">

@@ -238,7 +238,12 @@ export function validateHTTPRequestSignature(
   const finalConfig = { ...DEFAULT_CONFIG, ...config };
 
   // Get signature from headers
-  const signature = headers[finalConfig.headerName.toLowerCase()] as string;
+  let signature: string | undefined;
+  if (headers instanceof Headers) {
+    signature = headers.get(finalConfig.headerName!.toLowerCase()) ?? undefined;
+  } else {
+    signature = headers[finalConfig.headerName!.toLowerCase()] as string;
+  }
   if (!signature) {
     return {
       valid: false,
@@ -247,7 +252,12 @@ export function validateHTTPRequestSignature(
   }
 
   // Get timestamp from headers
-  const timestampHeader = headers[finalConfig.timestampHeader.toLowerCase()] as string;
+  let timestampHeader: string | undefined;
+  if (headers instanceof Headers) {
+    timestampHeader = headers.get(finalConfig.timestampHeader!.toLowerCase()) ?? undefined;
+  } else {
+    timestampHeader = headers[finalConfig.timestampHeader!.toLowerCase()] as string;
+  }
   if (!timestampHeader) {
     return {
       valid: false,
@@ -296,8 +306,8 @@ export function addSignatureToHeaders(
   const finalConfig = { ...DEFAULT_CONFIG, ...config };
   const { signature, timestamp } = signHTTPRequest(method, path, body, config);
 
-  headers[finalConfig.headerName] = signature;
-  headers[finalConfig.timestampHeader] = String(timestamp);
+  headers[finalConfig.headerName!] = signature;
+  headers[finalConfig.timestampHeader!] = String(timestamp);
 }
 
 // ============================================================================
@@ -317,8 +327,8 @@ export function extractSignatureData(
 } {
   const finalConfig = { ...DEFAULT_CONFIG, ...config };
 
-  const signature = headers.get(finalConfig.headerName);
-  const timestampHeader = headers.get(finalConfig.timestampHeader);
+  const signature = headers.get(finalConfig.headerName!);
+  const timestampHeader = headers.get(finalConfig.timestampHeader!);
   const timestamp = timestampHeader ? parseInt(timestampHeader, 10) : undefined;
 
   return {

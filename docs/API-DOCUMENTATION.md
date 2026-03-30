@@ -80,32 +80,50 @@ The 7zi Project exposes RESTful API endpoints through Next.js App Router. All en
 
 **Endpoint**: `GET /api/health`
 
-**Description**: Basic health check for Kubernetes/Docker health probes. Checks memory usage and Node.js runtime health.
+**Description**: Basic health check for Kubernetes/Docker health probes. Checks memory usage and Node.js runtime health. Returns 503 if memory usage exceeds 90% of limit.
 
 **Response**:
 ```json
 {
   "status": "healthy",
-  "timestamp": "2026-03-18T20:14:00.000Z",
-  "uptime": 3600.5,
-  "version": "0.1.0",
+  "timestamp": "2026-03-30T12:00:00.000Z",
+  "uptime": 3600,
+  "version": "1.4.0",
   "checks": {
     "memory": {
       "status": "ok",
-      "used": 45,
+      "used": 128,
       "limit": 512
     },
     "node": {
       "status": "ok",
-      "version": "v22.22.0"
+      "version": "v22.22.1"
     }
   }
 }
 ```
 
-**Status Codes**: `200 OK` (healthy), `503 Service Unavailable` (unhealthy)
+**Response Fields**:
+- `status`: Overall health status - `"healthy"` or `"unhealthy"`
+- `timestamp`: ISO 8601 timestamp
+- `uptime`: Process uptime in seconds (integer)
+- `version`: Application version from `npm_package_version`, `APP_VERSION`, or fallback to `"1.0.6"`
+- `checks.memory.status`: `"ok"` if memory < 90% of limit, `"warning"` otherwise
+- `checks.memory.used`: Current heap usage in MB
+- `checks.memory.limit`: Memory limit in MB (fixed at 512)
+- `checks.node.status`: Always `"ok"` if Node.js is running
+- `checks.node.version`: Node.js version
 
-**Special Headers**: `Cache-Control: no-cache`
+**Status Codes**:
+- `200 OK` - Health status is `"healthy"` (memory usage < 90%)
+- `503 Service Unavailable` - Health status is `"unhealthy"` (memory usage >= 90%)
+
+**Special Headers**:
+- `Cache-Control: no-cache`
+
+**Behavior**:
+- Overall status is `"unhealthy"` when `memory.status` is `"warning"` (> 90% used)
+- HEAD method also supported (returns same status code without body)
 
 ---
 
@@ -113,11 +131,17 @@ The 7zi Project exposes RESTful API endpoints through Next.js App Router. All en
 
 **Endpoint**: `GET /api/health/live`
 
-**Description**: Kubernetes liveness probe endpoint. Always returns 200 if the process is running.
+**Description**: Kubernetes liveness probe endpoint. Always returns 200 if the process is running. Used by Kubernetes to determine if the container should be restarted.
 
-**Response**: Simple JSON response with liveness status.
+**Response**:
+```json
+{
+  "success": true,
+  "status": "alive"
+}
+```
 
-**Status Codes**: `200 OK` (alive)
+**Status Codes**: `200 OK` (always, if process is running)
 
 ---
 
@@ -125,11 +149,64 @@ The 7zi Project exposes RESTful API endpoints through Next.js App Router. All en
 
 **Endpoint**: `GET /api/health/ready`
 
-**Description**: Kubernetes readiness probe endpoint. Returns 200 only when all critical dependencies are available (database, external services).
+**Description**: Kubernetes readiness probe endpoint. Returns 200 only when all critical dependencies are available. Checks external services (GitHub API, Email service).
 
-**Response**: JSON with readiness status and dependency checks.
+**Response** (ready):
+```json
+{
+  "ready": true,
+  "status": "ok",
+  "timestamp": "2026-03-30T12:00:00.000Z",
+  "version": "1.4.0",
+  "uptime": 3600,
+  "environment": "production",
+  "checks": {
+    "githubApi": {
+      "status": "ok",
+      "latency": 150
+    },
+    "emailService": {
+      "status": "ok",
+      "latency": 80
+    }
+  }
+}
+```
 
-**Status Codes**: `200 OK` (ready), `503 Service Unavailable` (not ready)
+**Response** (not ready):
+```json
+{
+  "ready": false,
+  "status": "error",
+  "timestamp": "2026-03-30T12:00:00.000Z",
+  "version": "1.4.0",
+  "uptime": 3600,
+  "environment": "production",
+  "checks": {
+    "githubApi": {
+      "status": "error",
+      "message": "GitHub API returned status 503"
+    },
+    "emailService": {
+      "status": "error",
+      "message": "Network timeout"
+    }
+  }
+}
+```
+
+**Status Values**:
+- `"ok"` - All checks passed
+- `"degraded"` - Some checks failed but service is operational
+- `"error"` - Critical checks failed
+
+**Status Codes**:
+- `200 OK` - Status is `"ok"` or `"degraded"`
+- `503 Service Unavailable` - Status is `"error"`
+
+**External Service Checks**:
+- `githubApi`: Checks `https://api.github.com/zen` with 5s timeout
+- `emailService`: Checks Resend API (if `RESEND_API_KEY` configured)
 
 ---
 
@@ -137,27 +214,60 @@ The 7zi Project exposes RESTful API endpoints through Next.js App Router. All en
 
 **Endpoint**: `GET /api/health/detailed`
 
-**Description**: Detailed health check with dependency status, including database connectivity, external service health, and system metrics.
+**Description**: Detailed health check with dependency status, including external services and system metrics. **Requires JWT authentication**.
 
-**Response**:
+**Authentication**: Required - Bearer token in Authorization header
+```
+Authorization: Bearer <your-jwt-token>
+```
+
+**Response** (authenticated):
 ```json
 {
-  "status": "healthy",
-  "timestamp": "2026-03-18T20:14:00.000Z",
+  "status": "ok",
+  "timestamp": "2026-03-30T12:00:00.000Z",
+  "version": "1.4.0",
+  "uptime": 3600,
+  "environment": "production",
   "checks": {
-    "database": {
-      "status": "healthy",
-      "responseTime": 15
+    "githubApi": {
+      "status": "ok",
+      "latency": 150
     },
-    "externalServices": {
-      "github": "healthy",
-      "email": "healthy"
+    "emailService": {
+      "status": "ok",
+      "message": "Resend API key not configured",
+      "latency": 0
     }
   }
 }
 ```
 
-**Status Codes**: `200 OK` (healthy), `503 Service Unavailable` (unhealthy)
+**Response** (unauthenticated):
+```json
+{
+  "success": false,
+  "error": {
+    "code": "UNAUTHORIZED",
+    "message": "Authentication required for detailed health check"
+  }
+}
+```
+
+**Status Values**:
+- `"ok"` - All checks passed
+- `"degraded"` - Some checks failed but service is operational
+- `"error"` - Critical checks failed
+
+**Status Codes**:
+- `200 OK` - Authenticated and health status is `"ok"` or `"degraded"`
+- `401 Unauthorized` - Missing or invalid authentication token
+- `503 Service Unavailable` - Health status is `"error"`
+
+**Security**:
+- All requests are logged for security monitoring
+- Invalid tokens return 401 Unauthorized
+- Token must have minimum 10 characters
 
 ---
 

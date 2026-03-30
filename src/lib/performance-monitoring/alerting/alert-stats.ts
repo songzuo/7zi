@@ -529,9 +529,18 @@ export class AlertStatsCollector {
       ? resolutionTimes[Math.max(0, p95Index - 1)]
       : 0;
 
-    // Calculate resolutions per hour
+    // Calculate resolutions per hour (optimized: single pass instead of two .map() calls)
     const timeSpan = alerts.length > 0
-      ? Math.max(1, (Math.max(...alerts.map(a => a.createdAt)) - Math.min(...alerts.map(a => a.createdAt))) / 3600000)
+      ? Math.max(1, (() => {
+          const { min, max } = alerts.reduce(
+            (acc, a) => ({
+              min: Math.min(acc.min, a.createdAt),
+              max: Math.max(acc.max, a.createdAt)
+            }),
+            { min: Infinity, max: -Infinity }
+          );
+          return max - min;
+        })() / 3600000)
       : 1;
     const resolutionsPerHour = resolvedAlerts.length / timeSpan;
 

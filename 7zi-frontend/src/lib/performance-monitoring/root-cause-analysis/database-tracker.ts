@@ -214,6 +214,27 @@ export class DatabaseTracker {
       }
     }
 
+    // 如果没有检测到问题但查询很慢，返回通用问题
+    if (issues.length === 0 && queries.length > 0) {
+      const slowest = queries.reduce((a, b) => (a.duration > b.duration ? a : b));
+      if (slowest.duration > 1000) {
+        // Determine severity based on how slow the query is
+        let severity: 'low' | 'medium' | 'high' | 'critical' = 'medium';
+        if (slowest.duration > 3000) {
+          severity = 'high';
+        } else if (slowest.duration > 5000) {
+          severity = 'critical';
+        }
+        
+        issues.push({
+          type: 'slow-join',
+          severity,
+          suggestion: `Slow query detected (${slowest.duration}ms). Review execution plan and consider indexing`,
+          query: slowest.query,
+        });
+      }
+    }
+
     return issues;
   }
 

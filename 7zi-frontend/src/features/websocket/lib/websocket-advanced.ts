@@ -269,16 +269,34 @@ export class WebSocketAdvancedService {
   // ==================== 离线同步 ====================
 
   /**
+   * 获取用户最后在线时间
+   */
+  getUserLastOnline(userId: string): number | undefined {
+    return this.userLastOnline.get(userId);
+  }
+
+  /**
+   * 设置用户离线时间（测试用）
+   */
+  setUserOfflineTime(userId: string, time: number): void {
+    this.userLastOnline.set(userId, time);
+  }
+
+  /**
    * 用户上线
    */
   userOnline(userId: string): void {
-    this.userLastOnline.set(userId, Date.now());
+    // 只记录上线状态，保留离线时间用于同步
+    if (!this.userLastOnline.has(userId)) {
+      this.userLastOnline.set(userId, 0);
+    }
   }
 
   /**
    * 用户离线
    */
   userOffline(userId: string): void {
+    // 记录离线时间
     this.userLastOnline.set(userId, Date.now());
   }
 

@@ -11,10 +11,13 @@ export {
   type WaterfallEntry,
   type WaterfallAnalysis,
   type CriticalPathSegment,
-  type FirstContentfulPaintData,
   createMockResourceTiming,
   fromPerformanceResourceTiming,
 } from './performance-waterfall';
+
+export {
+  type FirstContentfulPaintData,
+} from './performance-waterfall-enhanced';
 
 export {
   SlowRequestTracker,

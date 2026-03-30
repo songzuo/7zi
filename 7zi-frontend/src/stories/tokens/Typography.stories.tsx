@@ -12,7 +12,7 @@ const meta: Meta = {
 export default meta;
 
 // 字体族
-export const FontFamilies: Story = {
+export const FontFamilies: StoryObj = {
   render: () => (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-900">字体族 (Font Families)</h2>
@@ -47,7 +47,7 @@ export const FontFamilies: Story = {
 };
 
 // 字体大小
-export const FontSizes: Story = {
+export const FontSizes: StoryObj = {
   render: () => {
     const sizes = [
       { name: 'text-xs', token: '--font-size-xs', value: '0.75rem (12px)' },
@@ -86,7 +86,7 @@ export const FontSizes: Story = {
 };
 
 // 字重
-export const FontWeights: Story = {
+export const FontWeights: StoryObj = {
   render: () => {
     const weights = [
       { name: 'font-normal', value: '400', token: '--font-weight-normal' },
@@ -120,7 +120,7 @@ export const FontWeights: Story = {
 };
 
 // 行高
-export const LineHeights: Story = {
+export const LineHeights: StoryObj = {
   render: () => {
     const heights = [
       { name: 'leading-tight', value: '1.25', token: '--line-height-tight' },
@@ -153,7 +153,7 @@ export const LineHeights: Story = {
 };
 
 // 标题层级
-export const Headings: Story = {
+export const Headings: StoryObj = {
   render: () => {
     const headings = [
       { level: 1, text: '一级标题 Heading 1', classes: 'text-5xl font-bold' },
@@ -184,7 +184,7 @@ export const Headings: Story = {
 };
 
 // 排版示例
-export const TypographyExample: Story = {
+export const TypographyExample: StoryObj = {
   render: () => (
     <div className="max-w-2xl space-y-6">
       <h2 className="text-4xl font-bold text-gray-900 mb-4">
@@ -234,7 +234,7 @@ export const TypographyExample: Story = {
 };
 
 // 文本颜色
-export const TextColors: Story = {
+export const TextColors: StoryObj = {
   render: () => {
     const textColors = [
       { name: '主文本', classes: 'text-gray-900', hex: '#111827' },

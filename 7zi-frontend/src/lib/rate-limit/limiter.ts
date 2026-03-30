@@ -40,6 +40,11 @@ export interface RateLimitResult {
    * 是否超出限流
    */
   exceeded: boolean;
+
+  /**
+   * 当前计数
+   */
+  count: number;
 }
 
 /**
@@ -73,6 +78,7 @@ export class RateLimiter {
       resetAfter,
       limit: this.config.maxRequests,
       exceeded,
+      count: entry.count,
     };
   }
 
@@ -91,6 +97,7 @@ export class RateLimiter {
         resetAfter: Math.ceil(this.config.windowMs / 1000),
         limit: this.config.maxRequests,
         exceeded: false,
+        count: 0,
       };
     }
 
@@ -105,6 +112,7 @@ export class RateLimiter {
       resetAfter,
       limit: this.config.maxRequests,
       exceeded,
+      count: entry.count,
     };
   }
 

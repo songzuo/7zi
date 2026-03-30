@@ -205,7 +205,12 @@ export function getCSRFTokenFromRequest(
   body?: Record<string, unknown>
 ): string | undefined {
   // Try header first
-  const headerToken = headers['x-csrf-token'] as string | undefined;
+  let headerToken: string | undefined;
+  if (headers instanceof Headers) {
+    headerToken = headers.get('x-csrf-token') ?? undefined;
+  } else {
+    headerToken = headers['x-csrf-token'] as string | undefined;
+  }
   if (headerToken) {
     return headerToken;
   }

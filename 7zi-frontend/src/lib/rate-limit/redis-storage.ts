@@ -11,27 +11,16 @@
 import { IRateLimitStorage, RateLimitEntry } from './storage';
 
 /**
- * Redis client interface for type safety
- */
-interface RedisClient {
-  get(key: string): Promise<string | null>;
-  set(key: string, value: string, mode?: string, duration?: number): Promise<string | null>;
-  del(key: string): Promise<number>;
-  keys(pattern: string): Promise<string[]>;
-  incr(key: string): Promise<number>;
-  expire(key: string, seconds: number): Promise<number>;
-  quit(): Promise<void>;
-}
-
-/**
  * Redis 限流存储类
  */
 export class RedisRateLimitStorage implements IRateLimitStorage {
-  private redis: RedisClient | null = null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private redis: any = null;
   private keyPrefix = 'rate-limit:';
   private initialized = false;
 
-  constructor(redisClient?: RedisClient) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  constructor(redisClient?: any) {
     if (redisClient) {
       this.redis = redisClient;
       this.initialized = true;
@@ -113,10 +102,13 @@ export class RedisRateLimitStorage implements IRateLimitStorage {
     const count = parseInt(countStr, 10);
     const ttl = await this.redis.pttl(redisKey);
 
+    // windowStart can be estimated from TTL and resetTime
+    const resetTime = Date.now() + ttl;
+
     return {
       count,
-      resetTime: Date.now() + ttl,
-      windowStart: Date.now() - (windowMs || 0),
+      resetTime,
+      windowStart: resetTime - ttl,
     };
   }
 
@@ -175,7 +167,8 @@ export class RedisRateLimitStorage implements IRateLimitStorage {
   /**
    * 获取 Redis 客户端实例（用于高级操作）
    */
-  getRedisClient(): RedisClient | null {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getRedisClient(): any {
     return this.redis;
   }
 }

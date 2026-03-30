@@ -194,7 +194,7 @@ export class InMemoryStorage<T = unknown> {
       // 检查值条件
       if (condition.value !== undefined) {
         if (typeof condition.value === 'function') {
-          if (!condition.value(item.value)) continue;
+          if (!(condition.value as (value: T) => boolean)(item.value)) continue;
         } else if (item.value !== condition.value) {
           continue;
         }

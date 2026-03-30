@@ -9,23 +9,23 @@ import { NextRequest } from 'next/server';
 import { logger } from '@/lib/logger';
 
 // Mock dependencies
-vi.mock('@/lib/a2a/jsonrpc-handler', () => ({
+vi.mock('@/lib/agents/a2a/jsonrpc-handler', () => ({
   createRequestHandler: vi.fn(() => ({
     handleRequest: vi.fn(),
   })),
   getTaskStore: vi.fn(() => ({})),
 }));
 
-vi.mock('@/lib/a2a/executor', () => ({
+vi.mock('@/lib/agents/a2a/executor', () => ({
   createSevenZiExecutor: vi.fn(() => ({})),
 }));
 
-vi.mock('@/lib/a2a/agent-card', () => ({
+vi.mock('@/lib/agents/a2a/agent-card', () => ({
   getAgentCard: vi.fn(() => ({})),
   getExtendedAgentCard: vi.fn(() => ({})),
 }));
 
-vi.mock('@/lib/a2a/task-store', () => ({
+vi.mock('@/lib/agents/a2a/task-store', () => ({
   getTaskStore: vi.fn(() => ({})),
 }));
 
@@ -89,7 +89,7 @@ describe('/api/a2a/jsonrpc route', () => {
       });
 
       // Mock handler response
-      const { createRequestHandler } = await import('@/lib/a2a/jsonrpc-handler');
+      const { createRequestHandler } = await import('@/lib/agents/a2a/jsonrpc-handler');
       const mockHandler = {
         handleRequest: vi.fn().mockResolvedValue({
           jsonrpc: '2.0',
@@ -240,7 +240,7 @@ describe('/api/a2a/jsonrpc route', () => {
       });
 
       // Mock handler to throw error
-      const { createRequestHandler } = await import('@/lib/a2a/jsonrpc-handler');
+      const { createRequestHandler } = await import('@/lib/agents/a2a/jsonrpc-handler');
       const mockHandler = {
         handleRequest: vi.fn().mockRejectedValue(new Error('Internal error')),
       };
@@ -295,7 +295,7 @@ describe('/api/a2a/jsonrpc route', () => {
       });
 
       // Mock handler to return method not found error
-      const { createRequestHandler } = await import('@/lib/a2a/jsonrpc-handler');
+      const { createRequestHandler } = await import('@/lib/agents/a2a/jsonrpc-handler');
       const mockHandler = {
         handleRequest: vi.fn().mockResolvedValue({
           jsonrpc: '2.0',
@@ -323,7 +323,7 @@ describe('/api/a2a/jsonrpc route', () => {
       });
 
       // Mock handler to return invalid params error
-      const { createRequestHandler } = await import('@/lib/a2a/jsonrpc-handler');
+      const { createRequestHandler } = await import('@/lib/agents/a2a/jsonrpc-handler');
       const mockHandler = {
         handleRequest: vi.fn().mockResolvedValue({
           jsonrpc: '2.0',
@@ -350,7 +350,7 @@ describe('/api/a2a/jsonrpc route', () => {
       });
 
       // Mock handler to return success
-      const { createRequestHandler } = await import('@/lib/a2a/jsonrpc-handler');
+      const { createRequestHandler } = await import('@/lib/agents/a2a/jsonrpc-handler');
       const mockHandler = {
         handleRequest: vi.fn().mockResolvedValue({
           jsonrpc: '2.0',
@@ -383,7 +383,7 @@ describe('/api/a2a/jsonrpc route', () => {
       });
 
       // Mock handler to throw error
-      const { createRequestHandler } = await import('@/lib/a2a/jsonrpc-handler');
+      const { createRequestHandler } = await import('@/lib/agents/a2a/jsonrpc-handler');
       const mockHandler = {
         handleRequest: vi.fn().mockRejectedValue(new Error('Dev error')),
       };
@@ -416,7 +416,7 @@ describe('/api/a2a/jsonrpc route', () => {
       });
 
       // Mock handler to throw error
-      const { createRequestHandler } = await import('@/lib/a2a/jsonrpc-handler');
+      const { createRequestHandler } = await import('@/lib/agents/a2a/jsonrpc-handler');
       const mockHandler = {
         handleRequest: vi.fn().mockRejectedValue(new Error('Prod error')),
       };

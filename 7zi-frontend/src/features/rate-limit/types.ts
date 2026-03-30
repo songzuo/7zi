@@ -15,6 +15,7 @@ export interface RateLimitResult {
   limit: number;
   remaining: number;
   reset: Date;
+  count?: number;
   retryAfter?: number;
 }
 

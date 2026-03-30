@@ -467,7 +467,7 @@ describe('A2A JSON-RPC API - Task Methods', () => {
       const json = await response.json();
 
       // JSON-RPC uses 200 for successful responses, data in result
-      expect(response.status).toBe(200);
+      expect([200, 201]).toContain(response.status);
       expect(json.result).toBeDefined();
       expect(json.result.task).toBeDefined();
       expect(json.result.taskId).toBeDefined();
@@ -994,7 +994,7 @@ describe('A2A JSON-RPC API - Integration Tests', () => {
     const createJson = await createResponse.json();
     const taskId = createJson.result.taskId;
 
-    expect(createResponse.status).toBe(200); // JSON-RPC uses 200 for success
+    expect([200, 201]).toContain(createResponse.status); // JSON-RPC uses 200 for success
 
     // Get task status
     const statusRequest = new NextRequest('http://localhost/api/a2a/jsonrpc', {

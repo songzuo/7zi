@@ -8,7 +8,7 @@
 
 import { useEffect, useMemo } from 'react';
 import { useDarkMode } from '@/stores/preferencesStore';
-import { useSchedulerStore, selectAgents, selectTasks, selectStats, selectIsLoading, selectError } from '@/lib/agent-scheduler/stores/scheduler-store';
+import { useSchedulerStore, selectAgents, selectTasks, selectStats, selectIsLoading, selectError } from '@/lib/agents/scheduler/stores/scheduler-store';
 import StatsCard, { type TrendDirection } from '@/components/agent-dashboard/StatsCard';
 import TaskList from '@/components/agent-dashboard/TaskList';
 import TeamStatus from '@/components/agent-dashboard/TeamStatus';

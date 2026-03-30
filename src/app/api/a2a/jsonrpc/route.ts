@@ -8,11 +8,11 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { A2ARequestHandler, createRequestHandler } from '@/lib/a2a/jsonrpc-handler';
-import { getTaskStore } from '@/lib/a2a/task-store';
-import { createSevenZiExecutor } from '@/lib/a2a/executor';
-import { getAgentCard, getExtendedAgentCard } from '@/lib/a2a/agent-card';
-import { JsonRpcRequest, JsonRpcResponse } from '@/lib/a2a/types';
+import { A2ARequestHandler, createRequestHandler } from '@/lib/agents/a2a/jsonrpc-handler';
+import { getTaskStore } from '@/lib/agents/a2a/task-store';
+import { createSevenZiExecutor } from '@/lib/agents/a2a/executor';
+import { getAgentCard, getExtendedAgentCard } from '@/lib/agents/a2a/agent-card';
+import { JsonRpcRequest, JsonRpcResponse } from '@/lib/agents/a2a/types';
 import { jsonRpcRequestSchema, jsonRpcBatchRequestSchema, validateBody, formatValidationErrors } from '@/lib/api/validation';
 import { logger } from '@/lib/logger';
 

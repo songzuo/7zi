@@ -1,0 +1,2625 @@
+{
+  "statistics": {
+    "detectionDate": "2026-03-30T05:38:17.302Z",
+    "formats": {
+      "javascript": {
+        "sources": {
+          "src/shared/components/ui/Modal.tsx": {
+            "lines": 41,
+            "tokens": 241,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/shared/components/ui/Input.tsx": {
+            "lines": 67,
+            "tokens": 371,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/shared/components/ui/Card.tsx": {
+            "lines": 75,
+            "tokens": 609,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/shared/components/ui/Button.tsx": {
+            "lines": 2,
+            "tokens": 17,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/shared/components/__tests__/LanguageSwitcher.test.tsx": {
+            "lines": 0,
+            "tokens": 3,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/features/websocket/components/WebSocketStatusPanel.tsx": {
+            "lines": 182,
+            "tokens": 1669,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/features/monitoring/components/SimplePerformanceDashboard.tsx": {
+            "lines": 106,
+            "tokens": 1112,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/features/monitoring/components/PerformanceDashboard.tsx": {
+            "lines": 181,
+            "tokens": 1744,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 181,
+            "duplicatedTokens": 1744,
+            "percentage": 100,
+            "percentageTokens": 100,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/features/monitoring/components/EnhancedPerformanceDashboard.tsx": {
+            "lines": 330,
+            "tokens": 3239,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 330,
+            "duplicatedTokens": 3242,
+            "percentage": 100,
+            "percentageTokens": 100.09,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/notifications/__tests__/NotificationProvider.test.tsx": {
+            "lines": 113,
+            "tokens": 826,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/notification-demo/enhanced/page.tsx": {
+            "lines": 463,
+            "tokens": 3697,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/examples/ux-improvements/page.tsx": {
+            "lines": 413,
+            "tokens": 3192,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/design-system/tokens/page.tsx": {
+            "lines": 101,
+            "tokens": 1152,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/design-system/responsive/page.tsx": {
+            "lines": 0,
+            "tokens": 3,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/design-system/components/page.tsx": {
+            "lines": 0,
+            "tokens": 9,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/design-system/changelog/page.tsx": {
+            "lines": 14,
+            "tokens": 164,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/admin/feedback/page.tsx": {
+            "lines": 33,
+            "tokens": 209,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/[locale]/knowledge-lattice/page.tsx": {
+            "lines": 0,
+            "tokens": 6,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/test/seo/seo-schema.test.tsx": {
+            "lines": 178,
+            "tokens": 1649,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/stories/ui/Modal.stories.tsx": {
+            "lines": 266,
+            "tokens": 1923,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 178,
+            "duplicatedTokens": 1408,
+            "percentage": 66.92,
+            "percentageTokens": 73.22,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/stories/ui/Input.stories.tsx": {
+            "lines": 0,
+            "tokens": 3,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/stories/tokens/Typography.stories.tsx": {
+            "lines": 239,
+            "tokens": 2363,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/stories/tokens/Spacing.stories.tsx": {
+            "lines": 146,
+            "tokens": 1325,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/stories/tokens/Colors.stories.tsx": {
+            "lines": 137,
+            "tokens": 1340,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/stories/tokens/Breakpoints.stories.tsx": {
+            "lines": 204,
+            "tokens": 1409,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/shared/context/ThemeContext.tsx": {
+            "lines": 0,
+            "tokens": 9,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/shared/components/LanguageSwitcher.tsx": {
+            "lines": 48,
+            "tokens": 333,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/shared/components/LanguageProvider.tsx": {
+            "lines": 7,
+            "tokens": 38,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/shared/components/DynamicIcon.tsx": {
+            "lines": 39,
+            "tokens": 270,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/websocket/WebSocketStatusPanel.tsx": {
+            "lines": 182,
+            "tokens": 1669,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/ui/ThemeSwitcher.tsx": {
+            "lines": 71,
+            "tokens": 371,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/ui/TaskCard.tsx": {
+            "lines": 220,
+            "tokens": 1462,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/ui/Skeleton.tsx": {
+            "lines": 336,
+            "tokens": 2239,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/ui/NavigationSkeleton.tsx": {
+            "lines": 149,
+            "tokens": 1047,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/ui/Modal.tsx": {
+            "lines": 41,
+            "tokens": 241,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/ui/Loading.tsx": {
+            "lines": 195,
+            "tokens": 1272,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/ui/LazyImage.tsx": {
+            "lines": 90,
+            "tokens": 551,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/ui/Input.tsx": {
+            "lines": 431,
+            "tokens": 2801,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/ui/EmptyState.tsx": {
+            "lines": 318,
+            "tokens": 1617,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 94,
+            "duplicatedTokens": 464,
+            "percentage": 29.56,
+            "percentageTokens": 28.7,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/ui/Card.tsx": {
+            "lines": 383,
+            "tokens": 2190,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/ui/Button.tsx": {
+            "lines": 138,
+            "tokens": 811,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/seo/JsonLd.tsx": {
+            "lines": 108,
+            "tokens": 688,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/rooms/RoomStatusIndicator.tsx": {
+            "lines": 71,
+            "tokens": 420,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/rooms/RoomList.tsx": {
+            "lines": 240,
+            "tokens": 1792,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/rooms/RoomInvite.tsx": {
+            "lines": 103,
+            "tokens": 757,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/rooms/RoomDetail.tsx": {
+            "lines": 317,
+            "tokens": 2360,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/performance/SmartPrefetch.tsx": {
+            "lines": 190,
+            "tokens": 1468,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/notifications/NotificationToaster.tsx": {
+            "lines": 8,
+            "tokens": 72,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/notifications/NotificationToast.tsx": {
+            "lines": 30,
+            "tokens": 229,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/notifications/NotificationProvider.tsx": {
+            "lines": 0,
+            "tokens": 3,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/notifications/NotificationCenter.tsx": {
+            "lines": 215,
+            "tokens": 1587,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/knowledge-lattice/KnowledgeLattice3D.tsx": {
+            "lines": 2,
+            "tokens": 21,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/feedback/FeedbackModal.tsx": {
+            "lines": 251,
+            "tokens": 1840,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/feedback/FeedbackAdminPanel.tsx": {
+            "lines": 570,
+            "tokens": 4580,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/feedback/EnhancedFeedbackModal.tsx": {
+            "lines": 308,
+            "tokens": 2487,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/websocket-status-demo/page.tsx": {
+            "lines": 92,
+            "tokens": 645,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/ui-components-demo/page.tsx": {
+            "lines": 78,
+            "tokens": 555,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/notification-demo/page.tsx": {
+            "lines": 185,
+            "tokens": 1311,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/monitoring-example/page.tsx": {
+            "lines": 118,
+            "tokens": 719,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/mobile-optimization-demo/page.tsx": {
+            "lines": 170,
+            "tokens": 1251,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/image-optimization-demo/page.tsx": {
+            "lines": 144,
+            "tokens": 1148,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/i18n-demo/page.tsx": {
+            "lines": 0,
+            "tokens": 3,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/i18n-demo/ClientExample.tsx": {
+            "lines": 2,
+            "tokens": 31,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/feedback/page.tsx": {
+            "lines": 256,
+            "tokens": 1625,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/design-system/page.tsx": {
+            "lines": 90,
+            "tokens": 744,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/dark-mode-demo/page.tsx": {
+            "lines": 0,
+            "tokens": 3,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/stories/Page.tsx": {
+            "lines": 3,
+            "tokens": 57,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/stories/Header.tsx": {
+            "lines": 5,
+            "tokens": 69,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/stories/Button.tsx": {
+            "lines": 0,
+            "tokens": 19,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/websocket-stability-demo.tsx": {
+            "lines": 131,
+            "tokens": 1022,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/SimplePerformanceDashboard.tsx": {
+            "lines": 106,
+            "tokens": 1112,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/PerformanceDashboard.tsx": {
+            "lines": 181,
+            "tokens": 1744,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 181,
+            "duplicatedTokens": 1744,
+            "percentage": 100,
+            "percentageTokens": 100,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/OptimizedImage.tsx": {
+            "lines": 124,
+            "tokens": 794,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/ErrorBoundary.tsx": {
+            "lines": 125,
+            "tokens": 799,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/EnhancedPerformanceDashboard.tsx": {
+            "lines": 330,
+            "tokens": 3242,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 330,
+            "duplicatedTokens": 3242,
+            "percentage": 100,
+            "percentageTokens": 100,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/layout.tsx": {
+            "lines": 6,
+            "tokens": 74,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 10498,
+          "tokens": 80467,
+          "sources": 76,
+          "clones": 4,
+          "duplicatedLines": 647,
+          "duplicatedTokens": 5922,
+          "percentage": 6.16,
+          "percentageTokens": 7.36,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "tsx": {
+        "sources": {
+          "src/shared/components/ui/Modal.tsx": {
+            "lines": 171,
+            "tokens": 1069,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 171,
+            "duplicatedTokens": 1069,
+            "percentage": 100,
+            "percentageTokens": 100,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/shared/components/ui/Input.tsx": {
+            "lines": 158,
+            "tokens": 940,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/shared/components/ui/Card.tsx": {
+            "lines": 115,
+            "tokens": 887,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/shared/components/ui/Button.tsx": {
+            "lines": 100,
+            "tokens": 585,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 23,
+            "duplicatedTokens": 115,
+            "percentage": 23,
+            "percentageTokens": 19.66,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/shared/components/__tests__/LanguageSwitcher.test.tsx": {
+            "lines": 64,
+            "tokens": 613,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/features/websocket/components/WebSocketStatusPanel.tsx": {
+            "lines": 359,
+            "tokens": 2949,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 321,
+            "duplicatedTokens": 2824,
+            "percentage": 89.42,
+            "percentageTokens": 95.76,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/features/monitoring/components/SimplePerformanceDashboard.tsx": {
+            "lines": 197,
+            "tokens": 1895,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 164,
+            "duplicatedTokens": 1736,
+            "percentage": 83.25,
+            "percentageTokens": 91.61,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/features/monitoring/components/PerformanceDashboard.tsx": {
+            "lines": 332,
+            "tokens": 3031,
+            "sources": 1,
+            "clones": 3,
+            "duplicatedLines": 439,
+            "duplicatedTokens": 4173,
+            "percentage": 132.23,
+            "percentageTokens": 137.68,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/features/monitoring/components/EnhancedPerformanceDashboard.tsx": {
+            "lines": 566,
+            "tokens": 5116,
+            "sources": 1,
+            "clones": 5,
+            "duplicatedLines": 658,
+            "duplicatedTokens": 6124,
+            "percentage": 116.25,
+            "percentageTokens": 119.7,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/notifications/__tests__/NotificationProvider.test.tsx": {
+            "lines": 419,
+            "tokens": 3103,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/notification-demo/enhanced/page.tsx": {
+            "lines": 681,
+            "tokens": 5399,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 19,
+            "duplicatedTokens": 179,
+            "percentage": 2.79,
+            "percentageTokens": 3.32,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/examples/ux-improvements/page.tsx": {
+            "lines": 469,
+            "tokens": 3685,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/design-system/tokens/page.tsx": {
+            "lines": 136,
+            "tokens": 1450,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/design-system/responsive/page.tsx": {
+            "lines": 147,
+            "tokens": 1491,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/design-system/guidelines/page.tsx": {
+            "lines": 170,
+            "tokens": 1261,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/design-system/components/page.tsx": {
+            "lines": 140,
+            "tokens": 1130,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/design-system/changelog/page.tsx": {
+            "lines": 129,
+            "tokens": 1032,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/admin/feedback/page.tsx": {
+            "lines": 75,
+            "tokens": 515,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/[locale]/knowledge-lattice/page.tsx": {
+            "lines": 79,
+            "tokens": 559,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/[locale]/knowledge-lattice/layout.tsx": {
+            "lines": 34,
+            "tokens": 237,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/test/seo/seo-schema.test.tsx": {
+            "lines": 353,
+            "tokens": 2965,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 30,
+            "duplicatedTokens": 310,
+            "percentage": 8.5,
+            "percentageTokens": 10.46,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/stories/ui/Modal.stories.tsx": {
+            "lines": 355,
+            "tokens": 2511,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/stories/ui/Input.stories.tsx": {
+            "lines": 148,
+            "tokens": 1089,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/stories/ui/Card.stories.tsx": {
+            "lines": 214,
+            "tokens": 1470,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/stories/ui/Button.stories.tsx": {
+            "lines": 127,
+            "tokens": 913,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/stories/tokens/Typography.stories.tsx": {
+            "lines": 272,
+            "tokens": 2599,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/stories/tokens/Spacing.stories.tsx": {
+            "lines": 254,
+            "tokens": 2282,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/stories/tokens/Colors.stories.tsx": {
+            "lines": 238,
+            "tokens": 2342,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/stories/tokens/Breakpoints.stories.tsx": {
+            "lines": 369,
+            "tokens": 2691,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/shared/context/ThemeContext.tsx": {
+            "lines": 90,
+            "tokens": 712,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/shared/components/LanguageSwitcher.tsx": {
+            "lines": 114,
+            "tokens": 712,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/shared/components/LanguageProvider.tsx": {
+            "lines": 74,
+            "tokens": 509,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/shared/components/DynamicIcon.tsx": {
+            "lines": 78,
+            "tokens": 1007,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/websocket/WebSocketStatusPanel.tsx": {
+            "lines": 357,
+            "tokens": 2944,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 321,
+            "duplicatedTokens": 2824,
+            "percentage": 89.92,
+            "percentageTokens": 95.92,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/ui/ThemeSwitcher.tsx": {
+            "lines": 133,
+            "tokens": 797,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/ui/TaskCard.tsx": {
+            "lines": 331,
+            "tokens": 2388,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/ui/Skeleton.tsx": {
+            "lines": 446,
+            "tokens": 2898,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/ui/NavigationSkeleton.tsx": {
+            "lines": 184,
+            "tokens": 1201,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/ui/Modal.tsx": {
+            "lines": 175,
+            "tokens": 1078,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 171,
+            "duplicatedTokens": 1069,
+            "percentage": 97.71,
+            "percentageTokens": 99.17,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/ui/Loading.tsx": {
+            "lines": 255,
+            "tokens": 1613,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/ui/LazyImage.tsx": {
+            "lines": 336,
+            "tokens": 2227,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/ui/Input.tsx": {
+            "lines": 515,
+            "tokens": 3258,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/ui/EmptyState.tsx": {
+            "lines": 394,
+            "tokens": 2015,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/ui/Card.tsx": {
+            "lines": 468,
+            "tokens": 2617,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/ui/Button.tsx": {
+            "lines": 329,
+            "tokens": 1981,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 23,
+            "duplicatedTokens": 115,
+            "percentage": 6.99,
+            "percentageTokens": 5.81,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/seo/JsonLd.tsx": {
+            "lines": 141,
+            "tokens": 883,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/rooms/RoomStatusIndicator.tsx": {
+            "lines": 195,
+            "tokens": 1100,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/rooms/RoomList.tsx": {
+            "lines": 453,
+            "tokens": 3372,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/rooms/RoomInvite.tsx": {
+            "lines": 193,
+            "tokens": 1332,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/rooms/RoomDetail.tsx": {
+            "lines": 510,
+            "tokens": 3905,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/performance/SmartPrefetch.tsx": {
+            "lines": 522,
+            "tokens": 4175,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/notifications/NotificationToaster.tsx": {
+            "lines": 93,
+            "tokens": 652,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/notifications/NotificationToast.tsx": {
+            "lines": 136,
+            "tokens": 1014,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/notifications/NotificationProvider.tsx": {
+            "lines": 56,
+            "tokens": 290,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/notifications/NotificationCenter.tsx": {
+            "lines": 309,
+            "tokens": 2156,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 19,
+            "duplicatedTokens": 179,
+            "percentage": 6.15,
+            "percentageTokens": 8.3,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/knowledge-lattice/KnowledgeLattice3DBad.example.tsx": {
+            "lines": 14,
+            "tokens": 103,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/knowledge-lattice/KnowledgeLattice3D.tsx": {
+            "lines": 178,
+            "tokens": 1720,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/feedback/FeedbackModal.tsx": {
+            "lines": 538,
+            "tokens": 4385,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/feedback/FeedbackAdminPanel.tsx": {
+            "lines": 932,
+            "tokens": 7592,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/feedback/EnhancedFeedbackModal.tsx": {
+            "lines": 549,
+            "tokens": 4535,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/websocket-status-demo/page.tsx": {
+            "lines": 307,
+            "tokens": 2438,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/ui-components-demo/page.tsx": {
+            "lines": 340,
+            "tokens": 2162,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/notification-demo/page.tsx": {
+            "lines": 295,
+            "tokens": 2063,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/monitoring-example/page.tsx": {
+            "lines": 375,
+            "tokens": 2733,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/mobile-optimization-demo/page.tsx": {
+            "lines": 307,
+            "tokens": 2375,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/image-optimization-demo/page.tsx": {
+            "lines": 202,
+            "tokens": 1672,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/i18n-demo/page.tsx": {
+            "lines": 160,
+            "tokens": 1086,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/i18n-demo/ClientExample.tsx": {
+            "lines": 73,
+            "tokens": 590,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/feedback/page.tsx": {
+            "lines": 347,
+            "tokens": 2264,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/feedback/layout.tsx": {
+            "lines": 28,
+            "tokens": 207,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/design-system/page.tsx": {
+            "lines": 211,
+            "tokens": 1467,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/dark-mode-demo/page.tsx": {
+            "lines": 371,
+            "tokens": 2465,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/[locale]/not-found.tsx": {
+            "lines": 17,
+            "tokens": 117,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/stories/Page.tsx": {
+            "lines": 72,
+            "tokens": 744,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/stories/Header.tsx": {
+            "lines": 53,
+            "tokens": 438,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/stories/Button.tsx": {
+            "lines": 38,
+            "tokens": 236,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/websocket-stability-demo.tsx": {
+            "lines": 314,
+            "tokens": 2642,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/SimplePerformanceDashboard.tsx": {
+            "lines": 199,
+            "tokens": 1900,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 164,
+            "duplicatedTokens": 1736,
+            "percentage": 82.41,
+            "percentageTokens": 91.37,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/PerformanceDashboard.tsx": {
+            "lines": 332,
+            "tokens": 3031,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 332,
+            "duplicatedTokens": 3031,
+            "percentage": 100,
+            "percentageTokens": 100,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/OptimizedImage.tsx": {
+            "lines": 311,
+            "tokens": 1844,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/ErrorBoundary.tsx": {
+            "lines": 222,
+            "tokens": 1300,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/components/EnhancedPerformanceDashboard.tsx": {
+            "lines": 574,
+            "tokens": 5181,
+            "sources": 1,
+            "clones": 3,
+            "duplicatedLines": 551,
+            "duplicatedTokens": 4982,
+            "percentage": 95.99,
+            "percentageTokens": 96.16,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/page.tsx": {
+            "lines": 67,
+            "tokens": 450,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/not-found.tsx": {
+            "lines": 17,
+            "tokens": 117,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/app/layout.tsx": {
+            "lines": 64,
+            "tokens": 419,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 21265,
+          "tokens": 160921,
+          "sources": 85,
+          "clones": 13,
+          "duplicatedLines": 1703,
+          "duplicatedTokens": 15233,
+          "percentage": 8.01,
+          "percentageTokens": 9.47,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "css": {
+        "sources": {
+          "src/stories/Button.tsx": {
+            "lines": 4,
+            "tokens": 13,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 4,
+          "tokens": 13,
+          "sources": 1,
+          "clones": 0,
+          "duplicatedLines": 0,
+          "duplicatedTokens": 0,
+          "percentage": 0,
+          "percentageTokens": 0,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      }
+    },
+    "total": {
+      "lines": 31767,
+      "tokens": 241401,
+      "sources": 162,
+      "clones": 17,
+      "duplicatedLines": 2350,
+      "duplicatedTokens": 21155,
+      "percentage": 7.4,
+      "percentageTokens": 8.76,
+      "newDuplicatedLines": 0,
+      "newClones": 0
+    }
+  },
+  "duplicates": [
+    {
+      "format": "tsx",
+      "lines": 17,
+      "fragment": ";\n\n  const formatNumber = (num: number, decimals: number = 2): string => {\n    return num.toFixed(decimals);\n  };\n\n  const formatPercent = (num: number): string => {\n    return `${(num * 100).toFixed(2)}%`;\n  };\n\n  const formatDuration = (ms: number): string => {\n    if (ms < 1000) return `${formatNumber(ms, 0)}ms`;\n    if (ms < 60000) return `${formatNumber(ms / 1000, 2)}s`;\n    return `${formatNumber(ms / 60000, 2)}m`;\n  };\n\n  const getScoreColor",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/features/monitoring/components/EnhancedPerformanceDashboard.tsx",
+        "start": 146,
+        "end": 162,
+        "startLoc": {
+          "line": 146,
+          "column": 2,
+          "position": 1064
+        },
+        "endLoc": {
+          "line": 162,
+          "column": 14,
+          "position": 1263
+        }
+      },
+      "secondFile": {
+        "name": "src/features/monitoring/components/PerformanceDashboard.tsx",
+        "start": 89,
+        "end": 105,
+        "startLoc": {
+          "line": 89,
+          "column": 2,
+          "position": 667
+        },
+        "endLoc": {
+          "line": 105,
+          "column": 17,
+          "position": 866
+        }
+      }
+    },
+    {
+      "format": "tsx",
+      "lines": 92,
+      "fragment": "</div>\n      )}\n\n      {/* Metrics Grid */}\n      {metrics && (\n        <div className=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4\">\n          {/* API Requests */}\n          <div className=\"bg-zinc-800 rounded-lg p-4\">\n            <div className=\"flex items-center justify-between mb-3\">\n              <div className=\"flex items-center space-x-2\">\n                <Activity className=\"text-blue-500 w-5 h-5\" />\n                <span className=\"text-sm font-medium text-zinc-300\">API Requests</span>\n              </div>\n              <TrendingDown className=\"text-green-500 w-4 h-4\" />\n            </div>\n            <div className=\"space-y-2\">\n              <div className=\"flex justify-between items-center\">\n                <span className=\"text-2xl font-bold text-white\">\n                  {metrics.apiMetrics.totalRequests}\n                </span>\n                <span className=\"text-xs text-zinc-500\">Last 5 min</span>\n              </div>\n              <div className=\"space-y-1\">\n                <div className=\"flex justify-between text-sm\">\n                  <span className=\"text-zinc-400\">Success Rate</span>\n                  <span className={formatPercent(metrics.apiMetrics.successRate) === '100.00%' ? 'text-green-400' : 'text-yellow-400'}>\n                    {formatPercent(metrics.apiMetrics.successRate)}\n                  </span>\n                </div>\n                <div className=\"flex justify-between text-sm\">\n                  <span className=\"text-zinc-400\">Avg Response</span>\n                  <span className=\"text-white\">{formatDuration(metrics.apiMetrics.averageResponseTime)}</span>\n                </div>\n                <div className=\"flex justify-between text-sm\">\n                  <span className=\"text-zinc-400\">Error Rate</span>\n                  <span className={metrics.apiMetrics.errorRate > 0.05 ? 'text-red-400' : 'text-zinc-300'}>\n                    {formatPercent(metrics.apiMetrics.errorRate)}\n                  </span>\n                </div>\n              </div>\n            </div>\n          </div>\n\n          {/* Operations */}\n          <div className=\"bg-zinc-800 rounded-lg p-4\">\n            <div className=\"flex items-center justify-between mb-3\">\n              <div className=\"flex items-center space-x-2\">\n                <Zap className=\"text-yellow-500 w-5 h-5\" />\n                <span className=\"text-sm font-medium text-zinc-300\">Operations</span>\n              </div>\n              <TrendingDown className=\"text-green-500 w-4 h-4\" />\n            </div>\n            <div className=\"space-y-2\">\n              <div className=\"flex justify-between items-center\">\n                <span className=\"text-2xl font-bold text-white\">\n                  {metrics.operationMetrics.totalOperations}\n                </span>\n                <span className=\"text-xs text-zinc-500\">Last 5 min</span>\n              </div>\n              <div className=\"space-y-1\">\n                <div className=\"flex justify-between text-sm\">\n                  <span className=\"text-zinc-400\">Success Rate</span>\n                  <span className={formatPercent(metrics.operationMetrics.successRate) === '100.00%' ? 'text-green-400' : 'text-yellow-400'}>\n                    {formatPercent(metrics.operationMetrics.successRate)}\n                  </span>\n                </div>\n                <div className=\"flex justify-between text-sm\">\n                  <span className=\"text-zinc-400\">Avg Duration</span>\n                  <span className=\"text-white\">{formatDuration(metrics.operationMetrics.averageDuration)}</span>\n                </div>\n              </div>\n            </div>\n          </div>\n\n          {/* Errors */}\n          <div className=\"bg-zinc-800 rounded-lg p-4\">\n            <div className=\"flex items-center justify-between mb-3\">\n              <div className=\"flex items-center space-x-2\">\n                <AlertTriangle className=\"text-red-500 w-5 h-5\" />\n                <span className=\"text-sm font-medium text-zinc-300\">Errors</span>\n              </div>\n              <TrendingDown className=\"text-green-500 w-4 h-4\" />\n            </div>\n            <div className=\"space-y-2\">\n              <div className=\"flex justify-between items-center\">\n                <span className=\"text-2xl font-bold text-white\">\n                  {metrics.errorMetrics.totalErrors}\n                </span>\n                <span className=\"text-xs text-zinc-500\">Last 5 min</span>\n              </div>\n              {Object.keys(metrics.errorMetrics.errorsByType).length > 0 && (\n                <div className=\"space-y-1 max-h-20 overflow-y-auto",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/features/monitoring/components/EnhancedPerformanceDashboard.tsx",
+        "start": 357,
+        "end": 448,
+        "startLoc": {
+          "line": 357,
+          "column": 9,
+          "position": 2987
+        },
+        "endLoc": {
+          "line": 448,
+          "column": 35,
+          "position": 3930
+        }
+      },
+      "secondFile": {
+        "name": "src/features/monitoring/components/PerformanceDashboard.tsx",
+        "start": 217,
+        "end": 308,
+        "startLoc": {
+          "line": 217,
+          "column": 9,
+          "position": 1839
+        },
+        "endLoc": {
+          "line": 308,
+          "column": 35,
+          "position": 2782
+        }
+      }
+    },
+    {
+      "format": "tsx",
+      "lines": 16,
+      "fragment": ", () => {\n      const components = [\n        <OrganizationJsonLd name=\"Test\" url=\"https://test.com\" />,\n        <WebSiteJsonLd name=\"Test\" url=\"https://test.com\" />,\n        <BreadcrumbJsonLd items={[{ name: 'Home', url: 'https://test.com' }]} />,\n        <SoftwareApplicationJsonLd\n          name=\"Test\"\n          description=\"Test\"\n          url=\"https://test.com\"\n        />,\n      ]\n\n      components.forEach((component) => {\n        const { container } = render(component)\n        const script = container.querySelector('script[type=\"application/ld+json\"]')\n        const",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/test/seo/seo-schema.test.tsx",
+        "start": 313,
+        "end": 328,
+        "startLoc": {
+          "line": 313,
+          "column": 26,
+          "position": 2543
+        },
+        "endLoc": {
+          "line": 328,
+          "column": 6,
+          "position": 2698
+        }
+      },
+      "secondFile": {
+        "name": "src/test/seo/seo-schema.test.tsx",
+        "start": 294,
+        "end": 309,
+        "startLoc": {
+          "line": 294,
+          "column": 24,
+          "position": 2351
+        },
+        "endLoc": {
+          "line": 309,
+          "column": 7,
+          "position": 2506
+        }
+      }
+    },
+    {
+      "format": "javascript",
+      "lines": 90,
+      "fragment": "={() => setIsOpen(true)}>小模态框</Button>\n        <Modal\n          isOpen={isOpen}\n          onClose={() => setIsOpen(false)}\n          title=\"小尺寸模态框\"\n          size=\"sm\"\n        >\n          <p>这是一个小尺寸的模态框。</p>\n        </Modal>\n      </div>\n    );\n  },\n};\n\n// 大尺寸\nexport const Large: Story = {\n  render: () => {\n    const [isOpen, setIsOpen] = useState(false);\n    \n    return (\n      <div>\n        <Button onClick={() => setIsOpen(true)}>大模态框</Button>\n        <Modal\n          isOpen={isOpen}\n          onClose={() => setIsOpen(false)}\n          title=\"大尺寸模态框\"\n          size=\"lg\"\n        >\n          <div className=\"space-y-4\">\n            <p>这是一个大尺寸的模态框。</p>\n            <p>可以容纳更多的内容，适合展示详细信息或表单。</p>\n            <p>这里可以放置各种内容，包括文本、图片、表格等。</p>\n          </div>\n        </Modal>\n      </div>\n    );\n  },\n};\n\n// 超大尺寸\nexport const ExtraLarge: Story = {\n  render: () => {\n    const [isOpen, setIsOpen] = useState(false);\n    \n    return (\n      <div>\n        <Button onClick={() => setIsOpen(true)}>超大模态框</Button>\n        <Modal\n          isOpen={isOpen}\n          onClose={() => setIsOpen(false)}\n          title=\"超大尺寸模态框\"\n          size=\"xl\"\n        >\n          <div className=\"grid grid-cols-2 gap-4\">\n            <div className=\"p-4 bg-gray-100 rounded\">\n              <h3 className=\"font-semibold mb-2\">区域 1</h3>\n              <p>这是第一个内容区域。</p>\n            </div>\n            <div className=\"p-4 bg-gray-100 rounded\">\n              <h3 className=\"font-semibold mb-2\">区域 2</h3>\n              <p>这是第二个内容区域。</p>\n            </div>\n            <div className=\"p-4 bg-gray-100 rounded\">\n              <h3 className=\"font-semibold mb-2\">区域 3</h3>\n              <p>这是第三个内容区域。</p>\n            </div>\n            <div className=\"p-4 bg-gray-100 rounded\">\n              <h3 className=\"font-semibold mb-2\">区域 4</h3>\n              <p>这是第四个内容区域。</p>\n            </div>\n          </div>\n        </Modal>\n      </div>\n    );\n  },\n};\n\n// 无遮罩层\nexport const NoOverlay: Story = {\n  render: () => {\n    const [isOpen, setIsOpen] = useState(false);\n    \n    return (\n      <div>\n        <Button onClick={() => setIsOpen(true)}>无遮罩模态框</Button>\n        <Modal\n          isOpen={isOpen}\n          onClose={() => setIsOpen(false)}\n          title=\"无遮罩层模态框\"\n          showOverlay={false",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/stories/ui/Modal.stories.tsx",
+        "start": 66,
+        "end": 155,
+        "startLoc": {
+          "line": 66,
+          "column": 8,
+          "position": 469
+        },
+        "endLoc": {
+          "line": 155,
+          "column": 6,
+          "position": 1173
+        }
+      },
+      "secondFile": {
+        "name": "src/stories/ui/Modal.stories.tsx",
+        "start": 46,
+        "end": 150,
+        "startLoc": {
+          "line": 46,
+          "column": 8,
+          "position": 327
+        },
+        "endLoc": {
+          "line": 150,
+          "column": 2,
+          "position": 1124
+        }
+      }
+    },
+    {
+      "format": "tsx",
+      "lines": 322,
+      "fragment": "const [connectionState, setConnectionState] = useState<ConnectionState>(wsManager.getState());\n  const [stats, setStats] = useState<ConnectionStats>(wsManager.getStats());\n  const [queueSize, setQueueSize] = useState(wsManager.getQueueSize());\n  const [isVisible, setIsVisible] = useState(true);\n\n  /**\n   * Update connection state\n   */\n  useEffect(() => {\n    const handleStateChange = (newState: ConnectionState) => {\n      setConnectionState(newState);\n    };\n\n    wsManager.onStateChange(handleStateChange);\n\n    return () => {\n      wsManager.offStateChange(handleStateChange);\n    };\n  }, [wsManager]);\n\n  /**\n   * Periodic stats update (every 1 second)\n   */\n  useEffect(() => {\n    const updateStats = () => {\n      if (isVisible) {\n        setStats(wsManager.getStats());\n        setQueueSize(wsManager.getQueueSize());\n      }\n    };\n\n    const interval = setInterval(updateStats, 1000);\n\n    return () => clearInterval(interval);\n  }, [wsManager, isVisible]);\n\n  /**\n   * Get connection status display info\n   */\n  const statusInfo = useMemo(() => {\n    switch (connectionState) {\n      case ConnectionState.CONNECTED:\n        return {\n          label: 'Connected',\n          icon: '🟢',\n          color: 'text-green-600',\n          bgColor: 'bg-green-100',\n          borderColor: 'border-green-200',\n        };\n      case ConnectionState.CONNECTING:\n        return {\n          label: 'Connecting',\n          icon: '🟡',\n          color: 'text-yellow-600',\n          bgColor: 'bg-yellow-100',\n          borderColor: 'border-yellow-200',\n        };\n      case ConnectionState.RECONNECTING:\n        return {\n          label: 'Reconnecting',\n          icon: '🔄',\n          color: 'text-orange-600',\n          bgColor: 'bg-orange-100',\n          borderColor: 'border-orange-200',\n        };\n      case ConnectionState.DISCONNECTED:\n        return {\n          label: 'Disconnected',\n          icon: '⚫',\n          color: 'text-gray-600',\n          bgColor: 'bg-gray-100',\n          borderColor: 'border-gray-200',\n        };\n      case ConnectionState.ERROR:\n        return {\n          label: 'Error',\n          icon: '🔴',\n          color: 'text-red-600',\n          bgColor: 'bg-red-100',\n          borderColor: 'border-red-200',\n        };\n      default:\n        return {\n          label: 'Unknown',\n          icon: '❓',\n          color: 'text-gray-600',\n          bgColor: 'bg-gray-100',\n          borderColor: 'border-gray-200',\n        };\n    }\n  }, [connectionState]);\n\n  /**\n   * Get ping latency indicator\n   */\n  const getLatencyIndicator = useCallback((latency: number): { icon: string; color: string } => {\n    if (latency === 0) return { icon: '⚪', color: 'text-gray-400' };\n    if (latency < 50) return { icon: '🚀', color: 'text-green-500' };\n    if (latency < 150) return { icon: '✅', color: 'text-green-600' };\n    if (latency < 300) return { icon: '⚠️', color: 'text-yellow-600' };\n    return { icon: '⏳', color: 'text-red-600' };\n  }, []);\n\n  /**\n   * Format time duration\n   */\n  const formatDuration = useCallback((milliseconds: number): string => {\n    const seconds = Math.floor(milliseconds / 1000);\n    const minutes = Math.floor(seconds / 60);\n    const hours = Math.floor(minutes / 60);\n\n    if (hours > 0) return `${hours}h ${minutes % 60}m`;\n    if (minutes > 0) return `${minutes}m ${seconds % 60}s`;\n    return `${seconds}s`;\n  }, []);\n\n  /**\n   * Format timestamp\n   */\n  const formatTimestamp = useCallback((timestamp: number): string => {\n    return new Date(timestamp).toLocaleTimeString();\n  }, []);\n\n  /**\n   * Calculate time since last activity\n   */\n  const timeSinceLastActive = useMemo(() => {\n    return Date.now() - stats.lastActiveTime;\n  }, [stats.lastActiveTime]);\n\n  const latencyInfo = getLatencyIndicator(stats.currentPingLatency);\n\n  return (\n    <div\n      className={`rounded-lg border shadow-sm ${statusInfo.bgColor} ${statusInfo.borderColor} ${className}`}\n    >\n      {/* Header */}\n      <div className=\"flex items-center justify-between p-3 border-b border-gray-200\">\n        <div className=\"flex items-center gap-2\">\n          <span className=\"text-xl\">{statusInfo.icon}</span>\n          <div>\n            <h3 className=\"font-semibold text-sm\">WebSocket Status</h3>\n            <p className={`text-xs font-medium ${statusInfo.color}`}>\n              {statusInfo.label}\n            </p>\n          </div>\n        </div>\n        <button\n          onClick={() => setIsVisible(!isVisible)}\n          className=\"text-gray-500 hover:text-gray-700 transition-colors p-1\"\n          aria-label={isVisible ? 'Collapse' : 'Expand'}\n        >\n          {isVisible ? (\n            <svg className=\"w-5 h-5\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\">\n              <path strokeLinecap=\"round\" strokeLinejoin=\"round\" strokeWidth={2} d=\"M19 9l-7 7-7-7\" />\n            </svg>\n          ) : (\n            <svg className=\"w-5 h-5\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\">\n              <path strokeLinecap=\"round\" strokeLinejoin=\"round\" strokeWidth={2} d=\"M9 5l7 7-7 7\" />\n            </svg>\n          )}\n        </button>\n      </div>\n\n      {/* Details */}\n      {isVisible && showDetails && (\n        <div className=\"p-3 space-y-3\">\n          {/* Connection Health */}\n          <div className=\"grid grid-cols-2 gap-3\">\n            {/* Latency */}\n            <div className=\"bg-white rounded-lg p-3 border border-gray-200\">\n              <div className=\"flex items-center justify-between\">\n                <div>\n                  <p className=\"text-xs text-gray-500 font-medium\">Latency</p>\n                  <p className={`text-lg font-bold ${latencyInfo.color}`}>\n                    {stats.currentPingLatency > 0 ? `${stats.currentPingLatency}ms` : '--'}\n                  </p>\n                  {stats.currentPingLatency > 0 && (\n                    <p className=\"text-xs text-gray-400\">\n                      avg: {Math.round(stats.averagePingLatency)}ms\n                    </p>\n                  )}\n                </div>\n                <span className=\"text-2xl\">{latencyInfo.icon}</span>\n              </div>\n            </div>\n\n            {/* Last Active */}\n            <div className=\"bg-white rounded-lg p-3 border border-gray-200\">\n              <div className=\"flex items-center justify-between\">\n                <div>\n                  <p className=\"text-xs text-gray-500 font-medium\">Last Active</p>\n                  <p className=\"text-lg font-bold text-gray-700\">\n                    {formatDuration(timeSinceLastActive)} ago\n                  </p>\n                  <p className=\"text-xs text-gray-400\">\n                    {formatTimestamp(stats.lastActiveTime)}\n                  </p>\n                </div>\n                <span className=\"text-2xl\">⏱️</span>\n              </div>\n            </div>\n          </div>\n\n          {/* Message Statistics */}\n          <div className=\"bg-white rounded-lg p-3 border border-gray-200\">\n            <p className=\"text-xs text-gray-500 font-medium mb-2\">Message Statistics</p>\n            <div className=\"grid grid-cols-2 gap-4\">\n              <div className=\"flex items-center gap-2\">\n                <span className=\"text-green-500\">↑</span>\n                <div>\n                  <p className=\"text-sm font-semibold text-gray-700\">Sent</p>\n                  <p className=\"text-xs text-gray-500\">{stats.messagesSent}</p>\n                </div>\n              </div>\n              <div className=\"flex items-center gap-2\">\n                <span className=\"text-blue-500\">↓</span>\n                <div>\n                  <p className=\"text-sm font-semibold text-gray-700\">Received</p>\n                  <p className=\"text-xs text-gray-500\">{stats.messagesReceived}</p>\n                </div>\n              </div>\n            </div>\n          </div>\n\n          {/* Reconnection Info */}\n          <div className=\"grid grid-cols-2 gap-3\">\n            <div className=\"bg-white rounded-lg p-3 border border-gray-200\">\n              <div className=\"flex items-center gap-2\">\n                <span className=\"text-xl\">🔄</span>\n                <div>\n                  <p className=\"text-xs text-gray-500 font-medium\">Reconnections</p>\n                  <p className=\"text-lg font-bold text-gray-700\">\n                    {stats.totalReconnections}\n                  </p>\n                </div>\n              </div>\n            </div>\n\n            <div className=\"bg-white rounded-lg p-3 border border-gray-200\">\n              <div className=\"flex items-center gap-2\">\n                <span className=\"text-xl\">📬</span>\n                <div>\n                  <p className=\"text-xs text-gray-500 font-medium\">Queue</p>\n                  <p className=\"text-lg font-bold text-gray-700\">\n                    {queueSize}\n                  </p>\n                </div>\n              </div>\n            </div>\n          </div>\n        </div>\n      )}\n\n      {/* Compact view when showDetails is false */}\n      {isVisible && !showDetails && (\n        <div className=\"px-3 pb-3\">\n          <div className=\"flex items-center justify-between text-sm\">\n            <div className=\"flex items-center gap-2\">\n              <span>{latencyInfo.icon}</span>\n              <span className={latencyInfo.color}>\n                {stats.currentPingLatency > 0 ? `${stats.currentPingLatency}ms` : '--'}\n              </span>\n            </div>\n            <div className=\"flex items-center gap-4 text-gray-600\">\n              <span>↑ {stats.messagesSent}</span>\n              <span>↓ {stats.messagesReceived}</span>\n            </div>\n          </div>\n        </div>\n      )}\n    </div>\n  );\n}\n\n/**\n * Compact WebSocket Status Badge\n *\n * A minimal version that shows only the status indicator\n */\nexport function WebSocketStatusBadge({\n  wsManager,\n  className = '',\n}: Pick<WebSocketStatusPanelProps, 'wsManager' | 'className'>) {\n  const [connectionState, setConnectionState] = useState<ConnectionState>(wsManager.getState());\n\n  useEffect(() => {\n    const handleStateChange = (newState: ConnectionState) => {\n      setConnectionState(newState);\n    };\n\n    wsManager.onStateChange(handleStateChange);\n\n    return () => {\n      wsManager.offStateChange(handleStateChange);\n    };\n  }, [wsManager]);\n\n  const statusInfo = useMemo(() => {\n    switch (connectionState) {\n      case ConnectionState.CONNECTED:\n        return { icon: '🟢', tooltip: 'Connected' };\n      case ConnectionState.CONNECTING:\n        return { icon: '🟡', tooltip: 'Connecting' };\n      case ConnectionState.RECONNECTING:\n        return { icon: '🔄', tooltip: 'Reconnecting' };\n      case ConnectionState.DISCONNECTED:\n        return { icon: '⚫', tooltip: 'Disconnected' };\n      case ConnectionState.ERROR:\n        return { icon: '🔴', tooltip: 'Error' };\n      default:\n        return { icon: '❓', tooltip: 'Unknown' };\n    }\n  }, [connectionState]);\n\n  return (\n    <div className={`inline-flex items-center gap-2 ${className}`} title={statusInfo.tooltip}>\n      <span className=\"text-lg\">{statusInfo.icon}</span>\n      <span className=\"text-sm font-medium\">{statusInfo.tooltip}</span>\n    </div>\n  );\n}",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/components/websocket/WebSocketStatusPanel.tsx",
+        "start": 37,
+        "end": 358,
+        "startLoc": {
+          "line": 37,
+          "column": 3,
+          "position": 120
+        },
+        "endLoc": {
+          "line": 358,
+          "column": 2,
+          "position": 2944
+        }
+      },
+      "secondFile": {
+        "name": "src/features/websocket/components/WebSocketStatusPanel.tsx",
+        "start": 39,
+        "end": 360,
+        "startLoc": {
+          "line": 39,
+          "column": 3,
+          "position": 125
+        },
+        "endLoc": {
+          "line": 360,
+          "column": 2,
+          "position": 2949
+        }
+      }
+    },
+    {
+      "format": "tsx",
+      "lines": 44,
+      "fragment": "/**\n * Modal 组件 - 模态框组件\n * 支持多种尺寸、动画效果\n */\n\nimport React, { useEffect, useRef } from 'react';\nimport clsx from 'clsx';\n\nexport interface ModalProps {\n  /** 是否显示 */\n  isOpen: boolean;\n  /** 关闭回调 */\n  onClose: () => void;\n  /** 标题 */\n  title?: string;\n  /** 内容 */\n  children: React.ReactNode;\n  /** 模态框大小 */\n  size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';\n  /** 是否显示关闭按钮 */\n  showCloseButton?: boolean;\n  /** 点击遮罩层是否关闭 */\n  closeOnOverlayClick?: boolean;\n  /** 是否显示遮罩层 */\n  showOverlay?: boolean;\n  /** 自定义类名 */\n  className?: string;\n  /** 页脚内容 */\n  footer?: React.ReactNode;\n}\n\nexport const Modal: React.FC<ModalProps> = ({\n  isOpen,\n  onClose,\n  title,\n  children,\n  size = 'md',\n  showCloseButton = true,\n  closeOnOverlayClick = true,\n  showOverlay = true,\n  className,\n  footer,\n}) => {\n  \"use memo\"",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/components/ui/Modal.tsx",
+        "start": 3,
+        "end": 46,
+        "startLoc": {
+          "line": 3,
+          "column": 1,
+          "position": 4
+        },
+        "endLoc": {
+          "line": 46,
+          "column": 11,
+          "position": 262
+        }
+      },
+      "secondFile": {
+        "name": "src/shared/components/ui/Modal.tsx",
+        "start": 1,
+        "end": 44,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 44,
+          "column": 6,
+          "position": 258
+        }
+      }
+    },
+    {
+      "format": "tsx",
+      "lines": 129,
+      "fragment": "const modalRef = useRef<HTMLDivElement>(null);\n  const previousActiveElement = useRef<HTMLElement | null>(null);\n  \n  // 处理 ESC 键关闭\n  useEffect(() => {\n    const handleEscape = (e: KeyboardEvent) => {\n      if (e.key === 'Escape' && isOpen) {\n        onClose();\n      }\n    };\n    \n    if (isOpen) {\n      document.addEventListener('keydown', handleEscape);\n    }\n    \n    return () => {\n      document.removeEventListener('keydown', handleEscape);\n    };\n  }, [isOpen, onClose]);\n  \n  // 管理焦点\n  useEffect(() => {\n    if (isOpen) {\n      // 保存当前焦点元素\n      previousActiveElement.current = document.activeElement as HTMLElement;\n      \n      // 将焦点移到模态框\n      if (modalRef.current) {\n        modalRef.current.focus();\n      }\n      \n      // 禁止背景滚动\n      document.body.style.overflow = 'hidden';\n    } else {\n      // 恢复焦点\n      if (previousActiveElement.current) {\n        previousActiveElement.current.focus();\n      }\n      \n      // 恢复背景滚动\n      document.body.style.overflow = 'unset';\n    }\n    \n    return () => {\n      document.body.style.overflow = 'unset';\n    };\n  }, [isOpen]);\n  \n  const sizeStyles = {\n    sm: 'max-w-md',\n    md: 'max-w-lg',\n    lg: 'max-w-2xl',\n    xl: 'max-w-4xl',\n    full: 'max-w-full mx-4',\n  };\n  \n  if (!isOpen) {\n    return null;\n  }\n  \n  return (\n    <>\n      {showOverlay && (\n        <div\n          className={clsx(\n            'fixed inset-0 z-50 flex items-center justify-center p-4',\n            'bg-black bg-opacity-50',\n            'transition-opacity duration-300',\n            isOpen ? 'opacity-100' : 'opacity-0'\n          )}\n          onClick={closeOnOverlayClick ? onClose : undefined}\n        >\n          <div\n            ref={modalRef}\n            className={clsx(\n              'relative w-full bg-white rounded-lg shadow-2xl',\n              'transform transition-all duration-300',\n              isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0',\n              sizeStyles[size],\n              className\n            )}\n            onClick={(e) => e.stopPropagation()}\n            tabIndex={-1}\n          >\n            {/* 头部 */}\n            {(title || showCloseButton) && (\n              <div className=\"flex items-center justify-between px-6 py-4 border-b border-gray-200\">\n                {title && (\n                  <h2 className=\"text-xl font-semibold text-gray-900\">{title}</h2>\n                )}\n                {showCloseButton && (\n                  <button\n                    onClick={onClose}\n                    className=\"p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors\"\n                    aria-label=\"关闭\"\n                  >\n                    <svg\n                      className=\"w-5 h-5\"\n                      fill=\"none\"\n                      viewBox=\"0 0 24 24\"\n                      stroke=\"currentColor\"\n                    >\n                      <path\n                        strokeLinecap=\"round\"\n                        strokeLinejoin=\"round\"\n                        strokeWidth={2}\n                        d=\"M6 18L18 6M6 6l12 12\"\n                      />\n                    </svg>\n                  </button>\n                )}\n              </div>\n            )}\n            \n            {/* 内容 */}\n            <div className=\"px-6 py-4\">{children}</div>\n            \n            {/* 页脚 */}\n            {footer && (\n              <div className=\"flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-lg\">\n                {footer}\n              </div>\n            )}\n          </div>\n        </div>\n      )}\n    </>\n  );\n};",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/components/ui/Modal.tsx",
+        "start": 48,
+        "end": 176,
+        "startLoc": {
+          "line": 48,
+          "column": 3,
+          "position": 267
+        },
+        "endLoc": {
+          "line": 176,
+          "column": 2,
+          "position": 1078
+        }
+      },
+      "secondFile": {
+        "name": "src/shared/components/ui/Modal.tsx",
+        "start": 44,
+        "end": 172,
+        "startLoc": {
+          "line": 44,
+          "column": 3,
+          "position": 258
+        },
+        "endLoc": {
+          "line": 172,
+          "column": 2,
+          "position": 1069
+        }
+      }
+    },
+    {
+      "format": "javascript",
+      "lines": 48,
+      "fragment": "\"\n        />\n      </svg>\n    }\n    title={title}\n    description={description}\n    action={onRetry ? { label: actionLabel, variant: 'primary', onClick: onRetry } : undefined}\n    className={className}\n  />\n);\n\n/**\n * EmptyPermission 组件 - 权限不足状态\n * 用于权限不足时的展示\n * \n * @example\n * <EmptyPermission />\n */\nexport interface EmptyPermissionProps {\n  /** 自定义标题 */\n  title?: string;\n  /** 自定义描述 */\n  description?: string;\n  /** 返回首页的回调 */\n  onBack?: () => void;\n  /** 自定义类名 */\n  className?: string;\n}\n\nexport const EmptyPermission: React.FC<EmptyPermissionProps> = ({\n  title = '权限不足',\n  description = '您没有权限访问此内容',\n  onBack,\n  className,\n}) => (\n  <EmptyState\n    icon={\n      <svg\n        className=\"w-16 h-16\"\n        fill=\"none\"\n        viewBox=\"0 0 24 24\"\n        stroke=\"currentColor\"\n        strokeWidth={1.5}\n      >\n        <path\n          strokeLinecap=\"round\"\n          strokeLinejoin=\"round\"\n          d=\"M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/components/ui/EmptyState.tsx",
+        "start": 275,
+        "end": 322,
+        "startLoc": {
+          "line": 275,
+          "column": 136,
+          "position": 1358
+        },
+        "endLoc": {
+          "line": 322,
+          "column": 101,
+          "position": 1590
+        }
+      },
+      "secondFile": {
+        "name": "src/components/ui/EmptyState.tsx",
+        "start": 225,
+        "end": 275,
+        "startLoc": {
+          "line": 225,
+          "column": 133,
+          "position": 1106
+        },
+        "endLoc": {
+          "line": 275,
+          "column": 136,
+          "position": 1357
+        }
+      }
+    },
+    {
+      "format": "tsx",
+      "lines": 24,
+      "fragment": "{loading && (\n          <svg\n            className=\"animate-spin -ml-1 mr-2 h-4 w-4\"\n            xmlns=\"http://www.w3.org/2000/svg\"\n            fill=\"none\"\n            viewBox=\"0 0 24 24\"\n          >\n            <circle\n              className=\"opacity-25\"\n              cx=\"12\"\n              cy=\"12\"\n              r=\"10\"\n              stroke=\"currentColor\"\n              strokeWidth=\"4\"\n            />\n            <path\n              className=\"opacity-75\"\n              fill=\"currentColor\"\n              d=\"M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z\"\n            />\n          </svg>\n        )}\n\n        {/* 内容 */",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/components/ui/Button.tsx",
+        "start": 201,
+        "end": 224,
+        "startLoc": {
+          "line": 201,
+          "column": 9,
+          "position": 1272
+        },
+        "endLoc": {
+          "line": 224,
+          "column": 9,
+          "position": 1387
+        }
+      },
+      "secondFile": {
+        "name": "src/shared/components/ui/Button.tsx",
+        "start": 73,
+        "end": 95,
+        "startLoc": {
+          "line": 73,
+          "column": 9,
+          "position": 445
+        },
+        "endLoc": {
+          "line": 95,
+          "column": 9,
+          "position": 559
+        }
+      }
+    },
+    {
+      "format": "tsx",
+      "lines": 20,
+      "fragment": "= (type: NotificationType) => {\n  switch (type) {\n    case NotificationType.SUCCESS:\n      return <CheckCircle className=\"h-4 w-4 text-green-500\" />;\n    case NotificationType.WARNING:\n      return <AlertTriangle className=\"h-4 w-4 text-yellow-500\" />;\n    case NotificationType.ERROR:\n      return <XCircle className=\"h-4 w-4 text-red-500\" />;\n    case NotificationType.MESSAGE:\n      return <MessageSquare className=\"h-4 w-4 text-blue-500\" />;\n    case NotificationType.TASK_ASSIGNED:\n    case NotificationType.TASK_COMPLETED:\n    case NotificationType.TASK_UPDATED:\n      return <Bell className=\"h-4 w-4 text-purple-500\" />;\n    default:\n      return <Info className=\"h-4 w-4 text-gray-500\" />;\n  }\n};\n\nconst",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/components/notifications/NotificationCenter.tsx",
+        "start": 35,
+        "end": 54,
+        "startLoc": {
+          "line": 35,
+          "column": 2,
+          "position": 122
+        },
+        "endLoc": {
+          "line": 54,
+          "column": 6,
+          "position": 301
+        }
+      },
+      "secondFile": {
+        "name": "src/app/notification-demo/enhanced/page.tsx",
+        "start": 79,
+        "end": 98,
+        "startLoc": {
+          "line": 79,
+          "column": 2,
+          "position": 570
+        },
+        "endLoc": {
+          "line": 98,
+          "column": 22,
+          "position": 751
+        }
+      }
+    },
+    {
+      "format": "tsx",
+      "lines": 165,
+      "fragment": "const [metrics, setMetrics] = useState<AggregatedMetrics | null>(null);\n  const [alarms, setAlarms] = useState<AlarmEvent[]>([]);\n  const [isLoading, setIsLoading] = useState(true);\n\n  useEffect(() => {\n    loadMetrics();\n    const interval = setInterval(loadMetrics, refreshInterval);\n    return () => clearInterval(interval);\n  }, [refreshInterval]);\n\n  const loadMetrics = async () => {\n    try {\n      const [metricsData, alarmsData] = await Promise.all([\n        monitor.getAggregatedMetrics(5 * 60 * 1000),\n        monitor.getAlarms(Date.now() - 60 * 60 * 1000),\n      ]);\n      setMetrics(metricsData);\n      setAlarms(alarmsData);\n    } catch (error) {\n      console.error('Failed to load metrics:', error);\n    } finally {\n      setIsLoading(false);\n    }\n  };\n\n  const handleClearData = async () => {\n    if (confirm('Clear all monitoring data?')) {\n      await monitor.clearAllData();\n      loadMetrics();\n    }\n  };\n\n  const formatPercent = (num: number): string => `${(num * 100).toFixed(2)}%`;\n  const formatDuration = (ms: number): string => {\n    if (ms < 1000) return `${ms.toFixed(0)}ms`;\n    return `${(ms / 1000).toFixed(2)}s`;\n  };\n\n  const activeAlarms = alarms.filter(a => a.severity === 'critical' || a.severity === 'high');\n\n  if (isLoading && !metrics) {\n    return <div className={`bg-zinc-900 dark:bg-zinc-950 rounded-2xl p-6 ${className}`}>\n      <div className=\"flex items-center justify-center h-32\">\n        <RefreshCw className=\"animate-spin text-zinc-400 w-8 h-8\" />\n      </div>\n    </div>;\n  }\n\n  return (\n    <div className={`bg-zinc-900 dark:bg-zinc-950 rounded-2xl p-6 space-y-4 ${className}`}>\n      {/* Header */}\n      <div className=\"flex items-center justify-between\">\n        <div className=\"flex items-center space-x-3\">\n          <Activity className=\"text-blue-500 w-6 h-6\" />\n          <h2 className=\"text-xl font-bold text-zinc-100 dark:text-zinc-100\">Performance Monitor</h2>\n          {activeAlarms.length > 0 && (\n            <div className=\"flex items-center space-x-1 bg-red-500/20 text-red-400 px-2 py-1 rounded-full\">\n              <AlertTriangle className=\"w-4 h-4\" />\n              <span className=\"text-sm\">{activeAlarms.length} Alarms</span>\n            </div>\n          )}\n        </div>\n        <button\n          onClick={handleClearData}\n          className=\"p-2 hover:bg-zinc-800 dark:hover:bg-zinc-900 rounded-2xl transition-colors\"\n        >\n          <Trash2 className=\"w-5 h-5 text-zinc-400 dark:text-zinc-500\" />\n        </button>\n      </div>\n\n      {/* Alarms */}\n      {showAlarms && activeAlarms.length > 0 && (\n        <div className=\"bg-red-500/10 dark:bg-red-500/20 border border-red-500/30 dark:border-red-500/40 rounded-2xl p-4\">\n          <h3 className=\"text-sm font-semibold text-red-400 dark:text-red-300 mb-2\">Active Alarms</h3>\n          {activeAlarms.slice(0, 3).map(alarm => (\n            <div key={alarm.id} className=\"text-sm text-zinc-300 dark:text-zinc-400 py-1\">\n              • {alarm.message}\n            </div>\n          ))}\n        </div>\n      )}\n\n      {/* Metrics */}\n      {metrics && (\n        <div className=\"grid grid-cols-1 md:grid-cols-3 gap-4\">\n          {/* API */}\n          <div className=\"bg-zinc-800 dark:bg-zinc-900 rounded-2xl p-4 border border-zinc-700 dark:border-zinc-800\">\n            <div className=\"flex items-center space-x-2 mb-2\">\n              <Activity className=\"text-blue-500 w-4 h-4\" />\n              <span className=\"text-sm font-medium text-zinc-300 dark:text-zinc-300\">API Requests</span>\n            </div>\n            <div className=\"space-y-1 text-sm\">\n              <div className=\"flex justify-between\">\n                <span className=\"text-zinc-400 dark:text-zinc-500\">Total</span>\n                <span className=\"text-zinc-100 dark:text-zinc-100 font-bold\">{metrics.apiMetrics.totalRequests}</span>\n              </div>\n              <div className=\"flex justify-between\">\n                <span className=\"text-zinc-400 dark:text-zinc-500\">Avg Time</span>\n                <span className=\"text-zinc-100 dark:text-zinc-100\">{formatDuration(metrics.apiMetrics.averageResponseTime)}</span>\n              </div>\n              <div className=\"flex justify-between\">\n                <span className=\"text-zinc-400 dark:text-zinc-500\">Success</span>\n                <span className=\"text-green-400\">{formatPercent(metrics.apiMetrics.successRate)}</span>\n              </div>\n              <div className=\"flex justify-between\">\n                <span className=\"text-zinc-400 dark:text-zinc-500\">Errors</span>\n                <span className={metrics.apiMetrics.errorRate > 0.05 ? 'text-red-400' : 'text-zinc-300 dark:text-zinc-400'}>\n                  {formatPercent(metrics.apiMetrics.errorRate)}\n                </span>\n              </div>\n            </div>\n          </div>\n\n          {/* Operations */}\n          <div className=\"bg-zinc-800 dark:bg-zinc-900 rounded-2xl p-4 border border-zinc-700 dark:border-zinc-800\">\n            <div className=\"flex items-center space-x-2 mb-2\">\n              <Zap className=\"text-yellow-500 w-4 h-4\" />\n              <span className=\"text-sm font-medium text-zinc-300 dark:text-zinc-300\">Operations</span>\n            </div>\n            <div className=\"space-y-1 text-sm\">\n              <div className=\"flex justify-between\">\n                <span className=\"text-zinc-400 dark:text-zinc-500\">Total</span>\n                <span className=\"text-zinc-100 dark:text-zinc-100 font-bold\">{metrics.operationMetrics.totalOperations}</span>\n              </div>\n              <div className=\"flex justify-between\">\n                <span className=\"text-zinc-400 dark:text-zinc-500\">Avg Time</span>\n                <span className=\"text-zinc-100 dark:text-zinc-100\">{formatDuration(metrics.operationMetrics.averageDuration)}</span>\n              </div>\n              <div className=\"flex justify-between\">\n                <span className=\"text-zinc-400 dark:text-zinc-500\">Success</span>\n                <span className=\"text-green-400\">{formatPercent(metrics.operationMetrics.successRate)}</span>\n              </div>\n            </div>\n          </div>\n\n          {/* Errors */}\n          <div className=\"bg-zinc-800 dark:bg-zinc-900 rounded-2xl p-4 border border-zinc-700 dark:border-zinc-800\">\n            <div className=\"flex items-center space-x-2 mb-2\">\n              <AlertTriangle className=\"text-red-500 w-4 h-4\" />\n              <span className=\"text-sm font-medium text-zinc-300 dark:text-zinc-300\">Errors</span>\n            </div>\n            <div className=\"space-y-1 text-sm\">\n              <div className=\"flex justify-between\">\n                <span className=\"text-zinc-400 dark:text-zinc-500\">Total</span>\n                <span className=\"text-zinc-100 dark:text-zinc-100 font-bold\">{metrics.errorMetrics.totalErrors}</span>\n              </div>\n              {Object.entries(metrics.errorMetrics.errorsByType).slice(0, 3).map(([type, count]) => (\n                <div key={type} className=\"flex justify-between\">\n                  <span className=\"text-zinc-400 dark:text-zinc-500 truncate\">{type}</span>\n                  <span className=\"text-zinc-300 dark:text-zinc-400\">{count}</span>\n                </div>\n              ))}\n            </div>\n          </div>\n        </div>\n      )}\n\n      {/* Footer */}\n      <div className=\"text-xs text-zinc-500 dark:text-zinc-600 flex justify-between\">\n        <span>Time window: 5 minutes</span>\n        {isLoading && <RefreshCw className=\"animate-spin w-3 h-3\" />}\n      </div>\n    </div>\n  );\n}",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/components/SimplePerformanceDashboard.tsx",
+        "start": 36,
+        "end": 200,
+        "startLoc": {
+          "line": 36,
+          "column": 3,
+          "position": 164
+        },
+        "endLoc": {
+          "line": 200,
+          "column": 2,
+          "position": 1900
+        }
+      },
+      "secondFile": {
+        "name": "src/features/monitoring/components/SimplePerformanceDashboard.tsx",
+        "start": 34,
+        "end": 198,
+        "startLoc": {
+          "line": 34,
+          "column": 3,
+          "position": 159
+        },
+        "endLoc": {
+          "line": 198,
+          "column": 2,
+          "position": 1895
+        }
+      }
+    },
+    {
+      "format": "javascript",
+      "lines": 182,
+      "fragment": "={`bg-zinc-900 rounded-lg p-6 ${className}`}>\n        <div className=\"flex items-center justify-center h-32\">\n          <RefreshCw className=\"animate-spin text-zinc-400 w-8 h-8\" />\n        </div>\n      </div>\n    );\n  }\n\n  const activeAlarms = alarms.filter((a) => a.severity === 'critical' || a.severity === 'high');\n\n  return (\n    <div className={`bg-zinc-900 rounded-lg p-6 space-y-6 ${className}`}>\n      {/* Header */}\n      <div className=\"flex items-center justify-between\">\n        <div className=\"flex items-center space-x-3\">\n          <Activity className=\"text-blue-500 w-6 h-6\" />\n          <h2 className=\"text-xl font-bold text-white\">Performance Dashboard</h2>\n          {activeAlarms.length > 0 && (\n            <div className=\"flex items-center space-x-1 bg-red-500/20 text-red-400 px-2 py-1 rounded\">\n              <AlertTriangle className=\"w-4 h-4\" />\n              <span className=\"text-sm font-medium\">{activeAlarms.length} Active Alarms</span>\n            </div>\n          )}\n        </div>\n\n        {showControls && (\n          <div className=\"flex items-center space-x-2\">\n            <button\n              onClick={loadMetrics}\n              disabled={isLoading}\n              className=\"p-2 hover:bg-zinc-800 rounded-lg transition-colors\"\n              title=\"Refresh\"\n            >\n              <RefreshCw className={`w-5 h-5 text-zinc-400 ${isLoading ? 'animate-spin' : ''}`} />\n            </button>\n            <button\n              onClick={handleClearData}\n              className=\"p-2 hover:bg-zinc-800 rounded-lg transition-colors\"\n              title=\"Clear Data\"\n            >\n              <Trash2 className=\"w-5 h-5 text-zinc-400\" />\n            </button>\n          </div>\n        )}\n      </div>\n\n      {/* Alerts */}\n      {showAlarms && activeAlarms.length > 0 && (\n        <div className=\"space-y-2\">\n          <div className=\"flex items-center justify-between\">\n            <h3 className=\"text-sm font-semibold text-zinc-400 uppercase tracking-wider\">\n              Recent Alarms\n            </h3>\n            <button\n              onClick={() => setShowAlarmDetails(!showAlarmDetails)}\n              className=\"text-sm text-blue-400 hover:text-blue-300\"\n            >\n              {showAlarmDetails ? 'Hide' : 'Show Details'}\n            </button>\n          </div>\n\n          {activeAlarms.slice(0, showAlarmDetails ? undefined : 3).map((alarm) => (\n            <div\n              key={alarm.id}\n              className=\"flex items-start space-x-3 bg-zinc-800 rounded-lg p-3 border-l-4 border-red-500\"\n            >\n              <div className={`mt-0.5 ${getSeverityColor(alarm.severity)}`}>\n                <AlertTriangle className=\"w-4 h-4 text-white\" />\n              </div>\n              <div className=\"flex-1 min-w-0\">\n                <p className=\"text-sm text-zinc-200\">{alarm.message}</p>\n                <div className=\"flex items-center space-x-4 mt-1\">\n                  <span className=\"text-xs text-zinc-500\">\n                    {new Date(alarm.timestamp).toLocaleString()}\n                  </span>\n                  <span className=\"text-xs text-zinc-500\">\n                    Value: {formatNumber(alarm.currentValue)}\n                  </span>\n                  <span className=\"text-xs text-zinc-500\">\n                    Threshold: {formatNumber(alarm.threshold)}\n                  </span>\n                </div>\n              </div>\n              <span className={`text-xs px-2 py-1 rounded ${getSeverityColor(alarm.severity)} text-white`}>\n                {alarm.severity}\n              </span>\n            </div>\n          ))}\n        </div>\n      )}\n\n      {/* Metrics Grid */}\n      {metrics && (\n        <div className=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4\">\n          {/* API Requests */}\n          <div className=\"bg-zinc-800 rounded-lg p-4\">\n            <div className=\"flex items-center justify-between mb-3\">\n              <div className=\"flex items-center space-x-2\">\n                <Activity className=\"text-blue-500 w-5 h-5\" />\n                <span className=\"text-sm font-medium text-zinc-300\">API Requests</span>\n              </div>\n              <TrendingDown className=\"text-green-500 w-4 h-4\" />\n            </div>\n            <div className=\"space-y-2\">\n              <div className=\"flex justify-between items-center\">\n                <span className=\"text-2xl font-bold text-white\">\n                  {metrics.apiMetrics.totalRequests}\n                </span>\n                <span className=\"text-xs text-zinc-500\">Last 5 min</span>\n              </div>\n              <div className=\"space-y-1\">\n                <div className=\"flex justify-between text-sm\">\n                  <span className=\"text-zinc-400\">Success Rate</span>\n                  <span className={formatPercent(metrics.apiMetrics.successRate) === '100.00%' ? 'text-green-400' : 'text-yellow-400'}>\n                    {formatPercent(metrics.apiMetrics.successRate)}\n                  </span>\n                </div>\n                <div className=\"flex justify-between text-sm\">\n                  <span className=\"text-zinc-400\">Avg Response</span>\n                  <span className=\"text-white\">{formatDuration(metrics.apiMetrics.averageResponseTime)}</span>\n                </div>\n                <div className=\"flex justify-between text-sm\">\n                  <span className=\"text-zinc-400\">Error Rate</span>\n                  <span className={metrics.apiMetrics.errorRate > 0.05 ? 'text-red-400' : 'text-zinc-300'}>\n                    {formatPercent(metrics.apiMetrics.errorRate)}\n                  </span>\n                </div>\n              </div>\n            </div>\n          </div>\n\n          {/* Operations */}\n          <div className=\"bg-zinc-800 rounded-lg p-4\">\n            <div className=\"flex items-center justify-between mb-3\">\n              <div className=\"flex items-center space-x-2\">\n                <Zap className=\"text-yellow-500 w-5 h-5\" />\n                <span className=\"text-sm font-medium text-zinc-300\">Operations</span>\n              </div>\n              <TrendingDown className=\"text-green-500 w-4 h-4\" />\n            </div>\n            <div className=\"space-y-2\">\n              <div className=\"flex justify-between items-center\">\n                <span className=\"text-2xl font-bold text-white\">\n                  {metrics.operationMetrics.totalOperations}\n                </span>\n                <span className=\"text-xs text-zinc-500\">Last 5 min</span>\n              </div>\n              <div className=\"space-y-1\">\n                <div className=\"flex justify-between text-sm\">\n                  <span className=\"text-zinc-400\">Success Rate</span>\n                  <span className={formatPercent(metrics.operationMetrics.successRate) === '100.00%' ? 'text-green-400' : 'text-yellow-400'}>\n                    {formatPercent(metrics.operationMetrics.successRate)}\n                  </span>\n                </div>\n                <div className=\"flex justify-between text-sm\">\n                  <span className=\"text-zinc-400\">Avg Duration</span>\n                  <span className=\"text-white\">{formatDuration(metrics.operationMetrics.averageDuration)}</span>\n                </div>\n              </div>\n            </div>\n          </div>\n\n          {/* Errors */}\n          <div className=\"bg-zinc-800 rounded-lg p-4\">\n            <div className=\"flex items-center justify-between mb-3\">\n              <div className=\"flex items-center space-x-2\">\n                <AlertTriangle className=\"text-red-500 w-5 h-5\" />\n                <span className=\"text-sm font-medium text-zinc-300\">Errors</span>\n              </div>\n              <TrendingDown className=\"text-green-500 w-4 h-4\" />\n            </div>\n            <div className=\"space-y-2\">\n              <div className=\"flex justify-between items-center\">\n                <span className=\"text-2xl font-bold text-white\">\n                  {metrics.errorMetrics.totalErrors}\n                </span>\n                <span className=\"text-xs text-zinc-500\">Last 5 min</span>\n              </div>\n              {Object.keys(metrics.errorMetrics.errorsByType).length > 0 && (\n                <div className=\"space-y-1 max-h-24 overflow-y-auto\">\n                  {Object.entries(metrics.errorMetrics.errorsByType).map(([type, count]) => (\n                    <div key={type}",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/components/PerformanceDashboard.tsx",
+        "start": 129,
+        "end": 310,
+        "startLoc": {
+          "line": 129,
+          "column": 10,
+          "position": 1078
+        },
+        "endLoc": {
+          "line": 310,
+          "column": 2,
+          "position": 2822
+        }
+      },
+      "secondFile": {
+        "name": "src/features/monitoring/components/PerformanceDashboard.tsx",
+        "start": 129,
+        "end": 310,
+        "startLoc": {
+          "line": 129,
+          "column": 10,
+          "position": 1078
+        },
+        "endLoc": {
+          "line": 310,
+          "column": 2,
+          "position": 2822
+        }
+      }
+    },
+    {
+      "format": "tsx",
+      "lines": 333,
+      "fragment": "'use client';\n\n/**\n * Performance Dashboard Component\n * 性能监控仪表板组件\n */\n\nimport React, { useState, useEffect } from 'react';\nimport {\n  AlertTriangle,\n  Clock,\n  Zap,\n  Activity,\n  TrendingUp,\n  TrendingDown,\n  RefreshCw,\n  Trash2,\n  X,\n} from 'lucide-react';\nimport {\n  monitor,\n  AggregatedMetrics,\n  AlarmEvent,\n  getMonitoringConfig,\n} from '@/lib/monitoring';\nimport { initBrowserTracking } from '@/lib/monitoring/utils';\n\ninterface PerformanceDashboardProps {\n  refreshInterval?: number; // ms\n  showAlarms?: boolean;\n  showControls?: boolean;\n  className?: string;\n}\n\nexport function PerformanceDashboard({\n  refreshInterval = 5000,\n  showAlarms = true,\n  showControls = true,\n  className = '',\n}: PerformanceDashboardProps) {\n  \"use memo\";\n  const [metrics, setMetrics] = useState<AggregatedMetrics | null>(null);\n  const [alarms, setAlarms] = useState<AlarmEvent[]>([]);\n  const [isLoading, setIsLoading] = useState(true);\n  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());\n  const [showAlarmDetails, setShowAlarmDetails] = useState(false);\n\n  // Initialize monitoring on mount\n  useEffect(() => {\n    initBrowserTracking();\n    loadMetrics();\n  }, []);\n\n  // Auto refresh\n  useEffect(() => {\n    if (!refreshInterval) return;\n\n    const interval = setInterval(() => {\n      loadMetrics();\n    }, refreshInterval);\n\n    return () => clearInterval(interval);\n  }, [refreshInterval]);\n\n  const loadMetrics = async () => {\n    setIsLoading(true);\n    try {\n      const [metricsData, alarmsData] = await Promise.all([\n        monitor.getAggregatedMetrics(5 * 60 * 1000), // 5 minutes window\n        monitor.getAlarms(Date.now() - 60 * 60 * 1000), // Last hour\n      ]);\n      setMetrics(metricsData);\n      setAlarms(alarmsData);\n      setLastRefresh(new Date());\n    } catch (error) {\n      console.error('Failed to load metrics:', error);\n    } finally {\n      setIsLoading(false);\n    }\n  };\n\n  const handleClearData = async () => {\n    if (confirm('Are you sure you want to clear all monitoring data?')) {\n      await monitor.clearAllData();\n      loadMetrics();\n    }\n  };\n\n  const config = getMonitoringConfig();\n\n  const formatNumber = (num: number, decimals: number = 2): string => {\n    return num.toFixed(decimals);\n  };\n\n  const formatPercent = (num: number): string => {\n    return `${(num * 100).toFixed(2)}%`;\n  };\n\n  const formatDuration = (ms: number): string => {\n    if (ms < 1000) return `${formatNumber(ms, 0)}ms`;\n    if (ms < 60000) return `${formatNumber(ms / 1000, 2)}s`;\n    return `${formatNumber(ms / 60000, 2)}m`;\n  };\n\n  const getSeverityColor = (severity: string): string => {\n    switch (severity) {\n      case 'critical':\n        return 'bg-red-500';\n      case 'high':\n        return 'bg-orange-500';\n      case 'medium':\n        return 'bg-yellow-500';\n      case 'low':\n        return 'bg-blue-500';\n      default:\n        return 'bg-zinc-500';\n    }\n  };\n\n  const getMetricTrend = (value: number, threshold: number) => {\n    if (value > threshold) {\n      return { icon: TrendingUp, color: 'text-red-500', label: 'Above threshold' };\n    }\n    return { icon: TrendingDown, color: 'text-green-500', label: 'Normal' };\n  };\n\n  if (isLoading && !metrics) {\n    return (\n      <div className={`bg-zinc-900 rounded-lg p-6 ${className}`}>\n        <div className=\"flex items-center justify-center h-32\">\n          <RefreshCw className=\"animate-spin text-zinc-400 w-8 h-8\" />\n        </div>\n      </div>\n    );\n  }\n\n  const activeAlarms = alarms.filter((a) => a.severity === 'critical' || a.severity === 'high');\n\n  return (\n    <div className={`bg-zinc-900 rounded-lg p-6 space-y-6 ${className}`}>\n      {/* Header */}\n      <div className=\"flex items-center justify-between\">\n        <div className=\"flex items-center space-x-3\">\n          <Activity className=\"text-blue-500 w-6 h-6\" />\n          <h2 className=\"text-xl font-bold text-white\">Performance Dashboard</h2>\n          {activeAlarms.length > 0 && (\n            <div className=\"flex items-center space-x-1 bg-red-500/20 text-red-400 px-2 py-1 rounded\">\n              <AlertTriangle className=\"w-4 h-4\" />\n              <span className=\"text-sm font-medium\">{activeAlarms.length} Active Alarms</span>\n            </div>\n          )}\n        </div>\n\n        {showControls && (\n          <div className=\"flex items-center space-x-2\">\n            <button\n              onClick={loadMetrics}\n              disabled={isLoading}\n              className=\"p-2 hover:bg-zinc-800 rounded-lg transition-colors\"\n              title=\"Refresh\"\n            >\n              <RefreshCw className={`w-5 h-5 text-zinc-400 ${isLoading ? 'animate-spin' : ''}`} />\n            </button>\n            <button\n              onClick={handleClearData}\n              className=\"p-2 hover:bg-zinc-800 rounded-lg transition-colors\"\n              title=\"Clear Data\"\n            >\n              <Trash2 className=\"w-5 h-5 text-zinc-400\" />\n            </button>\n          </div>\n        )}\n      </div>\n\n      {/* Alerts */}\n      {showAlarms && activeAlarms.length > 0 && (\n        <div className=\"space-y-2\">\n          <div className=\"flex items-center justify-between\">\n            <h3 className=\"text-sm font-semibold text-zinc-400 uppercase tracking-wider\">\n              Recent Alarms\n            </h3>\n            <button\n              onClick={() => setShowAlarmDetails(!showAlarmDetails)}\n              className=\"text-sm text-blue-400 hover:text-blue-300\"\n            >\n              {showAlarmDetails ? 'Hide' : 'Show Details'}\n            </button>\n          </div>\n\n          {activeAlarms.slice(0, showAlarmDetails ? undefined : 3).map((alarm) => (\n            <div\n              key={alarm.id}\n              className=\"flex items-start space-x-3 bg-zinc-800 rounded-lg p-3 border-l-4 border-red-500\"\n            >\n              <div className={`mt-0.5 ${getSeverityColor(alarm.severity)}`}>\n                <AlertTriangle className=\"w-4 h-4 text-white\" />\n              </div>\n              <div className=\"flex-1 min-w-0\">\n                <p className=\"text-sm text-zinc-200\">{alarm.message}</p>\n                <div className=\"flex items-center space-x-4 mt-1\">\n                  <span className=\"text-xs text-zinc-500\">\n                    {new Date(alarm.timestamp).toLocaleString()}\n                  </span>\n                  <span className=\"text-xs text-zinc-500\">\n                    Value: {formatNumber(alarm.currentValue)}\n                  </span>\n                  <span className=\"text-xs text-zinc-500\">\n                    Threshold: {formatNumber(alarm.threshold)}\n                  </span>\n                </div>\n              </div>\n              <span className={`text-xs px-2 py-1 rounded ${getSeverityColor(alarm.severity)} text-white`}>\n                {alarm.severity}\n              </span>\n            </div>\n          ))}\n        </div>\n      )}\n\n      {/* Metrics Grid */}\n      {metrics && (\n        <div className=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4\">\n          {/* API Requests */}\n          <div className=\"bg-zinc-800 rounded-lg p-4\">\n            <div className=\"flex items-center justify-between mb-3\">\n              <div className=\"flex items-center space-x-2\">\n                <Activity className=\"text-blue-500 w-5 h-5\" />\n                <span className=\"text-sm font-medium text-zinc-300\">API Requests</span>\n              </div>\n              <TrendingDown className=\"text-green-500 w-4 h-4\" />\n            </div>\n            <div className=\"space-y-2\">\n              <div className=\"flex justify-between items-center\">\n                <span className=\"text-2xl font-bold text-white\">\n                  {metrics.apiMetrics.totalRequests}\n                </span>\n                <span className=\"text-xs text-zinc-500\">Last 5 min</span>\n              </div>\n              <div className=\"space-y-1\">\n                <div className=\"flex justify-between text-sm\">\n                  <span className=\"text-zinc-400\">Success Rate</span>\n                  <span className={formatPercent(metrics.apiMetrics.successRate) === '100.00%' ? 'text-green-400' : 'text-yellow-400'}>\n                    {formatPercent(metrics.apiMetrics.successRate)}\n                  </span>\n                </div>\n                <div className=\"flex justify-between text-sm\">\n                  <span className=\"text-zinc-400\">Avg Response</span>\n                  <span className=\"text-white\">{formatDuration(metrics.apiMetrics.averageResponseTime)}</span>\n                </div>\n                <div className=\"flex justify-between text-sm\">\n                  <span className=\"text-zinc-400\">Error Rate</span>\n                  <span className={metrics.apiMetrics.errorRate > 0.05 ? 'text-red-400' : 'text-zinc-300'}>\n                    {formatPercent(metrics.apiMetrics.errorRate)}\n                  </span>\n                </div>\n              </div>\n            </div>\n          </div>\n\n          {/* Operations */}\n          <div className=\"bg-zinc-800 rounded-lg p-4\">\n            <div className=\"flex items-center justify-between mb-3\">\n              <div className=\"flex items-center space-x-2\">\n                <Zap className=\"text-yellow-500 w-5 h-5\" />\n                <span className=\"text-sm font-medium text-zinc-300\">Operations</span>\n              </div>\n              <TrendingDown className=\"text-green-500 w-4 h-4\" />\n            </div>\n            <div className=\"space-y-2\">\n              <div className=\"flex justify-between items-center\">\n                <span className=\"text-2xl font-bold text-white\">\n                  {metrics.operationMetrics.totalOperations}\n                </span>\n                <span className=\"text-xs text-zinc-500\">Last 5 min</span>\n              </div>\n              <div className=\"space-y-1\">\n                <div className=\"flex justify-between text-sm\">\n                  <span className=\"text-zinc-400\">Success Rate</span>\n                  <span className={formatPercent(metrics.operationMetrics.successRate) === '100.00%' ? 'text-green-400' : 'text-yellow-400'}>\n                    {formatPercent(metrics.operationMetrics.successRate)}\n                  </span>\n                </div>\n                <div className=\"flex justify-between text-sm\">\n                  <span className=\"text-zinc-400\">Avg Duration</span>\n                  <span className=\"text-white\">{formatDuration(metrics.operationMetrics.averageDuration)}</span>\n                </div>\n              </div>\n            </div>\n          </div>\n\n          {/* Errors */}\n          <div className=\"bg-zinc-800 rounded-lg p-4\">\n            <div className=\"flex items-center justify-between mb-3\">\n              <div className=\"flex items-center space-x-2\">\n                <AlertTriangle className=\"text-red-500 w-5 h-5\" />\n                <span className=\"text-sm font-medium text-zinc-300\">Errors</span>\n              </div>\n              <TrendingDown className=\"text-green-500 w-4 h-4\" />\n            </div>\n            <div className=\"space-y-2\">\n              <div className=\"flex justify-between items-center\">\n                <span className=\"text-2xl font-bold text-white\">\n                  {metrics.errorMetrics.totalErrors}\n                </span>\n                <span className=\"text-xs text-zinc-500\">Last 5 min</span>\n              </div>\n              {Object.keys(metrics.errorMetrics.errorsByType).length > 0 && (\n                <div className=\"space-y-1 max-h-24 overflow-y-auto\">\n                  {Object.entries(metrics.errorMetrics.errorsByType).map(([type, count]) => (\n                    <div key={type} className=\"flex justify-between text-sm\">\n                      <span className=\"text-zinc-400 truncate\">{type}</span>\n                      <span className=\"text-zinc-300\">{count}</span>\n                    </div>\n                  ))}\n                </div>\n              )}\n            </div>\n          </div>\n        </div>\n      )}\n\n      {/* Footer */}\n      <div className=\"flex items-center justify-between text-xs text-zinc-500\">\n        <div className=\"flex items-center space-x-4\">\n          <span>Last refresh: {lastRefresh.toLocaleTimeString()}</span>\n          <span>Sampling rate: {formatPercent(config.sampleRate)}</span>\n          <span>Status: {config.enabled ? 'Active' : 'Disabled'}</span>\n        </div>\n        <span>Time window: 5 minutes</span>\n      </div>\n    </div>\n  );\n}",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/components/PerformanceDashboard.tsx",
+        "start": 1,
+        "end": 333,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 333,
+          "column": 2,
+          "position": 3031
+        }
+      },
+      "secondFile": {
+        "name": "src/features/monitoring/components/PerformanceDashboard.tsx",
+        "start": 1,
+        "end": 333,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 333,
+          "column": 2,
+          "position": 3031
+        }
+      }
+    },
+    {
+      "format": "javascript",
+      "lines": 331,
+      "fragment": "={`bg-zinc-900 rounded-lg p-6 ${className}`}>\n        <div className=\"flex items-center justify-center h-32\">\n          <RefreshCw className=\"animate-spin text-zinc-400 w-8 h-8\" />\n        </div>\n      </div>\n    );\n  }\n\n  const allActiveAlarms = [\n    ...alarms.filter((a) => a.severity === 'critical' || a.severity === 'high'),\n    ...budgetAlarms.filter((a) => !a.acknowledged),\n  ];\n\n  const webVitalsScore = calculateWebVitalsScore(webVitals);\n\n  return (\n    <div className={`bg-zinc-900 rounded-lg p-6 space-y-6 ${className}`}>\n      {/* Header */}\n      <div className=\"flex items-center justify-between\">\n        <div className=\"flex items-center space-x-3\">\n          <Gauge className=\"text-blue-500 w-6 h-6\" />\n          <h2 className=\"text-xl font-bold text-white\">Performance Dashboard</h2>\n          {budgetReport && (\n            <div className={`flex items-center space-x-2 px-3 py-1 rounded-full ${\n              budgetReport.status === 'pass' ? 'bg-green-500/20 text-green-400' :\n              budgetReport.status === 'warning' ? 'bg-yellow-500/20 text-yellow-400' :\n              'bg-red-500/20 text-red-400'\n            }`}>\n              <span className=\"text-sm font-medium\">\n                Score: {budgetReport.overallScore.toFixed(0)}\n              </span>\n            </div>\n          )}\n          {allActiveAlarms.length > 0 && (\n            <div className=\"flex items-center space-x-1 bg-red-500/20 text-red-400 px-2 py-1 rounded\">\n              <AlertTriangle className=\"w-4 h-4\" />\n              <span className=\"text-sm font-medium\">{allActiveAlarms.length} Active Alarms</span>\n            </div>\n          )}\n        </div>\n\n        <div className=\"flex items-center space-x-2\">\n          <button\n            onClick={loadMetrics}\n            disabled={isLoading}\n            className=\"p-2 hover:bg-zinc-800 rounded-lg transition-colors\"\n            title=\"Refresh\"\n          >\n            <RefreshCw className={`w-5 h-5 text-zinc-400 ${isLoading ? 'animate-spin' : ''}`} />\n          </button>\n          <button\n            onClick={handleClearData}\n            className=\"p-2 hover:bg-zinc-800 rounded-lg transition-colors\"\n            title=\"Clear Data\"\n          >\n            <Trash2 className=\"w-5 h-5 text-zinc-400\" />\n          </button>\n        </div>\n      </div>\n\n      {/* Web Vitals Score */}\n      {showWebVitals && (\n        <div className=\"bg-zinc-800 rounded-lg p-4\">\n          <div className=\"flex items-center justify-between mb-4\">\n            <h3 className=\"text-lg font-semibold text-zinc-200\">Core Web Vitals</h3>\n            <div className={`text-3xl font-bold ${getScoreColor(webVitalsScore)}`}>\n              {webVitalsScore.toFixed(0)}\n            </div>\n          </div>\n\n          <div className=\"grid grid-cols-2 md:grid-cols-4 gap-4\">\n            {(['LCP', 'INP', 'CLS', 'TTFB'] as const).map((name) => {\n              const value = webVitals[name];\n              const rating = value !== undefined ? getWebVitalRating(name, value) : null;\n              const Icon = getWebVitalIcon(name);\n\n              return (\n                <div key={name} className=\"bg-zinc-900 rounded-lg p-3\">\n                  <div className=\"flex items-center space-x-2 mb-2\">\n                    <Icon className=\"text-blue-500 w-4 h-4\" />\n                    <span className=\"text-sm font-medium text-zinc-400\">{name}</span>\n                  </div>\n                  {value !== undefined ? (\n                    <>\n                      <div className=\"text-xl font-bold text-white\">\n                        {name === 'CLS' ? value.toFixed(3) : formatDuration(value)}\n                      </div>\n                      <div className=\"flex items-center mt-1\">\n                        {rating === 'good' ? (\n                          <CheckCircle className=\"w-4 h-4 text-green-500\" />\n                        ) : rating === 'needs-improvement' ? (\n                          <AlertTriangle className=\"w-4 h-4 text-yellow-500\" />\n                        ) : (\n                          <XCircle className=\"w-4 h-4 text-red-500\" />\n                        )}\n                        <span className={`text-xs ml-1 ${\n                          rating === 'good' ? 'text-green-400' :\n                          rating === 'needs-improvement' ? 'text-yellow-400' :\n                          'text-red-400'\n                        }`}>\n                          {rating || 'N/A'}\n                        </span>\n                      </div>\n                    </>\n                  ) : (\n                    <div className=\"text-sm text-zinc-500\">N/A</div>\n                  )}\n                </div>\n              );\n            })}\n          </div>\n        </div>\n      )}\n\n      {/* Alarms */}\n      {showAlarms && allActiveAlarms.length > 0 && (\n        <div className=\"bg-red-500/10 border border-red-500/30 rounded-lg p-4\">\n          <h3 className=\"text-sm font-semibold text-red-400 mb-3\">Active Alarms</h3>\n          <div className=\"space-y-2\">\n            {allActiveAlarms.slice(0, 5).map((alarm, idx) => (\n              <div\n                key={`${alarm.id}-${idx}`}\n                className=\"flex items-start space-x-3 bg-zinc-800 rounded-lg p-3 border-l-4 border-red-500\"\n              >\n                <div className={`mt-0.5 ${getSeverityColor(alarm.severity)}`}>\n                  <AlertTriangle className=\"w-4 h-4 text-white\" />\n                </div>\n                <div className=\"flex-1 min-w-0\">\n                  <p className=\"text-sm text-zinc-200\">{alarm.message}</p>\n                  <div className=\"flex items-center space-x-4 mt-1\">\n                    <span className=\"text-xs text-zinc-500\">\n                      {new Date(alarm.timestamp).toLocaleString()}\n                    </span>\n                  </div>\n                </div>\n                <span className={`text-xs px-2 py-1 rounded ${getSeverityColor(alarm.severity)} text-white`}>\n                  {alarm.severity}\n                </span>\n              </div>\n            ))}\n          </div>\n        </div>\n      )}\n\n      {/* Metrics Grid */}\n      {metrics && (\n        <div className=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4\">\n          {/* API Requests */}\n          <div className=\"bg-zinc-800 rounded-lg p-4\">\n            <div className=\"flex items-center justify-between mb-3\">\n              <div className=\"flex items-center space-x-2\">\n                <Activity className=\"text-blue-500 w-5 h-5\" />\n                <span className=\"text-sm font-medium text-zinc-300\">API Requests</span>\n              </div>\n              <TrendingDown className=\"text-green-500 w-4 h-4\" />\n            </div>\n            <div className=\"space-y-2\">\n              <div className=\"flex justify-between items-center\">\n                <span className=\"text-2xl font-bold text-white\">\n                  {metrics.apiMetrics.totalRequests}\n                </span>\n                <span className=\"text-xs text-zinc-500\">Last 5 min</span>\n              </div>\n              <div className=\"space-y-1\">\n                <div className=\"flex justify-between text-sm\">\n                  <span className=\"text-zinc-400\">Success Rate</span>\n                  <span className={formatPercent(metrics.apiMetrics.successRate) === '100.00%' ? 'text-green-400' : 'text-yellow-400'}>\n                    {formatPercent(metrics.apiMetrics.successRate)}\n                  </span>\n                </div>\n                <div className=\"flex justify-between text-sm\">\n                  <span className=\"text-zinc-400\">Avg Response</span>\n                  <span className=\"text-white\">{formatDuration(metrics.apiMetrics.averageResponseTime)}</span>\n                </div>\n                <div className=\"flex justify-between text-sm\">\n                  <span className=\"text-zinc-400\">Error Rate</span>\n                  <span className={metrics.apiMetrics.errorRate > 0.05 ? 'text-red-400' : 'text-zinc-300'}>\n                    {formatPercent(metrics.apiMetrics.errorRate)}\n                  </span>\n                </div>\n              </div>\n            </div>\n          </div>\n\n          {/* Operations */}\n          <div className=\"bg-zinc-800 rounded-lg p-4\">\n            <div className=\"flex items-center justify-between mb-3\">\n              <div className=\"flex items-center space-x-2\">\n                <Zap className=\"text-yellow-500 w-5 h-5\" />\n                <span className=\"text-sm font-medium text-zinc-300\">Operations</span>\n              </div>\n              <TrendingDown className=\"text-green-500 w-4 h-4\" />\n            </div>\n            <div className=\"space-y-2\">\n              <div className=\"flex justify-between items-center\">\n                <span className=\"text-2xl font-bold text-white\">\n                  {metrics.operationMetrics.totalOperations}\n                </span>\n                <span className=\"text-xs text-zinc-500\">Last 5 min</span>\n              </div>\n              <div className=\"space-y-1\">\n                <div className=\"flex justify-between text-sm\">\n                  <span className=\"text-zinc-400\">Success Rate</span>\n                  <span className={formatPercent(metrics.operationMetrics.successRate) === '100.00%' ? 'text-green-400' : 'text-yellow-400'}>\n                    {formatPercent(metrics.operationMetrics.successRate)}\n                  </span>\n                </div>\n                <div className=\"flex justify-between text-sm\">\n                  <span className=\"text-zinc-400\">Avg Duration</span>\n                  <span className=\"text-white\">{formatDuration(metrics.operationMetrics.averageDuration)}</span>\n                </div>\n              </div>\n            </div>\n          </div>\n\n          {/* Errors */}\n          <div className=\"bg-zinc-800 rounded-lg p-4\">\n            <div className=\"flex items-center justify-between mb-3\">\n              <div className=\"flex items-center space-x-2\">\n                <AlertTriangle className=\"text-red-500 w-5 h-5\" />\n                <span className=\"text-sm font-medium text-zinc-300\">Errors</span>\n              </div>\n              <TrendingDown className=\"text-green-500 w-4 h-4\" />\n            </div>\n            <div className=\"space-y-2\">\n              <div className=\"flex justify-between items-center\">\n                <span className=\"text-2xl font-bold text-white\">\n                  {metrics.errorMetrics.totalErrors}\n                </span>\n                <span className=\"text-xs text-zinc-500\">Last 5 min</span>\n              </div>\n              {Object.keys(metrics.errorMetrics.errorsByType).length > 0 && (\n                <div className=\"space-y-1 max-h-20 overflow-y-auto\">\n                  {Object.entries(metrics.errorMetrics.errorsByType).slice(0, 3).map(([type, count]) => (\n                    <div key={type} className=\"flex justify-between text-sm\">\n                      <span className=\"text-zinc-400 truncate\">{type}</span>\n                      <span className=\"text-zinc-300\">{count}</span>\n                    </div>\n                  ))}\n                </div>\n              )}\n            </div>\n          </div>\n        </div>\n      )}\n\n      {/* Custom Metrics */}\n      {customMetrics && Object.keys(customMetrics).length > 0 && (\n        <div className=\"bg-zinc-800 rounded-lg p-4\">\n          <h3 className=\"text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-3\">\n            Custom Metrics\n          </h3>\n          <div className=\"grid grid-cols-2 md:grid-cols-4 gap-3\">\n            {customMetrics.pageLoadTime !== undefined && (\n              <div className=\"flex items-center space-x-2\">\n                <Clock className=\"text-purple-500 w-4 h-4\" />\n                <div>\n                  <div className=\"text-xs text-zinc-500\">Page Load</div>\n                  <div className=\"text-sm text-white\">{formatDuration(customMetrics.pageLoadTime)}</div>\n                </div>\n              </div>\n            )}\n            {customMetrics.memoryUsage !== undefined && (\n              <div className=\"flex items-center space-x-2\">\n                <Cpu className=\"text-orange-500 w-4 h-4\" />\n                <div>\n                  <div className=\"text-xs text-zinc-500\">Memory</div>\n                  <div className={`text-sm ${customMetrics.memoryUsagePercent && customMetrics.memoryUsagePercent > 85 ? 'text-red-400' : 'text-white'}`}>\n                    {customMetrics.memoryUsage.toFixed(0)} MB\n                  </div>\n                </div>\n              </div>\n            )}\n            {customMetrics.wsLatency !== undefined && (\n              <div className=\"flex items-center space-x-2\">\n                <Network className=\"text-cyan-500 w-4 h-4\" />\n                <div>\n                  <div className=\"text-xs text-zinc-500\">WS Latency</div>\n                  <div className=\"text-sm text-white\">{formatDuration(customMetrics.wsLatency)}</div>\n                </div>\n              </div>\n            )}\n            {customMetrics.dnsLookup !== undefined && (\n              <div className=\"flex items-center space-x-2\">\n                <Database className=\"text-pink-500 w-4 h-4\" />\n                <div>\n                  <div className=\"text-xs text-zinc-500\">DNS</div>\n                  <div className=\"text-sm text-white\">{formatDuration(customMetrics.dnsLookup)}</div>\n                </div>\n              </div>\n            )}\n          </div>\n        </div>\n      )}\n\n      {/* Budget Violations */}\n      {showBudget && budgetReport && budgetReport.violations.length > 0 && (\n        <div className=\"bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4\">\n          <h3 className=\"text-sm font-semibold text-yellow-400 mb-3\">Performance Budget Violations</h3>\n          <div className=\"space-y-2\">\n            {budgetReport.violations.map((violation, idx) => (\n              <div key={idx} className=\"bg-zinc-800 rounded-lg p-3\">\n                <div className=\"flex items-center justify-between\">\n                  <div>\n                    <div className=\"text-sm font-medium text-white\">{violation.metric}</div>\n                    <div className=\"text-xs text-zinc-500\">{violation.impact}</div>\n                  </div>\n                  <div className={`text-xs px-2 py-1 rounded ${\n                    violation.severity === 'high' ? 'bg-red-500/20 text-red-400' :\n                    violation.severity === 'medium' ? 'bg-yellow-500/20 text-yellow-400' :\n                    'bg-blue-500/20 text-blue-400'\n                  }`}>\n                    {violation.severity}\n                  </div>\n                </div>\n                <div className=\"text-xs text-zinc-400 mt-1\">\n                  {violation.currentValue.toFixed(2)} / {violation.threshold}\n                </div>\n              </div>\n            ))}\n          </div>\n        </div>\n      )}\n\n      {/* Recommendations */}\n      {showBudget && budgetReport && budgetReport.recommendations.length > 0 && (\n        <div className=\"bg-blue-500/10 border border-blue-500/30 rounded-lg p-4\">\n          <h3 className=\"text-sm font-semibold text-blue-400 mb-3\">💡 Recommendations</h3>\n          <div className=\"space-y-2\">\n            {budgetReport.recommendations.slice(0, 3).map((recommendation, idx) => (\n              <div key={idx}",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/components/EnhancedPerformanceDashboard.tsx",
+        "start": 224,
+        "end": 554,
+        "startLoc": {
+          "line": 224,
+          "column": 10,
+          "position": 1761
+        },
+        "endLoc": {
+          "line": 554,
+          "column": 2,
+          "position": 5003
+        }
+      },
+      "secondFile": {
+        "name": "src/features/monitoring/components/EnhancedPerformanceDashboard.tsx",
+        "start": 216,
+        "end": 546,
+        "startLoc": {
+          "line": 216,
+          "column": 10,
+          "position": 1699
+        },
+        "endLoc": {
+          "line": 546,
+          "column": 2,
+          "position": 4938
+        }
+      }
+    },
+    {
+      "format": "tsx",
+      "lines": 130,
+      "fragment": "'use client';\n\n/**\n * Enhanced Performance Dashboard Component\n * 增强型性能监控仪表板组件 - 包含 Web Vitals 和性能预算\n */\n\nimport React, { useState, useEffect } from 'react';\nimport {\n  AlertTriangle,\n  Clock,\n  Zap,\n  Activity,\n  RefreshCw,\n  Trash2,\n  TrendingUp,\n  TrendingDown,\n  CheckCircle,\n  XCircle,\n  Gauge,\n  Database,\n  Network,\n  Cpu,\n  Layout,\n  MousePointer2,\n} from 'lucide-react';\nimport {\n  monitor,\n  AggregatedMetrics,\n  AlarmEvent,\n} from '@/lib/monitoring';\nimport {\n  webVitalsMonitor,\n  customMetricsTracker,\n  budgetManager,\n  calculateWebVitalsScore,\n  type WebVitalsMetrics,\n  type CustomMetrics,\n  type PerformanceBudgetReport,\n  type AlarmNotification,\n} from '@/lib/performance';\n\ninterface EnhancedPerformanceDashboardProps {\n  refreshInterval?: number;\n  showAlarms?: boolean;\n  showBudget?: boolean;\n  showWebVitals?: boolean;\n  className?: string;\n}\n\nexport function EnhancedPerformanceDashboard({\n  refreshInterval = 5000,\n  showAlarms = true,\n  showBudget = true,\n  showWebVitals = true,\n  className = '',\n}: EnhancedPerformanceDashboardProps) {\n  \"use memo\";\n  const [metrics, setMetrics] = useState<AggregatedMetrics | null>(null);\n  const [alarms, setAlarms] = useState<AlarmEvent[]>([]);\n  const [budgetAlarms, setBudgetAlarms] = useState<AlarmNotification[]>([]);\n  const [webVitals, setWebVitals] = useState<WebVitalsMetrics>({});\n  const [customMetrics, setCustomMetrics] = useState<CustomMetrics>({});\n  const [budgetReport, setBudgetReport] = useState<PerformanceBudgetReport | null>(null);\n  const [isLoading, setIsLoading] = useState(true);\n  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());\n\n  // Initialize monitoring on mount\n  useEffect(() => {\n    // Initialize Web Vitals monitoring\n    webVitalsMonitor.init();\n    // Initialize custom metrics tracking\n    customMetricsTracker.init();\n\n    // Load initial data\n    loadMetrics();\n\n    // Set up periodic check for budget alarms\n    const budgetCheckInterval = setInterval(() => {\n      checkBudgetAlarms();\n    }, 30000); // Check every 30 seconds\n\n    return () => clearInterval(budgetCheckInterval);\n  }, []);\n\n  // Auto refresh\n  useEffect(() => {\n    if (!refreshInterval) return;\n\n    const interval = setInterval(() => {\n      loadMetrics();\n    }, refreshInterval);\n\n    return () => clearInterval(interval);\n  }, [refreshInterval]);\n\n  const loadMetrics = async () => {\n    setIsLoading(true);\n    try {\n      const [metricsData, alarmsData] = await Promise.all([\n        monitor.getAggregatedMetrics(5 * 60 * 1000),\n        monitor.getAlarms(Date.now() - 60 * 60 * 1000),\n      ]);\n      setMetrics(metricsData);\n      setAlarms(alarmsData);\n\n      // Update custom metrics\n      await customMetricsTracker.updateAPIMetrics();\n      await customMetricsTracker.updateErrorMetrics();\n\n      setWebVitals(webVitalsMonitor.getMetrics());\n      setCustomMetrics(customMetricsTracker.getMetrics());\n\n      // Calculate budget report\n      const report = budgetManager.calculateBudgetReport(\n        webVitalsMonitor.getMetrics(),\n        customMetricsTracker.getMetrics()\n      );\n      setBudgetReport(report);\n\n      setLastRefresh(new Date());\n    } catch (error) {\n      console.error('Failed to load metrics:', error);\n    } finally {\n      setIsLoading(false);\n    }\n  };\n\n  const checkBudgetAlarms = async () => {\n    try",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/components/EnhancedPerformanceDashboard.tsx",
+        "start": 1,
+        "end": 130,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 130,
+          "column": 4,
+          "position": 930
+        }
+      },
+      "secondFile": {
+        "name": "src/features/monitoring/components/EnhancedPerformanceDashboard.tsx",
+        "start": 1,
+        "end": 130,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 130,
+          "column": 6,
+          "position": 930
+        }
+      }
+    },
+    {
+      "format": "tsx",
+      "lines": 143,
+      "fragment": "}\n  };\n\n  const formatNumber = (num: number, decimals: number = 2): string => {\n    return num.toFixed(decimals);\n  };\n\n  const formatPercent = (num: number): string => {\n    return `${(num * 100).toFixed(2)}%`;\n  };\n\n  const formatDuration = (ms: number): string => {\n    if (ms < 1000) return `${formatNumber(ms, 0)}ms`;\n    if (ms < 60000) return `${formatNumber(ms / 1000, 2)}s`;\n    return `${formatNumber(ms / 60000, 2)}m`;\n  };\n\n  const getScoreColor = (score: number): string => {\n    if (score >= 80) return 'text-green-500';\n    if (score >= 60) return 'text-yellow-500';\n    return 'text-red-500';\n  };\n\n  const getWebVitalRating = (name: keyof WebVitalsMetrics, value: number): 'good' | 'needs-improvement' | 'poor' => {\n    const thresholds: Record<string, number> = {\n      LCP: 2500,\n      FID: 100,\n      CLS: 0.1,\n      INP: 200,\n    };\n\n    const threshold = thresholds[name];\n    if (!threshold) return 'good';\n\n    if (value <= threshold) return 'good';\n    if (value <= threshold * 1.5) return 'needs-improvement';\n    return 'poor';\n  };\n\n  const getWebVitalIcon = (name: string) => {\n    switch (name) {\n      case 'LCP':\n        return Layout;\n      case 'FID':\n        return MousePointer2;\n      case 'CLS':\n        return Activity;\n      case 'INP':\n        return Zap;\n      default:\n        return Activity;\n    }\n  };\n\n  const getSeverityColor = (severity: string): string => {\n    switch (severity) {\n      case 'critical':\n        return 'bg-red-500';\n      case 'high':\n        return 'bg-orange-500';\n      case 'medium':\n        return 'bg-yellow-500';\n      case 'low':\n        return 'bg-blue-500';\n      default:\n        return 'bg-zinc-500';\n    }\n  };\n\n  if (isLoading && !metrics) {\n    return (\n      <div className={`bg-zinc-900 rounded-lg p-6 ${className}`}>\n        <div className=\"flex items-center justify-center h-32\">\n          <RefreshCw className=\"animate-spin text-zinc-400 w-8 h-8\" />\n        </div>\n      </div>\n    );\n  }\n\n  const allActiveAlarms = [\n    ...alarms.filter((a) => a.severity === 'critical' || a.severity === 'high'),\n    ...budgetAlarms.filter((a) => !a.acknowledged),\n  ];\n\n  const webVitalsScore = calculateWebVitalsScore(webVitals);\n\n  return (\n    <div className={`bg-zinc-900 rounded-lg p-6 space-y-6 ${className}`}>\n      {/* Header */}\n      <div className=\"flex items-center justify-between\">\n        <div className=\"flex items-center space-x-3\">\n          <Gauge className=\"text-blue-500 w-6 h-6\" />\n          <h2 className=\"text-xl font-bold text-white\">Performance Dashboard</h2>\n          {budgetReport && (\n            <div className={`flex items-center space-x-2 px-3 py-1 rounded-full ${\n              budgetReport.status === 'pass' ? 'bg-green-500/20 text-green-400' :\n              budgetReport.status === 'warning' ? 'bg-yellow-500/20 text-yellow-400' :\n              'bg-red-500/20 text-red-400'\n            }`}>\n              <span className=\"text-sm font-medium\">\n                Score: {budgetReport.overallScore.toFixed(0)}\n              </span>\n            </div>\n          )}\n          {allActiveAlarms.length > 0 && (\n            <div className=\"flex items-center space-x-1 bg-red-500/20 text-red-400 px-2 py-1 rounded\">\n              <AlertTriangle className=\"w-4 h-4\" />\n              <span className=\"text-sm font-medium\">{allActiveAlarms.length} Active Alarms</span>\n            </div>\n          )}\n        </div>\n\n        <div className=\"flex items-center space-x-2\">\n          <button\n            onClick={loadMetrics}\n            disabled={isLoading}\n            className=\"p-2 hover:bg-zinc-800 rounded-lg transition-colors\"\n            title=\"Refresh\"\n          >\n            <RefreshCw className={`w-5 h-5 text-zinc-400 ${isLoading ? 'animate-spin' : ''}`} />\n          </button>\n          <button\n            onClick={handleClearData}\n            className=\"p-2 hover:bg-zinc-800 rounded-lg transition-colors\"\n            title=\"Clear Data\"\n          >\n            <Trash2 className=\"w-5 h-5 text-zinc-400\" />\n          </button>\n        </div>\n      </div>\n\n      {/* Web Vitals Score */}\n      {showWebVitals && (\n        <div className=\"bg-zinc-800 rounded-lg p-4\">\n          <div className=\"flex items-center justify-between mb-4\">\n            <h3 className=\"text-lg font-semibold text-zinc-200\">Core Web Vitals</h3>\n            <div className={`text-3xl font-bold ${getScoreColor(webVitalsScore)}`}>\n              {webVitalsScore.toFixed(0)}\n            </div>\n          </div>\n\n          <div className=\"grid grid-cols-2 md:grid-cols-4 gap-4\">\n            {(['LCP', 'INP'",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/components/EnhancedPerformanceDashboard.tsx",
+        "start": 153,
+        "end": 295,
+        "startLoc": {
+          "line": 153,
+          "column": 5,
+          "position": 1122
+        },
+        "endLoc": {
+          "line": 295,
+          "column": 6,
+          "position": 2363
+        }
+      },
+      "secondFile": {
+        "name": "src/features/monitoring/components/EnhancedPerformanceDashboard.tsx",
+        "start": 145,
+        "end": 287,
+        "startLoc": {
+          "line": 145,
+          "column": 5,
+          "position": 1060
+        },
+        "endLoc": {
+          "line": 287,
+          "column": 6,
+          "position": 2301
+        }
+      }
+    },
+    {
+      "format": "tsx",
+      "lines": 281,
+      "fragment": "] as const).map((name) => {\n              const value = webVitals[name];\n              const rating = value !== undefined ? getWebVitalRating(name, value) : null;\n              const Icon = getWebVitalIcon(name);\n\n              return (\n                <div key={name} className=\"bg-zinc-900 rounded-lg p-3\">\n                  <div className=\"flex items-center space-x-2 mb-2\">\n                    <Icon className=\"text-blue-500 w-4 h-4\" />\n                    <span className=\"text-sm font-medium text-zinc-400\">{name}</span>\n                  </div>\n                  {value !== undefined ? (\n                    <>\n                      <div className=\"text-xl font-bold text-white\">\n                        {name === 'CLS' ? value.toFixed(3) : formatDuration(value)}\n                      </div>\n                      <div className=\"flex items-center mt-1\">\n                        {rating === 'good' ? (\n                          <CheckCircle className=\"w-4 h-4 text-green-500\" />\n                        ) : rating === 'needs-improvement' ? (\n                          <AlertTriangle className=\"w-4 h-4 text-yellow-500\" />\n                        ) : (\n                          <XCircle className=\"w-4 h-4 text-red-500\" />\n                        )}\n                        <span className={`text-xs ml-1 ${\n                          rating === 'good' ? 'text-green-400' :\n                          rating === 'needs-improvement' ? 'text-yellow-400' :\n                          'text-red-400'\n                        }`}>\n                          {rating || 'N/A'}\n                        </span>\n                      </div>\n                    </>\n                  ) : (\n                    <div className=\"text-sm text-zinc-500\">N/A</div>\n                  )}\n                </div>\n              );\n            })}\n          </div>\n        </div>\n      )}\n\n      {/* Alarms */}\n      {showAlarms && allActiveAlarms.length > 0 && (\n        <div className=\"bg-red-500/10 border border-red-500/30 rounded-lg p-4\">\n          <h3 className=\"text-sm font-semibold text-red-400 mb-3\">Active Alarms</h3>\n          <div className=\"space-y-2\">\n            {allActiveAlarms.slice(0, 5).map((alarm, idx) => (\n              <div\n                key={`${alarm.id}-${idx}`}\n                className=\"flex items-start space-x-3 bg-zinc-800 rounded-lg p-3 border-l-4 border-red-500\"\n              >\n                <div className={`mt-0.5 ${getSeverityColor(alarm.severity)}`}>\n                  <AlertTriangle className=\"w-4 h-4 text-white\" />\n                </div>\n                <div className=\"flex-1 min-w-0\">\n                  <p className=\"text-sm text-zinc-200\">{alarm.message}</p>\n                  <div className=\"flex items-center space-x-4 mt-1\">\n                    <span className=\"text-xs text-zinc-500\">\n                      {new Date(alarm.timestamp).toLocaleString()}\n                    </span>\n                  </div>\n                </div>\n                <span className={`text-xs px-2 py-1 rounded ${getSeverityColor(alarm.severity)} text-white`}>\n                  {alarm.severity}\n                </span>\n              </div>\n            ))}\n          </div>\n        </div>\n      )}\n\n      {/* Metrics Grid */}\n      {metrics && (\n        <div className=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4\">\n          {/* API Requests */}\n          <div className=\"bg-zinc-800 rounded-lg p-4\">\n            <div className=\"flex items-center justify-between mb-3\">\n              <div className=\"flex items-center space-x-2\">\n                <Activity className=\"text-blue-500 w-5 h-5\" />\n                <span className=\"text-sm font-medium text-zinc-300\">API Requests</span>\n              </div>\n              <TrendingDown className=\"text-green-500 w-4 h-4\" />\n            </div>\n            <div className=\"space-y-2\">\n              <div className=\"flex justify-between items-center\">\n                <span className=\"text-2xl font-bold text-white\">\n                  {metrics.apiMetrics.totalRequests}\n                </span>\n                <span className=\"text-xs text-zinc-500\">Last 5 min</span>\n              </div>\n              <div className=\"space-y-1\">\n                <div className=\"flex justify-between text-sm\">\n                  <span className=\"text-zinc-400\">Success Rate</span>\n                  <span className={formatPercent(metrics.apiMetrics.successRate) === '100.00%' ? 'text-green-400' : 'text-yellow-400'}>\n                    {formatPercent(metrics.apiMetrics.successRate)}\n                  </span>\n                </div>\n                <div className=\"flex justify-between text-sm\">\n                  <span className=\"text-zinc-400\">Avg Response</span>\n                  <span className=\"text-white\">{formatDuration(metrics.apiMetrics.averageResponseTime)}</span>\n                </div>\n                <div className=\"flex justify-between text-sm\">\n                  <span className=\"text-zinc-400\">Error Rate</span>\n                  <span className={metrics.apiMetrics.errorRate > 0.05 ? 'text-red-400' : 'text-zinc-300'}>\n                    {formatPercent(metrics.apiMetrics.errorRate)}\n                  </span>\n                </div>\n              </div>\n            </div>\n          </div>\n\n          {/* Operations */}\n          <div className=\"bg-zinc-800 rounded-lg p-4\">\n            <div className=\"flex items-center justify-between mb-3\">\n              <div className=\"flex items-center space-x-2\">\n                <Zap className=\"text-yellow-500 w-5 h-5\" />\n                <span className=\"text-sm font-medium text-zinc-300\">Operations</span>\n              </div>\n              <TrendingDown className=\"text-green-500 w-4 h-4\" />\n            </div>\n            <div className=\"space-y-2\">\n              <div className=\"flex justify-between items-center\">\n                <span className=\"text-2xl font-bold text-white\">\n                  {metrics.operationMetrics.totalOperations}\n                </span>\n                <span className=\"text-xs text-zinc-500\">Last 5 min</span>\n              </div>\n              <div className=\"space-y-1\">\n                <div className=\"flex justify-between text-sm\">\n                  <span className=\"text-zinc-400\">Success Rate</span>\n                  <span className={formatPercent(metrics.operationMetrics.successRate) === '100.00%' ? 'text-green-400' : 'text-yellow-400'}>\n                    {formatPercent(metrics.operationMetrics.successRate)}\n                  </span>\n                </div>\n                <div className=\"flex justify-between text-sm\">\n                  <span className=\"text-zinc-400\">Avg Duration</span>\n                  <span className=\"text-white\">{formatDuration(metrics.operationMetrics.averageDuration)}</span>\n                </div>\n              </div>\n            </div>\n          </div>\n\n          {/* Errors */}\n          <div className=\"bg-zinc-800 rounded-lg p-4\">\n            <div className=\"flex items-center justify-between mb-3\">\n              <div className=\"flex items-center space-x-2\">\n                <AlertTriangle className=\"text-red-500 w-5 h-5\" />\n                <span className=\"text-sm font-medium text-zinc-300\">Errors</span>\n              </div>\n              <TrendingDown className=\"text-green-500 w-4 h-4\" />\n            </div>\n            <div className=\"space-y-2\">\n              <div className=\"flex justify-between items-center\">\n                <span className=\"text-2xl font-bold text-white\">\n                  {metrics.errorMetrics.totalErrors}\n                </span>\n                <span className=\"text-xs text-zinc-500\">Last 5 min</span>\n              </div>\n              {Object.keys(metrics.errorMetrics.errorsByType).length > 0 && (\n                <div className=\"space-y-1 max-h-20 overflow-y-auto\">\n                  {Object.entries(metrics.errorMetrics.errorsByType).slice(0, 3).map(([type, count]) => (\n                    <div key={type} className=\"flex justify-between text-sm\">\n                      <span className=\"text-zinc-400 truncate\">{type}</span>\n                      <span className=\"text-zinc-300\">{count}</span>\n                    </div>\n                  ))}\n                </div>\n              )}\n            </div>\n          </div>\n        </div>\n      )}\n\n      {/* Custom Metrics */}\n      {customMetrics && Object.keys(customMetrics).length > 0 && (\n        <div className=\"bg-zinc-800 rounded-lg p-4\">\n          <h3 className=\"text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-3\">\n            Custom Metrics\n          </h3>\n          <div className=\"grid grid-cols-2 md:grid-cols-4 gap-3\">\n            {customMetrics.pageLoadTime !== undefined && (\n              <div className=\"flex items-center space-x-2\">\n                <Clock className=\"text-purple-500 w-4 h-4\" />\n                <div>\n                  <div className=\"text-xs text-zinc-500\">Page Load</div>\n                  <div className=\"text-sm text-white\">{formatDuration(customMetrics.pageLoadTime)}</div>\n                </div>\n              </div>\n            )}\n            {customMetrics.memoryUsage !== undefined && (\n              <div className=\"flex items-center space-x-2\">\n                <Cpu className=\"text-orange-500 w-4 h-4\" />\n                <div>\n                  <div className=\"text-xs text-zinc-500\">Memory</div>\n                  <div className={`text-sm ${customMetrics.memoryUsagePercent && customMetrics.memoryUsagePercent > 85 ? 'text-red-400' : 'text-white'}`}>\n                    {customMetrics.memoryUsage.toFixed(0)} MB\n                  </div>\n                </div>\n              </div>\n            )}\n            {customMetrics.wsLatency !== undefined && (\n              <div className=\"flex items-center space-x-2\">\n                <Network className=\"text-cyan-500 w-4 h-4\" />\n                <div>\n                  <div className=\"text-xs text-zinc-500\">WS Latency</div>\n                  <div className=\"text-sm text-white\">{formatDuration(customMetrics.wsLatency)}</div>\n                </div>\n              </div>\n            )}\n            {customMetrics.dnsLookup !== undefined && (\n              <div className=\"flex items-center space-x-2\">\n                <Database className=\"text-pink-500 w-4 h-4\" />\n                <div>\n                  <div className=\"text-xs text-zinc-500\">DNS</div>\n                  <div className=\"text-sm text-white\">{formatDuration(customMetrics.dnsLookup)}</div>\n                </div>\n              </div>\n            )}\n          </div>\n        </div>\n      )}\n\n      {/* Budget Violations */}\n      {showBudget && budgetReport && budgetReport.violations.length > 0 && (\n        <div className=\"bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4\">\n          <h3 className=\"text-sm font-semibold text-yellow-400 mb-3\">Performance Budget Violations</h3>\n          <div className=\"space-y-2\">\n            {budgetReport.violations.map((violation, idx) => (\n              <div key={idx} className=\"bg-zinc-800 rounded-lg p-3\">\n                <div className=\"flex items-center justify-between\">\n                  <div>\n                    <div className=\"text-sm font-medium text-white\">{violation.metric}</div>\n                    <div className=\"text-xs text-zinc-500\">{violation.impact}</div>\n                  </div>\n                  <div className={`text-xs px-2 py-1 rounded ${\n                    violation.severity === 'high' ? 'bg-red-500/20 text-red-400' :\n                    violation.severity === 'medium' ? 'bg-yellow-500/20 text-yellow-400' :\n                    'bg-blue-500/20 text-blue-400'\n                  }`}>\n                    {violation.severity}\n                  </div>\n                </div>\n                <div className=\"text-xs text-zinc-400 mt-1\">\n                  {violation.currentValue.toFixed(2)} / {violation.threshold}\n                </div>\n              </div>\n            ))}\n          </div>\n        </div>\n      )}\n\n      {/* Recommendations */}\n      {showBudget && budgetReport && budgetReport.recommendations.length > 0 && (\n        <div className=\"bg-blue-500/10 border border-blue-500/30 rounded-lg p-4\">\n          <h3 className=\"text-sm font-semibold text-blue-400 mb-3\">💡 Recommendations</h3>\n          <div className=\"space-y-2\">\n            {budgetReport.recommendations.slice(0, 3).map((recommendation, idx) => (\n              <div key={idx} className=\"text-sm text-zinc-300\">\n                • {recommendation}\n              </div>\n            ))}\n          </div>\n        </div>\n      )}\n\n      {/* Footer */}\n      <div className=\"flex items-center justify-between text-xs text-zinc-500\">\n        <div className=\"flex items-center space-x-4\">\n          <span>Last refresh: {lastRefresh.toLocaleTimeString()}</span>\n          <span>Web Vitals Score: {webVitalsScore.toFixed(0)}</span>\n          {budgetReport && (\n            <span>Status: {budgetReport.status.toUpperCase()}</span>\n          )}\n        </div>\n        <span>Time window: 5 minutes</span>\n      </div>\n    </div>\n  );\n}",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/components/EnhancedPerformanceDashboard.tsx",
+        "start": 295,
+        "end": 575,
+        "startLoc": {
+          "line": 295,
+          "column": 7,
+          "position": 2370
+        },
+        "endLoc": {
+          "line": 575,
+          "column": 2,
+          "position": 5181
+        }
+      },
+      "secondFile": {
+        "name": "src/features/monitoring/components/EnhancedPerformanceDashboard.tsx",
+        "start": 287,
+        "end": 567,
+        "startLoc": {
+          "line": 287,
+          "column": 6,
+          "position": 2305
+        },
+        "endLoc": {
+          "line": 567,
+          "column": 2,
+          "position": 5116
+        }
+      }
+    }
+  ]
+}

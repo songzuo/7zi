@@ -2,11 +2,11 @@
  * Notifications API Route Unit Tests
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 import { GET, POST } from '../route';
 import { notificationService } from '@/lib/services/notification';
-import { createSuccessResponse, createValidationError, createErrorResponse } from '../../../../lib/api/error-handler';
+import { authenticateJWT } from '@/lib/auth/api-auth';
 
 // Mock notification service
 vi.mock('@/lib/services/notification', () => ({
@@ -29,38 +29,22 @@ vi.mock('@/lib/services/notification', () => ({
   },
 }));
 
-// Mock error handler
-vi.mock('../../../../lib/api/error-handler', () => ({
-  createSuccessResponse: vi.fn(),
-  createValidationError: vi.fn(),
-  createErrorResponse: vi.fn(),
+// Mock auth
+vi.mock('@/lib/auth/api-auth', () => ({
+  authenticateJWT: vi.fn(),
 }));
+
+// Import mocked modules after vi.mock calls
+import { NotificationType, NotificationPriority } from '@/lib/services/notification';
 
 describe('Notifications API Route', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(createSuccessResponse).mockImplementation((data, status = 200) => {
-      return {
-        status,
-        json: async () => ({ success: true, data }),
-      } as any;
+    vi.mocked(authenticateJWT).mockResolvedValue({
+      authenticated: true,
+      userId: 'user-123',
+      role: 'user',
     });
-    vi.mocked(createValidationError).mockImplementation((message) => {
-      return {
-        status: 400,
-        json: async () => ({ success: false, error: { message } }),
-      } as any;
-    });
-    vi.mocked(createErrorResponse).mockImplementation((error) => {
-      return {
-        status: 500,
-        json: async () => ({ success: false, error }),
-      } as any;
-    });
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
   });
 
   describe('GET /api/notifications', () => {
@@ -75,19 +59,17 @@ describe('Notifications API Route', () => {
       const url = new URL('http://localhost/api/notifications');
       const request = new NextRequest(url);
       const response = await GET(request);
+      const data = await response.json();
 
       expect(response.status).toBe(200);
-      expect(notificationService.getNotifications).toHaveBeenCalledWith({});
-      expect(notificationService.getUnreadCount).toHaveBeenCalledWith({});
-      expect(createSuccessResponse).toHaveBeenCalledWith(
-        expect.objectContaining({
-          notifications: mockNotifications,
-          meta: expect.objectContaining({
-            count: 2,
-            unreadCount: 5,
-          }),
-        })
-      );
+      expect(notificationService.getNotifications).toHaveBeenCalledWith({ userId: 'user-123' });
+      expect(notificationService.getUnreadCount).toHaveBeenCalledWith({ userId: 'user-123' });
+      expect(data.success).toBe(true);
+      expect(data.data.notifications).toEqual(mockNotifications);
+      expect(data.data.meta).toEqual({
+        count: 2,
+        unreadCount: 5,
+      });
     });
 
     it('should get notifications with type filter', async () => {
@@ -97,148 +79,183 @@ describe('Notifications API Route', () => {
 
       const url = new URL('http://localhost/api/notifications?type=error');
       const request = new NextRequest(url);
-      await GET(request);
+      const response = await GET(request);
 
+      expect(response.status).toBe(200);
       expect(notificationService.getNotifications).toHaveBeenCalledWith({
-        type: 'error',
+        userId: 'user-123',
+        type: NotificationType.ERROR,
       });
     });
 
     it('should get notifications with priority filter', async () => {
+      vi.mocked(notificationService.getNotifications).mockReturnValue([]);
+      vi.mocked(notificationService.getUnreadCount).mockReturnValue(0);
+
       const url = new URL('http://localhost/api/notifications?priority=high');
       const request = new NextRequest(url);
-      await GET(request);
+      const response = await GET(request);
 
+      expect(response.status).toBe(200);
       expect(notificationService.getNotifications).toHaveBeenCalledWith({
-        priority: 'high',
+        userId: 'user-123',
+        priority: NotificationPriority.HIGH,
       });
     });
 
     it('should get notifications with userId filter', async () => {
+      vi.mocked(authenticateJWT).mockResolvedValueOnce({
+        authenticated: true,
+        userId: 'admin-1',
+        role: 'admin',
+      });
+
+      vi.mocked(notificationService.getNotifications).mockReturnValue([]);
+      vi.mocked(notificationService.getUnreadCount).mockReturnValue(0);
+
       const url = new URL('http://localhost/api/notifications?userId=user-123');
       const request = new NextRequest(url);
-      await GET(request);
+      const response = await GET(request);
 
+      expect(response.status).toBe(200);
       expect(notificationService.getNotifications).toHaveBeenCalledWith({
         userId: 'user-123',
       });
     });
 
     it('should get notifications with teamId filter', async () => {
+      vi.mocked(notificationService.getNotifications).mockReturnValue([]);
+      vi.mocked(notificationService.getUnreadCount).mockReturnValue(0);
+
       const url = new URL('http://localhost/api/notifications?teamId=team-123');
       const request = new NextRequest(url);
-      await GET(request);
+      const response = await GET(request);
 
+      expect(response.status).toBe(200);
       expect(notificationService.getNotifications).toHaveBeenCalledWith({
+        userId: 'user-123',
         teamId: 'team-123',
       });
     });
 
     it('should get notifications with taskId filter', async () => {
+      vi.mocked(notificationService.getNotifications).mockReturnValue([]);
+      vi.mocked(notificationService.getUnreadCount).mockReturnValue(0);
+
       const url = new URL('http://localhost/api/notifications?taskId=task-123');
       const request = new NextRequest(url);
-      await GET(request);
+      const response = await GET(request);
 
+      expect(response.status).toBe(200);
       expect(notificationService.getNotifications).toHaveBeenCalledWith({
+        userId: 'user-123',
         taskId: 'task-123',
       });
     });
 
     it('should get notifications with read filter', async () => {
+      vi.mocked(notificationService.getNotifications).mockReturnValue([]);
+      vi.mocked(notificationService.getUnreadCount).mockReturnValue(0);
+
       const url = new URL('http://localhost/api/notifications?read=true');
       const request = new NextRequest(url);
-      await GET(request);
+      const response = await GET(request);
 
+      expect(response.status).toBe(200);
       expect(notificationService.getNotifications).toHaveBeenCalledWith({
+        userId: 'user-123',
         read: true,
       });
     });
 
     it('should get notifications with since filter', async () => {
+      vi.mocked(notificationService.getNotifications).mockReturnValue([]);
+      vi.mocked(notificationService.getUnreadCount).mockReturnValue(0);
+
       const url = new URL('http://localhost/api/notifications?since=1234567890');
       const request = new NextRequest(url);
-      await GET(request);
+      const response = await GET(request);
 
+      expect(response.status).toBe(200);
       expect(notificationService.getNotifications).toHaveBeenCalledWith({
+        userId: 'user-123',
         since: 1234567890,
       });
     });
 
     it('should respect limit parameter', async () => {
-      const mockNotifications: any[] = Array.from({ length: 100 }, (_, i) => ({
+      const mockNotifications = Array(60).fill(null).map((_, i) => ({
         id: String(i),
         title: `Test ${i}`,
-        type: 'info',
-        priority: 'medium',
-        message: `Message ${i}`,
+        type: 'info' as const,
+        priority: 'medium' as const,
+        message: `Test message ${i}`,
         read: false,
         createdAt: Date.now(),
       }));
       vi.mocked(notificationService.getNotifications).mockReturnValue(mockNotifications);
-      vi.mocked(notificationService.getUnreadCount).mockReturnValue(0);
+      vi.mocked(notificationService.getUnreadCount).mockReturnValue(60);
 
       const url = new URL('http://localhost/api/notifications?limit=10');
       const request = new NextRequest(url);
-      await GET(request);
+      const response = await GET(request);
+      const data = await response.json();
 
-      expect(createSuccessResponse).toHaveBeenCalledWith(
-        expect.objectContaining({
-          meta: expect.objectContaining({
-            count: 10,
-          }),
-        })
-      );
+      expect(response.status).toBe(200);
+      expect(data.data.meta.count).toBe(10);
+      expect(data.data.notifications.length).toBe(10);
     });
 
     it('should use default limit of 50', async () => {
-      const mockNotifications: any[] = Array.from({ length: 60 }, (_, i) => ({
+      const mockNotifications = Array(60).fill(null).map((_, i) => ({
         id: String(i),
         title: `Test ${i}`,
-        type: 'info',
-        priority: 'medium',
-        message: `Message ${i}`,
+        type: 'info' as const,
+        priority: 'medium' as const,
+        message: `Test message ${i}`,
         read: false,
         createdAt: Date.now(),
       }));
       vi.mocked(notificationService.getNotifications).mockReturnValue(mockNotifications);
-      vi.mocked(notificationService.getUnreadCount).mockReturnValue(0);
+      vi.mocked(notificationService.getUnreadCount).mockReturnValue(60);
 
       const url = new URL('http://localhost/api/notifications');
       const request = new NextRequest(url);
-      await GET(request);
+      const response = await GET(request);
+      const data = await response.json();
 
-      expect(createSuccessResponse).toHaveBeenCalledWith(
-        expect.objectContaining({
-          meta: expect.objectContaining({
-            count: 50,
-          }),
-        })
-      );
+      expect(response.status).toBe(200);
+      expect(data.data.meta.count).toBe(50);
+      expect(data.data.notifications.length).toBe(50);
     });
 
     it('should handle errors', async () => {
       vi.mocked(notificationService.getNotifications).mockImplementation(() => {
-        throw new Error('Database error');
+        throw new Error('Service error');
       });
 
       const url = new URL('http://localhost/api/notifications');
       const request = new NextRequest(url);
       const response = await GET(request);
+      const data = await response.json();
 
-      expect(createErrorResponse).toHaveBeenCalled();
+      expect(response.status).toBe(500);
+      expect(data.success).toBe(false);
     });
 
     it('should handle combined filters', async () => {
-      const url = new URL(
-        'http://localhost/api/notifications?type=info&priority=high&userId=user-123&read=false'
-      );
-      const request = new NextRequest(url);
-      await GET(request);
+      vi.mocked(notificationService.getNotifications).mockReturnValue([]);
+      vi.mocked(notificationService.getUnreadCount).mockReturnValue(0);
 
+      const url = new URL('http://localhost/api/notifications?type=info&priority=high&read=false');
+      const request = new NextRequest(url);
+      const response = await GET(request);
+
+      expect(response.status).toBe(200);
       expect(notificationService.getNotifications).toHaveBeenCalledWith({
-        type: 'info',
-        priority: 'high',
         userId: 'user-123',
+        type: NotificationType.INFO,
+        priority: NotificationPriority.HIGH,
         read: false,
       });
     });
@@ -246,170 +263,256 @@ describe('Notifications API Route', () => {
 
   describe('POST /api/notifications', () => {
     it('should create notification with required fields', async () => {
-      const mockNotification: any = {
-        id: 'notif-123',
-        title: 'Test Notification',
-        message: 'Test message',
-        type: 'info',
-        priority: 'medium',
-        read: false,
-        createdAt: Date.now(),
-      };
-      vi.mocked(notificationService.notify).mockReturnValue(mockNotification);
+      vi.mocked(notificationService.notify).mockResolvedValue('notif-123');
 
-      const url = new URL('http://localhost/api/notifications');
-      const request = new NextRequest(url, {
+      const request = new NextRequest('http://localhost/api/notifications', {
         method: 'POST',
         body: JSON.stringify({
-          title: 'Test Notification',
+          title: 'Test',
           message: 'Test message',
         }),
       });
 
       const response = await POST(request);
+      const data = await response.json();
 
       expect(response.status).toBe(201);
+      expect(data.success).toBe(true);
       expect(notificationService.notify).toHaveBeenCalledWith(
         expect.objectContaining({
-          type: 'info',
-          priority: 'medium',
-          title: 'Test Notification',
+          type: NotificationType.INFO,
+          priority: NotificationPriority.MEDIUM,
+          title: 'Test',
           message: 'Test message',
         })
-      );
-      expect(createSuccessResponse).toHaveBeenCalledWith(
-        expect.objectContaining({
-          id: 'notif-123',
-          message: 'Notification created',
-        }),
-        201
       );
     });
 
     it('should create notification with all fields', async () => {
-      const mockNotification: any = {
-        id: 'notif-456',
-        title: 'Test',
-        message: 'Message',
-        type: 'warning',
-        priority: 'high',
-        userId: 'user-123',
-        teamId: 'team-123',
-        taskId: 'task-123',
-        data: { custom: 'value' },
-        read: false,
-        createdAt: Date.now(),
-      };
-      vi.mocked(notificationService.notify).mockReturnValue(mockNotification);
+      vi.mocked(notificationService.notify).mockResolvedValue('notif-123');
 
-      const url = new URL('http://localhost/api/notifications');
-      const request = new NextRequest(url, {
+      const request = new NextRequest('http://localhost/api/notifications', {
         method: 'POST',
         body: JSON.stringify({
           title: 'Test',
-          message: 'Message',
+          message: 'Test message',
           type: 'warning',
           priority: 'high',
           userId: 'user-123',
           teamId: 'team-123',
           taskId: 'task-123',
-          data: { custom: 'value' },
-          expiresAt: Date.now() + 3600000,
         }),
       });
 
-      await POST(request);
+      const response = await POST(request);
+      const data = await response.json();
 
+      expect(response.status).toBe(201);
+      expect(data.success).toBe(true);
       expect(notificationService.notify).toHaveBeenCalledWith(
         expect.objectContaining({
-          type: 'warning',
-          priority: 'high',
+          type: NotificationType.WARNING,
+          priority: NotificationPriority.HIGH,
           title: 'Test',
-          message: 'Message',
+          message: 'Test message',
           userId: 'user-123',
           teamId: 'team-123',
           taskId: 'task-123',
-          data: { custom: 'value' },
-          expiresAt: expect.any(Number),
         })
       );
     });
 
     it('should return validation error when title is missing', async () => {
-      const url = new URL('http://localhost/api/notifications');
-      const request = new NextRequest(url, {
+      const request = new NextRequest('http://localhost/api/notifications', {
         method: 'POST',
         body: JSON.stringify({
           message: 'Test message',
         }),
       });
 
-      await POST(request);
+      const response = await POST(request);
+      const data = await response.json();
 
-      expect(createValidationError).toHaveBeenCalledWith(
-        'title and message are required'
-      );
+      expect(response.status).toBe(400);
+      expect(data.success).toBe(false);
+      expect(data.error.message).toBe('title and message are required');
     });
 
     it('should return validation error when message is missing', async () => {
-      const url = new URL('http://localhost/api/notifications');
-      const request = new NextRequest(url, {
+      const request = new NextRequest('http://localhost/api/notifications', {
         method: 'POST',
         body: JSON.stringify({
           title: 'Test',
-        }),
-      });
-
-      await POST(request);
-
-      expect(createValidationError).toHaveBeenCalledWith(
-        'title and message are required'
-      );
-    });
-
-    it('should return validation error when both title and message are missing', async () => {
-      const url = new URL('http://localhost/api/notifications');
-      const request = new NextRequest(url, {
-        method: 'POST',
-        body: JSON.stringify({}),
-      });
-
-      await POST(request);
-
-      expect(createValidationError).toHaveBeenCalledWith(
-        'title and message are required'
-      );
-    });
-
-    it('should handle errors during notification creation', async () => {
-      vi.mocked(notificationService.notify).mockRejectedValue(
-        new Error('Failed to create notification')
-      );
-
-      const url = new URL('http://localhost/api/notifications');
-      const request = new NextRequest(url, {
-        method: 'POST',
-        body: JSON.stringify({
-          title: 'Test',
-          message: 'Message',
         }),
       });
 
       const response = await POST(request);
+      const data = await response.json();
 
-      expect(createErrorResponse).toHaveBeenCalled();
+      expect(response.status).toBe(400);
+      expect(data.success).toBe(false);
+      expect(data.error.message).toBe('title and message are required');
+    });
+
+    it('should return validation error when both title and message are missing', async () => {
+      const request = new NextRequest('http://localhost/api/notifications', {
+        method: 'POST',
+        body: JSON.stringify({}),
+      });
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data.success).toBe(false);
+      expect(data.error.message).toBe('title and message are required');
+    });
+
+    it('should handle errors during notification creation', async () => {
+      vi.mocked(notificationService.notify).mockRejectedValue(new Error('Creation failed'));
+
+      const request = new NextRequest('http://localhost/api/notifications', {
+        method: 'POST',
+        body: JSON.stringify({
+          title: 'Test',
+          message: 'Test message',
+        }),
+      });
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(500);
+      expect(data.success).toBe(false);
     });
 
     it('should handle invalid JSON', async () => {
-      const url = new URL('http://localhost/api/notifications');
-      const request = new NextRequest(url, {
+      const request = new NextRequest('http://localhost/api/notifications', {
         method: 'POST',
         body: 'invalid json',
       });
 
       const response = await POST(request);
+      const data = await response.json();
 
-      expect(createErrorResponse).toHaveBeenCalled();
+      expect(response.status).toBe(500);
+      expect(data.success).toBe(false);
+    });
+
+    it('should return 401 when user is not authenticated', async () => {
+      vi.mocked(authenticateJWT).mockResolvedValueOnce({
+        authenticated: false,
+        error: 'No JWT token provided',
+      });
+
+      const request = new NextRequest('http://localhost/api/notifications', {
+        method: 'POST',
+        body: JSON.stringify({
+          title: 'Test',
+          message: 'Test message',
+        }),
+      });
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(401);
+      expect(data.success).toBe(false);
+      expect(data.error).toBe('Unauthorized');
+    });
+
+    it('should return validation error for empty title and message strings', async () => {
+      const request = new NextRequest('http://localhost/api/notifications', {
+        method: 'POST',
+        body: JSON.stringify({
+          title: '',
+          message: '',
+        }),
+      });
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data.success).toBe(false);
+      expect(data.error.message).toBe('title and message are required');
+    });
+
+    it('should create notification with expiresAt', async () => {
+      vi.mocked(notificationService.notify).mockResolvedValue('notif-123');
+
+      const expiresAt = new Date('2025-12-31T23:59:59Z').toISOString();
+      const request = new NextRequest('http://localhost/api/notifications', {
+        method: 'POST',
+        body: JSON.stringify({
+          title: 'Test',
+          message: 'Test message',
+          expiresAt,
+        }),
+      });
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(201);
+      expect(data.success).toBe(true);
+      expect(notificationService.notify).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'Test',
+          message: 'Test message',
+          expiresAt,
+        })
+      );
+    });
+  });
+
+  describe('Authentication edge cases', () => {
+    it('GET should return 401 when user is not authenticated', async () => {
+      vi.mocked(authenticateJWT).mockResolvedValueOnce({
+        authenticated: false,
+        error: 'Invalid or expired JWT token',
+      });
+
+      const url = new URL('http://localhost/api/notifications');
+      const request = new NextRequest(url);
+      const response = await GET(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(401);
+      expect(data.success).toBe(false);
+      expect(data.error).toBe('Unauthorized');
+    });
+
+    it('non-admin user should only see their own notifications regardless of userId filter', async () => {
+      // Regular user trying to access another user's notifications
+      vi.mocked(notificationService.getNotifications).mockReturnValue([]);
+      vi.mocked(notificationService.getUnreadCount).mockReturnValue(0);
+
+      const url = new URL('http://localhost/api/notifications?userId=other-user-456');
+      const request = new NextRequest(url);
+      const response = await GET(request);
+
+      expect(response.status).toBe(200);
+      // Should filter by the authenticated user's ID, not the requested userId
+      expect(notificationService.getNotifications).toHaveBeenCalledWith({
+        userId: 'user-123', // The authenticated user's ID, not 'other-user-456'
+      });
+    });
+
+    it('should return empty notifications list gracefully', async () => {
+      vi.mocked(notificationService.getNotifications).mockReturnValue([]);
+      vi.mocked(notificationService.getUnreadCount).mockReturnValue(0);
+
+      const url = new URL('http://localhost/api/notifications');
+      const request = new NextRequest(url);
+      const response = await GET(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.success).toBe(true);
+      expect(data.data.notifications).toEqual([]);
+      expect(data.data.meta.count).toBe(0);
+      expect(data.data.meta.unreadCount).toBe(0);
     });
   });
 });

@@ -281,7 +281,7 @@ describe('验证函数', () => {
   });
 
   describe('validateObject', () => {
-    interface TestObject {
+    interface TestObject extends Record<string, unknown> {
       name: string;
       age: number;
       email: string;
@@ -294,13 +294,13 @@ describe('验证函数', () => {
         email: 'john@example.com',
       };
 
-      const rules = {
-        name: (value: string) => value.length >= 3 || 'Name too short',
-        age: (value: number) => value >= 18 || 'Age must be 18+',
-        email: (value: string) => isValidEmail(value) || 'Invalid email',
+      const rules: Record<string, (value: unknown) => boolean | string> = {
+        name: (value) => typeof value === 'string' && value.length >= 3 || 'Name too short',
+        age: (value) => typeof value === 'number' && value >= 18 || 'Age must be 18+',
+        email: (value) => typeof value === 'string' && isValidEmail(value) || 'Invalid email',
       };
 
-      const result = validateObject(obj, rules);
+      const result = validateObject(obj as Record<string, unknown>, rules);
 
       expect(result.valid).toBe(true);
       expect(Object.keys(result.errors)).toHaveLength(0);
@@ -313,13 +313,13 @@ describe('验证函数', () => {
         email: 'invalid-email',
       };
 
-      const rules = {
-        name: (value: string) => value.length >= 3 || 'Name too short',
-        age: (value: number) => value >= 18 || 'Age must be 18+',
-        email: (value: string) => isValidEmail(value) || 'Invalid email',
+      const rules: Record<string, (value: unknown) => boolean | string> = {
+        name: (value) => typeof value === 'string' && value.length >= 3 || 'Name too short',
+        age: (value) => typeof value === 'number' && value >= 18 || 'Age must be 18+',
+        email: (value) => typeof value === 'string' && isValidEmail(value) || 'Invalid email',
       };
 
-      const result = validateObject(obj, rules);
+      const result = validateObject(obj as Record<string, unknown>, rules);
 
       expect(result.valid).toBe(false);
       expect(result.errors.name).toBe('Name too short');
@@ -334,12 +334,12 @@ describe('验证函数', () => {
         email: 'john@example.com',
       };
 
-      const rules = {
-        name: (value: string) => value.length >= 3,
+      const rules: Record<string, (value: unknown) => boolean | string> = {
+        name: (value) => typeof value === 'string' && value.length >= 3,
         // 不验证 age 和 email
       };
 
-      const result = validateObject(obj, rules);
+      const result = validateObject(obj as Record<string, unknown>, rules);
 
       expect(result.valid).toBe(true);
     });
@@ -351,9 +351,9 @@ describe('验证函数', () => {
         email: 'test@example.com',
       };
 
-      const rules = {
-        name: (value: string) => value.length > 0,
-        age: (value: number) => value > 0,
+      const rules: Record<string, (value: unknown) => boolean | string> = {
+        name: (value) => typeof value === 'string' && value.length > 0,
+        age: (value) => typeof value === 'number' && value > 0,
       };
 
       const result = validateObject(obj, rules);

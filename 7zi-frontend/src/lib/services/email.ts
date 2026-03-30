@@ -130,14 +130,14 @@ export class EmailService {
         throw new Error(result.message || 'Failed to send email');
       }
 
-      logger.info('[EmailService] Email sent successfully:', result.id);
+      logger.info('[EmailService] Email sent successfully', { messageId: result.id });
 
       return {
         success: true,
         messageId: result.id,
       };
     } catch (error) {
-      logger.error('[EmailService] Failed to send email:', error);
+      logger.error('[EmailService] Failed to send email:', error instanceof Error ? error : undefined);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',

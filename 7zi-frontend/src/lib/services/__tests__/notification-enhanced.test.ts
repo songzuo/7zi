@@ -89,8 +89,9 @@ describe('EnhancedNotificationService', () => {
     vi.mocked(notificationStorage.setUserPreferences).mockReturnValue(undefined);
     vi.mocked(notificationStorage.getStats).mockReturnValue({
       totalNotifications: 0,
-      unreadCount: 0,
-      readCount: 0,
+      unreadNotifications: 0,
+      totalUsers: 0,
+      totalDeliveries: 0,
     });
     vi.mocked(notificationStorage.cleanupExpired).mockReturnValue(0);
 
@@ -167,6 +168,17 @@ describe('EnhancedNotificationService', () => {
     it('should send notification successfully with all channels', async () => {
       await service.initialize();
 
+      // Mock user preferences to enable email for medium priority
+      vi.mocked(notificationStorage.getUserPreferences).mockReturnValue({
+        emailEnabled: true,
+        emailThreshold: 'medium',
+        pushEnabled: true,
+        pushThreshold: 'medium',
+        digestEnabled: false,
+        digestFrequency: 'daily',
+        timezone: 'UTC',
+      });
+
       const notification = {
         type: NotificationType.INFO,
         priority: NotificationPriority.MEDIUM,
@@ -175,7 +187,9 @@ describe('EnhancedNotificationService', () => {
         userId: 'user-123',
       };
 
-      const result = await service.notify(notification);
+      const result = await service.notify(notification, {
+        emailRecipients: [{ email: 'user-123@test.com', name: 'User 123' }],
+      });
 
       expect(result.success).toBe(true);
       expect(result.notificationId).toBeTruthy();
@@ -263,7 +277,9 @@ describe('EnhancedNotificationService', () => {
         message: 'Test message',
       };
 
-      const result = await service.notify(notification);
+      const result = await service.notify(notification, {
+        emailRecipients: [{ email: 'user-123@test.com', name: 'User 123' }],
+      });
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('WebSocket error');
@@ -276,12 +292,14 @@ describe('EnhancedNotificationService', () => {
     });
 
     it('should send email when email is enabled in preferences', async () => {
+      await service.initialize();
+
       vi.mocked(notificationStorage.getUserPreferences).mockReturnValue({
-        emailEnabled: 1,
+        emailEnabled: true,
         emailThreshold: 'medium',
-        pushEnabled: 1,
+        pushEnabled: true,
         pushThreshold: 'medium',
-        digestEnabled: 0,
+        digestEnabled: false,
         digestFrequency: 'daily',
         timezone: 'UTC',
       });
@@ -294,7 +312,9 @@ describe('EnhancedNotificationService', () => {
         userId: 'user-123',
       };
 
-      const result = await service.notify(notification);
+      const result = await service.notify(notification, {
+        emailRecipients: [{ email: 'user-123@test.com', name: 'User 123' }],
+      });
 
       expect(result.emailSent).toBe(true);
       expect(emailService.sendNotificationEmail).toHaveBeenCalled();
@@ -302,11 +322,11 @@ describe('EnhancedNotificationService', () => {
 
     it('should not send email when email is disabled in preferences', async () => {
       vi.mocked(notificationStorage.getUserPreferences).mockReturnValue({
-        emailEnabled: 0,
+        emailEnabled: false,
         emailThreshold: 'medium',
-        pushEnabled: 1,
+        pushEnabled: true,
         pushThreshold: 'medium',
-        digestEnabled: 0,
+        digestEnabled: false,
         digestFrequency: 'daily',
         timezone: 'UTC',
       });
@@ -319,19 +339,23 @@ describe('EnhancedNotificationService', () => {
         userId: 'user-123',
       };
 
-      const result = await service.notify(notification);
+      const result = await service.notify(notification, {
+        emailRecipients: [{ email: 'user-123@test.com', name: 'User 123' }],
+      });
 
       expect(result.emailSent).toBe(false);
       expect(emailService.sendNotificationEmail).not.toHaveBeenCalled();
     });
 
     it('should send email when forceEmail option is true', async () => {
+      await service.initialize();
+
       vi.mocked(notificationStorage.getUserPreferences).mockReturnValue({
-        emailEnabled: 0,
+        emailEnabled: false,
         emailThreshold: 'medium',
-        pushEnabled: 1,
+        pushEnabled: true,
         pushThreshold: 'medium',
-        digestEnabled: 0,
+        digestEnabled: false,
         digestFrequency: 'daily',
         timezone: 'UTC',
       });
@@ -344,7 +368,10 @@ describe('EnhancedNotificationService', () => {
         userId: 'user-123',
       };
 
-      const result = await service.notify(notification, { forceEmail: true });
+      const result = await service.notify(notification, {
+        forceEmail: true,
+        emailRecipients: [{ email: 'user-123@test.com', name: 'User 123' }],
+      });
 
       expect(result.emailSent).toBe(true);
       expect(emailService.sendNotificationEmail).toHaveBeenCalled();
@@ -384,9 +411,12 @@ describe('EnhancedNotificationService', () => {
         priority: NotificationPriority.URGENT,
         title: 'Test Notification',
         message: 'Test message',
+        userId: 'user-123',
       };
 
-      const result = await service.notify(notification);
+      const result = await service.notify(notification, {
+        emailRecipients: [{ email: 'user-123@test.com', name: 'User 123' }],
+      });
 
       expect(result.emailSent).toBe(false);
 
@@ -408,11 +438,11 @@ describe('EnhancedNotificationService', () => {
 
     it('should send email when notification priority is higher than threshold', async () => {
       vi.mocked(notificationStorage.getUserPreferences).mockReturnValue({
-        emailEnabled: 1,
+        emailEnabled: true,
         emailThreshold: 'medium',
-        pushEnabled: 1,
+        pushEnabled: true,
         pushThreshold: 'medium',
-        digestEnabled: 0,
+        digestEnabled: false,
         digestFrequency: 'daily',
         timezone: 'UTC',
       });
@@ -425,18 +455,20 @@ describe('EnhancedNotificationService', () => {
         userId: 'user-123',
       };
 
-      const result = await service.notify(notification);
+      const result = await service.notify(notification, {
+        emailRecipients: [{ email: 'user-123@test.com', name: 'User 123' }],
+      });
 
       expect(result.emailSent).toBe(true);
     });
 
     it('should send email when notification priority equals threshold', async () => {
       vi.mocked(notificationStorage.getUserPreferences).mockReturnValue({
-        emailEnabled: 1,
+        emailEnabled: true,
         emailThreshold: 'high',
-        pushEnabled: 1,
+        pushEnabled: true,
         pushThreshold: 'medium',
-        digestEnabled: 0,
+        digestEnabled: false,
         digestFrequency: 'daily',
         timezone: 'UTC',
       });
@@ -449,18 +481,20 @@ describe('EnhancedNotificationService', () => {
         userId: 'user-123',
       };
 
-      const result = await service.notify(notification);
+      const result = await service.notify(notification, {
+        emailRecipients: [{ email: 'user-123@test.com', name: 'User 123' }],
+      });
 
       expect(result.emailSent).toBe(true);
     });
 
     it('should not send email when notification priority is lower than threshold', async () => {
       vi.mocked(notificationStorage.getUserPreferences).mockReturnValue({
-        emailEnabled: 1,
+        emailEnabled: true,
         emailThreshold: 'high',
-        pushEnabled: 1,
+        pushEnabled: true,
         pushThreshold: 'medium',
-        digestEnabled: 0,
+        digestEnabled: false,
         digestFrequency: 'daily',
         timezone: 'UTC',
       });
@@ -473,7 +507,9 @@ describe('EnhancedNotificationService', () => {
         userId: 'user-123',
       };
 
-      const result = await service.notify(notification);
+      const result = await service.notify(notification, {
+        emailRecipients: [{ email: 'user-123@test.com', name: 'User 123' }],
+      });
 
       expect(result.emailSent).toBe(false);
     });
@@ -489,7 +525,9 @@ describe('EnhancedNotificationService', () => {
         userId: 'user-123',
       };
 
-      const result = await service.notify(notification);
+      const result = await service.notify(notification, {
+        emailRecipients: [{ email: 'user-123@test.com', name: 'User 123' }],
+      });
 
       expect(result.emailSent).toBe(true);
     });
@@ -505,7 +543,9 @@ describe('EnhancedNotificationService', () => {
         userId: 'user-123',
       };
 
-      const result = await service.notify(notification);
+      const result = await service.notify(notification, {
+        emailRecipients: [{ email: 'user-123@test.com', name: 'User 123' }],
+      });
 
       expect(result.emailSent).toBe(true);
     });
@@ -521,18 +561,20 @@ describe('EnhancedNotificationService', () => {
         userId: 'user-123',
       };
 
-      const result = await service.notify(notification);
+      const result = await service.notify(notification, {
+        emailRecipients: [{ email: 'user-123@test.com', name: 'User 123' }],
+      });
 
       expect(result.emailSent).toBe(false);
     });
 
     it('should respect priority order: urgent > high > medium > low', async () => {
       vi.mocked(notificationStorage.getUserPreferences).mockReturnValue({
-        emailEnabled: 1,
+        emailEnabled: true,
         emailThreshold: 'medium',
-        pushEnabled: 1,
+        pushEnabled: true,
         pushThreshold: 'medium',
-        digestEnabled: 0,
+        digestEnabled: false,
         digestFrequency: 'daily',
         timezone: 'UTC',
       });
@@ -580,11 +622,9 @@ describe('EnhancedNotificationService', () => {
   });
 
   describe('Quiet Hours Detection', () => {
-    beforeEach(async () => {
-      await service.initialize();
-    });
-
     it('should suppress email during quiet hours', async () => {
+      await service.initialize();
+
       // Mock current time to be within quiet hours (e.g., 23:00)
       const mockDate = new Date();
       mockDate.setHours(23, 0, 0, 0);
@@ -592,11 +632,11 @@ describe('EnhancedNotificationService', () => {
       vi.spyOn(Date.prototype, 'toLocaleTimeString').mockReturnValue('23:00');
 
       vi.mocked(notificationStorage.getUserPreferences).mockReturnValue({
-        emailEnabled: 1,
+        emailEnabled: true,
         emailThreshold: 'low',
-        pushEnabled: 1,
+        pushEnabled: true,
         pushThreshold: 'medium',
-        digestEnabled: 0,
+        digestEnabled: false,
         digestFrequency: 'daily',
         quietHoursStart: '22:00',
         quietHoursEnd: '08:00',
@@ -611,12 +651,16 @@ describe('EnhancedNotificationService', () => {
         userId: 'user-123',
       };
 
-      const result = await service.notify(notification);
+      const result = await service.notify(notification, {
+        emailRecipients: [{ email: 'user-123@test.com', name: 'User 123' }],
+      });
 
       expect(result.emailSent).toBe(false);
     });
 
     it('should send email outside quiet hours', async () => {
+      await service.initialize();
+
       // Mock current time to be outside quiet hours (e.g., 10:00)
       const mockDate = new Date();
       mockDate.setHours(10, 0, 0, 0);
@@ -624,11 +668,11 @@ describe('EnhancedNotificationService', () => {
       vi.spyOn(Date.prototype, 'toLocaleTimeString').mockReturnValue('10:00');
 
       vi.mocked(notificationStorage.getUserPreferences).mockReturnValue({
-        emailEnabled: 1,
+        emailEnabled: true,
         emailThreshold: 'low',
-        pushEnabled: 1,
+        pushEnabled: true,
         pushThreshold: 'medium',
-        digestEnabled: 0,
+        digestEnabled: false,
         digestFrequency: 'daily',
         quietHoursStart: '22:00',
         quietHoursEnd: '08:00',
@@ -643,12 +687,16 @@ describe('EnhancedNotificationService', () => {
         userId: 'user-123',
       };
 
-      const result = await service.notify(notification);
+      const result = await service.notify(notification, {
+        emailRecipients: [{ email: 'user-123@test.com', name: 'User 123' }],
+      });
 
       expect(result.emailSent).toBe(true);
     });
 
     it('should handle quiet hours that span midnight', async () => {
+      await service.initialize();
+
       // Test case: quiet hours from 22:00 to 06:00
       // Current time: 23:00 (should be quiet)
       const mockDate = new Date();
@@ -657,11 +705,11 @@ describe('EnhancedNotificationService', () => {
       vi.spyOn(Date.prototype, 'toLocaleTimeString').mockReturnValue('23:30');
 
       vi.mocked(notificationStorage.getUserPreferences).mockReturnValue({
-        emailEnabled: 1,
+        emailEnabled: true,
         emailThreshold: 'low',
-        pushEnabled: 1,
+        pushEnabled: true,
         pushThreshold: 'medium',
-        digestEnabled: 0,
+        digestEnabled: false,
         digestFrequency: 'daily',
         quietHoursStart: '22:00',
         quietHoursEnd: '06:00',
@@ -676,18 +724,22 @@ describe('EnhancedNotificationService', () => {
         userId: 'user-123',
       };
 
-      const result = await service.notify(notification);
+      const result = await service.notify(notification, {
+        emailRecipients: [{ email: 'user-123@test.com', name: 'User 123' }],
+      });
 
       expect(result.emailSent).toBe(false);
     });
 
     it('should send email when quiet hours are not configured', async () => {
+      await service.initialize();
+
       vi.mocked(notificationStorage.getUserPreferences).mockReturnValue({
-        emailEnabled: 1,
+        emailEnabled: true,
         emailThreshold: 'medium',
-        pushEnabled: 1,
+        pushEnabled: true,
         pushThreshold: 'medium',
-        digestEnabled: 0,
+        digestEnabled: false,
         digestFrequency: 'daily',
         timezone: 'UTC',
       });
@@ -700,12 +752,16 @@ describe('EnhancedNotificationService', () => {
         userId: 'user-123',
       };
 
-      const result = await service.notify(notification);
+      const result = await service.notify(notification, {
+        emailRecipients: [{ email: 'user-123@test.com', name: 'User 123' }],
+      });
 
       expect(result.emailSent).toBe(true);
     });
 
     it('should handle quiet hours errors gracefully', async () => {
+      await service.initialize();
+
       vi.mocked(notificationStorage.getUserPreferences).mockImplementation(() => {
         throw new Error('Failed to get preferences');
       });
@@ -719,7 +775,9 @@ describe('EnhancedNotificationService', () => {
       };
 
       // Should fall back to default behavior (send urgent/high)
-      const result = await service.notify(notification);
+      const result = await service.notify(notification, {
+        emailRecipients: [{ email: 'user-123@test.com', name: 'User 123' }],
+      });
 
       expect(result.emailSent).toBe(true);
     });
@@ -749,11 +807,11 @@ describe('EnhancedNotificationService', () => {
       expect(notificationStorage.setUserPreferences).toHaveBeenCalledWith(
         'user-123',
         expect.objectContaining({
-          emailEnabled: 1,
+          emailEnabled: true,
           emailThreshold: 'high',
-          pushEnabled: 1,
+          pushEnabled: true,
           pushThreshold: 'medium',
-          digestEnabled: 0,
+          digestEnabled: false,
           digestFrequency: 'daily',
           quietHoursStart: '22:00',
           quietHoursEnd: '08:00',
@@ -764,11 +822,11 @@ describe('EnhancedNotificationService', () => {
 
     it('should get user preferences', () => {
       vi.mocked(notificationStorage.getUserPreferences).mockReturnValue({
-        emailEnabled: 1,
+        emailEnabled: true,
         emailThreshold: 'high',
-        pushEnabled: 1,
+        pushEnabled: true,
         pushThreshold: 'medium',
-        digestEnabled: 0,
+        digestEnabled: false,
         digestFrequency: 'daily',
         quietHoursStart: '22:00',
         quietHoursEnd: '08:00',
@@ -877,15 +935,17 @@ describe('EnhancedNotificationService', () => {
     it('should get stats', () => {
       vi.mocked(notificationStorage.getStats).mockReturnValue({
         totalNotifications: 100,
-        unreadCount: 25,
-        readCount: 75,
+        unreadNotifications: 25,
+        totalUsers: 10,
+        totalDeliveries: 50,
       });
 
       const stats = service.getStats();
 
       expect(stats.totalNotifications).toBe(100);
-      expect(stats.unreadCount).toBe(25);
-      expect(stats.readCount).toBe(75);
+      expect(stats.unreadNotifications).toBe(25);
+      expect(stats.totalUsers).toBe(10);
+      expect(stats.totalDeliveries).toBe(50);
       expect(stats.emailEnabled).toBe(true);
     });
 
@@ -912,7 +972,9 @@ describe('EnhancedNotificationService', () => {
         message: 'Broadcast message',
       };
 
-      const result = await service.notify(notification);
+      const result = await service.notify(notification, {
+        emailRecipients: [{ email: 'user-123@test.com', name: 'User 123' }],
+      });
 
       // Email should not be sent without userId or recipients
       expect(result.emailSent).toBe(false);
@@ -929,7 +991,9 @@ describe('EnhancedNotificationService', () => {
         userId: 'user-123',
       };
 
-      const result = await service.notify(notification);
+      const result = await service.notify(notification, {
+        emailRecipients: [{ email: 'user-123@test.com', name: 'User 123' }],
+      });
 
       expect(result.emailSent).toBe(false);
       expect(emailService.sendNotificationEmail).not.toHaveBeenCalled();

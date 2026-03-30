@@ -2,6 +2,12 @@
  * 数据导入 API 端点
  *
  * POST /api/data/import - 导入数据（需要认证）
+ *
+ * 安全说明：
+ * - xlsx 格式选项保留但未实现实际解析逻辑
+ * - ⚠️ 不要使用 xlsx 包：存在原型污染和 ReDoS 漏洞，无官方补丁
+ * - 如需实现 Excel 导入功能，请使用 exceljs 替代
+ * - 参考：https://github.com/SebastienAhkrin/exceljs
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -43,7 +49,7 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: 'Validation Error',
-          errors: validationResult.errors.issues.map(err => ({
+          errors: validationResult.errors.map((err: z.ZodIssue) => ({
             field: err.path.join('.'),
             message: err.message,
           })),
@@ -67,7 +73,8 @@ export async function POST(request: NextRequest) {
     }
 
     // TODO: 实际的数据导入逻辑
-    // 1. 根据格式解析数据 (JSON/CSV/XLSX)
+    // 1. 根据格式解析数据 (JSON/CSV)
+    //    - xlsx 格式：使用 exceljs 库，不要使用 xlsx 包（存在安全漏洞）
     // 2. 验证数据结构
     // 3. 检查用户权限
     // 4. 导入到数据库

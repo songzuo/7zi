@@ -632,7 +632,7 @@ export class PerformanceWaterfall {
       }
       if (resource.connectStart !== undefined && resource.connectEnd !== undefined) {
         const connectTime = resource.connectEnd - resource.connectStart;
-        tcp += Math.min(connectTime, resource.connectStart - resource.domainLookupEnd || connectTime);
+        tcp += Math.min(connectTime, resource.connectStart - (resource.domainLookupEnd ?? resource.connectStart));
         if (resource.requestStart !== undefined) {
           tls += Math.max(0, resource.requestStart - resource.connectEnd);
         }

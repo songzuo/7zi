@@ -43,6 +43,9 @@ const nextConfig: NextConfig = {
   // Docker 部署使用 standalone 输出模式
   output: 'standalone',
 
+  // 修复 workspace root 警告
+  outputFileTracingRoot: path.join(__dirname, '..'),
+
   // ============================================
   // React Compiler 配置
   // ============================================
@@ -179,6 +182,16 @@ const nextConfig: NextConfig = {
       config.optimization.splitChunks = {
         chunks: 'all',
         cacheGroups: {
+          // Web vitals 和核心工具（最小化）
+          'web-vitals': {
+            test: /[\\/]node_modules[\\/]web-vitals[\\/]/,
+            name: 'web-vitals',
+            priority: 80,
+            reuseExistingChunk: true,
+            enforce: true,
+            minSize: 5 * 1024,
+            maxSize: 20 * 1024,
+          },
           // Three.js 核心库（最大优先级）
           'three-core': {
             test: /[\\/]node_modules[\\/]three[\\/]/,
@@ -198,6 +211,16 @@ const nextConfig: NextConfig = {
             enforce: true,
             minSize: CHUNK_LIMITS.minChunkSize,
             maxSize: 150 * 1024,
+          },
+          // Socket.io 客户端（独立分割）
+          'socket-io': {
+            test: /[\\/]node_modules[\\/](socket\.io-client)[\\/]/,
+            name: 'socket-io',
+            priority: 60,
+            reuseExistingChunk: true,
+            enforce: true,
+            minSize: 10 * 1024,
+            maxSize: 60 * 1024,
           },
           // 图表库
           'chart-libs': {
@@ -275,7 +298,7 @@ const nextConfig: NextConfig = {
             minSize: 10 * 1024,
             maxSize: 50 * 1024,
           },
-          // 工具库
+          // 工具库 - 拆分为更小的chunks
           'vendor-utils': {
             test: /[\\/]node_modules[\\/](immer|uuid|date-fns|lodash|clsx|tailwind-merge)[\\/]/,
             name: 'vendor-utils',
@@ -320,7 +343,7 @@ const nextConfig: NextConfig = {
             minSize: 20 * 1024,
             maxSize: 100 * 1024,
           },
-          // 通用 node_modules
+          // 通用 node_modules - 降低优先级
           vendors: {
             test: /[\\/]node_modules[\\/]/,
             name: 'vendors',

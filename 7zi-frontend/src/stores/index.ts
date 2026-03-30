@@ -13,6 +13,19 @@
 export { useAuthStore } from './auth-store';
 export type { AuthState, User } from './auth-store';
 
+// 权限状态管理
+export { usePermissionStore } from './permission-store';
+export type { PermissionState, UserPermissionState } from './permission-store';
+export { Permissions, ResourceType, ActionType } from './permission-store';
+export {
+  useHasPermission,
+  useHasAnyPermission,
+  useHasAllPermissions,
+  useCanAccessResource,
+  useHasRoleLevel,
+  useEffectivePermissions,
+} from './permission-store';
+
 // 通知状态管理
 export { useNotificationStore } from './notification-store';
 export type { NotificationState, Notification, NotificationType } from './notification-store';
@@ -29,7 +42,5 @@ export type { AppState, AppSettings } from './app-store';
  * 开发工具集成 (仅在开发环境启用)
  */
 if (process.env.NODE_ENV === 'development') {
-  // 在开发环境中可以使用 Redux DevTools 查看 Zustand 状态
-  // 需要安装: npm install @redux-devtools/extension
   console.log('[Stores] Zustand stores initialized');
 }

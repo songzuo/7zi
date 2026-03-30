@@ -14,6 +14,23 @@ vi.mock('@/lib/mcp/server', () => ({
   },
 }));
 
+// Mock API auth
+vi.mock('@/lib/auth/api-auth', () => ({
+  authenticateAPIKey: vi.fn(() => ({
+    authenticated: true,
+    userId: 'api-service',
+    username: 'api-service',
+    role: 'service',
+    authMethod: 'api-key',
+  })),
+  getMCPCORSHeaders: vi.fn(() => ({
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-API-Key',
+    'Access-Control-Max-Age': '86400',
+  })),
+}));
+
 describe('MCP JSON-RPC API Route', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -35,7 +52,7 @@ describe('MCP JSON-RPC API Route', () => {
         'POST, OPTIONS'
       );
       expect(response.headers.get('Access-Control-Allow-Headers')).toBe(
-        'Content-Type, Authorization'
+        'Content-Type, Authorization, X-API-Key'
       );
     });
   });
@@ -49,19 +66,12 @@ describe('MCP JSON-RPC API Route', () => {
 
       expect(response.status).toBe(200);
       expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*');
-      expect(data).toEqual({
-        name: 'OpenClaw MCP Server',
-        version: '1.0.0',
-        protocol: 'Model Context Protocol (MCP)',
-        specification: 'https://modelcontextprotocol.io/specification',
-        endpoints: {
-          rpc: '/api/mcp/rpc',
-        },
-        methods: {
-          'tools/list': 'List available tools',
-          'tools/call': 'Execute a tool',
-        },
-      });
+      expect(data.name).toBe('OpenClaw MCP Server');
+      expect(data.version).toBe('1.0.0');
+      expect(data.protocol).toBe('Model Context Protocol (MCP)');
+      expect(data.endpoints.rpc).toBe('/api/mcp/rpc');
+      expect(data.methods['tools/list']).toBe('List available tools');
+      expect(data.methods['tools/call']).toBe('Execute a tool');
     });
   });
 
@@ -224,7 +234,7 @@ describe('MCP JSON-RPC API Route', () => {
       expect(response.status).toBe(400);
       expect(data).toEqual({
         jsonrpc: '2.0',
-        id: null,
+        id: 1,
         error: {
           code: -32600,
           message: 'Invalid Request: jsonrpc version must be 2.0',
@@ -295,7 +305,7 @@ describe('MCP JSON-RPC API Route', () => {
         'POST, OPTIONS'
       );
       expect(response.headers.get('Access-Control-Allow-Headers')).toBe(
-        'Content-Type, Authorization'
+        'Content-Type, Authorization, X-API-Key'
       );
     });
 

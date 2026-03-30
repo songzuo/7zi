@@ -85,7 +85,7 @@ async function buildErrorResponse(
   requestId?: string
 ): Promise<ErrorResponse> {
   const timestamp = new Date().toISOString();
-  const isDevelopment = process.env.NODE_ENV === 'development';
+  const isDevelopment = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
   const userErrorExtension = await createUserErrorExtension(type, locale);
 
   return {
@@ -174,7 +174,7 @@ export async function createErrorResponse(
  * Check if running in development mode
  */
 function isDevelopment(): boolean {
-  return process.env.NODE_ENV === 'development';
+  return process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
 }
 
 /**

@@ -4,4 +4,5 @@
  * Export all WebSocket-related components and hooks
  */
 
-export { WebSocketStatusPanel, WebSocketStatusBadge } from './WebSocketStatusPanel';
+// Re-export from main websocket components
+export { WebSocketStatusPanel, WebSocketStatusBadge } from '@/components/websocket/WebSocketStatusPanel';

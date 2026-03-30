@@ -12,6 +12,7 @@ export type AlertChannelType = 'email' | 'slack' | 'dashboard' | 'webhook' | 'te
 export interface PerformanceAlert {
   id: string;
   severity: AlertSeverity;
+  level?: AlertLevel;  // Alias for severity, added for compatibility
   metric: string;
   message: string;
   value: number;
@@ -21,7 +22,7 @@ export interface PerformanceAlert {
 
   // Extended fields for alerter functionality
   title?: string;
-  source?: 'anomaly' | 'budget' | 'threshold' | 'manual';
+  source?: 'anomaly' | 'budget' | 'threshold' | 'manual' | string;
   acknowledged?: boolean;
   acknowledgedAt?: number;
   acknowledgedBy?: string;

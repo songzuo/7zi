@@ -262,7 +262,19 @@ export class MCPServer {
   /**
    * 处理 JSON-RPC 请求
    */
-  async handleRequest(request: MCPRequest): Promise<MCPResponse> {
+  async handleRequest(request: MCPRequest | MCPRequest[]): Promise<MCPResponse | MCPResponse[]> {
+    // 批量请求处理
+    if (Array.isArray(request)) {
+      return Promise.all(request.map(req => this.handleSingleRequest(req)));
+    }
+    
+    return this.handleSingleRequest(request);
+  }
+
+  /**
+   * 处理单个 JSON-RPC 请求
+   */
+  private async handleSingleRequest(request: MCPRequest): Promise<MCPResponse> {
     try {
       switch (request.method) {
         case "tools/list":
