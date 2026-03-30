@@ -9,10 +9,10 @@ import {
   DistributedRateLimiter,
   KeyGenerators,
   createRateLimitMiddleware,
-  withRateLimit,
+  withRateLimit as withEnhancedRateLimit,
   PresetConfigs,
   RedisAdapter,
-} from '@/lib/security/rate-limit';
+} from '@/lib/rate-limit';
 
 // ============================================================
 // 示例 1: 基本使用 - 内存模式
@@ -54,7 +54,7 @@ const registerLimiter = new DistributedRateLimiter({
   keyGenerator: KeyGenerators.byIP,
 });
 
-export const POST_register = withRateLimit(
+export const POST_register = withEnhancedRateLimit(
   async (req: NextRequest) => {
     // 处理注册逻辑
     return NextResponse.json({ success: true });

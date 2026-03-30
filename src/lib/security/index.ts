@@ -190,8 +190,8 @@ export type {
 // Re-exports from subdirectories
 // ============================================================================
 
-// Rate limiting
-export * from './rate-limit';
-
 // RBAC
 export * from './rbac';
+
+// Rate limiting has been merged into src/lib/rate-limit
+// Use: import { ... } from '@/lib/rate-limit'

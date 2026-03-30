@@ -106,5 +106,9 @@
   "active": "Active",
   "inactive": "Inactive",
   "enabled": "Enabled",
-  "disabled": "Disabled"
+  "disabled": "Disabled",
+  "pricing": "Pricing",
+  "features": "Features",
+  "faq": "FAQ",
+  "contact": "Contact Us"
 }

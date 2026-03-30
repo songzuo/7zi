@@ -878,6 +878,7 @@ describe('MessageStore - Edge Cases & Boundary Tests', () => {
 
   describe('Pinning - Edge Cases', () => {
     beforeEach(() => {
+      vi.useFakeTimers();
       messageStore.store({
         id: 'msg-pin',
         roomId,
@@ -886,6 +887,10 @@ describe('MessageStore - Edge Cases & Boundary Tests', () => {
         type: 'chat',
         content: 'Pin this',
       });
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
     });
 
     it('should pin message', () => {
@@ -1127,14 +1132,17 @@ describe('MessageStore - Edge Cases & Boundary Tests', () => {
     it('should handle maxHistorySize of 0', () => {
       const store = new MessageStore({ maxHistorySize: 0 });
 
-      store.store({
-        id: 'msg-1',
-        roomId,
-        userId,
-        userName: 'User 1',
-        type: 'chat',
-        content: 'Test',
-      });
+      // Should throw error when trying to store with maxHistorySize of 0
+      expect(() => {
+        store.store({
+          id: 'msg-1',
+          roomId,
+          userId,
+          userName: 'User 1',
+          type: 'chat',
+          content: 'Test',
+        });
+      }).toThrow('Cannot store message: maxHistorySize is 0');
 
       // Message might not be stored at all
       const history = store.getHistory({ roomId });
@@ -1156,7 +1164,8 @@ describe('MessageStore - Edge Cases & Boundary Tests', () => {
         });
       }
 
-      const history = store.getHistory({ roomId });
+      // Need to specify a larger limit since default is 50
+      const history = store.getHistory({ roomId, limit: 100 });
 
       expect(history.length).toBe(100);
     });

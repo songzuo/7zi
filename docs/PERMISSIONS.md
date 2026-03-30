@@ -1,9 +1,14 @@
 # 权限系统文档 (Permissions System)
 
+**版本**: v1.4.0
+**最后更新**: 2026-03-29
+
 ## 目录
 
 - [快速开始](#快速开始)
 - [权限系统概述](#权限系统概述)
+- [v1.4.0 WebSocket 权限系统](#v140-websocket-权限系统)
+- [任务权限系统](#任务权限系统)
 - [角色定义](#角色定义)
 - [权限列表](#权限列表)
 - [权限分组](#权限分组)
@@ -20,6 +25,7 @@
 ### 安装和导入
 
 ```typescript
+// 任务权限系统
 import {
   Permission,
   Role,
@@ -29,6 +35,13 @@ import {
   withPermission,
   permissionChecker
 } from '@/lib/permissions';
+
+// WebSocket 权限系统 (v1.4.0)
+import {
+  getPermissionManager,
+  UserRole,
+  Permission as WSPermission
+} from '@/lib/websocket/permissions';
 ```
 
 ### 基础用法
@@ -94,7 +107,98 @@ console.log(result.granted); // true
 
 ---
 
-## 角色定义
+## v1.4.0 WebSocket 权限系统
+
+v1.4.0 引入了 **WebSocket 房间权限系统**，用于控制房间内的用户行为。这与任务权限系统是独立的两个系统。
+
+### 核心特性
+
+- ✅ **5 种角色层级** - owner > admin > moderator > member > guest
+- ✅ **16 种细粒度权限** - 房间权限(7) + 消息权限(6) + 管理权限(3)
+- ✅ **RBAC 集成** - 角色层级强制、权限授予/撤销
+- ✅ **临时权限** - 支持过期时间的权限授予
+- ✅ **封禁系统** - 用户封禁、权限自动撤销
+
+### WebSocket 角色定义
+
+| 角色 | 层级 | 描述 | 默认权限数 |
+|------|------|------|-----------|
+| `owner` | 最高 | 房间所有者，完全控制 | 16 (所有权限) |
+| `admin` | 高 | 管理员，除删除房间外 | 15 |
+| `moderator` | 中 | 版主，管理消息和用户 | 12 |
+| `member` | 低 | 成员，基础权限 | 10 |
+| `guest` | 最低 | 访客，只读权限 | 6 |
+
+### WebSocket 权限列表
+
+#### 房间权限 (7 种)
+
+| 权限 | 说明 | Guest | Member | Moderator | Admin | Owner |
+|------|------|-------|--------|-----------|-------|-------|
+| `room:join` | 加入房间 | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `room:leave` | 离开房间 | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `room:manage` | 管理房间设置 | ❌ | ❌ | ✅ | ✅ | ✅ |
+| `room:view` | 查看房间内容 | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `room:invite` | 邀请用户 | ❌ | ❌ | ✅ | ✅ | ✅ |
+| `room:kick` | 踢出用户 | ❌ | ❌ | ✅ | ✅ | ✅ |
+| `room:ban` | 封禁用户 | ❌ | ❌ | ✅ | ✅ | ✅ |
+
+#### 消息权限 (6 种)
+
+| 权限 | 说明 | Guest | Member | Moderator | Admin | Owner |
+|------|------|-------|--------|-----------|-------|-------|
+| `message:send` | 发送消息 | ❌ | ✅ | ✅ | ✅ | ✅ |
+| `message:edit` | 编辑自己的消息 | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `message:delete` | 删除自己的消息 | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `message:react` | 添加反应 | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `message:pin` | 置顶消息 | ❌ | ❌ | ✅ | ✅ | ✅ |
+| `message:view_history` | 查看消息历史 | ✅ | ✅ | ✅ | ✅ | ✅ |
+
+#### 管理权限 (3 种)
+
+| 权限 | 说明 | Guest | Member | Moderator | Admin | Owner |
+|------|------|-------|--------|-----------|-------|-------|
+| `admin:manage_users` | 管理用户 | ❌ | ❌ | ❌ | ✅ | ✅ |
+| `admin:manage_rooms` | 管理房间设置 | ❌ | ❌ | ❌ | ✅ | ✅ |
+| `admin:manage_permissions` | 管理权限 | ❌ | ❌ | ❌ | ✅ | ✅ |
+
+### 使用示例
+
+```typescript
+import { getPermissionManager } from '@/lib/websocket/permissions';
+
+const permissionManager = getPermissionManager();
+
+// 设置用户角色
+permissionManager.setUserRole(
+  'user-456',           // 用户 ID
+  'project-alpha-2024', // 房间 ID
+  'admin',              // 角色
+  'user-123'            // 授权者 (必须是 owner/admin)
+);
+
+// 检查权限
+if (permissionManager.hasPermission('user-456', 'project-alpha-2024', 'message:send')) {
+  console.log('用户可以发送消息');
+}
+
+// 授予临时权限 (24 小时后过期)
+permissionManager.grantPermission(
+  'user-789',
+  'project-alpha-2024',
+  'message:pin',
+  Date.now() + (24 * 60 * 60 * 1000)
+);
+```
+
+### 详细文档
+
+- **[api/websocket.md](./api/websocket.md)** - WebSocket 权限 API 完整文档
+- **[adr/0008-websocket-room-system-design.md](./adr/0008-websocket-room-system-design.md)** - 设计决策
+
+---
+
+## 任务权限系统
 
 系统定义了4个角色，层级从高到低：
 

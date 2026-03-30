@@ -14,7 +14,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { locales, defaultLocale, Locale } from './i18n/config';
-import { DistributedRateLimiter, KeyGenerators, RateLimitResult } from './lib/security/rate-limit';
+import { DistributedRateLimiter, KeyGenerators, RateLimitResult } from './lib/rate-limit';
 
 // ============================================================================
 // Rate Limiting Configuration

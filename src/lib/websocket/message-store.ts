@@ -119,6 +119,11 @@ export class MessageStore {
 
     const roomMessages = this.messages.get(roomId)!;
 
+    // Don't store if maxHistorySize is 0
+    if (this.maxHistorySize === 0) {
+      throw new Error('Cannot store message: maxHistorySize is 0');
+    }
+
     // Check history size limit
     if (roomMessages.size >= this.maxHistorySize) {
       this.evictOldestMessage(roomId);
@@ -335,6 +340,11 @@ export class MessageStore {
   getHistory(options: MessageHistoryOptions): StoredMessage[] {
     const { roomId, before, after, limit = 50, offset = 0, includeDeleted = false, userId, type } = options;
 
+    // Handle invalid limit values
+    if (limit <= 0 || offset < 0) {
+      return [];
+    }
+
     const roomMessages = this.messages.get(roomId);
     if (!roomMessages) {
       return [];
@@ -455,9 +465,9 @@ export class MessageStore {
       return [];
     }
 
-    // Filter expired messages
+    // Filter out expired and delivered messages
     const now = new Date();
-    const validMessages = queue.filter(msg => msg.expiresAt > now);
+    const validMessages = queue.filter(msg => msg.expiresAt > now && !msg.delivered);
 
     // Update queue
     this.offlineQueue.set(userId, validMessages);

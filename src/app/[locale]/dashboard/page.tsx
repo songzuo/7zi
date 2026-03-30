@@ -23,6 +23,10 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useMembers } from '@/stores/dashboardStore';
 import type { StatItem, ActivityItem } from '@/components/dashboard';
+import { TaskQueueView } from '@/components/dashboard/TaskQueueView';
+import { AgentStatusPanel } from '@/components/dashboard/AgentStatusPanel';
+import { ManualOverride } from '@/components/dashboard/ManualOverride';
+import { ScheduleHistory } from '@/components/dashboard/ScheduleHistory';
 
 // ============================================================================
 // 类型定义
@@ -57,10 +61,9 @@ function convertToStats(members: any[], locale: string): StatItem[] {
       label: '活跃任务',
       labelEn: 'Active Tasks',
       value: workingCount,
-      icon: null, // 使用默认图标
       color: 'blue',
-      description: locale === 'zh' 
-        ? `${workingCount} 个任务正在进行中` 
+      description: locale === 'zh'
+        ? `${workingCount} 个任务正在进行中`
         : `${workingCount} tasks in progress`,
     },
     {
@@ -68,7 +71,6 @@ function convertToStats(members: any[], locale: string): StatItem[] {
       label: '已完成任务',
       labelEn: 'Completed',
       value: totalTasks,
-      icon: null,
       color: 'green',
       trend: 'up',
       trendValue: '+12%',
@@ -78,7 +80,6 @@ function convertToStats(members: any[], locale: string): StatItem[] {
       label: '在线成员',
       labelEn: 'Online Members',
       value: onlineCount,
-      icon: null,
       color: 'purple',
       description: locale === 'zh'
         ? `${onlineCount} / ${members.length} 成员在线`
@@ -90,7 +91,6 @@ function convertToStats(members: any[], locale: string): StatItem[] {
       labelEn: 'Efficiency',
       value: efficiency,
       unit: '%',
-      icon: null,
       color: 'cyan',
       trend: 'up',
       trendValue: '+5%',
@@ -169,6 +169,9 @@ export default function DashboardPage({ locale }: DashboardPageProps) {
   // 状态管理
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  // 调度器组件的 Tab 状态
+  const [activeSchedulerTab, setActiveSchedulerTab] = useState<'tasks' | 'agents' | 'manual' | 'history'>('tasks');
 
   // 自动刷新（30秒）
   useEffect(() => {
@@ -290,6 +293,118 @@ export default function DashboardPage({ locale }: DashboardPageProps) {
               size="md"
             />
           </Suspense>
+        </section>
+
+        {/* 调度中心 - 集成的 Sprint 3 组件 */}
+        <section className="mb-6">
+          <Card>
+            <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-700">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <h3 className="text-lg font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
+                  <span>🎛️</span>
+                  {locale === 'zh' ? '调度中心' : 'Scheduler Center'}
+                </h3>
+                
+                {/* Tab 切换 */}
+                <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg">
+                  <button
+                    onClick={() => setActiveSchedulerTab('tasks')}
+                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                      activeSchedulerTab === 'tasks'
+                        ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm'
+                        : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+                    }`}
+                  >
+                    {locale === 'zh' ? '任务队列' : 'Task Queue'}
+                  </button>
+                  <button
+                    onClick={() => setActiveSchedulerTab('agents')}
+                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                      activeSchedulerTab === 'agents'
+                        ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm'
+                        : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+                    }`}
+                  >
+                    {locale === 'zh' ? '智能体状态' : 'Agent Status'}
+                  </button>
+                  <button
+                    onClick={() => setActiveSchedulerTab('manual')}
+                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                      activeSchedulerTab === 'manual'
+                        ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm'
+                        : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+                    }`}
+                  >
+                    {locale === 'zh' ? '手动调度' : 'Manual Override'}
+                  </button>
+                  <button
+                    onClick={() => setActiveSchedulerTab('history')}
+                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                      activeSchedulerTab === 'history'
+                        ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm'
+                        : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+                    }`}
+                  >
+                    {locale === 'zh' ? '执行历史' : 'History'}
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            {/* Tab 内容 */}
+            <div className="p-4">
+              {activeSchedulerTab === 'tasks' && (
+                <TaskQueueView
+                  showFilters={true}
+                  showSort={true}
+                  autoRefresh={true}
+                  refreshInterval={30000}
+                  maxDisplay={10}
+                  onTaskClick={(task) => {
+                    console.log('Task clicked:', task);
+                  }}
+                />
+              )}
+              
+              {activeSchedulerTab === 'agents' && (
+                <AgentStatusPanel
+                  showRefresh={true}
+                  showMetrics={true}
+                  autoRefresh={true}
+                  refreshInterval={10000}
+                  maxDisplay={8}
+                  onAgentClick={(agent) => {
+                    console.log('Agent clicked:', agent);
+                  }}
+                />
+              )}
+              
+              {activeSchedulerTab === 'manual' && (
+                <ManualOverride
+                  maxPendingDisplay={5}
+                  onTaskCreated={(task) => {
+                    console.log('Task created:', task);
+                  }}
+                  onTaskCancelled={(taskId) => {
+                    console.log('Task cancelled:', taskId);
+                  }}
+                />
+              )}
+              
+              {activeSchedulerTab === 'history' && (
+                <ScheduleHistory
+                  showFilters={true}
+                  autoRefresh={true}
+                  refreshInterval={30000}
+                  pageSize={10}
+                  maxDisplay={20}
+                  onEntryClick={(entry) => {
+                    console.log('History entry clicked:', entry);
+                  }}
+                />
+              )}
+            </div>
+          </Card>
         </section>
 
         {/* 两栏布局：最近活动 + 其他内容 */}

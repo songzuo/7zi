@@ -166,7 +166,7 @@ npm run storybook        # 启动组件文档
 │   │   ├── mcp/                # Model Context Protocol
 │   │   ├── monitoring/         # 监控
 │   │   ├── performance/        # 性能优化
-│   │   ├── performance-monitoring/  # 性能监控
+│   │   ├── performance/anomaly-detection/  # 性能监控
 │   │   ├── rate-limit/         # 速率限制
 │   │   ├── security/           # 安全工具
 │   │   ├── services/           # 业务服务
