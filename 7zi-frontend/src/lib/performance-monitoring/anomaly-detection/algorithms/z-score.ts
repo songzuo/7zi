@@ -41,11 +41,11 @@ export function detectAnomalyZScore(
 
   // 计算严重程度
   let severity: 'low' | 'medium' | 'high' | 'critical' = 'low';
-  if (absZScore > threshold * 3) {
+  if (absZScore > threshold * 1.5) {
     severity = 'critical';
-  } else if (absZScore > threshold * 2) {
+  } else if (absZScore > threshold * 1.2) {
     severity = 'high';
-  } else if (absZScore > threshold * 1.5) {
+  } else if (absZScore > threshold) {
     severity = 'medium';
   }
 

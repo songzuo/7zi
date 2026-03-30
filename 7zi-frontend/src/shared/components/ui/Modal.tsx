@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Modal 组件 - 模态框组件
  * 支持多种尺寸、动画效果
@@ -41,6 +43,8 @@ export const Modal: React.FC<ModalProps> = ({
   className,
   footer,
 }) => {
+  "use memo";
+
   const modalRef = useRef<HTMLDivElement>(null);
   const previousActiveElement = useRef<HTMLElement | null>(null);
   

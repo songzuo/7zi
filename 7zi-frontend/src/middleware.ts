@@ -128,7 +128,7 @@ function isPublicPath(pathname: string): boolean {
 /**
  * 验证 JWT 令牌
  */
-function verifyAuthToken(request: NextRequest): { userId: string; username: string; role: string } | null {
+async function verifyAuthToken(request: NextRequest): Promise<{ userId: string; username: string; role: string } | null> {
   // 从 Cookie 获取令牌
   const token = request.cookies.get('auth-token')?.value;
 
@@ -145,7 +145,7 @@ function verifyAuthToken(request: NextRequest): { userId: string; username: stri
   }
 
   try {
-    const payload = verifyJWT(jwtToken);
+    const payload = await verifyJWT(jwtToken);
     return {
       userId: payload.userId,
       username: payload.username,
@@ -198,7 +198,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 
   // 1. 检查认证（对于需要认证的路径）
   if (requiresAuth(pathname) && !isPublicPath(pathname)) {
-    const user = verifyAuthToken(request);
+    const user = await verifyAuthToken(request);
 
     if (!user) {
       return new NextResponse(

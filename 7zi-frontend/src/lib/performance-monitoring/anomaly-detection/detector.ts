@@ -56,7 +56,48 @@ export class PerformanceAnomalyDetector {
   detectAnomaly(metric: string, value: number): AnomalyDetection | null {
     const baseline = this.baselineManager.getBaseline(metric);
     
+    // 使用配置的算法检测
+    const detections: AnomalyDetection[] = [];
+
+    // 阈值检测（不需要基线）
+    if (this.config.algorithms.threshold.enabled) {
+      const thresholdConfig = this.config.algorithms.threshold;
+      
+      if (thresholdConfig.minThreshold !== undefined && value < thresholdConfig.minThreshold) {
+        detections.push({
+          isAnomaly: true,
+          severity: 'high',
+          metric,
+          value,
+          baseline: baseline || this.createEmptyBaseline(metric),
+          confidence: 0.9,
+          reason: `Value ${value} below minimum threshold ${thresholdConfig.minThreshold}`,
+          detectedAt: Date.now(),
+          algorithm: 'threshold',
+        });
+      }
+
+      if (thresholdConfig.maxThreshold !== undefined && value > thresholdConfig.maxThreshold) {
+        detections.push({
+          isAnomaly: true,
+          severity: 'high',
+          metric,
+          value,
+          baseline: baseline || this.createEmptyBaseline(metric),
+          confidence: 0.9,
+          reason: `Value ${value} exceeds maximum threshold ${thresholdConfig.maxThreshold}`,
+          detectedAt: Date.now(),
+          algorithm: 'threshold',
+        });
+      }
+    }
+    
     if (!baseline) {
+      // 如果没有基线但检测到了阈值异常，返回检测结果
+      if (detections.length > 0) {
+        return detections[0];
+      }
+      
       return {
         isAnomaly: false,
         severity: 'low',
@@ -69,9 +110,6 @@ export class PerformanceAnomalyDetector {
         algorithm: 'threshold',
       };
     }
-
-    // 使用配置的算法检测
-    const detections: AnomalyDetection[] = [];
 
     // Z-Score 检测
     if (this.config.algorithms.zScore.enabled) {
@@ -124,39 +162,6 @@ export class PerformanceAnomalyDetector {
             algorithm: 'isolation-forest',
           });
         }
-      }
-    }
-
-    // 阈值检测
-    if (this.config.algorithms.threshold.enabled) {
-      const thresholdConfig = this.config.algorithms.threshold;
-      
-      if (thresholdConfig.minThreshold !== undefined && value < thresholdConfig.minThreshold) {
-        detections.push({
-          isAnomaly: true,
-          severity: 'high',
-          metric,
-          value,
-          baseline,
-          confidence: 0.9,
-          reason: `Value ${value} below minimum threshold ${thresholdConfig.minThreshold}`,
-          detectedAt: Date.now(),
-          algorithm: 'threshold',
-        });
-      }
-
-      if (thresholdConfig.maxThreshold !== undefined && value > thresholdConfig.maxThreshold) {
-        detections.push({
-          isAnomaly: true,
-          severity: 'high',
-          metric,
-          value,
-          baseline,
-          confidence: 0.9,
-          reason: `Value ${value} exceeds maximum threshold ${thresholdConfig.maxThreshold}`,
-          detectedAt: Date.now(),
-          algorithm: 'threshold',
-        });
       }
     }
 

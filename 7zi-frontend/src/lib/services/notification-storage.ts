@@ -41,9 +41,9 @@ export class NotificationStorage {
 
       this.createTables();
 
-      logger.info('[NotificationStorage] Database initialized at:', this.dbPath);
+      logger.info('[NotificationStorage] Database initialized', { path: this.dbPath });
     } catch (error) {
-      logger.error('[NotificationStorage] Failed to initialize database:', error);
+      logger.error('[NotificationStorage] Failed to initialize database:', error instanceof Error ? error : undefined);
       throw error;
     }
   }
@@ -379,7 +379,7 @@ export class NotificationStorage {
           deliveryMetadata: JSON.stringify({ messageId }),
         });
       } catch (logError) {
-        logger.error('[NotificationStorage] Failed to log email delivery:', logError);
+        logger.error('[NotificationStorage] Failed to log email delivery:', logError instanceof Error ? logError : undefined);
         // Don't throw here, as the main operation succeeded
       }
     }
@@ -391,11 +391,11 @@ export class NotificationStorage {
    * Get user notification preferences
    */
   getUserPreferences(userId: string): {
-    emailEnabled: number;
+    emailEnabled: boolean;
     emailThreshold: string;
-    pushEnabled: number;
+    pushEnabled: boolean;
     pushThreshold: string;
-    digestEnabled: number;
+    digestEnabled: boolean;
     digestFrequency: string;
     quietHoursStart: string | null;
     quietHoursEnd: string | null;
@@ -432,7 +432,21 @@ export class NotificationStorage {
       timezone: string;
     } | undefined;
 
-    return result ?? null;
+    if (!result) {
+      return null;
+    }
+
+    return {
+      emailEnabled: Boolean(result.emailEnabled),
+      emailThreshold: result.emailThreshold,
+      pushEnabled: Boolean(result.pushEnabled),
+      pushThreshold: result.pushThreshold,
+      digestEnabled: Boolean(result.digestEnabled),
+      digestFrequency: result.digestFrequency,
+      quietHoursStart: result.quietHoursStart,
+      quietHoursEnd: result.quietHoursEnd,
+      timezone: result.timezone,
+    };
   }
 
   /**
@@ -478,22 +492,22 @@ export class NotificationStorage {
 
     stmt.run(
       userId,
-      preferences.emailEnabled ?? 1,
+      preferences.emailEnabled ? 1 : 0,
       preferences.emailThreshold ?? 'high',
-      preferences.pushEnabled ?? 1,
+      preferences.pushEnabled ? 1 : 0,
       preferences.pushThreshold ?? 'medium',
-      preferences.digestEnabled ?? 0,
+      preferences.digestEnabled ? 1 : 0,
       preferences.digestFrequency ?? 'daily',
       preferences.quietHoursStart ?? null,
       preferences.quietHoursEnd ?? null,
       preferences.timezone ?? 'UTC',
       now,
       now,
-      preferences.emailEnabled,
+      preferences.emailEnabled !== undefined ? (preferences.emailEnabled ? 1 : 0) : undefined,
       preferences.emailThreshold,
-      preferences.pushEnabled,
+      preferences.pushEnabled !== undefined ? (preferences.pushEnabled ? 1 : 0) : undefined,
       preferences.pushThreshold,
-      preferences.digestEnabled,
+      preferences.digestEnabled !== undefined ? (preferences.digestEnabled ? 1 : 0) : undefined,
       preferences.digestFrequency,
       preferences.quietHoursStart,
       preferences.quietHoursEnd,
@@ -552,7 +566,7 @@ export class NotificationStorage {
     const result = stmt.run(Date.now());
 
     if (result.changes > 0) {
-      logger.log(`[NotificationStorage] Cleaned up ${result.changes} expired notifications`);
+      logger.info(`[NotificationStorage] Cleaned up ${result.changes} expired notifications`);
     }
 
     return result.changes;

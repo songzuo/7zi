@@ -74,6 +74,7 @@ export function getMonitoringConfig(): MonitoringConfig {
     ...envConfig,
     alarms: {
       ...DEFAULT_MONITORING_CONFIG.alarms,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ...((envConfig as any).alarms || {}),
     },
   };

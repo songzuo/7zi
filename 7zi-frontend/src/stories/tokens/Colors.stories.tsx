@@ -113,7 +113,7 @@ const ColorGroup = ({ title, colors }: { title: string; colors: Array<{ name: st
 );
 
 // 所有颜色
-export const AllColors: Story = {
+export const AllColors: StoryObj = {
   render: () => (
     <div className="space-y-8">
       <h2 className="text-2xl font-bold text-gray-900 mb-6">颜色系统</h2>
@@ -125,21 +125,21 @@ export const AllColors: Story = {
 };
 
 // 主色调
-export const Primary: Story = {
+export const Primary: StoryObj = {
   render: () => (
     <ColorGroup title="主色调 (Primary)" colors={colors.primary.values} />
   ),
 };
 
 // 灰色系
-export const Gray: Story = {
+export const Gray: StoryObj = {
   render: () => (
     <ColorGroup title="灰色系 (Gray)" colors={colors.gray.values} />
   ),
 };
 
 // 语义颜色
-export const Semantic: Story = {
+export const Semantic: StoryObj = {
   render: () => (
     <div className="space-y-8">
       <ColorGroup title="成功色 (Success)" colors={colors.success.values} />
@@ -151,7 +151,7 @@ export const Semantic: Story = {
 };
 
 // 调色板展示
-export const Palette: Story = {
+export const Palette: StoryObj = {
   render: () => (
     <div className="space-y-8">
       <h2 className="text-2xl font-bold text-gray-900">调色板</h2>
@@ -188,7 +188,7 @@ export const Palette: Story = {
 };
 
 // 对比度示例
-export const Contrast: Story = {
+export const Contrast: StoryObj = {
   render: () => {
     const examples = [
       { bg: '#3b82f6', fg: '#ffffff', ratio: '8.59:1', label: '主色 - 白色 (AAA)' },

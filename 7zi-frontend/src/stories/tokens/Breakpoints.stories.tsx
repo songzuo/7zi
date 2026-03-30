@@ -60,7 +60,7 @@ const BreakpointDetector = () => {
 };
 
 // 断点参考
-export const BreakpointReference: Story = {
+export const BreakpointReference: StoryObj = {
   render: () => (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-900">断点系统 (Breakpoints)</h2>
@@ -115,7 +115,7 @@ export const BreakpointReference: Story = {
 };
 
 // 实时检测器
-export const LiveDetector: Story = {
+export const LiveDetector: StoryObj = {
   render: () => (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-900">实时断点检测</h2>
@@ -125,7 +125,7 @@ export const LiveDetector: Story = {
 };
 
 // 响应式网格
-export const ResponsiveGrid: Story = {
+export const ResponsiveGrid: StoryObj = {
   render: () => {
     const items = Array.from({ length: 12 }, (_, i) => i + 1);
     
@@ -158,7 +158,7 @@ export const ResponsiveGrid: Story = {
 };
 
 // 响应式卡片
-export const ResponsiveCards: Story = {
+export const ResponsiveCards: StoryObj = {
   render: () => {
     return (
       <div className="space-y-6">
@@ -188,7 +188,7 @@ export const ResponsiveCards: Story = {
 };
 
 // 响应式导航
-export const ResponsiveNavigation: Story = {
+export const ResponsiveNavigation: StoryObj = {
   render: () => {
     return (
       <div className="space-y-6">
@@ -246,7 +246,7 @@ export const ResponsiveNavigation: Story = {
 };
 
 // 响应式表单
-export const ResponsiveForm: Story = {
+export const ResponsiveForm: StoryObj = {
   render: () => {
     return (
       <div className="space-y-6">
@@ -319,7 +319,7 @@ export const ResponsiveForm: Story = {
 };
 
 // 响应式排版
-export const ResponsiveTypography: Story = {
+export const ResponsiveTypography: StoryObj = {
   render: () => {
     return (
       <div className="space-y-6">

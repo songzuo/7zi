@@ -169,7 +169,7 @@ export class WebSocketManager {
 
       this.setupSocketListeners();
     } catch (error) {
-      logger.error('[WebSocketManager] Failed to create socket:', error);
+      logger.error('[WebSocketManager] Failed to create socket:', error instanceof Error ? error : undefined);
       this.setState(ConnectionState.ERROR);
       this.scheduleReconnection();
     }
@@ -337,13 +337,13 @@ export class WebSocketManager {
     });
 
     this.socket.on('disconnect', (reason) => {
-      logger.info('[WebSocketManager] Disconnected:', reason);
+      logger.info('[WebSocketManager] Disconnected:', { reason });
 
       const strategy = this.getReconnectStrategy(reason);
 
       if (!strategy.shouldReconnect) {
         // User initiated disconnect or server explicitly disconnected us
-        logger.info('[WebSocketManager] Not reconnecting:', strategy.reason);
+        logger.info('[WebSocketManager] Not reconnecting:', { reason: strategy.reason });
         this.setState(ConnectionState.DISCONNECTED);
         this.stopHeartbeat();
       } else {
@@ -469,7 +469,7 @@ export class WebSocketManager {
 
     this.reconnectionAttempts++;
 
-    logger.log(
+    logger.info(
       `[WebSocketManager] Scheduling reconnection attempt ${this.reconnectionAttempts} in ${Math.round(finalDelay)}ms (base: ${Math.round(baseDelay)}ms, jitter: +${Math.round(jitter)}ms)`
     );
 
@@ -502,7 +502,7 @@ export class WebSocketManager {
     };
 
     this.queue.push(message);
-    logger.log(`[WebSocketManager] Message queued: ${event} (queue size: ${this.queue.length})`);
+    logger.info(`[WebSocketManager] Message queued: ${event} (queue size: ${this.queue.length})`);
   }
 
   /**
@@ -513,7 +513,7 @@ export class WebSocketManager {
       return;
     }
 
-    logger.log(`[WebSocketManager] Sending ${this.queue.length} queued messages`);
+    logger.info(`[WebSocketManager] Sending ${this.queue.length} queued messages`);
 
     const messages = [...this.queue];
     this.queue = [];
@@ -522,7 +522,7 @@ export class WebSocketManager {
       try {
         this.socket?.emit(message.event, message.data);
       } catch (error) {
-        logger.error(`[WebSocketManager] Failed to send queued message ${message.id}:`, error);
+        logger.error(`[WebSocketManager] Failed to send queued message ${message.id}:`, error instanceof Error ? error : undefined);
         // Re-queue failed message
         message.retryCount++;
         if (message.retryCount < 3) {
@@ -544,7 +544,7 @@ export class WebSocketManager {
     );
 
     if (this.queue.length !== originalSize) {
-      logger.log(
+      logger.info(
         `[WebSocketManager] Removed ${originalSize - this.queue.length} expired messages from queue`
       );
     }
@@ -559,14 +559,14 @@ export class WebSocketManager {
     const previousState = this.state;
     this.state = newState;
 
-    logger.log(`[WebSocketManager] State changed: ${previousState} -> ${newState}`);
+    logger.info(`[WebSocketManager] State changed: ${previousState} -> ${newState}`);
 
     // Notify listeners
     this.stateListeners.forEach(listener => {
       try {
         listener(newState, previousState);
       } catch (error) {
-        logger.error('[WebSocketManager] Error in state listener:', error);
+        logger.error('[WebSocketManager] Error in state listener:', error instanceof Error ? error : undefined);
       }
     });
   }
@@ -581,7 +581,7 @@ export class WebSocketManager {
         try {
           listener(event, data);
         } catch (error) {
-          logger.error(`[WebSocketManager] Error in message listener for ${event}:`, error);
+          logger.error(`[WebSocketManager] Error in message listener for ${event}:`, error instanceof Error ? error : undefined);
         }
       });
     }

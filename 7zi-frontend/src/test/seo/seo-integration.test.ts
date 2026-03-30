@@ -4,7 +4,6 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
-import { fetch } from 'next/server'
 
 describe('SEO - 集成测试', () => {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'

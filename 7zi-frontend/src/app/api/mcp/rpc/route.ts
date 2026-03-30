@@ -262,7 +262,7 @@ import { authenticateAPIKey, getMCPCORSHeaders } from "@/lib/auth/api-auth";
  */
 export async function OPTIONS(request: NextRequest) {
   const corsHeaders = getMCPCORSHeaders(request);
-  return new NextResponse(null, { headers: corsHeaders });
+  return new NextResponse(null, { status: 204, headers: corsHeaders });
 }
 
 /**
@@ -295,7 +295,15 @@ export async function POST(request: NextRequest) {
     // 解析 JSON-RPC 请求
     const body = await request.json();
 
-    // 验证请求格式
+    // 检查是否是批量请求
+    if (Array.isArray(body)) {
+      const response = await mcpServer.handleRequest(body);
+      return NextResponse.json(response, {
+        headers: corsHeaders,
+      });
+    }
+
+    // 验证请求格式（单个请求）
     if (!body.jsonrpc || body.jsonrpc !== "2.0") {
       return NextResponse.json(
         {
@@ -306,7 +314,7 @@ export async function POST(request: NextRequest) {
             message: "Invalid Request: jsonrpc version must be 2.0",
           },
         },
-        { headers: corsHeaders }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -320,7 +328,7 @@ export async function POST(request: NextRequest) {
             message: "Invalid Request: method is required",
           },
         },
-        { headers: corsHeaders }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -341,7 +349,7 @@ export async function POST(request: NextRequest) {
           message: "Parse error: Invalid JSON",
         },
       },
-      { headers: corsHeaders }
+      { status: 400, headers: corsHeaders }
     );
   }
 }

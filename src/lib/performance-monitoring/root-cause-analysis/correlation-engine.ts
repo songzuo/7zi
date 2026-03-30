@@ -275,11 +275,20 @@ export class CorrelationEngine {
               metrics: events.map(e => e.metric),
               timeWindow: this.getTimeSpread(events)
             },
-            timeframe: {
-              start: Math.min(...events.map(e => e.timestamp)),
-              end: Math.max(...events.map(e => e.timestamp)),
-              duration: Math.max(...events.map(e => e.timestamp)) - Math.min(...events.map(e => e.timestamp))
-            },
+            timeframe: (() => {
+              const { min, max } = events.reduce(
+                (acc, e) => ({
+                  min: Math.min(acc.min, e.timestamp),
+                  max: Math.max(acc.max, e.timestamp)
+                }),
+                { min: Infinity, max: -Infinity }
+              );
+              return {
+                start: min,
+                end: max,
+                duration: max - min
+              };
+            })(),
             rootCauseHypothesis: `Events related to ${key} suggest issue specific to this context`
           };
 

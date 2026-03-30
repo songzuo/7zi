@@ -289,12 +289,20 @@ export class APITracker {
         issues.push(issue);
       }
     }
-
+    
     // 按严重程度排序
     return issues.sort((a, b) => {
       const severityScore = (s: string) => ({ critical: 4, high: 3, medium: 2, low: 1 }[s] || 0);
       return severityScore(b.severity) - severityScore(a.severity);
     });
+  }
+  
+  /**
+   * Get all tracked slow API issues
+   * 获取所有追踪到的慢API问题
+   */
+  getAllIssues(): APIIssue[] {
+    return this.identifyAPIIssues(this.slowApis);
   }
 
   /**

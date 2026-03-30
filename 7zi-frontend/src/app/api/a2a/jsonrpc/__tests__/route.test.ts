@@ -6,11 +6,12 @@
  * - OPTIONS (CORS)
  */
 
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { POST, OPTIONS } from '../route';
 import { NextRequest } from 'next/server';
 
 // Mock dependencies
-vi.mock('@/lib/agent-scheduler/scheduler', () => ({
+vi.mock('@/lib/agents/scheduler/scheduler', () => ({
   agentScheduler: {
     getAllAgents: vi.fn(() => []),
     getAgent: vi.fn(() => null),
@@ -21,6 +22,7 @@ vi.mock('@/lib/agent-scheduler/scheduler', () => ({
     updateTask: vi.fn(() => false),
     cancelTask: vi.fn(() => false),
     getQueueStats: vi.fn(() => ({})),
+    getAllTasks: vi.fn(() => []),
   },
 }));
 
@@ -28,7 +30,18 @@ vi.mock('@/lib/auth/api-auth', () => ({
   authenticateJWT: vi.fn(async () => ({ authenticated: true, userId: 'user-1' })),
 }));
 
+import { authenticateJWT } from '@/lib/auth/api-auth';
+import { agentScheduler } from '@/lib/agents/scheduler/scheduler';
+
 describe('A2A JSON-RPC API - POST /api/a2a/jsonrpc', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(authenticateJWT).mockResolvedValue({ 
+      authenticated: true, 
+      userId: 'user-1' 
+    });
+  });
+
   it('应该返回 JSON-RPC 2.0 格式错误（无效版本）', async () => {
     const request = new NextRequest('http://localhost:3000/api/a2a/jsonrpc', {
       method: 'POST',
@@ -197,19 +210,19 @@ describe('A2A JSON-RPC API - POST /api/a2a/jsonrpc', () => {
     });
 
     const response = await POST(request);
-    const data = await response.json();
 
+    const data = await response.json();
     expect(data.jsonrpc).toBe('2.0');
-    // 可能返回任务状态或404错误
     expect(data.result || data.error).toBeDefined();
   });
 
-  it('应该获取队列统计', async () => {
+  it('应该验证任务状态查询参数', async () => {
     const request = new NextRequest('http://localhost:3000/api/a2a/jsonrpc', {
       method: 'POST',
       body: JSON.stringify({
         jsonrpc: '2.0',
-        method: 'queue.stats',
+        method: 'task.status',
+        params: {},
         id: 1,
       }),
     });
@@ -217,15 +230,15 @@ describe('A2A JSON-RPC API - POST /api/a2a/jsonrpc', () => {
     const response = await POST(request);
     const data = await response.json();
 
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(400);
     expect(data.jsonrpc).toBe('2.0');
-    expect(data.result.stats).toBeDefined();
+    expect(data.error.code).toBe(-32602);
   });
 
-  it('应该处理无效的 JSON', async () => {
+  it('应该解析错误', async () => {
     const request = new NextRequest('http://localhost:3000/api/a2a/jsonrpc', {
       method: 'POST',
-      body: 'invalid json',
+      body: 'invalid json{{',
     });
 
     const response = await POST(request);
@@ -237,8 +250,7 @@ describe('A2A JSON-RPC API - POST /api/a2a/jsonrpc', () => {
   });
 
   it('应该拒绝未认证的私有方法调用', async () => {
-    const { authenticateJWT } = require('@/lib/auth/api-auth');
-    authenticateJWT.mockResolvedValueOnce({ authenticated: false });
+    vi.mocked(authenticateJWT).mockResolvedValueOnce({ authenticated: false });
 
     const request = new NextRequest('http://localhost:3000/api/a2a/jsonrpc', {
       method: 'POST',

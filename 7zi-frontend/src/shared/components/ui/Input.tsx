@@ -6,7 +6,7 @@
 import React, { forwardRef, useState } from 'react';
 import clsx from 'clsx';
 
-export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
+export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'prefix'> {
   /** 标签 */
   label?: string;
   /** 错误信息 */
@@ -14,9 +14,9 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
   /** 帮助文本 */
   helperText?: string;
   /** 前缀图标 */
-  prefix?: React.ReactNode;
+  leftIcon?: React.ReactNode;
   /** 后缀图标 */
-  suffix?: React.ReactNode;
+  rightIcon?: React.ReactNode;
   /** 输入框大小 */
   size?: 'sm' | 'md' | 'lg';
   /** 是否全宽 */
@@ -29,8 +29,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       label,
       error,
       helperText,
-      prefix,
-      suffix,
+      leftIcon,
+      rightIcon,
       size = 'md',
       fullWidth = false,
       type = 'text',
@@ -58,8 +58,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       error
         ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
         : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500',
-      prefix && 'pl-10',
-      suffix && 'pr-10',
+      leftIcon && 'pl-10',
+      rightIcon && 'pr-10',
       'disabled:bg-gray-100 disabled:cursor-not-allowed'
     );
     
@@ -79,9 +79,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         )}
         
         <div className="relative">
-          {prefix && (
+          {leftIcon && (
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-              {prefix}
+              {leftIcon}
             </div>
           )}
           
@@ -93,9 +93,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             {...props}
           />
           
-          {suffix && !isPassword && (
+          {rightIcon && !isPassword && (
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
-              {suffix}
+              {rightIcon}
             </div>
           )}
           

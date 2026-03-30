@@ -151,7 +151,7 @@ async function handlePOST(request: NextRequest, context: { user: any }) {
         {
           success: false,
           error: 'Validation Error',
-          errors: validationResult.errors.issues.map(err => ({
+          errors: validationResult.errors.map(err => ({
             field: err.path.join('.'),
             message: err.message,
           })),
@@ -225,7 +225,7 @@ async function handlePATCH(request: NextRequest, context: { user: any }) {
         {
           success: false,
           error: 'Validation Error',
-          errors: validationResult.errors.issues.map(err => ({
+          errors: validationResult.errors.map(err => ({
             field: err.path.join('.'),
             message: err.message,
           })),
@@ -405,7 +405,7 @@ async function handlePOST_RESPONSE(request: NextRequest, context: { user: any })
         {
           success: false,
           error: 'Validation Error',
-          errors: validationResult.errors.issues.map(err => ({
+          errors: validationResult.errors.map(err => ({
             field: err.path.join('.'),
             message: err.message,
           })),

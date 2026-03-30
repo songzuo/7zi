@@ -5,12 +5,25 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import { ThemeProvider } from '@/shared/context/ThemeContext'
 
 const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
 })
+
+// JSON-LD 结构化数据
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: '7zi Frontend',
+  url: 'https://7zi.studio',
+  description: 'Next.js 图片优化最佳实践展示',
+  inLanguage: 'zh-CN',
+  author: {
+    '@type': 'Organization',
+    name: '7zi',
+  },
+}
 
 export const metadata: Metadata = {
   title: '7zi Frontend - 图片优化示例',
@@ -35,6 +48,11 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" suppressHydrationWarning>
       <head>
+        {/* JSON-LD 结构化数据 */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         {/* 预连接到图片 CDN */}
         <link rel="preconnect" href="https://images.unsplash.com" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />

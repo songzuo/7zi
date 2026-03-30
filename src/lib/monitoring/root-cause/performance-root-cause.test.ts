@@ -379,7 +379,7 @@ describe('PerformanceRootCauseAnalyzer', () => {
       expect(analysis.memoryAnalysis).toBeDefined();
       expect(analysis.networkBottlenecks).toBeInstanceOf(Array);
       expect(analysis.renderIssues).toBeInstanceOf(Array);
-      expect(analysis.overallHealth).toBe('healthy' | 'degraded' | 'critical');
+      expect(['healthy', 'degraded', 'critical']).toContain(analysis.overallHealth);
       expect(analysis.priorityActions).toBeInstanceOf(Array);
       expect(analysis.summary).toBeTruthy();
     });
@@ -447,9 +447,9 @@ describe('PerformanceRootCauseAnalyzer', () => {
       expect(analysis.priorityActions.length).toBeGreaterThan(0);
       const firstAction = analysis.priorityActions[0];
       expect(firstAction.rank).toBe(1);
-      expect(firstAction.category).toBe('immediate' | 'short-term' | 'long-term');
-      expect(firstAction.impact).toBe('high' | 'medium' | 'low');
-      expect(firstAction.effort).toBe('low' | 'medium' | 'high');
+      expect(firstAction.category).toBeOneOf(['immediate', 'short-term', 'long-term']);
+      expect(firstAction.impact).toBeOneOf(['high', 'medium', 'low']);
+      expect(firstAction.effort).toBeOneOf(['low', 'medium', 'high']);
       expect(firstAction.action).toBeTruthy();
       expect(firstAction.estimatedGain).toBeTruthy();
     });

@@ -207,16 +207,21 @@ export class PerformanceAlerter {
     threshold: number;
     context?: Record<string, any>;
   }): Promise<PerformanceAlert> {
+    const severity = options.level;
     const alert: PerformanceAlert = {
       id: uuidv4(),
       timestamp: Date.now(),
-      severity: options.level,
+      severity,
+      level: severity, // Set level as alias for compatibility
       title: options.title || `Alert: ${options.metric}`,
       message: options.message,
       metric: options.metric,
       value: options.value,
       threshold: options.threshold,
       context: options.context,
+      acknowledged: false,
+      resolved: false,
+      suppressed: false,
     };
 
     await this.sendAlert(alert);

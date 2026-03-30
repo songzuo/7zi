@@ -696,7 +696,7 @@ describe('PerformanceBudgetController', () => {
       });
 
       expect(metrics.FCP).toBe(1000);
-      expect(memoryUsageRatio).toBe(0.5);
+      expect(metrics.memoryUsageRatio).toBe(0.5);
       expect(metrics.domDepth).toBe(15);
     });
   });

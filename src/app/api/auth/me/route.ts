@@ -21,6 +21,11 @@ export async function GET(request: NextRequest) {
         return createNotFoundError('User not found');
       }
 
+      // Check if user is deleted
+      if (user.status === 'deleted') {
+        return createNotFoundError('User not found');
+      }
+
       // Remove password from response
       const { password, ...userWithoutPassword } = user;
 

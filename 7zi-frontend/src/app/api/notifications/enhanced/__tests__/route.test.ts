@@ -6,10 +6,11 @@
  * - POST /api/notifications/enhanced
  */
 
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { GET, POST } from '../route';
 import { NextRequest } from 'next/server';
 
-// Mock dependencies
+// Mock dependencies - must use same paths as in the actual route file
 vi.mock('@/lib/services/notification-enhanced', () => ({
   enhancedNotificationService: {
     getNotifications: vi.fn(() => []),
@@ -30,14 +31,26 @@ vi.mock('@/lib/auth/api-auth', () => ({
   })),
 }));
 
+// Import mocked modules after vi.mock calls
+import { enhancedNotificationService } from '@/lib/services/notification-enhanced';
+import { authenticateJWT } from '@/lib/auth/api-auth';
+
 describe('Enhanced Notifications API - GET /api/notifications/enhanced', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(authenticateJWT).mockResolvedValue({
+      authenticated: true,
+      userId: 'user-1',
+      role: 'user',
+    });
+  });
+
   it('应该返回用户通知列表', async () => {
-    const { enhancedNotificationService } = require('@/lib/services/notification-enhanced');
-    enhancedNotificationService.getNotifications.mockReturnValue([
+    vi.mocked(enhancedNotificationService.getNotifications).mockReturnValue([
       { id: 'notif-1', userId: 'user-1', title: 'Test', read: false },
       { id: 'notif-2', userId: 'user-1', title: 'Test 2', read: true },
-    ]);
-    enhancedNotificationService.getUnreadCount.mockReturnValue(1);
+    ] as any);
+    vi.mocked(enhancedNotificationService.getUnreadCount).mockReturnValue(1);
 
     const request = new NextRequest('http://localhost:3000/api/notifications/enhanced', {
       method: 'GET',
@@ -53,8 +66,7 @@ describe('Enhanced Notifications API - GET /api/notifications/enhanced', () => {
   });
 
   it('应该支持用户ID过滤（仅管理员）', async () => {
-    const { authenticateJWT } = require('@/lib/auth/api-auth');
-    authenticateJWT.mockResolvedValueOnce({
+    vi.mocked(authenticateJWT).mockResolvedValueOnce({
       authenticated: true,
       userId: 'admin-1',
       role: 'admin',
@@ -132,8 +144,7 @@ describe('Enhanced Notifications API - GET /api/notifications/enhanced', () => {
   });
 
   it('应该拒绝未认证的请求', async () => {
-    const { authenticateJWT } = require('@/lib/auth/api-auth');
-    authenticateJWT.mockResolvedValueOnce({ authenticated: false });
+    vi.mocked(authenticateJWT).mockResolvedValueOnce({ authenticated: false });
 
     const request = new NextRequest('http://localhost:3000/api/notifications/enhanced', {
       method: 'GET',
@@ -148,14 +159,21 @@ describe('Enhanced Notifications API - GET /api/notifications/enhanced', () => {
 });
 
 describe('Enhanced Notifications API - POST /api/notifications/enhanced', () => {
-  it('应该成功创建并发送通知', async () => {
-    const { enhancedNotificationService } = require('@/lib/services/notification-enhanced');
-    enhancedNotificationService.notify.mockResolvedValue({
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(authenticateJWT).mockResolvedValue({
+      authenticated: true,
+      userId: 'user-1',
+      role: 'user',
+    });
+    vi.mocked(enhancedNotificationService.notify).mockResolvedValue({
       success: true,
       notificationId: 'notif-1',
       emailSent: true,
     });
+  });
 
+  it('应该成功创建并发送通知', async () => {
     const request = new NextRequest('http://localhost:3000/api/notifications/enhanced', {
       method: 'POST',
       body: JSON.stringify({
@@ -191,8 +209,6 @@ describe('Enhanced Notifications API - POST /api/notifications/enhanced', () => 
   });
 
   it('应该支持跳过邮件发送', async () => {
-    const { enhancedNotificationService } = require('@/lib/services/notification-enhanced');
-
     const request = new NextRequest('http://localhost:3000/api/notifications/enhanced', {
       method: 'POST',
       body: JSON.stringify({
@@ -213,8 +229,6 @@ describe('Enhanced Notifications API - POST /api/notifications/enhanced', () => 
   });
 
   it('应该支持指定用户', async () => {
-    const { enhancedNotificationService } = require('@/lib/services/notification-enhanced');
-
     const request = new NextRequest('http://localhost:3000/api/notifications/enhanced', {
       method: 'POST',
       body: JSON.stringify({
@@ -235,8 +249,6 @@ describe('Enhanced Notifications API - POST /api/notifications/enhanced', () => 
   });
 
   it('应该支持指定团队', async () => {
-    const { enhancedNotificationService } = require('@/lib/services/notification-enhanced');
-
     const request = new NextRequest('http://localhost:3000/api/notifications/enhanced', {
       method: 'POST',
       body: JSON.stringify({
@@ -257,8 +269,6 @@ describe('Enhanced Notifications API - POST /api/notifications/enhanced', () => 
   });
 
   it('应该支持指定任务', async () => {
-    const { enhancedNotificationService } = require('@/lib/services/notification-enhanced');
-
     const request = new NextRequest('http://localhost:3000/api/notifications/enhanced', {
       method: 'POST',
       body: JSON.stringify({
@@ -279,8 +289,6 @@ describe('Enhanced Notifications API - POST /api/notifications/enhanced', () => 
   });
 
   it('应该支持自定义邮件接收者', async () => {
-    const { enhancedNotificationService } = require('@/lib/services/notification-enhanced');
-
     const request = new NextRequest('http://localhost:3000/api/notifications/enhanced', {
       method: 'POST',
       body: JSON.stringify({
@@ -305,8 +313,7 @@ describe('Enhanced Notifications API - POST /api/notifications/enhanced', () => 
   });
 
   it('应该拒绝未认证的请求', async () => {
-    const { authenticateJWT } = require('@/lib/auth/api-auth');
-    authenticateJWT.mockResolvedValueOnce({ authenticated: false });
+    vi.mocked(authenticateJWT).mockResolvedValueOnce({ authenticated: false });
 
     const request = new NextRequest('http://localhost:3000/api/notifications/enhanced', {
       method: 'POST',
@@ -324,8 +331,7 @@ describe('Enhanced Notifications API - POST /api/notifications/enhanced', () => 
   });
 
   it('应该处理发送失败', async () => {
-    const { enhancedNotificationService } = require('@/lib/services/notification-enhanced');
-    enhancedNotificationService.notify.mockResolvedValue({
+    vi.mocked(enhancedNotificationService.notify).mockResolvedValue({
       success: false,
       error: 'Failed to send email',
     });

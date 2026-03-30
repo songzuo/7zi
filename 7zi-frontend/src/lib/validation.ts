@@ -4,12 +4,89 @@
  * 提供通用的数据验证和格式化函数
  */
 
+// ============================================================================
+// Core Validation Patterns (统一的正则表达式模式)
+// ============================================================================
+
+const PATTERNS = {
+  email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+  phoneCN: /^1[3-9]\d{9}$/,
+  username: /^[a-zA-Z0-9_]{3,20}$/,
+  uuid: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+  ipv4: /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/,
+  hexColor: /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/,
+} as const;
+
+// ============================================================================
+// Core Validation Helpers (核心验证工具函数)
+// ============================================================================
+
+/**
+ * 通用正则表达式验证
+ * @param value 待验证的字符串
+ * @param pattern 正则表达式或预定义的模式名称
+ * @returns 是否匹配
+ */
+export function matchesPattern(
+  value: string,
+  pattern: RegExp | keyof typeof PATTERNS
+): boolean {
+  const regex = typeof pattern === 'string' ? PATTERNS[pattern] : pattern;
+  return regex.test(value);
+}
+
+/**
+ * 验证范围（数字或长度）
+ * @param value 待验证的值
+ * @param min 最小值
+ * @param max 最大值
+ * @returns 是否在范围内
+ */
+export function isInRange(value: number, min: number, max: number): boolean;
+export function isInRange(value: string, min: number, max: number): boolean;
+export function isInRange(value: number | string, min: number, max: number): boolean {
+  const num = typeof value === 'string' ? value.length : value;
+  return num >= min && num <= max;
+}
+
+/**
+ * 检查字符串是否包含指定字符集
+ * @param value 待验证的字符串
+ * @param patterns 正则表达式数组
+ * @param requiredCount 需要匹配的最少模式数（默认所有）
+ * @returns 是否包含足够的字符集
+ */
+export function containsPatterns(
+  value: string,
+  patterns: RegExp[],
+  requiredCount?: number
+): boolean {
+  const matchedCount = patterns.filter(p => p.test(value)).length;
+  return matchedCount >= (requiredCount ?? patterns.length);
+}
+
+/**
+ * 验证日期有效性
+ * @param date 日期字符串或 Date 对象
+ * @returns 是否为有效日期
+ */
+export function isValidDate(date: unknown): boolean {
+  if (typeof date !== 'string' && !(date instanceof Date)) {
+    return false;
+  }
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return !isNaN(d.getTime());
+}
+
+// ============================================================================
+// Format-Specific Validators (基于核心工具的格式验证函数)
+// ============================================================================
+
 /**
  * 验证电子邮件地址
  */
 export function isValidEmail(email: string): boolean {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
+  return matchesPattern(email, 'email');
 }
 
 /**
@@ -28,8 +105,7 @@ export function isValidUrl(url: string): boolean {
  * 验证手机号码（中国大陆）
  */
 export function isValidPhoneNumber(phone: string): boolean {
-  const phoneRegex = /^1[3-9]\d{9}$/;
-  return phoneRegex.test(phone);
+  return matchesPattern(phone, 'phoneCN');
 }
 
 /**
@@ -37,12 +113,10 @@ export function isValidPhoneNumber(phone: string): boolean {
  * 至少8位，包含字母和数字
  */
 export function isStrongPassword(password: string): boolean {
-  if (password.length < 8) {
-    return false;
-  }
-  const hasLetter = /[a-zA-Z]/.test(password);
-  const hasNumber = /[0-9]/.test(password);
-  return hasLetter && hasNumber;
+  return (
+    isInRange(password, 8, Infinity) &&
+    containsPatterns(password, [/[a-zA-Z]/, /[0-9]/])
+  );
 }
 
 /**
@@ -50,8 +124,7 @@ export function isStrongPassword(password: string): boolean {
  * 3-20个字符，只允许字母、数字、下划线
  */
 export function isValidUsername(username: string): boolean {
-  const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
-  return usernameRegex.test(username);
+  return matchesPattern(username, 'username');
 }
 
 /**
@@ -63,18 +136,9 @@ export function isValidFileExtension(filename: string, allowedExtensions: string
 }
 
 /**
- * 验证数字范围
+ * 验证字符串长度（isInRange 的别名，语义更明确）
  */
-export function isInRange(value: number, min: number, max: number): boolean {
-  return value >= min && value <= max;
-}
-
-/**
- * 验证字符串长度
- */
-export function isValidLength(value: string, min: number, max: number): boolean {
-  return value.length >= min && value.length <= max;
-}
+export const isValidLength = isInRange;
 
 /**
  * 验证是否为空或空白
@@ -96,17 +160,6 @@ export function isEmpty(value: unknown): boolean {
 }
 
 /**
- * 验证是否为有效日期
- */
-export function isValidDate(date: unknown): boolean {
-  if (typeof date !== 'string' && !(date instanceof Date)) {
-    return false;
-  }
-  const d = typeof date === 'string' ? new Date(date) : date;
-  return !isNaN(d.getTime());
-}
-
-/**
  * 验证 JSON 字符串
  */
 export function isValidJson(json: string): boolean {
@@ -122,24 +175,21 @@ export function isValidJson(json: string): boolean {
  * 验证 UUID 格式
  */
 export function isValidUuid(uuid: string): boolean {
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  return uuidRegex.test(uuid);
+  return matchesPattern(uuid, 'uuid');
 }
 
 /**
  * 验证 IP 地址（IPv4）
  */
 export function isValidIPv4(ip: string): boolean {
-  const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-  return ipv4Regex.test(ip);
+  return matchesPattern(ip, 'ipv4');
 }
 
 /**
  * 验证十六进制颜色代码
  */
 export function isValidHexColor(color: string): boolean {
-  const hexColorRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
-  return hexColorRegex.test(color);
+  return matchesPattern(color, 'hexColor');
 }
 
 /**
@@ -180,9 +230,10 @@ export function validateObject<T extends Record<string, unknown>>(
 }
 
 /**
- * 清理和验证 HTML 内容
+ * 清理 HTML 内容（基础版本，使用 DOM API）
+ * 注意：对于更安全的 HTML 清理，建议使用 validation-schemas.ts 中的 sanitizeHtml
  */
-export function sanitizeHtml(html: string): string {
+export function sanitizeHtmlBasic(html: string): string {
   const temp = document.createElement('div');
   temp.textContent = html;
   return temp.innerHTML;
@@ -208,3 +259,17 @@ export function formatPhoneNumber(phone: string): string | null {
   }
   return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 7)}-${cleaned.slice(7)}`;
 }
+
+// ============================================================================
+// Re-exports (重导出 patterns 供 validation-schemas.ts 使用)
+// ============================================================================
+
+/**
+ * 导出所有正则模式，供其他模块复用
+ */
+export { PATTERNS };
+
+/**
+ * 类型导出：模式名称
+ */
+export type PatternName = keyof typeof PATTERNS;

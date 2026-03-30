@@ -271,6 +271,7 @@ export async function getUserStatistics(): Promise<{
       SUM(CASE WHEN status = 'inactive' THEN 1 ELSE 0 END) as status_inactive,
       SUM(CASE WHEN status = 'suspended' THEN 1 ELSE 0 END) as status_suspended,
       SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as status_pending,
+      SUM(CASE WHEN status = 'deleted' THEN 1 ELSE 0 END) as status_deleted,
       SUM(CASE WHEN role = 'admin' THEN 1 ELSE 0 END) as role_admin,
       SUM(CASE WHEN role = 'manager' THEN 1 ELSE 0 END) as role_manager,
       SUM(CASE WHEN role = 'member' THEN 1 ELSE 0 END) as role_member,
@@ -284,6 +285,7 @@ export async function getUserStatistics(): Promise<{
     status_inactive: number;
     status_suspended: number;
     status_pending: number;
+    status_deleted: number;
     role_admin: number;
     role_manager: number;
     role_member: number;
@@ -299,6 +301,7 @@ export async function getUserStatistics(): Promise<{
       [UserStatus.INACTIVE]: result.status_inactive,
       [UserStatus.SUSPENDED]: result.status_suspended,
       [UserStatus.PENDING]: result.status_pending,
+      [UserStatus.DELETED]: result.status_deleted,
     },
     byRole: {
       [UserRole.ADMIN]: result.role_admin,

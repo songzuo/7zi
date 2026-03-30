@@ -7,6 +7,7 @@
  * - PATCH /api/auth (重置密码)
  */
 
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST, PUT, PATCH } from '../route';
 import { NextRequest } from 'next/server';
 
@@ -24,7 +25,13 @@ vi.mock('@/lib/rate-limit/limiter', () => ({
   getClientIP: vi.fn(() => '127.0.0.1'),
 }));
 
+// Import mocked modules after vi.mock
+import { AuditLogger } from '@/lib/audit/logger';
+
 describe('Auth API - POST /api/auth (登录)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
   it('应该成功登录有效凭据', async () => {
     const request = new NextRequest('http://localhost:3000/api/auth', {
       method: 'POST',
@@ -108,6 +115,7 @@ describe('Auth API - PUT /api/auth (注册)', () => {
         username: 'newuser',
         email: 'newuser@example.com',
         password: 'Password123!',
+        confirmPassword: 'Password123!',
       }),
     });
 
@@ -177,6 +185,7 @@ describe('Auth API - PATCH /api/auth (重置密码)', () => {
       body: JSON.stringify({
         token: 'valid-token',
         password: 'NewPassword123!',
+        confirmPassword: 'NewPassword123!',
       }),
     });
 

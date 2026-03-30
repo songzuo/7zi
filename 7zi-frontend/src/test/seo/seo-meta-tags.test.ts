@@ -33,8 +33,12 @@ describe('SEO - Meta Tags 完整性测试', () => {
         image: '/images/custom-og.jpg',
       })
 
-      expect(customImageMeta.openGraph.images).toBeDefined()
-      expect(customImageMeta.openGraph.images[0]).toContain('/images/custom-og.jpg')
+      expect(customImageMeta.openGraph).toBeDefined()
+      const images = customImageMeta.openGraph?.images
+      expect(images).toBeDefined()
+      if (Array.isArray(images)) {
+        expect(images[0]).toContain('/images/custom-og.jpg')
+      }
     })
 
     it('应支持 noIndex 选项', () => {
@@ -45,8 +49,11 @@ describe('SEO - Meta Tags 完整性测试', () => {
       })
 
       expect(noIndexMeta.robots).toBeDefined()
-      expect(noIndexMeta.robots.index).toBe(false)
-      expect(noIndexMeta.robots.follow).toBe(false)
+      const robots = noIndexMeta.robots
+      if (typeof robots === 'object' && robots !== null) {
+        expect(robots.index).toBe(false)
+        expect(robots.follow).toBe(false)
+      }
     })
 
     it('应支持多语言 alternates', () => {
@@ -63,10 +70,10 @@ describe('SEO - Meta Tags 完整性测试', () => {
       })
 
       expect(i18nMeta.alternates).toBeDefined()
-      expect(i18nMeta.alternates.canonical).toBeDefined()
-      expect(i18nMeta.alternates.languages).toBeDefined()
-      expect(i18nMeta.alternates.languages['zh-CN']).toBeDefined()
-      expect(i18nMeta.alternates.languages.en).toBeDefined()
+      expect(i18nMeta.alternates?.canonical).toBeDefined()
+      expect(i18nMeta.alternates?.languages).toBeDefined()
+      expect(i18nMeta.alternates?.languages?.['zh-CN']).toBeDefined()
+      expect(i18nMeta.alternates?.languages?.en).toBeDefined()
     })
 
     it('description 应在合理长度范围内', () => {

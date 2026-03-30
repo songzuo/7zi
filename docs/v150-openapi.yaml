@@ -1,0 +1,3009 @@
+openapi: 3.0.3
+info:
+  title: 7zi API
+  description: |
+    # 7zi - AI 驱动的团队管理平台 API
+    
+    11 位 AI 成员 · 24/7 自主工作 · 实时协作
+    
+    ## 功能特性
+    - 🤖 AI Agent 智能调度系统
+    - 🔄 WebSocket 实时协作
+    - 🔐 RBAC 权限控制
+    - 📊 性能监控与告警
+    - 🌍 多语言国际化
+    
+    ## 认证方式
+    所有 API 请求需要在 Header 中携带 JWT Token:
+    ```
+    Authorization: Bearer <your-jwt-token>
+    ```
+    
+    ## 错误响应格式
+    所有错误响应遵循统一格式:
+    ```json
+    {
+      "success": false,
+      "error": {
+        "code": "ERROR_CODE",
+        "message": "Error description",
+        "details": {}
+      }
+    }
+    ```
+    
+    ## 限流策略
+    - 默认限制: 100 请求/分钟/IP
+    - 认证用户: 200 请求/分钟/用户
+    - API Key 用户: 500 请求/分钟
+    
+  version: 1.5.0
+  contact:
+    name: 7zi API Support
+    email: api@7zi.com
+    url: https://7zi.com/docs/api
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://7zi.com/api
+    description: 生产环境
+  - url: http://localhost:3000/api
+    description: 开发环境
+
+tags:
+  - name: Auth
+    description: 认证与授权
+  - name: Agents
+    description: AI Agent 管理与调度
+  - name: Tasks
+    description: 任务管理
+  - name: Projects
+    description: 项目管理
+  - name: Users
+    description: 用户管理
+  - name: RBAC
+    description: 角色权限控制
+  - name: WebSocket
+    description: 实时通信
+  - name: Notifications
+    description: 通知系统
+  - name: Search
+    description: 搜索服务
+  - name: Feedback
+    description: 反馈系统
+  - name: Health
+    description: 健康检查
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT 认证令牌
+
+  parameters:
+    agentId:
+      name: agentId
+      in: path
+      required: true
+      description: Agent 唯一标识符
+      schema:
+        type: string
+        pattern: '^agent-[a-z0-9-]+$'
+        example: agent-architect
+
+    taskId:
+      name: taskId
+      in: path
+      required: true
+      description: 任务唯一标识符
+      schema:
+        type: string
+        example: task-001
+
+    projectId:
+      name: projectId
+      in: path
+      required: true
+      description: 项目唯一标识符
+      schema:
+        type: string
+        example: proj-001
+
+    userId:
+      name: userId
+      in: path
+      required: true
+      description: 用户唯一标识符
+      schema:
+        type: string
+        example: user-001
+
+    roleId:
+      name: roleId
+      in: path
+      required: true
+      description: 角色唯一标识符
+      schema:
+        type: string
+        example: admin
+
+    notificationId:
+      name: notificationId
+      in: path
+      required: true
+      description: 通知唯一标识符
+      schema:
+        type: string
+        example: notif-001
+
+  responses:
+    Unauthorized:
+      description: 未授权访问
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: UNAUTHORIZED
+              message: 未授权访问，请先登录
+
+    Forbidden:
+      description: 权限不足
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: FORBIDDEN
+              message: 权限不足，无法执行此操作
+
+    NotFound:
+      description: 资源不存在
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: NOT_FOUND
+              message: 请求的资源不存在
+
+    RateLimited:
+      description: 请求频率过高
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error:
+              code: RATE_LIMIT_EXCEEDED
+              message: 请求频率过高，请稍后重试
+
+  schemas:
+    # ===== 通用响应 Schema =====
+    SuccessResponse:
+      type: object
+      required: [success]
+      properties:
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+        data:
+          type: object
+
+    ErrorResponse:
+      type: object
+      required: [success, error]
+      properties:
+        success:
+          type: boolean
+          default: false
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              enum:
+                - UNAUTHORIZED
+                - FORBIDDEN
+                - NOT_FOUND
+                - VALIDATION_ERROR
+                - INTERNAL_ERROR
+                - RATE_LIMIT_EXCEEDED
+                - DATABASE_ERROR
+                - CONFLICT
+            message:
+              type: string
+            details:
+              type: object
+
+    PaginationMeta:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: 总记录数
+        page:
+          type: integer
+          description: 当前页码
+        limit:
+          type: integer
+          description: 每页数量
+        totalPages:
+          type: integer
+          description: 总页数
+
+    # ===== 认证 Schema =====
+    LoginRequest:
+      type: object
+      required: [password]
+      properties:
+        username:
+          type: string
+          description: 用户名
+          example: admin
+        email:
+          type: string
+          format: email
+          description: 邮箱地址
+          example: admin@7zi.com
+        password:
+          type: string
+          format: password
+          minLength: 6
+          description: 密码
+
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            token:
+              type: string
+              description: JWT 访问令牌
+            refreshToken:
+              type: string
+              description: 刷新令牌
+            expiresIn:
+              type: integer
+              description: 令牌过期时间（秒）
+            user:
+              $ref: '#/components/schemas/User'
+
+    RegisterRequest:
+      type: object
+      required: [username, email, password]
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 50
+          pattern: '^[a-zA-Z0-9_-]+$'
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          minLength: 6
+        name:
+          type: string
+          maxLength: 100
+
+    RegisterResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+            username:
+              type: string
+            email:
+              type: string
+
+    TokenResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            token:
+              type: string
+            refreshToken:
+              type: string
+            expiresIn:
+              type: integer
+
+    PasswordResetRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+
+    PasswordResetConfirm:
+      type: object
+      required: [token, password]
+      properties:
+        token:
+          type: string
+        password:
+          type: string
+          format: password
+          minLength: 6
+
+    # ===== 用户 Schema =====
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [admin, manager, member, viewer, guest]
+        status:
+          type: string
+          enum: [active, inactive, suspended]
+        avatar:
+          type: string
+          format: uri
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    UserResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/User'
+
+    UserListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            users:
+              type: array
+              items:
+                $ref: '#/components/schemas/User'
+            meta:
+              $ref: '#/components/schemas/PaginationMeta'
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        avatar:
+          type: string
+
+    # ===== Agent Schema =====
+    Agent:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Agent 唯一标识符
+        name:
+          type: string
+          description: Agent 名称
+        type:
+          type: string
+          enum: [expert, consultant, architect, executor, admin, tester, designer, promoter, sales, finance, media]
+          description: Agent 类型
+        status:
+          type: string
+          enum: [online, offline, busy, idle, error]
+          description: 当前状态
+        capabilities:
+          type: array
+          items:
+            type: string
+          description: 能力列表
+        currentLoad:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: 当前负载百分比
+        maxLoad:
+          type: integer
+          default: 100
+          description: 最大负载
+        performanceScore:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: 性能评分 (0-1)
+        averageResponseTime:
+          type: integer
+          description: 平均响应时间（毫秒）
+        successRate:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: 成功率 (0-1)
+        tasksCompleted:
+          type: integer
+          description: 已完成任务数
+        lastHeartbeat:
+          type: string
+          format: date-time
+        registeredAt:
+          type: string
+          format: date-time
+        metadata:
+          type: object
+          properties:
+            provider:
+              type: string
+              enum: [minimax, bailian, volcengine, self-claude]
+            model:
+              type: string
+            version:
+              type: string
+
+    AgentResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Agent'
+
+    AgentListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            agents:
+              type: array
+              items:
+                $ref: '#/components/schemas/Agent'
+            count:
+              type: integer
+            online:
+              type: integer
+            offline:
+              type: integer
+
+    AgentDetailResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          allOf:
+            - $ref: '#/components/schemas/Agent'
+            - type: object
+              properties:
+                scheduleHistory:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      taskId:
+                        type: string
+                      scheduledAt:
+                        type: string
+                        format: date-time
+                      completedAt:
+                        type: string
+                        format: date-time
+                      result:
+                        type: string
+                        enum: [success, failed, cancelled]
+
+    RegisterAgentRequest:
+      type: object
+      required: [name, type, capabilities]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        type:
+          type: string
+          enum: [expert, consultant, architect, executor, admin, tester, designer, promoter, sales, finance, media]
+        capabilities:
+          type: array
+          items:
+            type: string
+          minItems: 1
+        maxLoad:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 100
+        metadata:
+          type: object
+          properties:
+            provider:
+              type: string
+            model:
+              type: string
+            version:
+              type: string
+
+    UpdateAgentRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        capabilities:
+          type: array
+          items:
+            type: string
+        maxLoad:
+          type: integer
+        status:
+          type: string
+          enum: [online, offline, busy, idle, error]
+        metadata:
+          type: object
+
+    HeartbeatRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [online, busy]
+        currentLoad:
+          type: integer
+          minimum: 0
+          maximum: 100
+        currentTask:
+          type: string
+        metrics:
+          type: object
+          properties:
+            responseTime:
+              type: integer
+            memoryUsage:
+              type: integer
+            cpuUsage:
+              type: integer
+
+    HeartbeatResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            agentId:
+              type: string
+            status:
+              type: string
+            timestamp:
+              type: string
+              format: date-time
+            nextHeartbeat:
+              type: integer
+              description: 下次心跳间隔（毫秒）
+
+    # ===== 任务 Schema =====
+    Task:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [pending, in_progress, completed, failed, cancelled]
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+        assignee:
+          type: string
+          description: 负责人 Agent ID
+        projectId:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        dueDate:
+          type: string
+          format: date-time
+        estimatedDuration:
+          type: integer
+          description: 预估时长（毫秒）
+        dependencies:
+          type: array
+          items:
+            type: string
+          description: 依赖任务 ID 列表
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+        metadata:
+          type: object
+
+    TaskResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Task'
+
+    TaskListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            tasks:
+              type: array
+              items:
+                $ref: '#/components/schemas/Task'
+            meta:
+              $ref: '#/components/schemas/PaginationMeta'
+
+    CreateTaskRequest:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 5000
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+          default: medium
+        assignee:
+          type: string
+        projectId:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        dueDate:
+          type: string
+          format: date-time
+        estimatedDuration:
+          type: integer
+        dependencies:
+          type: array
+          items:
+            type: string
+        metadata:
+          type: object
+
+    UpdateTaskRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [pending, in_progress, completed, failed, cancelled]
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+        assignee:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        dueDate:
+          type: string
+          format: date-time
+
+    BatchTaskRequest:
+      type: object
+      required: [taskIds, action]
+      properties:
+        taskIds:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          maxItems: 100
+        action:
+          type: string
+          enum: [updateStatus, updatePriority, assign, addTags, removeTags]
+        value:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+
+    BatchTaskResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            updated:
+              type: integer
+            failed:
+              type: integer
+            errors:
+              type: array
+              items:
+                type: object
+                properties:
+                  taskId:
+                    type: string
+                  error:
+                    type: string
+
+    # ===== 任务队列 Schema =====
+    QueueStatusResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            status:
+              type: string
+              enum: [ok, degraded, error]
+            stats:
+              type: object
+              properties:
+                total:
+                  type: integer
+                pending:
+                  type: integer
+                inProgress:
+                  type: integer
+                completed:
+                  type: integer
+                failed:
+                  type: integer
+                byPriority:
+                  type: object
+                  properties:
+                    urgent:
+                      type: integer
+                    high:
+                      type: integer
+                    normal:
+                      type: integer
+                    low:
+                      type: integer
+                byAgent:
+                  type: object
+                  additionalProperties:
+                    type: integer
+            nextTask:
+              type: object
+              properties:
+                id:
+                  type: string
+                type:
+                  type: string
+                priority:
+                  type: string
+                assignedAgent:
+                  type: string
+                estimatedDuration:
+                  type: integer
+            config:
+              type: object
+              properties:
+                maxSize:
+                  type: integer
+                maxAttempts:
+                  type: integer
+                defaultPriority:
+                  type: string
+
+    EnqueueTaskRequest:
+      type: object
+      required: [id, type, payload]
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          description: 任务类型
+        priority:
+          type: string
+          enum: [urgent, high, normal, low]
+          default: normal
+        payload:
+          type: object
+          description: 任务数据
+        requiredCapabilities:
+          type: array
+          items:
+            type: string
+        preferredAgent:
+          type: string
+        maxAttempts:
+          type: integer
+          minimum: 1
+          maximum: 10
+          default: 3
+        estimatedDuration:
+          type: integer
+        dependencies:
+          type: array
+          items:
+            type: string
+        metadata:
+          type: object
+
+    EnqueueTaskResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            taskId:
+              type: string
+            queuePosition:
+              type: integer
+            assignedAgent:
+              type: string
+              nullable: true
+            estimatedStart:
+              type: string
+              format: date-time
+            scheduling:
+              type: object
+              properties:
+                candidates:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      agentId:
+                        type: string
+                      score:
+                        type: number
+                      currentLoad:
+                        type: integer
+                      availableAt:
+                        type: string
+                        format: date-time
+                reasoning:
+                  type: string
+
+    # ===== JSON-RPC Schema =====
+    JsonRpcRequest:
+      type: object
+      required: [jsonrpc, method, id]
+      properties:
+        jsonrpc:
+          type: string
+          enum: ["2.0"]
+        method:
+          type: string
+          enum: [schedule_task, get_agent_status, cancel_task, get_task_result, list_agents, agent_capability]
+        params:
+          oneOf:
+            - type: object
+            - type: array
+        id:
+          oneOf:
+            - type: string
+            - type: integer
+
+    JsonRpcResponse:
+      type: object
+      properties:
+        jsonrpc:
+          type: string
+          enum: ["2.0"]
+        result:
+          type: object
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+            message:
+              type: string
+            data:
+              type: object
+        id:
+          oneOf:
+            - type: string
+            - type: integer
+
+    # ===== 项目 Schema =====
+    Project:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [active, archived, completed]
+        ownerId:
+          type: string
+        members:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        metadata:
+          type: object
+
+    ProjectResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Project'
+
+    ProjectListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            projects:
+              type: array
+              items:
+                $ref: '#/components/schemas/Project'
+            meta:
+              $ref: '#/components/schemas/PaginationMeta'
+
+    CreateProjectRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 2000
+        members:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+
+    UpdateProjectRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [active, archived, completed]
+        members:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+
+    # ===== RBAC Schema =====
+    Role:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        permissions:
+          type: array
+          items:
+            type: string
+        isSystem:
+          type: boolean
+          description: 是否为系统内置角色
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    RoleResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Role'
+
+    RoleListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            roles:
+              type: array
+              items:
+                $ref: '#/components/schemas/Role'
+
+    CreateRoleRequest:
+      type: object
+      required: [name, permissions]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        description:
+          type: string
+          maxLength: 200
+        permissions:
+          type: array
+          items:
+            type: string
+          minItems: 1
+
+    UpdateRoleRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        permissions:
+          type: array
+          items:
+            type: string
+
+    Permission:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        resource:
+          type: string
+        action:
+          type: string
+          enum: [read, write, delete, manage]
+
+    PermissionListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            permissions:
+              type: array
+              items:
+                $ref: '#/components/schemas/Permission'
+            byResource:
+              type: object
+              additionalProperties:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Permission'
+
+    UserRolesResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            userId:
+              type: string
+            roles:
+              type: array
+              items:
+                type: string
+            permissions:
+              type: array
+              items:
+                type: string
+            count:
+              type: integer
+
+    UserPermissionsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            userId:
+              type: string
+            permissions:
+              type: array
+              items:
+                type: string
+            count:
+              type: integer
+
+    # ===== 通知 Schema =====
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [success, error, warning, info, task_assigned, system]
+        message:
+          type: string
+        title:
+          type: string
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+        read:
+          type: boolean
+        userId:
+          type: string
+        data:
+          type: object
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+
+    NotificationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Notification'
+
+    NotificationListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            notifications:
+              type: array
+              items:
+                $ref: '#/components/schemas/Notification'
+            meta:
+              $ref: '#/components/schemas/PaginationMeta'
+            unreadCount:
+              type: integer
+
+    CreateNotificationRequest:
+      type: object
+      required: [type, message, userId]
+      properties:
+        type:
+          type: string
+          enum: [success, error, warning, info, task_assigned, system]
+        message:
+          type: string
+          minLength: 1
+          maxLength: 500
+        title:
+          type: string
+          maxLength: 100
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+          default: medium
+        userId:
+          type: string
+        data:
+          type: object
+        expiresAt:
+          type: string
+          format: date-time
+
+    NotificationStatsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            total:
+              type: integer
+            unread:
+              type: integer
+            byType:
+              type: object
+              additionalProperties:
+                type: integer
+            byPriority:
+              type: object
+              additionalProperties:
+                type: integer
+
+    # ===== 搜索 Schema =====
+    SearchResult:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [task, user, project]
+        title:
+          type: string
+        description:
+          type: string
+        url:
+          type: string
+        score:
+          type: number
+        highlights:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+    SearchResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            results:
+              type: array
+              items:
+                $ref: '#/components/schemas/SearchResult'
+            meta:
+              $ref: '#/components/schemas/PaginationMeta'
+            query:
+              type: string
+            took:
+              type: integer
+              description: 搜索耗时（毫秒）
+
+    AutocompleteResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            suggestions:
+              type: array
+              items:
+                type: object
+                properties:
+                  text:
+                    type: string
+                  type:
+                    type: string
+                  score:
+                    type: number
+
+    # ===== 反馈 Schema =====
+    Feedback:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [bug, feature, improvement, other]
+        title:
+          type: string
+        description:
+          type: string
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        status:
+          type: string
+          enum: [pending, reviewed, resolved]
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+        userId:
+          type: string
+        email:
+          type: string
+        images:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              size:
+                type: integer
+              type:
+                type: string
+        adminNotes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        reviewedAt:
+          type: string
+          format: date-time
+        resolvedAt:
+          type: string
+          format: date-time
+
+    FeedbackResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Feedback'
+
+    CreateFeedbackRequest:
+      type: object
+      required: [type, title, rating]
+      properties:
+        type:
+          type: string
+          enum: [bug, feature, improvement, other]
+        title:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 1000
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        email:
+          type: string
+          format: email
+        images:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              size:
+                type: integer
+              type:
+                type: string
+
+    FeedbackListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            feedbacks:
+              type: array
+              items:
+                $ref: '#/components/schemas/Feedback'
+            meta:
+              $ref: '#/components/schemas/PaginationMeta'
+            stats:
+              type: object
+              properties:
+                total:
+                  type: integer
+                average:
+                  type: number
+                byType:
+                  type: object
+                  additionalProperties:
+                    type: integer
+                byStatus:
+                  type: object
+                  additionalProperties:
+                    type: integer
+
+    # ===== 健康检查 Schema =====
+    HealthCheckResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+        uptime:
+          type: integer
+        checks:
+          type: object
+          properties:
+            database:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [up, down]
+                latency:
+                  type: integer
+            redis:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [up, down]
+                latency:
+                  type: integer
+            websocket:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [up, down]
+                connections:
+                  type: integer
+
+    # ===== WebSocket 消息 Schema =====
+    WebSocketMessage:
+      type: object
+      required: [type, id, timestamp]
+      properties:
+        type:
+          type: string
+          description: 消息类型
+        id:
+          type: string
+          description: 消息唯一 ID
+        timestamp:
+          type: string
+          format: date-time
+        payload:
+          type: object
+        roomId:
+          type: string
+        userId:
+          type: string
+
+    WebSocketRoomMessage:
+      allOf:
+        - $ref: '#/components/schemas/WebSocketMessage'
+        - type: object
+          properties:
+            payload:
+              type: object
+              properties:
+                roomId:
+                  type: string
+                name:
+                  type: string
+                type:
+                  type: string
+                  enum: [task, project, chat, document, voice, video]
+                visibility:
+                  type: string
+                  enum: [public, private, invite-only]
+                maxParticipants:
+                  type: integer
+                participants:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      userId:
+                        type: string
+                      name:
+                        type: string
+                      role:
+                        type: string
+                        enum: [owner, admin, moderator, member, guest]
+                      isOnline:
+                        type: boolean
+
+paths:
+  # ============================================================================
+  # 认证 API
+  # ============================================================================
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: 用户登录
+      description: 使用用户名/邮箱和密码登录系统
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            examples:
+              username:
+                summary: 使用用户名登录
+                value:
+                  username: admin
+                  password: password123
+              email:
+                summary: 使用邮箱登录
+                value:
+                  email: admin@7zi.com
+                  password: password123
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: 认证失败
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error:
+                  code: INVALID_CREDENTIALS
+                  message: 用户名或密码错误
+
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: 用户注册
+      description: 创建新用户账户
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: 注册成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+        '400':
+          description: 参数验证失败
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 用户名或邮箱已存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: 获取当前用户信息
+      operationId: getCurrentUser
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: 刷新访问令牌
+      operationId: refreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: 刷新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          description: 刷新令牌无效或已过期
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: 用户登出
+      operationId: logout
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 登出成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  # ============================================================================
+  # Agent 管理 API
+  # ============================================================================
+  /a2a/registry:
+    get:
+      tags: [Agents]
+      summary: 获取 Agent 列表
+      operationId: listAgents
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [online, offline, busy, idle, error]
+        - name: capability
+          in: query
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [expert, consultant, architect, executor, admin, tester, designer, promoter, sales, finance, media]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      tags: [Agents]
+      summary: 注册新 Agent
+      operationId: registerAgent
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterAgentRequest'
+      responses:
+        '201':
+          description: 注册成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentResponse'
+        '400':
+          description: 参数验证失败
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /a2a/registry/{agentId}:
+    get:
+      tags: [Agents]
+      summary: 获取 Agent 详情
+      operationId: getAgent
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/agentId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentDetailResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Agents]
+      summary: 更新 Agent 信息
+      operationId: updateAgent
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/agentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAgentRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Agents]
+      summary: 注销 Agent
+      operationId: unregisterAgent
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/agentId'
+      responses:
+        '200':
+          description: 注销成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /a2a/registry/{agentId}/heartbeat:
+    post:
+      tags: [Agents]
+      summary: Agent 心跳
+      operationId: agentHeartbeat
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/agentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HeartbeatRequest'
+      responses:
+        '200':
+          description: 心跳成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HeartbeatResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ============================================================================
+  # 任务队列 API
+  # ============================================================================
+  /a2a/queue:
+    get:
+      tags: [Agents, Tasks]
+      summary: 获取任务队列状态
+      operationId: getQueueStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, scheduled, in_progress, completed, failed]
+        - name: priority
+          in: query
+          schema:
+            type: string
+            enum: [urgent, high, normal, low]
+        - name: agentId
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueueStatusResponse'
+
+    post:
+      tags: [Agents, Tasks]
+      summary: 添加任务到队列
+      operationId: enqueueTask
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnqueueTaskRequest'
+      responses:
+        '201':
+          description: 任务已入队
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnqueueTaskResponse'
+        '400':
+          description: 参数验证失败
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags: [Agents, Tasks]
+      summary: 清空任务队列
+      operationId: clearQueue
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: agentId
+          in: query
+          schema:
+            type: string
+        - name: priority
+          in: query
+          schema:
+            type: string
+            enum: [urgent, high, normal, low]
+      responses:
+        '200':
+          description: 清空成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      removed:
+                        type: integer
+                      remaining:
+                        type: integer
+
+  /a2a/jsonrpc:
+    post:
+      tags: [Agents]
+      summary: JSON-RPC 调用
+      operationId: jsonRpcCall
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JsonRpcRequest'
+      responses:
+        '200':
+          description: JSON-RPC 响应
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonRpcResponse'
+
+  # ============================================================================
+  # 任务管理 API
+  # ============================================================================
+  /tasks:
+    get:
+      tags: [Tasks]
+      summary: 获取任务列表
+      operationId: listTasks
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, in_progress, completed, failed, cancelled]
+        - name: priority
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high, urgent]
+        - name: assignee
+          in: query
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          schema:
+            type: string
+        - name: tags
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            enum: [createdAt, updatedAt, dueDate, priority]
+            default: createdAt
+        - name: sortOrder
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskListResponse'
+
+    post:
+      tags: [Tasks]
+      summary: 创建任务
+      operationId: createTask
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTaskRequest'
+      responses:
+        '201':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+
+  /tasks/{taskId}:
+    get:
+      tags: [Tasks]
+      summary: 获取任务详情
+      operationId: getTask
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/taskId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Tasks]
+      summary: 更新任务
+      operationId: updateTask
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/taskId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTaskRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+
+    delete:
+      tags: [Tasks]
+      summary: 删除任务
+      operationId: deleteTask
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/taskId'
+      responses:
+        '200':
+          description: 删除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /tasks/batch:
+    post:
+      tags: [Tasks]
+      summary: 批量操作任务
+      operationId: batchUpdateTasks
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchTaskRequest'
+      responses:
+        '200':
+          description: 批量操作成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchTaskResponse'
+
+  # ============================================================================
+  # 项目管理 API
+  # ============================================================================
+  /projects:
+    get:
+      tags: [Projects]
+      summary: 获取项目列表
+      operationId: listProjects
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, archived, completed]
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectListResponse'
+
+    post:
+      tags: [Projects]
+      summary: 创建项目
+      operationId: createProject
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProjectRequest'
+      responses:
+        '201':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectResponse'
+
+  /projects/{projectId}:
+    get:
+      tags: [Projects]
+      summary: 获取项目详情
+      operationId: getProject
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/projectId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Projects]
+      summary: 更新项目
+      operationId: updateProject
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/projectId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProjectRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectResponse'
+
+    delete:
+      tags: [Projects]
+      summary: 删除项目
+      operationId: deleteProject
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/projectId'
+      responses:
+        '200':
+          description: 删除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  # ============================================================================
+  # 用户管理 API
+  # ============================================================================
+  /users:
+    get:
+      tags: [Users]
+      summary: 获取用户列表
+      operationId: listUsers
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: role
+          in: query
+          schema:
+            type: string
+            enum: [admin, manager, member, viewer, guest]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive, suspended]
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListResponse'
+
+  /users/{userId}:
+    get:
+      tags: [Users]
+      summary: 获取用户详情
+      operationId: getUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Users]
+      summary: 更新用户信息
+      operationId: updateUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+  # ============================================================================
+  # RBAC 权限 API
+  # ============================================================================
+  /rbac/roles:
+    get:
+      tags: [RBAC]
+      summary: 获取角色列表
+      operationId: listRoles
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleListResponse'
+
+    post:
+      tags: [RBAC]
+      summary: 创建角色
+      operationId: createRole
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoleRequest'
+      responses:
+        '201':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleResponse'
+
+  /rbac/roles/{roleId}:
+    get:
+      tags: [RBAC]
+      summary: 获取角色详情
+      operationId: getRole
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/roleId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleResponse'
+
+    put:
+      tags: [RBAC]
+      summary: 更新角色
+      operationId: updateRole
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/roleId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRoleRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleResponse'
+
+    delete:
+      tags: [RBAC]
+      summary: 删除角色
+      operationId: deleteRole
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/roleId'
+      responses:
+        '200':
+          description: 删除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /rbac/permissions:
+    get:
+      tags: [RBAC]
+      summary: 获取权限列表
+      operationId: listPermissions
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionListResponse'
+
+  /rbac/users/{userId}/roles:
+    get:
+      tags: [RBAC]
+      summary: 获取用户角色
+      operationId: getUserRoles
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/userId'
+        - name: includePermissions
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRolesResponse'
+
+    post:
+      tags: [RBAC]
+      summary: 添加用户角色
+      operationId: addUserRoles
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [roles]
+              properties:
+                roles:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: 添加成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRolesResponse'
+
+    delete:
+      tags: [RBAC]
+      summary: 移除用户角色
+      operationId: removeUserRoles
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [roles]
+              properties:
+                roles:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: 移除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRolesResponse'
+
+  /rbac/users/{userId}/permissions:
+    get:
+      tags: [RBAC]
+      summary: 获取用户权限
+      operationId: getUserPermissions
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPermissionsResponse'
+
+  # ============================================================================
+  # 通知 API
+  # ============================================================================
+  /notifications:
+    get:
+      tags: [Notifications]
+      summary: 获取通知列表
+      operationId: listNotifications
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: unreadOnly
+          in: query
+          schema:
+            type: boolean
+            default: false
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [success, error, warning, info, task_assigned, system]
+        - name: priority
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high, urgent]
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationListResponse'
+
+    post:
+      tags: [Notifications]
+      summary: 创建通知
+      operationId: createNotification
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateNotificationRequest'
+      responses:
+        '201':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationResponse'
+
+  /notifications/{notificationId}:
+    get:
+      tags: [Notifications]
+      summary: 获取通知详情
+      operationId: getNotification
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/notificationId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationResponse'
+
+    delete:
+      tags: [Notifications]
+      summary: 删除通知
+      operationId: deleteNotification
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/notificationId'
+      responses:
+        '200':
+          description: 删除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /notifications/{notificationId}/read:
+    post:
+      tags: [Notifications]
+      summary: 标记为已读
+      operationId: markNotificationRead
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/notificationId'
+      responses:
+        '200':
+          description: 操作成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationResponse'
+
+  /notifications/read-all:
+    post:
+      tags: [Notifications]
+      summary: 标记全部已读
+      operationId: markAllNotificationsRead
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 操作成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /notifications/stats:
+    get:
+      tags: [Notifications]
+      summary: 获取通知统计
+      operationId: getNotificationStats
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationStatsResponse'
+
+  # ============================================================================
+  # 搜索 API
+  # ============================================================================
+  /search:
+    get:
+      tags: [Search]
+      summary: 全局搜索
+      operationId: search
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [all, tasks, users, projects]
+            default: all
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+
+  /search/autocomplete:
+    get:
+      tags: [Search]
+      summary: 搜索自动完成
+      operationId: searchAutocomplete
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10
+            default: 5
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutocompleteResponse'
+
+  # ============================================================================
+  # 反馈 API
+  # ============================================================================
+  /feedback:
+    get:
+      tags: [Feedback]
+      summary: 获取反馈列表
+      operationId: listFeedback
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [bug, feature, improvement, other]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, reviewed, resolved]
+        - name: priority
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high, urgent]
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackListResponse'
+
+    post:
+      tags: [Feedback]
+      summary: 提交反馈
+      operationId: createFeedback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFeedbackRequest'
+      responses:
+        '201':
+          description: 提交成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackResponse'
+
+  /feedback/{feedbackId}:
+    get:
+      tags: [Feedback]
+      summary: 获取反馈详情
+      operationId: getFeedback
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: feedbackId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      tags: [Feedback]
+      summary: 更新反馈 (管理员)
+      operationId: updateFeedback
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: feedbackId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [pending, reviewed, resolved]
+                priority:
+                  type: string
+                  enum: [low, medium, high, urgent]
+                adminNotes:
+                  type: string
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackResponse'
+
+    delete:
+      tags: [Feedback]
+      summary: 删除反馈 (管理员)
+      operationId: deleteFeedback
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: feedbackId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 删除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  # ============================================================================
+  # 健康检查 API
+  # ============================================================================
+  /health:
+    get:
+      tags: [Health]
+      summary: 系统健康检查
+      operationId: healthCheck
+      responses:
+        '200':
+          description: 系统健康
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
+
+  /health/detailed:
+    get:
+      tags: [Health]
+      summary: 详细健康检查
+      operationId: detailedHealthCheck
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 详细健康状态
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
+
+  /health/live:
+    get:
+      tags: [Health]
+      summary: 存活检查
+      operationId: livenessCheck
+      responses:
+        '200':
+          description: 服务存活
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [alive]
+
+  /health/ready:
+    get:
+      tags: [Health]
+      summary: 就绪检查
+      operationId: readinessCheck
+      responses:
+        '200':
+          description: 服务就绪
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [ready]
+                  checks:
+                    type: object
+                    additionalProperties:
+                      type: boolean

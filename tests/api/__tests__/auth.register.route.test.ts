@@ -56,6 +56,30 @@ vi.mock('@/lib/api/error-handler', () => ({
       }),
     };
   }),
+  createRegistrationFailedError: vi.fn((message: string) => {
+    return {
+      status: 400,
+      json: async () => ({
+        success: false,
+        error: {
+          code: 'REGISTRATION_FAILED',
+          message: message || 'Registration failed',
+        },
+      }),
+    };
+  }),
+  createWeakPasswordError: vi.fn((message: string) => {
+    return {
+      status: 400,
+      json: async () => ({
+        success: false,
+        error: {
+          code: 'WEAK_PASSWORD',
+          message: message || 'Password is too weak',
+        },
+      }),
+    };
+  }),
 }));
 
 vi.mock('@/lib/api/utils', () => ({

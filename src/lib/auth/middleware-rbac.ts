@@ -73,6 +73,27 @@ export async function withUserAuth(
     return handler(request, context);
   } catch (error) {
     logger.error('User auth error:', { error });
+    
+    // Check if this is an authentication error - return 401
+    // Common auth errors: invalid token, expired token, malformed token
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const isAuthError = 
+      errorMessage.includes('token') || 
+      errorMessage.includes('Token') ||
+      errorMessage.includes('auth') ||
+      errorMessage.includes('Auth') ||
+      errorMessage.includes('JWT') ||
+      errorMessage.includes('signature');
+    
+    if (isAuthError) {
+      return createErrorResponse(
+        errorMessage,
+        'UNAUTHORIZED',
+        401,
+        requestId
+      );
+    }
+    
     return createErrorResponse(
       error instanceof Error ? error.message : 'Internal server error',
       'INTERNAL_ERROR',

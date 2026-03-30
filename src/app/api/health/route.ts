@@ -5,11 +5,14 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { getCacheManager } from '@/lib/cache/CacheManager';
+import { createErrorResponse } from '@/lib/api/error-handler';
+import { logger } from '@/lib/logger';
 
 /**
- * Health check response structure - matches test expectations
+ * Health check data structure
  */
-interface HealthCheckResponse {
+interface HealthCheckData {
   /** Overall health status */
   status: 'healthy' | 'unhealthy';
   /** Timestamp */
@@ -33,6 +36,53 @@ interface HealthCheckResponse {
 }
 
 /**
+ * API response wrapper - matches test expectations
+ */
+interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+}
+
+/**
+ * Collect actual health metrics
+ */
+function collectHealthMetrics(): HealthCheckData {
+  // Get memory usage in MB
+  const usedMemory = Math.round(process.memoryUsage().heapUsed / 1024 / 1024);
+  const memoryLimit = 512; // Default memory limit in MB
+
+  // Determine memory status
+  const memoryStatus = usedMemory > memoryLimit * 0.9 ? 'warning' : 'ok';
+
+  // Get uptime in seconds
+  const uptime = process.uptime();
+
+  // Get version from package.json or use fallback
+  const version = process.env.npm_package_version || process.env.APP_VERSION || '1.0.6';
+
+  // Get Node.js version
+  const nodeVersion = process.version;
+
+  return {
+    status: memoryStatus === 'warning' ? 'unhealthy' : 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime,
+    version,
+    checks: {
+      memory: {
+        status: memoryStatus,
+        used: usedMemory,
+        limit: memoryLimit
+      },
+      node: {
+        status: 'ok',
+        version: nodeVersion
+      }
+    }
+  };
+}
+
+/**
  * GET /api/health
  * Basic health check endpoint
  */
@@ -40,68 +90,33 @@ export async function GET(request: NextRequest) {
   const startTime = Date.now();
 
   try {
-    // Get memory usage in MB
-    const usedMemory = Math.round(process.memoryUsage().heapUsed / 1024 / 1024);
-    const memoryLimit = 512; // Default memory limit in MB
+    const cacheManager = getCacheManager();
 
-    // Determine memory status
-    const memoryStatus = usedMemory > memoryLimit * 0.9 ? 'warning' : 'ok';
+    // Use cache with 30 second TTL to avoid frequent health checks
+    const cacheKey = `health:status:${process.pid}`;
 
-    // Get uptime in seconds
-    const uptime = Math.floor(process.uptime());
+    const healthData = await cacheManager.getOrSet<HealthCheckData>(
+      cacheKey,
+      async () => collectHealthMetrics(),
+      30000 // 30 seconds
+    );
 
-    // Get version from package.json or use fallback
-    const version = process.env.npm_package_version || process.env.APP_VERSION || '1.0.6';
-
-    // Get Node.js version
-    const nodeVersion = process.version;
-
-    const response: HealthCheckResponse = {
-      status: memoryStatus === 'warning' ? 'unhealthy' : 'healthy',
-      timestamp: new Date().toISOString(),
-      uptime,
-      version,
-      checks: {
-        memory: {
-          status: memoryStatus,
-          used: usedMemory,
-          limit: memoryLimit
-        },
-        node: {
-          status: 'ok',
-          version: nodeVersion
-        }
-      }
+    // Wrap response in API format expected by tests
+    const response: ApiResponse<HealthCheckData> = {
+      success: true,
+      data: healthData
     };
 
-    return NextResponse.json(
-      {
-        success: true,
-        data: response
+    return NextResponse.json(response, {
+      status: healthData.status === 'unhealthy' ? 503 : 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache',
       },
-      {
-        status: memoryStatus === 'warning' ? 503 : 200,
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache',
-        },
-      }
-    );
+    });
   } catch (err) {
-    console.error('Health check failed', { error: err });
-
-    return NextResponse.json(
-      {
-        success: false,
-        message: 'Health check failed'
-      },
-      {
-        status: 503,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    logger.error('Health check failed', err as Error);
+    return createErrorResponse(err as Error, 503);
   }
 }
 

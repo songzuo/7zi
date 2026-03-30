@@ -3,25 +3,25 @@
 import { lazy, Suspense, ComponentType } from 'react';
 import { LucideProps } from 'lucide-react';
 
-// 图标名称到导入路径的映射
+// 图标名称到导入路径的映射 - use named exports instead of internal paths
 const iconMap = {
-  Bell: () => import('lucide-react/dist/esm/icons/bell'),
-  Send: () => import('lucide-react/dist/esm/icons/send'),
-  Trash2: () => import('lucide-react/dist/esm/icons/trash-2'),
-  Check: () => import('lucide-react/dist/esm/icons/check'),
-  X: () => import('lucide-react/dist/esm/icons/x'),
-  Info: () => import('lucide-react/dist/esm/icons/info'),
-  CheckCircle: () => import('lucide-react/dist/esm/icons/check-circle'),
-  AlertTriangle: () => import('lucide-react/dist/esm/icons/alert-triangle'),
-  XCircle: () => import('lucide-react/dist/esm/icons/x-circle'),
-  MessageSquare: () => import('lucide-react/dist/esm/icons/message-square'),
-  Star: () => import('lucide-react/dist/esm/icons/star'),
-  Upload: () => import('lucide-react/dist/esm/icons/upload'),
-  Camera: () => import('lucide-react/dist/esm/icons/camera'),
-  Save: () => import('lucide-react/dist/esm/icons/save'),
-  Loader2: () => import('lucide-react/dist/esm/icons/loader-2'),
-  Globe: () => import('lucide-react/dist/esm/icons/globe'),
-  Lightbulb: () => import('lucide-react/dist/esm/icons/lightbulb'),
+  Bell: () => import('lucide-react').then(m => ({ default: m.Bell })),
+  Send: () => import('lucide-react').then(m => ({ default: m.Send })),
+  Trash2: () => import('lucide-react').then(m => ({ default: m.Trash2 })),
+  Check: () => import('lucide-react').then(m => ({ default: m.Check })),
+  X: () => import('lucide-react').then(m => ({ default: m.X })),
+  Info: () => import('lucide-react').then(m => ({ default: m.Info })),
+  CheckCircle: () => import('lucide-react').then(m => ({ default: m.CheckCircle })),
+  AlertTriangle: () => import('lucide-react').then(m => ({ default: m.AlertTriangle })),
+  XCircle: () => import('lucide-react').then(m => ({ default: m.XCircle })),
+  MessageSquare: () => import('lucide-react').then(m => ({ default: m.MessageSquare })),
+  Star: () => import('lucide-react').then(m => ({ default: m.Star })),
+  Upload: () => import('lucide-react').then(m => ({ default: m.Upload })),
+  Camera: () => import('lucide-react').then(m => ({ default: m.Camera })),
+  Save: () => import('lucide-react').then(m => ({ default: m.Save })),
+  Loader2: () => import('lucide-react').then(m => ({ default: m.Loader2 })),
+  Globe: () => import('lucide-react').then(m => ({ default: m.Globe })),
+  Lightbulb: () => import('lucide-react').then(m => ({ default: m.Lightbulb })),
 } as const;
 
 type IconName = keyof typeof iconMap;
@@ -39,6 +39,9 @@ function IconFallback({ className }: { className?: string }) {
 // 缓存已加载的图标组件
 const iconCache = new Map<IconName, ComponentType<LucideProps>>();
 
+// Props without ref to avoid type conflicts with dynamic components
+type IconProps = Omit<LucideProps, 'ref'>;
+
 /**
  * 动态图标组件
  * 按需加载图标，减少初始 bundle 大小
@@ -49,7 +52,7 @@ const iconCache = new Map<IconName, ComponentType<LucideProps>>();
 export function DynamicIcon({ 
   name, 
   ...props 
-}: { name: IconName } & LucideProps) {
+}: { name: IconName } & IconProps) {
   // 检查缓存
   const CachedIcon = iconCache.get(name);
   

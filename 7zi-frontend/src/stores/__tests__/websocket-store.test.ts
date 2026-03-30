@@ -23,8 +23,7 @@ vi.mock('socket.io-client', () => ({
 describe('useWebSocketStore', () => {
   beforeEach(() => {
     // 重置 Store 状态
-    useWebSocketStore.getState().clearMessages();
-    useWebSocketStore.getState()._setStatus('disconnected');
+    useWebSocketStore.getState()._reset();
   });
 
   describe('初始状态', () => {
@@ -160,7 +159,7 @@ describe('useWebSocketStore', () => {
     it('未连接时发送消息应该警告', () => {
       const { result } = renderHook(() => useWebSocketStore());
 
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       act(() => {
         result.current.sendMessage('chat', { text: 'Hello' });

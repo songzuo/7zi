@@ -6,9 +6,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getMessageQueue } from '@/lib/a2a/message-queue';
-import { QueueMessage } from '@/lib/a2a/types';
-import type { TaskPriority } from '@/lib/a2a/types';
+import { getMessageQueue } from '@/lib/agents/a2a/message-queue';
+import { QueueMessage } from '@/lib/agents/a2a/types';
+import type { TaskPriority } from '@/lib/agents/a2a/types';
 import { logger } from '@/lib/logger';
 
 /**

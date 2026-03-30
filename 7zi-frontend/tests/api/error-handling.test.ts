@@ -19,12 +19,12 @@ import {
   createServiceUnavailableError,
   ErrorType,
   withErrorHandling,
-} from '../../7zi-frontend/src/lib/api/error-handler'
-import { logApiError, createApiContext, ErrorStatistics } from '../../src/lib/api/error-logger'
-import { withRetry, RetryPresets } from '../../src/lib/api/retry-decorator'
+} from '@/lib/api/error-handler'
+import { logApiError, createApiContext, ErrorStatistics } from '@/lib/api/error-logger'
+import { withRetry, RetryPresets } from '@/lib/api/retry-decorator'
 
 // Mock logger
-vi.mock('../../7zi-frontend/src/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
     error: vi.fn(),
     warn: vi.fn(),
@@ -459,7 +459,7 @@ describe('API Error Handling Edge Cases Tests', () => {
       await Promise.all(requests)
 
       // 验证日志被记录
-      const logger = await import('../../7zi-frontend/src/lib/logger')
+      const logger = await import('@/lib/logger')
       expect(logger.logger.error).toHaveBeenCalledTimes(concurrency)
     })
 
@@ -486,7 +486,7 @@ describe('API Error Handling Edge Cases Tests', () => {
       await Promise.all(requests)
 
       // 验证所有错误类型都被正确记录
-      const logger = await import('../../7zi-frontend/src/lib/logger')
+      const logger = await import('@/lib/logger')
       expect(logger.logger.error).toHaveBeenCalled()
       expect(logger.logger.warn).toHaveBeenCalled()
     })
@@ -514,7 +514,7 @@ describe('API Error Handling Edge Cases Tests', () => {
       expect(duration).toBeLessThan(5000) // 5秒内完成
 
       // 验证所有错误都被记录
-      const logger = await import('../../7zi-frontend/src/lib/logger')
+      const logger = await import('@/lib/logger')
       expect(logger.logger.error).toHaveBeenCalledTimes(rapidErrors)
     })
 

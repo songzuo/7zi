@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { RoomStatusIndicator } from './RoomStatusIndicator';
+import { RoomTypeSelector, RoomTypeBadge, type RoomType } from './RoomTypeSelector';
 import type { CreateRoomRequest, JoinRoomRequest } from '@/types/rooms';
 
 export interface RoomListProps {
@@ -64,6 +65,7 @@ export function RoomList({ className }: RoomListProps) {
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
+  const [createRoomType, setCreateRoomType] = useState<RoomType>('chat');
   const [createForm, setCreateForm] = useState<CreateRoomRequest>({
     name: '',
     description: '',
@@ -372,6 +374,18 @@ export function RoomList({ className }: RoomListProps) {
         title={t('create')}
       >
         <form onSubmit={handleCreateRoom} className="space-y-4">
+          {/* Room Type Selector */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {t('roomType')}
+            </label>
+            <RoomTypeSelector
+              selectedType={createRoomType}
+              onChange={setCreateRoomType}
+              compact
+            />
+          </div>
+
           <Input
             label={t('roomName')}
             placeholder={t('placeholder.enterRoomName')}

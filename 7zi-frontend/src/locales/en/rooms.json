@@ -8,23 +8,45 @@
     "leaveConfirm": "Are you sure you want to leave this room?",
     "joined": "Joined",
     "created": "Created",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "close": "Close",
     "filter": {
       "all": "All Rooms",
       "myCreated": "My Created Rooms",
       "myJoined": "My Joined Rooms"
     },
+    "tabs": {
+      "participants": "Participants",
+      "settings": "Settings",
+      "invite": "Invite"
+    },
     "roomName": "Room Name",
     "roomDescription": "Description",
     "roomPassword": "Password (Optional)",
+    "newPassword": "New Password",
+    "visibility": "Visibility",
+    "visibilityPublic": "Public",
+    "visibilityPublicDesc": "Anyone can find via search",
+    "visibilityPrivate": "Private",
+    "visibilityPrivateDesc": "Requires invite code and password",
     "members": "Members",
     "online": "Online",
+    "offline": "Offline",
     "lastActivity": "Last Activity",
     "creator": "Creator",
+    "owner": "Owner",
     "createdAt": "Created At",
     "settings": "Settings",
     "invite": "Invite",
     "inviteCode": "Invite Code",
     "inviteLink": "Invite Link",
+    "inviteTo": "Invite to",
+    "inviteToRoom": "Invite to join room",
+    "joinRoom": "Join my room",
+    "scanToJoin": "Scan to Join",
+    "scanQRDesc": "Scan the QR code with your phone to quickly join the room",
     "copy": "Copy",
     "copied": "Copied!",
     "share": "Share",
@@ -35,6 +57,21 @@
     "transferConfirm": "Are you sure you want to transfer ownership to {{name}}?",
     "delete": "Delete Room",
     "deleteConfirm": "Are you sure you want to delete this room? This action cannot be undone.",
+    "details": "Details",
+    "roomInfo": "Room Information",
+    "editSettings": "Edit Settings",
+    "managePermissions": "Manage Permissions",
+    "kickMember": "Kick Member",
+    "kickConfirm": "Are you sure you want to kick this member?",
+    "changeRole": "Change Role",
+    "currentRole": "Current Role",
+    "noPermission": "You don't have permission to manage this room",
+    "roles": {
+      "owner": "Owner",
+      "admin": "Admin",
+      "member": "Member"
+    },
+    "you": "You",
     "status": {
       "connected": "Connected",
       "connecting": "Connecting",
@@ -52,12 +89,28 @@
       "alreadyJoined": "You have already joined this room",
       "notInRoom": "You are not in this room"
     },
+    "validation": {
+      "nameRequired": "Room name is required",
+      "nameTooShort": "Room name must be at least 2 characters",
+      "nameTooLong": "Room name cannot exceed 50 characters",
+      "descriptionTooLong": "Description cannot exceed 200 characters",
+      "passwordRequired": "Password is required for private rooms",
+      "passwordTooShort": "Password must be at least 4 characters"
+    },
     "placeholder": {
       "searchRooms": "Search rooms...",
       "enterRoomName": "Enter room name",
       "enterDescription": "Enter description (optional)",
       "enterPassword": "Enter password (optional)",
-      "enterInviteCode": "Enter invite code"
-    }
+      "enterInviteCode": "Enter invite code",
+      "leaveEmptyToRemove": "Leave empty to remove password"
+    },
+    "isPublic": "Public Room",
+    "expired": "Expired",
+    "expiresInDays": "Expires in {{days}} days",
+    "expiresInHours": "Expires in {{hours}} hours",
+    "expiresSoon": "Expires soon",
+    "uses": "Uses",
+    "loading": "Loading..."
   }
 }

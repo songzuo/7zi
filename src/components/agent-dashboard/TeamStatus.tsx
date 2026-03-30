@@ -8,7 +8,7 @@
 
 import { useMemo } from 'react';
 import { useDarkMode } from '@/stores/preferencesStore';
-import { AgentCapability } from '@/lib/agent-scheduler/models/agent-capability';
+import { AgentCapability } from '@/lib/agents/scheduler/models/agent-capability';
 
 // ============================================================================
 // Types

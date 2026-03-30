@@ -12,8 +12,8 @@ import { notificationService } from './services/notification';
 /**
  * Initialize Socket.IO with Next.js HTTP server
  */
-export function initializeSocketIO(httpServer: HTTPServer): SocketIOServer {
-  notificationService.initialize(httpServer);
+export async function initializeSocketIO(httpServer: HTTPServer): Promise<SocketIOServer> {
+  await notificationService.initialize(httpServer);
 
   const io = notificationService.getIO();
 
@@ -28,12 +28,14 @@ export function initializeSocketIO(httpServer: HTTPServer): SocketIOServer {
 
   console.log('[Socket.IO] Server initialized and ready');
 
-  return io;
+  // Cast to SocketIOServer since we know the actual implementation is a full Socket.IO server
+  return io as unknown as SocketIOServer;
 }
 
 /**
  * Get the Socket.IO instance (if already initialized)
  */
 export function getSocketIO(): SocketIOServer | null {
-  return notificationService.getIO();
+  const io = notificationService.getIO();
+  return io as unknown as SocketIOServer | null;
 }

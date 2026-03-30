@@ -37,7 +37,12 @@ export class NotificationService {
   private notificationHistory: Notification[] = [];
   private maxHistorySize = 1000;
 
-  constructor() {}
+  constructor(io?: SocketIOServer) {
+    // If a mock socket is provided (for testing), use it
+    if (io) {
+      this.io = io;
+    }
+  }
 
   /**
    * Initialize Socket.IO server (server-side only, lazy loaded)
@@ -115,7 +120,42 @@ export class NotificationService {
     let result = Array.from(this.notifications.values());
     if (filter?.read !== undefined) result = result.filter(n => n.read === filter.read);
     if (filter?.userId) result = result.filter(n => n.userId === filter.userId);
-    return result.sort((a, b) => b.createdAt - a.createdAt);
+    if (filter?.teamId) result = result.filter(n => n.teamId === filter.teamId);
+    if (filter?.taskId) result = result.filter(n => n.taskId === filter.taskId);
+    if (filter?.type) {
+      const types = Array.isArray(filter.type) ? filter.type : [filter.type];
+      result = result.filter(n => types.includes(n.type));
+    }
+    if (filter?.priority) {
+      const priorities = Array.isArray(filter.priority) ? filter.priority : [filter.priority];
+      result = result.filter(n => priorities.includes(n.priority));
+    }
+    if (filter?.since !== undefined) {
+      const since = filter.since;
+      result = result.filter(n => n.createdAt >= since);
+    }
+    if (filter?.startTime !== undefined) {
+      const startTime = filter.startTime;
+      result = result.filter(n => n.createdAt >= startTime);
+    }
+    if (filter?.endTime !== undefined) {
+      const endTime = filter.endTime;
+      result = result.filter(n => n.createdAt <= endTime);
+    }
+    
+    // Sort by created time descending
+    result = result.sort((a, b) => b.createdAt - a.createdAt);
+    
+    // Apply pagination
+    const offset = filter?.offset || 0;
+    const limit = filter?.limit;
+    if (limit !== undefined) {
+      result = result.slice(offset, offset + limit);
+    } else if (offset > 0) {
+      result = result.slice(offset);
+    }
+    
+    return result;
   }
 
   /**

@@ -590,8 +590,9 @@ describe('getFeedbacksWithAttachments', () => {
     getFeedbacksWithAttachments(mockDb, ['fb1', 'fb2', 'fb3']);
 
     expect(mockDb.queryRows).toHaveBeenCalledTimes(1);
+    // Implementation uses string interpolation with join, so values are directly in query
     expect(mockDb.queryRows).toHaveBeenCalledWith(
-      expect.stringContaining('WHERE feedback_id IN (?, ?, ?)'),
+      "SELECT * FROM feedback_attachments WHERE feedback_id IN (?,?,?) ORDER BY feedback_id, uploaded_at",
       ['fb1', 'fb2', 'fb3']
     );
   });
@@ -688,8 +689,7 @@ describe('getFeedbackStatsByStatuses', () => {
     await getFeedbackStatsByStatuses(mockDb, ['pending', 'approved', 'rejected']);
 
     expect(mockDb.queryRows).toHaveBeenCalledWith(
-      expect.stringContaining("WHERE status IN"),
-      undefined
+      expect.stringContaining("WHERE status IN")
     );
   });
 
@@ -748,8 +748,7 @@ describe('getRatingStatsByValues', () => {
     await getRatingStatsByValues(mockDb, [1, 2, 3, 4, 5]);
 
     expect(mockDb.queryRows).toHaveBeenCalledWith(
-      expect.stringContaining('WHERE rating IN'),
-      undefined
+      expect.stringContaining('WHERE rating IN')
     );
   });
 

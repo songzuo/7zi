@@ -8,23 +8,45 @@
     "leaveConfirm": "确定要离开这个房间吗？",
     "joined": "已加入",
     "created": "已创建",
+    "cancel": "取消",
+    "confirm": "确认",
+    "save": "保存",
+    "close": "关闭",
     "filter": {
       "all": "全部房间",
       "myCreated": "我创建的房间",
       "myJoined": "我加入的房间"
     },
+    "tabs": {
+      "participants": "参与者",
+      "settings": "设置",
+      "invite": "邀请"
+    },
     "roomName": "房间名称",
     "roomDescription": "描述",
     "roomPassword": "密码（可选）",
+    "newPassword": "新密码",
+    "visibility": "可见性",
+    "visibilityPublic": "公开",
+    "visibilityPublicDesc": "任何人可通过搜索找到",
+    "visibilityPrivate": "私密",
+    "visibilityPrivateDesc": "需要邀请码和密码",
     "members": "成员",
     "online": "在线",
+    "offline": "离线",
     "lastActivity": "最后活动",
     "creator": "创建者",
+    "owner": "所有者",
     "createdAt": "创建时间",
     "settings": "设置",
     "invite": "邀请",
     "inviteCode": "邀请码",
     "inviteLink": "邀请链接",
+    "inviteTo": "邀请加入",
+    "inviteToRoom": "邀请加入房间",
+    "joinRoom": "加入我的房间",
+    "scanToJoin": "扫码加入",
+    "scanQRDesc": "使用手机扫描二维码快速加入房间",
     "copy": "复制",
     "copied": "已复制！",
     "share": "分享",
@@ -35,6 +57,21 @@
     "transferConfirm": "确定要将所有权转让给 {{name}} 吗？",
     "delete": "删除房间",
     "deleteConfirm": "确定要删除这个房间吗？此操作无法撤销。",
+    "details": "详情",
+    "roomInfo": "房间信息",
+    "editSettings": "编辑设置",
+    "managePermissions": "管理权限",
+    "kickMember": "移除成员",
+    "kickConfirm": "确定要移除该成员吗？",
+    "changeRole": "更改角色",
+    "currentRole": "当前角色",
+    "noPermission": "您没有权限管理此房间",
+    "roles": {
+      "owner": "所有者",
+      "admin": "管理员",
+      "member": "成员"
+    },
+    "you": "我",
     "status": {
       "connected": "已连接",
       "connecting": "连接中",
@@ -52,12 +89,28 @@
       "alreadyJoined": "您已经加入了这个房间",
       "notInRoom": "您不在这个房间中"
     },
+    "validation": {
+      "nameRequired": "房间名称不能为空",
+      "nameTooShort": "房间名称至少需要2个字符",
+      "nameTooLong": "房间名称不能超过50个字符",
+      "descriptionTooLong": "描述不能超过200个字符",
+      "passwordRequired": "私密房间需要设置密码",
+      "passwordTooShort": "密码至少需要4个字符"
+    },
     "placeholder": {
       "searchRooms": "搜索房间...",
       "enterRoomName": "输入房间名称",
       "enterDescription": "输入描述（可选）",
       "enterPassword": "输入密码（可选）",
-      "enterInviteCode": "输入邀请码"
-    }
+      "enterInviteCode": "输入邀请码",
+      "leaveEmptyToRemove": "留空以移除密码"
+    },
+    "isPublic": "公开房间",
+    "expired": "已过期",
+    "expiresInDays": "{{days}}天后过期",
+    "expiresInHours": "{{hours}}小时后过期",
+    "expiresSoon": "即将过期",
+    "uses": "使用次数",
+    "loading": "加载中..."
   }
 }

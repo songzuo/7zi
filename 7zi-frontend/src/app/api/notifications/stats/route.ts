@@ -49,7 +49,16 @@ export async function GET(request: NextRequest) {
   try {
     const stats = enhancedNotificationService.getStats();
 
-    return createSuccessResponse(stats);
+    // Transform stats to match expected format
+    const transformedStats = {
+      total: stats.totalNotifications || 0,
+      unread: stats.unreadNotifications || 0,
+      totalUsers: stats.totalUsers || 0,
+      totalDeliveries: stats.totalDeliveries || 0,
+      emailEnabled: stats.emailEnabled || false,
+    };
+
+    return createSuccessResponse(transformedStats);
   } catch (error) {
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }

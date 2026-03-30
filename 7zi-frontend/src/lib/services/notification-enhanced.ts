@@ -5,7 +5,7 @@
  */
 
 import { notificationService as baseService } from './notification';
-import { NotificationPriority } from './notification-types';
+import { NotificationPriority, NotificationType } from './notification-types';
 import type { Notification, NotificationFilter } from './notification-types';
 import { emailService, EmailRecipient } from './email';
 import { notificationStorage } from './notification-storage';
@@ -87,7 +87,7 @@ export class EnhancedNotificationService {
 
       logger.info('[EnhancedNotificationService] Initialized');
     } catch (error) {
-      logger.error('[EnhancedNotificationService] Failed to initialize:', error);
+      logger.error('[EnhancedNotificationService] Failed to initialize:', error instanceof Error ? error : undefined);
       throw error;
     }
   }
@@ -154,7 +154,7 @@ export class EnhancedNotificationService {
               channel: 'email',
               recipient: Array.isArray(options.emailRecipients)
                 ? options.emailRecipients.map(r => r.email).join(', ')
-                : (options.emailRecipients?.email || fullNotification.userId || 'unknown'),
+                : (options.emailRecipients as EmailRecipient | undefined)?.email || fullNotification.userId || 'unknown',
               status: 'sent',
               sentAt: Date.now(),
               deliveryMetadata: JSON.stringify({ messageId: emailResult.messageId }),
@@ -184,7 +184,7 @@ export class EnhancedNotificationService {
         sentAt: Date.now(),
       });
 
-      logger.log(`[EnhancedNotificationService] Notification sent: ${id}`, {
+      logger.info(`[EnhancedNotificationService] Notification sent: ${id}`, {
         type: notification.type,
         priority: notification.priority,
         emailSent,
@@ -196,7 +196,7 @@ export class EnhancedNotificationService {
         emailSent,
       };
     } catch (error) {
-      logger.error('[EnhancedNotificationService] Failed to send notification:', error);
+      logger.error('[EnhancedNotificationService] Failed to send notification:', error instanceof Error ? error : undefined);
       return {
         success: false,
         notificationId: '',
@@ -229,7 +229,17 @@ export class EnhancedNotificationService {
     }
 
     // Get user preferences
-    const preferences = notificationStorage.getUserPreferences(notification.userId);
+    let preferences;
+    try {
+      preferences = notificationStorage.getUserPreferences(notification.userId);
+    } catch (error) {
+      logger.warn('[EnhancedNotificationService] Failed to get user preferences, falling back to default:', {
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+      // Fall back to default: send only urgent and high priority
+      return notification.priority === NotificationPriority.URGENT ||
+             notification.priority === NotificationPriority.HIGH;
+    }
 
     if (!preferences) {
       // Default: send only urgent and high priority
@@ -293,15 +303,15 @@ export class EnhancedNotificationService {
 
       // Check if current time is between start and end
       if (startMinutes < endMinutes) {
-        // Normal case: e.g., 22:00 - 08:00
+        // Normal case: e.g., 10:00 - 18:00
         return currentMinutes >= startMinutes && currentMinutes < endMinutes;
       } else {
         // Over midnight: e.g., 22:00 - 06:00
         return currentMinutes >= startMinutes || currentMinutes < endMinutes;
       }
     } catch (error) {
-      logger.error('[EnhancedNotificationService] Failed to check quiet hours:', error);
-      return false;
+      logger.error('[EnhancedNotificationService] Failed to check quiet hours:', error instanceof Error ? error : undefined);
+      return false; // On error, assume it's NOT quiet hours (allow sending)
     }
   }
 
@@ -350,7 +360,7 @@ export class EnhancedNotificationService {
 
       return result;
     } catch (error) {
-      logger.error('[EnhancedNotificationService] Failed to send email:', error);
+      logger.error('[EnhancedNotificationService] Failed to send email:', error instanceof Error ? error : undefined);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -460,7 +470,7 @@ export class EnhancedNotificationService {
         try {
           data = JSON.parse(n.data) as Record<string, unknown>;
         } catch (error) {
-          logger.error('[EnhancedNotificationService] Failed to parse notification data:', error);
+          logger.error('[EnhancedNotificationService] Failed to parse notification data:', error instanceof Error ? error : undefined);
         }
       }
 
@@ -568,11 +578,11 @@ export class EnhancedNotificationService {
 
     return {
       userId,
-      emailEnabled: prefs.emailEnabled === 1,
+      emailEnabled: Boolean(prefs.emailEnabled),
       emailThreshold: prefs.emailThreshold as NotificationPriority,
-      pushEnabled: prefs.pushEnabled === 1,
+      pushEnabled: Boolean(prefs.pushEnabled),
       pushThreshold: prefs.pushThreshold as NotificationPriority,
-      digestEnabled: prefs.digestEnabled === 1,
+      digestEnabled: Boolean(prefs.digestEnabled),
       digestFrequency: prefs.digestFrequency as 'hourly' | 'daily' | 'weekly',
       quietHoursStart: prefs.quietHoursStart || undefined,
       quietHoursEnd: prefs.quietHoursEnd || undefined,
@@ -617,7 +627,7 @@ export class EnhancedNotificationService {
 
       logger.info('[EnhancedNotificationService] Shut down successfully');
     } catch (error) {
-      logger.error('[EnhancedNotificationService] Error during shutdown:', error);
+      logger.error('[EnhancedNotificationService] Error during shutdown:', error instanceof Error ? error : undefined);
       throw error;
     }
   }

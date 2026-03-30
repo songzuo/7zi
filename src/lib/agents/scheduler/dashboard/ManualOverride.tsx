@@ -477,10 +477,11 @@ export function ManualOverride() {
 
       // Refresh data
       refresh();
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : '手动分配失败';
       setSubmitResult({
         success: false,
-        message: err.message || '手动分配失败',
+        message: message,
       });
     } finally {
       setIsSubmitting(false);

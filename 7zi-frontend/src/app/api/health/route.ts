@@ -173,7 +173,6 @@ export async function GET(request: Request) {
         ...systemInfo,
         memory: {
           ...systemInfo.memory,
-          usage: systemInfo.memory.formatted.usage,
         },
       },
       health: {

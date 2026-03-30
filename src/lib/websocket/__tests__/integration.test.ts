@@ -20,6 +20,7 @@ import type {
   CollaborationMessage,
 } from '../types';
 import { transform, applyOperationToContent } from '@/lib/collaboration/manager';
+import type { Operation } from '@/lib/collaboration/manager';
 
 // ============================================================================
 // Test Setup
@@ -258,14 +259,14 @@ describe('WebSocket Collaboration Integration', () => {
   describe('Operational Transformation', () => {
     it('should transform concurrent insert operations', () => {
       // User 1 inserts at position 5
-      const op1: DocumentOperation = {
+      const op1: Operation = {
         type: 'insert',
         position: 5,
         content: 'hello',
       };
 
       // User 2 inserts at position 10
-      const op2: DocumentOperation = {
+      const op2: Operation = {
         type: 'insert',
         position: 10,
         content: 'world',
@@ -285,14 +286,14 @@ describe('WebSocket Collaboration Integration', () => {
 
     it('should transform concurrent delete operations', () => {
       // User 1 deletes 3 chars at position 5
-      const op1: DocumentOperation = {
+      const op1: Operation = {
         type: 'delete',
         position: 5,
         length: 3,
       };
 
       // User 2 deletes 2 chars at position 10
-      const op2: DocumentOperation = {
+      const op2: Operation = {
         type: 'delete',
         position: 10,
         length: 2,
@@ -312,14 +313,14 @@ describe('WebSocket Collaboration Integration', () => {
 
     it('should transform insert and delete operations', () => {
       // User 1 inserts at position 5
-      const op1: DocumentOperation = {
+      const op1: Operation = {
         type: 'insert',
         position: 5,
         content: 'hello',
       };
 
       // User 2 deletes 2 chars at position 10
-      const op2: DocumentOperation = {
+      const op2: Operation = {
         type: 'delete',
         position: 10,
         length: 2,
@@ -341,7 +342,7 @@ describe('WebSocket Collaboration Integration', () => {
       const content = 'Hello world';
 
       // Insert operation
-      const insertOp: DocumentOperation = {
+      const insertOp: Operation = {
         type: 'insert',
         position: 5,
         content: ' beautiful',
@@ -351,7 +352,7 @@ describe('WebSocket Collaboration Integration', () => {
       expect(afterInsert).toBe('Hello beautiful world');
 
       // Delete operation
-      const deleteOp: DocumentOperation = {
+      const deleteOp: Operation = {
         type: 'delete',
         position: 5,
         length: 10,

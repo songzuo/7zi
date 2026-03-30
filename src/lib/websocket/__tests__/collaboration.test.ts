@@ -423,7 +423,7 @@ describe('Collaboration Messages', () => {
     };
 
     expect(message.type).toBe('doc:operation');
-    expect(message.payload?.operation?.type).toBe('insert');
+    expect((message.payload as { operation: { type: string } }).operation.type).toBe('insert');
   });
 
   it('should create valid selection update message', () => {
@@ -442,7 +442,8 @@ describe('Collaboration Messages', () => {
     };
 
     expect(message.type).toBe('selection:update');
-    expect(message.payload?.selection?.start).toBe(10);
+    const payload = message.payload as SelectionUpdate;
+    expect(payload.selection.start).toBe(10);
   });
 
   it('should create valid presence typing message', () => {
@@ -459,7 +460,7 @@ describe('Collaboration Messages', () => {
     };
 
     expect(message.type).toBe('presence:typing');
-    expect(message.payload?.isTyping).toBe(true);
+    expect((message.payload as { isTyping: boolean })?.isTyping).toBe(true);
   });
 });
 
@@ -472,6 +473,7 @@ describe('Document State', () => {
     const docState: DocumentState = {
       content: 'Hello world',
       revision: 5,
+      operations: [],
     };
 
     expect(docState.content).toBe('Hello world');
@@ -482,11 +484,13 @@ describe('Document State', () => {
     const docState1: DocumentState = {
       content: 'Hello',
       revision: 0,
+      operations: [],
     };
 
     const docState2: DocumentState = {
       content: 'Hello world',
       revision: 1,
+      operations: [],
     };
 
     expect(docState2.revision).toBeGreaterThan(docState1.revision);
@@ -496,6 +500,7 @@ describe('Document State', () => {
     const initialState: DocumentState = {
       content: 'Hello',
       revision: 0,
+      operations: [],
     };
 
     const operation: Operation = {
@@ -509,6 +514,7 @@ describe('Document State', () => {
     const updatedState: DocumentState = {
       content: newContent,
       revision: initialState.revision + 1,
+      operations: [],
     };
 
     expect(updatedState.content).toBe('Hello world');

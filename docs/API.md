@@ -27,6 +27,12 @@
 17. [数据模型](#数据模型)
 18. [错误处理](#错误处理)
 
+### 📚 专项 API 文档
+
+- **[WebSocket API](./api/websocket.md)** - 房间系统、权限控制、消息持久化
+- **[Agent Scheduler API](./api/agent-scheduler.md)** - AI Agent 调度系统、任务队列
+- **[Dashboard 组件](./lib/agent-scheduler/dashboard/README.md)** - 可视化 Dashboard 组件文档
+
 ---
 
 ## API 概览
@@ -53,6 +59,8 @@ v1.4.0 版本引入了三大核心功能：
 - 离线消息队列 - TTL 7 天、每用户 100 条
 - 消息操作 - 存储、编辑、软删除、永久删除
 
+**详见**: [WebSocket API 文档](./api/websocket.md)
+
 #### 🤖 AI Agent 智能调度系统 (100% 完成)
 
 **核心组件** (`src/lib/agent-scheduler/`)
@@ -64,6 +72,10 @@ v1.4.0 版本引入了三大核心功能：
 - 能力匹配 - 基于 Agent 技能和任务需求
 - 负载均衡 - 避免单 Agent 过载
 - 决策透明 - confidence、reasoning、alternativeAgents
+
+**Dashboard 组件**: 详见 [Dashboard 组件文档](./lib/agent-scheduler/dashboard/README.md)
+
+**详见**: [Agent 调度 API 文档](./api/agent-scheduler.md)
 
 #### 📊 性能监控升级 (95% 完成)
 
@@ -102,25 +114,28 @@ v1.4.0 版本引入了三大核心功能：
 - 一键禁用/恢复
 - 零停机切换
 
+**详见**: [React Compiler 实施报告](../../REACT_COMPILER_OPTIONAL_IMPLEMENTATION.md)
+
 ### API 分类统计
 
-| 分类 | 端点数量 | 说明 |
-|------|---------|------|
-| **认证与授权** | 5 | 登录、注册、刷新 Token |
-| **任务管理** | 1 | 任务增删改查、批量操作 |
-| **项目管理** | 1 | 项目管理 |
-| **性能监控** | 6 | 性能指标、告警、Web Vitals |
-| **分析** | 2 | 数据分析、导出 |
-| **搜索** | 3 | 搜索、自动完成、历史 |
-| **RBAC** | 8 | 角色、权限、用户权限管理 |
-| **多模态** | 2 | 图像、音频处理 |
-| **A2A** | 5 | Agent 间通信 |
-| **评分** | 4 | 评分 CRUD、投票 |
-| **反馈** | 4 | 反馈管理 |
-| **用户偏好** | 3 | 用户设置管理 |
-| **GitHub** | 2 | Issues、Commits |
-| **健康检查** | 6 | 系统、数据库健康 |
-| **其他** | 5 | 跨域、状态、导出等 |
+| 分类 | 端点数量 | 说明 | 文档 |
+|------|---------|------|------|
+| **认证与授权** | 5 | 登录、注册、刷新 Token | 见本文档 |
+| **任务管理** | 1 | 任务增删改查、批量操作 | 见本文档 |
+| **项目管理** | 1 | 项目管理 | 见本文档 |
+| **性能监控** | 6 | 性能指标、告警、Web Vitals | 见本文档 |
+| **分析** | 2 | 数据分析、导出 | 见本文档 |
+| **搜索** | 3 | 搜索、自动完成、历史 | 见本文档 |
+| **RBAC** | 8 | 角色、权限、用户权限管理 | 见本文档 |
+| **多模态** | 2 | 图像、音频处理 | 见本文档 |
+| **A2A 通信** | 5 | Agent 间通信、任务队列 | [agent-scheduler.md](./api/agent-scheduler.md) |
+| **评分** | 4 | 评分 CRUD、投票 | [ratings.md](./api/ratings.md) |
+| **反馈** | 4 | 反馈管理 | 见本文档 |
+| **用户偏好** | 3 | 用户设置管理 | 见本文档 |
+| **GitHub** | 2 | Issues、Commits | 见本文档 |
+| **健康检查** | 6 | 系统、数据库健康 | 见本文档 |
+| **WebSocket** | - | 房间系统、权限控制、消息持久化 | [websocket.md](./api/websocket.md) |
+| **其他** | 5 | 跨域、状态、导出等 | 见本文档 |
 
 ### 基础信息
 
@@ -1272,6 +1287,38 @@ GET /api/github/commits
 GET /api/health
 ```
 
+基础健康检查，用于 Kubernetes/Docker 探针。检查内存使用和 Node.js 运行时状态。
+
+**响应**:
+```json
+{
+  "status": "healthy",
+  "timestamp": "2026-03-30T12:00:00.000Z",
+  "uptime": 3600,
+  "version": "1.4.0",
+  "checks": {
+    "memory": {
+      "status": "ok",
+      "used": 128,
+      "limit": 512
+    },
+    "node": {
+      "status": "ok",
+      "version": "v22.22.1"
+    }
+  }
+}
+```
+
+**状态码**:
+- `200 OK` - 健康状态为 `"healthy"`（内存使用 < 90%）
+- `503 Service Unavailable` - 健康状态为 `"unhealthy"`（内存使用 >= 90%）
+
+**状态值**:
+- `status`: `"healthy"` | `"unhealthy"`
+- `checks.memory.status`: `"ok"` | `"warning"`（> 90% 使用时为 warning）
+- `checks.node.status`: 始终为 `"ok"`
+
 ---
 
 ### 详细健康
@@ -1279,6 +1326,39 @@ GET /api/health
 ```
 GET /api/health/detailed
 ```
+
+详细健康检查，包含外部服务状态。**需要 JWT 认证**。
+
+**认证**: 需要 Bearer token
+```
+Authorization: Bearer <your-jwt-token>
+```
+
+**响应**:
+```json
+{
+  "status": "ok",
+  "timestamp": "2026-03-30T12:00:00.000Z",
+  "version": "1.4.0",
+  "uptime": 3600,
+  "environment": "production",
+  "checks": {
+    "githubApi": {
+      "status": "ok",
+      "latency": 150
+    },
+    "emailService": {
+      "status": "ok",
+      "latency": 80
+    }
+  }
+}
+```
+
+**状态码**:
+- `200 OK` - 已认证且健康状态为 `"ok"` 或 `"degraded"`
+- `401 Unauthorized` - 缺少或无效的认证令牌
+- `503 Service Unavailable` - 健康状态为 `"error"`
 
 ---
 
@@ -1288,6 +1368,18 @@ GET /api/health/detailed
 GET /api/health/live
 ```
 
+Kubernetes 存活探针。如果进程运行则始终返回 200。
+
+**响应**:
+```json
+{
+  "success": true,
+  "status": "alive"
+}
+```
+
+**状态码**: `200 OK`（始终返回，如果进程运行）
+
 ---
 
 ### 就绪检查
@@ -1296,29 +1388,37 @@ GET /api/health/live
 GET /api/health/ready
 ```
 
----
+Kubernetes 就绪探针。仅当所有关键依赖可用时返回 200。
 
-### 数据库健康
-
+**响应**:
+```json
+{
+  "ready": true,
+  "status": "ok",
+  "timestamp": "2026-03-30T12:00:00.000Z",
+  "version": "1.4.0",
+  "uptime": 3600,
+  "environment": "production",
+  "checks": {
+    "githubApi": {
+      "status": "ok",
+      "latency": 150
+    },
+    "emailService": {
+      "status": "ok",
+      "latency": 80
+    }
+  }
+}
 ```
-GET /api/database/health
-```
 
----
+**状态码**:
+- `200 OK` - 状态为 `"ok"` 或 `"degraded"`
+- `503 Service Unavailable` - 状态为 `"error"`
 
-### 数据库优化
-
-```
-POST /api/database/optimize
-```
-
----
-
-### 实时健康流
-
-```
-GET /api/stream/health
-```
+**外部服务检查**:
+- `githubApi`: 检查 GitHub API 可达性（5秒超时）
+- `emailService`: 检查 Resend API（如已配置）
 
 ---
 

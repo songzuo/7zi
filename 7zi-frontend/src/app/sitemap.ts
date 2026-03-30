@@ -32,6 +32,45 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ]
 
+  // Demo 页面
+  const demoPages = [
+    {
+      path: '/image-optimization-demo',
+      priority: 0.8,
+      changeFreq: 'weekly' as const,
+    },
+    {
+      path: '/notification-demo',
+      priority: 0.7,
+      changeFreq: 'monthly' as const,
+    },
+    {
+      path: '/websocket-status-demo',
+      priority: 0.7,
+      changeFreq: 'monthly' as const,
+    },
+    {
+      path: '/dark-mode-demo',
+      priority: 0.6,
+      changeFreq: 'monthly' as const,
+    },
+    {
+      path: '/ui-components-demo',
+      priority: 0.6,
+      changeFreq: 'monthly' as const,
+    },
+    {
+      path: '/i18n-demo',
+      priority: 0.6,
+      changeFreq: 'monthly' as const,
+    },
+    {
+      path: '/mobile-optimization-demo',
+      priority: 0.6,
+      changeFreq: 'monthly' as const,
+    },
+  ]
+
   // 多语言页面
   const locales = ['zh', 'en']
   const localePages = [
@@ -45,6 +84,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const routes: MetadataRoute.Sitemap = [
     // 主要页面
     ...mainPages.map((page) => ({
+      url: `${baseUrl}${page.path}`,
+      lastModified: new Date('2026-03-29'),
+      changeFrequency: page.changeFreq,
+      priority: page.priority,
+    })),
+    // Demo 页面
+    ...demoPages.map((page) => ({
       url: `${baseUrl}${page.path}`,
       lastModified: new Date('2026-03-29'),
       changeFrequency: page.changeFreq,

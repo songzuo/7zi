@@ -198,7 +198,7 @@ export const createNotificationSchema = z.object({
   type: z.enum(['info', 'warning', 'error', 'success']),
   title: nonEmptyString.max(100),
   message: z.string().max(500),
-  data: z.record(z.unknown()).optional(),
+  data: z.record(z.string(), z.unknown()).optional(),
 });
 
 /**
@@ -310,7 +310,7 @@ export async function validateAndSanitizeBody<T extends Record<string, unknown>>
   body: unknown,
   schema: z.ZodSchema<T>,
   sanitizeType: 'sql' | 'nosql' | 'html' | 'command' | 'general' = 'general'
-): Promise<{ success: true; data: T } | { success: false; errors: z.ZodError }> {
+): Promise<{ success: true; data: T } | { success: false; errors: z.ZodIssue[] }> {
   // 先清理输入
   const sanitizedBody = typeof body === 'object' && body !== null
     ? sanitizeObject(body as Record<string, unknown>, sanitizeType)
@@ -323,14 +323,14 @@ export async function validateAndSanitizeBody<T extends Record<string, unknown>>
     return { success: true, data: result.data };
   }
 
-  return { success: false, errors: result.error };
+  return { success: false, errors: result.error.issues };
 }
 
 /**
  * 创建验证错误响应
  */
 export function createValidationErrorResponse(error: z.ZodError): Response {
-  const errors = error.errors.map((err) => ({
+  const errors = error.issues.map((err) => ({
     field: err.path.join('.'),
     message: err.message,
   }));

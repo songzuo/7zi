@@ -87,6 +87,7 @@ export interface WebSocketState {
   _setStatus: (status: ConnectionStatus) => void;
   _addMessage: (message: WebSocketMessage) => void;
   _updateStats: (stats: Partial<ConnectionStats>) => void;
+  _reset: () => void;
 }
 
 /**
@@ -302,6 +303,25 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
     set((state) => ({
       stats: { ...state.stats, ...stats },
     }));
+  },
+
+  /**
+   * 内部: 重置 Store 到初始状态
+   */
+  _reset: () => {
+    set({
+      status: 'disconnected',
+      socket: null,
+      url: null,
+      lastPing: 0,
+      latency: 0,
+      messages: [],
+      maxMessages: 100,
+      stats: { ...initialStats },
+      reconnectAttempts: 0,
+      maxReconnectAttempts: 5,
+      reconnectDelay: 1000,
+    });
   },
 }));
 

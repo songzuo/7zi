@@ -45,7 +45,7 @@
 | 功能 | 状态 | 说明 |
 |------|------|------|
 | 🔄 **WebSocket 高级功能** | ✅ 已完成 | 房间系统、权限控制(16种权限)、消息持久化 |
-| 🤖 **AI Agent 智能调度** | ✅ 已完成 | 11 位 Agent 自动任务分配、负载均衡 |
+| 🤖 **AI Agent 智能调度** | ✅ 已完成 | 11 位 Agent 自动任务分配、负载均衡、Dashboard UI |
 | 📊 **性能监控升级** | 🟢 95% | Z-score 异常检测、瓶颈分析、告警系统 |
 | ⚡ **React Compiler 可选** | ✅ 已完成 | 环境变量控制、兼容性检测、一键回滚 |
 
@@ -57,14 +57,16 @@
 - **权限控制** - 5 种角色 (owner/admin/moderator/member/guest)、16 种权限 (房间权限7种 + 消息权限6种 + 管理权限3种)、RBAC 集成
 - **消息持久化** - 内存存储 (每房间10,000条消息)、离线队列 (TTL 7天)、历史查询
 - **代码统计**: 1,906 行实现 (847 房间系统 + 436 权限控制 + 623 消息存储) + 86 测试 (100% 通过)
+- **文档**: [docs/api/websocket.md](docs/api/websocket.md)
 
 #### 🤖 AI Agent 智能调度系统 (100% 完成)
 
 - **能力模型** - 11 位 Agent 完整能力定义 (178 行)
 - **调度算法** - 多维度评分 (能力 40% + 负载 30% + 性能 20% + 响应 10%)
 - **负载均衡** - 保留 10% 缓冲、避免单 Agent 过载、任务重分配
-- **Dashboard UI** - AgentStatusPanel、TaskQueueView、ScheduleHistory、ManualOverride
+- **Dashboard UI** - AgentStatusPanel、TaskQueueView、ScheduleHistory、ManualOverride (完整可视化界面)
 - **代码统计**: 2,952 行核心 (调度器487 + 匹配312 + 排序286 + 负载均衡354 + 其他) + 3,058 行 Dashboard + 122 测试 (100% 覆盖)
+- **文档**: [docs/api/agent-scheduler.md](docs/api/agent-scheduler.md), [docs/lib/agent-scheduler/dashboard/README.md](docs/lib/agent-scheduler/dashboard/README.md)
 
 #### 📊 性能监控升级 (95% 完成)
 
@@ -80,6 +82,7 @@
 - **兼容性检测** - 自动扫描不兼容组件 (Bash/Node.js 双版本)、生成 TXT/MD/JSON 报告、检测不兼容模式 (ref.current/dangerouslySetInnerHTML/第三方库副作用)
 - **回滚机制** - 一键禁用、零停机切换 (蓝绿部署、滚动更新、< 5 分钟切换)、备份管理
 - **预期收益**: 重新渲染减少 20-40%、UI 响应提升 15-25%
+- **文档**: [REACT_COMPILER_OPTIONAL_IMPLEMENTATION.md](REACT_COMPILER_OPTIONAL_IMPLEMENTATION.md)
 
 ### 📈 性能提升总结
 
@@ -91,6 +94,14 @@
 | **任务完成时间** | 基准 | -30-40% | 效率提升 |
 | **测试覆盖率** | 94.2% | ~98% | +3.8% |
 | **v1.4.0 新增测试** | - | 284 个 | 100% 通过 |
+
+### 📚 v1.4.0 文档更新
+
+- ✅ [docs/API.md](docs/API.md) - API 文档更新，添加 v1.4.0 新功能说明
+- ✅ [docs/api/websocket.md](docs/api/websocket.md) - WebSocket 完整 API 文档
+- ✅ [docs/api/agent-scheduler.md](docs/api/agent-scheduler.md) - Agent 调度系统 API 文档
+- ✅ [docs/lib/agent-scheduler/dashboard/README.md](docs/lib/agent-scheduler/dashboard/README.md) - Dashboard 组件完整文档 (新增)
+- ✅ [REACT_COMPILER_OPTIONAL_IMPLEMENTATION.md](REACT_COMPILER_OPTIONAL_IMPLEMENTATION.md) - React Compiler 实施报告
 
 ---
 

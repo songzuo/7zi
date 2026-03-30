@@ -2692,7 +2692,7 @@ curl "http://localhost:3000/api/performance/report?detailed=true"
 
 ---
 
-_Last updated: 2026-03-21_
+_Last updated: 2026-03-29_
 
 ---
 
