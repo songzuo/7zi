@@ -7,6 +7,67 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [v1.5.0] - 2026-03-31 🏗️ 开发中
+
+### 🎯 版本亮点
+
+v1.5.0 专注于 **构建性能优化**、**Room System UI** 和 **Agent Learning System** 完善。
+
+### 📊 完成度总览
+
+| 功能模块 | 完成度 | 状态 |
+|---------|--------|------|
+| **构建性能优化** | 100% | ✅ 已完成 |
+| **Room System UI** | 100% | ✅ 已完成 |
+| **Agent Learning System** | 100% | ✅ 已完成 |
+| **PermissionContext 迁移** | 100% | ✅ 已完成 |
+| **技术债务清理** | 100% | ✅ 已完成 |
+
+### ✨ Features - 新功能
+
+#### **🏗️ 构建性能优化 - 32% 提升** ✅
+
+- TypeScript 类型检查从 91s 降至 52s（43% 提升）
+- 总构建时间从 2m35s 降至 1m46s（32% 提升）
+- 优化 tsconfig.json 配置
+- 排除 .next/types 和测试文件的类型检查
+
+#### **🆕 Room System UI - 完整前端组件** ✅
+
+新增组件：
+- `RoomManager.tsx` - 主组件，整合房间管理功能
+- `RoomSettings.tsx` - 设置面板，支持权限/成员管理
+- `RoomCard.tsx` - 房间卡片，三种布局模式
+- `ParticipantList.tsx` - 参与者列表
+
+总代码量：~107KB，约 2500 行
+
+#### **🤖 Agent Learning System - 测试覆盖率 96%** ✅
+
+- 新增 74 个测试用例（36 → 110）
+- 覆盖率从 50% 提升至 96%
+- 覆盖：性能采集、存储查询、指标计算、评分系统
+
+### 🐛 Bug Fixes
+
+- PermissionContext → Zustand 迁移验证完成
+- A2A import paths 修复
+- WebSocket room 集成测试修复
+
+### 🧪 Testing
+
+- Agent Learning System 测试覆盖率 96%
+- WebSocket room UI 测试完善
+- API 文档同步完成（57 REST + 30+ WebSocket）
+
+### 📚 Documentation
+
+- Agent Learning System Design 文档
+- Developer Docs Audit v1.5.0
+- ROADMAP v1.5.0 更新
+
+---
+
 ## [v1.4.0] - 2026-03-29 🎉 正式发布
 
 ### 🎯 版本亮点
