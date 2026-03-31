@@ -66,7 +66,7 @@ export class VolcengineProvider {
         success: true,
         data: imageData,
       };
-    } catch (error) {
+    } catch (_error) {
       logger.error('Volcengine image recognition error', error);
       return {
         success: false,
@@ -121,7 +121,7 @@ export class VolcengineProvider {
         success: true,
         data: transcriptionData,
       };
-    } catch (error) {
+    } catch (_error) {
       logger.error('Volcengine audio transcription error', error);
       return {
         success: false,

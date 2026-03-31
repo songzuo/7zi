@@ -540,7 +540,7 @@ describe('performance-optimization.ts', () => {
 
       try {
         await measureAsync('test-error', fn);
-      } catch (error) {
+      } catch (_error) {
         // Expected
       }
 
@@ -595,7 +595,7 @@ describe('performance-optimization.ts', () => {
 
       try {
         measureSync('test-error', fn);
-      } catch (error) {
+      } catch (_error) {
         // Expected
       }
 

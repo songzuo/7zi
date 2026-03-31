@@ -163,21 +163,20 @@ const uploadLimiter = new DistributedRateLimiter({
   keyGenerator: KeyGenerators.byUser,
 });
 
-const uploadMiddleware = createRateLimitMiddleware({
-  limiter: uploadLimiter,
-  skip: (req) => {
-    // 跳过管理员的速率限制
-    return req.headers.get('x-admin') === 'true';
-  },
-  onLimitReached: async (req, result) => {
-    // 记录超限日志
+export async function POST_upload(req: NextRequest) {
+  // 跳过管理员的速率限制
+  if (req.headers.get('x-admin') === 'true') {
+    return NextResponse.json({ success: true, message: 'File uploaded (admin bypass)' });
+  }
+
+  const result = await uploadLimiter.check(req);
+
+  if (!result.allowed) {
     console.error('Upload rate limit exceeded', {
       user: KeyGenerators.byUser(req),
       remaining: result.remaining,
       resetTime: result.resetTime,
     });
-  },
-  handler: (req, result) => {
     return NextResponse.json(
       {
         error: 'Upload limit exceeded',
@@ -186,14 +185,6 @@ const uploadMiddleware = createRateLimitMiddleware({
       },
       { status: 429 }
     );
-  },
-});
-
-export async function POST_upload(req: NextRequest) {
-  // 应用中间件
-  const middlewareResponse = await uploadMiddleware(req);
-  if (middlewareResponse.status !== 200) {
-    return middlewareResponse;
   }
 
   // 处理文件上传
@@ -270,7 +261,7 @@ export async function POST_payment(req: NextRequest) {
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (_error) {
     // 记录失败请求
     await paymentLimiter.recordFailure(req);
     throw error;

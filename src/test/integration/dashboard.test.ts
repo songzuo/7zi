@@ -73,7 +73,7 @@ describe('Dashboard Data Flow Integration Tests', () => {
 
       try {
         await fetch('/api/dashboard')
-      } catch (error) {
+      } catch (_error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toContain('timeout')
       }
@@ -304,7 +304,7 @@ describe('Dashboard Data Flow Integration Tests', () => {
 
       try {
         await fetch('/api/dashboard')
-      } catch (error) {
+      } catch (_error) {
         expect(error).toBeInstanceOf(Error)
       }
     })

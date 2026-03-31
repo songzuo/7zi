@@ -181,7 +181,7 @@ export async function POST_adminEndpoint(request: NextRequest) {
             timestamp: new Date().toISOString(),
           },
         });
-      } catch (error) {
+      } catch (_error) {
         return NextResponse.json(
           {
             success: false,
@@ -382,7 +382,7 @@ export async function POST_batchOperations(request: NextRequest) {
         'X-RateLimit-Remaining': remainingQuota.toString(),
       },
     });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json(
       {
         success: false,
@@ -492,7 +492,7 @@ export async function POST_overrideRateLimit(request: NextRequest) {
       },
       { status: 400 }
     );
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json(
       {
         success: false,

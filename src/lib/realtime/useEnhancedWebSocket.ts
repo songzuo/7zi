@@ -188,7 +188,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
     stateChangeCallbacksRef.current.forEach(callback => {
       try {
         callback(newState);
-      } catch (err) {
+      } catch (_err) {
         if (process.env.NODE_ENV === 'development') {
           logger.error('[WebSocket] State change callback error', err, { category: 'system' });
         }
@@ -233,7 +233,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
       handlers.forEach(handler => {
         try {
           handler(data);
-        } catch (err) {
+        } catch (_err) {
           if (process.env.NODE_ENV === 'development') {
             logger.error(`[WebSocket] Handler error for ${type}`, err, { category: 'system' });
           }
@@ -247,7 +247,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
       wildcardHandlers.forEach(handler => {
         try {
           handler(data);
-        } catch (err) {
+        } catch (_err) {
           if (process.env.NODE_ENV === 'development') {
             logger.error('[WebSocket] Wildcard handler error', err, { category: 'system' });
           }
@@ -331,7 +331,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
         } else {
           failedCount++;
         }
-      } catch (err) {
+      } catch (_err) {
         if (process.env.NODE_ENV === 'development') {
           logger.error('[WebSocket] Failed to send offline message', err, { category: 'system' });
         }
@@ -466,7 +466,7 @@ export function useEnhancedWebSocket(config: WebSocketConfig): UseEnhancedWebSoc
       // 注册消息处理器
       registerMessageHandlers(socket);
 
-    } catch (err) {
+    } catch (_err) {
       isConnectingRef.current = false;
       const wsError = err instanceof Error ? err : new Error(String(err));
       setError(wsError);

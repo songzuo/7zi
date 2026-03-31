@@ -5,7 +5,6 @@
  * DELETE /api/a2a/queue - Clear the queue
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { getMessageQueue } from '@/lib/agents/a2a/message-queue';
 import { QueueMessage } from '@/lib/agents/a2a/types';
 import type { TaskPriority } from '@/lib/agents/a2a/types';
@@ -33,7 +32,7 @@ export async function GET() {
       nextMessage,
       config: queue.getConfig(),
     });
-  } catch (error) {
+  } catch (_error) {
     console.error('Queue GET error:', error);
     return NextResponse.json(
       {
@@ -87,7 +86,7 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     );
-  } catch (error) {
+  } catch (_error) {
     console.error('Queue POST error:', error);
     return NextResponse.json(
       {
@@ -147,7 +146,7 @@ export async function DELETE(request: NextRequest) {
         queueSize: queue.size(),
       });
     }
-  } catch (error) {
+  } catch (_error) {
     logger.error('Queue DELETE error', error);
     return NextResponse.json(
       {

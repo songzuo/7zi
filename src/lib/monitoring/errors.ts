@@ -153,7 +153,7 @@ export function withErrorTracking<T extends (...args: unknown[]) => Promise<unkn
   return (async (...args: Parameters<T>) => {
     try {
       return await fn(...args);
-    } catch (error) {
+    } catch (_error) {
       captureError(error, {
         category: options?.category,
         tags: options?.tags,

@@ -46,7 +46,7 @@ vi.mock('@/lib/api/validation', () => ({
     try {
       const data = schema.parse(Object.fromEntries(searchParams));
       return { success: true, data };
-    } catch (error) {
+    } catch (_error) {
       return {
         success: false,
         errors: error instanceof Error ? [{ message: error.message }] : [],

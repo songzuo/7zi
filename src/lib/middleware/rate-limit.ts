@@ -371,7 +371,7 @@ export function withSmartRateLimit(
     try {
       response = await handler(req);
       isSuccess = response.status >= 200 && response.status < 400;
-    } catch (error) {
+    } catch (_error) {
       isSuccess = false;
       response = NextResponse.json(
         {

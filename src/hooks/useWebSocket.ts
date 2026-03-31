@@ -235,7 +235,7 @@ export function useWebSocket(config: WebSocketConfig = {}): UseWebSocketReturn {
         handlers.forEach(handler => socket.on(event, handler));
       });
 
-    } catch (error) {
+    } catch (_error) {
       isConnectingRef.current = false;
       console.error('[WebSocket] Connection failed', error);
       updateState({

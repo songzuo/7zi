@@ -223,7 +223,7 @@ export function withErrorLogging<T = unknown>(
       }
 
       return response;
-    } catch (error) {
+    } catch (_error) {
       const duration = Date.now() - startTime;
 
       // Log error

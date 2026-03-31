@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { Task, TaskQueue, createTask, PRIORITY_WEIGHTS, TaskPriority } from '../../../src/lib/agent-scheduler/models/task-model';
+import { Task, TaskQueue, createTask, PRIORITY_WEIGHTS, TaskPriority } from '@/lib/agents/scheduler/models/task-model';
 
 describe('Task Model', () => {
   describe('createTask', () => {

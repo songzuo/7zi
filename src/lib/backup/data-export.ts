@@ -18,7 +18,7 @@ const EXPORT_DIR = path.join(process.cwd(), 'exports');
 async function ensureExportDir(): Promise<void> {
   try {
     await fs.mkdir(EXPORT_DIR, { recursive: true });
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to create export directory', error);
     throw error;
   }
@@ -245,7 +245,7 @@ export async function importData(
         try {
           await db.exec(`INSERT INTO ${table} (${columns.join(', ')}) VALUES (${placeholders})`, values);
           importedRecords++;
-        } catch (error) {
+        } catch (_error) {
           if (!options.skipErrors) {
             throw error;
           }
@@ -265,7 +265,7 @@ export async function importData(
       message: `Successfully imported ${importedRecords} records from ${importObj.tables.length} tables`,
       importedRecords,
     };
-  } catch (error) {
+  } catch (_error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error(`Failed to import data: ${filename}`, error);
     return {
@@ -365,7 +365,7 @@ export async function importFromCSV(
           const placeholders = values.map(() => '?').join(', ');
           await db.exec(`INSERT INTO ${table} (${columns.join(', ')}) VALUES (${placeholders})`, values);
           importedRecords++;
-        } catch (error) {
+        } catch (_error) {
           if (!options.skipErrors) {
             throw error;
           }
@@ -385,7 +385,7 @@ export async function importFromCSV(
       message: `Successfully imported ${importedRecords} records from ${manifest.tables.length} CSV files`,
       importedRecords,
     };
-  } catch (error) {
+  } catch (_error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error(`Failed to import CSV: ${directory}`, error);
     return {
@@ -459,7 +459,7 @@ export async function listExports(): Promise<Array<{ filename: string; path: str
     }
 
     return exports.sort((a, b) => b.filename.localeCompare(a.filename));
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to list exports', error);
     return [];
   }
@@ -506,7 +506,7 @@ export async function deleteExport(filename: string): Promise<boolean> {
     });
 
     return true;
-  } catch (error) {
+  } catch (_error) {
     logger.error(`Failed to delete export: ${filename}`, error);
     return false;
   }

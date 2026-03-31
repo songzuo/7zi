@@ -3,7 +3,6 @@
  * Supports CSV and JSON import to database tables
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import {
   _importData as importData,
@@ -116,7 +115,7 @@ export async function GET(request: NextRequest) {
         },
       ],
     });
-  } catch (error) {
+  } catch (_error) {
     const message = error instanceof Error ? error.message : String(error);
     logger.error('Failed to get import info', error, {
       category: 'data-import',
@@ -131,7 +130,7 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/data/import - Import data
  */
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   let backupName: string | undefined;
 
   try {
@@ -219,7 +218,7 @@ export async function POST(request: NextRequest) {
           ? 'Data imported successfully'
           : 'Data imported with errors',
     });
-  } catch (error) {
+  } catch (_error) {
     const message = error instanceof Error ? error.message : String(error);
 
     logger.error('Failed to import data', error, {

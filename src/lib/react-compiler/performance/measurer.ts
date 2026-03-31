@@ -4,6 +4,19 @@
  * 测量和对比编译前后的性能差异
  */
 
+// Chrome-specific memory info type
+interface MemoryInfo {
+  usedJSHeapSize: number;
+  totalJSHeapSize: number;
+  jsHeapSizeLimit: number;
+}
+
+declare global {
+  interface Performance {
+    memory?: MemoryInfo;
+  }
+}
+
 export interface PerformanceMetrics {
   /** 渲染次数 */
   renderCount: number;

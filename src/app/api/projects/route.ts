@@ -1,33 +1,25 @@
-import { NextRequest, NextResponse } from 'next/server';
-
 /**
  * Projects API Route
- *
- * This is a stub file to satisfy TypeScript compilation.
- * Actual implementation should be added when needed.
+ * GET  /api/projects - 获取项目列表
+ * POST /api/projects - 创建新项目
  */
 
-export async function GET(request: NextRequest) {
-  return NextResponse.json({
-    success: true,
-    data: [],
-    message: 'Projects API - GET endpoint'
-  });
+import { NextRequest } from 'next/server';
+import {
+  createSuccessResponse,
+  createErrorResponse,
+} from '@/lib/api/error-handler';
+
+/**
+ * GET /api/projects - 获取项目列表
+ */
+export async function GET(_request: NextRequest) {
+  return createSuccessResponse([], 200);
 }
 
-export async function POST(request: NextRequest) {
-  return NextResponse.json({
-    success: true,
-    data: {},
-    message: 'Projects API - POST endpoint'
-  });
-}
-
-export async function getProject(request: NextRequest, context: { params: Promise<{ id: string }> }) {
-  const { id } = await context.params;
-  return NextResponse.json({
-    success: true,
-    data: { id },
-    message: 'Project API - GET by ID'
-  });
+/**
+ * POST /api/projects - 创建新项目
+ */
+export async function POST(_request: NextRequest) {
+  return createSuccessResponse({}, 201);
 }

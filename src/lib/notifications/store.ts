@@ -238,7 +238,7 @@ export const useFetchNotifications = () => {
 
       const data = await response.json();
       setNotifications(data.notifications || []);
-    } catch (error) {
+    } catch (_error) {
       setError(error instanceof Error ? error.message : 'Unknown error');
     } finally {
       setLoading(false);
@@ -289,7 +289,7 @@ export const useCreateNotification = () => {
       addNotification(notification);
 
       return notification;
-    } catch (error) {
+    } catch (_error) {
       setError(error instanceof Error ? error.message : 'Unknown error');
       throw error;
     } finally {

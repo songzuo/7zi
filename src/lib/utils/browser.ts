@@ -82,7 +82,7 @@ export async function copyToClipboard(text: string): Promise<boolean> {
     } finally {
       document.body.removeChild(textArea);
     }
-  } catch (error) {
+  } catch (_error) {
     // Clipboard API may fail if user denied permission or in certain contexts
     return false;
   }
@@ -102,7 +102,7 @@ export async function readFromClipboard(): Promise<string | null> {
       return await navigator.clipboard.readText();
     }
     return null;
-  } catch (error) {
+  } catch (_error) {
     // Clipboard API may fail if user denied permission or in certain contexts
     return null;
   }

@@ -46,7 +46,7 @@ export const FeedbackManagementPanel: React.FC = () => {
         setFeedbacks(data.data.feedbacks);
         setStats(data.data.stats);
       }
-    } catch (error) {
+    } catch (_error) {
       if (process.env.NODE_ENV === 'development') {
         console.error('Failed to fetch feedbacks:', error);
       }
@@ -82,7 +82,7 @@ export const FeedbackManagementPanel: React.FC = () => {
           setSelectedFeedback(data.data);
         }
       }
-    } catch (error) {
+    } catch (_error) {
       if (process.env.NODE_ENV === 'development') {
         console.error('Failed to update feedback:', error);
       }
@@ -109,7 +109,7 @@ export const FeedbackManagementPanel: React.FC = () => {
           setSelectedFeedback(null);
         }
       }
-    } catch (error) {
+    } catch (_error) {
       if (process.env.NODE_ENV === 'development') {
         console.error('Failed to delete feedback:', error);
       }

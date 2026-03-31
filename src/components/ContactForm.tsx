@@ -46,7 +46,7 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
           const data = await response.json();
           setCsrfToken(data.csrfToken);
         }
-      } catch (error) {
+      } catch (_error) {
         // Silently handle error in production
         if (process.env.NODE_ENV === 'development') {
           console.error('Failed to fetch CSRF token:', error);
@@ -125,7 +125,7 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
       // 成功处理
       setSubmitStatus("success");
       setFormData(emptyFormData);
-    } catch (error) {
+    } catch (_error) {
       // Silently handle error in production
       if (process.env.NODE_ENV === 'development') {
         console.error("Form submission error:", error);

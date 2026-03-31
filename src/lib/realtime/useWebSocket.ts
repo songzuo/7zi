@@ -139,7 +139,7 @@ export function useWebSocket(
             listeners.forEach(handler => {
               try {
                 handler(data);
-              } catch (err) {
+              } catch (_err) {
                 errorCount++;
                 logger.error(`[useWebSocket] Error in listener for ${data.type}:`, err);
               }
@@ -156,7 +156,7 @@ export function useWebSocket(
             wildcardListeners.forEach(handler => {
               try {
                 handler(data);
-              } catch (err) {
+              } catch (_err) {
                 logger.error('[useWebSocket] Error in wildcard listener:', err);
               }
             });
@@ -168,14 +168,14 @@ export function useWebSocket(
             onceHandlers.forEach(handler => {
               try {
                 handler(data);
-              } catch (err) {
+              } catch (_err) {
                 logger.error(`[useWebSocket] Error in once handler for ${data.type}:`, err);
               }
             });
             onceListenersRef.current.delete(data.type);
           }
 
-        } catch (err) {
+        } catch (_err) {
           logger.error('[useWebSocket] Failed to parse message:', err);
           // 将原始数据作为字符串处理
           options?.onMessage?.({
@@ -205,7 +205,7 @@ export function useWebSocket(
         }
       });
 
-    } catch (err) {
+    } catch (_err) {
       const errorEvent = new Event('error');
       setError(errorEvent);
       updateStatus('error');
@@ -258,7 +258,7 @@ export function useWebSocket(
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       try {
         wsRef.current.send(JSON.stringify(data));
-      } catch (err) {
+      } catch (_err) {
         logger.error('[useWebSocket] Failed to send message:', err);
       }
     } else {

@@ -32,7 +32,7 @@ const EVENTS_FILE = path.join(BACKUP_DIR, 'events.json');
 async function ensureBackupDir(): Promise<void> {
   try {
     await fs.mkdir(BACKUP_DIR, { recursive: true });
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to create backup directory', error);
     throw error;
   }
@@ -62,7 +62,7 @@ async function recordEvent(event: BackupEvent): Promise<void> {
     }
 
     await fs.writeFile(EVENTS_FILE, JSON.stringify(events, null, 2), 'utf-8');
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to record backup event', error);
   }
 }
@@ -127,7 +127,7 @@ export async function listBackups(): Promise<BackupMetadata[]> {
               sizeInMB: stats.size / (1024 * 1024),
             });
           }
-        } catch (error) {
+        } catch (_error) {
           logger.warn(`Failed to read backup file: ${file}`, { error: String(error) });
         }
       }
@@ -137,7 +137,7 @@ export async function listBackups(): Promise<BackupMetadata[]> {
     return backups.sort((a, b) =>
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to list backups', error);
     return [];
   }
@@ -306,7 +306,7 @@ export async function getBackup(backupId: string): Promise<{ metadata: BackupMet
     const backup = JSON.parse(content) as { metadata: BackupMetadata; data: Record<string, unknown[]> };
 
     return backup;
-  } catch (error) {
+  } catch (_error) {
     logger.error(`Failed to get backup: ${backupId}`, error);
     return null;
   }
@@ -350,7 +350,7 @@ export async function deleteBackup(backupId: string, userId?: string): Promise<b
     });
 
     return true;
-  } catch (error) {
+  } catch (_error) {
     logger.error(`Failed to delete backup: ${backupId}`, error);
     return false;
   }
@@ -433,7 +433,7 @@ export async function restoreBackup(
 
         try {
           await db.exec(`INSERT INTO ${table} (${columns.join(', ')}) VALUES (${placeholders})`, values);
-        } catch (error) {
+        } catch (_error) {
           if (!options.skipErrors) {
             throw error;
           }
@@ -467,7 +467,7 @@ export async function restoreBackup(
       success: true,
       message: 'Backup restored successfully',
     };
-  } catch (error) {
+  } catch (_error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error(`Failed to restore backup: ${options.backupId}`, error);
 

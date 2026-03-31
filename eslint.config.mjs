@@ -46,6 +46,15 @@ const eslintConfig = [...nextVitals, ...nextTs, {
     "7zi-frontend/.next/**",
     "7zi-frontend/out/**",
   ],
+}, {
+  rules: {
+    // Allow underscore-prefixed variables to be unused
+    "@typescript-eslint/no-unused-vars": ["warn", {
+      "argsIgnorePattern": "^_",
+      "varsIgnorePattern": "^_",
+      "caughtErrorsIgnorePattern": "^_"
+    }]
+  }
 }, ...storybook.configs["flat/recommended"]];
 
 export default eslintConfig;

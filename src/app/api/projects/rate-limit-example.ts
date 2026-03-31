@@ -6,15 +6,25 @@
  * To enable rate limiting, simply wrap your handler with `withRateLimit`.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { withRateLimit, getRateLimitStatus } from '@/lib/rate-limit';
+
+interface Project {
+  id: number;
+  name: string;
+  [key: string]: unknown;
+}
+
+interface CreateProjectData {
+  name: string;
+  [key: string]: unknown;
+}
 
 /**
  * GET /api/projects
  * Get all projects (with rate limiting)
  */
 export const GET = withRateLimit(
-  async (req: NextRequest) => {
+  async (_req: NextRequest) => {
     try {
       // Your existing logic here
       const projects = await getProjects();
@@ -23,7 +33,7 @@ export const GET = withRateLimit(
         success: true,
         data: projects,
       });
-    } catch (error) {
+    } catch (_error) {
       return NextResponse.json(
         {
           success: false,
@@ -48,13 +58,13 @@ export const POST = withRateLimit(
       const body = await req.json();
 
       // Your existing logic here
-      const project = await createProject(body);
+      const project = await createProject(body as CreateProjectData);
 
       return NextResponse.json({
         success: true,
         data: project,
       });
-    } catch (error) {
+    } catch (_error) {
       return NextResponse.json(
         {
           success: false,
@@ -90,14 +100,14 @@ export async function GET_STATUS(req: NextRequest) {
 }
 
 // Mock functions (replace with your actual implementation)
-async function getProjects() {
+async function getProjects(): Promise<Project[]> {
   return [
     { id: 1, name: 'Project 1' },
     { id: 2, name: 'Project 2' },
   ];
 }
 
-async function createProject(data: any) {
+async function createProject(data: CreateProjectData): Promise<Project> {
   return {
     id: Date.now(),
     ...data,

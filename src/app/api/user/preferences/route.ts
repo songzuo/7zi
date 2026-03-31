@@ -6,7 +6,6 @@
  * This API endpoint manages user preferences including language, theme, and notification settings.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { initializeUserPreferencesTable, getUserPreferences, createUserPreferences, updateUserPreferences } from '@/lib/db/user-preferences';
 import { logger } from '@/lib/logger';
 
@@ -55,7 +54,7 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({ success: true, data: preferences });
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to get user preferences', { error });
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -101,7 +100,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ success: true, data: preferences }, { status: 201 });
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to create user preferences', { error });
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -140,7 +139,7 @@ export async function PUT(request: NextRequest) {
     const preferences = await updateUserPreferences(user_id, updates);
 
     return NextResponse.json({ success: true, data: preferences });
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to update user preferences', { error });
     return NextResponse.json(
       { error: 'Internal server error' },

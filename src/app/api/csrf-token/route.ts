@@ -7,7 +7,6 @@
  * @refactored - Added validation and improved error handling
  */
 
-import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { randomBytes } from 'crypto';
 import { createErrorResponse, ApiError, ErrorType } from '@/lib/api/error-handler';
@@ -71,7 +70,7 @@ export async function GET() {
       timestamp: new Date().toISOString(),
     } as CsrfTokenResponse);
 
-  } catch (error) {
+  } catch (_error) {
     logger.error('CSRF token generation error', error);
 
     if (error instanceof Error && error.message.includes('Cookie')) {
@@ -159,7 +158,7 @@ export async function POST(request: Request) {
       timestamp: new Date().toISOString(),
     });
 
-  } catch (error) {
+  } catch (_error) {
     logger.error('CSRF token validation error', error);
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }

@@ -232,7 +232,7 @@ export function withCors(
 
     try {
       response = await handler(req);
-    } catch (error) {
+    } catch (_error) {
       logger.error('Handler error in CORS middleware', error);
       return finalConfig.onError(error instanceof Error ? error : new Error(String(error)));
     }

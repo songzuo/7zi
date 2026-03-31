@@ -128,7 +128,7 @@ async function applyInputSanitization(
         (request as any).sanitizedQuery = result.sanitized;
       }
     }
-  } catch (error) {
+  } catch (_error) {
     logger.warn('Input sanitization error', { error });
   }
 
@@ -257,7 +257,7 @@ export function withSecurity(
       }
 
       return response;
-    } catch (error) {
+    } catch (_error) {
       // Log error
       if (finalConfig.enableLogging && metadata) {
         logRequestError(metadata, error, startTime);

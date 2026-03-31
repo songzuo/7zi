@@ -69,7 +69,7 @@ export function PermissionProvider({ children, skipFetch = false }: PermissionPr
         } else {
           reset();
         }
-      } catch (err) {
+      } catch (_err) {
         setError(err instanceof Error ? err.message : 'Failed to load permissions');
         reset();
       } finally {

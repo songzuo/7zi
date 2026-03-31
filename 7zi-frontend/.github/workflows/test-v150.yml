@@ -1,0 +1,300 @@
+# GitHub Actions: v1.5.0 Test Pipeline
+# Comprehensive testing for Multi-Agent, WebSocket Rooms, Workflow Orchestrator, MCP Server
+
+name: Test - v1.5.0 Full Suite
+
+on:
+  push:
+    branches: [main, develop, 'v1.5.*']
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Nightly test run at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: 'Test type to run'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - unit
+          - integration
+          - e2e
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '9'
+
+jobs:
+  # ===== Unit Tests =====
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run unit tests
+        run: pnpm test:run --reporter=json --reporter=text
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-coverage
+          path: coverage/
+          retention-days: 7
+
+  # ===== Integration Tests =====
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run integration tests
+        run: |
+          pnpm test:run tests/integration/ --reporter=json --reporter=text
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
+
+      - name: Upload integration test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-results
+          path: |
+            test-results/
+            coverage/
+          retention-days: 7
+
+  # ===== E2E Tests =====
+  e2e-tests:
+    name: E2E Tests (${{ matrix.browser }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Build application
+        run: pnpm build
+        env:
+          NODE_ENV: production
+
+      - name: Run E2E tests
+        run: pnpm test:e2e --project=${{ matrix.browser }}
+        env:
+          BASE_URL: http://localhost:3000
+
+      - name: Upload E2E test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-results-${{ matrix.browser }}
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 7
+
+  # ===== API Integration Tests =====
+  api-tests:
+    name: API Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run API integration tests
+        run: pnpm test:api
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
+
+      - name: Upload API test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-test-results
+          path: tests/api-integration/coverage/
+          retention-days: 7
+
+  # ===== WebSocket Tests =====
+  websocket-tests:
+    name: WebSocket Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run WebSocket tests
+        run: pnpm test:run tests/websocket/
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
+
+      - name: Upload WebSocket test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: websocket-test-results
+          path: test-results/
+          retention-days: 7
+
+  # ===== Coverage Report =====
+  coverage-report:
+    name: Coverage Report
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download unit coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: unit-coverage
+          path: coverage/unit
+
+      - name: Download integration coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: integration-results
+          path: coverage/integration
+
+      - name: Generate coverage report
+        run: |
+          echo "## Test Coverage Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Type | Coverage |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|----------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Unit Tests | Check artifacts |" >> $GITHUB_STEP_SUMMARY
+          echo "| Integration Tests | Check artifacts |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload combined coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: combined-coverage
+          path: coverage/
+          retention-days: 30
+
+  # ===== Test Summary =====
+  test-summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, e2e-tests, api-tests, websocket-tests]
+    if: always()
+    steps:
+      - name: Check test results
+        run: |
+          echo "## Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Test Suite | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Unit Tests | ${{ needs.unit-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Integration Tests | ${{ needs.integration-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| E2E Tests | ${{ needs.e2e-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| API Tests | ${{ needs.api-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| WebSocket Tests | ${{ needs.websocket-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Fail if any tests failed
+        if: contains(needs.*.result, 'failure')
+        run: exit 1
+
+  # ===== Notify on Failure =====
+  notify-failure:
+    name: Notify on Failure
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, e2e-tests, api-tests, websocket-tests]
+    if: failure() && github.event_name == 'schedule'
+    steps:
+      - name: Send notification
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          text: |
+            🔴 v1.5.0 Test Suite Failed!
+            
+            Check the logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

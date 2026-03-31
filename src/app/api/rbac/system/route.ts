@@ -3,7 +3,6 @@
  * RBAC 系统初始化和管理
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { withAdmin } from '@/lib/auth/middleware-rbac';
 import {
   seedDefaultRolesAndPermissions,
@@ -31,7 +30,7 @@ export async function GET(request: NextRequest) {
           needsSeeding: stats.needsSeeding,
         },
       });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to get RBAC system status:', { error, userId: context.userId });
       return NextResponse.json(
         {
@@ -99,7 +98,7 @@ export async function POST(request: NextRequest) {
         },
         message: 'RBAC system initialized successfully',
       });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to initialize RBAC system:', { error, userId: context.userId });
       return NextResponse.json(
         {
@@ -147,7 +146,7 @@ export async function DELETE(request: NextRequest) {
         },
         message: 'RBAC system reset to defaults successfully',
       });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to reset RBAC system:', { error, userId: context.userId });
       return NextResponse.json(
         {

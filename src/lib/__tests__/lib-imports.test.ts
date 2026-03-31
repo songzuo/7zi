@@ -10,7 +10,7 @@ import { describe, it, expect } from 'vitest';
 // 场景 A1: 测试 agents 模块导入
 describe('Agents 模块导入验证', () => {
   it('应该能够导入所有 agent 核心功能', async () => {
-    const agentModule = await import('../agents/agent/index');
+    const agentModule = await import('../agents/core/index');
 
     // 验证主要导出存在
     expect(typeof agentModule).toBe('object');
@@ -21,14 +21,14 @@ describe('Agents 模块导入验证', () => {
   });
 
   it('应该能够导入 agent 认证服务', async () => {
-    const { generateApiKey, authenticateAgent } = await import('../agents/agent/index');
+    const { generateApiKey, authenticateAgent } = await import('../agents/core/index');
 
     expect(typeof generateApiKey).toBe('function');
     expect(typeof authenticateAgent).toBe('function');
   });
 
   it('应该能够导入 agent 仓库功能', async () => {
-    const { createAgent, getAgentById, getAllAgents } = await import('../agents/agent/index');
+    const { createAgent, getAgentById, getAllAgents } = await import('../agents/core/index');
 
     expect(typeof createAgent).toBe('function');
     expect(typeof getAgentById).toBe('function');
@@ -36,7 +36,7 @@ describe('Agents 模块导入验证', () => {
   });
 
   it('应该能够导入 agent 钱包功能', async () => {
-    const { createWallet, getWalletBalance } = await import('../agents/agent/index');
+    const { createWallet, getWalletBalance } = await import('../agents/core/index');
 
     expect(typeof createWallet).toBe('function');
     expect(typeof getWalletBalance).toBe('function');
@@ -160,7 +160,7 @@ describe('其他核心模块导入验证', () => {
 describe('导入路径一致性验证', () => {
   it('从统一入口导入应该与直接导入相同', async () => {
     const agentsUnified = await import('../agents/index');
-    const agentsDirect = await import('../agents/agent/index');
+    const agentsDirect = await import('../agents/core/index');
 
     // 验证两者都是有效模块
     expect(agentsUnified).toBeDefined();

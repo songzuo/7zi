@@ -228,6 +228,19 @@ export async function createForbiddenError(
 }
 
 /**
+ * Create conflict error response (409)
+ */
+export async function createConflictError(
+  message: string = 'Resource conflict',
+  details?: Record<string, unknown>,
+  locale: SupportedLocale = 'zh',
+  requestId?: string
+): Promise<NextResponse<ErrorResponse>> {
+  const error = new ApiError(ErrorType.CONFLICT, message, 409, details);
+  return createErrorResponse(error, undefined, details, locale, requestId);
+}
+
+/**
  * Create rate limit error response (429)
  */
 export async function createRateLimitError(
@@ -318,7 +331,7 @@ export function withErrorHandling<T extends (...args: unknown[]) => Promise<Next
   return (async (...args: unknown[]) => {
     try {
       return await handler(...(args as Parameters<T>));
-    } catch (error) {
+    } catch (_error) {
       // Try to extract locale and request ID from the request
       const request = args[0] as Request | NextRequest | undefined;
       const locale = request ? getLocaleFromRequest(request) : 'zh';

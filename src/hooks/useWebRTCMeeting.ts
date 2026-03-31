@@ -221,7 +221,7 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
       const stream = await navigator.mediaDevices.getUserMedia(AUDIO_CONSTRAINTS);
       localStreamRef.current = stream;
       return stream;
-    } catch (error) {
+    } catch (_error) {
       logger.error('[WebRTC] Error getting local stream:', error);
       onError?.(error instanceof Error ? error : new Error('Failed to get audio stream'));
       throw error;
@@ -303,7 +303,7 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
             receiverId: peerId,
           });
         }
-      } catch (error) {
+      } catch (_error) {
         logger.error('[WebRTC] Error creating offer:', error);
         onError?.(error instanceof Error ? error : new Error('Failed to create offer'));
       }
@@ -349,7 +349,7 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
           receiverId: senderId,
         });
       }
-    } catch (error) {
+    } catch (_error) {
       logger.error('[WebRTC] Error handling offer:', error);
       onError?.(error instanceof Error ? error : new Error('Failed to handle offer'));
     }
@@ -370,7 +370,7 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
     try {
       await pc.setRemoteDescription(new RTCSessionDescription(sdp));
       logger.info('[WebRTC] Set remote description', { senderId });
-    } catch (error) {
+    } catch (_error) {
       logger.error('[WebRTC] Error handling answer:', error);
       onError?.(error instanceof Error ? error : new Error('Failed to handle answer'));
     }
@@ -391,7 +391,7 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
     try {
       await pc.addIceCandidate(new RTCIceCandidate(candidate));
       logger.info('[WebRTC] Added ICE candidate', { senderId });
-    } catch (error) {
+    } catch (_error) {
       logger.error('[WebRTC] Error adding ICE candidate:', error);
       onError?.(error instanceof Error ? error : new Error('Failed to add ICE candidate'));
     }
@@ -458,7 +458,7 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
           },
         });
       }
-    } catch (error) {
+    } catch (_error) {
       logger.error('[WebRTC] Error joining meeting:', error);
       onError?.(error instanceof Error ? error : new Error('Failed to join meeting'));
       setIsConnecting(false);

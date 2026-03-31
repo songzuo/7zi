@@ -169,7 +169,7 @@ class NotificationService {
           }
         }
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('[NotificationService] Error processing offline queue:', error);
     } finally {
       this.isProcessingQueue = false;
@@ -241,7 +241,7 @@ class NotificationService {
     this.errorCallbacks.forEach(callback => {
       try {
         callback(error);
-      } catch (err) {
+      } catch (_err) {
         console.error('[NotificationService] Error in error callback:', err);
       }
     });
@@ -294,7 +294,7 @@ class NotificationService {
       };
 
       notificationServer.sendToUser(userId, message);
-    } catch (error) {
+    } catch (_error) {
       this.logError({
         code: 'SEND_NOTIFICATION_FAILED',
         message: error instanceof Error ? error.message : String(error),
@@ -398,7 +398,7 @@ class NotificationService {
 
       // 记录历史
       this.addToHistory('task_status_changed', event);
-    } catch (error) {
+    } catch (_error) {
       this.logError({
         code: 'NOTIFY_TASK_STATUS_FAILED',
         message: error instanceof Error ? error.message : String(error),
@@ -464,7 +464,7 @@ class NotificationService {
       }
 
       this.addToHistory('task_assigned', event);
-    } catch (error) {
+    } catch (_error) {
       this.logError({
         code: 'NOTIFY_TASK_ASSIGNMENT_FAILED',
         message: error instanceof Error ? error.message : String(error),
@@ -548,7 +548,7 @@ class NotificationService {
       }
 
       this.addToHistory('task_comment', event);
-    } catch (error) {
+    } catch (_error) {
       this.logError({
         code: 'NOTIFY_TASK_COMMENT_FAILED',
         message: error instanceof Error ? error.message : String(error),
@@ -594,7 +594,7 @@ class NotificationService {
 
       const eventType = isOnline ? 'member_online' : isOffline ? 'member_offline' : 'member_status_changed';
       this.addToHistory(eventType, this.createEventFromMessage(message));
-    } catch (error) {
+    } catch (_error) {
       this.logError({
         code: 'NOTIFY_MEMBER_STATUS_FAILED',
         message: error instanceof Error ? error.message : String(error),
@@ -660,7 +660,7 @@ class NotificationService {
       }
 
       this.addToHistory('system_announcement', event);
-    } catch (error) {
+    } catch (_error) {
       this.logError({
         code: 'BROADCAST_ANNOUNCEMENT_FAILED',
         message: error instanceof Error ? error.message : String(error),
@@ -723,7 +723,7 @@ class NotificationService {
       }
 
       this.addToHistory('project_updated', event);
-    } catch (error) {
+    } catch (_error) {
       this.logError({
         code: 'NOTIFY_PROJECT_UPDATE_FAILED',
         message: error instanceof Error ? error.message : String(error),
@@ -800,7 +800,7 @@ class NotificationService {
         // 广播给所有人
         notificationServer.broadcast(wsMessage);
       }
-    } catch (error) {
+    } catch (_error) {
       this.logError({
         code: 'SEND_CUSTOM_NOTIFICATION_FAILED',
         message: error instanceof Error ? error.message : String(error),
@@ -1014,7 +1014,7 @@ class NotificationService {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   private addToHistory(_type: RealtimeNotificationType, _event: NotificationEvent): void {
     // 这里可以添加到数据库或持久化存储
     // 目前只在内存中保存

@@ -141,7 +141,7 @@ export function withMonitoring<T extends unknown[]>(
       checkErrorRate(route);
 
       return response;
-    } catch (error) {
+    } catch (_error) {
       // 计算响应时间
       const duration = performance.now() - startTime;
 

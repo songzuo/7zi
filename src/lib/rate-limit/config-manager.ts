@@ -233,7 +233,7 @@ export class RateLimitConfigManager {
       const data = JSON.parse(json);
       this.defaultConfig = data.defaultConfig || PresetConfigs.moderate;
       this.routeConfigs = data.routeConfigs || [];
-    } catch (error) {
+    } catch (_error) {
       throw new Error('Invalid config JSON');
     }
   }

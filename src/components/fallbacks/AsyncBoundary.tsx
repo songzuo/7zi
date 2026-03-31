@@ -113,7 +113,7 @@ export function AsyncBoundary<T = unknown>({
       // The async function is provided by children
       // This is a placeholder - actual implementation needs async function prop
       setStatus('success');
-    } catch (err) {
+    } catch (_err) {
       const errorObj = err instanceof Error ? err : new Error(String(err));
       setError(errorObj);
       setStatus('error');
@@ -270,7 +270,7 @@ export function AsyncBoundaryFn<T = unknown>({
       if (onSuccess) {
         onSuccess(result);
       }
-    } catch (err) {
+    } catch (_err) {
       const errorObj = err instanceof Error ? err : new Error(String(err));
       setError(errorObj);
       setStatus('error');

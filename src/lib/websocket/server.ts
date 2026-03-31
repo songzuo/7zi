@@ -25,8 +25,6 @@ import type { AuthenticatedSocket } from './types';
 import {
   RoomManager,
   getRoomManager,
-  type Room,
-  type RoomParticipant,
   type RoomType,
   type RoomVisibility,
   type RoomConfig,
@@ -45,7 +43,6 @@ import {
 import {
   MessageStore,
   getMessageStore,
-  type StoredMessage,
   type MessageHistoryOptions,
 } from './message-store';
 
@@ -135,8 +132,9 @@ function initializeCoreModules(): void {
 
 /**
  * Generate a unique color for a user
+ * Note: Duplicate of RoomManager.generateColor - kept for reference
  */
-function generateColor(userId: string): string {
+function _generateColor(userId: string): string {
   const colors = [
     '#ef4444', '#f97316', '#f59e0b', '#84cc16', '#10b981',
     '#06b6d4', '#0ea5e9', '#3b82f6', '#6366f1', '#8b5cf6',
@@ -222,7 +220,7 @@ async function authenticateSocket(socket: AuthenticatedSocket, next: (err?: Erro
     });
 
     next();
-  } catch (error) {
+  } catch (_error) {
     logger.error('Authentication error', { socketId: socket.id, error });
     next(new Error('Authentication failed'));
   }
@@ -294,7 +292,7 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
       });
 
       logger.info('Room created', { roomId, type, ownerId: user.id });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Error creating room', { socketId: socket.id, error });
       socket.emit('system:error', { message: 'Failed to create room' });
     }
@@ -335,7 +333,7 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
       } else {
         socket.emit('system:error', { message: 'Failed to delete room' });
       }
-    } catch (error) {
+    } catch (_error) {
       logger.error('Error deleting room', { socketId: socket.id, error });
       socket.emit('system:error', { message: 'Failed to delete room' });
     }
@@ -412,7 +410,7 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
           messages: result.offlineMessages,
         });
       }
-    } catch (error) {
+    } catch (_error) {
       logger.error('Error joining room', { socketId: socket.id, error });
       socket.emit('system:error', { message: 'Failed to join room' });
     }
@@ -422,7 +420,7 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
     try {
       const { roomId } = data;
 
-      const result = roomManager!.leave(roomId, user.id);
+      const _leaveResult = roomManager!.leave(roomId, user.id);
 
       // Leave socket.io room
       socket.leave(roomId);
@@ -432,7 +430,7 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
       socket.emit('room:left', { roomId });
 
       logger.info('Room left', { socketId: socket.id, roomId, userId: user.id });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Error leaving room', { socketId: socket.id, error });
     }
   });
@@ -488,7 +486,7 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
       socket.emit('room:kick_success', { roomId, userId });
 
       logger.info('User kicked', { roomId, userId, kickedBy: user.id, reason });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Error kicking user', { socketId: socket.id, error });
       socket.emit('system:error', { message: 'Failed to kick user' });
     }
@@ -517,7 +515,7 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
       socket.emit('room:ban_success', { roomId, userId });
 
       logger.info('User banned', { roomId, userId, bannedBy: user.id, reason });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Error banning user', { socketId: socket.id, error });
       socket.emit('system:error', { message: 'Failed to ban user' });
     }
@@ -545,7 +543,7 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
       socket.emit('room:unban_success', { roomId, userId });
 
       logger.info('User unbanned', { roomId, userId, unbannedBy: user.id });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Error unbanning user', { socketId: socket.id, error });
       socket.emit('system:error', { message: 'Failed to unban user' });
     }
@@ -574,7 +572,7 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
       socket.emit('room:invite_success', { roomId, userId });
 
       logger.info('User invited', { roomId, userId, invitedBy: user.id });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Error inviting user', { socketId: socket.id, error });
       socket.emit('system:error', { message: 'Failed to invite user' });
     }
@@ -608,7 +606,7 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
       socket.emit('room:role_change_success', { roomId, userId, newRole: role });
 
       logger.info('User role changed', { roomId, userId, newRole: role, changedBy: user.id });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Error changing role', { socketId: socket.id, error });
       socket.emit('system:error', { message: 'Failed to change role' });
     }
@@ -642,7 +640,7 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
       });
 
       logger.debug('Document opened', { socketId: socket.id, roomId, documentId, userId: user.id });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Error opening document', { socketId: socket.id, error });
       socket.emit('system:error', { message: 'Failed to open document' });
     }
@@ -700,7 +698,7 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
       broadcastToRoom(roomId, 'doc:operation_applied', operationMessage);
 
       logger.debug('Document operation applied', { socketId: socket.id, roomId, operation, revision });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Error applying operation', { socketId: socket.id, error });
       socket.emit('system:error', { message: 'Failed to apply operation' });
     }
@@ -720,7 +718,7 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
         roomId,
         document: room.data,
       });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Error syncing document', { socketId: socket.id, error });
       socket.emit('system:error', { message: 'Failed to sync document' });
     }
@@ -778,7 +776,7 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
       broadcastToRoom(roomId, 'message:new', storedMessage);
 
       logger.debug('Message sent', { messageId, roomId, userId: user.id });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Error sending message', { socketId: socket.id, error });
       socket.emit('system:error', { message: 'Failed to send message' });
     }
@@ -815,7 +813,7 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
       }
 
       logger.debug('Message edited', { messageId, roomId, userId: user.id });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Error editing message', { socketId: socket.id, error });
       socket.emit('system:error', { message: 'Failed to edit message' });
     }
@@ -852,7 +850,7 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
       }
 
       logger.debug('Message deleted', { messageId, roomId, userId: user.id });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Error deleting message', { socketId: socket.id, error });
       socket.emit('system:error', { message: 'Failed to delete message' });
     }
@@ -882,7 +880,7 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
       }
 
       logger.debug('Reaction added', { messageId, emoji, userId: user.id });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Error adding reaction', { socketId: socket.id, error });
       socket.emit('system:error', { message: 'Failed to add reaction' });
     }
@@ -906,7 +904,7 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
       }
 
       logger.debug('Message pinned', { messageId, userId: user.id });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Error pinning message', { socketId: socket.id, error });
       socket.emit('system:error', { message: 'Failed to pin message' });
     }
@@ -924,7 +922,7 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
 
       const messages = messageStore!.getHistory(data);
       socket.emit('message:history', { roomId, messages });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Error getting history', { socketId: socket.id, error });
       socket.emit('system:error', { message: 'Failed to get message history' });
     }
@@ -942,7 +940,7 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
 
       const messages = messageStore!.getPinnedMessages(roomId);
       socket.emit('message:pinned_list', { roomId, messages });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Error getting pinned messages', { socketId: socket.id, error });
     }
   });
@@ -975,7 +973,7 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
           selection,
         });
       }
-    } catch (error) {
+    } catch (_error) {
       logger.error('Error updating cursor', { socketId: socket.id, error });
     }
   });
@@ -1006,7 +1004,7 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
           selection,
         });
       }
-    } catch (error) {
+    } catch (_error) {
       logger.error('Error updating selection', { socketId: socket.id, error });
     }
   });
@@ -1030,7 +1028,7 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
         userName: user.name,
         isTyping,
       });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Error updating typing status', { socketId: socket.id, error });
     }
   });
@@ -1058,7 +1056,7 @@ function setupSocketHandlers(socket: AuthenticatedSocket): void {
     // Leave all rooms and notify other users
     const roomsToLeave = Array.from(socket.data.rooms);
     roomsToLeave.forEach(roomId => {
-      const result = roomManager!.leave(roomId, user.id);
+      const _result = roomManager!.leave(roomId, user.id);
 
       // Notify other users (handled by callback in RoomManager)
     });

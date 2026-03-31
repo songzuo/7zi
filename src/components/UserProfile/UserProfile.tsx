@@ -66,7 +66,7 @@ export default function UserProfile({ userId }: { userId: string }) {
       } else {
         console.error('Failed to load user:', data.error);
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Error loading user:', error);
     } finally {
       setIsLoading(false);
@@ -126,7 +126,7 @@ export default function UserProfile({ userId }: { userId: string }) {
       } else {
         setSaveError(data.error?.message || 'Failed to upload avatar');
       }
-    } catch (error) {
+    } catch (_error) {
       setSaveError(error instanceof Error ? error.message : 'Failed to upload avatar');
     } finally {
       setIsSaving(false);
@@ -152,7 +152,7 @@ export default function UserProfile({ userId }: { userId: string }) {
       } else {
         setSaveError(data.error?.message || 'Failed to remove avatar');
       }
-    } catch (error) {
+    } catch (_error) {
       setSaveError(error instanceof Error ? error.message : 'Failed to remove avatar');
     } finally {
       setIsSaving(false);
@@ -200,7 +200,7 @@ export default function UserProfile({ userId }: { userId: string }) {
       } else {
         setSaveError(data.error?.message || 'Failed to update profile');
       }
-    } catch (error) {
+    } catch (_error) {
       setSaveError(error instanceof Error ? error.message : 'Failed to update profile');
     } finally {
       setIsSaving(false);

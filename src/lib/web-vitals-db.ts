@@ -106,7 +106,7 @@ class WebVitalsDatabase {
       this.createIndexes();
 
       logger.info('[WebVitals DB] Database initialized successfully', { path: this.dbPath });
-    } catch (error) {
+    } catch (_error) {
       logger.error('[WebVitals DB] Failed to initialize database:', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
@@ -188,7 +188,7 @@ class WebVitalsDatabase {
       });
 
       return result.lastInsertRowid as number;
-    } catch (error) {
+    } catch (_error) {
       logger.error('[WebVitals DB] Failed to insert metric:', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
@@ -238,7 +238,7 @@ class WebVitalsDatabase {
       });
 
       return count;
-    } catch (error) {
+    } catch (_error) {
       logger.error('[WebVitals DB] Failed to insert many metrics:', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
@@ -322,7 +322,7 @@ class WebVitalsDatabase {
         sessionId: row.session_id,
         timestamp: new Date(row.timestamp),
       }));
-    } catch (error) {
+    } catch (_error) {
       logger.error('[WebVitals DB] Failed to query metrics:', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
@@ -463,7 +463,7 @@ class WebVitalsDatabase {
         byDevice,
         byRoute,
       };
-    } catch (error) {
+    } catch (_error) {
       logger.error('[WebVitals DB] Failed to get stats:', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
@@ -515,7 +515,7 @@ class WebVitalsDatabase {
         p75: getPercentile(75),
         p95: getPercentile(95),
       };
-    } catch (error) {
+    } catch (_error) {
       logger.error('[WebVitals DB] Failed to get percentiles:', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
@@ -542,7 +542,7 @@ class WebVitalsDatabase {
       });
 
       return result.changes;
-    } catch (error) {
+    } catch (_error) {
       logger.error('[WebVitals DB] Failed to cleanup:', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }

@@ -332,7 +332,7 @@ export function performanceMark(name: string, detail?: unknown) {
   
   try {
     performance.mark(name, detail ? { detail } : undefined);
-  } catch (error) {
+  } catch (_error) {
     // 标记已存在，忽略错误
     console.warn('[Performance] Mark already exists:', name);
   }
@@ -356,7 +356,7 @@ export function performanceMeasure(
     if (measure) {
       console.log(`[Performance] ${name}: ${measure.duration.toFixed(2)}ms`);
     }
-  } catch (error) {
+  } catch (_error) {
     console.warn('[Performance] Measure failed:', name, error);
   }
 }
@@ -417,7 +417,7 @@ export async function measureAsync<T>(
     clearPerformanceMarks([startMark, endMark]);
     
     return result;
-  } catch (error) {
+  } catch (_error) {
     performanceMark(endMark);
     performanceMeasure(`${name}-error`, startMark, endMark);
     clearPerformanceMarks([startMark, endMark]);
@@ -445,7 +445,7 @@ export function measureSync<T>(
     clearPerformanceMarks([startMark, endMark]);
     
     return result;
-  } catch (error) {
+  } catch (_error) {
     performanceMark(endMark);
     performanceMeasure(`${name}-error`, startMark, endMark);
     clearPerformanceMarks([startMark, endMark]);

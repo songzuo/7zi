@@ -328,7 +328,7 @@ export function withApiPerformanceTracking(
       response.headers.set('x-response-time', `${duration.toFixed(2)}ms`);
 
       return response;
-    } catch (error) {
+    } catch (_error) {
       // 计算响应时间
       const duration = Date.now() - startTime;
       const url = new URL(request.url);

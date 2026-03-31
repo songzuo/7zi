@@ -78,7 +78,7 @@ class RateLimiter {
       }
 
       return null;
-    } catch (error) {
+    } catch (_error) {
       logger.warn('Failed to extract user ID from token', { error });
       return null;
     }

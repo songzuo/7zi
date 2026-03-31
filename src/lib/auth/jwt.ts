@@ -142,7 +142,7 @@ export async function sign(payload: Omit<JwtPayload, 'iat' | 'exp' | 'iss' | 'au
       .sign(secretKey);
 
     return token;
-  } catch (error) {
+  } catch (_error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logError('Failed to sign JWT token', error, { category: 'auth' });
     throw new Error(`Failed to sign JWT token: ${errorMessage}`);
@@ -176,7 +176,7 @@ export async function verify(token: string): Promise<TokenVerifyResult> {
       valid: true,
       payload: payload as JwtPayload,
     };
-  } catch (error) {
+  } catch (_error) {
     let errorMessage = 'Invalid token';
 
     if (error instanceof Error) {
@@ -217,7 +217,7 @@ export function decode(token: string): TokenDecodeResult {
     return {
       payload: payload as JwtPayload,
     };
-  } catch (error) {
+  } catch (_error) {
     return {
       error: error instanceof Error ? error.message : 'Invalid token format',
     };

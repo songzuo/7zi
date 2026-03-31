@@ -27,7 +27,7 @@ export default defineConfig({
   maxMemoryUsage: 2048, // 限制每个 worker 的内存使用为 2GB
 
   test: {
-    environment: 'node', // 使用 Node.js 环境以支持 better-sqlite3
+    environment: 'jsdom', // 使用 jsdom 环境以支持 React 组件测试
     globals: true,
     setupFiles: [path.resolve(__dirname, './tests/setup.ts')],
     include: ['src/**/*.{test,spec}.{js,ts,jsx,tsx}', 'app/**/*.{test,spec}.{js,ts,jsx,tsx}', 'tests/**/*.{test,spec}.{js,ts,jsx,tsx}'],

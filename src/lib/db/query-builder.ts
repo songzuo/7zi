@@ -1104,13 +1104,13 @@ export function batchInsert<T extends Record<string, unknown> = Record<string, u
       try {
         stmt.run(...values);
         result.successCount++;
-      } catch (error) {
+      } catch (_error) {
         result.failureCount++;
         result.failedIndices.push(i);
         result.errors.push(error as Error);
       }
     }
-  } catch (error) {
+  } catch (_error) {
     // 如果 prepare 失败,所有行都失败
     result.failureCount = rows.length;
     result.failedIndices = Array.from({ length: rows.length }, (_, i) => i);
@@ -1176,13 +1176,13 @@ export function batchUpdate<T extends Record<string, unknown> = Record<string, u
       try {
         stmt.run(...values);
         result.successCount++;
-      } catch (error) {
+      } catch (_error) {
         result.failureCount++;
         result.failedIndices.push(i);
         result.errors.push(error as Error);
       }
     }
-  } catch (error) {
+  } catch (_error) {
     // 如果 prepare 失败,所有行都失败
     result.failureCount = updates.length;
     result.failedIndices = Array.from({ length: updates.length }, (_, i) => i);
@@ -1236,13 +1236,13 @@ export function batchDelete<T extends Record<string, unknown> = Record<string, u
       try {
         stmt.run(...values);
         result.successCount++;
-      } catch (error) {
+      } catch (_error) {
         result.failureCount++;
         result.failedIndices.push(i);
         result.errors.push(error as Error);
       }
     }
-  } catch (error) {
+  } catch (_error) {
     // 如果 prepare 失败,所有行都失败
     result.failureCount = conditions.length;
     result.failedIndices = Array.from({ length: conditions.length }, (_, i) => i);

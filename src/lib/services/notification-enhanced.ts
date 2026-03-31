@@ -75,7 +75,7 @@ export class EnhancedNotificationService {
       }
 
       logger.info('[EnhancedNotificationService] Initialized');
-    } catch (error) {
+    } catch (_error) {
       logger.error('[EnhancedNotificationService] Failed to initialize:', error);
       throw error;
     }
@@ -184,7 +184,7 @@ export class EnhancedNotificationService {
         notificationId: id,
         emailSent,
       };
-    } catch (error) {
+    } catch (_error) {
       logger.error('[EnhancedNotificationService] Failed to send notification:', error);
       return {
         success: false,
@@ -274,7 +274,7 @@ export class EnhancedNotificationService {
         // Over midnight: 22:00 - 06:00
         return currentMinutes >= startMinutes || currentMinutes < endMinutes;
       }
-    } catch (error) {
+    } catch (_error) {
       logger.error('[EnhancedNotificationService] Failed to check quiet hours:', error);
       return false;
     }
@@ -324,7 +324,7 @@ export class EnhancedNotificationService {
       });
 
       return result;
-    } catch (error) {
+    } catch (_error) {
       logger.error('[EnhancedNotificationService] Failed to send email:', error);
       return {
         success: false,

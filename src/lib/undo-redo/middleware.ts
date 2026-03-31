@@ -101,7 +101,7 @@ export const undoRedoImpl: UndoRedoImpl = (f, config = {}) => {
             set(loaded.present);
           }
         }
-      } catch (error) {
+      } catch (_error) {
         console.error('Failed to load undo-redo history:', error);
       }
     }
@@ -113,7 +113,7 @@ export const undoRedoImpl: UndoRedoImpl = (f, config = {}) => {
       }
       try {
         localStorage.setItem(fullConfig.persistenceKey, JSON.stringify(history));
-      } catch (error) {
+      } catch (_error) {
         console.error('Failed to save undo-redo history:', error);
       }
     };
@@ -222,7 +222,7 @@ export const undoRedoImpl: UndoRedoImpl = (f, config = {}) => {
         saveToStorage();
 
         return { success: true };
-      } catch (error) {
+      } catch (_error) {
         return {
           success: false,
           error: error instanceof Error ? error.message : 'Import failed',

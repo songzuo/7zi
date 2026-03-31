@@ -236,9 +236,9 @@ export function hasRolePermission(role: Role, permission: Permission): boolean {
 /**
  * Check if user has permission (from permission context)
  */
-export function hasPermission(context: PermissionContext, requiredPermission: Permission): boolean {
+export function hasPermission(context: PermissionContext, requiredPermission: Permission | string): boolean {
   // Check if permission exists in computed permissions
-  if (context.permissions.includes(requiredPermission)) {
+  if (context.permissions.includes(requiredPermission as Permission)) {
     return true;
   }
 

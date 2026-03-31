@@ -3,9 +3,10 @@
  * Generate aggregated performance reports with statistics and trends
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { logger } from '@/lib/logger';
 import type { PerformanceMetric, MetricStats } from '../metrics/route';
+import { createSuccessResponse, createErrorResponse } from '@/lib/api/error-handler';
 
 // Import the performance store from metrics route
 // In production, use a shared database or proper module architecture
@@ -417,17 +418,13 @@ export async function GET(request: NextRequest) {
       overallRating: report.summary.overallRating,
     });
 
-    return NextResponse.json({
-      success: true,
+    return createSuccessResponse({
       report,
       summary: report.summary,
     });
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to generate performance report', { error });
 
-    return NextResponse.json(
-      { error: 'Failed to generate report', details: String(error) },
-      { status: 500 }
-    );
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }
 }

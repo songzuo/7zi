@@ -104,7 +104,7 @@ async function checkExternalService(
       latency,
       message: `${name} returned status ${response.status}`,
     };
-  } catch (error) {
+  } catch (_error) {
     return {
       status: 'error',
       message: error instanceof Error ? error.message : 'Unknown error',
@@ -150,7 +150,7 @@ async function checkResendAPI(): Promise<CheckResult> {
       latency,
       message: `Resend API returned status ${response.status}`,
     };
-  } catch (error) {
+  } catch (_error) {
     return {
       status: 'error',
       message: error instanceof Error ? error.message : 'Unknown error',

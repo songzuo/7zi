@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
         data,
         count: Array.isArray(permissions) ? permissions.length : 0,
       });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to fetch permissions:', error instanceof Error ? error : new Error(String(error)), { userId: context.userId, category: 'rbac' });
       return createErrorResponse(new Error('Failed to fetch permissions'));
     }

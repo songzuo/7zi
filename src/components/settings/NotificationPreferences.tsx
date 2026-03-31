@@ -105,7 +105,7 @@ export function NotificationPreferences({
         setPreferences(result.data);
         setHasUnsavedChanges(false);
       }
-    } catch (err) {
+    } catch (_err) {
       console.error('Error loading preferences:', err);
       setError('加载偏好设置失败');
       toast.error('加载偏好设置失败');
@@ -142,7 +142,7 @@ export function NotificationPreferences({
       } else {
         throw new Error(result.error || 'Save failed');
       }
-    } catch (err) {
+    } catch (_err) {
       if (process.env.NODE_ENV === 'development') {
         console.error('Error saving preferences:', err);
       }
@@ -197,7 +197,7 @@ export function NotificationPreferences({
         setHasUnsavedChanges(false);
         toast.success('已重置为默认设置');
       }
-    } catch (err) {
+    } catch (_err) {
       if (process.env.NODE_ENV === 'development') {
         console.error('Error resetting preferences:', err);
       }

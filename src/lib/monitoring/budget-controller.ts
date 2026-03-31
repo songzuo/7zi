@@ -636,7 +636,7 @@ export class BudgetController {
 
     try {
       await this.alertSystem!.sendAlert(alertConfig);
-    } catch (error) {
+    } catch (_error) {
       console.error('Failed to send budget violation alert:', error);
     }
   }

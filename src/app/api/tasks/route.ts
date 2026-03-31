@@ -7,7 +7,6 @@
  * @version 1.0.0
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { withAuth, RATE_LIMIT_CONFIG } from '@/middleware/auth';
 import { getDatabase } from '@/lib/db';
 import logger from '@/lib/logger';
@@ -317,7 +316,7 @@ export interface TaskQueryParams {
 /**
  * 排序字段映射
  */
-const sortFieldMap = {
+const _sortFieldMap = {
   createdAt: 'created_at',
   updatedAt: 'updated_at',
   dueDate: 'due_date',
@@ -406,7 +405,7 @@ function buildQuery(params: TaskQueryParams): {
  * GET /api/tasks - 获取任务列表（分页、筛选、排序）
  */
 export async function GET(request: NextRequest) {
-  return withAuth(request, async (req, userId) => {
+  return withAuth(request, async (_req, _userId) => {
     try {
       ensureTasksTable();
 
@@ -462,7 +461,7 @@ export async function GET(request: NextRequest) {
           hasPreviousPage: page > 1,
         } as PaginatedResponse<Task>,
       });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to fetch tasks', error);
       return NextResponse.json(
         {
@@ -552,7 +551,7 @@ export async function POST(request: NextRequest) {
         },
         { status: 201 }
       );
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to create task', error);
       return NextResponse.json(
         {

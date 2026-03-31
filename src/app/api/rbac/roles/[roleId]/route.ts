@@ -3,7 +3,6 @@
  * 管理单个角色的详细信息
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { withAdmin } from '@/lib/auth/middleware-rbac';
 import { Role, Permission } from '@/lib/permissions/types';
 import {
@@ -59,7 +58,7 @@ export async function GET(
         success: true,
         data: role,
       });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to fetch role:', { error, userId: context.userId });
       return NextResponse.json(
         {
@@ -174,7 +173,7 @@ export async function PUT(
         data: updatedRole,
         message: 'Role updated successfully',
       });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to update role:', { error, userId: context.userId });
       return NextResponse.json(
         {
@@ -241,7 +240,7 @@ export async function DELETE(
         success: true,
         message: 'Role deleted successfully',
       });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to delete role:', { error, userId: context.userId });
       return NextResponse.json(
         {

@@ -40,6 +40,7 @@ function initializeScheduler(config?: Partial<SchedulerConfig>): AgentScheduler 
 /**
  * Format output based on --json flag
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function output(data: any): void {
   if (jsonOutput) {
     console.log(JSON.stringify(data, null, 2));
@@ -51,6 +52,7 @@ function output(data: any): void {
 /**
  * Format data for human-readable output
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function formatOutput(data: any): string {
   if (typeof data === 'string') return data;
   if (Array.isArray(data)) {
@@ -73,6 +75,7 @@ function formatOutput(data: any): string {
 /**
  * Format task for display
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function formatTask(task: Task): any {
   const statusEmoji: Record<Task['status'], string> = {
     pending: '⏳',
@@ -108,6 +111,7 @@ function formatTask(task: Task): any {
 /**
  * Format agent for display
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function formatAgent(agent: AgentCapability): any {
   const availability = agent.availability ? '🟢 可用' : '🔴 不可用';
   const loadPercent = agent.currentLoad.toFixed(0);
@@ -137,6 +141,7 @@ function formatAgent(agent: AgentCapability): any {
 /**
  * Format scheduling result
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function formatSchedulingResult(result: SchedulingResult): any {
   if (jsonOutput) return result;
 
@@ -600,6 +605,7 @@ scheduleCmd
   .action((options: Record<string, unknown>) => {
     const sched = initializeScheduler();
     
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let decisions: any[];
     if (options.agent) {
       decisions = sched.getScheduleHistory().getAgentDecisions(String(options.agent));
@@ -690,6 +696,7 @@ program
     const state = sched.export();
 
     if (options.output) {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const fs = require('fs');
       fs.writeFileSync(options.output, state);
       console.log(`State exported to: ${options.output}`);

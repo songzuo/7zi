@@ -97,7 +97,7 @@ async function wrapHandler<T>(
   try {
     const result = await handler();
     return ResponseUtil.success(result);
-  } catch (error) {
+  } catch (_error) {
     return ResponseUtil.error('Operation failed', error);
   }
 }
@@ -367,7 +367,7 @@ export class SevenZiMcpServer {
               headers: headerObj,
               body: text.substring(0, 10000), // Limit response size
             }, null, 2);
-          } catch (error) {
+          } catch (_error) {
             clearTimeout(timeoutId);
             throw error;
           }
@@ -443,7 +443,7 @@ export class SevenZiMcpServer {
             error: { code: -32601, message: `Method not found: ${request.method}` },
           };
       }
-    } catch (error) {
+    } catch (_error) {
       this.logger.error('Request handling failed', error);
       return {
         jsonrpc: '2.0',

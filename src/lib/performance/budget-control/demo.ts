@@ -107,7 +107,7 @@ async function main() {
     console.log('🎉 ===============================================');
     console.log('✅ Demo completed successfully!');
     console.log('===============================================\n');
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Demo failed:', error);
     process.exit(1);
   }

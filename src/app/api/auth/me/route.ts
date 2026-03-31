@@ -18,18 +18,18 @@ export async function GET(request: NextRequest) {
       const user = await getUserById(context.userId);
 
       if (!user) {
-        return createNotFoundError('User not found');
+        return await createNotFoundError('User not found');
       }
 
       // Check if user is deleted
       if (user.status === 'deleted') {
-        return createNotFoundError('User not found');
+        return await createNotFoundError('User not found');
       }
 
       // Remove password from response
       const { password, ...userWithoutPassword } = user;
 
-      return createSuccessResponse(userWithoutPassword);
+      return createSuccessResponse({ user: userWithoutPassword });
     } catch (error) {
       logger.error('Get user API error', error, { category: 'auth' });
       return createErrorResponse(error instanceof Error ? error : new Error(String(error)));

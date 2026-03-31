@@ -274,7 +274,7 @@ export function PrefetchProvider({
       if (debug) {
         console.log(`[PrefetchProvider] Prefetched: ${path} (${loadTime.toFixed(2)}ms)`);
       }
-    } catch (error) {
+    } catch (_error) {
       if (debug) {
         console.error(`[PrefetchProvider] Failed to prefetch: ${path}`, error);
       }

@@ -4,7 +4,6 @@
  * Provides health check endpoints for monitoring and load balancers
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { getCacheManager } from '@/lib/cache/CacheManager';
 import { createErrorResponse } from '@/lib/api/error-handler';
 import { logger } from '@/lib/logger';
@@ -86,8 +85,8 @@ function collectHealthMetrics(): HealthCheckData {
  * GET /api/health
  * Basic health check endpoint
  */
-export async function GET(request: NextRequest) {
-  const startTime = Date.now();
+export async function GET(_request: NextRequest) {
+  const _startTime = Date.now();
 
   try {
     const cacheManager = getCacheManager();
@@ -114,7 +113,7 @@ export async function GET(request: NextRequest) {
         'Cache-Control': 'no-cache',
       },
     });
-  } catch (err) {
+  } catch (_err) {
     logger.error('Health check failed', err as Error);
     return createErrorResponse(err as Error, 503);
   }

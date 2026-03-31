@@ -39,7 +39,7 @@ export async function initializeDatabaseOptimization(): Promise<void> {
     }
 
     logger.info('Initialization completed', { category: 'db' });
-  } catch (error) {
+  } catch (_error) {
     logger.error('Initialization failed', error, { category: 'db' });
     throw error;
   }

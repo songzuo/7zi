@@ -7,25 +7,26 @@
 
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useCollaboration } from '@/lib/websocket';
 import { ConnectionStatus, UserList } from '@/components/collaboration/ConnectionStatus';
 
 type RoomType = 'task' | 'project' | 'chat' | 'document';
 
+// Generate stable random ID outside of render (module scope)
+const generateUserId = () => `user-${Math.floor(Math.random() * 1000)}`;
+const generateUserName = () => `User ${Math.floor(Math.random() * 1000)}`;
+
 export default function CollaborationDemoContent() {
-  // Generate stable initial config values
-  const initialConfig = useMemo(() => ({
+  const [config, setConfig] = useState({
     url: 'ws://localhost:3002',
     token: '',
-    userId: `user-${Math.floor(Math.random() * 1000)}`,
-    userName: `User ${Math.floor(Math.random() * 1000)}`,
+    userId: generateUserId(),
+    userName: generateUserName(),
     roomType: 'task' as RoomType,
     roomId: 'demo-task-1',
     documentId: 'demo-doc-1',
-  }), []);
-
-  const [config, setConfig] = useState(initialConfig);
+  });
 
   const {
     connectionState,
@@ -41,7 +42,6 @@ export default function CollaborationDemoContent() {
     joinRoom,
     leaveRoom,
     sendOperation,
-    moveCursor,
     setTyping,
   } = useCollaboration({
     url: config.url,
@@ -341,7 +341,7 @@ export default function CollaborationDemoContent() {
             <li>Configure different user IDs and names for each tab</li>
             <li>Connect to WebSocket server</li>
             <li>Join to same room (use same Room ID)</li>
-            <li>Type messages and click "Add to Document"</li>
+            <li>Type messages and click &quot;Add to Document&quot;</li>
             <li>Watch real-time updates across all tabs</li>
             <li>Observe cursor positions, typing indicators, and user presence</li>
             <li>Test disconnection and reconnection scenarios</li>

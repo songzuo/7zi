@@ -4,8 +4,8 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { useSchedulerStore } from '@/lib/agent-scheduler/stores/scheduler-store';
-import { Task, createTask } from '@/lib/agent-scheduler/models/task-model';
+import { useSchedulerStore } from '@/lib/agents/scheduler/stores/scheduler-store';
+import { Task, createTask } from '@/lib/agents/scheduler/models/task-model';
 
 // Note: Zustand stores are designed for React and require React context
 // These tests verify the store structure and synchronous methods
@@ -129,89 +129,89 @@ describe('SchedulerStore', () => {
   describe('computed selectors', () => {
     // Test computed selector exports
     it('should export selectScheduler', async () => {
-      const { selectScheduler } = await import('@/lib/agent-scheduler/stores/scheduler-store');
+      const { selectScheduler } = await import('@/lib/agents/scheduler/stores/scheduler-store');
       expect(typeof selectScheduler).toBe('function');
     });
 
     it('should export selectAgents', async () => {
-      const { selectAgents } = await import('@/lib/agent-scheduler/stores/scheduler-store');
+      const { selectAgents } = await import('@/lib/agents/scheduler/stores/scheduler-store');
       expect(typeof selectAgents).toBe('function');
     });
 
     it('should export selectTasks', async () => {
-      const { selectTasks } = await import('@/lib/agent-scheduler/stores/scheduler-store');
+      const { selectTasks } = await import('@/lib/agents/scheduler/stores/scheduler-store');
       expect(typeof selectTasks).toBe('function');
     });
 
     it('should export selectPendingTasks', async () => {
-      const { selectPendingTasks } = await import('@/lib/agent-scheduler/stores/scheduler-store');
+      const { selectPendingTasks } = await import('@/lib/agents/scheduler/stores/scheduler-store');
       expect(typeof selectPendingTasks).toBe('function');
     });
 
     it('should export selectRecentDecisions', async () => {
-      const { selectRecentDecisions } = await import('@/lib/agent-scheduler/stores/scheduler-store');
+      const { selectRecentDecisions } = await import('@/lib/agents/scheduler/stores/scheduler-store');
       expect(typeof selectRecentDecisions).toBe('function');
     });
 
     it('should export selectStats', async () => {
-      const { selectStats } = await import('@/lib/agent-scheduler/stores/scheduler-store');
+      const { selectStats } = await import('@/lib/agents/scheduler/stores/scheduler-store');
       expect(typeof selectStats).toBe('function');
     });
 
     it('should export selectIsLoading', async () => {
-      const { selectIsLoading } = await import('@/lib/agent-scheduler/stores/scheduler-store');
+      const { selectIsLoading } = await import('@/lib/agents/scheduler/stores/scheduler-store');
       expect(typeof selectIsLoading).toBe('function');
     });
 
     it('should export selectError', async () => {
-      const { selectError } = await import('@/lib/agent-scheduler/stores/scheduler-store');
+      const { selectError } = await import('@/lib/agents/scheduler/stores/scheduler-store');
       expect(typeof selectError).toBe('function');
     });
 
     it('should export selectAgentAvailability', async () => {
-      const { selectAgentAvailability } = await import('@/lib/agent-scheduler/stores/scheduler-store');
+      const { selectAgentAvailability } = await import('@/lib/agents/scheduler/stores/scheduler-store');
       expect(typeof selectAgentAvailability).toBe('function');
     });
 
     it('should export selectUrgentTasks', async () => {
-      const { selectUrgentTasks } = await import('@/lib/agent-scheduler/stores/scheduler-store');
+      const { selectUrgentTasks } = await import('@/lib/agents/scheduler/stores/scheduler-store');
       expect(typeof selectUrgentTasks).toBe('function');
     });
 
     it('should export selectOverdueTasks', async () => {
-      const { selectOverdueTasks } = await import('@/lib/agent-scheduler/stores/scheduler-store');
+      const { selectOverdueTasks } = await import('@/lib/agents/scheduler/stores/scheduler-store');
       expect(typeof selectOverdueTasks).toBe('function');
     });
 
     it('should export selectAgentUtilization', async () => {
-      const { selectAgentUtilization } = await import('@/lib/agent-scheduler/stores/scheduler-store');
+      const { selectAgentUtilization } = await import('@/lib/agents/scheduler/stores/scheduler-store');
       expect(typeof selectAgentUtilization).toBe('function');
     });
 
     it('should export selectTaskByStatus', async () => {
-      const { selectTaskByStatus } = await import('@/lib/agent-scheduler/stores/scheduler-store');
+      const { selectTaskByStatus } = await import('@/lib/agents/scheduler/stores/scheduler-store');
       expect(typeof selectTaskByStatus).toBe('function');
     });
 
     it('should export selectTasksByAgent', async () => {
-      const { selectTasksByAgent } = await import('@/lib/agent-scheduler/stores/scheduler-store');
+      const { selectTasksByAgent } = await import('@/lib/agents/scheduler/stores/scheduler-store');
       expect(typeof selectTasksByAgent).toBe('function');
     });
 
     it('should export selectSelectedTask', async () => {
-      const { selectSelectedTask } = await import('@/lib/agent-scheduler/stores/scheduler-store');
+      const { selectSelectedTask } = await import('@/lib/agents/scheduler/stores/scheduler-store');
       expect(typeof selectSelectedTask).toBe('function');
     });
 
     it('should export selectSelectedAgent', async () => {
-      const { selectSelectedAgent } = await import('@/lib/agent-scheduler/stores/scheduler-store');
+      const { selectSelectedAgent } = await import('@/lib/agents/scheduler/stores/scheduler-store');
       expect(typeof selectSelectedAgent).toBe('function');
     });
   });
 
   describe('selectTaskByStatus', () => {
     it('should return a selector function', async () => {
-      const { selectTaskByStatus } = await import('@/lib/agent-scheduler/stores/scheduler-store');
+      const { selectTaskByStatus } = await import('@/lib/agents/scheduler/stores/scheduler-store');
       const selector = selectTaskByStatus('pending');
       expect(typeof selector).toBe('function');
     });
@@ -219,7 +219,7 @@ describe('SchedulerStore', () => {
 
   describe('selectTasksByAgent', () => {
     it('should return a selector function', async () => {
-      const { selectTasksByAgent } = await import('@/lib/agent-scheduler/stores/scheduler-store');
+      const { selectTasksByAgent } = await import('@/lib/agents/scheduler/stores/scheduler-store');
       const selector = selectTasksByAgent('agent1');
       expect(typeof selector).toBe('function');
     });

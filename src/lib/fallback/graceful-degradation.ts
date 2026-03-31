@@ -297,7 +297,7 @@ export function withDegradation<T extends (...args: unknown[]) => Promise<unknow
       manager.recordPerformance(feature, duration);
 
       return result;
-    } catch (error) {
+    } catch (_error) {
       // Record error
       manager.recordError(feature);
 

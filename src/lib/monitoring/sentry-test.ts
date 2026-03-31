@@ -37,7 +37,7 @@ export function testSentryIntegration() {
     setTimeout(() => {
       throw new Error('Sentry Integration Test - Async Error');
     }, 100);
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Sentry test failed:', error);
   }
 }

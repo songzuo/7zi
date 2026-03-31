@@ -275,7 +275,7 @@ export async function shouldSendNotification(
     const eventEnabled = prefs[`${eventType}_enabled` as NotificationPreferenceKey] as boolean;
 
     return channelEnabled && eventEnabled;
-  } catch (error) {
+  } catch (_error) {
     // If preferences don't exist, use defaults
     const defaults = DEFAULT_PREFERENCES;
     const channelEnabled = (defaults[`${channel}_enabled` as keyof typeof defaults] as boolean) ?? true;

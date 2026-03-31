@@ -102,7 +102,7 @@ export async function withPermissionContext(
     const context = await getPermissionContextFromRequest(request);
 
     return handler(request, context);
-  } catch (error) {
+  } catch (_error) {
     logger.error('Permission context error:', { error });
     return createErrorResponse(
       error instanceof Error ? error.message : 'Internal server error',

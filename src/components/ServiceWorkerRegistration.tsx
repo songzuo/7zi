@@ -19,16 +19,14 @@ interface ServiceWorkerEventMap {
 export function ServiceWorkerRegistration() {
   const [swRegistration, setSwRegistration] = useState<ServiceWorkerRegistration | null>(null);
   const [updateAvailable, setUpdateAvailable] = useState(false);
-  const [isOnline, setIsOnline] = useState(true);
+  const [isOnline, setIsOnline] = useState(() => navigator.onLine);
   const [swVersion, setSwVersion] = useState<string | null>(null);
 
+  // Register Service Worker
   useEffect(() => {
     if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
       return;
     }
-
-    // Check online status
-    setIsOnline(navigator.onLine);
 
     // Network status listeners
     const handleOnline = () => {
@@ -43,120 +41,106 @@ export function ServiceWorkerRegistration() {
     window.addEventListener('offline', handleOffline);
 
     // Register Service Worker
-    registerServiceWorker();
+    (async () => {
+      try {
+        // Wait for the page to load
+        if (document.readyState === 'loading') {
+          await new Promise<void>((resolve) => {
+            document.addEventListener('DOMContentLoaded', () => resolve(), { once: true });
+          });
+        }
+
+        // Unregister any old service workers
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (const registration of registrations) {
+          const scriptURL = new URL(registration.active?.scriptURL || '');
+          if (!scriptURL.pathname.endsWith('/sw.js')) {
+            await registration.unregister();
+          }
+        }
+
+        // Register new service worker
+        const registration = await navigator.serviceWorker.register('/sw.js', {
+          scope: '/',
+        });
+
+        setSwRegistration(registration);
+
+        // Get current SW version
+        const getSWVersion = async (reg: ServiceWorkerRegistration): Promise<string> => {
+          try {
+            if (reg.active) {
+              const messageChannel = new MessageChannel();
+              const versionPromise = new Promise<string>((resolve) => {
+                messageChannel.port1.onmessage = (event) => {
+                  if (event.data.type === 'VERSION') {
+                    resolve(event.data.version);
+                  }
+                };
+              });
+
+              reg.active.postMessage(
+                { type: 'GET_VERSION' },
+                [messageChannel.port2]
+              );
+
+              return versionPromise;
+            }
+          } catch (_error) {
+            if (process.env.NODE_ENV === 'development') {
+              console.error('[SW] Failed to get SW version:', error);
+            }
+          }
+          return 'unknown';
+        };
+
+        const version = await getSWVersion(registration);
+        setSwVersion(version);
+
+        // Check for updates
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          if (!newWorker) return;
+
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // New service worker is waiting
+              setUpdateAvailable(true);
+
+              // Dispatch custom event for other components
+              getSWVersion(registration).then((v) => {
+                window.dispatchEvent(
+                  new CustomEvent('sw-updated', {
+                    detail: { version: v },
+                  })
+                );
+              }).catch(() => {
+                // Silently ignore version fetch errors
+              });
+            }
+          });
+        });
+
+        // Periodically check for updates
+        setInterval(() => {
+          registration.update();
+        }, 60 * 60 * 1000); // Check every hour
+
+      } catch (_error) {
+        console.error('[SW] Service Worker registration failed:', error);
+        window.dispatchEvent(
+          new CustomEvent('sw-error', {
+            detail: { error: (error as Error).message },
+          })
+        );
+      }
+    })();
 
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
-
-  const registerServiceWorker = async () => {
-    try {
-      // Wait for the page to load
-      if (document.readyState === 'loading') {
-        await new Promise<void>((resolve) => {
-          document.addEventListener('DOMContentLoaded', () => resolve(), { once: true });
-        });
-      }
-
-      // Unregister any old service workers
-      await unregisterOldServiceWorkers();
-
-      // Register new service worker
-      const registration = await navigator.serviceWorker.register('/sw.js', {
-        scope: '/',
-      });
-
-      setSwRegistration(registration);
-
-      // Check for updates
-      registration.addEventListener('updatefound', () => {
-        const newWorker = registration.installing;
-        if (!newWorker) return;
-
-        newWorker.addEventListener('statechange', () => {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            // New service worker is waiting
-            setUpdateAvailable(true);
-
-            // Dispatch custom event for other components
-            getSWVersion(registration).then((version) => {
-              window.dispatchEvent(
-                new CustomEvent('sw-updated', {
-                  detail: { version },
-                })
-              );
-            }).catch(() => {
-              // Silently ignore version fetch errors
-            });
-          }
-        });
-      });
-
-      // Get current SW version
-      const version = await getSWVersion(registration);
-      setSwVersion(version);
-
-      // Periodically check for updates
-      setInterval(() => {
-        registration.update();
-      }, 60 * 60 * 1000); // Check every hour
-
-    } catch (error) {
-      console.error('[SW] Service Worker registration failed:', error);
-      window.dispatchEvent(
-        new CustomEvent('sw-error', {
-          detail: { error: (error as Error).message },
-        })
-      );
-    }
-  };
-
-  const unregisterOldServiceWorkers = async () => {
-    try {
-      const registrations = await navigator.serviceWorker.getRegistrations();
-
-      for (const registration of registrations) {
-        const scriptURL = new URL(registration.active?.scriptURL || '');
-
-        // Unregister if it's not our current SW
-        if (!scriptURL.pathname.endsWith('/sw.js')) {
-          await registration.unregister();
-        }
-      }
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('[SW] Failed to unregister old service workers:', error);
-      }
-    }
-  };
-
-  const getSWVersion = async (registration: ServiceWorkerRegistration): Promise<string> => {
-    try {
-      // Send message to SW to get version
-      if (registration.active) {
-        const messageChannel = new MessageChannel();
-        const versionPromise = new Promise<string>((resolve) => {
-          messageChannel.port1.onmessage = (event) => {
-            resolve(event.data.version);
-          };
-        });
-
-        registration.active.postMessage(
-          { type: 'GET_VERSION' },
-          [messageChannel.port2]
-        );
-
-        return versionPromise;
-      }
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('[SW] Failed to get SW version:', error);
-      }
-    }
-    return 'unknown';
-  };
 
   const handleUpdate = async () => {
     if (!swRegistration || !swRegistration.waiting) {
@@ -187,7 +171,7 @@ export function ServiceWorkerRegistration() {
       await Promise.all(cacheNames.map((name) => caches.delete(name)));
 
       window.location.reload();
-    } catch (error) {
+    } catch (_error) {
       if (process.env.NODE_ENV === 'development') {
         console.error('[SW] Failed to clear cache:', error);
       }
@@ -207,7 +191,7 @@ export function ServiceWorkerRegistration() {
     }
 
     const win = window as WindowWithSWControl;
-    win.__SW_CONTROL = { // Global debug variable
+    win.__SW_CONTROL = {
       update: handleUpdate,
       clearCache,
       getVersion: () => swVersion,
@@ -233,15 +217,15 @@ export function ServiceWorkerRegistration() {
             <div className="flex items-center gap-2">
               <button
                 onClick={handleUpdate}
-                className="px-3 py-1.5 text-xs font-medium text-cyan-600 bg-white hover:bg-cyan-50 rounded-lg transition-colors"
+                className="px-4 py-2 bg-white text-cyan-600 rounded-lg font-medium hover:bg-cyan-50 transition-colors"
               >
-                立即更新
+                刷新
               </button>
               <button
                 onClick={() => setUpdateAvailable(false)}
-                className="text-white hover:text-cyan-100 transition-colors"
+                className="p-2 hover:bg-cyan-700 rounded-lg transition-colors"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -250,22 +234,50 @@ export function ServiceWorkerRegistration() {
         </div>
       )}
 
-      {/* Online/Offline Indicator (small) */}
+      {/* Offline Indicator */}
       {!isOnline && (
-        <div className="fixed bottom-4 left-4 z-50 bg-zinc-900 text-white px-3 py-2 rounded-lg shadow-lg flex items-center gap-2 text-xs">
-          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-          <span>离线模式</span>
-        </div>
-      )}
-
-      {/* Debug info (only in development) */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="fixed bottom-4 right-4 z-50 bg-zinc-800 text-white px-3 py-2 rounded-lg shadow-lg text-xs opacity-75 hover:opacity-100 transition-opacity">
-          <div>SW Version: {swVersion || 'unknown'}</div>
-          <div>Status: {isOnline ? '🟢 在线' : '🔴 离线'}</div>
-          <div>Update Available: {updateAvailable ? '是' : '否'}</div>
+        <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-auto z-50 bg-gray-800 text-white px-4 py-3 rounded-lg shadow-lg">
+          <div className="flex items-center gap-2">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <span className="text-sm font-medium">
+              您目前处于离线状态。部分功能可能不可用。
+            </span>
+          </div>
         </div>
       )}
     </>
   );
+}
+
+/**
+ * Register the service worker registration component
+ */
+export function registerServiceWorker() {
+  // The registration is done automatically by the ServiceWorkerRegistration component
+  if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+    // Component handles registration
+  }
+}
+
+/**
+ * Get service worker registration
+ */
+export function getServiceWorkerRegistration(): ServiceWorkerRegistration | null {
+  if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+    const win = window as WindowWithSWControl;
+    return win.__SW_CONTROL || null;
+  }
+  return null;
+}
+
+interface WindowWithSWControl extends Window {
+  __SW_CONTROL?: {
+    update: () => void;
+    clearCache: () => void;
+    getVersion: () => string | null;
+    isOnline: boolean;
+    hasUpdate: boolean;
+  };
 }

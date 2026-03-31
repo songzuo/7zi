@@ -76,7 +76,7 @@ async function generateJwtToken(user: User, expiresIn: number = 3600): Promise<s
       .sign(secret);
 
     return token;
-  } catch (error) {
+  } catch (_error) {
     logger.error('JWT token generation failed', error, { category: 'auth' });
     throw new Error(`Failed to generate JWT token: ${error instanceof Error ? error.message : String(error)}`);
   }
@@ -147,7 +147,7 @@ export async function registerUser(request: RegisterRequest): Promise<RegisterRe
       success: true,
       user: userWithoutPassword,
     };
-  } catch (error) {
+  } catch (_error) {
     logger.error('Registration failed', error, { category: 'auth' });
     return {
       success: false,
@@ -210,7 +210,7 @@ export async function loginUser(request: LoginRequest): Promise<LoginSuccessResp
       refreshToken: dbToken.refreshToken,
       expiresAt: dbToken.expiresAt,
     };
-  } catch (error) {
+  } catch (_error) {
     // Detailed error logging for debugging
     const errorMessage = error instanceof Error ? error.message : String(error);
     const errorStack = error instanceof Error ? error.stack : undefined;
@@ -233,7 +233,7 @@ export async function logoutUser(token: string): Promise<{ success: boolean; err
   try {
     await revokeUserToken(token);
     return { success: true };
-  } catch (error) {
+  } catch (_error) {
     logger.error('Logout failed', error, { category: 'auth' });
     return {
       success: false,
@@ -303,7 +303,7 @@ export async function refreshToken(request: RefreshTokenRequest): Promise<Refres
       refreshToken: dbToken.refreshToken,
       expiresAt: dbToken.expiresAt,
     };
-  } catch (error) {
+  } catch (_error) {
     logger.error('Refresh token failed', error, { category: 'auth' });
     return {
       success: false,
@@ -344,7 +344,7 @@ export async function authenticateToken(token: string): Promise<{ user: User; co
       user: dbResult.user,
       context,
     };
-  } catch (error) {
+  } catch (_error) {
     logger.error('Token verification failed', error, { category: 'auth' });
     return null;
   }
@@ -391,7 +391,7 @@ export async function changePassword(
     await revokeAllUserTokens(userId);
 
     return { success: true };
-  } catch (error) {
+  } catch (_error) {
     logger.error('Change password failed', error, { category: 'auth' });
     return {
       success: false,
@@ -415,7 +415,7 @@ export async function initiatePasswordReset(email: string): Promise<{ success: b
     const token = await createPasswordResetToken(user.id, 1);
 
     return { success: true, token };
-  } catch (error) {
+  } catch (_error) {
     logger.error('Password reset failed', error, { category: 'auth' });
     return {
       success: false,
@@ -459,7 +459,7 @@ export async function resetPassword(
     await revokeAllUserTokens(user.id);
 
     return { success: true };
-  } catch (error) {
+  } catch (_error) {
     logger.error('Reset password failed', error, { category: 'auth' });
     return {
       success: false,

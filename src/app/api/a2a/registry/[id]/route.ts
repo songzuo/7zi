@@ -3,16 +3,20 @@
  * GET    /api/a2a/registry/[id] - Get specific agent
  * PUT    /api/a2a/registry/[id] - Update agent
  * DELETE /api/a2a/registry/[id] - Unregister agent
+ * PATCH  /api/a2a/registry/[id] - Update heartbeat
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getAgentRegistry } from '@/lib/agents/a2a/agent-registry';
 import { AgentRegistration } from '@/lib/agents/a2a/types';
+import {
+  createSuccessResponse,
+  createErrorResponse,
+  createNotFoundError,
+} from '@/lib/api/error-handler';
 
 interface RouteContext {
-  params: {
-    id: string;
-  };
+  params: Promise<{ id: string }>;
 }
 
 /**
@@ -21,29 +25,18 @@ interface RouteContext {
  */
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
-    const { id } = context.params;
+    const { id } = await context.params;
     const registry = getAgentRegistry();
     const agent = registry.get(id);
 
     if (!agent) {
-      return NextResponse.json(
-        {
-          error: 'Agent not found',
-          message: `No agent found with ID: ${id}`,
-        },
-        { status: 404 }
-      );
+      return createNotFoundError(`No agent found with ID: ${id}`);
     }
 
-    return NextResponse.json(agent);
-  } catch (error) {
-    console.error('Agent Registry GET [id] error:', error);
-    return NextResponse.json(
-      {
-        error: 'Failed to get agent',
-        message: error instanceof Error ? error.message : 'Unknown error',
-      },
-      { status: 500 }
+    return createSuccessResponse(agent);
+  } catch (_error) {
+    return createErrorResponse(
+      error instanceof Error ? error : new Error(String(error))
     );
   }
 }
@@ -54,20 +47,14 @@ export async function GET(request: NextRequest, context: RouteContext) {
  */
 export async function PUT(request: NextRequest, context: RouteContext) {
   try {
-    const { id } = context.params;
+    const { id } = await context.params;
     const body = await request.json();
 
     const registry = getAgentRegistry();
     const existingAgent = registry.get(id);
 
     if (!existingAgent) {
-      return NextResponse.json(
-        {
-          error: 'Agent not found',
-          message: `No agent found with ID: ${id}`,
-        },
-        { status: 404 }
-      );
+      return createNotFoundError(`No agent found with ID: ${id}`);
     }
 
     // Update agent (create new registration with updated fields)
@@ -87,18 +74,13 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     registry.unregister(id);
     registry.register(updatedAgent);
 
-    return NextResponse.json({
+    return createSuccessResponse({
       message: 'Agent updated successfully',
       agent: registry.get(id),
     });
-  } catch (error) {
-    console.error('Agent Registry PUT [id] error:', error);
-    return NextResponse.json(
-      {
-        error: 'Failed to update agent',
-        message: error instanceof Error ? error.message : 'Unknown error',
-      },
-      { status: 500 }
+  } catch (_error) {
+    return createErrorResponse(
+      error instanceof Error ? error : new Error(String(error))
     );
   }
 }
@@ -109,32 +91,21 @@ export async function PUT(request: NextRequest, context: RouteContext) {
  */
 export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
-    const { id } = context.params;
+    const { id } = await context.params;
     const registry = getAgentRegistry();
     const deleted = registry.unregister(id);
 
     if (!deleted) {
-      return NextResponse.json(
-        {
-          error: 'Agent not found',
-          message: `No agent found with ID: ${id}`,
-        },
-        { status: 404 }
-      );
+      return createNotFoundError(`No agent found with ID: ${id}`);
     }
 
-    return NextResponse.json({
+    return createSuccessResponse({
       message: 'Agent unregistered successfully',
       id,
     });
-  } catch (error) {
-    console.error('Agent Registry DELETE [id] error:', error);
-    return NextResponse.json(
-      {
-        error: 'Failed to unregister agent',
-        message: error instanceof Error ? error.message : 'Unknown error',
-      },
-      { status: 500 }
+  } catch (_error) {
+    return createErrorResponse(
+      error instanceof Error ? error : new Error(String(error))
     );
   }
 }
@@ -145,32 +116,21 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
  */
 export async function PATCH(request: NextRequest, context: RouteContext) {
   try {
-    const { id } = context.params;
+    const { id } = await context.params;
     const registry = getAgentRegistry();
     const updated = registry.updateHeartbeat(id);
 
     if (!updated) {
-      return NextResponse.json(
-        {
-          error: 'Agent not found',
-          message: `No agent found with ID: ${id}`,
-        },
-        { status: 404 }
-      );
+      return createNotFoundError(`No agent found with ID: ${id}`);
     }
 
-    return NextResponse.json({
+    return createSuccessResponse({
       message: 'Heartbeat updated successfully',
       agent: registry.get(id),
     });
-  } catch (error) {
-    console.error('Agent Registry PATCH [id] error:', error);
-    return NextResponse.json(
-      {
-        error: 'Failed to update heartbeat',
-        message: error instanceof Error ? error.message : 'Unknown error',
-      },
-      { status: 500 }
+  } catch (_error) {
+    return createErrorResponse(
+      error instanceof Error ? error : new Error(String(error))
     );
   }
 }

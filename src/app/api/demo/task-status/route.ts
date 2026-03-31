@@ -5,7 +5,6 @@
  * This endpoint demonstrates the broadcastTaskStatusUpdate function.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { broadcastTaskStatusUpdate, broadcastTaskStatusToUser } from '@/lib/websocket/server';
 
 export async function POST(req: NextRequest) {
@@ -53,7 +52,7 @@ export async function POST(req: NextRequest) {
       message: 'Task status update broadcasted',
       update,
     });
-  } catch (error) {
+  } catch (_error) {
     console.error('Error broadcasting task status update:', error);
     return NextResponse.json(
       { error: 'Failed to broadcast task status update' },

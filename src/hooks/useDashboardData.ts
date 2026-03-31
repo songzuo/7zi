@@ -53,7 +53,7 @@ interface UseDashboardDataReturn {
 export function useDashboardData(
   owner: string,
   repo: string,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   _token?: string | null // 保留参数签名以保持向后兼容，但不再使用
 ): UseDashboardDataReturn {
   const [issues, setIssues] = useState<GitHubIssue[]>([]);
@@ -79,7 +79,7 @@ export function useDashboardData(
       const data = await response.json();
       setIssues(data);
       return data;
-    } catch (err) {
+    } catch (_err) {
       logger.error('Failed to fetch issues:', err);
       throw err;
     }
@@ -101,7 +101,7 @@ export function useDashboardData(
       const data = await response.json();
       setCommits(data);
       return data;
-    } catch (err) {
+    } catch (_err) {
       logger.error('Failed to fetch commits:', err);
       throw err;
     }
@@ -193,7 +193,7 @@ export function useDashboardData(
       setActivities(mergedActivities);
 
       setLastUpdated(new Date());
-    } catch (err) {
+    } catch (_err) {
       const errorMessage = err instanceof Error ? err.message : '数据加载失败';
       setError(errorMessage);
     } finally {

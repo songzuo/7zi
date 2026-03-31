@@ -645,7 +645,7 @@ export class EscalationPolicyManager {
       // Move to next step
       state.currentStep++;
       this.scheduleNextStep(currentAlert, state);
-    } catch (error) {
+    } catch (_error) {
       actionRecord.result = 'failed';
       actionRecord.message = error instanceof Error ? error.message : 'Unknown error';
       state.actions.push(actionRecord);

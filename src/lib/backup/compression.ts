@@ -77,7 +77,7 @@ export async function compressBackup(
       default:
         return data;
     }
-  } catch (error) {
+  } catch (_error) {
     console.error('Failed to compress backup:', error);
     throw new Error(`Compression failed: ${error instanceof Error ? error.message : String(error)}`);
   }
@@ -146,7 +146,7 @@ export async function decompressBackup(
       default:
         return data;
     }
-  } catch (error) {
+  } catch (_error) {
     console.error('Failed to decompress backup:', error);
     throw new Error(`Decompression failed: ${error instanceof Error ? error.message : String(error)}`);
   }

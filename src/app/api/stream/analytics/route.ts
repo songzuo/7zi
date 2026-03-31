@@ -3,7 +3,6 @@
  * Real-time analytics metrics via Server-Sent Events (requires authentication)
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { getGlobalStreamManager } from '@/lib/sse/stream';
 import { getSSEHeaders, isValidSSEConnection } from '@/lib/sse/utils';
 import { createValidationError, createUnauthorizedError } from '@/lib/api/error-handler';
@@ -86,7 +85,7 @@ async function GETHandler(
   const stream = new ReadableStream({
     start(controller) {
       // Add client to manager
-      const client = streamManager.addClient(clientId, controller);
+      const _client = streamManager.addClient(clientId, controller);
 
       // Send initial connection event
       const connectEvent: AnalyticsEvent = {
@@ -99,7 +98,7 @@ async function GETHandler(
         controller.enqueue(
           encoder.encode(formatSSEEvent(connectEvent, 'connected', clientId))
         );
-      } catch (error) {
+      } catch (_error) {
         // Client disconnected - silently fail
       }
 
@@ -115,7 +114,7 @@ async function GETHandler(
           controller.enqueue(
             encoder.encode(formatSSEEvent(metricsData, 'metrics'))
           );
-        } catch (error) {
+        } catch (_error) {
           clearInterval(intervalId);
           streamManager.removeClient(clientId);
         }
@@ -125,7 +124,7 @@ async function GETHandler(
       const keepAliveId = setInterval(() => {
         try {
           controller.enqueue(encoder.encode(': keep-alive\n\n'));
-        } catch (error) {
+        } catch (_error) {
           // Client disconnected - silently fail
         }
       }, 15000);

@@ -145,7 +145,7 @@ export function withPerformanceTracking<T extends (...args: unknown[]) => Promis
       });
 
       return result;
-    } catch (error) {
+    } catch (_error) {
       const duration = performance.now() - startTime;
 
       // 记录失败的操作

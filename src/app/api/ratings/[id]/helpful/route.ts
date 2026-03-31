@@ -3,7 +3,6 @@
  * Mark rating as helpful or not helpful
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { getDatabaseAsync } from '@/lib/db/index';
 import { logger } from '@/lib/logger';
 import {
@@ -61,7 +60,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     const response = createSuccessResponse(updatedRating);
     logRequestComplete(metadata, response, startTime);
     return response;
-  } catch (error) {
+  } catch (_error) {
     logRequestError(metadata, error, startTime);
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }

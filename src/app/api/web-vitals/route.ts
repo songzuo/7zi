@@ -130,7 +130,7 @@ function sendToSentry(metrics: WebVitalMetric[]) {
           },
         });
       }
-    } catch (error) {
+    } catch (_error) {
       logger.error('[Web Vitals] Failed to send to Sentry:', error instanceof Error ? error : new Error(String(error)), { category: 'web-vitals' });
     }
   });
@@ -240,7 +240,7 @@ export async function POST(request: NextRequest) {
       timestamp: Date.now(),
     });
 
-  } catch (error) {
+  } catch (_error) {
     logger.error('[Web Vitals API] Error:', error instanceof Error ? error : new Error(String(error)), { category: 'web-vitals' });
 
     return createErrorResponse(error instanceof Error ? error : new Error('Internal server error'));
@@ -266,7 +266,7 @@ export async function GET(request: NextRequest) {
       ...stats,
     });
 
-  } catch (error) {
+  } catch (_error) {
     logger.error('[Web Vitals API] GET Error:', error instanceof Error ? error : new Error(String(error)), { category: 'web-vitals' });
 
     return createErrorResponse(error instanceof Error ? error : new Error('Internal server error'));

@@ -212,7 +212,7 @@ describe('useFetch Hook Integration Tests', () => {
 
       try {
         await fetch('/api/test', { signal: controller.signal })
-      } catch (error) {
+      } catch (_error) {
         expect((error as DOMException).name).toBe('AbortError')
       }
     })

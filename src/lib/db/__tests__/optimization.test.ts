@@ -14,14 +14,14 @@ import {
   initializeAgentTables,
   getAgentStats,
   createAgent,
-} from '@/lib/agents/agent/repository-optimized-v2';
+} from '@/lib/agents/core/repository-optimized-v2';
 import {
   initializeWalletTables,
   getWalletStats,
   deposit,
   createWallet,
-} from '@/lib/agents/agent/wallet-repository-optimized-v2';
-import { AgentStatus, AgentType, AgentProvider } from '@/lib/agents/agent/types';
+} from '@/lib/agents/core/wallet-repository-optimized-v2';
+import { AgentStatus, AgentType, AgentProvider } from '@/lib/agents/core/types';
 import {
   analyzeIndexUsage,
   createIndexReport,

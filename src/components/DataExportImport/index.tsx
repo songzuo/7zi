@@ -125,7 +125,7 @@ export const DataExportImport = memo(function DataExportImport() {
 
       setExportSuccess(true);
       setTimeout(() => setExportSuccess(false), 3000);
-    } catch (error) {
+    } catch (_error) {
       setExportError(error instanceof Error ? error.message : 'Export failed');
     } finally {
       setIsExporting(false);
@@ -166,7 +166,7 @@ export const DataExportImport = memo(function DataExportImport() {
       }
 
       setImportResult(result);
-    } catch (error) {
+    } catch (_error) {
       setImportError(error instanceof Error ? error.message : 'Import failed');
     } finally {
       setIsImporting(false);

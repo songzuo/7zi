@@ -22,11 +22,6 @@ interface ListItem {
   selected: boolean;
 }
 
-interface RenderCount {
-  component: string;
-  count: number;
-}
-
 export default function ReactCompilerVerifyPage() {
   const t = useTranslations('ReactCompilerVerify');
 
@@ -151,6 +146,7 @@ export default function ReactCompilerVerifyPage() {
   }, []);
 
   // ===== React Compiler 状态检查 =====
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const isCompilerEnabled = typeof (window as any).__REACT_COMPILER__ !== 'undefined';
 
   return (

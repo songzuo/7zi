@@ -40,7 +40,7 @@ export class NotificationStorage {
       this.createTables();
 
       logger.info('[NotificationStorage] Database initialized at', { dbPath: this.dbPath });
-    } catch (error) {
+    } catch (_error) {
       logger.error('[NotificationStorage] Failed to initialize database', error);
       throw error;
     }

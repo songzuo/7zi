@@ -12,7 +12,7 @@ export function protectPrototype() {
     try {
       Object.freeze(Object.prototype);
       console.log('[Security] Object.prototype has been frozen');
-    } catch (error) {
+    } catch (_error) {
       console.warn('[Security] Failed to freeze Object.prototype:', error);
     }
   }
@@ -94,7 +94,7 @@ export function safeParseJSON<T>(json: string): T | null {
     }
 
     return parsed as T;
-  } catch (error) {
+  } catch (_error) {
     console.error('[Security] JSON parse error:', error);
     return null;
   }

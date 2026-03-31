@@ -7,7 +7,6 @@
  * @refactored - Added request validation and improved error handling
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { A2ARequestHandler, createRequestHandler } from '@/lib/agents/a2a/jsonrpc-handler';
 import { getTaskStore } from '@/lib/agents/a2a/task-store';
 import { createSevenZiExecutor } from '@/lib/agents/a2a/executor';
@@ -49,7 +48,7 @@ function getHandler(): A2ARequestHandler {
  * Process a single JSON-RPC request
  */
 async function processSingleRequest(body: unknown): Promise<JsonRpcResponse> {
-  const handler = getHandler();
+  const _handler = getHandler();
 
   // Validate request structure
   if (typeof body !== 'object' || body === null) {
@@ -166,7 +165,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(response, { status: statusCode, headers: getCorsHeaders() });
 
-  } catch (error) {
+  } catch (_error) {
     logger.error('A2A JSON-RPC error', error);
 
     // Check for JSON parse errors

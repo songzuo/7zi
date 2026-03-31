@@ -3,7 +3,6 @@
  * POST /api/auth/login
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { POST } from './route';
 import { loginUser } from '@/lib/auth/service';
 import { validateEmail, setAuthCookies, createSuccessResponse } from '@/lib/api/utils';

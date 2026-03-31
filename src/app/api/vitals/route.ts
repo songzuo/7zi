@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
       received: metrics.length,
       timestamp: Date.now(),
     });
-  } catch (error) {
+  } catch (_error) {
     logger.error('[Web Vitals API] Error processing request:', error instanceof Error ? error : new Error(String(error)), { category: 'vitals' });
 
     return createErrorResponse(new Error('Failed to process metrics'));

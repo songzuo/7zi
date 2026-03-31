@@ -49,7 +49,7 @@ export default function AgentDashboardPage() {
   // Calculate derived statistics
   const derivedStats = useMemo(() => {
     const activeTasks = tasks.filter(t => t.status === 'in_progress').length;
-    const pendingTasks = tasks.filter(t => t.status === 'pending').length;
+    const _pendingTasks = tasks.filter(t => t.status === 'pending').length;
     const completedToday = tasks.filter(t => 
       t.status === 'completed' && 
       t.createdAt && 

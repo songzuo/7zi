@@ -105,7 +105,7 @@ export function validateCSRFToken(
       Buffer.from(signature, 'hex'),
       Buffer.from(expectedSignature, 'hex')
     );
-  } catch (error) {
+  } catch (_error) {
     return false;
   }
 }
@@ -184,7 +184,7 @@ export function validateSessionCSRFToken(
       Buffer.from(signature, 'hex'),
       Buffer.from(expectedSignature, 'hex')
     );
-  } catch (error) {
+  } catch (_error) {
     return false;
   }
 }

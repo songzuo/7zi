@@ -5,7 +5,6 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { NextRequest, NextResponse } from 'next/server';
 import { registerUser } from '@/lib/auth/service';
 import {
   createValidationError,
@@ -137,7 +136,7 @@ async function POST(request: NextRequest) {
 
     logRequestComplete(metadata, response, startTime);
     return response;
-  } catch (error) {
+  } catch (_error) {
     logRequestError(metadata, error, startTime);
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }

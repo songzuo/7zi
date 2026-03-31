@@ -141,7 +141,7 @@ export async function analyzeSlowQueries(thresholdMs: number = 100): Promise<Slo
           tableName,
         });
       }
-    } catch (error) {
+    } catch (_error) {
       // 忽略查询执行错误（可能是表不存在）
       logger.warn(`Failed to analyze query: ${sql}`, { error });
     }

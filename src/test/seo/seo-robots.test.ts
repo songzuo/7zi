@@ -13,7 +13,7 @@ describe('SEO - Robots.txt 验证', () => {
       // 动态导入生成的 robots 配置
       const robotsModule = await import('@/app/robots')
       robots = robotsModule.default()
-    } catch (error) {
+    } catch (_error) {
       // 如果文件不存在，标记测试为待实现
       console.warn('robots.ts 未找到，测试标记为待实现')
     }

@@ -144,7 +144,7 @@ export async function batchInsert<T extends Record<string, unknown>>(
             result.failed++;
           }
         });
-      } catch (error) {
+      } catch (_error) {
         // If batch fails completely, count all as failed
         result.failed += batchRecords.length;
         const errorMsg = error instanceof Error ? error.message : String(error);
@@ -172,7 +172,7 @@ export async function batchInsert<T extends Record<string, unknown>>(
           } else {
             result.failed++;
           }
-        } catch (error) {
+        } catch (_error) {
           result.failed++;
           const errorMsg = error instanceof Error ? error.message : String(error);
           result.errors.push({
@@ -205,7 +205,7 @@ export async function batchInsert<T extends Record<string, unknown>>(
         );
       }
     }
-  } catch (error) {
+  } catch (_error) {
     if (!continueOnError) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       logger.error('[Batch Insert Error]', {
@@ -320,7 +320,7 @@ export async function batchUpdate<T extends Record<string, unknown>>(
       const dbResult = stmt.run(...params);
       result.success += dbResult.changes;
       result.failed += batchUpdates.length - dbResult.changes;
-    } catch (error) {
+    } catch (_error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       
       // 如果批量更新失败，回退到逐个更新
@@ -350,7 +350,7 @@ export async function batchUpdate<T extends Record<string, unknown>>(
           } else {
             result.failed++;
           }
-        } catch (error) {
+        } catch (_error) {
           result.failed++;
           const individualErrorMsg = error instanceof Error ? error.message : String(error);
           result.errors.push({
@@ -383,7 +383,7 @@ export async function batchUpdate<T extends Record<string, unknown>>(
         );
       }
     }
-  } catch (error) {
+  } catch (_error) {
     if (!continueOnError) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       logger.error('[Batch Update Error]', {
@@ -459,7 +459,7 @@ export async function batchExecute(
   if (useTransaction) {
     try {
       results.push(...await db.batch(statements));
-    } catch (error) {
+    } catch (_error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       logger.error('[BatchExecute Error]', error, { category: 'db', statementCount: statements.length, error: errorMsg, timestamp: new Date().toISOString() });
       throw error;

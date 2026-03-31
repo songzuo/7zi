@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
         roles,
         count: roles.length,
       });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to fetch roles:', error instanceof Error ? error : new Error(String(error)), { userId: context.userId, category: 'rbac' });
       return createErrorResponse(new Error('Failed to fetch roles'));
     }
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
       });
 
       return createSuccessResponse(newRole, 201);
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to create role:', error instanceof Error ? error : new Error(String(error)), { userId: context.userId, category: 'rbac' });
       return createErrorResponse(new Error('Failed to create role'));
     }

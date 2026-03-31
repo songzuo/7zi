@@ -7,7 +7,6 @@
  * @refactored - Added parameter validation and improved error handling
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import {
   githubIssuesQuerySchema,
   validateQuery,
@@ -188,7 +187,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(successResponse);
 
-  } catch (error) {
+  } catch (_error) {
     logger.error('GitHub issues API proxy error', error);
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }

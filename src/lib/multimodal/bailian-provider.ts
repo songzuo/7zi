@@ -66,7 +66,7 @@ export class BailianProvider {
         success: true,
         data: imageData,
       };
-    } catch (error) {
+    } catch (_error) {
       logger.error('Bailian image recognition error', error);
       return {
         success: false,
@@ -118,7 +118,7 @@ export class BailianProvider {
         success: true,
         data: transcriptionData,
       };
-    } catch (error) {
+    } catch (_error) {
       logger.error('Bailian audio transcription error', error);
       return {
         success: false,

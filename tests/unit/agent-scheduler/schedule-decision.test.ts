@@ -7,7 +7,7 @@ import {
   ScheduleHistory,
   createScheduleDecision,
   ScheduleDecision
-} from '../../../src/lib/agent-scheduler/models/schedule-decision';
+} from '@/lib/agents/scheduler/models/schedule-decision';
 
 describe('ScheduleHistory', () => {
   let history: ScheduleHistory;

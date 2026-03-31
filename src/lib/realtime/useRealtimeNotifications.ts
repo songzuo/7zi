@@ -125,7 +125,7 @@ export function useRealtimeNotifications(
         
         await notificationService.markAsRead([id], userId);
       }
-    } catch (err) {
+    } catch (_err) {
       logger.error('Failed to mark notification as read', { id, error: err });
     }
   }, [userId]);
@@ -146,7 +146,7 @@ export function useRealtimeNotifications(
           userId
         );
       }
-    } catch (err) {
+    } catch (_err) {
       logger.error('Failed to mark all notifications as read', { error: err });
     }
   }, [userId]);
@@ -242,7 +242,7 @@ export function useRealtimeNotifications(
 
       oscillator.start(audioContext.currentTime);
       oscillator.stop(audioContext.currentTime + 0.3);
-    } catch (err) {
+    } catch (_err) {
       // Audio not supported or blocked
       logger.debug('Failed to play notification sound', { error: err });
     }
@@ -388,7 +388,7 @@ export function useRealtimeNotifications(
         setNotifications(history as RealtimeNotification[]);
         notificationsRef.current = history as RealtimeNotification[];
         setUnreadCount(history.filter((n: RealtimeNotification) => !n.read).length);
-      } catch (err) {
+      } catch (_err) {
         logger.error('Failed to load initial notifications', { error: err });
         setError(err as Error);
       } finally {

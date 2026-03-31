@@ -111,7 +111,7 @@ export async function fetchFromGitHub(
 
     const data = await response.json();
     return NextResponse.json(data);
-  } catch (error) {
+  } catch (_error) {
     logger.error('GitHub API error (fetchFromGitHub)', error);
     return NextResponse.json(
       { error: '服务器内部错误' },
@@ -170,7 +170,7 @@ export async function fetchGitHubIssue(issueNumber: number, options: GitHubAPIOp
 
     const data = await response.json();
     return NextResponse.json(data);
-  } catch (error) {
+  } catch (_error) {
     logger.error('GitHub API error (fetchGitHubIssueDetail)', error);
     return NextResponse.json(
       { error: '服务器内部错误' },

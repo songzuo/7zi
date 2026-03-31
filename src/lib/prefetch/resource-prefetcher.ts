@@ -110,7 +110,7 @@ export class ResourcePrefetcher {
 
       this.prefetchedResources.set(url, result);
       return result;
-    } catch (error) {
+    } catch (_error) {
       const result: PrefetchResult = {
         url,
         type: resource.type,

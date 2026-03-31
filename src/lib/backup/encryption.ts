@@ -69,7 +69,7 @@ export async function encryptBackup(
     const combined = Buffer.concat([salt, iv, encrypted]);
 
     return combined.toString('base64');
-  } catch (error) {
+  } catch (_error) {
     console.error('Failed to encrypt backup:', error);
     throw new Error(`Encryption failed: ${error instanceof Error ? error.message : String(error)}`);
   }
@@ -130,7 +130,7 @@ export async function decryptBackup(
     }
 
     return decrypted.toString('utf-8');
-  } catch (error) {
+  } catch (_error) {
     console.error('Failed to decrypt backup:', error);
     throw new Error(`Decryption failed: ${error instanceof Error ? error.message : String(error)}`);
   }

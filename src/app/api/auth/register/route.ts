@@ -128,7 +128,6 @@
  *           $ref: '#/components/schemas/User'
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { registerUser } from '@/lib/auth/service';
 import { RegisterRequest } from '@/lib/auth/types';
 import { logger } from '@/lib/logger';
@@ -137,9 +136,10 @@ import {
   createRegistrationFailedError,
   createWeakPasswordError,
   createErrorResponse,
+  createConflictError,
 } from '@/lib/api/error-handler';
-import { validateEmail, validatePasswordStrength, createSuccessResponse } from '@/lib/api/utils';
-import { logRequestStart, logRequestComplete, logRequestError, sanitizeUrlForLogging } from '@/lib/api/api-logger';
+import { validateEmail, validatePasswordStrength, createSuccessResponse, setAuthCookies } from '@/lib/api/utils';
+import { logRequestStart, logRequestComplete, logRequestError } from '@/lib/api/api-logger';
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
@@ -176,16 +176,37 @@ export async function POST(request: NextRequest) {
     const result = await registerUser({ email, password, name, role: body.role });
 
     if (!result.success) {
+      // Check if it's a conflict error (email already exists)
+      if (result.error?.includes('already') || result.error?.includes('exists')) {
+        const response = await createConflictError(result.error || 'Email already exists');
+        logRequestComplete(metadata, response, startTime);
+        return response;
+      }
+
       const response = await createRegistrationFailedError(result.error || 'Registration failed');
       logRequestComplete(metadata, response, startTime);
       return response;
     }
 
-    // Return standardized success response
-    const response = createSuccessResponse(
-      { user: result.user },
-      201
-    );
+    // Create success response with tokens
+    const responseData: { user: typeof result.user; token?: string; refreshToken: string | null; expiresAt?: number } = { user: result.user };
+
+    if (result.token) {
+      responseData.token = result.token;
+    }
+    // Always include refreshToken (null if not available)
+    responseData.refreshToken = result.refreshToken || null;
+
+    if (result.expiresAt) {
+      responseData.expiresAt = result.expiresAt;
+    }
+
+    const response = createSuccessResponse(responseData, 201);
+
+    // Set auth cookies if tokens are available
+    if (result.token) {
+      setAuthCookies(response, result.token, result.refreshToken, false);
+    }
 
     logger.auth('User registered successfully', {
       requestId: metadata.requestId,

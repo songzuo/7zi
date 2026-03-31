@@ -133,7 +133,7 @@ export function validateSignature(
       Buffer.from(signature, 'hex'),
       Buffer.from(expectedSignature, 'hex')
     );
-  } catch (error) {
+  } catch (_error) {
     return false;
   }
 }

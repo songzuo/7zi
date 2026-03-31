@@ -159,7 +159,7 @@ export async function initializeAuditLogsTable(): Promise<void> {
     `);
 
     logger.info('Audit logs table initialized', { category: 'db' });
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to initialize audit logs table', { category: 'db', error });
     throw error;
   }
@@ -219,7 +219,7 @@ export async function createAuditLog(entry: Omit<AuditLog, 'id' | 'created_at'>)
       ...entry,
       created_at: now,
     };
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to create audit log', { category: 'db', error });
     // Don't throw error to avoid disrupting the original operation
     throw error;
@@ -240,7 +240,7 @@ export async function getAuditLogById(id: string): Promise<AuditLog | null> {
     if (!row) return null;
 
     return mapRowToAuditLog(row);
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to get audit log', { category: 'db', error, id });
     throw error;
   }
@@ -316,7 +316,7 @@ export async function queryAuditLogs(options: AuditLogQuery): Promise<{
     const logs = rows.map(mapRowToAuditLog);
 
     return { logs, total };
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to query audit logs', { category: 'db', error, options });
     throw error;
   }
@@ -425,7 +425,7 @@ export async function cleanupOldAuditLogs(daysToKeep: number = 90): Promise<numb
     }
 
     return deleted;
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to cleanup old audit logs', { category: 'db', error });
     throw error;
   }

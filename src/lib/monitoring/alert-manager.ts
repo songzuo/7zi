@@ -611,7 +611,7 @@ export class AlertManager {
     try {
       const results = await this.alertSystem.sendAlert(alertConfig);
       alert.sendResults = results;
-    } catch (error) {
+    } catch (_error) {
       console.error('Failed to send alert:', error);
     }
   }
@@ -734,7 +734,7 @@ export class AlertManager {
       
       this.alertHistory.push(escalatedAlert);
       this.trimHistory();
-    } catch (error) {
+    } catch (_error) {
       console.error('Failed to escalate alert:', error);
     }
   }

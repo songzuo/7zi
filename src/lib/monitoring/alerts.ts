@@ -515,7 +515,7 @@ async function sendSlackAlertInternal(config: AlertConfig, webhookUrl: string): 
     });
 
     return response.ok;
-  } catch (error) {
+  } catch (_error) {
     console.error('Failed to send Slack alert:', error);
     return false;
   }
@@ -544,7 +544,7 @@ async function sendEmailAlertInternal(config: AlertConfig, emailConfig: EmailCon
     });
 
     return response.ok;
-  } catch (error) {
+  } catch (_error) {
     console.error('Failed to send email alert:', error);
     return false;
   }
@@ -629,7 +629,7 @@ async function sendWebhookAlert(config: AlertConfig, webhookConfig: WebhookConfi
     });
 
     return response.ok;
-  } catch (error) {
+  } catch (_error) {
     console.error('Failed to send webhook alert:', error);
     return false;
   }
@@ -667,7 +667,7 @@ async function sendDiscordAlert(config: AlertConfig, webhookUrl: string): Promis
     });
 
     return response.ok;
-  } catch (error) {
+  } catch (_error) {
     console.error('Failed to send Discord alert:', error);
     return false;
   }
@@ -706,7 +706,7 @@ ${config.url ? `🔗 [View Details](${config.url})` : ''}
     });
 
     return response.ok;
-  } catch (error) {
+  } catch (_error) {
     console.error('Failed to send Telegram alert:', error);
     return false;
   }

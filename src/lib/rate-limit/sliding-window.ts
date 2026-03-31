@@ -58,7 +58,7 @@ export async function checkSlidingWindow(
   if (!useMemory && redisAvailable) {
     try {
       return await checkSlidingWindowRedis(key, limit, window, now, windowStart);
-    } catch (error) {
+    } catch (_error) {
       logger.error('Redis sliding window check failed, falling back to memory', { error, key, limit, window });
       // Fall back to memory storage
       return checkSlidingWindowMemory(key, limit, window);
@@ -169,7 +169,7 @@ export async function getSlidingWindowStatus(
   if (!useMemory && redisAvailable) {
     try {
       return await getSlidingWindowStatusRedis(key, window, now, windowStart);
-    } catch (error) {
+    } catch (_error) {
       logger.error('Redis sliding window status check failed, falling back to memory', { error, key, window });
       // Fall back to memory storage
       return getSlidingWindowStatusMemory(key, window, now);
@@ -254,7 +254,7 @@ export async function resetSlidingWindow(key: string): Promise<boolean> {
       }
       await client.del(key);
       return true;
-    } catch (error) {
+    } catch (_error) {
       logger.error('Redis reset failed, falling back to memory', { error, key });
     }
   }

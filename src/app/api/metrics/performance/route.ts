@@ -5,7 +5,6 @@
  * GET /api/metrics/performance - Get all performance metrics (API + rate limits + system)
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import {
   getApiPerformanceReport,
 } from '@/lib/middleware/api-performance';
@@ -117,7 +116,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(response);
-  } catch (error) {
+  } catch (_error) {
     logger.error('[Metrics API] Failed to retrieve performance metrics', {
       error: error instanceof Error ? error.message : String(error),
       stack: error instanceof Error ? error.stack : undefined,

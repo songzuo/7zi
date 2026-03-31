@@ -113,7 +113,7 @@ export async function GET(request: NextRequest) {
     }
 
     return createSuccessResponse(response);
-  } catch (error) {
+  } catch (_error) {
     logger.error('Search API error:', error instanceof Error ? error : new Error(String(error)), { category: 'search' });
     return createErrorResponse(error instanceof Error ? error : new Error('Search failed'));
   }

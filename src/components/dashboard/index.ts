@@ -24,7 +24,7 @@ export type { StatItem } from './DashboardStats';
 export type { ActivityItem, ActivityType } from './RecentActivity';
 export type { QuickAction } from './QuickActions';
 export type { AgentStatusPanelProps, AgentStatus } from './AgentStatusPanel';
-export type { TaskQueueViewProps, TaskQueueCompactProps, SortField, SortOrder } from './TaskQueueView';
+export type { TaskQueueViewProps, TaskQueueCompactProps, SortField, SortOrder, FilterState, TaskAction } from './TaskQueueView';
 export type { ManualOverrideProps, TaskFormData } from './ManualOverride';
 export type { ScheduleHistoryProps, HistoryEntry, TimeRange, StatusFilter } from './ScheduleHistory';
 

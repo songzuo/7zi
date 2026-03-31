@@ -214,7 +214,7 @@ export async function POST(request: NextRequest) {
         'Cache-Control': 'no-cache, no-store, must-revalidate'
       }
     });
-  } catch (error) {
+  } catch (_error) {
     logger.error('Analytics export API error', error, { category: 'analytics' });
     return createErrorResponse(error instanceof Error ? error : new Error('Internal server error'));
   }

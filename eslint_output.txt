@@ -1,0 +1,1849 @@
+
+/root/.openclaw/workspace/src/app/[locale]/agent-dashboard/page.tsx
+  52:11  warning  'pendingTasks' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/[locale]/dashboard/page.tsx
+   19:26  warning  'createDefaultStats' is defined but never used  @typescript-eslint/no-unused-vars
+   49:9   warning  'busyCount' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   50:9   warning  'idleCount' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  134:56  warning  'title' is defined but never used               @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/[locale]/page.optimized.example.tsx
+  19:3  warning  'HeroSkeleton' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/[locale]/performance/page.tsx
+   26:11  warning  'PerformanceMetric' is defined but never used                                                                            @typescript-eslint/no-unused-vars
+  124:10  warning  'RatingBadge' is defined but never used                                                                                  @typescript-eslint/no-unused-vars
+  221:9   warning  'config' is assigned a value but never used                                                                              @typescript-eslint/no-unused-vars
+  241:9   warning  't' is assigned a value but never used                                                                                   @typescript-eslint/no-unused-vars
+  278:6   warning  React Hook useEffect has a missing dependency: 'fetchPerformanceData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/root/.openclaw/workspace/src/app/[locale]/portfolio/components/CategoryFilterWrapper.tsx
+  25:9  warning  'handleCategoryChange' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/[locale]/portfolio/components/PortfolioGrid.tsx
+  40:21  warning  'startTransition' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/[locale]/react-compiler-verify/page.tsx
+  25:11  warning  'RenderCount' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/[locale]/scheduler/SchedulerClient.tsx
+  16:43  warning  'locale' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/[locale]/settings/page.tsx
+  13:32  warning  'setBackupRefreshTrigger' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/[locale]/tasks/page.tsx
+  448:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/root/.openclaw/workspace/src/app/api/a2a/jsonrpc/route.ts
+  92:9  warning  'handler' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/auth/login/route-unified.ts
+   8:23  warning  'NextResponse' is defined but never used           @typescript-eslint/no-unused-vars
+  67:9   warning  'sanitizedUrl' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/auth/login/route.ts
+  131:23  warning  'NextResponse' is defined but never used           @typescript-eslint/no-unused-vars
+  146:9   warning  'sanitizedUrl' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/auth/logout/route.ts
+   6:23  warning  'NextResponse' is defined but never used  @typescript-eslint/no-unused-vars
+  14:39  warning  'req' is defined but never used           @typescript-eslint/no-unused-vars
+  14:44  warning  'context' is defined but never used       @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/auth/me/route.ts
+  30:15  warning  'password' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/auth/refresh/route.ts
+  6:23  warning  'NextResponse' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/auth/register/route.ts
+  131:23  warning  'NextResponse' is defined but never used           @typescript-eslint/no-unused-vars
+  142:64  warning  'sanitizeUrlForLogging' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/csrf-token/route.ts
+  13:31  warning  'ApiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/data/export/route.ts
+  37:27  warning  'request' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/data/import/route.ts
+  58:27  warning  'request' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/database/health/route.ts
+  6:10  warning  'logger' is defined but never used     @typescript-eslint/no-unused-vars
+  8:31  warning  'ErrorType' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/database/optimize/route.ts
+  87:27  warning  'request' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/feedback/route.ts
+    5:23  warning  'NextResponse' is defined but never used         @typescript-eslint/no-unused-vars
+  452:11  warning  'authHeader' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/health/route.ts
+  89:27  warning  'request' is defined but never used             @typescript-eslint/no-unused-vars
+  90:9   warning  'startTime' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/multimodal/audio/route.ts
+   93:23  warning  'NextResponse' is defined but never used   @typescript-eslint/no-unused-vars
+   95:10  warning  'audioToBuffer' is defined but never used  @typescript-eslint/no-unused-vars
+  300:14  warning  'err' is defined but never used            @typescript-eslint/no-unused-vars
+  350:14  warning  'err' is defined but never used            @typescript-eslint/no-unused-vars
+  374:16  warning  'err' is defined but never used            @typescript-eslint/no-unused-vars
+  393:14  warning  'err' is defined but never used            @typescript-eslint/no-unused-vars
+  417:16  warning  'err' is defined but never used            @typescript-eslint/no-unused-vars
+  435:16  warning  'err' is defined but never used            @typescript-eslint/no-unused-vars
+  451:16  warning  'err' is defined but never used            @typescript-eslint/no-unused-vars
+  472:16  warning  'err' is defined but never used            @typescript-eslint/no-unused-vars
+  573:16  warning  'err' is defined but never used            @typescript-eslint/no-unused-vars
+  596:14  warning  'err' is defined but never used            @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/multimodal/image/route.ts
+   73:23  warning  'NextResponse' is defined but never used            @typescript-eslint/no-unused-vars
+  101:11  warning  'ImageProcessingOptions' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/performance/alerts/route.ts
+  125:10  warning  'generateAlertId' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/performance/clear/route.ts
+  12:10  warning  'createErrorResponse' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/projects/rate-limit-example.ts
+   17:10  warning  'req' is defined but never used           @typescript-eslint/no-unused-vars
+   26:14  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+   57:14  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+  100:36  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/root/.openclaw/workspace/src/app/api/projects/route.ts
+  10:27  warning  'request' is defined but never used  @typescript-eslint/no-unused-vars
+  18:28  warning  'request' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/ratings/[id]/helpful/route.ts
+  6:23  warning  'NextResponse' is defined but never used  @typescript-eslint/no-unused-vars
+  8:10  warning  'logger' is defined but never used        @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/ratings/route.ts
+    5:23  warning  'NextResponse' is defined but never used     @typescript-eslint/no-unused-vars
+  167:7   warning  'images' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/rbac/roles/[roleId]/route.ts
+  14:3   warning  'removePermissionsFromRole' is defined but never used  @typescript-eslint/no-unused-vars
+  17:10  warning  'getRoleDefinition' is defined but never used          @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/rbac/roles/route.ts
+  14:3   warning  'updateRole' is defined but never used               @typescript-eslint/no-unused-vars
+  15:3   warning  'deleteRole' is defined but never used               @typescript-eslint/no-unused-vars
+  16:3   warning  'assignPermissionsToRole' is defined but never used  @typescript-eslint/no-unused-vars
+  17:3   warning  'getPermissionsByRole' is defined but never used     @typescript-eslint/no-unused-vars
+  19:10  warning  'getRoleDefinition' is defined but never used        @typescript-eslint/no-unused-vars
+  67:19  error    Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+
+/root/.openclaw/workspace/src/app/api/rbac/users/[userId]/permissions/route.ts
+  11:3  warning  'hasPermission' is defined but never used  @typescript-eslint/no-unused-vars
+  14:3  warning  'hasRole' is defined but never used        @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/rbac/users/[userId]/roles/route.ts
+  13:3  warning  'getAllRolesWithCount' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/search/autocomplete/route.ts
+  8:15  warning  'AutocompleteSuggestion' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/search/route.ts
+  11:3  warning  'PaginatedSearchResult' is defined but never used  @typescript-eslint/no-unused-vars
+  12:3  warning  'UnifiedEntity' is defined but never used          @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/stream/analytics/route.ts
+    9:33  warning  'createUnauthorizedError' is defined but never used  @typescript-eslint/no-unused-vars
+   89:13  warning  'client' is assigned a value but never used          @typescript-eslint/no-unused-vars
+  102:16  warning  'error' is defined but never used                    @typescript-eslint/no-unused-vars
+  118:18  warning  'error' is defined but never used                    @typescript-eslint/no-unused-vars
+  128:18  warning  'error' is defined but never used                    @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/stream/health/route.ts
+   33:41  warning  'logApiSuccess' is defined but never used    @typescript-eslint/no-unused-vars
+  262:17  warning  'client' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/tasks/rate-limit-example.ts
+   17:10  warning  'req' is defined but never used           @typescript-eslint/no-unused-vars
+   26:14  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+   57:14  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+  100:33  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/root/.openclaw/workspace/src/app/api/tasks/route.ts
+   11:20  warning  'RATE_LIMIT_CONFIG' is defined but never used               @typescript-eslint/no-unused-vars
+   14:10  warning  'createAppError' is defined but never used                  @typescript-eslint/no-unused-vars
+  265:10  warning  'validateUpdateTaskRequest' is defined but never used       @typescript-eslint/no-unused-vars
+  320:7   warning  'sortFieldMap' is assigned a value but only used as a type  @typescript-eslint/no-unused-vars
+  409:35  warning  'req' is defined but never used                             @typescript-eslint/no-unused-vars
+  409:40  warning  'userId' is defined but never used                          @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/api/workflow/[id]/route.ts
+    2:10  warning  'WorkflowEngine' is defined but never used  @typescript-eslint/no-unused-vars
+  209:13  warning  'id' is assigned a value but never used     @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/demo/websocket/page.tsx
+  24:10  warning  'selectedTaskId' is assigned a value but never used                                                                    @typescript-eslint/no-unused-vars
+  52:7   warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/set-state-in-effect')
+  62:6   warning  React Hook useEffect has a missing dependency: 'taskWs.taskUpdates'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  99:11  warning  'mockUpdate' is assigned a value but never used                                                                        @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/manifest.ts
+  9:9  warning  'baseUrl' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/undo-redo-example/page.tsx
+  17:17  warning  'Redo2' is defined but never used             @typescript-eslint/no-unused-vars
+  42:11  warning  'undo' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  42:17  warning  'redo' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  42:23  warning  'canUndo' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  42:32  warning  'canRedo' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/app/websocket-rooms/page.tsx
+  14:47  warning  'RoomParticipant' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/AIChat.tsx
+  28:29  warning  'BREAKPOINTS' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/ActivityLog.tsx
+  5:19  warning  'ReactNode' is defined but never used   @typescript-eslint/no-unused-vars
+  5:30  warning  'MouseEvent' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/AnimatedProgressBar.tsx
+  130:43  warning  The ref value 'animationRef.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'animationRef.current' to a variable inside the effect, and use that variable in the cleanup function  react-hooks/exhaustive-deps
+  288:43  warning  The ref value 'animStateRef.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'animStateRef.current' to a variable inside the effect, and use that variable in the cleanup function  react-hooks/exhaustive-deps
+  403:45  warning  The ref value 'animStateRef.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'animStateRef.current' to a variable inside the effect, and use that variable in the cleanup function  react-hooks/exhaustive-deps
+  526:45  warning  The ref value 'animStateRef.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'animStateRef.current' to a variable inside the effect, and use that variable in the cleanup function  react-hooks/exhaustive-deps
+
+/root/.openclaw/workspace/src/components/ContactForm.tsx
+  137:6   warning  React Hook useCallback has a missing dependency: 'emptyFormData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  148:43  warning  'removed' is assigned a value but never used                                                                        @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/DataExportImport/index.tsx
+  3:20  warning  'useCallback' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/EnhancedFeedbackModal.tsx
+  369:23  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/root/.openclaw/workspace/src/components/Footer.i18n.example.tsx
+  17:9  warning  'locale' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/LanguageSwitcher.tsx
+   7:15  warning  'FC' is defined but never used                 @typescript-eslint/no-unused-vars
+  23:9   warning  'router' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  24:9   warning  'pathname' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  79:9   warning  'router' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  80:9   warning  'pathname' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/LazyLoadImage.tsx
+  130:9  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/root/.openclaw/workspace/src/components/MemberCard.tsx
+  6:10  warning  'MEMBER_STATUS_CONFIG' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/NotificationCenter/NotificationItem.tsx
+  9:19  warning  'MouseEvent' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/OptimizedImage.tsx
+  111:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  140:9   warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/root/.openclaw/workspace/src/components/PerformanceMonitor.tsx
+  142:36  warning  The ref value 'observerRef.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'observerRef.current' to a variable inside the effect, and use that variable in the cleanup function  react-hooks/exhaustive-deps
+
+/root/.openclaw/workspace/src/components/RealtimeDashboard.tsx
+   14:38  warning  'useCallback' is defined but never used            @typescript-eslint/no-unused-vars
+  109:21  warning  'setIsLoading' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/SEO.tsx
+  289:9  warning  'baseUrlMemo' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/SearchFilter.tsx
+  355:3  warning  '_filterPlaceholder' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/ServiceWorkerRegistration.tsx
+    5:11  warning  'ServiceWorkerEventMap' is defined but never used                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+  145:9   warning  The 'handleUpdate' function makes the dependencies of useEffect Hook (at line 201) change on every render. To fix this, wrap the definition of 'handleUpdate' in its own useCallback() Hook                                       react-hooks/exhaustive-deps
+  160:9   warning  The 'clearCache' function makes the dependencies of useEffect Hook (at line 201) change on every render. Move it inside the useEffect callback. Alternatively, wrap the definition of 'clearCache' in its own useCallback() Hook  react-hooks/exhaustive-deps
+
+/root/.openclaw/workspace/src/components/TaskBoardSearch.tsx
+  12:57  warning  'FilterConfig' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/TeamActivityTracker.tsx
+  483:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/root/.openclaw/workspace/src/components/ThemeProvider.tsx
+  34:17  warning  '_defaultTheme' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/ThemeToggle.tsx
+  13:15  warning  'FC' is defined but never used              @typescript-eslint/no-unused-vars
+  23:47  warning  'cycle' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/UserProfile/UserProfile.tsx
+   36:9   warning  'router' is assigned a value but never used                                                                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+   52:6   warning  React Hook useEffect has a missing dependency: 'loadUser'. Either include it or remove the dependency array                                                                                                                                                                              react-hooks/exhaustive-deps
+  250:19  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/root/.openclaw/workspace/src/components/UserSettings/UserSettingsPage.tsx
+   76:29  warning  'setStoreNotifications' is assigned a value but never used     @typescript-eslint/no-unused-vars
+   92:10  warning  'notifications' is assigned a value but never used             @typescript-eslint/no-unused-vars
+  208:9   warning  'handleNotificationChange' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/admin/FeedbackManagementPanel.tsx
+  29:10  warning  'adminNotes' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  29:22  warning  'setAdminNotes' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/agent-dashboard/StatsCard.tsx
+  91:7  warning  React Hook useMemo has an unnecessary dependency: 'variant'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+
+/root/.openclaw/workspace/src/components/analytics/AnalyticsChart.tsx
+   39:33  warning  'TimeSeriesDataPoint' is defined but never used  @typescript-eslint/no-unused-vars
+  151:37  warning  'metric' is defined but never used               @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/analytics/AnalyticsDashboard.tsx
+   15:31  warning  'LayoutGrid' is defined but never used                                                                                   @typescript-eslint/no-unused-vars
+   15:59  warning  'RotateCcw' is defined but never used                                                                                    @typescript-eslint/no-unused-vars
+   21:10  warning  'MetricCardSkeleton' is defined but never used                                                                           @typescript-eslint/no-unused-vars
+  307:62  warning  React Hook React.useMemo has a missing dependency: 'createStatistics'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/root/.openclaw/workspace/src/components/analytics/DateRangePicker.tsx
+  8:27  warning  'useMemo' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/analytics/MetricCard.tsx
+  11:19  warning  'CSSProperties' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/analytics/PageLoadWaterfall.tsx
+   11:101  warning  'Code' is defined but never used              @typescript-eslint/no-unused-vars
+   98:10   warning  'getDomain' is defined but never used         @typescript-eslint/no-unused-vars
+  106:10   warning  'getResourceIcon' is defined but never used   @typescript-eslint/no-unused-vars
+  151:71   warning  'locale' is defined but never used            @typescript-eslint/no-unused-vars
+  226:3    warning  'history' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/analytics/PerformanceMonitoringDashboard.tsx
+  48:3  warning  'wsUrl' is defined but never used                     @typescript-eslint/no-unused-vars
+  51:3  warning  'refreshInterval' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/analytics/RealtimeMetricsDashboard.tsx
+  47:3  warning  'refreshInterval' is defined but never used        @typescript-eslint/no-unused-vars
+  58:5  warning  'disconnect' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  60:5  warning  'checkLatency' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/analytics/RealtimeTaskStatusChart.tsx
+  117:3   warning  'history' is assigned a value but never used                @typescript-eslint/no-unused-vars
+  118:3   warning  'showHistory' is assigned a value but never used            @typescript-eslint/no-unused-vars
+  167:9   warning  'hasSignificantChanges' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  216:34  warning  'index' is defined but never used                           @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/analytics/examples/RealtimeUsageExample.tsx
+  144:5  warning  'taskDistribution' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  145:5  warning  'teamEfficiency' is assigned a value but never used    @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/chat/useChat.ts
+  9:19  warning  'TeamMember' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/collaboration/ConnectionStatus.tsx
+   12:15  warning  'FC' is defined but never used                                                                                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+  158:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/root/.openclaw/workspace/src/components/collaboration/RemoteSelection.tsx
+  10:15  warning  'FC' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/collaboration/TaskEditor.tsx
+   15:38  warning  'RemoteCursor' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+   50:5   warning  'connect' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+   51:5   warning  'disconnect' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             @typescript-eslint/no-unused-vars
+  225:45  error    Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+/root/.openclaw/workspace/src/components/collaboration/TaskEditor.tsx:225:45
+  223 |         {/* Remote cursors overlay - positioned absolutely over textarea */}
+  224 |         <div className="absolute inset-0 pointer-events-none overflow-hidden">
+> 225 |           {Array.from(cursors.values()).map((cursor) => {
+      |                                             ^^^^^^^^^^^^^
+> 226 |             if (cursor.userId === userId) return null;
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 227 |             
+      …
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 254 |             );
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 255 |           })}
+      | ^^^^^^^^^^^^ Cannot access ref value during render
+  256 |         </div>
+  257 |
+  258 |         {/* Typing indicator */}  react-hooks/refs
+
+/root/.openclaw/workspace/src/components/dashboard/ActivityChart.tsx
+  144:39  warning  'metric' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/dashboard/RecentActivity.tsx
+   19:3   warning  'GitCommit' is defined but never used                                                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+   20:3   warning  'AlertCircle' is defined but never used                                                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+  259:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/root/.openclaw/workspace/src/components/dashboard/RevenueChart.tsx
+  23:3   warning  'ReferenceLine' is defined but never used  @typescript-eslint/no-unused-vars
+  25:22  warning  'DollarSign' is defined but never used     @typescript-eslint/no-unused-vars
+  25:34  warning  'Calendar' is defined but never used       @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/dashboard/RoomCreateModal.tsx
+   17:41  warning  'RoomConfig' is defined but never used                                                                              @typescript-eslint/no-unused-vars
+  164:6   warning  React Hook React.useEffect has a missing dependency: 'resetForm'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  190:9   warning  'generateRoomId' is assigned a value but never used                                                                 @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/dashboard/RoomJoinPanel.tsx
+  254:3  warning  'currentUserName' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/dashboard/RoomParticipantList.tsx
+   14:10  warning  'Button' is defined but never used                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+  268:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  521:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/root/.openclaw/workspace/src/components/dashboard/RoomSettingsPanel.tsx
+   12:27  warning  'useEffect' is defined but never used            @typescript-eslint/no-unused-vars
+   20:3   warning  'Clock' is defined but never used                @typescript-eslint/no-unused-vars
+   24:3   warning  'Eye' is defined but never used                  @typescript-eslint/no-unused-vars
+   25:3   warning  'EyeOff' is defined but never used               @typescript-eslint/no-unused-vars
+   80:7   warning  'ROOM_TYPES' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  110:3   warning  'currentUserId' is defined but never used        @typescript-eslint/no-unused-vars
+  319:3   warning  'currentUserId' is defined but never used        @typescript-eslint/no-unused-vars
+  422:3   warning  'room' is defined but never used                 @typescript-eslint/no-unused-vars
+  423:3   warning  'currentUserId' is defined but never used        @typescript-eslint/no-unused-vars
+  425:3   warning  'isLoading' is defined but never used            @typescript-eslint/no-unused-vars
+  559:3   warning  'room' is defined but never used                 @typescript-eslint/no-unused-vars
+  560:3   warning  'currentUserId' is defined but never used        @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/examples/StoreUsageExample.tsx
+  19:15  warning  'ToastType' is defined but never used               @typescript-eslint/no-unused-vars
+  37:10  warning  'inputValue' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  37:22  warning  'setInputValue' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  63:60  error    Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+
+/root/.openclaw/workspace/src/components/examples/TaskStatusExample.tsx
+  14:11  warning  'state' is assigned a value but never used        @typescript-eslint/no-unused-vars
+  14:18  warning  'taskUpdates' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/fallbacks/AsyncBoundary.tsx
+  129:11  error    Error: Cannot access variable before it is declared
+
+`execute` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+/root/.openclaw/workspace/src/components/fallbacks/AsyncBoundary.tsx:129:11
+  127 |         setTimeout(() => {
+  128 |           setRetryCount((prev) => prev + 1);
+> 129 |           execute();
+      |           ^^^^^^^ `execute` accessed before it is declared
+  130 |         }, autoRetryDelay);
+  131 |       }
+  132 |     }
+
+/root/.openclaw/workspace/src/components/fallbacks/AsyncBoundary.tsx:108:3
+  106 |
+  107 |   // Execute async operation
+> 108 |   const execute = useCallback(async () => {
+      |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 109 |     setStatus('pending');
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 110 |     setError(null);
+      …
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 132 |     }
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 133 |   }, [autoRetry, autoRetryDelay, maxAutoRetry, retryCount, onError]);
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `execute` is declared here
+  134 |
+  135 |   // Reload function
+  136 |   const reload = useCallback(() => {                                react-hooks/immutability
+  153:6   warning  React Hook useEffect has a missing dependency: 'execute'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      react-hooks/exhaustive-deps
+  153:34  warning  React Hook useEffect has a spread element in its dependency array. This means we can't statically verify whether you've passed the correct dependencies                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         react-hooks/exhaustive-deps
+  286:11  error    Error: Cannot access variable before it is declared
+
+`execute` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+/root/.openclaw/workspace/src/components/fallbacks/AsyncBoundary.tsx:286:11
+  284 |         setTimeout(() => {
+  285 |           setRetryCount((prev) => prev + 1);
+> 286 |           execute();
+      |           ^^^^^^^ `execute` accessed before it is declared
+  287 |         }, autoRetryDelay);
+  288 |       }
+  289 |     }
+
+/root/.openclaw/workspace/src/components/fallbacks/AsyncBoundary.tsx:261:3
+  259 |
+  260 |   // Execute async operation
+> 261 |   const execute = useCallback(async () => {
+      |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 262 |     setStatus('pending');
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 263 |     setError(null);
+      …
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 289 |     }
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 290 |   }, [fn, autoRetry, autoRetryDelay, maxAutoRetry, retryCount, onSuccess, onError]);
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `execute` is declared here
+  291 |
+  292 |   // Reload function
+  293 |   const reload = useCallback(() => {  react-hooks/immutability
+  310:6   warning  React Hook useEffect has a missing dependency: 'execute'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      react-hooks/exhaustive-deps
+  310:38  warning  React Hook useEffect has a spread element in its dependency array. This means we can't statically verify whether you've passed the correct dependencies                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         react-hooks/exhaustive-deps
+
+/root/.openclaw/workspace/src/components/meeting/MeetingRoom.tsx
+   11:48  warning  'UseWebRTCMeetingOptions' is defined but never used                                                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
+   38:11  warning  'AudioLevel' is defined but never used                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+  177:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  230:19  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  255:3   warning  'participants' is defined but never used                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+  333:3   warning  'onClose' is defined but never used                                                                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
+  425:5   warning  'joinMeeting' is assigned a value but never used                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+  450:9   warning  'getInitials' is assigned a value but never used                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/mobile/SwipeContainer.tsx
+  211:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/root/.openclaw/workspace/src/components/mobile/SwipeContainer.tsx:211:7
+  209 |   useEffect(() => {
+  210 |     if (!isRefreshing && pullDistance > 0) {
+> 211 |       setPullDistance(0);
+      |       ^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  212 |     }
+  213 |   }, [isRefreshing, pullDistance]);
+  214 |  react-hooks/set-state-in-effect
+
+/root/.openclaw/workspace/src/components/mobile/TaskCardMobile.tsx
+  31:3   warning  'searchQuery' is defined but never used  @typescript-eslint/no-unused-vars
+  82:19  warning  'e' is defined but never used            @typescript-eslint/no-unused-vars
+  88:15  warning  'e' is defined but never used            @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/monitoring/MetricsDashboard.tsx
+  23:3  warning  'Database' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/multimodal/AudioUploader.tsx
+   71:6   warning  React Hook useCallback has a missing dependency: 'transcribeAudio'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  127:14  warning  'err' is defined but never used                                                                                       @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/multimodal/ImageUploader.tsx
+   64:6  warning  React Hook useCallback has a missing dependency: 'analyzeImage'. Either include it or remove the dependency array                                                                                                                                                                        react-hooks/exhaustive-deps
+  128:9  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/root/.openclaw/workspace/src/components/rating/RatingList.tsx
+  104:6  warning  React Hook useEffect has a missing dependency: 'fetchRatings'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  133:9  warning  'handleRatingUpdate' is assigned a value but never used                                                          @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/rating/RatingStats.tsx
+  9:15  warning  'FC' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/rating/ReviewItem.tsx
+    7:55  warning  'ChevronDown' is defined but never used                                                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+    7:68  warning  'ChevronUp' is defined but never used                                                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+    7:79  warning  'User' is defined but never used                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+   10:10  warning  'Input' is defined but never used                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+   11:18  warning  'HelpfulVote' is defined but never used                                                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+   26:11  warning  'Reply' is defined but never used                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+   51:20  warning  'setExpanded' is assigned a value but never used                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+  206:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/root/.openclaw/workspace/src/components/rating/StarRating.tsx
+  65:9  warning  'stars' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/realtime/NotificationPanel.tsx
+  12:83  warning  'XCircle' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/room/ParticipantList.tsx
+  160:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/root/.openclaw/workspace/src/components/room/RoomCard.tsx
+  95:3  warning  'onJoin' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/room/RoomManager.tsx
+  15:59  warning  'RoomParticipant' is defined but never used           @typescript-eslint/no-unused-vars
+  34:3   warning  'wsUrl' is assigned a value but never used            @typescript-eslint/no-unused-vars
+  48:5   warning  'currentUserId' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  49:5   warning  'currentUserName' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  57:5   warning  'setRoomsLoading' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  58:5   warning  'setRoomsError' is assigned a value but never used    @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/room/RoomSettings.tsx
+    9:20  warning  'useCallback' is defined but never used                          @typescript-eslint/no-unused-vars
+   10:49  warning  'RoomType' is defined but never used                             @typescript-eslint/no-unused-vars
+   85:23  warning  'setAllowGuests' is assigned a value but never used              @typescript-eslint/no-unused-vars
+   86:26  warning  'setMessageHistory' is assigned a value but never used           @typescript-eslint/no-unused-vars
+  593:24  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  593:36  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+/root/.openclaw/workspace/src/components/search/GlobalSearch.tsx
+    9:28  warning  'TrendingUp' is defined but never used                           @typescript-eslint/no-unused-vars
+    9:48  warning  'ChevronDown' is defined but never used                          @typescript-eslint/no-unused-vars
+  512:39  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  512:47  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+/root/.openclaw/workspace/src/components/search/SearchHistory.tsx
+  100:6  warning  React Hook useEffect has a missing dependency: 'fetchHistory'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/root/.openclaw/workspace/src/components/search/SearchResults.tsx
+  9:42  warning  'Filter' is defined but never used        @typescript-eslint/no-unused-vars
+  9:50  warning  'ExternalLink' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/settings/NotificationPreferences.tsx
+  84:6  warning  React Hook useEffect has a missing dependency: 'loadPreferences'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/root/.openclaw/workspace/src/components/ui/Tooltip.tsx
+  94:10  warning  'isPositioned' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/ui/__tests__/responsive-helpers.ts
+  264:1  warning  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+/root/.openclaw/workspace/src/components/ui/__tests__/verify-components.js
+  17:11  warning  'Button' is assigned a value but never used           @typescript-eslint/no-unused-vars
+  17:19  warning  'ButtonGroup' is assigned a value but never used      @typescript-eslint/no-unused-vars
+  17:32  warning  'IconButton' is assigned a value but never used       @typescript-eslint/no-unused-vars
+  32:11  warning  'Modal' is assigned a value but never used            @typescript-eslint/no-unused-vars
+  32:18  warning  'ConfirmDialog' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  37:11  warning  'Tabs' is assigned a value but never used             @typescript-eslint/no-unused-vars
+  37:17  warning  'TabsList' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  37:27  warning  'TabTrigger' is assigned a value but never used       @typescript-eslint/no-unused-vars
+  37:39  warning  'TabContent' is assigned a value but never used       @typescript-eslint/no-unused-vars
+  37:51  warning  'TabPanel' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  37:61  warning  'ResponsiveTabs' is assigned a value but never used   @typescript-eslint/no-unused-vars
+  42:11  warning  'ToastProvider' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  42:26  warning  'ToastButton' is assigned a value but never used      @typescript-eslint/no-unused-vars
+  42:39  warning  'useToast' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  42:49  warning  'useToastActions' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  47:11  warning  'Tooltip' is assigned a value but never used          @typescript-eslint/no-unused-vars
+  47:20  warning  'SimpleTooltip' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  47:35  warning  'withTooltip' is assigned a value but never used      @typescript-eslint/no-unused-vars
+  47:48  warning  'InfoTooltip' is assigned a value but never used      @typescript-eslint/no-unused-vars
+  51:9   warning  'IndexModule' is assigned a value but never used      @typescript-eslint/no-unused-vars
+  57:9   warning  'buttonProps' is assigned a value but never used      @typescript-eslint/no-unused-vars
+  71:9   warning  'modalProps' is assigned a value but never used       @typescript-eslint/no-unused-vars
+  83:9   warning  'tabsProps' is assigned a value but never used        @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/ui/toast.tsx
+  16:29  warning  'useEffect' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/undo-redo/UndoRedo.tsx
+  81:3  warning  'enableShortcuts' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  82:3  warning  'undoShortcut' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  83:3  warning  'redoShortcut' is assigned a value but never used     @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/websocket/WebSocketErrorBoundary.tsx
+  148:9  warning  'displayName' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/workflow/designer/canvas.tsx
+  67:7  warning  'onNodeAdd' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/workflow/designer/edge.tsx
+   29:9  warning  'dy' is assigned a value but never used          @typescript-eslint/no-unused-vars
+  102:9  warning  'arrowAngle' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/workflow/designer/index.ts
+  57:9  error  Parsing error: '>' expected
+
+/root/.openclaw/workspace/src/components/workflow/designer/node.tsx
+  213:3  warning  'onTypeSelect' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/components/workflow/designer/toolbar.tsx
+  170:29  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  172:55  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/root/.openclaw/workspace/src/contexts/PermissionContext.tsx
+  35:9  warning  'loading' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  36:9  warning  'error' is assigned a value but never used    @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/features/notifications/services/notification-enhanced.ts
+   58:20  warning  'dbPath' is defined but never used        @typescript-eslint/no-unused-vars
+  395:37  warning  'notification' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/fix-i18n.js
+  1:12  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  2:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+/root/.openclaw/workspace/src/hooks/useBatchSelection.ts
+  72:10  warning  'lastSelectedId' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/hooks/useLongPress.ts
+   5:10  warning  'RefObject' is defined but never used  @typescript-eslint/no-unused-vars
+   5:52  warning  'useEffect' is defined but never used  @typescript-eslint/no-unused-vars
+  19:30  warning  'T' is defined but never used          @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/hooks/useResponsive.ts
+  134:5  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/root/.openclaw/workspace/src/hooks/useResponsive.ts:134:5
+  132 |
+  133 |   useEffect(() => {
+> 134 |     setIsTouch(
+      |     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  135 |       'ontouchstart' in window ||
+  136 |       navigator.maxTouchPoints > 0
+  137 |     );                                                                                                         react-hooks/set-state-in-effect
+  155:5  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/root/.openclaw/workspace/src/hooks/useResponsive.ts:155:5
+  153 |   useEffect(() => {
+  154 |     const media = window.matchMedia(query);
+> 155 |     setMatches(media.matches);
+      |     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  156 |
+  157 |     const listener = (e: MediaQueryListEvent) => setMatches(e.matches);
+  158 |     media.addEventListener('change', listener);  react-hooks/set-state-in-effect
+  384:1  warning  Assign object to a variable before exporting as module default                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  import/no-anonymous-default-export
+
+/root/.openclaw/workspace/src/hooks/useThemeEnhanced.ts
+  16:34  warning  'useMemo' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+  48:5   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/root/.openclaw/workspace/src/hooks/useThemeEnhanced.ts:48:5
+  46 |
+  47 |     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+> 48 |     setSystemPrefersDark(mediaQuery.matches);
+     |     ^^^^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  49 |
+  50 |     const handler = (e: MediaQueryListEvent) => {
+  51 |       setSystemPrefersDark(e.matches);  react-hooks/set-state-in-effect
+
+/root/.openclaw/workspace/src/hooks/useWebRTCMeeting.ts
+  214:6   warning  React Hook useCallback has missing dependencies: 'cleanupPeerConnection', 'handleAnswer', 'handleIceCandidate', and 'handleOffer'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  313:6   warning  React Hook useCallback has a missing dependency: 'cleanupPeerConnection'. Either include it or remove the dependency array                                                             react-hooks/exhaustive-deps
+  483:45  warning  'peerId' is defined but never used                                                                                                                                                     @typescript-eslint/no-unused-vars
+  526:6   warning  React Hook useCallback has missing dependencies: 'disableAudio' and 'enableAudio'. Either include them or remove the dependency array                                                  react-hooks/exhaustive-deps
+
+/root/.openclaw/workspace/src/hooks/useWebSocket.ts
+  197:39  warning  'attemptNumber' is defined but never used                                                                                      @typescript-eslint/no-unused-vars
+  203:31  warning  'attemptNumber' is defined but never used                                                                                      @typescript-eslint/no-unused-vars
+  223:32  warning  'reason' is defined but never used                                                                                             @typescript-eslint/no-unused-vars
+  362:6   warning  React Hook useEffect has missing dependencies: 'connect' and 'disconnect'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+/root/.openclaw/workspace/src/lib/agents/a2a/jsonrpc-handler.ts
+  146:9  warning  '_latestArtifact' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/agents/agent/auth-service.ts
+  21:3  warning  'getAllAgents' is defined but never used         @typescript-eslint/no-unused-vars
+  24:3  warning  'validateAgentApiKey' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/agents/agent/middleware.ts
+  8:43  warning  'hasAllPermissions' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/agents/agent/wallet-repository-optimized-v2.ts
+  20:3  warning  'WalletOperationRequest' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/agents/agent/wallet-repository.ts
+  14:3  warning  'WalletOperationRequest' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/agents/scheduler/core/adaptive-learner.ts
+    7:10  warning  'Task' is defined but never used           @typescript-eslint/no-unused-vars
+  445:18  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  649:13  warning  'data' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/agents/scheduler/core/matching.ts
+   8:10  warning  'AgentProvider' is defined but never used     @typescript-eslint/no-unused-vars
+  30:17  warning  'agentId' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/agents/scheduler/core/scheduler.ts
+  7:27  warning  'createTask' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/agents/scheduler/dashboard/AgentStatusPanel.tsx
+   39:21  warning  'TaskStatus' is defined but never used    @typescript-eslint/no-unused-vars
+  298:38  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  389:70  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/root/.openclaw/workspace/src/lib/agents/scheduler/dashboard/Dashboard.tsx
+  22:3  warning  'Settings' is defined but never used      @typescript-eslint/no-unused-vars
+  24:3  warning  'Plus' is defined but never used          @typescript-eslint/no-unused-vars
+  41:9  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/root/.openclaw/workspace/src/lib/agents/scheduler/dashboard/ManualOverride.tsx
+   16:3   warning  'selectPendingTasks' is defined but never used         @typescript-eslint/no-unused-vars
+   17:3   warning  'selectAgents' is defined but never used               @typescript-eslint/no-unused-vars
+   21:15  warning  'TaskType' is defined but never used                   @typescript-eslint/no-unused-vars
+  164:9   warning  'statusColor' is assigned a value but never used       @typescript-eslint/no-unused-vars
+  437:9   warning  'compatibleAgents' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/agents/scheduler/dashboard/ScheduleHistory.tsx
+   17:3   warning  'selectRecentDecisions' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
+   98:17  error    Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/root/.openclaw/workspace/src/lib/agents/scheduler/dashboard/ScheduleHistory.tsx:98:17
+   96 |   isExpanded,
+   97 |   onToggle,
+>  98 |   currentTime = Date.now(),
+      |                 ^^^^^^^^^^ Cannot call impure function
+   99 | }: DecisionCardProps) {
+  100 |   const agent = agents.find(a => a.agentId === decision.assignedAgent);
+  101 |   const emoji = agent ? AGENT_EMOJIS[agent.agentId] || '🤖' : '🤖';                         react-hooks/purity
+  579:32  error    Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/root/.openclaw/workspace/src/lib/agents/scheduler/dashboard/ScheduleHistory.tsx:579:32
+  577 |                   isExpanded={expandedDecisions.has(decisionKey)}
+  578 |                   onToggle={() => toggleExpansion(decisionKey)}
+> 579 |                   currentTime={Date.now()}
+      |                                ^^^^^^^^^^ Cannot call impure function
+  580 |                 />
+  581 |               );
+  582 |             })}  react-hooks/purity
+
+/root/.openclaw/workspace/src/lib/agents/scheduler/dashboard/TaskQueueView.tsx
+   94:54  error    Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/root/.openclaw/workspace/src/lib/agents/scheduler/dashboard/TaskQueueView.tsx:94:54
+  92 |   
+  93 |   // Check if deadline is approaching or overdue
+> 94 |   const isOverdue = task.deadline && task.deadline < Date.now() && task.status !== 'completed';
+     |                                                      ^^^^^^^^^^ Cannot call impure function
+  95 |   const isDeadlineSoon = task.deadline && !isOverdue && (task.deadline - Date.now()) < 60 * 60 * 1000;
+  96 |   
+  97 |   // Available agents for reassignment                                                                                                                                 react-hooks/purity
+   95:74  error    Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/root/.openclaw/workspace/src/lib/agents/scheduler/dashboard/TaskQueueView.tsx:95:74
+  93 |   // Check if deadline is approaching or overdue
+  94 |   const isOverdue = task.deadline && task.deadline < Date.now() && task.status !== 'completed';
+> 95 |   const isDeadlineSoon = task.deadline && !isOverdue && (task.deadline - Date.now()) < 60 * 60 * 1000;
+     |                                                                          ^^^^^^^^^^ Cannot call impure function
+  96 |   
+  97 |   // Available agents for reassignment
+  98 |   const availableAgents = agents.filter(a => a.availability && a.capabilities.taskTypes.includes(task.type));  react-hooks/purity
+  384:69  error    Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/root/.openclaw/workspace/src/lib/agents/scheduler/dashboard/TaskQueueView.tsx:384:69
+  382 |       inProgress: filteredTasks.filter(t => t.status === 'in_progress').length,
+  383 |       urgent: filteredTasks.filter(t => t.priority === 'urgent').length,
+> 384 |       overdue: filteredTasks.filter(t => t.deadline && t.deadline < Date.now()).length
+      |                                                                     ^^^^^^^^^^ Cannot call impure function
+  385 |     };
+  386 |   }, [filteredTasks]);
+  387 |                                                                                                                                 react-hooks/purity
+  400:43  warning  'taskId' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/agents/scheduler/models/schedule-decision.ts
+  279:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/agents/scheduler/models/task-model.ts
+  65:29  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/root/.openclaw/workspace/src/lib/agents/scheduler/stores/scheduler-store.ts
+  7:27  warning  'AgentProvider' is defined but never used  @typescript-eslint/no-unused-vars
+  8:16  warning  'TaskPriority' is defined but never used   @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/api/api-performance-logger.ts
+  8:10  warning  'NextRequest' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/api/error-handler.ts
+  19:10  warning  'getUserFriendlyError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/api/error-logger.ts
+  325:35  warning  'error' is defined but never used      @typescript-eslint/no-unused-vars
+  325:49  warning  'errorData' is defined but never used  @typescript-eslint/no-unused-vars
+  462:17  warning  '_' is defined but never used          @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/api/error-middleware.ts
+  153:3  warning  'additionalTags' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/api/timeout-wrapper.ts
+   18:41  warning  'ErrorType' is defined but never used             @typescript-eslint/no-unused-vars
+   19:10  warning  'getLocaleFromRequest' is defined but never used  @typescript-eslint/no-unused-vars
+   60:3   warning  'locale' is assigned a value but never used       @typescript-eslint/no-unused-vars
+  130:3   warning  'locale' is assigned a value but never used       @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/api/utils.ts
+   7:10  warning  'ErrorType' is defined but never used                @typescript-eslint/no-unused-vars
+  77:10  warning  'getDefaultCookieOptions' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/approval/index.ts
+  25:54  warning  '_permission' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/approval/workflow.ts
+  10:3  warning  'ApprovalPriority' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/auth/__mocks__/jose.ts
+   6:7   warning  'currentTimestamp' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   7:7   warning  'lastSecret' is assigned a value but never used        @typescript-eslint/no-unused-vars
+  45:42  warning  'secretKey' is defined but never used                  @typescript-eslint/no-unused-vars
+  45:62  warning  'options' is defined but never used                    @typescript-eslint/no-unused-vars
+  74:12  warning  'error' is defined but never used                      @typescript-eslint/no-unused-vars
+  96:14  warning  '_secretKey' is defined but never used                 @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/auth/jwt.ts
+  7:8   warning  'crypto' is defined but never used     @typescript-eslint/no-unused-vars
+  8:15  warning  'KeyObject' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/auth/middleware-rbac.ts
+  10:10  warning  'hasPermission' is defined but never used  @typescript-eslint/no-unused-vars
+  10:83  warning  'hasAllRoles' is defined but never used    @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/auth/repository-optimized.ts
+  17:3   warning  'CreateUserRequest' is defined but never used  @typescript-eslint/no-unused-vars
+  18:3   warning  'UpdateUserRequest' is defined but never used  @typescript-eslint/no-unused-vars
+  20:10  warning  'hashPassword' is defined but never used       @typescript-eslint/no-unused-vars
+  20:24  warning  'verifyPassword' is defined but never used     @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/auth/service-unified.ts
+   21:3   warning  'UserToken' is defined but never used          @typescript-eslint/no-unused-vars
+   47:10  warning  'ErrorCodes' is defined but never used         @typescript-eslint/no-unused-vars
+  158:11  warning  'password' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  205:11  warning  'password' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/auth/service.ts
+    9:3   warning  'UserToken' is defined but never used             @typescript-eslint/no-unused-vars
+   11:3   warning  'LoginResponse' is defined but never used         @typescript-eslint/no-unused-vars
+   17:3   warning  'RefreshTokenResponse' is defined but never used  @typescript-eslint/no-unused-vars
+  144:13  warning  'password' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  204:13  warning  'password' is assigned a value but never used     @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/auth/types.ts
+  7:10  warning  'Permission' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/cache/CacheManager.ts
+  25:11  warning  'CacheOptions' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/collaboration/manager.ts
+  12:25  warning  'Room' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/collaboration/rooms.ts
+  7:10  warning  'getCollaborationManager' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/data-import-export.ts
+   15:10  warning  'memoize' is defined but never used  @typescript-eslint/no-unused-vars
+  503:56  warning  '_' is defined but never used        @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/db/batch-operations.ts
+   12:28  warning  'DatabaseConnection' is defined but never used                  @typescript-eslint/no-unused-vars
+  140:44  warning  'i' is defined but never used                                   @typescript-eslint/no-unused-vars
+  255:5   warning  'useTransaction' is assigned a value but never used             @typescript-eslint/no-unused-vars
+  280:38  warning  'u' is defined but never used                                   @typescript-eslint/no-unused-vars
+  552:1   warning  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+/root/.openclaw/workspace/src/lib/db/cache.ts
+   818:3  warning  'invalidationKeys' is defined but never used                    @typescript-eslint/no-unused-vars
+  1008:1  warning  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+/root/.openclaw/workspace/src/lib/db/connection-pool.ts
+  240:17  warning  'id' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/db/connection.ts
+   53:26  warning  '_args' is defined but never used        @typescript-eslint/no-unused-vars
+  220:42  error    A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+/root/.openclaw/workspace/src/lib/db/index-analyzer.ts
+   10:10  warning  'logger' is defined but never used                              @typescript-eslint/no-unused-vars
+  348:1   warning  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+/root/.openclaw/workspace/src/lib/db/index-unified.ts
+   29:3   warning  'isUnifiedError' is defined but never used                      @typescript-eslint/no-unused-vars
+   31:10  warning  'ErrorCodes' is defined but never used                          @typescript-eslint/no-unused-vars
+   31:22  warning  'UnifiedErrorType' is defined but never used                    @typescript-eslint/no-unused-vars
+   36:7   warning  'MAX_CONNECTIONS' is assigned a value but never used            @typescript-eslint/no-unused-vars
+   75:28  warning  '_args' is defined but never used                               @typescript-eslint/no-unused-vars
+  338:42  error    A `require()` style import is forbidden                         @typescript-eslint/no-require-imports
+  502:1   warning  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+/root/.openclaw/workspace/src/lib/db/index.ts
+  57:1  warning  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+/root/.openclaw/workspace/src/lib/db/migrations.ts
+  534:1  warning  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+/root/.openclaw/workspace/src/lib/db/nplus1-detector.ts
+   13:10  warning  'getDatabaseAsync' is defined but never used    @typescript-eslint/no-unused-vars
+   14:10  warning  'logger' is defined but never used              @typescript-eslint/no-unused-vars
+  212:17  warning  'totalTime' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/db/optimization-init.ts
+  22:11  warning  'db' is assigned a value but never used                         @typescript-eslint/no-unused-vars
+  85:1   warning  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+/root/.openclaw/workspace/src/lib/db/pagination.ts
+  344:1  warning  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+/root/.openclaw/workspace/src/lib/db/performance-analyzer.ts
+  317:10  warning  'detectIndexUsage' is defined but never used                    @typescript-eslint/no-unused-vars
+  364:11  warning  'pageSize' is assigned a value but never used                   @typescript-eslint/no-unused-vars
+  367:11  warning  'pageCountStmt' is assigned a value but never used              @typescript-eslint/no-unused-vars
+  489:1   warning  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+/root/.openclaw/workspace/src/lib/db/performance-logger.ts
+   18:6   warning  'BetterSqlite3Database' is defined but never used               @typescript-eslint/no-unused-vars
+  261:31  error    A `require()` style import is forbidden                         @typescript-eslint/no-require-imports
+  340:44  error    A `require()` style import is forbidden                         @typescript-eslint/no-require-imports
+  405:1   warning  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+/root/.openclaw/workspace/src/lib/db/query-builder.ts
+  641:40  warning  'subParams' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/db/query-builder/query-builder.ts
+  447:40  warning  'subParams' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/db/query-builder/query-executor.ts
+  7:37  warning  'BuiltQuery' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/db/query-optimizations.ts
+  290:31  warning  'total_count' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/db/slow-query-logger.ts
+  13:10  warning  'getDatabaseAsync' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/economy/credit.ts
+  352:40  warning  'resolved' is defined but never used              @typescript-eslint/no-unused-vars
+  356:11  warning  'totalOrders' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/economy/payment.ts
+   72:5   warning  'order' is defined but never used          @typescript-eslint/no-unused-vars
+   73:5   warning  'returnUrl' is defined but never used      @typescript-eslint/no-unused-vars
+   74:5   warning  'cancelUrl' is defined but never used      @typescript-eslint/no-unused-vars
+  102:5   warning  'transactionId' is defined but never used  @typescript-eslint/no-unused-vars
+  103:5   warning  'amount' is defined but never used         @typescript-eslint/no-unused-vars
+  104:5   warning  'reason' is defined but never used         @typescript-eslint/no-unused-vars
+  115:35  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  580:57  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+
+/root/.openclaw/workspace/src/lib/economy/wallet.ts
+  105:52  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  131:26  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  132:26  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  459:39  warning  'reason' is defined but never used        @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/error-handler.ts
+  277:10  error    Component definition is missing display name                    react/display-name
+  310:1   warning  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+/root/.openclaw/workspace/src/lib/errors/index.ts
+  84:21  warning  'iUnifiedError' is defined but never used  @typescript-eslint/no-unused-vars
+  85:23  warning  'eExtractInfo' is defined but never used   @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/errors/unified-response.ts
+  16:3  warning  'extractErrorInfo' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/export/index.ts
+  423:11  warning  'dataRows' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  466:13  warning  'endColumnLetter' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/fallback/graceful-degradation.ts
+  281:44  warning  'level' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/hooks/useRealtimeAnalytics.ts
+  12:3  warning  'RealtimeAnalyticsState' is defined but never used                                                                                                                                         @typescript-eslint/no-unused-vars
+  40:9  warning  The 'finalConfig' object makes the dependencies of useCallback Hook (at line 205) change on every render. To fix this, wrap the initialization of 'finalConfig' in its own useMemo() Hook  react-hooks/exhaustive-deps
+
+/root/.openclaw/workspace/src/lib/hooks/useWebVitals.ts
+  117:36  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-explicit-any
+  225:5   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/root/.openclaw/workspace/src/lib/hooks/useWebVitals.ts:225:5
+  223 |
+  224 |   useEffect(() => {
+> 225 |     startCollection();
+      |     ^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  226 |   }, [startCollection]);
+  227 |
+  228 |   return {  react-hooks/set-state-in-effect
+  250:52  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-explicit-any
+
+/root/.openclaw/workspace/src/lib/keyboard-shortcuts/shortcut-config.ts
+  7:33  warning  'ShortcutContext' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/keyboard-shortcuts/shortcut-tooltip.tsx
+   10:32  warning  'useShortcutsDisplay' is defined but never used  @typescript-eslint/no-unused-vars
+   37:11  warning  'ShortcutCategory' is defined but never used     @typescript-eslint/no-unused-vars
+   49:3   warning  'showGlobal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   54:27  warning  'setContext' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  321:3   warning  'isOpen' is assigned a value but never used      @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/keyboard-shortcuts/use-keyboard-shortcuts.ts
+   80:7  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/root/.openclaw/workspace/src/lib/keyboard-shortcuts/use-keyboard-shortcuts.ts:80:7
+  78 |     if (managerRef.current && context !== currentContext) {
+  79 |       managerRef.current.setContext(context);
+> 80 |       setCurrentContext(context);
+     |       ^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  81 |       setActiveShortcuts(managerRef.current.getActiveShortcuts());
+  82 |     }
+  83 |   }, [context, currentContext]);  react-hooks/set-state-in-effect
+  276:5  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/root/.openclaw/workspace/src/lib/keyboard-shortcuts/use-keyboard-shortcuts.ts:276:5
+  274 |   useEffect(() => {
+  275 |     const targetContext = context || manager.getContext();
+> 276 |     setShortcuts(manager.getShortcutsForContext(targetContext));
+      |     ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  277 |   }, [context, manager]);
+  278 |
+  279 |   return shortcuts;                                                         react-hooks/set-state-in-effect
+  360:5  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/root/.openclaw/workspace/src/lib/keyboard-shortcuts/use-keyboard-shortcuts.ts:360:5
+  358 |
+  359 |     initShortcutManager(options);
+> 360 |     setIsReady(true);
+      |     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  361 |
+  362 |     return () => {
+  363 |       destroyShortcutManager();                                                                                                                                              react-hooks/set-state-in-effect
+  365:6  warning  React Hook useEffect has a missing dependency: 'options'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                react-hooks/exhaustive-deps
+
+/root/.openclaw/workspace/src/lib/lcp-optimization.ts
+  309:32  warning  'element' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/mcp/auth.ts
+   14:10  warning  'z' is defined but never used       @typescript-eslint/no-unused-vars
+  697:15  warning  'filter' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/mcp/prompts.ts
+   14:10  warning  'z' is defined but never used                @typescript-eslint/no-unused-vars
+  607:16  warning  'filter' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  612:21  warning  'id' is defined but never used               @typescript-eslint/no-unused-vars
+  616:17  warning  'template' is defined but never used         @typescript-eslint/no-unused-vars
+  620:14  warning  'id' is defined but never used               @typescript-eslint/no-unused-vars
+  620:26  warning  'rating' is defined but never used           @typescript-eslint/no-unused-vars
+  624:18  warning  'id' is defined but never used               @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/mcp/resources.ts
+   14:10  warning  'z' is defined but never used      @typescript-eslint/no-unused-vars
+  678:16  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/mcp/server.ts
+  94:28  warning  'T' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/mcp/streaming.ts
+  649:15  warning  'headers' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/middleware/api-error-logging.ts
+  218:17  warning  'json' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/middleware/brute-force-protection.ts
+  328:42  warning  'T' is defined but never used      @typescript-eslint/no-unused-vars
+  407:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/middleware/compression.ts
+   17:24  warning  'constants' is defined but never used     @typescript-eslint/no-unused-vars
+   80:63  warning  'encoding' is defined but never used      @typescript-eslint/no-unused-vars
+  214:3   warning  'encoding' is defined but never used      @typescript-eslint/no-unused-vars
+  227:43  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/root/.openclaw/workspace/src/lib/middleware/cors.ts
+  256:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/middleware/crawler-detection.ts
+  141:9  warning  'ua' is assigned a value but never used             @typescript-eslint/no-unused-vars
+  205:9  warning  'countBefore' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  211:9  warning  'timeSinceLast' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/middleware/csrf.ts
+  385:12  warning  'request' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/middleware/db-performance.ts
+  488:15  warning  '_' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/middleware/input-sanitization.ts
+  102:7  warning  'DEFAULT_ALLOWED_ATTRIBUTES' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/middleware/monitoring-wrapper.ts
+  214:9   warning  'severity' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  265:3   warning  'requestId' is defined but never used          @typescript-eslint/no-unused-vars
+  266:3   warning  'duration' is defined but never used           @typescript-eslint/no-unused-vars
+  284:26  warning  'error' is defined but never used              @typescript-eslint/no-unused-vars
+  284:42  warning  'route' is defined but never used              @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/middleware/rate-limit.ts
+  374:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/middleware/security-headers.ts
+  373:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/middleware/security.ts
+   21:3    warning  'sanitizeValue' is defined but never used  @typescript-eslint/no-unused-vars
+  115:21   error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  128:21   error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  189:30   error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  198:16   error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  218:25   error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  224:50   error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  282:57   error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  282:73   error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  282:104  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  303:11   error    A `require()` style import is forbidden    @typescript-eslint/no-require-imports
+  303:44   error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  470:22   error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  479:22   error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+
+/root/.openclaw/workspace/src/lib/middleware/with-request-id.ts
+  176:32  warning  'logLevel' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/monitoring/alert-manager.ts
+   12:85  warning  'AggregatedAlert' is defined but never used          @typescript-eslint/no-unused-vars
+   13:10  warning  'performanceAlertManager' is defined but never used  @typescript-eslint/no-unused-vars
+  447:52  warning  'reason' is defined but never used                   @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/monitoring/budget-controller.ts
+   11:10  warning  'performanceAlertManager' is defined but never used  @typescript-eslint/no-unused-vars
+  598:54  warning  'result' is defined but never used                   @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/monitoring/performance.monitor.ts
+  243:14  warning  '_e' is defined but never used  @typescript-eslint/no-unused-vars
+  335:16  warning  '_e' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/monitoring/root-cause.ts
+   15:8  warning  'BottleneckAnalysis' is defined but never used        @typescript-eslint/no-unused-vars
+   16:8  warning  'BottleneckRecommendation' is defined but never used  @typescript-eslint/no-unused-vars
+   23:8  warning  'RequestTiming' is defined but never used             @typescript-eslint/no-unused-vars
+   24:8  warning  'SlowRequestAnalysis' is defined but never used       @typescript-eslint/no-unused-vars
+   25:8  warning  'RequestBottleneck' is defined but never used         @typescript-eslint/no-unused-vars
+   31:8  warning  'ResourceTiming' is defined but never used            @typescript-eslint/no-unused-vars
+   32:8  warning  'WaterfallAnalysis' is defined but never used         @typescript-eslint/no-unused-vars
+  455:5  warning  'diagnosis' is defined but never used                 @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/monitoring/root-cause/performance-root-cause.ts
+  678:14  warning  'e' is defined but never used         @typescript-eslint/no-unused-vars
+  695:14  warning  'e' is defined but never used         @typescript-eslint/no-unused-vars
+  851:5   warning  '_sources' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/monitoring/root-cause/performance-waterfall-enhanced.ts
+  157:14  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/monitoring/web-vitals.ts
+   82:11  warning  'detail' is assigned a value but never used                                                                              @typescript-eslint/no-unused-vars
+  168:12  warning  'yieldToMain' is defined but never used                                                                                  @typescript-eslint/no-unused-vars
+  179:52  error    The `Function` type accepts any function-like value.
+Prefer explicitly defining any function parameters and return type  @typescript-eslint/no-unsafe-function-type
+  343:5   warning  'enableSentry' is assigned a value but never used                                                                        @typescript-eslint/no-unused-vars
+  347:5   warning  'verbose' is assigned a value but never used                                                                             @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/multi-agent/message-bus.ts
+   14:3   warning  'MessageBusEvent' is defined but never used  @typescript-eslint/no-unused-vars
+  238:22  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  292:18  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  322:28  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  322:45  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  404:23  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+
+/root/.openclaw/workspace/src/lib/multi-agent/protocol.ts
+    9:3   warning  'A2AMessage' is defined but never used      @typescript-eslint/no-unused-vars
+   11:3   warning  'MessageHeaders' is defined but never used  @typescript-eslint/no-unused-vars
+   56:10  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   75:11  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   83:11  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  168:84  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  195:30  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  219:67  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  224:63  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  228:64  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  232:69  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  492:29  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  495:52  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  507:39  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  720:34  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  727:51  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  746:30  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  753:32  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+
+/root/.openclaw/workspace/src/lib/multi-agent/task-decomposer.ts
+   10:3   warning  'TaskDependency' is defined but never used   @typescript-eslint/no-unused-vars
+   15:3   warning  'AgentCapability' is defined but never used  @typescript-eslint/no-unused-vars
+   85:12  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  340:46  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  400:66  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  401:37  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  465:34  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  555:34  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  556:6   error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  557:18  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  576:49  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  576:56  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  577:23  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+
+/root/.openclaw/workspace/src/lib/multi-agent/types.ts
+   30:28  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   96:30  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  126:10  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  127:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  142:10  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  143:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  203:9   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  209:10  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  215:10  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  235:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/root/.openclaw/workspace/src/lib/multimodal/audio-utils.ts
+  166:3  warning  'startTime' is defined but never used     @typescript-eslint/no-unused-vars
+  167:3  warning  'endTime' is defined but never used       @typescript-eslint/no-unused-vars
+  180:3  warning  'targetFormat' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/multimodal/bailian-provider.ts
+  83:5  warning  'options' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/multimodal/image-utils.ts
+  47:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/notification-preferences.ts
+  278:12  warning  'error' is defined but never used                               @typescript-eslint/no-unused-vars
+  354:1   warning  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+/root/.openclaw/workspace/src/lib/offline/sync-manager.ts
+  11:8   warning  'SyncError' is defined but never used         @typescript-eslint/no-unused-vars
+  16:3   warning  'OFFLINE_ENTITIES' is defined but never used  @typescript-eslint/no-unused-vars
+  75:31  warning  'operation' is defined but never used         @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/offline/useOfflineSync.ts
+  54:5  warning  'addToQueue' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/performance-monitor.ts
+  172:14  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/performance-optimization.ts
+  160:27  warning  'maxDuration' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  205:28  error    Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
+  335:12  warning  'error' is defined but never used                 @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/performance/alerting/escalation-policy.ts
+  736:65  warning  'step' is defined but never used  @typescript-eslint/no-unused-vars
+  747:65  warning  'step' is defined but never used  @typescript-eslint/no-unused-vars
+  760:61  warning  'step' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/performance/budget-control/budget-checker.ts
+  167:9  error  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+
+/root/.openclaw/workspace/src/lib/performance/budget-control/budget-config.ts
+    6:37  warning  'TimingBudget' is defined but never used       @typescript-eslint/no-unused-vars
+  243:22  error    A `require()` style import is forbidden        @typescript-eslint/no-require-imports
+  294:15  warning  'existing' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  381:11  warning  'config' is assigned a value but never used    @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/performance/budget-control/budget-linter.ts
+  7:29  warning  'Budget' is defined but never used             @typescript-eslint/no-unused-vars
+  7:37  warning  'TimingBudget' is defined but never used       @typescript-eslint/no-unused-vars
+  7:71  warning  'BudgetCheckResult' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/performance/root-cause-analysis/analyzer.ts
+     9:3   warning  'RootCauseType' is defined but never used  @typescript-eslint/no-unused-vars
+    24:3   warning  'Impact' is defined but never used         @typescript-eslint/no-unused-vars
+   215:5   warning  'criticalPath' is defined but never used   @typescript-eslint/no-unused-vars
+   576:49  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+   576:54  warning  'apiAnalysis' is defined but never used    @typescript-eslint/no-unused-vars
+   576:67  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+   580:15  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+   599:51  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+   626:43  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+   626:61  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+   628:24  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+   639:48  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+   819:71  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+   821:71  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+   828:26  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+   853:65  warning  'hotPaths' is defined but never used       @typescript-eslint/no-unused-vars
+   857:62  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+   865:49  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+   886:57  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  1160:13  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  1161:8   error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  1162:14  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+
+/root/.openclaw/workspace/src/lib/performance/root-cause-analysis/api-tracker.ts
+  177:11  warning  'slowRequests' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  470:11  warning  'avgDuration' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/performance/root-cause-analysis/call-chain-tracer.ts
+    8:10  warning  'Severity' is defined but never used      @typescript-eslint/no-unused-vars
+   50:27  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  420:5   warning  'summary' is defined but never used       @typescript-eslint/no-unused-vars
+  807:34  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  813:38  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/root/.openclaw/workspace/src/lib/performance/root-cause-analysis/causality-analyzer.ts
+   8:10  warning  'Severity' is defined but never used      @typescript-eslint/no-unused-vars
+  39:28  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/root/.openclaw/workspace/src/lib/performance/root-cause-analysis/correlation-engine.ts
+    7:10  warning  'Severity' is defined but never used      @typescript-eslint/no-unused-vars
+   34:27  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  450:63  warning  'key' is defined but never used           @typescript-eslint/no-unused-vars
+  688:55  warning  'primary' is defined but never used       @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/performance/root-cause-analysis/database-tracker.ts
+  14:3  warning  'ExecutionPlan' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/performance/root-cause-analysis/index.ts
+  208:13  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  211:27  warning  'anomaly' is defined but never used       @typescript-eslint/no-unused-vars
+  211:36  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/root/.openclaw/workspace/src/lib/performance/root-cause-analysis/rendering-tracker.ts
+  119:16  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+  127:33  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  135:16  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+  151:16  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+  159:44  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  167:16  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+  189:16  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+  192:14  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+  202:37  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  207:14  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+  530:58  warning  'metrics' is defined but never used       @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/permissions.ts
+   11:16  warning  'UserRole' is defined but never used                 @typescript-eslint/no-unused-vars
+  719:35  warning  'checkOwnership' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/permissions/migrations.ts
+  151:1  warning  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+/root/.openclaw/workspace/src/lib/permissions/seed.ts
+  5:16  warning  'Permission' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/prefetch/hooks/use-predictive-prefetch.ts
+  220:29  warning  The ref value 'behaviorAnalyzerRef.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'behaviorAnalyzerRef.current' to a variable inside the effect, and use that variable in the cleanup function  react-hooks/exhaustive-deps
+
+/root/.openclaw/workspace/src/lib/prefetch/hooks/use-prefetch.ts
+   11:10  warning  'PrefetchContext' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
+   43:5   warning  'priority' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+  197:19  error    Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+/root/.openclaw/workspace/src/lib/prefetch/hooks/use-prefetch.ts:197:19
+  195 |   return {
+  196 |     prefetch,
+> 197 |     isPrefetched: isPrefetchedRef.current,
+      |                   ^^^^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  198 |   };
+  199 | }
+  200 |  react-hooks/refs
+  197:19  error    Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+/root/.openclaw/workspace/src/lib/prefetch/hooks/use-prefetch.ts:197:19
+  195 |   return {
+  196 |     prefetch,
+> 197 |     isPrefetched: isPrefetchedRef.current,
+      |                   ^^^^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  198 |   };
+  199 | }
+  200 |  react-hooks/refs
+  218:24  error    React Hook "usePrefetch" may be executed more than once. Possibly because it is called in a loop. React Hooks must be called in the exact same order in every component render                                                                                                                                                                                                                                                                                                                                                                                                                                                                   react-hooks/rules-of-hooks
+  218:24  error    React Hook "usePrefetch" cannot be called inside a callback. React Hooks must be called in a React function component or a custom React Hook function                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            react-hooks/rules-of-hooks
+  257:14  warning  'error' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/prefetch/hooks/use-resource-hint.ts
+  10:15  warning  'ResourceConfig' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/prefetch/predictive-prefetcher.ts
+  321:9   error  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+  396:12  error  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+  406:64  error  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+
+/root/.openclaw/workspace/src/lib/prefetch/prefetch-provider.tsx
+   17:55  warning  'UserContext' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
+  119:42  error    Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/root/.openclaw/workspace/src/lib/prefetch/prefetch-provider.tsx:119:42
+  117 |   const loadTimesRef = useRef<number[]>([]);
+  118 |   const currentPageRef = useRef<string>('');
+> 119 |   const pageLoadTimeRef = useRef<number>(Date.now());
+      |                                          ^^^^^^^^^^ Cannot call impure function
+  120 |
+  121 |   // 初始化
+  122 |   useEffect(() => {  react-hooks/purity
+  159:15  warning  'timeSpent' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-unused-vars
+  366:36  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-explicit-any
+  389:36  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-explicit-any
+
+/root/.openclaw/workspace/src/lib/prefetch/resource-prefetcher.ts
+  113:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/prefetch/route-prefetcher.ts
+  156:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/root/.openclaw/workspace/src/lib/rate-limit/config-manager.ts
+   91:43  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   92:18  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  175:25  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  199:26  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  236:14  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/rate-limit/distributed-rate-limiter.ts
+  157:27  warning  'key' is defined but never used  @typescript-eslint/no-unused-vars
+  183:23  warning  'req' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/rate-limit/examples/api-route-integration.ts
+   59:10  warning  'req' is defined but never used                    @typescript-eslint/no-unused-vars
+   65:40  warning  'result' is defined but never used                 @typescript-eslint/no-unused-vars
+   68:8   error    Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+   82:16  warning  'initRedis' is defined but never used              @typescript-eslint/no-unused-vars
+  370:3   error    ES2015 module syntax is preferred over namespaces  @typescript-eslint/no-namespace
+
+/root/.openclaw/workspace/src/lib/rate-limit/memory-store.ts
+  20:11  warning  'TokenBucketState' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/rate-limit/middleware-enhanced.ts
+  122:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  185:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  185:41  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  185:52  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/root/.openclaw/workspace/src/lib/rate-limit/middleware.ts
+  12:10  warning  'getRateLimitEnvConfig' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/rate-limit/sliding-window.ts
+  111:9  warning  'entries' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/rate-limit/status.ts
+  26:11  warning  'checkSlidingWindow' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  27:11  warning  'checkTokenBucket' is assigned a value but never used    @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/rate-limit/storage-factory.ts
+  10:10  warning  'getRedisClient' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/rate-limit/token-bucket.ts
+   37:11  warning  'TokenBucketState' is defined but never used     @typescript-eslint/no-unused-vars
+  144:27  warning  'lastRefill' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  165:3   warning  'now' is defined but never used                  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/react-compiler/dashboard/CompilerDashboard.tsx
+  18:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/root/.openclaw/workspace/src/lib/react-compiler/dashboard/CompilerDashboard.tsx:18:5
+  16 |     // Load current config
+  17 |     const currentConfig = getReactCompilerConfig();
+> 18 |     setConfig(currentConfig);
+     |     ^^^^^^^^^ Avoid calling setState() directly within an effect
+  19 |     setLoading(false);
+  20 |   }, []);
+  21 |  react-hooks/set-state-in-effect
+
+/root/.openclaw/workspace/src/lib/react-compiler/dashboard/CompilerDiagnostics.tsx
+  373:5  error    Error: Cannot access variable before it is declared
+
+`loadData` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+/root/.openclaw/workspace/src/lib/react-compiler/dashboard/CompilerDiagnostics.tsx:373:5
+  371 |   // Load initial data
+  372 |   useEffect(() => {
+> 373 |     loadData();
+      |     ^^^^^^^^ `loadData` accessed before it is declared
+  374 |   }, []);
+  375 |
+  376 |   const loadData = async () => {
+
+/root/.openclaw/workspace/src/lib/react-compiler/dashboard/CompilerDiagnostics.tsx:376:3
+  374 |   }, []);
+  375 |
+> 376 |   const loadData = async () => {
+      |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 377 |     setIsLoading(true);
+      | ^^^^^^^^^^^^^^^^^^^^^^^
+> 378 |     try {
+      …
+      | ^^^^^^^^^^^^^^^^^^^^^^^
+> 447 |     }
+      | ^^^^^^^^^^^^^^^^^^^^^^^
+> 448 |   };
+      | ^^^^^ `loadData` is declared here
+  449 |
+  450 |   const handleToggleCompiler = useCallback(async (enabled: boolean) => {
+  451 |     const newConfig = getConfigManager();  react-hooks/immutability
+  474:6  warning  React Hook useCallback has a missing dependency: 'components'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       react-hooks/exhaustive-deps
+
+/root/.openclaw/workspace/src/lib/react-compiler/diagnostics/migration-guide.ts
+  369:10  warning  'generateStepsForIssue' is defined but never used  @typescript-eslint/no-unused-vars
+  370:9   warning  'fixGuide' is assigned a value but never used      @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/react-compiler/diagnostics/reporter.ts
+  42:38  error    Unexpected any. Specify a different type                    @typescript-eslint/no-explicit-any
+  44:51  warning  'includeMigrationGuide' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/react-compiler/performance/measurer.ts
+  192:39  warning  'componentName' is defined but never used  @typescript-eslint/no-unused-vars
+  212:36  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+
+/root/.openclaw/workspace/src/lib/react-compiler/performance/tracker.ts
+  191:38  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-explicit-any
+  256:28  error    Error: Cannot call impure function during render
+
+`performance.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/root/.openclaw/workspace/src/lib/react-compiler/performance/tracker.ts:256:28
+  254 |
+  255 |   // Mark render start
+> 256 |   renderStartRef.current = performance.now();
+      |                            ^^^^^^^^^^^^^^^^^ Cannot call impure function
+  257 | }
+  258 |
+  259 | /**                                                                                                                                                                                                                                                                                                                                                                    react-hooks/purity
+  262:32  warning  'componentName' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+  265:3   warning  React Hook useEffect contains a call to 'setCount'. Without a list of dependencies, this can lead to an infinite chain of updates. To fix this, pass [] as a second argument to the useEffect Hook                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  react-hooks/exhaustive-deps
+  266:5   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/root/.openclaw/workspace/src/lib/react-compiler/performance/tracker.ts:266:5
+  264 |
+  265 |   useEffect(() => {
+> 266 |     setCount(prev => prev + 1);
+      |     ^^^^^^^^ Avoid calling setState() directly within an effect
+  267 |   });
+  268 |
+  269 |   return count;  react-hooks/set-state-in-effect
+
+/root/.openclaw/workspace/src/lib/realtime/examples.tsx
+   32:16  warning  'event' is defined but never used                         @typescript-eslint/no-unused-vars
+   38:17  warning  'event' is defined but never used                         @typescript-eslint/no-unused-vars
+   45:9   warning  'cleanupTaskUpdate' is assigned a value but never used    @typescript-eslint/no-unused-vars
+   53:9   warning  'cleanupOnce' is assigned a value but never used          @typescript-eslint/no-unused-vars
+   53:52  warning  'data' is defined but never used                          @typescript-eslint/no-unused-vars
+  107:9   warning  'cleanup' is assigned a value but never used              @typescript-eslint/no-unused-vars
+  211:9   warning  'cleanupStateChange' is assigned a value but never used   @typescript-eslint/no-unused-vars
+  211:45  warning  'state' is defined but never used                         @typescript-eslint/no-unused-vars
+  216:9   warning  'cleanupError' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  221:9   warning  'cleanupTaskMessages' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  221:58  warning  'data' is defined but never used                          @typescript-eslint/no-unused-vars
+  383:9   warning  'cleanupError' is assigned a value but never used         @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/realtime/notification-hooks.ts
+  109:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  120:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  246:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  288:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  300:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/realtime/notification-provider.tsx
+    9:68  warning  'useRef' is defined but never used                               @typescript-eslint/no-unused-vars
+   13:55  warning  'RealtimeNotificationType' is defined but never used             @typescript-eslint/no-unused-vars
+   97:3   warning  'enableBrowserNotifications' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  130:23  warning  'flushBatch' is assigned a value but never used                  @typescript-eslint/no-unused-vars
+  130:35  warning  'batchSize' is assigned a value but never used                   @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/realtime/read-status.ts
+  55:24  warning  'userId' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/realtime/server.ts
+  30:13  warning  'message' is defined but never used  @typescript-eslint/no-unused-vars
+  37:22  warning  'channel' is defined but never used  @typescript-eslint/no-unused-vars
+  37:39  warning  'message' is defined but never used  @typescript-eslint/no-unused-vars
+  44:14  warning  'userId' is defined but never used   @typescript-eslint/no-unused-vars
+  44:30  warning  'message' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/realtime/store.ts
+  33:77  warning  'get' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/realtime/useEnhancedWebSocket.ts
+  351:6  warning  React Hook useCallback has unnecessary dependencies: 'stats.messagesSent' and 'updateStats'. Either exclude them or remove the dependency array  react-hooks/exhaustive-deps
+  475:6  warning  React Hook useCallback has unnecessary dependencies: 'stats' and 'updateStats'. Either exclude them or remove the dependency array               react-hooks/exhaustive-deps
+
+/root/.openclaw/workspace/src/lib/realtime/useRealtimeNotifications.ts
+   75:5  warning  'send' is assigned a value but never used                                                                                   @typescript-eslint/no-unused-vars
+  109:6  warning  React Hook useCallback has a missing dependency: 'playNotificationSound'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/root/.openclaw/workspace/src/lib/realtime/useWebSocket.ts
+  208:14  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/search-filter.ts
+  395:13  warning  'matchType' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/search/types.ts
+  6:8  warning  'Fuse' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/security/csrf.ts
+  108:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  187:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/security/encryption.ts
+  68:9  warning  'authTagSize' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/security/log-sanitizer.ts
+  259:3  warning  'config' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/security/rbac/permission-inheritance.ts
+   11:28  warning  'RoleDefinition' is defined but never used            @typescript-eslint/no-unused-vars
+   13:10  warning  'DEFAULT_ROLE_DEFINITIONS' is defined but never used  @typescript-eslint/no-unused-vars
+  270:21  warning  '_' is defined but never used                         @typescript-eslint/no-unused-vars
+  347:17  warning  'resource' is assigned a value but never used         @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/security/rbac/rbac-cache.ts
+  324:26  warning  'roleId' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/security/signature.ts
+  136:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/security/sql-injection.ts
+  455:17  warning  'key' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/services/notification-enhanced.ts
+  58:20  warning  'dbPath' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/sse/hooks.ts
+  18:27  warning  'T' is defined but never used                                                                  @typescript-eslint/no-unused-vars
+  73:5   warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/rules-of-hooks')
+
+/root/.openclaw/workspace/src/lib/sse/stream.ts
+    6:10  warning  'getSSEHeaders' is defined but never used  @typescript-eslint/no-unused-vars
+   52:16  warning  'error' is defined but never used          @typescript-eslint/no-unused-vars
+  112:14  warning  'error' is defined but never used          @typescript-eslint/no-unused-vars
+  147:18  warning  'error' is defined but never used          @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/tools/executor.ts
+  343:5  warning  'options' is defined but never used  @typescript-eslint/no-unused-vars
+  364:5  warning  'options' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/undo-redo/manager.ts
+  57:7  warning  'STORAGE_KEY' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/undo-redo/middleware.ts
+  27:30  warning  'A' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/utils/async.ts
+  105:7  warning  'pendingTrailing' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/utils/browser.ts
+   85:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  105:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/utils/dom.ts
+  8:10  warning  'logger' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/utils/download.ts
+  113:3  warning  'chunkSize' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/utils/perf.ts
+  7:10  warning  'isClient' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/utils/retry.ts
+  221:9  warning  'startTime' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/voice-meeting/signaling.ts
+   10:15  warning  'Socket' is defined but never used            @typescript-eslint/no-unused-vars
+   83:58  warning  'hostName' is defined but never used          @typescript-eslint/no-unused-vars
+  119:10  warning  'getRoomBySocket' is defined but never used   @typescript-eslint/no-unused-vars
+  615:11  warning  'cleaned' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/websocket/dashboard/RoomView.tsx
+   40:10  warning  'getReactionUsers' is defined but never used        @typescript-eslint/no-unused-vars
+   60:48  warning  'currentUserName' is defined but never used         @typescript-eslint/no-unused-vars
+  457:59  warning  'onLeaveRoom' is defined but never used             @typescript-eslint/no-unused-vars
+  463:5   warning  'currentRoomId' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/websocket/dashboard/websocket-store.ts
+  17:3   warning  'RoomConfig' is defined but never used  @typescript-eslint/no-unused-vars
+  19:15  warning  'UserRole' is defined but never used    @typescript-eslint/no-unused-vars
+  19:25  warning  'Permission' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/websocket/permissions.ts
+  280:17  warning  '_' is defined but never used       @typescript-eslint/no-unused-vars
+  287:61  warning  'reason' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/websocket/rooms.ts
+    9:61  warning  'Permission' is defined but never used           @typescript-eslint/no-unused-vars
+  260:63  warning  'inviteCode' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  644:55  warning  'updatedBy' is defined but never used            @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/websocket/server.ts
+    28:8   warning  'Room' is defined but never used             @typescript-eslint/no-unused-vars
+    29:8   warning  'RoomParticipant' is defined but never used  @typescript-eslint/no-unused-vars
+    48:8   warning  'StoredMessage' is defined but never used    @typescript-eslint/no-unused-vars
+   139:10  warning  'generateColor' is defined but never used    @typescript-eslint/no-unused-vars
+   425:13  warning  'result' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  1061:13  warning  'result' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/lib/websocket/useCollaboration.ts
+   12:34  warning  'Presence' is defined but never used                       @typescript-eslint/no-unused-vars
+   45:16  warning  'generateSecureJitter' is defined but never used           @typescript-eslint/no-unused-vars
+   61:10  warning  'getHeartbeatInterval' is defined but never used           @typescript-eslint/no-unused-vars
+  196:5   warning  'userAvatar' is assigned a value but never used            @typescript-eslint/no-unused-vars
+  210:10  warning  'currentRoomId' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  216:29  warning  'setConnectionQuality' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  353:11  warning  'finalDelay' is assigned a value but never used            @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/middleware/auth.ts
+  12:15  warning  'UserContext' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/middleware/cors.ts
+  250:12  warning  'request' is defined but never used  @typescript-eslint/no-unused-vars
+  268:14  warning  'request' is defined but never used  @typescript-eslint/no-unused-vars
+  281:12  warning  'request' is defined but never used  @typescript-eslint/no-unused-vars
+  294:14  warning  'request' is defined but never used  @typescript-eslint/no-unused-vars
+  309:12  warning  'request' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/stores/filterStore.ts
+  133:7  warning  'DEFAULT_PAGINATION' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/stores/walletStore.ts
+  27:3  warning  'DEFAULT_WALLET_CONFIG' is defined but never used  @typescript-eslint/no-unused-vars
+
+/root/.openclaw/workspace/src/types/search-filter.ts
+   94:31  warning  'T' is defined but never used  @typescript-eslint/no-unused-vars
+  112:32  warning  'T' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 852 problems (161 errors, 691 warnings)
+  0 errors and 2 warnings potentially fixable with the `--fix` option.
+

@@ -2,7 +2,6 @@
  * Feedback API endpoints
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { detectSpam } from '@/lib/feedback/anti-spam';
 import {
   CreateFeedbackDto,
@@ -147,7 +146,7 @@ export async function GET(request: NextRequest) {
 
     logRequestComplete(metadata, response, startTime);
     return response;
-  } catch (error) {
+  } catch (_error) {
     logRequestError(metadata, error, startTime);
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }
@@ -280,7 +279,7 @@ export async function POST(request: NextRequest) {
 
     logRequestComplete(metadata, response, startTime);
     return response;
-  } catch (error) {
+  } catch (_error) {
     logRequestError(metadata, error, startTime);
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }
@@ -319,7 +318,7 @@ export async function GET_FEEDBACK(
 
     logRequestComplete(metadata, response, startTime);
     return response;
-  } catch (error) {
+  } catch (_error) {
     logRequestError(metadata, error, startTime);
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }
@@ -428,7 +427,7 @@ export async function PATCH(
 
     logRequestComplete(metadata, response, startTime);
     return response;
-  } catch (error) {
+  } catch (_error) {
     logRequestError(metadata, error, startTime);
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }
@@ -449,7 +448,7 @@ export async function DELETE_FEEDBACK(
     const { id } = params;
 
     // Check admin permissions (simplified - in production, verify JWT token)
-    const authHeader = request.headers.get('authorization');
+    const _authHeader = request.headers.get('authorization');
     // In production, verify JWT token here
 
     const db = await getDatabaseAsync();
@@ -480,7 +479,7 @@ export async function DELETE_FEEDBACK(
 
     logRequestComplete(metadata, response, startTime);
     return response;
-  } catch (error) {
+  } catch (_error) {
     logRequestError(metadata, error, startTime);
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }

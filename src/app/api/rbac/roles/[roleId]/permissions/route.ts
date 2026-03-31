@@ -3,7 +3,6 @@
  * 管理角色的权限分配
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { withAdmin } from '@/lib/auth/middleware-rbac';
 import { Role, Permission } from '@/lib/permissions/types';
 import {
@@ -54,7 +53,7 @@ export async function GET(
           count: permissions.length,
         },
       });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to fetch role permissions:', { error, userId: context.userId });
       return NextResponse.json(
         {
@@ -162,7 +161,7 @@ export async function POST(
         },
         message: 'Permissions assigned successfully',
       });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to assign permissions:', { error, userId: context.userId });
       return NextResponse.json(
         {
@@ -270,7 +269,7 @@ export async function DELETE(
         },
         message: 'Permissions removed successfully',
       });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to remove permissions:', { error, userId: context.userId });
       return NextResponse.json(
         {

@@ -7,7 +7,6 @@
  * @refactored - Added parameter validation and improved error handling
  */
 
-import { NextResponse } from 'next/server';
 import {
   statusQuerySchema,
   validateQuery,
@@ -169,7 +168,7 @@ export async function GET(request: Request) {
       timestamp: now.toISOString(),
     } as StatusResponse);
 
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to retrieve status information', error);
     return NextResponse.json(
       {

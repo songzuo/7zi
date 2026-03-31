@@ -396,7 +396,7 @@ export class PerformanceBudget {
       const configs = JSON.parse(json) as BudgetConfig[];
       this.budgets.clear();
       configs.forEach((config) => this.addBudget(config));
-    } catch (error) {
+    } catch (_error) {
       throw new Error(`Failed to import budgets: ${error}`);
     }
   }

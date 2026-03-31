@@ -339,7 +339,7 @@ export function withUnifiedErrorHandling(
   return async (request: NextRequest): Promise<NextResponse<unknown>> => {
     try {
       return await handler(request);
-    } catch (error) {
+    } catch (_error) {
       return createUnifiedErrorResponse(
         error instanceof Error ? error : new Error(String(error))
       );

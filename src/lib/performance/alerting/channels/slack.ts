@@ -97,7 +97,7 @@ export class SlackChannel {
       }
 
       console.log(`[SlackChannel] Alert sent to Slack: ${alert.id}`);
-    } catch (error) {
+    } catch (_error) {
       console.error('[SlackChannel] Failed to send alert:', error);
       throw error;
     }
@@ -307,7 +307,7 @@ export class SlackChannel {
       }
 
       return true;
-    } catch (error) {
+    } catch (_error) {
       console.error('[SlackChannel] Webhook test error:', error);
       return false;
     }

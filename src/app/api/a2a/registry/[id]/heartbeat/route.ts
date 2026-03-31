@@ -3,7 +3,6 @@
  * POST /api/a2a/registry/[id]/heartbeat - Update agent heartbeat
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { getAgentRegistry } from '@/lib/agents/a2a/agent-registry';
 
 interface RouteContext {
@@ -59,7 +58,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
       agent: registry.get(id),
       timestamp: new Date().toISOString(),
     });
-  } catch (error) {
+  } catch (_error) {
     console.error('Agent Heartbeat POST error:', error);
     return NextResponse.json(
       {

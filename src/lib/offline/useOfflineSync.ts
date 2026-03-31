@@ -165,7 +165,7 @@ export function useOfflineData<T>(
         const result = await getOfflineData<T>(entityType, entityId);
         setData(result?.data ?? null);
         setError(null);
-      } catch (err) {
+      } catch (_err) {
         setError(err instanceof Error ? err : new Error('Failed to load data'));
       } finally {
         setLoading(false);
@@ -199,7 +199,7 @@ export function useOfflineData<T>(
         }
 
         return true;
-      } catch (err) {
+      } catch (_err) {
         setError(err instanceof Error ? err : new Error('Failed to save data'));
         return false;
       }
@@ -220,7 +220,7 @@ export function useOfflineData<T>(
       }
 
       return true;
-    } catch (err) {
+    } catch (_err) {
       setError(err instanceof Error ? err : new Error('Failed to delete data'));
       return false;
     }

@@ -111,7 +111,7 @@ export function GlobalSearch({
 
       const data = await response.json();
       setSuggestions(data.suggestions || []);
-    } catch (error) {
+    } catch (_error) {
       if (error instanceof Error && error.name !== 'AbortError') {
         console.error('Error fetching suggestions:', error);
       }
@@ -151,7 +151,7 @@ export function GlobalSearch({
 
       const data = await response.json();
       setResults(data.results || []);
-    } catch (error) {
+    } catch (_error) {
       if (error instanceof Error && error.name !== 'AbortError') {
         if (process.env.NODE_ENV === 'development') {
           console.error('Error searching:', error);
@@ -170,7 +170,7 @@ export function GlobalSearch({
 
       const data = await response.json();
       setHistory(data.entries || []);
-    } catch (error) {
+    } catch (_error) {
       if (process.env.NODE_ENV === 'development') {
         console.error('Error fetching history:', error);
       }

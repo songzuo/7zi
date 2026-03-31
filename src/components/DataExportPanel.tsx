@@ -156,7 +156,7 @@ export function DataExportPanel() {
           status: '',
         });
       }, 2000);
-    } catch (error) {
+    } catch (_error) {
       // Silently handle error in production
       if (process.env.NODE_ENV === 'development') {
         console.error('Export error:', error);

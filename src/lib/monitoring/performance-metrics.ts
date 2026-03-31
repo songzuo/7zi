@@ -155,7 +155,7 @@ async function flushMetrics() {
         count: batch.length,
       });
     }
-  } catch (error) {
+  } catch (_error) {
     logger.warn('Error sending performance metrics', { error });
     // Re-queue metrics on error (up to a limit)
     if (metricQueue.length < 100) {

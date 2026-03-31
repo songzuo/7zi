@@ -172,7 +172,7 @@ function sanitizeSensitiveData(data: Record<string, unknown>): Record<string, un
  * @example
  * try {
  *   // API logic
- * } catch (error) {
+ * } catch (_error) {
  *   logApiError(error, {
  *     requestId: request.headers.get('x-request-id'),
  *     ip: request.headers.get('x-forwarded-for'),
@@ -271,7 +271,7 @@ export function logApiSuccess(
  *   const context = createApiContext(request);
  *   try {
  *     // ...
- *   } catch (error) {
+ *   } catch (_error) {
  *     logApiError(error, context);
  *   }
  * }

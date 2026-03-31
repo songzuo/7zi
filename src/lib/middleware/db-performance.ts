@@ -156,7 +156,7 @@ export function withPerformanceLogging(db: DatabaseConnection): DatabaseConnecti
         }
 
         return result;
-      } catch (error) {
+      } catch (_error) {
         const duration = performance.now() - startTime;
 
         // Record error metric
@@ -207,7 +207,7 @@ export function withPerformanceLogging(db: DatabaseConnection): DatabaseConnecti
         }
 
         return result;
-      } catch (error) {
+      } catch (_error) {
         const duration = performance.now() - startTime;
 
         // Record error metric
@@ -256,7 +256,7 @@ export function withPerformanceLogging(db: DatabaseConnection): DatabaseConnecti
         }
 
         return result;
-      } catch (error) {
+      } catch (_error) {
         const duration = performance.now() - startTime;
 
         addQueryMetric({
@@ -308,7 +308,7 @@ export function withPerformanceLogging(db: DatabaseConnection): DatabaseConnecti
             }
 
             return result;
-          } catch (error) {
+          } catch (_error) {
             const duration = performance.now() - startTime;
 
             addQueryMetric({
@@ -342,7 +342,7 @@ export function withPerformanceLogging(db: DatabaseConnection): DatabaseConnecti
             });
 
             return result;
-          } catch (error) {
+          } catch (_error) {
             const duration = performance.now() - startTime;
 
             addQueryMetric({
@@ -383,7 +383,7 @@ export function withPerformanceLogging(db: DatabaseConnection): DatabaseConnecti
             }
 
             return result;
-          } catch (error) {
+          } catch (_error) {
             const duration = performance.now() - startTime;
 
             addQueryMetric({
@@ -423,7 +423,7 @@ export function withPerformanceLogging(db: DatabaseConnection): DatabaseConnecti
         }
 
         return results;
-      } catch (error) {
+      } catch (_error) {
         const duration = performance.now() - startTime;
 
         addQueryMetric({

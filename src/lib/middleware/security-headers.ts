@@ -370,7 +370,7 @@ export function withSecurityHeaders(
 
     try {
       response = await handler(request);
-    } catch (error) {
+    } catch (_error) {
       response = NextResponse.json(
         {
           success: false,

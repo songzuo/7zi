@@ -49,7 +49,7 @@ export class SSEStreamManager {
     if (client) {
       try {
         client.controller.close();
-      } catch (error) {
+      } catch (_error) {
         // Client already closed
       }
     }
@@ -109,7 +109,7 @@ export class SSEStreamManager {
       }
 
       return true;
-    } catch (error) {
+    } catch (_error) {
       // Client disconnected
       this.removeClient(clientId);
       return false;
@@ -144,7 +144,7 @@ export class SSEStreamManager {
       if (client) {
         try {
           client.controller.enqueue(client.encoder.encode(': keep-alive\n\n'));
-        } catch (error) {
+        } catch (_error) {
           this.removeClient(clientId);
         }
       }

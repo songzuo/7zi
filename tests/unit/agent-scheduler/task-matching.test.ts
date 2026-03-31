@@ -3,9 +3,9 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { TaskMatcher } from '../../../src/lib/agent-scheduler/core/matching';
-import { AgentCapability, initializeAgents } from '../../../src/lib/agent-scheduler/models/agent-capability';
-import { Task, createTask } from '../../../src/lib/agent-scheduler/models/task-model';
+import { TaskMatcher } from "@/lib/agents/scheduler/core/matching';
+import { AgentCapability, initializeAgents } from "@/lib/agents/scheduler/models/agent-capability';
+import { Task, createTask } from "@/lib/agents/scheduler/models/task-model';
 
 describe('TaskMatcher', () => {
   let matcher: TaskMatcher;

@@ -142,7 +142,7 @@ export class DistributedRateLimiter {
         limit: this.config.maxRequests,
         retryAfter,
       };
-    } catch (error) {
+    } catch (_error) {
       console.error('[DistributedRateLimiter] Redis check failed, falling back to memory:', error);
       // 降级到内存模式
       return this.checkWithMemory(key);
@@ -209,7 +209,7 @@ export class DistributedRateLimiter {
               await this.redisAdapter.set(key, JSON.stringify(info), ttl);
             }
           }
-        } catch (error) {
+        } catch (_error) {
           console.error('[DistributedRateLimiter] Record failure failed:', error);
         }
       }
@@ -228,7 +228,7 @@ export class DistributedRateLimiter {
     if (this.useRedis) {
       try {
         await this.redisAdapter.delete(key);
-      } catch (error) {
+      } catch (_error) {
         console.error('[DistributedRateLimiter] Reset failed:', error);
       }
     } else {

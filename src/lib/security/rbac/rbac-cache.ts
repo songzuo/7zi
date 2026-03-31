@@ -92,7 +92,7 @@ export class RBACCache<T = Permission[]> {
       } else {
         logger.info('[RBACCache] Using in-memory caching (Redis unavailable)');
       }
-    } catch (error) {
+    } catch (_error) {
       logger.warn('[RBACCache] Redis initialization failed, using in-memory cache', { error });
       this.useRedis = false;
     }
@@ -170,7 +170,7 @@ export class RBACCache<T = Permission[]> {
       }
 
       return entry.data;
-    } catch (error) {
+    } catch (_error) {
       logger.error('[RBACCache] Redis get failed', { error, key });
       return null;
     }
@@ -197,7 +197,7 @@ export class RBACCache<T = Permission[]> {
       };
 
       await client.set(key, JSON.stringify(entry), 'EX', ttl);
-    } catch (error) {
+    } catch (_error) {
       logger.error('[RBACCache] Redis set failed', { error, key });
     }
   }
@@ -217,7 +217,7 @@ export class RBACCache<T = Permission[]> {
       }
 
       await client.del(key);
-    } catch (error) {
+    } catch (_error) {
       logger.error('[RBACCache] Redis delete failed', { error, key });
     }
   }
@@ -240,7 +240,7 @@ export class RBACCache<T = Permission[]> {
       if (keys.length > 0) {
         await client.del(...keys);
       }
-    } catch (error) {
+    } catch (_error) {
       logger.error('[RBACCache] Redis pattern delete failed', { error, pattern });
     }
   }
@@ -436,7 +436,7 @@ export class RBACCache<T = Permission[]> {
             await client.del(...keys);
           }
         }
-      } catch (error) {
+      } catch (_error) {
         logger.error('[RBACCache] Clear failed', { error });
       }
     }

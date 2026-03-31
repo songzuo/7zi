@@ -9,7 +9,7 @@
 
 // Import necessary types and services
 import { NextRequest, NextResponse } from 'next/server';
-import { type UserContext, type UserRole } from '@/lib/auth/types';
+import { type UserRole } from '@/lib/auth/types';
 import { Role } from '@/lib/permissions/types';
 import { authenticateToken } from '@/lib/auth/service';
 

@@ -170,7 +170,7 @@ export function NotificationProvider({
       const permission = await Notification.requestPermission();
       setBrowserPermission(permission);
       return permission === 'granted';
-    } catch (error) {
+    } catch (_error) {
       console.error('[Notification] Failed to request permission:', error);
       return false;
     }
@@ -202,7 +202,7 @@ export function NotificationProvider({
 
       // 自动关闭
       setTimeout(() => browserNotif.close(), 5000);
-    } catch (error) {
+    } catch (_error) {
       console.error('[Notification] Failed to send browser notification:', error);
     }
   }, [browserNotificationsSupported, browserPermission, markAsRead]);

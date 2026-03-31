@@ -19,19 +19,21 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Bell, Wifi, WifiOff, RefreshCw } from 'lucide-react';
 
 export default function RealtimeDashboardExample() {
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  if (!isMounted) {
-    return null;
-  }
-
+  // All hooks must be called at the top level
   const [showNotifications, setShowNotifications] = useState(false);
   const [selectedProject, setSelectedProject] = useState<string | null>('project-1');
   const [selectedTask, setSelectedTask] = useState<string | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsMounted(true);
+  }, []);
+
+  // Skip SSR
+  if (!isMounted) {
+    return null;
+  }
 
   // Mock user ID - in production this would come from authentication
   const userId = 'user-123';

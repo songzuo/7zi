@@ -26,7 +26,7 @@ export function useLocalStorage<T>(
     try {
       const item = window.localStorage.getItem(key);
       return item ? deserialize(item) : initialValue;
-    } catch (error) {
+    } catch (_error) {
       logger.warn(`Error reading localStorage key "${key}"`, { error: String(error) });
       return initialValue;
     }
@@ -40,7 +40,7 @@ export function useLocalStorage<T>(
         if (typeof window !== 'undefined') {
           try {
             window.localStorage.setItem(key, serialize(valueToStore));
-          } catch (error) {
+          } catch (_error) {
             logger.warn(`Error setting localStorage key "${key}"`, { error: String(error) });
           }
         }

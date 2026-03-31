@@ -136,7 +136,7 @@ export class EmailService {
         success: true,
         messageId: result.id,
       };
-    } catch (error) {
+    } catch (_error) {
       logger.error('[EmailService] Failed to send email', error);
       return {
         success: false,

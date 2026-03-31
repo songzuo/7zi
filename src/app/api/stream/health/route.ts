@@ -76,7 +76,7 @@ function safeEnqueue(
   try {
     controller.enqueue(encoder.encode(data));
     return true;
-  } catch (error) {
+  } catch (_error) {
     // Client disconnected - log and return false
     logger.warn('Failed to enqueue SSE event - client likely disconnected', {
       error: error instanceof Error ? error.message : String(error),
@@ -120,7 +120,7 @@ async function gatherHealthMetrics(): Promise<HealthEvent> {
         memoryUsage: Math.round(memoryUsage * 10) / 10,
       },
     };
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to gather health metrics', error, { category: 'health' });
 
     return {
@@ -152,7 +152,7 @@ async function gatherDetailedHealth(): Promise<HealthEvent> {
         uptime: health.uptime,
       },
     };
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to gather detailed health check', error, { category: 'health' });
 
     return {
@@ -202,7 +202,7 @@ function safeClearInterval(intervalId: NodeJS.Timeout, context: { clientId: stri
       clientId: context.clientId,
       category: 'stream',
     });
-  } catch (error) {
+  } catch (_error) {
     logger.warn(`Failed to clear ${context.intervalType} interval`, {
       error: error instanceof Error ? error.message : String(error),
       clientId: context.clientId,
@@ -233,7 +233,7 @@ export async function GET(request: NextRequest) {
     let streamManager;
     try {
       streamManager = getGlobalStreamManager();
-    } catch (error) {
+    } catch (_error) {
       const streamError = error instanceof Error ? error : new Error(String(error));
       logApiError(streamError, { ...context, requestId });
       return await createServiceUnavailableError('Streaming service temporarily unavailable', locale, requestId);
@@ -259,7 +259,7 @@ export async function GET(request: NextRequest) {
 
         try {
           // Add client to manager
-          const client = streamManager.addClient(clientId, controller);
+          const _client = streamManager.addClient(clientId, controller);
 
           // Send initial connection event
           const connectEvent: HealthEvent = {
@@ -299,7 +299,7 @@ export async function GET(request: NextRequest) {
                 if (keepAliveId) safeClearInterval(keepAliveId, { clientId, intervalType: 'keepalive' });
                 streamManager.removeClient(clientId);
               }
-            } catch (error) {
+            } catch (_error) {
               logger.error('Error in health metrics interval', error, {
                 clientId,
                 category: 'stream',
@@ -337,7 +337,7 @@ export async function GET(request: NextRequest) {
                 formatSSEEvent(health, 'status'),
                 { clientId }
               );
-            } catch (error) {
+            } catch (_error) {
               logger.error('Error in detailed health check interval', error, {
                 clientId,
                 category: 'stream',
@@ -376,7 +376,7 @@ export async function GET(request: NextRequest) {
             streamManager.removeClient(clientId);
           });
 
-        } catch (error) {
+        } catch (_error) {
           // Handle startup errors
           logger.error('Failed to start SSE health stream', error, {
             clientId,
@@ -434,7 +434,7 @@ export async function GET(request: NextRequest) {
       },
     });
 
-  } catch (error) {
+  } catch (_error) {
     const errorObj = error instanceof Error ? error : new Error(String(error));
     const duration = Date.now() - startTime;
 

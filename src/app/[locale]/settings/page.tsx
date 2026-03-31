@@ -10,7 +10,7 @@ import { BackupList } from '@/components/BackupList';
 import { useState } from 'react';
 
 export default function SettingsPage() {
-  const [backupRefreshTrigger, setBackupRefreshTrigger] = useState(0);
+  const [backupRefreshTrigger, _setBackupRefreshTrigger] = useState(0);
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">

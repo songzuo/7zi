@@ -6,7 +6,20 @@
 
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
+
+// Chrome-specific memory info type
+interface MemoryInfo {
+  usedJSHeapSize: number;
+  totalJSHeapSize: number;
+  jsHeapSizeLimit: number;
+}
+
+declare global {
+  interface Performance {
+    memory?: MemoryInfo;
+  }
+}
 
 // ============================================================================
 // Types
@@ -188,8 +201,7 @@ export class PerformanceTracker {
    */
   private getCurrentMemoryUsage(): number {
     if (typeof window !== 'undefined' && 'memory' in performance) {
-      const memory = (performance as any).memory;
-      return memory.usedJSHeapSize;
+      return performance.memory?.usedJSHeapSize ?? 0;
     }
     return 0;
   }
@@ -246,23 +258,29 @@ export function usePerformanceTracking(componentName: string) {
   const tracker = getPerformanceTracker();
   const renderStartRef = useRef<number>(0);
 
-  useEffect(() => {
-    // Record render time on mount
-    const renderTime = performance.now() - renderStartRef.current;
-    tracker.recordRender(componentName, renderTime);
-  });
+  // Use useLayoutEffect to mark render start (runs before paint)
+  useLayoutEffect(() => {
+    renderStartRef.current = performance.now();
 
-  // Mark render start
-  renderStartRef.current = performance.now();
+    return () => {
+      // Record render time after render is complete
+      const renderTime = performance.now() - renderStartRef.current;
+      tracker.recordRender(componentName, renderTime);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 }
 
 /**
  * Hook to measure component render count
+ * Note: This hook uses state to trigger re-renders, which is intentional
+ * for render count tracking purposes
  */
-export function useRenderCount(componentName: string): number {
+export function useRenderCount(): number {
   const [count, setCount] = useState(0);
 
-  useEffect(() => {
+  // Update count on every render
+  useLayoutEffect(() => {
     setCount(prev => prev + 1);
   });
 

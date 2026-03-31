@@ -118,7 +118,7 @@ export function MetricsDashboard() {
       } else {
         throw new Error('Invalid response format');
       }
-    } catch (err) {
+    } catch (_err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
       if (process.env.NODE_ENV === 'development') {
         console.error('Failed to fetch metrics:', err);

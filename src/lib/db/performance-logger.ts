@@ -262,7 +262,7 @@ class PerformanceLoggerManager {
       if (dbMetricsModule.clearQueryMetrics) {
         dbMetricsModule.clearQueryMetrics();
       }
-    } catch (error) {
+    } catch (_error) {
       // db-performance 模块可能不存在，忽略错误
       logger.warn('Failed to clear db-performance metrics', { error, category: 'db' });
     }
@@ -339,7 +339,7 @@ function resetNPlus1Detector(): void {
   try {
     const { resetNPlus1Detector: reset } = require('./nplus1-detector');
     reset();
-  } catch (error) {
+  } catch (_error) {
     logger.warn('Failed to reset N+1 detector', { error, category: 'db' });
   }
 }

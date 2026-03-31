@@ -3,7 +3,6 @@
  * POST /api/auth/logout
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { withUserAuth } from '@/lib/auth/middleware';
 import { logoutUser } from '@/lib/auth/service';
 import { logger } from '@/lib/logger';
@@ -11,7 +10,7 @@ import { createValidationError, createErrorResponse } from '@/lib/api/error-hand
 import { clearAuthCookies, createSimpleSuccessResponse } from '@/lib/api/utils';
 
 export async function POST(request: NextRequest) {
-  return withUserAuth(request, async (req, context) => {
+  return withUserAuth(request, async (_req, _context) => {
     try {
       // Get token from Authorization header
       const authHeader = request.headers.get('authorization');

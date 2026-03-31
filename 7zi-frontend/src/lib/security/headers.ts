@@ -232,7 +232,7 @@ export function generateCSP(config: CSPConfig): string {
   directives.push(`default-src 'self'`);
 
   // script-src
-  let scriptSrc = [...config.scriptSrc];
+  const scriptSrc = [...config.scriptSrc];
   if (!config.strictMode && config.allowInlineScripts) {
     scriptSrc.push("'unsafe-inline'");
   }
@@ -242,7 +242,7 @@ export function generateCSP(config: CSPConfig): string {
   directives.push(`script-src ${scriptSrc.join(' ')}`);
 
   // style-src
-  let styleSrc = config.styleSrc.length > 0 ? [...config.styleSrc] : ["'self'"];
+  const styleSrc = config.styleSrc.length > 0 ? [...config.styleSrc] : ["'self'"];
   if (!config.strictMode && config.allowInlineStyles) {
     styleSrc.push("'unsafe-inline'");
   }

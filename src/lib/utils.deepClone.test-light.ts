@@ -57,7 +57,7 @@ export function runDeepClonePerformanceTests(): void {
       const obj = createDeepNestedObject(depth);
       benchmark(`Depth ${depth}`, () => deepClone(obj), 5);
       console.log(`  ✓ Successfully cloned object with depth ${depth}`);
-    } catch (error) {
+    } catch (_error) {
       console.log(`  ✗ Failed at depth ${depth}:`, (error as Error).message);
     }
   });

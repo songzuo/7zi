@@ -16,7 +16,7 @@ export const dynamic = 'force-dynamic';
 import React, { useState, useEffect, Suspense } from 'react';
 import { useTranslations } from 'next-intl';
 import { Card } from '@/components/ui/Card';
-import { DashboardStats, createDefaultStats } from '@/components/dashboard/DashboardStats';
+import { DashboardStats } from '@/components/dashboard/DashboardStats';
 import { RecentActivity, createMockActivities } from '@/components/dashboard/RecentActivity';
 import { QuickActions, minimalActions } from '@/components/dashboard/QuickActions';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
@@ -36,6 +36,23 @@ interface DashboardPageProps {
   locale: string;
 }
 
+interface MemberItem {
+  status: 'working' | 'busy' | 'idle' | 'offline';
+  completedTasks?: number;
+}
+
+interface ActivityRecord {
+  id?: string;
+  type?: string;
+  title?: string;
+  titleEn?: string;
+  description?: string;
+  descriptionEn?: string;
+  actor?: string;
+  target?: string;
+  timestamp?: string;
+}
+
 // ============================================================================
 // 工具函数
 // ============================================================================
@@ -43,10 +60,10 @@ interface DashboardPageProps {
 /**
  * 从 dashboardStore 转换为统计卡片数据
  */
-function convertToStats(members: any[], locale: string): StatItem[] {
+function convertToStats(members: MemberItem[], locale: string): StatItem[] {
   const workingCount = members.filter(m => m.status === 'working').length;
-  const busyCount = members.filter(m => m.status === 'busy').length;
-  const idleCount = members.filter(m => m.status === 'idle').length;
+  const _busyCount = members.filter(m => m.status === 'busy').length;
+  const _idleCount = members.filter(m => m.status === 'idle').length;
   const onlineCount = members.filter(m => m.status !== 'offline').length;
   const totalTasks = members.reduce((sum, m) => sum + (m.completedTasks || 0), 0);
   
@@ -101,7 +118,7 @@ function convertToStats(members: any[], locale: string): StatItem[] {
 /**
  * 从 dashboardStore 的 activities 转换为最近活动数据
  */
-function convertToActivities(activities: any[], locale: string): ActivityItem[] {
+function convertToActivities(activities: ActivityRecord[], locale: string): ActivityItem[] {
   return activities.slice(0, 10).map((activity, index) => ({
     id: activity.id || `activity-${index}`,
     type: activity.type || 'system',
@@ -130,7 +147,7 @@ const DashboardLoading: React.FC = () => (
   </div>
 );
 
-const SectionLoading: React.FC<{ title: string }> = ({ title }) => (
+const SectionLoading: React.FC<{ title: string }> = () => (
   <Card className="border border-zinc-200 dark:border-zinc-700">
     <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-700">
       <div className="w-24 h-5 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse" />
@@ -361,7 +378,7 @@ export default function DashboardPage({ locale }: DashboardPageProps) {
                   refreshInterval={30000}
                   maxDisplay={10}
                   onTaskClick={(task) => {
-                    console.log('Task clicked:', task);
+                    console.debug('Task clicked:', task.id);
                   }}
                 />
               )}
@@ -374,7 +391,7 @@ export default function DashboardPage({ locale }: DashboardPageProps) {
                   refreshInterval={10000}
                   maxDisplay={8}
                   onAgentClick={(agent) => {
-                    console.log('Agent clicked:', agent);
+                    console.debug('Agent clicked:', agent.id);
                   }}
                 />
               )}
@@ -383,10 +400,10 @@ export default function DashboardPage({ locale }: DashboardPageProps) {
                 <ManualOverride
                   maxPendingDisplay={5}
                   onTaskCreated={(task) => {
-                    console.log('Task created:', task);
+                    console.debug('Task created:', task.id);
                   }}
                   onTaskCancelled={(taskId) => {
-                    console.log('Task cancelled:', taskId);
+                    console.debug('Task cancelled:', taskId);
                   }}
                 />
               )}
@@ -399,7 +416,7 @@ export default function DashboardPage({ locale }: DashboardPageProps) {
                   pageSize={10}
                   maxDisplay={20}
                   onEntryClick={(entry) => {
-                    console.log('History entry clicked:', entry);
+                    console.debug('History entry clicked:', entry.id);
                   }}
                 />
               )}
@@ -420,7 +437,7 @@ export default function DashboardPage({ locale }: DashboardPageProps) {
                 showEmpty={true}
                 variant="default"
                 onItemClick={(activity) => {
-                  console.log('Activity clicked:', activity);
+                  console.debug('Activity clicked:', activity.id);
                 }}
               />
             </Suspense>

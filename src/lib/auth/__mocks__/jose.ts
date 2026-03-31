@@ -56,7 +56,7 @@ const mockVerify = async (token: string, secretKey?: string, options?: Record<st
     }
 
     return { payload };
-  } catch (error) {
+  } catch (_error) {
     const msg = error instanceof Error ? error.message : 'Token verification failed';
     // Map to jose error format
     if (msg.includes('exp')) {
@@ -71,7 +71,7 @@ const mockDecode = (token: string) => {
     const parts = token.split('.');
     if (parts.length !== 3) throw new Error('Invalid token format');
     return JSON.parse(Buffer.from(parts[1], 'base64').toString());
-  } catch (error) {
+  } catch (_error) {
     throw new Error('Token decoding failed');
   }
 };

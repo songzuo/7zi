@@ -44,7 +44,7 @@ export function useFetch<T>(
 
       const result = await response.json();
       setData(result);
-    } catch (err) {
+    } catch (_err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);

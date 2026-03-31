@@ -440,7 +440,7 @@ export class BottleneckDetector {
     const criticalPenalty = bottlenecks.filter((b) => b.severity === 'critical').length * 15;
     const highPenalty = bottlenecks.filter((b) => b.severity === 'high').length * 8;
 
-    let score = 100 - totalImpact / bottlenecks.length - criticalPenalty - highPenalty;
+    const score = 100 - totalImpact / bottlenecks.length - criticalPenalty - highPenalty;
     return Math.max(0, Math.round(score));
   }
 

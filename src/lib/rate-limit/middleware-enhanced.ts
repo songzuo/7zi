@@ -165,7 +165,7 @@ export function withRateLimit<T = any>(
       }
 
       return response;
-    } catch (error) {
+    } catch (_error) {
       // 记录失败（如果配置了）
       if (options.skipFailedRequests) {
         await options.limiter.recordFailure(req);

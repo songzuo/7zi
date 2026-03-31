@@ -179,7 +179,7 @@ export function withApiLogging<T extends (...args: unknown[]) => Promise<NextRes
       const response = await handler(...(args as Parameters<T>));
       logRequestComplete(metadata, response, startTime);
       return response;
-    } catch (error) {
+    } catch (_error) {
       logRequestError(metadata, error, startTime);
       throw error;
     }
