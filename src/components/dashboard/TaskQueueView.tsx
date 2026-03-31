@@ -7,10 +7,12 @@
  * 支持显示任务优先级、状态、估计时间
  * 使用 Zustand store 获取数据
  * 支持排序和筛选功能
+ * 支持任务操作（暂停/取消/重新调度）
+ * 支持虚拟滚动处理大量任务
  * 响应式布局，支持不同屏幕尺寸
  */
 
-import { FC, useState, useEffect, useMemo } from 'react';
+import { FC, useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { 
   ListTodo, 
   Clock, 
@@ -24,14 +26,20 @@ import {
   Calendar,
   User,
   ChevronDown,
-  RefreshCw
+  RefreshCw,
+  MoreVertical,
+  RotateCcw,
+  Search,
+  GripVertical,
+  Loader2
 } from 'lucide-react';
 import { 
   useSchedulerStore, 
   selectTasks,
   selectStats,
   selectUrgentTasks,
-  selectOverdueTasks 
+  selectOverdueTasks,
+  selectAgents
 } from '@/lib/agents/scheduler/stores/scheduler-store';
 import type { Task, TaskPriority, TaskStatus } from '@/lib/agents/scheduler/models/task-model';
 
@@ -42,11 +50,22 @@ import type { Task, TaskPriority, TaskStatus } from '@/lib/agents/scheduler/mode
 export type SortField = 'priority' | 'status' | 'createdAt' | 'deadline' | 'estimatedDuration';
 export type SortOrder = 'asc' | 'desc';
 
+export type TaskAction = 'pause' | 'resume' | 'cancel' | 'reschedule' | 'retry';
+
+export interface FilterState {
+  status: TaskStatus | 'all';
+  priority: TaskPriority | 'all';
+  agentId: string | 'all';
+  searchQuery: string;
+}
+
 export interface TaskQueueViewProps {
   /** 是否显示筛选器 */
   showFilters?: boolean;
   /** 是否显示排序选项 */
   showSort?: boolean;
+  /** 是否显示搜索框 */
+  showSearch?: boolean;
   /** 是否自动刷新 */
   autoRefresh?: boolean;
   /** 自动刷新间隔（毫秒） */
@@ -61,17 +80,30 @@ export interface TaskQueueViewProps {
   defaultSortField?: SortField;
   /** 默认排序顺序 */
   defaultSortOrder?: SortOrder;
-}
-
-interface FilterState {
-  status: TaskStatus | 'all';
-  priority: TaskPriority | 'all';
+  /** 是否启用虚拟滚动 */
+  enableVirtualScroll?: boolean;
+  /** 虚拟滚动阈值 */
+  virtualScrollThreshold?: number;
+  /** 是否启用拖拽排序 */
+  enableDragSort?: boolean;
+  /** 拖拽排序回调 */
+  onDragSort?: (tasks: Task[]) => void;
 }
 
 interface TaskCardProps {
   task: Task;
   onClick?: () => void;
+  onAction?: (action: TaskAction) => void;
+  isDragging?: boolean;
+  dragHandleProps?: React.HTMLAttributes<HTMLDivElement>;
 }
+
+// ============================================================================
+// 虚拟滚动配置
+// ============================================================================
+
+const ITEM_HEIGHT = 140; // 任务卡片的大致高度
+const OVERSCAN = 5; // 上下额外渲染的项目数
 
 // ============================================================================
 // 工具函数
@@ -247,15 +279,92 @@ const STATUS_WEIGHTS: Record<TaskStatus, number> = {
 };
 
 // ============================================================================
+// 子组件：任务操作菜单
+// ============================================================================
+
+interface TaskActionMenuProps {
+  task: Task;
+  onAction: (action: TaskAction) => void;
+  onClose: () => void;
+}
+
+const TaskActionMenu: FC<TaskActionMenuProps> = ({ task, onAction, onClose }) => {
+  const menuRef = useRef<HTMLDivElement>(null);
+  
+  // 点击外部关闭
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        onClose();
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [onClose]);
+  
+  const actions: { action: TaskAction; label: string; icon: FC<{ className?: string }>; show: boolean }[] = [
+    { action: 'pause', label: '暂停任务', icon: Pause, show: task.status === 'in_progress' },
+    { action: 'resume', label: '恢复任务', icon: Play, show: task.status === 'pending' && task.assignedAgent !== undefined },
+    { action: 'reschedule', label: '重新调度', icon: RotateCcw, show: ['pending', 'assigned', 'failed'].includes(task.status) },
+    { action: 'retry', label: '重试', icon: RefreshCw, show: task.status === 'failed' },
+    { action: 'cancel', label: '取消任务', icon: XCircle, show: ['pending', 'assigned', 'in_progress'].includes(task.status) },
+  ];
+  
+  const visibleActions = actions.filter(a => a.show);
+  
+  if (visibleActions.length === 0) return null;
+  
+  return (
+    <div
+      ref={menuRef}
+      className="absolute right-0 top-8 z-20 w-40 bg-white dark:bg-zinc-800 rounded-lg shadow-lg border border-zinc-200 dark:border-zinc-700 py-1"
+    >
+      {visibleActions.map(({ action, label, icon: Icon }) => (
+        <button
+          key={action}
+          onClick={() => {
+            onAction(action);
+            onClose();
+          }}
+          className={`
+            w-full px-3 py-2 text-left text-sm
+            flex items-center gap-2
+            hover:bg-zinc-100 dark:hover:bg-zinc-700
+            transition-colors
+            ${action === 'cancel' ? 'text-red-600 dark:text-red-400' : 'text-zinc-700 dark:text-zinc-300'}
+          `}
+        >
+          <Icon className="w-4 h-4" />
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+};
+
+// ============================================================================
 // 子组件：单个任务卡片
 // ============================================================================
 
-const TaskCard: FC<TaskCardProps> = ({ task, onClick }) => {
+const TaskCard: FC<TaskCardProps> = ({ task, onClick, onAction, isDragging, dragHandleProps }) => {
   const priorityConfig = getPriorityConfig(task.priority);
   const statusConfig = getStatusConfig(task.status);
   const StatusIcon = statusConfig.icon;
+  const [showMenu, setShowMenu] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   
   const deadlineDisplay = task.deadline ? formatDeadline(task.deadline) : null;
+  
+  const handleAction = useCallback(async (action: TaskAction) => {
+    if (!onAction) return;
+    setIsProcessing(true);
+    try {
+      await onAction(action);
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [onAction]);
   
   return (
     <div
@@ -267,10 +376,22 @@ const TaskCard: FC<TaskCardProps> = ({ task, onClick }) => {
         transition-all duration-300
         hover:scale-[1.01] hover:shadow-lg
         ${onClick ? 'cursor-pointer' : 'cursor-default'}
+        ${isDragging ? 'opacity-50 shadow-xl' : ''}
+        ${isProcessing ? 'pointer-events-none opacity-60' : ''}
       `}
     >
       {/* 优先级指示条 */}
       <div className={`absolute top-0 left-0 right-0 h-1 ${priorityConfig.bg}`} />
+      
+      {/* 拖拽手柄 */}
+      {dragHandleProps && (
+        <div
+          {...dragHandleProps}
+          className="absolute left-0 top-1/2 -translate-y-1/2 p-1 cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          <GripVertical className="w-4 h-4 text-zinc-400" />
+        </div>
+      )}
       
       {/* 头部：标题和状态 */}
       <div className="flex items-start justify-between gap-3 mb-3">
@@ -285,10 +406,40 @@ const TaskCard: FC<TaskCardProps> = ({ task, onClick }) => {
           )}
         </div>
         
-        {/* 状态徽章 */}
-        <div className={`px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1 ${statusConfig.badge}`}>
-          <StatusIcon className="w-3 h-3" />
-          {statusConfig.label}
+        {/* 状态徽章和操作菜单 */}
+        <div className="flex items-center gap-2">
+          <div className={`px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1 ${statusConfig.badge}`}>
+            <StatusIcon className="w-3 h-3" />
+            {statusConfig.label}
+          </div>
+          
+          {/* 操作按钮 */}
+          {onAction && !['completed', 'cancelled'].includes(task.status) && (
+            <div className="relative">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowMenu(!showMenu);
+                }}
+                disabled={isProcessing}
+                className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
+              >
+                {isProcessing ? (
+                  <Loader2 className="w-4 h-4 text-zinc-400 animate-spin" />
+                ) : (
+                  <MoreVertical className="w-4 h-4 text-zinc-400" />
+                )}
+              </button>
+              
+              {showMenu && (
+                <TaskActionMenu
+                  task={task}
+                  onAction={handleAction}
+                  onClose={() => setShowMenu(false)}
+                />
+              )}
+            </div>
+          )}
         </div>
       </div>
       
@@ -348,29 +499,51 @@ const TaskCard: FC<TaskCardProps> = ({ task, onClick }) => {
 export const TaskQueueView: FC<TaskQueueViewProps> = ({
   showFilters = true,
   showSort = true,
+  showSearch = true,
   autoRefresh = true,
   refreshInterval = 30000,
   className = '',
   onTaskClick,
   maxDisplay,
   defaultSortField = 'priority',
-  defaultSortOrder = 'desc'
+  defaultSortOrder = 'desc',
+  enableVirtualScroll = true,
+  virtualScrollThreshold = 100,
+  enableDragSort = false,
+  onDragSort
 }) => {
   const tasks = useSchedulerStore(selectTasks);
   const stats = useSchedulerStore(selectStats);
   const urgentTasks = useSchedulerStore(selectUrgentTasks);
   const overdueTasks = useSchedulerStore(selectOverdueTasks);
+  const agents = useSchedulerStore(selectAgents);
   const refresh = useSchedulerStore(state => state.refresh);
+  const failTask = useSchedulerStore(state => state.failTask);
+  const completeTask = useSchedulerStore(state => state.completeTask);
+  const scheduleTask = useSchedulerStore(state => state.scheduleTask);
   const isLoading = useSchedulerStore(state => state.isLoading);
+  const error = useSchedulerStore(state => state.error);
+  const clearError = useSchedulerStore(state => state.clearError);
   
   // 本地状态
   const [filters, setFilters] = useState<FilterState>({
     status: 'all',
-    priority: 'all'
+    priority: 'all',
+    agentId: 'all',
+    searchQuery: ''
   });
   const [sortField, setSortField] = useState<SortField>(defaultSortField);
   const [sortOrder, setSortOrder] = useState<SortOrder>(defaultSortOrder);
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  
+  // 虚拟滚动状态
+  const [scrollTop, setScrollTop] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerHeight, setContainerHeight] = useState(600);
+  
+  // 拖拽状态
+  const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
+  const [dragOverTaskId, setDragOverTaskId] = useState<string | null>(null);
   
   // 自动刷新
   useEffect(() => {
@@ -383,9 +556,33 @@ export const TaskQueueView: FC<TaskQueueViewProps> = ({
     return () => clearInterval(interval);
   }, [autoRefresh, refreshInterval, refresh]);
   
+  // 监听容器高度变化
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setContainerHeight(entry.contentRect.height);
+      }
+    });
+    
+    resizeObserver.observe(container);
+    return () => resizeObserver.disconnect();
+  }, []);
+  
   // 过滤和排序任务
   const filteredAndSortedTasks = useMemo(() => {
     let result = [...tasks];
+    
+    // 应用搜索
+    if (filters.searchQuery) {
+      const query = filters.searchQuery.toLowerCase();
+      result = result.filter(t => 
+        t.title.toLowerCase().includes(query) ||
+        (t.description && t.description.toLowerCase().includes(query))
+      );
+    }
     
     // 应用过滤器
     if (filters.status !== 'all') {
@@ -393,6 +590,9 @@ export const TaskQueueView: FC<TaskQueueViewProps> = ({
     }
     if (filters.priority !== 'all') {
       result = result.filter(t => t.priority === filters.priority);
+    }
+    if (filters.agentId !== 'all') {
+      result = result.filter(t => t.assignedAgent === filters.agentId);
     }
     
     // 应用排序
@@ -434,10 +634,102 @@ export const TaskQueueView: FC<TaskQueueViewProps> = ({
     return result;
   }, [tasks, filters, sortField, sortOrder, maxDisplay]);
   
+  // 虚拟滚动计算
+  const shouldUseVirtualScroll = enableVirtualScroll && filteredAndSortedTasks.length > virtualScrollThreshold;
+  
+  const virtualScrollData = useMemo(() => {
+    if (!shouldUseVirtualScroll) return null;
+    
+    const startIndex = Math.max(0, Math.floor(scrollTop / ITEM_HEIGHT) - OVERSCAN);
+    const endIndex = Math.min(
+      filteredAndSortedTasks.length,
+      Math.ceil((scrollTop + containerHeight) / ITEM_HEIGHT) + OVERSCAN
+    );
+    
+    return {
+      startIndex,
+      endIndex,
+      offsetY: startIndex * ITEM_HEIGHT,
+      totalHeight: filteredAndSortedTasks.length * ITEM_HEIGHT
+    };
+  }, [shouldUseVirtualScroll, scrollTop, containerHeight, filteredAndSortedTasks.length]);
+  
+  const visibleTasks = shouldUseVirtualScroll && virtualScrollData
+    ? filteredAndSortedTasks.slice(virtualScrollData.startIndex, virtualScrollData.endIndex)
+    : filteredAndSortedTasks;
+  
+  // 处理滚动
+  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    setScrollTop(e.currentTarget.scrollTop);
+  }, []);
+  
   // 切换排序顺序
   const toggleSortOrder = () => {
     setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
   };
+  
+  // 任务操作处理
+  const handleTaskAction = useCallback(async (taskId: string, action: TaskAction) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+    
+    switch (action) {
+      case 'pause':
+        // 将任务状态设为 pending，移除分配
+        failTask(taskId, '用户暂停');
+        break;
+      case 'resume':
+        // 重新调度任务
+        await scheduleTask(taskId);
+        break;
+      case 'cancel':
+        // 取消任务
+        failTask(taskId, '用户取消');
+        break;
+      case 'reschedule':
+        // 重新调度
+        await scheduleTask(taskId);
+        break;
+      case 'retry':
+        // 重试失败的任务
+        await scheduleTask(taskId);
+        break;
+    }
+  }, [tasks, failTask, scheduleTask]);
+  
+  // 拖拽处理
+  const handleDragStart = useCallback((taskId: string) => {
+    if (!enableDragSort) return;
+    setDraggedTaskId(taskId);
+  }, [enableDragSort]);
+  
+  const handleDragOver = useCallback((e: React.DragEvent, taskId: string) => {
+    e.preventDefault();
+    if (!enableDragSort) return;
+    setDragOverTaskId(taskId);
+  }, [enableDragSort]);
+  
+  const handleDrop = useCallback((e: React.DragEvent, targetTaskId: string) => {
+    e.preventDefault();
+    if (!enableDragSort || !draggedTaskId || draggedTaskId === targetTaskId) {
+      setDraggedTaskId(null);
+      setDragOverTaskId(null);
+      return;
+    }
+    
+    const sourceIndex = filteredAndSortedTasks.findIndex(t => t.id === draggedTaskId);
+    const targetIndex = filteredAndSortedTasks.findIndex(t => t.id === targetTaskId);
+    
+    if (sourceIndex !== -1 && targetIndex !== -1 && onDragSort) {
+      const newTasks = [...filteredAndSortedTasks];
+      const [removed] = newTasks.splice(sourceIndex, 1);
+      newTasks.splice(targetIndex, 0, removed);
+      onDragSort(newTasks);
+    }
+    
+    setDraggedTaskId(null);
+    setDragOverTaskId(null);
+  }, [enableDragSort, draggedTaskId, filteredAndSortedTasks, onDragSort]);
   
   return (
     <div className={`${className}`}>
@@ -475,6 +767,20 @@ export const TaskQueueView: FC<TaskQueueViewProps> = ({
         
         {/* 操作按钮 */}
         <div className="flex items-center gap-2">
+          {/* 搜索框 */}
+          {showSearch && (
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+              <input
+                type="text"
+                placeholder="搜索任务..."
+                value={filters.searchQuery}
+                onChange={(e) => setFilters(prev => ({ ...prev, searchQuery: e.target.value }))}
+                className="pl-9 pr-3 py-2 rounded-lg bg-zinc-100 dark:bg-zinc-700/50 border border-transparent hover:bg-zinc-200 dark:hover:bg-zinc-600/50 text-sm text-zinc-700 dark:text-zinc-300 w-48"
+              />
+            </div>
+          )}
+          
           {/* 筛选器 */}
           {showFilters && (
             <div className="relative">
@@ -495,7 +801,7 @@ export const TaskQueueView: FC<TaskQueueViewProps> = ({
               
               {/* 下拉菜单 */}
               {showFilterDropdown && (
-                <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-zinc-800 rounded-xl shadow-lg border border-zinc-200 dark:border-zinc-700 p-4 z-10">
+                <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-zinc-800 rounded-xl shadow-lg border border-zinc-200 dark:border-zinc-700 p-4 z-10">
                   {/* 状态筛选 */}
                   <div className="mb-3">
                     <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-2">
@@ -517,7 +823,7 @@ export const TaskQueueView: FC<TaskQueueViewProps> = ({
                   </div>
                   
                   {/* 优先级筛选 */}
-                  <div>
+                  <div className="mb-3">
                     <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                       优先级
                     </label>
@@ -533,6 +839,35 @@ export const TaskQueueView: FC<TaskQueueViewProps> = ({
                       <option value="low">低</option>
                     </select>
                   </div>
+                  
+                  {/* Agent 筛选 */}
+                  <div>
+                    <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                      执行 Agent
+                    </label>
+                    <select
+                      value={filters.agentId}
+                      onChange={(e) => setFilters(prev => ({ ...prev, agentId: e.target.value }))}
+                      className="w-full px-3 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 text-sm text-zinc-900 dark:text-zinc-100"
+                    >
+                      <option value="all">全部 Agent</option>
+                      {agents.map(agent => (
+                        <option key={agent.agentId} value={agent.agentId}>
+                          {agent.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  {/* 清除筛选 */}
+                  {(filters.status !== 'all' || filters.priority !== 'all' || filters.agentId !== 'all') && (
+                    <button
+                      onClick={() => setFilters({ status: 'all', priority: 'all', agentId: 'all', searchQuery: '' })}
+                      className="mt-3 w-full py-2 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300"
+                    >
+                      清除所有筛选
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -587,33 +922,90 @@ export const TaskQueueView: FC<TaskQueueViewProps> = ({
       </div>
       
       {/* 任务列表 */}
-      {tasks.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <ListTodo className="w-12 h-12 text-zinc-300 dark:text-zinc-600 mb-3" />
-          <p className="text-zinc-500 dark:text-zinc-400">暂无任务</p>
-          <p className="text-sm text-zinc-400 dark:text-zinc-500 mt-1">
-            任务将在这里显示
-          </p>
-        </div>
-      ) : filteredAndSortedTasks.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <Filter className="w-12 h-12 text-zinc-300 dark:text-zinc-600 mb-3" />
-          <p className="text-zinc-500 dark:text-zinc-400">无匹配的任务</p>
-          <p className="text-sm text-zinc-400 dark:text-zinc-500 mt-1">
-            尝试调整筛选条件
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {filteredAndSortedTasks.map(task => (
-            <TaskCard
-              key={task.id}
-              task={task}
-              onClick={onTaskClick ? () => onTaskClick(task) : undefined}
-            />
-          ))}
+      {/* 错误提示 */}
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+          </div>
+          <button
+            onClick={clearError}
+            className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+          >
+            <XCircle className="w-5 h-5" />
+          </button>
         </div>
       )}
+      
+      <div
+        ref={containerRef}
+        onScroll={shouldUseVirtualScroll ? handleScroll : undefined}
+        className={shouldUseVirtualScroll ? 'overflow-y-auto max-h-[600px]' : ''}
+      >
+        {tasks.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <ListTodo className="w-12 h-12 text-zinc-300 dark:text-zinc-600 mb-3" />
+            <p className="text-zinc-500 dark:text-zinc-400">暂无任务</p>
+            <p className="text-sm text-zinc-400 dark:text-zinc-500 mt-1">
+              任务将在这里显示
+            </p>
+          </div>
+        ) : filteredAndSortedTasks.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <Filter className="w-12 h-12 text-zinc-300 dark:text-zinc-600 mb-3" />
+            <p className="text-zinc-500 dark:text-zinc-400">无匹配的任务</p>
+            <p className="text-sm text-zinc-400 dark:text-zinc-500 mt-1">
+              尝试调整筛选条件
+            </p>
+          </div>
+        ) : shouldUseVirtualScroll && virtualScrollData ? (
+          // 虚拟滚动渲染
+          <div style={{ height: virtualScrollData.totalHeight, position: 'relative' }}>
+            <div style={{ transform: `translateY(${virtualScrollData.offsetY}px)` }}>
+              {visibleTasks.map(task => (
+                <div
+                  key={task.id}
+                  style={{ height: ITEM_HEIGHT }}
+                  className="pb-3"
+                  draggable={enableDragSort}
+                  onDragStart={() => handleDragStart(task.id)}
+                  onDragOver={(e) => handleDragOver(e, task.id)}
+                  onDrop={(e) => handleDrop(e, task.id)}
+                >
+                  <TaskCard
+                    task={task}
+                    onClick={onTaskClick ? () => onTaskClick(task) : undefined}
+                    onAction={onDragSort ? undefined : (action) => handleTaskAction(task.id, action)}
+                    isDragging={draggedTaskId === task.id}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          // 普通渲染
+          <div className="space-y-3">
+            {visibleTasks.map(task => (
+              <div
+                key={task.id}
+                draggable={enableDragSort}
+                onDragStart={() => handleDragStart(task.id)}
+                onDragOver={(e) => handleDragOver(e, task.id)}
+                onDrop={(e) => handleDrop(e, task.id)}
+                className={dragOverTaskId === task.id ? 'ring-2 ring-blue-500 rounded-xl' : ''}
+              >
+                <TaskCard
+                  task={task}
+                  onClick={onTaskClick ? () => onTaskClick(task) : undefined}
+                  onAction={(action) => handleTaskAction(task.id, action)}
+                  isDragging={draggedTaskId === task.id}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
       
       {/* 显示更多提示 */}
       {maxDisplay && tasks.length > maxDisplay && (

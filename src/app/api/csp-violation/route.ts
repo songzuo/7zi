@@ -1,9 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
-
 /**
  * CSP 违规报告 API 端点
  * 收集并记录 CSP 违规事件
+ * POST /api/csp-violation - 接收 CSP 违规报告
+ * GET  /api/csp-violation - 获取端点状态
  */
+
+import { NextRequest } from 'next/server';
+import {
+  createSuccessResponse,
+  createErrorResponse,
+  createBadRequestError,
+} from '@/lib/api/error-handler';
+
 export async function POST(request: NextRequest) {
   try {
     const report = await request.json();
@@ -41,19 +49,15 @@ export async function POST(request: NextRequest) {
     }
 
     // 返回成功响应
-    return NextResponse.json({ success: true }, { status: 200 });
-  } catch (error) {
-    console.error('[CSP] Error processing report:', error);
-    return NextResponse.json(
-      { success: false, error: 'Invalid report' },
-      { status: 400 }
-    );
+    return createSuccessResponse({ received: true });
+  } catch (_error) {
+    return createBadRequestError('Invalid CSP report format');
   }
 }
 
 // 支持 GET 请求（用于测试）
 export async function GET() {
-  return NextResponse.json({
+  return createSuccessResponse({
     message: 'CSP Violation Reporting Endpoint',
     status: 'active',
     documentation: '/docs/CSP_CONFIGURATION_GUIDE.md',

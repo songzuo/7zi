@@ -32,7 +32,7 @@ interface ThemeProviderProps {
 export function ThemeProvider({ 
   children, 
   defaultTheme: _defaultTheme = 'system',
-  storageKey: _storageKey, // eslint-disable-line @typescript-eslint/no-unused-vars
+  storageKey: _storageKey,  
 }: ThemeProviderProps) {
   // Zustand doesn't need a provider - just render children
   return <>{children}</>;

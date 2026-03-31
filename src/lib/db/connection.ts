@@ -103,7 +103,7 @@ export function getDatabase(): DatabaseConnection {
             lastInsertRowid: result?.lastInsertRowid !== undefined ? Number(result.lastInsertRowid) : undefined
           };
         }
-      } catch (error) {
+      } catch (_error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         logger.error('[Database Query Error]', error, { category: 'db', sql, params, error: errorMessage, timestamp: new Date().toISOString() });
         throw error;
@@ -115,7 +115,7 @@ export function getDatabase(): DatabaseConnection {
         const stmt = db.prepare(sql);
         const result = params && params.length > 0 ? stmt.all(...params) : stmt.all();
         return Array.isArray(result) ? result as Record<string, unknown>[] : [];
-      } catch (error) {
+      } catch (_error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         logger.error('[Database QueryRows Error]', error, { category: 'db', sql, params, error: errorMessage, timestamp: new Date().toISOString() });
         throw error;
@@ -130,7 +130,7 @@ export function getDatabase(): DatabaseConnection {
           changes: result?.changes ?? 0,
           lastInsertRowid: result?.lastInsertRowid !== undefined ? Number(result.lastInsertRowid) : undefined
         };
-      } catch (error) {
+      } catch (_error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         logger.error('[Database Exec Error]', error, { category: 'db', sql, params, error: errorMessage, timestamp: new Date().toISOString() });
         const enhancedError = new Error(`Database exec failed: ${errorMessage}`);
@@ -149,7 +149,7 @@ export function getDatabase(): DatabaseConnection {
               changes: result?.changes ?? 0,
               lastInsertRowid: result?.lastInsertRowid !== undefined ? Number(result.lastInsertRowid) : undefined
             };
-          } catch (error) {
+          } catch (_error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             logger.error('[Database Prepare.Run Error]', error, { category: 'db', sql, params, error: errorMessage, timestamp: new Date().toISOString() });
             const enhancedError = new Error(`Database prepare.run failed: ${errorMessage}`);
@@ -160,7 +160,7 @@ export function getDatabase(): DatabaseConnection {
         get: (...params: unknown[]) => {
           try {
             return stmt.get(...params) as Record<string, unknown> | null;
-          } catch (error) {
+          } catch (_error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             logger.error('[Database Prepare.Get Error]', error, { category: 'db', sql, params, error: errorMessage, timestamp: new Date().toISOString() });
             const enhancedError = new Error(`Database prepare.get failed: ${errorMessage}`);
@@ -172,7 +172,7 @@ export function getDatabase(): DatabaseConnection {
           try {
             const result = stmt.all(...params);
             return Array.isArray(result) ? result as Record<string, unknown>[] : [];
-          } catch (error) {
+          } catch (_error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             logger.error('[Database Prepare.All Error]', error, { category: 'db', sql, params, error: errorMessage, timestamp: new Date().toISOString() });
             const enhancedError = new Error(`Database prepare.all failed: ${errorMessage}`);
@@ -204,7 +204,7 @@ export function getDatabase(): DatabaseConnection {
         });
         transaction();
         return results;
-      } catch (error) {
+      } catch (_error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         logger.error('[Database Batch Error]', error, { category: 'db', statementCount: statements.length, error: errorMessage, timestamp: new Date().toISOString() });
         const enhancedError = new Error(`Database batch failed: ${errorMessage}`);

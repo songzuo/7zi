@@ -353,7 +353,7 @@ export const useDashboardStore = create<DashboardState>()(
             isLoading: false,
             lastUpdated: new Date(),
           });
-        } catch (error) {
+        } catch (_error) {
           const errorMessage =
             error instanceof Error ? error.message : '数据加载失败';
           set({

@@ -262,7 +262,7 @@ export async function retry<T>(
       }
 
       return result;
-    } catch (error) {
+    } catch (_error) {
       lastError = error;
 
       // 检查是否应该重试
@@ -317,7 +317,7 @@ export async function retryWithResult<T>(
       attempts: 1,
       totalTime,
     };
-  } catch (error) {
+  } catch (_error) {
     const totalTime = Date.now() - startTime;
 
     return {
@@ -403,7 +403,7 @@ export class RetryCache {
       const result = await retry(fn, options);
       this.cache.set(key, { timestamp: now, result });
       return result;
-    } catch (error) {
+    } catch (_error) {
       this.cache.set(key, { timestamp: now, error });
       throw error;
     }

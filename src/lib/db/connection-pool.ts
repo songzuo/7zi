@@ -156,7 +156,7 @@ class ConnectionPoolManager {
         this.updateStats();
 
         logger.debug(`Created initial connection ${id}`, { category: 'db', total: this.connections.size });
-      } catch (error) {
+      } catch (_error) {
         logger.error(`Failed to create initial connection ${i + 1}/${connectionsNeeded}`, error, { category: 'db' });
         throw error;
       }
@@ -171,7 +171,7 @@ class ConnectionPoolManager {
     for (let i = 0; i < connectionsNeeded; i++) {
       try {
         await this.createConnection();
-      } catch (error) {
+      } catch (_error) {
         logger.error(`Failed to create initial connection ${i + 1}/${connectionsNeeded}`, error, { category: 'db' });
         throw error;
       }
@@ -298,7 +298,7 @@ class ConnectionPoolManager {
       } else {
         result.idle++;
       }
-    } catch (error) {
+    } catch (_error) {
       connection.healthy = false;
       result.unhealthy++;
       result.healthy = false;
@@ -329,7 +329,7 @@ class ConnectionPoolManager {
           connection.db.close();
           this.connections.delete(id);
           logger.debug(`Removed unhealthy connection ${id}`, { category: 'db' });
-        } catch (error) {
+        } catch (_error) {
           logger.error(`Error closing connection ${id}`, error, { category: 'db' });
         }
       }
@@ -368,7 +368,7 @@ class ConnectionPoolManager {
           connection.db.close();
           this.connections.delete(id);
           logger.debug(`Removed idle connection ${id}`, { category: 'db' });
-        } catch (error) {
+        } catch (_error) {
           logger.error(`Error closing connection ${id}`, error, { category: 'db' });
         }
       }
@@ -407,7 +407,7 @@ class ConnectionPoolManager {
           connection.db.close();
           this.connections.delete(id);
           logger.debug(`Removed old connection ${id}`, { category: 'db' });
-        } catch (error) {
+        } catch (_error) {
           logger.error(`Error closing connection ${id}`, error, { category: 'db' });
         }
       }
@@ -447,7 +447,7 @@ class ConnectionPoolManager {
         } else {
           result.idle++;
         }
-      } catch (error) {
+      } catch (_error) {
         connection.healthy = false;
         result.unhealthy++;
         result.healthy = false;
@@ -485,7 +485,7 @@ class ConnectionPoolManager {
     for (const [id, connection] of this.connections.entries()) {
       try {
         connection.db.close();
-      } catch (error) {
+      } catch (_error) {
         logger.error(`Error closing connection ${id}`, error, { category: 'db' });
       }
     }
@@ -534,7 +534,7 @@ class ConnectionPoolManager {
       logger.debug(`Created new connection ${id}`, { category: 'db', total: this.connections.size });
 
       return connection;
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to create database connection', error, { category: 'db' });
       throw error;
     }
@@ -636,7 +636,7 @@ class ConnectionPoolManager {
           if (this.connections.size < this.config.maxConnections) {
             try {
               await this.createConnection();
-            } catch (error) {
+            } catch (_error) {
               logger.error('Failed to create minimum connection', error, { category: 'db' });
             }
           }
@@ -683,7 +683,7 @@ class ConnectionPoolManager {
             connection.db.close();
             this.connections.delete(id);
             logger.debug(`Removed old connection ${id}`, { category: 'db' });
-          } catch (error) {
+          } catch (_error) {
             logger.error(`Error closing connection ${id}`, error, { category: 'db' });
           }
         }

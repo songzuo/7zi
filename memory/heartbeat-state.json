@@ -3,8 +3,9 @@
     "email": null,
     "calendar": null,
     "weather": null,
-    "project": 1743341040
+    "project": 1743383980,
+    "xlsx_migration_verified": 1743383980
   },
-  "lastHeartbeat": 1743341040,
-  "notes": "Heartbeat 2026-03-30 15:24 Berlin. TECH_DEBT_ANALYSIS completed - TS errors reduced to 1 (auth/me/route.ts missing DELETED status). Two subagent execs failed SIGTERM (sharp-br, calm-sag) - likely auth-api-500-fix task. 4 subagent tasks listed but status unclear. lib-layer-refactor-analysis done (14:42), health-api-diagnostic done (14:40), auth-middleware-fix done (14:39)."
+  "lastHeartbeat": 1743405300,
+  "notes": "Heartbeat 2026-03-31 07:15 Berlin. Git push pending (256+ files modified). System message: RoomMessage type error in marine-c session. 7zi-frontend has ~70 TypeScript errors. docs/ directory has many deleted API docs (cleaned up). Dashboard darkmode improvement docs in docs/DASHBOARD_DARKMODE_IMPROVEMENT_20260331.md."
 }

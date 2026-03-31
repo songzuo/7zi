@@ -44,6 +44,7 @@ function AIChatContent() {
 
   // Refs
   const chatWindowRef = useRef<HTMLDivElement>(null);
+  const scrollAnchorRef = useRef<HTMLDivElement>(null);
 
   // 从 ChatContext 获取聊天状态
   const {
@@ -186,7 +187,7 @@ function AIChatContent() {
             {isTyping && <TypingIndicator />}
 
             {/* 滚动锚点 */}
-            <div ref={useRef<HTMLDivElement>(null)} />
+            <div ref={scrollAnchorRef} />
           </div>
 
           {/* 快捷操作 */}

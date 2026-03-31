@@ -204,7 +204,7 @@ export class ShortcutManager {
     this.contextListeners.forEach(listener => {
       try {
         listener(context);
-      } catch (error) {
+      } catch (_error) {
         console.error('[ShortcutManager] Context listener error:', error);
       }
     });
@@ -364,11 +364,11 @@ export class ShortcutManager {
       this.triggerListeners.forEach(listener => {
         try {
           listener(shortcut, event);
-        } catch (error) {
+        } catch (_error) {
           console.error('[ShortcutManager] Trigger listener error:', error);
         }
       });
-    } catch (error) {
+    } catch (_error) {
       console.error(`[ShortcutManager] Action error for ${shortcut.id}:`, error);
     }
   }

@@ -257,7 +257,7 @@ export class BudgetConfigManager {
       }
 
       return null;
-    } catch (error) {
+    } catch (_error) {
       console.error(`[BudgetConfig] Error loading file ${path}:`, error);
       return null;
     }

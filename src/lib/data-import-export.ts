@@ -226,7 +226,7 @@ export async function _exportData(options: ExportOptions): Promise<ExportResult>
       logger.debug(`Exported ${rows.length} rows from ${table}`, {
         category: 'data-import-export',
       });
-    } catch (error) {
+    } catch (_error) {
       const message = error instanceof Error ? error.message : String(error);
       logger.error(`Failed to export table ${table}: ${message}`, error, {
         category: 'data-import-export',
@@ -468,7 +468,7 @@ export async function _importData(
           logger.debug(`Cleared table ${table} for replace mode`, {
             category: 'data-import-export',
           });
-        } catch (error) {
+        } catch (_error) {
           const message = error instanceof Error ? error.message : String(error);
           errors.push(`Failed to clear table ${table}: ${message}`);
         }
@@ -526,7 +526,7 @@ export async function _importData(
             }
 
             stats.totalRows++;
-          } catch (error) {
+          } catch (_error) {
             const message = error instanceof Error ? error.message : String(error);
             stats.tables[table]!.errors++;
             errors.push(`Failed to import row into ${table}: ${message}`);
@@ -542,7 +542,7 @@ export async function _importData(
         category: 'data-import-export',
         stats: stats.tables[table],
       });
-    } catch (error) {
+    } catch (_error) {
       const message = error instanceof Error ? error.message : String(error);
       logger.error(`Failed to import table ${table}: ${message}`, error, {
         category: 'data-import-export',
@@ -679,7 +679,7 @@ export async function createBackup(backupName?: string): Promise<string> {
       category: 'data-import-export',
     });
     return name;
-  } catch (error) {
+  } catch (_error) {
     const message = error instanceof Error ? error.message : String(error);
     logger.error(`Failed to create backup: ${message}`, error, {
       category: 'data-import-export',

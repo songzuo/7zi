@@ -6,7 +6,6 @@
  * To enable rate limiting, simply wrap your handler with `withRateLimit`.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { withRateLimit, getRateLimitStatus } from '@/lib/rate-limit';
 
 /**
@@ -23,7 +22,7 @@ export const GET = withRateLimit(
         success: true,
         data: tasks,
       });
-    } catch (error) {
+    } catch (_error) {
       return NextResponse.json(
         {
           success: false,
@@ -54,7 +53,7 @@ export const POST = withRateLimit(
         success: true,
         data: task,
       });
-    } catch (error) {
+    } catch (_error) {
       return NextResponse.json(
         {
           success: false,

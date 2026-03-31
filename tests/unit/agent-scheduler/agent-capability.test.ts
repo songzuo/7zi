@@ -9,7 +9,7 @@ import {
   initializeAgents,
   AGENT_CAPABILITIES_CONFIG,
   AgentProvider
-} from '../../../src/lib/agent-scheduler/models/agent-capability';
+} from "@/lib/agents/scheduler/models/agent-capability';
 
 describe('AgentCapability Model', () => {
   describe('createAgentCapability', () => {

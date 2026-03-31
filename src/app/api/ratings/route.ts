@@ -2,7 +2,6 @@
  * Rating API endpoints
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { detectSpam } from '@/lib/feedback/anti-spam';
 import {
   CreateRatingDto,
@@ -140,7 +139,7 @@ export async function GET(request: NextRequest) {
 
     logRequestComplete(metadata, response, startTime);
     return response;
-  } catch (error) {
+  } catch (_error) {
     logRequestError(metadata, error, startTime);
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }
@@ -321,7 +320,7 @@ export async function POST(request: NextRequest) {
 
     logRequestComplete(metadata, response, startTime);
     return response;
-  } catch (error) {
+  } catch (_error) {
     logRequestError(metadata, error, startTime);
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }
@@ -361,7 +360,7 @@ export async function GET_RATING(
 
     logRequestComplete(metadata, response, startTime);
     return response;
-  } catch (error) {
+  } catch (_error) {
     logRequestError(metadata, error, startTime);
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }
@@ -421,7 +420,7 @@ export async function DELETE_RATING(
 
     logRequestComplete(metadata, response, startTime);
     return response;
-  } catch (error) {
+  } catch (_error) {
     logRequestError(metadata, error, startTime);
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }
@@ -526,7 +525,7 @@ export async function POST_HELPFUL(
 
     logRequestComplete(metadata, response, startTime);
     return response;
-  } catch (error) {
+  } catch (_error) {
     logRequestError(metadata, error, startTime);
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }

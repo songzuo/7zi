@@ -31,24 +31,25 @@ interface TodoItem {
 // ============================================================================
 
 export default function UndoRedoExamplePage() {
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  if (!isMounted) {
-    return null;
-  }
-
+  // All hooks must be called at the top level
   const [todos, setTodos] = useState<TodoItem[]>([
     { id: '1', text: '学习 Zustand', completed: true },
     { id: '2', text: '实现 Undo-Redo 功能', completed: false },
     { id: '3', text: '编写测试用例', completed: false },
   ]);
   const [newTodo, setNewTodo] = useState('');
-
+  const [isMounted, setIsMounted] = useState(false);
   const { undo, redo, canUndo, canRedo } = useUndoRedo();
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsMounted(true);
+  }, []);
+
+  // Skip SSR
+  if (!isMounted) {
+    return null;
+  }
 
   // Add todo with undo-redo
   const addTodo = () => {

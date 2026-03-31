@@ -126,7 +126,7 @@ export class FileTools {
           },
         ],
       };
-    } catch (error) {
+    } catch (_error) {
       return {
         content: [
           {
@@ -168,7 +168,7 @@ export class FileTools {
           },
         ],
       };
-    } catch (error) {
+    } catch (_error) {
       return {
         content: [
           {
@@ -209,7 +209,7 @@ export class FileTools {
           },
         ],
       };
-    } catch (error) {
+    } catch (_error) {
       return {
         content: [
           {
@@ -316,7 +316,7 @@ export class CommandTools {
           },
         ],
       };
-    } catch (error) {
+    } catch (_error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       return {
         content: [

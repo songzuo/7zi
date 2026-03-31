@@ -72,7 +72,7 @@ export async function seedDefaultRolesAndPermissions(): Promise<{
       rolesSeeded,
       permissionsSeeded,
     };
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to seed roles and permissions:', { error });
     return {
       success: false,
@@ -137,7 +137,7 @@ export async function resetToDefaults(): Promise<{
       success: result.success,
       message: result.message,
     };
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to reset roles and permissions:', { error });
     return {
       success: false,

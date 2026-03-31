@@ -124,7 +124,7 @@ export function ExportPanel<T extends Record<string, unknown>>({
       } else {
         setError(result.error || '导出失败');
       }
-    } catch (err) {
+    } catch (_err) {
       setError(err instanceof Error ? err.message : '导出失败');
     } finally {
       setIsExporting(false);

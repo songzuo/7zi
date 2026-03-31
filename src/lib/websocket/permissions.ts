@@ -277,14 +277,14 @@ export class PermissionManager {
     }
 
     return Array.from(userPerms.permissions.entries())
-      .filter(([_, grant]) => grant.granted && (!grant.expiresAt || grant.expiresAt > new Date()))
+      .filter(([_perm, grant]) => grant.granted && (!grant.expiresAt || grant.expiresAt > new Date()))
       .map(([perm]) => perm);
   }
 
   /**
    * Ban a user from a room
    */
-  banUser(userId: string, roomId: string, bannedBy: string, reason?: string): void {
+  banUser(userId: string, roomId: string, bannedBy: string, _reason?: string): void {
     if (!this.bannedUsers.has(roomId)) {
       this.bannedUsers.set(roomId, new Set());
     }
@@ -296,7 +296,7 @@ export class PermissionManager {
     if (roomPerms) {
       const userPerms = roomPerms.get(userId);
       if (userPerms) {
-        userPerms.permissions.forEach((_, perm) => {
+        userPerms.permissions.forEach((__grant, perm) => {
           userPerms.permissions.set(perm, {
             permission: perm,
             granted: false,

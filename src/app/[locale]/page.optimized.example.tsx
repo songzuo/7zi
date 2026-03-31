@@ -16,7 +16,6 @@ import { Link } from '@/i18n/routing';
 
 // 骨架屏组件
 import {
-  HeroSkeleton,
   TeamPreviewSkeleton,
   ServicesSkeleton,
   WhyUsSkeleton,

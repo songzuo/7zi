@@ -110,7 +110,7 @@ export class EmailChannel {
     try {
       await this.transporter.sendMail(mailOptions);
       console.log(`[EmailChannel] Email sent for alert ${alert.id}`);
-    } catch (error) {
+    } catch (_error) {
       console.error('[EmailChannel] Failed to send email:', error);
       throw error;
     }
@@ -123,7 +123,7 @@ export class EmailChannel {
     try {
       await this.transporter.verify();
       return true;
-    } catch (error) {
+    } catch (_error) {
       console.error('[EmailChannel] Test failed:', error);
       return false;
     }

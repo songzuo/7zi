@@ -119,7 +119,7 @@ export async function withFallback<T>(
     if (redisAvailable) {
       try {
         return await redisOperation();
-      } catch (error) {
+      } catch (_error) {
         logger.error('Redis operation failed, falling back to memory', { error });
 
         if (config.failOpen !== false) {

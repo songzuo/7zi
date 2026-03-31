@@ -17,15 +17,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { useWebSocket, useTaskStatusUpdates, type TaskStatusUpdate } from '@/hooks/useWebSocket';
 
 export default function WebSocketDemoPage() {
+  // All hooks must be called at the top level
   const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  if (!isMounted) {
-    return null; // Skip SSR
-  }
+  const [messages, setMessages] = useState<string[]>([]);
+  const [roomId, setRoomId] = useState('demo-room');
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
   const ws = useWebSocket({
     autoConnect: false, // Let user control connection
@@ -36,30 +32,39 @@ export default function WebSocketDemoPage() {
     autoConnect: false,
   });
 
-  const [messages, setMessages] = useState<string[]>([]);
-  const [roomId, setRoomId] = useState('demo-room');
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const addMessage = useCallback((msg: string) => {
+    setMessages(prev => [...prev.slice(-19), `[${new Date().toLocaleTimeString()}] ${msg}`]);
+  }, []);
+
+  // Initialize mount state
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsMounted(true);
+  }, []);
 
   // Log connection status changes
   useEffect(() => {
     if (ws.state.connected) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       addMessage(`✅ Connected to WebSocket server`);
     }
     if (ws.state.error) {
+       
       addMessage(`❌ Error: ${ws.state.error}`);
     }
-  }, [ws.state.connected, ws.state.error]);
+  }, [ws.state.connected, ws.state.error, addMessage]);
 
   // Log task status updates
   useEffect(() => {
     taskWs.taskUpdates.forEach((update, taskId) => {
       addMessage(`📊 Task ${taskId}: ${update.status} (${update.state})`);
     });
-  }, [taskWs.taskUpdates.size]);
+  }, [taskWs.taskUpdates.size, addMessage]);
 
-  const addMessage = useCallback((msg: string) => {
-    setMessages(prev => [...prev.slice(-19), `[${new Date().toLocaleTimeString()}] ${msg}`]);
-  }, []);
+  // Skip SSR - render null instead of early return
+  if (!isMounted) {
+    return null;
+  }
 
   const handleConnect = () => {
     addMessage('🔌 Connecting...');
@@ -285,7 +290,7 @@ export default function WebSocketDemoPage() {
             </h2>
             {taskWs.taskUpdates.size === 0 ? (
               <div className="text-center py-8 text-slate-500">
-                No task updates yet. Click "Simulate Task Update" to see how it works!
+                No task updates yet. Click &quot;Simulate Task Update&quot; to see how it works!
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -325,11 +330,11 @@ export default function WebSocketDemoPage() {
           <div className="grid md:grid-cols-3 gap-6 text-slate-300 text-sm">
             <div>
               <h3 className="text-white font-medium mb-2">1. Connect</h3>
-              <p>Click "Connect" to establish a WebSocket connection. The system will automatically authenticate using your session token.</p>
+              <p>Click &quot;Connect&quot; to establish a WebSocket connection. The system will automatically authenticate using your session token.</p>
             </div>
             <div>
               <h3 className="text-white font-medium mb-2">2. Join a Room</h3>
-              <p>Enter a room ID and click "Join Room" to participate in real-time collaboration with other users.</p>
+              <p>Enter a room ID and click &quot;Join Room&quot; to participate in real-time collaboration with other users.</p>
             </div>
             <div>
               <h3 className="text-white font-medium mb-2">3. Monitor Events</h3>

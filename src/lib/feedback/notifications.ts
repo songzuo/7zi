@@ -49,7 +49,7 @@ export async function createFeedbackNotification(
       recipientId: adminId,
       type,
     });
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to create feedback notification', error, {
       category: 'feedback',
       feedbackId: feedback.id,
@@ -350,7 +350,7 @@ export async function processFeedbackNotifications(
           await notifyHighPriorityFeedback(feedback);
           break;
       }
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to process feedback notification', error, {
         category: 'feedback',
         notificationId: notification.id,

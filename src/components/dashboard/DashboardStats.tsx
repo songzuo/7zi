@@ -214,7 +214,7 @@ const StatCard: React.FC<StatCardProps> = React.memo(({ stat, locale, variant })
     <Card className={cn(
       config.bg,
       config.border,
-      'border hover:shadow-md transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]',
+      'border hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]',
       'group cursor-default'
     )}>
       <div className="flex items-center justify-between mb-2">

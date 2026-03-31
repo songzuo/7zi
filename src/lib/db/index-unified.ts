@@ -10,7 +10,7 @@
  *   const db = getDatabase();
  *   const users = db.queryRows('SELECT * FROM users');
  *   // 处理结果
- * } catch (error) {
+ * } catch (_error) {
  *   if (isUnifiedError(error)) {
  *     // 处理统一错误
  *   }
@@ -93,7 +93,7 @@ function initializeDatabase(): Database.Database {
     connectionCount = 1;
 
     return dbInstance;
-  } catch (error) {
+  } catch (_error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error('Failed to initialize database', error, { category: 'db', dbPath });
     throw UnifiedAppError.internal(`Failed to initialize database: ${errorMessage}`);
@@ -130,7 +130,7 @@ export function getDatabase(): DatabaseConnection {
             lastInsertRowid: result?.lastInsertRowid !== undefined ? Number(result.lastInsertRowid) : undefined
           };
         }
-      } catch (error) {
+      } catch (_error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         logger.error('[Database Query Error]', error, {
           category: 'db',
@@ -162,7 +162,7 @@ export function getDatabase(): DatabaseConnection {
         const stmt = db.prepare(sql);
         const result = params ? stmt.all(...params) : stmt.all();
         return Array.isArray(result) ? result as Record<string, unknown>[] : [];
-      } catch (error) {
+      } catch (_error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         logger.error('[Database QueryRows Error]', error, {
           category: 'db',
@@ -192,7 +192,7 @@ export function getDatabase(): DatabaseConnection {
           changes: result?.changes ?? 0,
           lastInsertRowid: result?.lastInsertRowid !== undefined ? Number(result.lastInsertRowid) : undefined
         };
-      } catch (error) {
+      } catch (_error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         logger.error('[Database Exec Error]', error, {
           category: 'db',
@@ -224,7 +224,7 @@ export function getDatabase(): DatabaseConnection {
               changes: result?.changes ?? 0,
               lastInsertRowid: result?.lastInsertRowid !== undefined ? Number(result.lastInsertRowid) : undefined
             };
-          } catch (error) {
+          } catch (_error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             logger.error('[Database Prepare.Run Error]', error, {
               category: 'db',
@@ -248,7 +248,7 @@ export function getDatabase(): DatabaseConnection {
         get: (...params: unknown[]) => {
           try {
             return stmt.get(...params) as Record<string, unknown> | null;
-          } catch (error) {
+          } catch (_error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             logger.error('[Database Prepare.Get Error]', error, {
               category: 'db',
@@ -269,7 +269,7 @@ export function getDatabase(): DatabaseConnection {
           try {
             const result = stmt.all(...params);
             return Array.isArray(result) ? result as Record<string, unknown>[] : [];
-          } catch (error) {
+          } catch (_error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             logger.error('[Database Prepare.All Error]', error, {
               category: 'db',
@@ -310,7 +310,7 @@ export function getDatabase(): DatabaseConnection {
         });
         transaction();
         return results;
-      } catch (error) {
+      } catch (_error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         logger.error('[Database Batch Error]', error, {
           category: 'db',
@@ -353,7 +353,7 @@ export function closeDatabase(): void {
   if (dbInstance) {
     try {
       dbInstance.close();
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to close database', error, { category: 'db' });
     }
     dbInstance = null;
@@ -376,7 +376,7 @@ export function getDatabaseStats(): {
       isOpen: dbInstance !== null && dbInstance.open,
       isMemoryDatabase: process.env.DATABASE_PATH === ':memory:',
     };
-  } catch (error) {
+  } catch (_error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error('Failed to get database stats', error, { category: 'db' });
     throw UnifiedAppError.internal(`Failed to get database stats: ${errorMessage}`);
@@ -394,7 +394,7 @@ export function vacuumDatabase(): void {
 
   try {
     dbInstance.exec('VACUUM');
-  } catch (error) {
+  } catch (_error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error('Failed to vacuum database', error, { category: 'db' });
     throw UnifiedAppError.internal(`Failed to vacuum database: ${errorMessage}`);
@@ -412,7 +412,7 @@ export function analyzeDatabase(): void {
 
   try {
     dbInstance.exec('ANALYZE');
-  } catch (error) {
+  } catch (_error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error('Failed to analyze database', error, { category: 'db' });
     throw UnifiedAppError.internal(`Failed to analyze database: ${errorMessage}`);
@@ -445,7 +445,7 @@ export function getDatabaseSize(): {
       sizeInBytes,
       sizeInMB: sizeInBytes / (1024 * 1024),
     };
-  } catch (error) {
+  } catch (_error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error('Failed to get database size', error, { category: 'db' });
     throw UnifiedAppError.internal(`Failed to get database size: ${errorMessage}`);
@@ -459,7 +459,7 @@ export function getDatabaseSize(): {
 export async function migrate(): Promise<void> {
   try {
     return await runMigrations();
-  } catch (error) {
+  } catch (_error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error('Failed to run database migrations', error, { category: 'db' });
     throw UnifiedAppError.internal(`Database migration failed: ${errorMessage}`);
@@ -473,7 +473,7 @@ export async function migrate(): Promise<void> {
 export async function optimizeDatabase(): Promise<ReturnType<typeof runOptimizeDatabase>> {
   try {
     return await runOptimizeDatabase();
-  } catch (error) {
+  } catch (_error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error('Failed to optimize database', error, { category: 'db' });
     throw UnifiedAppError.internal(`Database optimization failed: ${errorMessage}`);
@@ -487,7 +487,7 @@ export async function optimizeDatabase(): Promise<ReturnType<typeof runOptimizeD
 export async function getDatabaseHealth(): Promise<ReturnType<typeof runGetDatabaseHealth>> {
   try {
     return await runGetDatabaseHealth();
-  } catch (error) {
+  } catch (_error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error('Failed to get database health', error, { category: 'db' });
     throw UnifiedAppError.internal(`Database health check failed: ${errorMessage}`);

@@ -3,7 +3,6 @@
  * POST /api/performance/clear - Clear all performance metrics (requires admin privileges)
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { clearApiPerformanceData } from '@/lib/middleware/api-performance';
 import { clearQueryMetrics } from '@/lib/middleware/db-performance';
 import { logger } from '@/lib/logger';
@@ -41,7 +40,7 @@ async function POSTHandler(
       },
       { status: 200 }
     );
-  } catch (error) {
+  } catch (_error) {
     logger.error('Error clearing performance metrics', error);
 
     return NextResponse.json(

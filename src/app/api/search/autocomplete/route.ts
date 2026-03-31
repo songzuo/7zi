@@ -3,7 +3,6 @@
  * @description API endpoint for search autocomplete suggestions
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { getGlobalSearchManager } from '@/lib/search/advanced-search';
 import type { AutocompleteSuggestion } from '@/lib/search/types';
 
@@ -34,7 +33,7 @@ export async function GET(request: NextRequest) {
       count: suggestions.length,
       hasMore: suggestions.length >= limit,
     });
-  } catch (error) {
+  } catch (_error) {
     console.error('Autocomplete API error:', error);
 
     return NextResponse.json(

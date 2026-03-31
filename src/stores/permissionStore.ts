@@ -61,7 +61,7 @@ export interface PermissionState {
   userId: string | null;
   permissions: Permission[];
   roles: Role[];
-  customPermissions: Permission[] | null;
+  customPermissions: (Permission | string)[] | null;
   loading: boolean;
   error: string | null;
   initialized: boolean;

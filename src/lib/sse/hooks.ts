@@ -70,6 +70,7 @@ export function useSSE<T = unknown>(
   useEffect(() => {
     if (!enabled || typeof window === 'undefined') return;
 
+     
     setSSEState((prev) => ({ ...prev, state: 'connecting', isLoading: true }));
 
     const eventSource = new EventSource(url);

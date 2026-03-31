@@ -176,19 +176,21 @@ interface ResourceRowProps {
   resource: ResourceTiming;
   totalDuration: number;
   showDetails: boolean;
-  locale: 'en' | 'zh';
 }
 
-const ResourceRow: React.FC<ResourceRowProps> = ({ resource, totalDuration, showDetails, locale }) => {
-  const Icon = getResourceIcon(resource.initiatorType);
+const ResourceRow: React.FC<ResourceRowProps> = ({ resource, totalDuration, showDetails }) => {
   const color = RESOURCE_COLORS[resource.initiatorType as keyof typeof RESOURCE_COLORS] || RESOURCE_COLORS.other;
   const leftPercent = (resource.startTime / totalDuration) * 100;
   const widthPercent = (resource.duration / totalDuration) * 100;
 
+  // Get icon props - using the component directly
+  const iconProps = { className: 'w-3.5 h-3.5', style: { color } };
+  const IconComponent = RESOURCE_ICONS[resource.initiatorType as keyof typeof RESOURCE_ICONS] || RESOURCE_ICONS.other;
+
   return (
     <div className="group flex items-center gap-2 text-xs hover:bg-zinc-50 dark:hover:bg-zinc-700/50 rounded py-1">
       <div className="w-8 flex items-center justify-center" style={{ color }}>
-        <Icon className="w-3.5 h-3.5" />
+        <IconComponent {...iconProps} />
       </div>
       <div className="flex-1 min-w-0 truncate text-zinc-700 dark:text-zinc-300">
         {resource.name}

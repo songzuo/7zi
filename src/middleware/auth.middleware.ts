@@ -1,18 +1,23 @@
 /**
- * Authentication Middleware Module
- * 
- * Re-exports authentication-related middleware functions for backward compatibility.
- * This module provides a unified API for authentication middleware.
- * 
- * @deprecated Use `@/lib/auth/middleware-rbac` directly for new code
+ * Authentication Middleware - Auth API Helper Module
+ *
+ * This module provides authentication middleware functions for API routes.
+ * It re-exports functions from the main middleware module and the RBAC system.
+ *
+ * @description
+ * This file serves as a compatibility layer for code that imports from
+ * `@/middleware/auth.middleware`. All actual implementations are in
+ * the RBAC middleware and main auth modules.
  */
 
+// Re-export everything from the main auth middleware
 export {
   withAuth,
   authenticateRequest,
   RATE_LIMIT_CONFIG,
 } from './auth';
 
+// Re-export RBAC middleware functions
 export {
   withUserAuth,
   withPermissions,
@@ -30,12 +35,3 @@ export type {
   UserContext,
   UserRole,
 } from '@/lib/auth/types';
-
-// For backward compatibility with tests
-export const mockAuthMiddleware = {
-  withAuth: (request: any, handler: any) => handler(request, 'mock-user-id'),
-  RATE_LIMIT_CONFIG: {
-    windowMs: 60000,
-    maxRequests: 100,
-  },
-};

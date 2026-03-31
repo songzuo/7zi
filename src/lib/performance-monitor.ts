@@ -77,7 +77,7 @@ export async function getCoreWebVitals(): Promise<MetricData[]> {
     await new Promise(resolve => setTimeout(resolve, 100));
 
     return metrics;
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to get core web vitals', error);
     return [];
   }

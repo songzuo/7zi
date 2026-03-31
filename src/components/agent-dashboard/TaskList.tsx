@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useDarkMode } from '@/stores/preferencesStore';
 import { Task, TaskStatus } from '@/lib/agents/scheduler/models/task-model';
 
@@ -37,6 +37,15 @@ export function TaskList({
   const isDark = useDarkMode();
   const [filter, setFilter] = useState<TaskFilter>('all');
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState(() => Date.now());
+
+  // Update current time every minute for progress calculation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 60000); // Update every minute
+    return () => clearInterval(interval);
+  }, []);
 
   // Filter tasks
   const filteredTasks = useMemo(() => {
@@ -136,7 +145,7 @@ export function TaskList({
     if (task.status === 'pending') return 0;
     // For in-progress, use a heuristic based on time elapsed
     if (task.createdAt && task.estimatedDuration) {
-      const elapsed = Date.now() - task.createdAt;
+      const elapsed = currentTime - task.createdAt;
       const estimatedMs = task.estimatedDuration * 60 * 1000; // Convert minutes to ms
       return Math.min(Math.floor((elapsed / estimatedMs) * 100), 95);
     }

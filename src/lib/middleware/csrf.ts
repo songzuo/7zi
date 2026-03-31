@@ -324,7 +324,7 @@ export function withCsrfProtection(
 
       return response;
 
-    } catch (error) {
+    } catch (_error) {
       return finalConfig.onError(error instanceof Error ? error : new Error(String(error)));
     }
   };

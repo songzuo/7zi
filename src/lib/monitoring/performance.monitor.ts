@@ -698,7 +698,7 @@ export function trackApiPerformance(apiName: string) {
         });
         
         return result;
-      } catch (error) {
+      } catch (_error) {
         const duration = performance.now() - start;
         
         recordCustomMetric(`api.${apiName}`, duration, 'api', {

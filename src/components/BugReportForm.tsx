@@ -68,7 +68,7 @@ export function BugReportForm({
     setActual('');
     setUrl('');
     setPriority('medium');
-  }, [onSubmit]); // 只依赖 onSubmit
+  }, [onSubmit, summary, steps, expected, actual, priority, url]);
 
   return (
     <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-sm border border-zinc-200 dark:border-zinc-700">

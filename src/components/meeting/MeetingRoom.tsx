@@ -134,7 +134,7 @@ function RoomIdDisplay({ roomId }: { roomId: string }) {
       await navigator.clipboard.writeText(roomId);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
+    } catch (_error) {
       if (process.env.NODE_ENV === 'development') {
         console.error('Failed to copy room ID:', error);
       }

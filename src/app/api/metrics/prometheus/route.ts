@@ -9,7 +9,6 @@
  * - Import Grafana dashboard from monitoring/grafana-dashboard.json
  */
 
-import { NextResponse } from 'next/server';
 import { exportPrometheusMetrics } from '@/lib/monitoring/prometheus';
 import { logger } from '@/lib/logger';
 
@@ -30,7 +29,7 @@ export async function GET() {
         'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
       },
     });
-  } catch (error) {
+  } catch (_error) {
     logger.error('[Prometheus Metrics] Failed to export metrics', {
       error: error instanceof Error ? error.message : String(error),
       stack: error instanceof Error ? error.stack : undefined,

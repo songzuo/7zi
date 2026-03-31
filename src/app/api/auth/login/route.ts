@@ -128,7 +128,6 @@
  *           description: Token expiration timestamp
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { loginUser } from '@/lib/auth/service';
 import { LoginRequest } from '@/lib/auth/types';
 import { logger } from '@/lib/logger';
@@ -143,7 +142,7 @@ import { logRequestStart, logRequestComplete, logRequestError, logAuthError, san
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
   const metadata = logRequestStart(request);
-  const sanitizedUrl = sanitizeUrlForLogging(request.url);
+  const _sanitizedUrl = sanitizeUrlForLogging(request.url);
 
   try {
     const body = await request.json();

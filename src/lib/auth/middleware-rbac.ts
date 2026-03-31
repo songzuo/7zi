@@ -19,7 +19,7 @@ export interface RBACUserContext extends UserContext {
     userId: string;
     roles: Role[];
     permissions: Permission[];
-    customPermissions?: Permission[];
+    customPermissions?: (Permission | string)[];
   };
 }
 
@@ -71,7 +71,7 @@ export async function withUserAuth(
 
     // Execute handler
     return handler(request, context);
-  } catch (error) {
+  } catch (_error) {
     logger.error('User auth error:', { error });
     
     // Check if this is an authentication error - return 401
@@ -310,7 +310,7 @@ export async function withOptionalAuth(
     };
 
     return handler(request, context);
-  } catch (error) {
+  } catch (_error) {
     logger.error('Optional auth error:', { error });
     // On error, call handler with null context
     return handler(request, null);

@@ -1,0 +1,359 @@
+name: CD (Canary Deployment)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      deployment_type:
+        description: 'Deployment strategy'
+        required: true
+        default: 'canary'
+        type: choice
+        options:
+          - canary
+          - blue-green
+          - rolling
+      canary_percentage:
+        description: 'Canary traffic percentage (1-100)'
+        required: false
+        default: '10'
+        type: string
+      canary_duration:
+        description: 'Canary duration in minutes'
+        required: false
+        default: '30'
+        type: string
+
+env:
+  NODE_VERSION: '20.x'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: 7zi-frontend
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  # ============================================
+  # 构建并推送 Docker 镜像（优化版）
+  # ============================================
+  build-and-push:
+    name: 🐳 Build & Push Docker Image
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js with Cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        id: cache-node-modules
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: npm ci --prefer-offline --no-audit --no-fund
+
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: |
+            .next/cache
+          key: ${{ runner.os }}-nextjs-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-
+
+      - name: Build Next.js app
+        run: npm run build
+        env:
+          NODE_ENV: production
+          NEXT_TELEMETRY_DISABLED: 1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Extract version
+        id: version
+        run: |
+          VERSION=$(cat package.json | jq -r '.version')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: |
+            type=gha,scope=${{ github.ref_name }}
+            type=registry,ref=${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}:cache
+          cache-to: type=gha,mode=max,scope=${{ github.ref_name }}
+          build-args: |
+            NODE_ENV=production
+          platforms: linux/amd64
+
+  # ============================================
+  # 部署策略选择
+  # ============================================
+  deploy:
+    name: 🚀 Deploy (${{ github.event.inputs.deployment_type || 'canary' }})
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    timeout-minutes: 30
+    environment:
+      name: production
+      url: https://7zi.com
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.PRODUCTION_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Determine deployment strategy
+        id: strategy
+        run: |
+          DEPLOY_TYPE="${{ github.event.inputs.deployment_type || 'canary' }}"
+          echo "type=$DEPLOY_TYPE" >> $GITHUB_OUTPUT
+
+      # Canary 部署
+      - name: Canary Deployment
+        if: steps.strategy.outputs.type == 'canary'
+        run: |
+          ssh root@${{ secrets.PRODUCTION_HOST }} << 'ENDSSH'
+            IMAGE_TAG="${{ needs.build-and-push.outputs.image-tag }}"
+            CANARY_PCT="${{ github.event.inputs.canary_percentage || '10' }}"
+            CANARY_DURATION="${{ github.event.inputs.canary_duration || '30' }}"
+
+            # 执行 Canary 部署
+            /root/7zi-frontend/scripts/deploy/canary-deploy.sh \
+              "$IMAGE_TAG" \
+              "$CANARY_PCT" \
+              "$CANARY_DURATION"
+          ENDSSH
+
+      # Blue-Green 部署
+      - name: Blue-Green Deployment
+        if: steps.strategy.outputs.type == 'blue-green'
+        run: |
+          ssh root@${{ secrets.PRODUCTION_HOST }} << 'ENDSSH'
+            IMAGE_TAG="${{ needs.build-and-push.outputs.image-tag }}"
+
+            # 执行 Blue-Green 部署
+            /root/7zi-frontend/scripts/deploy/blue-green-deploy.sh auto "$IMAGE_TAG"
+          ENDSSH
+
+      # Rolling 部署
+      - name: Rolling Deployment
+        if: steps.strategy.outputs.type == 'rolling'
+        run: |
+          ssh root@${{ secrets.PRODUCTION_HOST }} << 'ENDSSH'
+            IMAGE_TAG="${{ needs.build-and-push.outputs.image-tag }}"
+
+            # 执行 Rolling 部署
+            /root/7zi-frontend/scripts/deploy/rolling-deploy.sh "$IMAGE_TAG"
+          ENDSSH
+
+      - name: Health check
+        run: |
+          max_attempts=30
+          attempt=1
+
+          while [ $attempt -le $max_attempts ]; do
+            if curl -f -s https://7zi.com/api/health > /dev/null 2>&1; then
+              echo "✅ Health check passed!"
+              exit 0
+            fi
+
+            echo "Attempt $attempt/$max_attempts failed. Retrying in 5 seconds..."
+            sleep 5
+            ((attempt++))
+          done
+
+          echo "❌ Health check failed after $max_attempts attempts"
+          exit 1
+
+  # ============================================
+  # 监控指标收集
+  # ============================================
+  monitor:
+    name: 📊 Collect Metrics
+    runs-on: ubuntu-latest
+    needs: [build-and-push, deploy]
+    if: success()
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.PRODUCTION_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Collect deployment metrics
+        run: |
+          ssh root@${{ secrets.PRODUCTION_HOST }} << 'ENDSSH'
+            # 收集监控指标
+            /root/7zi-frontend/scripts/deploy/collect-metrics.sh
+          ENDSSH
+
+      - name: Upload metrics
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-metrics
+          path: metrics/
+          retention-days: 30
+
+  # ============================================
+  # 冒烟测试
+  # ============================================
+  smoke-tests:
+    name: 🧪 Smoke Tests
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: success()
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js with Cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit --no-fund
+
+      - name: Install Playwright browsers (cached)
+        uses: manuelmauro/playwright-cache-action@v1
+
+      - name: Run smoke tests
+        run: npx playwright test --grep @smoke
+        env:
+          BASE_URL: https://7zi.com
+
+  # ============================================
+  # 性能验证
+  # ============================================
+  performance-check:
+    name: 📊 Performance Check
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: success()
+    timeout-minutes: 5
+    steps:
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          urls: |
+            https://7zi.com
+            https://7zi.com/about
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+  # ============================================
+  # 自动回滚（失败时）
+  # ============================================
+  auto-rollback:
+    name: ↩️ Auto Rollback
+    runs-on: ubuntu-latest
+    needs: [deploy, smoke-tests, performance-check]
+    if: failure()
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.PRODUCTION_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Execute automatic rollback
+        run: |
+          ssh root@${{ secrets.PRODUCTION_HOST }} << 'ENDSSH'
+            # 执行自动回滚
+            /root/7zi-frontend/scripts/deploy/rollback.sh --force
+          ENDSSH
+
+      - name: Notify rollback
+        run: |
+          echo "⚠️ Automatic rollback executed due to deployment failure"
+          echo "Version: ${{ needs.build-and-push.outputs.version }}"
+          echo "Image: ${{ needs.build-and-push.outputs.image-tag }}"
+
+  # ============================================
+  # 部署总结
+  # ============================================
+  summary:
+    name: 📋 Deployment Summary
+    runs-on: ubuntu-latest
+    needs: [build-and-push, deploy, monitor, smoke-tests, performance-check]
+    if: always()
+    timeout-minutes: 2
+    steps:
+      - name: Generate summary
+        run: |
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ needs.build-and-push.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Strategy:** ${{ github.event.inputs.deployment_type || 'canary' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Step | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Build & Push | ${{ needs.build-and-push.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Deploy | ${{ needs.deploy.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Metrics | ${{ needs.monitor.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Smoke Tests | ${{ needs.smoke-tests.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Performance | ${{ needs.performance-check.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Image:** \`${{ needs.build-and-push.outputs.image-tag }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Time:** $(date)" >> $GITHUB_STEP_SUMMARY

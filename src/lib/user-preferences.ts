@@ -45,7 +45,7 @@ function loadPreferencesFromStorage(): UserPreferences | null {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
     return data ? JSON.parse(data) : null;
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to load preferences from storage', { error });
     return null;
   }
@@ -59,7 +59,7 @@ function savePreferencesToStorage(preferences: UserPreferences): void {
 
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences));
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to save preferences to storage', { error });
   }
 }
@@ -79,7 +79,7 @@ async function syncPreferencesToServer(
     });
 
     logger.info('Preferences synced to server', { userId, preferences });
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to sync preferences to server', { error });
     // Continue silently - don't break the app if server sync fails
   }
@@ -104,7 +104,7 @@ async function loadPreferencesFromServer(userId: string): Promise<UserPreference
     }
 
     return null;
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to load preferences from server', { error });
     return null;
   }
@@ -163,7 +163,7 @@ export function useUserPreferences(): UseUserPreferencesReturn {
       router.replace(pathname, { locale });
 
       logger.info('Locale updated', { locale });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to update locale', { error });
     } finally {
       setIsLoading(false);
@@ -184,7 +184,7 @@ export function useUserPreferences(): UseUserPreferencesReturn {
       await syncPreferencesToServer(userId, { theme });
 
       logger.info('Theme updated', { theme });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to update theme', { error });
     } finally {
       setIsLoading(false);
@@ -205,7 +205,7 @@ export function useUserPreferences(): UseUserPreferencesReturn {
       await syncPreferencesToServer(userId, { notifications_enabled: enabled });
 
       logger.info('Notifications updated', { enabled });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to update notifications', { error });
     } finally {
       setIsLoading(false);
@@ -226,7 +226,7 @@ export function useUserPreferences(): UseUserPreferencesReturn {
       await syncPreferencesToServer(userId, { email_notifications: enabled });
 
       logger.info('Email notifications updated', { enabled });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to update email notifications', { error });
     } finally {
       setIsLoading(false);
@@ -247,7 +247,7 @@ export function useUserPreferences(): UseUserPreferencesReturn {
       await syncPreferencesToServer(userId, { sound_enabled: enabled });
 
       logger.info('Sound enabled updated', { enabled });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to update sound enabled', { error });
     } finally {
       setIsLoading(false);
@@ -277,7 +277,7 @@ export function useUserPreferences(): UseUserPreferencesReturn {
       }
 
       logger.info('Preferences refreshed', { userId });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to refresh preferences', { error });
     } finally {
       setIsLoading(false);

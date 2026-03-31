@@ -286,7 +286,7 @@ export function useBatchSelection<T>({
         await action(selectedItems);
         // 操作成功后清空选择
         clearSelection();
-      } catch (error) {
+      } catch (_error) {
         console.error('Batch action failed:', error);
         throw error;
       }

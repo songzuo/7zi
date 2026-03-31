@@ -69,7 +69,7 @@ async function getWebVitals() {
   try {
     const webVitals = await import('web-vitals');
     return webVitals;
-  } catch (error) {
+  } catch (_error) {
     logger.warn('[useWebVitals] web-vitals library not available', { error });
     return null;
   }
@@ -101,7 +101,7 @@ async function reportMetric(metric: MetricEntry) {
         },
       }),
     });
-  } catch (error) {
+  } catch (_error) {
     logger.warn('[useWebVitals] Failed to report metric', { error, metric });
   }
 }
@@ -273,7 +273,7 @@ export function useRealtimePerformance(options: UseRealtimePerformanceOptions = 
               setRealtimeData(data.data);
               setLastUpdate(new Date());
             }
-          } catch (error) {
+          } catch (_error) {
             logger.warn('[useRealtimePerformance] Failed to parse message', { error });
           }
         };
@@ -287,7 +287,7 @@ export function useRealtimePerformance(options: UseRealtimePerformanceOptions = 
         ws.onerror = (error) => {
           logger.error('[useRealtimePerformance] WebSocket error', { error });
         };
-      } catch (error) {
+      } catch (_error) {
         logger.error('[useRealtimePerformance] Failed to connect', { error });
       }
     };
@@ -303,7 +303,7 @@ export function useRealtimePerformance(options: UseRealtimePerformanceOptions = 
           setRealtimeData(result.data);
           setLastUpdate(new Date());
         }
-      } catch (error) {
+      } catch (_error) {
         logger.warn('[useRealtimePerformance] Failed to poll metrics', { error });
       }
     }, updateInterval);

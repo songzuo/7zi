@@ -3,7 +3,6 @@
  * 检查用户的权限
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { withUserAuth } from '@/lib/auth/middleware-rbac';
 import { Permission, Role } from '@/lib/permissions/types';
 import { getUserRoles } from '@/lib/permissions/repository';
@@ -60,7 +59,7 @@ export async function GET(
           permissionCount: permissions.length,
         },
       });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to fetch user permissions:', { error, userId: context.userId });
       return NextResponse.json(
         {
@@ -148,7 +147,7 @@ export async function POST(
         success: true,
         data: result,
       });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to check user permissions:', { error, userId: context.userId });
       return NextResponse.json(
         {

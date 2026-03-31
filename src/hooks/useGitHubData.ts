@@ -167,7 +167,7 @@ export function useGitHubData({
       setStats(statsData);
       setActivities(mergeActivities(issuesData, commitsData));
       setLastUpdated(new Date());
-    } catch (err) {
+    } catch (_err) {
       setError(err instanceof Error ? err.message : '数据加载失败');
     } finally {
       setIsLoading(false);

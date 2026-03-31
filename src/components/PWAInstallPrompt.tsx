@@ -117,7 +117,7 @@ export function PWAInstallPrompt() {
         localStorage.setItem('pwa-install-dismissed', 'true');
         localStorage.setItem('pwa-install-dismissed-time', Date.now().toString());
       }
-    } catch (err) {
+    } catch (_err) {
       // Silently handle error in production
       if (process.env.NODE_ENV === 'development') {
         console.error('[PWA] Error prompting for install:', err);

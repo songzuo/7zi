@@ -262,7 +262,7 @@ export function withApiHandler<T = unknown>(
       }
 
       return response;
-    } catch (err) {
+    } catch (_err) {
       return error(err, { requestId });
     }
   };

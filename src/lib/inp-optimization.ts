@@ -60,7 +60,7 @@ export async function runInIdle<T>(
         } else {
           resolve(result);
         }
-      } catch (error) {
+      } catch (_error) {
         reject(error);
       }
     };
@@ -205,7 +205,7 @@ export function runInWorker<T, R>(
         try {
           const result = (${workerFn.toString()})(e.data);
           self.postMessage(result);
-        } catch (error) {
+        } catch (_error) {
           self.postMessage({ error: error.message });
         }
       };

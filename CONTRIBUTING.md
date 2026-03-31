@@ -10,6 +10,7 @@
 - [提交规范](#提交规范)
 - [Pull Request 流程](#pull-request-流程)
 - [项目结构](#项目结构)
+- [v1.5.0 开发流程](#v150-开发流程)
 - [常见问题](#常见问题)
 
 ## 🎯 行为准则
@@ -57,11 +58,12 @@
 | 指标 | 数值 |
 |------|------|
 | **测试文件数** | 490+ |
-| **测试覆盖率** | 72-75% |
+| **测试覆盖率** | 96% (v1.5.0 Agent Learning 系统) |
 | **单元测试** | 100+ 文件 |
 | **集成测试** | 50+ 文件 |
 | **E2E 测试** | 30+ 场景 |
 | **性能监控测试** | ✅ 新增 (v1.1.0) |
+| **Agent Learning 测试** | ✅ 新增 (v1.5.0, 96% 覆盖率) |
 
 ### 运行测试
 
@@ -546,6 +548,96 @@ interface UserCardProps {
 | 接口/类型 | PascalCase | `User`, `ApiResponse<T>` |
 | 文件 | kebab-case | `user-service.ts`, `user-card.tsx` |
 
+### ESLint & Prettier 配置说明
+
+#### ESLint 配置
+
+项目使用 **ESLint 9** + **Flat Config** 格式进行代码质量检查。
+
+**配置文件**:
+- `eslint.config.mjs` - 主配置文件（Flat Config 格式）
+- `.eslintignore` - 忽略规则
+
+**ESLint 规则集**:
+- `eslint-config-next/core-web-vitals` - Next.js 核心规则（Web Vitals 优化）
+- `eslint-config-next/typescript` - TypeScript 特定规则
+- `eslint-plugin-storybook` - Storybook 组件规则
+
+**忽略文件/目录**:
+- 构建输出：`.next/**`, `out/**`, `build/**`, `dist/**`
+- 依赖：`node_modules/**`
+- 测试文件：`**/*.test.ts`, `**/*.test.tsx`, `**/__tests__/**`, `__mocks__/**`
+- 配置文件：`*.config.js`, `*.config.ts`, `*.config.mjs`
+- 备份目录：`_app_backup/**`, `archive/**`, `**/backup/**`
+- 公共资源：`public/**`
+
+**运行 ESLint**:
+```bash
+# 检查代码
+pnpm lint
+# 或
+npm run lint
+
+# 自动修复问题
+pnpm lint:fix
+# 或
+npm run lint:fix
+```
+
+#### Prettier 配置
+
+项目使用 **Prettier** 进行代码格式化，遵循 Next.js 官方风格。
+
+**Prettier 规则**:
+- 使用 Next.js 内置的 Prettier 配置
+- 2 空格缩进
+- 单引号字符串
+- 行尾分号（根据项目配置）
+- 最大行长 80 字符
+
+**运行 Prettier**:
+```bash
+# 格式化代码
+pnpm format
+# 或
+npm run format
+
+# 检查格式（不修改文件）
+pnpm format:check
+# 或
+npm run format:check
+```
+
+**格式化范围**:
+- TypeScript/JavaScript：`**/*.{ts,tsx,js,jsx}`
+- 配置文件：`**/*.json`
+- 样式文件：`**/*.css`
+
+#### 开发工作流
+
+推荐的开发工作流：
+
+```bash
+# 1. 开发完成后，运行类型检查
+pnpm type-check
+
+# 2. 运行 ESLint 检查
+pnpm lint
+
+# 3. 如果有 ESLint 错误，尝试自动修复
+pnpm lint:fix
+
+# 4. 运行 Prettier 格式化
+pnpm format
+
+# 5. 运行测试
+pnpm test:run
+
+# 6. 提交代码
+git add .
+git commit -m "feat: your feature description"
+```
+
 ### Git 提交规范
 
 在 7zi 项目中，我们使用统一的错误处理系统。所有开发者必须遵循以下规范：
@@ -776,12 +868,105 @@ git commit -m "refactor(auth): simplify token validation logic"
 ### 提交前检查清单
 
 - [ ] 代码通过 ESLint 检查
+- [ ] 代码通过 Prettier 格式化检查
 - [ ] 所有测试通过 (`npm run test:run`)
-- [ ] 代码已格式化 (`npm run lint:fix`)
 - [ ] 提交信息符合规范
 - [ ] 新功能有对应测试用例
 - [ ] 文档已更新（如有必要）
 - [ ] 没有敏感信息泄露
+
+### ESLint 配置说明
+
+项目使用 **ESLint 9** + **Flat Config** 格式进行代码质量检查。
+
+#### 配置文件
+
+- `eslint.config.mjs` - 主配置文件（Flat Config 格式）
+- `.eslintignore` - 忽略规则
+
+#### ESLint 规则集
+
+- `eslint-config-next/core-web-vitals` - Next.js 核心规则（Web Vitals 优化）
+- `eslint-config-next/typescript` - TypeScript 特定规则
+- `eslint-plugin-storybook` - Storybook 组件规则
+
+#### 忽略文件/目录
+
+以下文件和目录会被 ESLint 自动忽略：
+- 构建输出：`.next/**`, `out/**`, `build/**`, `dist/**`
+- 依赖：`node_modules/**`
+- 测试文件：`**/*.test.ts`, `**/*.test.tsx`, `**/__tests__/**`, `__mocks__/**`
+- 配置文件：`*.config.js`, `*.config.ts`, `*.config.mjs`
+- 备份目录：`_app_backup/**`, `archive/**`, `**/backup/**`
+- 公共资源：`public/**`
+
+#### 运行 ESLint
+
+```bash
+# 检查代码
+pnpm lint
+# 或
+npm run lint
+
+# 自动修复问题
+pnpm lint:fix
+# 或
+npm run lint:fix
+```
+
+### Prettier 配置说明
+
+项目使用 **Prettier** 进行代码格式化。
+
+#### Prettier 规则
+
+项目使用 Next.js 内置的 Prettier 配置，与 Next.js 官方风格保持一致。
+
+#### 运行 Prettier
+
+```bash
+# 格式化代码
+pnpm format
+# 或
+npm run format
+
+# 检查格式（不修改文件）
+pnpm format:check
+# 或
+npm run format:check
+```
+
+#### 格式化范围
+
+Prettier 会格式化以下类型的文件：
+- TypeScript/JavaScript：`**/*.{ts,tsx,js,jsx}`
+- 配置文件：`**/*.json`
+- 样式文件：`**/*.css`
+
+### 开发工作流
+
+推荐的开发工作流：
+
+```bash
+# 1. 开发完成后，运行类型检查
+pnpm type-check
+
+# 2. 运行 ESLint 检查
+pnpm lint
+
+# 3. 如果有 ESLint 错误，尝试自动修复
+pnpm lint:fix
+
+# 4. 运行 Prettier 格式化
+pnpm format
+
+# 5. 运行测试
+pnpm test:run
+
+# 6. 提交代码
+git add .
+git commit -m "feat: your feature description"
+```
 
 ### 分支命名规范
 
@@ -862,6 +1047,303 @@ git checkout -b hotfix/security-patch
 | `app/hooks/` | React Hooks |
 | `docs/` | 项目文档 |
 | `skills/` | OpenClaw 技能定义 |
+
+## 🚀 v1.5.0 开发流程
+
+### 新开发工作流
+
+v1.5.0 引入了更规范的开发流程，确保代码质量和团队协作效率。
+
+#### 1. 开发流程概览
+
+```
+Fork → 创建分支 → 开发 → 本地测试 → 提交 → PR → Code Review → 合并
+```
+
+#### 2. 分支管理策略
+
+```bash
+# 主分支
+main              # 生产环境代码（只接受 PR）
+
+# 开发分支
+develop           # 开发集成分支
+feature/*         # 新功能分支
+bugfix/*          # Bug 修复分支
+hotfix/*          # 紧急修复分支
+refactor/*        # 重构分支
+```
+
+**分支命名规范**:
+```
+feature/<feature-name>      # 示例: feature/agent-dashboard-ui
+bugfix/<issue-id>-desc      # 示例: bugfix/123-login-error
+hotfix/<hotfix-desc>       # 示例: hotfix/security-patch
+refactor/<module-name>     # 示例: refactor/permission-system
+```
+
+#### 3. 开发工作流步骤
+
+##### 步骤 1: 创建功能分支
+
+```bash
+# 确保主分支最新
+git checkout main
+git pull origin main
+
+# 创建功能分支
+git checkout -b feature/agent-dashboard-ui
+```
+
+##### 步骤 2: 开发与本地测试
+
+```bash
+# 1. 类型检查
+pnpm type-check
+
+# 2. ESLint 检查
+pnpm lint
+
+# 3. 自动修复 ESLint 问题
+pnpm lint:fix
+
+# 4. Prettier 格式化
+pnpm format
+
+# 5. 运行测试
+pnpm test:run
+
+# 6. 生成覆盖率报告（可选）
+pnpm test:coverage
+```
+
+##### 步骤 3: 提交代码
+
+```bash
+# 暂存文件
+git add .
+
+# 提交（使用规范的提交信息）
+git commit -m "feat(dashboard): add agent status panel component"
+
+# 推送到远程
+git push origin feature/agent-dashboard-ui
+```
+
+**提交信息规范**:
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+**类型 (type)**:
+- `feat`: 新功能
+- `fix`: Bug 修复
+- `docs`: 文档更新
+- `style`: 代码格式 (不影响功能)
+- `refactor`: 重构
+- `perf`: 性能优化
+- `test`: 测试相关
+- `chore`: 构建/工具相关
+
+**提交示例**:
+```bash
+# 新功能
+git commit -m "feat(dashboard): add agent status panel component
+
+- Implement real-time status display for all 11 agents
+- Add load indicators and progress bars
+- Integrate with WebSocket for live updates"
+
+# Bug 修复
+git commit -m "fix(api): resolve rate limit issue in auth endpoint
+
+- Fix rate limiter not being applied correctly
+- Add proper error handling for exceeded limits"
+
+# 重构
+git commit -m "refactor(permissions): migrate PermissionContext to Zustand
+
+- Replace Context API with Zustand state management
+- Improve performance by reducing unnecessary re-renders
+- Update all component usages"
+```
+
+##### 步骤 4: 创建 Pull Request
+
+1. 在 GitHub 上创建 PR
+2. 填写 PR 模板
+3. 链接相关 Issue（如适用）
+4. 等待 CI 检查通过
+5. 等待 Code Review
+
+**PR 模板**:
+```markdown
+## 📝 描述
+<!-- 简要描述这个 PR 做了什么 -->
+
+## 🎯 目标
+<!-- 这个 PR 解决了什么问题或实现了什么功能 -->
+
+## 🔧 变更内容
+<!-- 列出主要变更 -->
+
+### 新增
+- 
+### 修改
+- 
+### 删除
+- 
+
+## ✅ 测试
+<!-- 描述如何测试这些变更 -->
+
+### 测试步骤
+1. 
+2. 
+3. 
+
+### 测试结果
+- [ ] 所有测试通过
+- [ ] 手动测试通过
+- [ ] 覆盖率达标
+
+## 📸 截图 (如有)
+<!-- 添加相关截图 -->
+
+## 🔗 相关 Issue
+<!-- 链接相关 Issue: Closes #123 -->
+
+## ⚠️ 注意事项
+<!-- 有什么需要特别注意的 -->
+
+## 📋 检查清单
+- [ ] 代码通过 ESLint 检查
+- [ ] 代码通过 Prettier 格式化
+- [ ] 所有测试通过
+- [ ] 新功能有对应测试用例
+- [ ] 文档已更新（如有必要）
+- [ ] 没有敏感信息泄露
+```
+
+##### 步骤 5: Code Review
+
+1. 维护者进行代码审查
+2. 解决所有评论
+3. 更新代码并重新测试
+4. 合并到 main 分支
+
+#### 4. 本地测试命令详解
+
+```bash
+# 类型检查（推荐每次提交前运行）
+pnpm type-check
+# 检查所有 TypeScript 类型错误
+
+# ESLint 检查
+pnpm lint
+# 检查代码质量问题
+
+# ESLint 自动修复
+pnpm lint:fix
+# 自动修复可修复的 ESLint 问题
+
+# Prettier 格式化
+pnpm format
+# 格式化所有代码
+
+# Prettier 检查（不修改文件）
+pnpm format:check
+# 检查代码格式是否符合规范
+
+# 运行所有测试（监视模式）
+pnpm test
+# 交互式测试运行，适合开发时使用
+
+# 单次运行所有测试
+pnpm test:run
+# CI/CD 命令，非交互式
+
+# 运行特定测试文件
+pnpm test src/components/Button.test.tsx
+
+# 生成覆盖率报告
+pnpm test:coverage
+# 生成 HTML 格式的覆盖率报告，位于 coverage/ 目录
+
+# 运行 E2E 测试
+pnpm test:e2e
+# 运行端到端测试
+
+# 运行性能监控测试
+pnpm test:perf
+# v1.1.0 新增，运行性能相关测试
+```
+
+#### 5. 开发最佳实践
+
+##### 代码质量要求
+
+1. **类型安全**: 所有代码必须有完整的 TypeScript 类型定义
+2. **测试覆盖率**: 新功能测试覆盖率不低于 80%，核心组件不低于 90%
+3. **代码格式**: 代码必须通过 Prettier 格式化
+4. **代码规范**: 代码必须通过 ESLint 检查（0 错误，0 警告）
+
+##### 提交前检查清单
+
+```bash
+# 自动化检查脚本（推荐）
+pnpm type-check && pnpm lint && pnpm format:check && pnpm test:run
+```
+
+**手动检查清单**:
+- [ ] 类型检查通过 (`pnpm type-check`)
+- [ ] ESLint 检查通过 (`pnpm lint`)
+- [ ] Prettier 格式检查通过 (`pnpm format:check`)
+- [ ] 所有测试通过 (`pnpm test:run`)
+- [ ] 提交信息符合规范
+- [ ] 新功能有测试用例
+- [ ] 文档已更新（如需要）
+- [ ] 没有敏感信息
+
+#### 6. CI/CD 自动化
+
+项目使用 GitHub Actions 进行自动化检查：
+
+**CI 检查包括**:
+- TypeScript 类型检查
+- ESLint 代码检查
+- Prettier 格式检查
+- 单元测试运行
+- 测试覆盖率检查
+- 构建验证
+
+**注意**: 只有当所有 CI 检查通过后，PR 才能合并。
+
+#### 7. Code Review 原则
+
+**审查者**:
+- 关注代码质量和架构设计
+- 检查是否有安全漏洞
+- 验证测试覆盖是否充分
+- 提供建设性反馈
+
+**贡献者**:
+- 及时响应 Review 评论
+- 解释设计决策（如有必要）
+- 虚心接受建议
+- 保持开放和尊重的态度
+
+#### 8. 合并策略
+
+- **Squash Merge**: 将多个提交合并为一个（推荐）
+- **Merge Commit**: 保留完整的提交历史
+- **Rebase**: 保持提交历史线性（需要谨慎使用）
+
+**注意**: 无论使用哪种合并方式，都应确保 `main` 分支保持稳定。
 
 ## ❓ 常见问题
 

@@ -869,7 +869,7 @@ describe('NotificationProvider Edge Cases', () => {
 
       try {
         await audio.play();
-      } catch (error) {
+      } catch (_error) {
         expect(error).toBeDefined();
       }
     });

@@ -5,7 +5,7 @@
  * Displays comprehensive performance metrics, charts, and alerts
  */
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
 
@@ -15,24 +15,13 @@ const PerformanceCharts = dynamic(() => import('./PerformanceCharts'), {
   loading: () => <div className="h-64 flex items-center justify-center text-gray-500">Loading charts...</div>
 });
 
-import { AlertTriangle, CheckCircle2, XCircle, TrendingUp, TrendingDown, Minus, RefreshCw, Download, Bell, Shield } from 'lucide-react';
+import { AlertTriangle, TrendingUp, TrendingDown, Minus, RefreshCw, Download, Bell, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 
 // ========================================
 // Types
 // ========================================
-
-interface PerformanceMetric {
-  id: string;
-  name: string;
-  value: number;
-  rating: 'good' | 'needs-improvement' | 'poor';
-  timestamp: number;
-  route: string;
-  deviceType: string;
-  connectionType: string;
-}
 
 interface MetricStats {
   count: number;
@@ -121,23 +110,6 @@ const METRIC_CONFIGS = {
 // Components
 // ========================================
 
-function RatingBadge({ rating }: { rating: 'good' | 'needs-improvement' | 'poor' }) {
-  const config = {
-    good: { color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200', icon: CheckCircle2 },
-    'needs-improvement': { color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200', icon: AlertTriangle },
-    poor: { color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200', icon: XCircle },
-  };
-
-  const { color, icon: Icon } = config[rating];
-
-  return (
-    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${color}`}>
-      <Icon className="w-3 h-3" />
-      {rating}
-    </span>
-  );
-}
-
 function SeverityBadge({ severity }: { severity: 'low' | 'medium' | 'high' | 'critical' }) {
   const config = {
     low: { color: 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200' },
@@ -217,9 +189,7 @@ function MetricCard({ name, stats, trend, trendPercentage }: { name: string; sta
   );
 }
 
-function MetricChart({ name, data, color }: { name: string; data: TimeSeriesData[]; color: string }) {
-  const config = METRIC_CONFIGS[name as keyof typeof METRIC_CONFIGS];
-
+function MetricChart({ name: _name, data, color }: { name: string; data: TimeSeriesData[]; color: string }) {
   return (
     <Suspense fallback={<div className="h-64 flex items-center justify-center text-gray-500">Loading chart...</div>}>
       <PerformanceCharts
@@ -238,14 +208,14 @@ function MetricChart({ name, data, color }: { name: string; data: TimeSeriesData
 // ========================================
 
 export default function PerformanceDashboard() {
-  const t = useTranslations('performance');
+  const _t = useTranslations('performance');
   const [loading, setLoading] = useState(true);
   const [report, setReport] = useState<Record<string, MetricReport> | null>(null);
   const [alerts, setAlerts] = useState<PerformanceAlert[]>([]);
   const [selectedPeriod, setSelectedPeriod] = useState<'1h' | '6h' | '24h' | '7d' | '30d'>('24h');
   const [selectedMetric, setSelectedMetric] = useState<string | null>(null);
 
-  const fetchPerformanceData = async () => {
+  const fetchPerformanceData = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -264,18 +234,18 @@ export default function PerformanceDashboard() {
       if (alertsData.success) {
         setAlerts(alertsData.alerts.filter((a: PerformanceAlert) => !a.acknowledged));
       }
-    } catch (error) {
-      console.error('Failed to fetch performance data:', error);
+    } catch (_error) {
+      console.error('Failed to fetch performance data:', _error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedPeriod]);
 
   useEffect(() => {
     fetchPerformanceData();
     const interval = setInterval(fetchPerformanceData, 60000); // Refresh every minute
     return () => clearInterval(interval);
-  }, [selectedPeriod]);
+  }, [fetchPerformanceData]);
 
   const handleAcknowledgeAlert = async (alertId: string) => {
     try {
@@ -288,8 +258,8 @@ export default function PerformanceDashboard() {
       if (res.ok) {
         setAlerts(alerts.filter(a => a.id !== alertId));
       }
-    } catch (error) {
-      console.error('Failed to acknowledge alert:', error);
+    } catch (_error) {
+      console.error('Failed to acknowledge alert:', _error);
     }
   };
 

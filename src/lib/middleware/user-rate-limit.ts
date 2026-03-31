@@ -72,7 +72,7 @@ export async function getUserIdFromToken(token: string): Promise<{ userId: strin
     }
 
     return { userId, role: ((role as string | undefined) || '') as string };
-  } catch (error) {
+  } catch (_error) {
     logger.debug('Failed to verify JWT token', { error });
     return null;
   }

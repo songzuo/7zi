@@ -153,7 +153,7 @@ const AnalyticsDashboardComponent: React.FC<AnalyticsDashboardProps> = ({
     if (savedLayout) {
       try {
         setLayout(JSON.parse(savedLayout));
-      } catch (error) {
+      } catch (_error) {
         console.error('Failed to load saved layout:', error);
       }
     }
@@ -201,7 +201,7 @@ const AnalyticsDashboardComponent: React.FC<AnalyticsDashboardProps> = ({
       } else {
         throw new Error(result.error || 'Failed to fetch analytics data');
       }
-    } catch (err) {
+    } catch (_err) {
       console.error('Failed to fetch analytics data:', err);
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
     } finally {
@@ -248,7 +248,7 @@ const AnalyticsDashboardComponent: React.FC<AnalyticsDashboardProps> = ({
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
       }
-    } catch (error) {
+    } catch (_error) {
       if (process.env.NODE_ENV === 'development') {
         console.error('Export failed:', error);
       }

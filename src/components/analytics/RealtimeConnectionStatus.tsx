@@ -7,7 +7,7 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Wifi, WifiOff, AlertTriangle, RefreshCw, Activity } from 'lucide-react';
 import type { WebSocketConnectionMetrics } from '@/lib/types/analytics/realtime';
 import type { WebSocketStatus } from '@/lib/types/analytics/realtime';
@@ -97,6 +97,16 @@ export const RealtimeConnectionStatus: React.FC<RealtimeConnectionStatusProps> =
   locale = 'en',
   className = ''
 }) => {
+  const [currentTime, setCurrentTime] = useState(() => Date.now());
+
+  // Update current time periodically for duration calculation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 1000); // Update every second for real-time duration display
+    return () => clearInterval(interval);
+  }, []);
+
   const t = {
     status: locale === 'zh' ? '状态' : 'Status',
     connected: locale === 'zh' ? '已连接' : 'Connected',
@@ -119,9 +129,9 @@ export const RealtimeConnectionStatus: React.FC<RealtimeConnectionStatusProps> =
   const statusBgColor = getStatusBgColor(connection.status);
   const statusIcon = getStatusIcon(connection.status);
 
-  // Calculate connection duration
+  // Calculate connection duration using state
   const connectionDuration = connection.connectedAt
-    ? Date.now() - new Date(connection.connectedAt).getTime()
+    ? currentTime - new Date(connection.connectedAt).getTime()
     : null;
 
   // Get status text

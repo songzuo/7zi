@@ -3,7 +3,6 @@
  * 管理用户的角色分配
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { withManagerOrAdmin } from '@/lib/auth/middleware-rbac';
 import { Role } from '@/lib/permissions/types';
 import {
@@ -55,7 +54,7 @@ export async function GET(
         success: true,
         data: response,
       });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to fetch user roles:', { error, userId: context.userId });
       return NextResponse.json(
         {
@@ -135,7 +134,7 @@ export async function POST(
         },
         { status: 201 }
       );
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to add roles to user:', { error, userId: context.userId });
       return NextResponse.json(
         {
@@ -212,7 +211,7 @@ export async function DELETE(
         },
         message: 'Roles removed successfully',
       });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to remove roles from user:', { error, userId: context.userId });
       return NextResponse.json(
         {

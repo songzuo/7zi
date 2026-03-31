@@ -6,7 +6,7 @@
  */
 
 import { logger } from '@/lib/logger';
-import { PermissionManager, getPermissionManager, UserRole, Permission } from './permissions';
+import { PermissionManager, getPermissionManager, UserRole } from './permissions';
 export type { UserRole } from './permissions'; // Re-export UserRole for consumers
 import { MessageStore, getMessageStore, StoredMessage } from './message-store';
 
@@ -257,7 +257,7 @@ export class RoomManager {
     error?: string;
     offlineMessages?: StoredMessage[];
   } {
-    const { userId, userName, email, avatar, role = 'member', inviteCode } = options;
+    const { userId, userName, email, avatar, role = 'member', inviteCode: _inviteCode } = options;
 
     // Get or check room exists
     let room = this.rooms.get(roomId);
@@ -641,7 +641,7 @@ export class RoomManager {
   /**
    * Update room data
    */
-  updateData(roomId: string, data: Partial<RoomData>, updatedBy?: string): boolean {
+  updateData(roomId: string, data: Partial<RoomData>, _updatedBy?: string): boolean {
     const room = this.rooms.get(roomId);
     if (!room) return false;
 

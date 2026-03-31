@@ -304,7 +304,7 @@ export function withEnhancedErrorHandling<T extends (...args: unknown[]) => Prom
   return (async (...args: unknown[]) => {
     try {
       return await handler(...(args as Parameters<T>));
-    } catch (error) {
+    } catch (_error) {
       return createEnhancedErrorResponse(
         error instanceof Error ? error : new Error(String(error))
       );

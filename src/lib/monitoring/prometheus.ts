@@ -450,7 +450,7 @@ export async function exportPrometheusMetrics(): Promise<string> {
     const metrics = await prometheusExporter.export();
     logger.debug('[Prometheus] Metrics exported successfully');
     return metrics;
-  } catch (error) {
+  } catch (_error) {
     logger.error('[Prometheus] Failed to export metrics', error);
     throw error;
   }

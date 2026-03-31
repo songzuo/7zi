@@ -62,7 +62,7 @@ export async function initializeUserPreferencesTable(): Promise<void> {
     `);
 
     logger.info('User preferences table initialized', { category: 'db' });
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to initialize user preferences table', { category: 'db', error });
     throw error;
   }
@@ -95,7 +95,7 @@ export async function getUserPreferences(userId: string): Promise<UserPreference
       created_at: row.created_at,
       updated_at: row.updated_at,
     };
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to get user preferences', { category: 'db', error, userId });
     throw error;
   }
@@ -148,7 +148,7 @@ export async function createUserPreferences(
       created_at: now,
       updated_at: now,
     };
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to create user preferences', { category: 'db', error, userId });
     throw error;
   }
@@ -213,7 +213,7 @@ export async function updateUserPreferences(
       throw new Error('Failed to retrieve updated preferences');
     }
     return updated;
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to update user preferences', { category: 'db', error, userId, updates });
     throw error;
   }
@@ -253,7 +253,7 @@ export async function deleteUserPreferences(userId: string): Promise<void> {
     db.exec('DELETE FROM user_preferences WHERE user_id = ?', [userId]);
 
     logger.info('User preferences deleted', { category: 'db', userId });
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to delete user preferences', { category: 'db', error, userId });
     throw error;
   }

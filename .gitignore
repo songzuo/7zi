@@ -61,6 +61,7 @@ backups/
 archive/
 *_backup/
 app-backup/
+.backup/
 
 # Test and build artifacts
 test-*.db
@@ -68,6 +69,13 @@ test-*.db
 test-output*.txt
 vitest*.json
 coverage-*.json
+
+# Database files
+data/*.db
+data/web-vitals.db
+*.db
+*.db-shm
+*.db-wal
 
 # Temporary files
 *.tmp

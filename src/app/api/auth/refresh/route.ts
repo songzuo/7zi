@@ -3,7 +3,6 @@
  * POST /api/auth/refresh
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { refreshToken } from '@/lib/auth/service';
 import { RefreshTokenRequest } from '@/lib/auth/types';
 import { logger } from '@/lib/logger';

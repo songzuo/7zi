@@ -179,7 +179,7 @@ export function withRetry<T extends (...args: unknown[]) => Promise<unknown>>(
         }
 
         return result;
-      } catch (error) {
+      } catch (_error) {
         lastError = error instanceof Error ? error : new Error(String(error));
 
         // Check if we should retry

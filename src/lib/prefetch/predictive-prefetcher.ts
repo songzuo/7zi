@@ -332,7 +332,7 @@ export class PredictivePrefetcher {
         timestamp: Date.now(),
         resourceType: 'route',
       };
-    } catch (error) {
+    } catch (_error) {
       return {
         path,
         success: false,

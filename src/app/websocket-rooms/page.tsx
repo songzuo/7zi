@@ -253,7 +253,7 @@ export default function WebSocketRoomsDemoPage() {
   }, [addMessage]);
 
   const handleReactMessage = useCallback((messageId: string, emoji: string) => {
-    console.log('React to message:', messageId, emoji);
+    console.debug('React to message:', messageId, emoji);
     // In real app, this would call the WebSocket API
   }, []);
 
@@ -354,7 +354,7 @@ export default function WebSocketRoomsDemoPage() {
           </h3>
           <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
             <li>• 点击左侧房间列表选择房间</li>
-            <li>• 点击右上角"创建房间"按钮创建新房间</li>
+            <li>• 点击右上角&ldquo;创建房间&rdquo;按钮创建新房间</li>
             <li>• 在聊天区域输入消息并发送</li>
             <li>• 点击消息的表情按钮添加反应</li>
             <li>• 点击右上角成员图标查看成员列表</li>

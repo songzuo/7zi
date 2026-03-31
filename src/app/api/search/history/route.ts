@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
       limit,
       total: entries.length,
     });
-  } catch (error) {
+  } catch (_error) {
     logger.error('History API error:', error instanceof Error ? error : new Error(String(error)), { category: 'search' });
 
     return createErrorResponse(error instanceof Error ? error : new Error('Failed to get history'));
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
         target,
       },
     });
-  } catch (error) {
+  } catch (_error) {
     logger.error('Add history API error:', error instanceof Error ? error : new Error(String(error)), { category: 'search' });
 
     return createErrorResponse(new Error('Failed to add to history'));
@@ -128,7 +128,7 @@ export async function DELETE(request: NextRequest) {
         message: 'Search history cleared',
       });
     }
-  } catch (error) {
+  } catch (_error) {
     logger.error('Clear history API error:', error instanceof Error ? error : new Error(String(error)), { category: 'search' });
 
     return createErrorResponse(new Error('Failed to clear history'));

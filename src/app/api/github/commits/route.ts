@@ -7,7 +7,6 @@
  * @refactored - Added parameter validation and improved error handling
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import {
   githubCommitsQuerySchema,
   validateQuery,
@@ -158,7 +157,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(successResponse);
 
-  } catch (error) {
+  } catch (_error) {
     logger.error('GitHub commits API proxy error', error);
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }

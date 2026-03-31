@@ -321,7 +321,7 @@ export function NotificationServiceExample() {
         assigneeId: 'user-2',
       });
       // Task status change notification sent
-    } catch (error) {
+    } catch (_error) {
       console.error('Failed to send notification:', error);
     }
   };
@@ -343,7 +343,7 @@ export function NotificationServiceExample() {
         dueDate: '2024-12-31',
       });
       // Task assignment notification sent
-    } catch (error) {
+    } catch (_error) {
       console.error('Failed to send notification:', error);
     }
   };
@@ -363,7 +363,7 @@ export function NotificationServiceExample() {
         },
       });
       // System announcement sent
-    } catch (error) {
+    } catch (_error) {
       console.error('Failed to send announcement:', error);
     }
   };

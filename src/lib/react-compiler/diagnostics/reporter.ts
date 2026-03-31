@@ -39,9 +39,9 @@ export function generateCompatibilityReport(
 ): CompatibilityReport {
   // 处理异步扫描结果
   const isPromise = scanResult instanceof Promise;
-  const result = isPromise ? null as any : scanResult;
+  const result = isPromise ? null : scanResult;
 
-  const { format = 'json', includeDetails = true, includeMigrationGuide = false } = options;
+  const { format = 'json', includeDetails = true } = options;
 
   // 计算兼容性百分比
   const compatibilityRate = result

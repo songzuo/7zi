@@ -50,7 +50,7 @@ export function withApiErrorMiddleware<T extends (request: NextRequest) => Promi
     try {
       // Execute the handler
       return await handler(request);
-    } catch (error) {
+    } catch (_error) {
       const duration = Date.now() - startTime;
       const errorObj = error instanceof Error ? error : new Error(String(error));
 

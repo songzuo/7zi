@@ -195,7 +195,9 @@ export async function encryptSensitiveFields<T extends Record<string, unknown>>(
     const value = result[field];
     if (value !== undefined && value !== null) {
       const encrypted = await encryptApiKeyGCM(String(value), password);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (result as any)[`_encrypted_${String(field)}`] = encrypted;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       delete (result as any)[field];
     }
   }
@@ -222,9 +224,11 @@ export async function decryptSensitiveFields<T extends Record<string, unknown>>(
       const encryptedValue = result[key] as string;
       try {
         const decrypted = await decryptApiKeyGCM(encryptedValue, password);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (result as any)[fieldName] = decrypted;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         delete (result as any)[key];
-      } catch (error) {
+      } catch (_error) {
         // If decryption fails, keep the encrypted field
         console.warn(`Failed to decrypt field ${fieldName}:`, error);
       }

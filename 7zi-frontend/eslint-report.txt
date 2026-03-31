@@ -1,0 +1,1 @@
+Invalid project directory provided, no such directory: /root/.openclaw/workspace/7zi-frontend/lint

@@ -965,7 +965,7 @@ export class PerformanceAlerter {
     const sendPromises = this.channels.map(async (channel) => {
       try {
         await channel.send(alert);
-      } catch (error) {
+      } catch (_error) {
         console.error(`[PerformanceAlerter] Failed to send to channel ${channel.name}:`, error);
       }
     });
@@ -1068,7 +1068,7 @@ export class DashboardChannel implements AlertChannel {
     for (const callback of this.callbacks) {
       try {
         callback(message);
-      } catch (error) {
+      } catch (_error) {
         console.error('[DashboardChannel] Callback error:', error);
       }
     }

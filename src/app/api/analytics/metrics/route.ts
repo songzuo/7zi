@@ -9,7 +9,6 @@
  * - N+1 query prevention
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { getCacheManager, CachePresets } from '@/lib/cache/CacheManager';
 import {
@@ -341,7 +340,7 @@ export async function GET(request: NextRequest) {
         }
       }
     );
-  } catch (error) {
+  } catch (_error) {
     logger.error('Analytics API error', error, { category: 'analytics' });
     return createErrorResponse(error instanceof Error ? error : new Error('Internal server error'));
   }
@@ -399,7 +398,7 @@ export async function POST(request: NextRequest) {
     };
 
     return createSuccessResponse(responseData);
-  } catch (error) {
+  } catch (_error) {
     logger.error('Analytics POST API error', error, { category: 'analytics' });
     return createErrorResponse(error instanceof Error ? error : new Error('Invalid request body'));
   }

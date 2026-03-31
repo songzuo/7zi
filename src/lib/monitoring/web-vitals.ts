@@ -285,7 +285,7 @@ async function reportMetricToAPI(metric: Metric) {
       // 使用 keepalive 确保页面卸载时也能发送
       keepalive: true,
     });
-  } catch (error) {
+  } catch (_error) {
     console.warn('[WebVitals] Failed to report metric:', error);
   }
 }

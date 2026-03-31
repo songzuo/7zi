@@ -193,7 +193,7 @@ export async function copyCSVToClipboard(
   try {
     const csv = convertToCSV(data, columns);
     await navigator.clipboard.writeText(csv);
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to copy CSV to clipboard:', error);
     throw new Error('Failed to copy to clipboard');
   }

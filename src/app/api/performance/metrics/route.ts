@@ -393,7 +393,7 @@ export async function POST(request: NextRequest) {
       alertsTriggered: triggeredAlerts.length,
       alerts: triggeredAlerts,
     });
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to process performance metrics', error instanceof Error ? error : new Error(String(error)), { category: 'performance' });
 
     return createErrorResponse(error instanceof Error ? error : new Error('Failed to process metrics'));

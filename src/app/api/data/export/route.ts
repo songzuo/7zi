@@ -3,7 +3,6 @@
  * Supports CSV and JSON export from database tables
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import {
   _exportData as exportData,
@@ -59,7 +58,7 @@ export async function GET(request: NextRequest) {
         },
       },
     });
-  } catch (error) {
+  } catch (_error) {
     const message = error instanceof Error ? error.message : String(error);
     logger.error('Failed to get export info', error, {
       category: 'data-export',
@@ -74,7 +73,7 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/data/export - Export data
  */
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const body = await request.json();
 
@@ -120,7 +119,7 @@ export async function POST(request: NextRequest) {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
       },
     });
-  } catch (error) {
+  } catch (_error) {
     const message = error instanceof Error ? error.message : String(error);
 
     logger.error('Failed to export data', error, {

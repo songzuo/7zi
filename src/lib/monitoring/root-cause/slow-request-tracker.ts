@@ -514,7 +514,7 @@ export async function measureRequestTiming(
     }
 
     return requestTiming;
-  } catch (error) {
+  } catch (_error) {
     const endTime = performance.now();
     return {
       url,

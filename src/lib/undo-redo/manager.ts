@@ -332,7 +332,7 @@ export const useUndoRedoManager = create<UndoRedoManagerState>()(
           });
 
           return { success: true, imported: history.length };
-        } catch (error) {
+        } catch (_error) {
           return {
             success: false,
             imported: 0,

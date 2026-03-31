@@ -13,7 +13,7 @@ describe('SEO - Sitemap.xml 生成测试', () => {
       // 动态导入生成的 sitemap 配置
       const sitemapModule = await import('@/app/sitemap')
       sitemap = sitemapModule.default()
-    } catch (error) {
+    } catch (_error) {
       console.warn('sitemap.ts 未找到，测试标记为待实现')
     }
   })

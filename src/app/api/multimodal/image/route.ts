@@ -70,7 +70,6 @@
  *         description: Internal server error
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { getMultimodalService } from '@/lib/multimodal/multimodal-service';
 import { validateImage, compressImage } from '@/lib/multimodal/image-utils';
 import type { ImageUploadOptions } from '@/lib/multimodal/types';
@@ -198,7 +197,7 @@ export async function POST(request: NextRequest) {
     let formData: FormData;
     try {
       formData = await request.formData();
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to parse form data', error instanceof Error ? error : new Error(String(error)), {
         requestId,
         category: 'multimodal',
@@ -237,7 +236,7 @@ export async function POST(request: NextRequest) {
     let buffer: Buffer;
     try {
       buffer = Buffer.from(await image.arrayBuffer());
-    } catch (error) {
+    } catch (_error) {
       logImageProcessingError('buffer-creation', error, {
         filename: image.name,
         fileType: image.type,
@@ -299,7 +298,7 @@ export async function POST(request: NextRequest) {
           ...compressionInfo,
           category: 'multimodal',
         });
-      } catch (error) {
+      } catch (_error) {
         logImageProcessingError('compression', error, {
           filename: image.name,
           quality,
@@ -313,7 +312,7 @@ export async function POST(request: NextRequest) {
     let service;
     try {
       service = getMultimodalService();
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to get multimodal service', error instanceof Error ? error : new Error(String(error)), {
         requestId,
         provider,
@@ -342,7 +341,7 @@ export async function POST(request: NextRequest) {
         success: result.success,
         category: 'multimodal',
       });
-    } catch (error) {
+    } catch (_error) {
       logImageProcessingError('processing', error, {
         filename: image.name,
         provider,
@@ -399,7 +398,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-  } catch (error) {
+  } catch (_error) {
     logImageProcessingError('unexpected', error, {
       category: 'multimodal',
     });
@@ -420,7 +419,7 @@ export async function GET() {
     let health;
     try {
       health = await service.healthCheck();
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to get provider health status', error instanceof Error ? error : new Error(String(error)), {
         category: 'multimodal',
       });
@@ -439,7 +438,7 @@ export async function GET() {
       total: providerStatus.length,
       operational: providerStatus.filter(p => p.healthy).length,
     });
-  } catch (error) {
+  } catch (_error) {
     logger.error('Provider listing error', error instanceof Error ? error : new Error(String(error)), {
       category: 'multimodal',
     });

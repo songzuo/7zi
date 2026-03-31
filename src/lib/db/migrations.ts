@@ -273,7 +273,7 @@ export async function migrate(): Promise<void> {
         await migration.up();
         await setVersion(migration.version);
         logger.info(`Migration ${migration.version} completed`, { category: 'db' });
-      } catch (error) {
+      } catch (_error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         logger.error(`Migration ${migration.version} failed`, error, { category: 'db', message: errorMessage });
 
@@ -320,7 +320,7 @@ export async function rollback(targetVersion: number): Promise<void> {
       try {
         await migration.down();
         logger.info(`Migration ${migration.version} rolled back`, { category: 'db' });
-      } catch (error) {
+      } catch (_error) {
         logger.error(`Rollback of migration ${migration.version} failed`, error, { category: 'db' });
         throw error;
       }
@@ -457,7 +457,7 @@ export async function optimizeDatabase(): Promise<{
   // Run migrations if needed
   try {
     await migrate();
-  } catch (error) {
+  } catch (_error) {
     logger.warn('Migration failed, continuing with optimization', { error, category: 'db' });
   }
 

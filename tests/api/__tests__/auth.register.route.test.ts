@@ -65,6 +65,7 @@ vi.mock('@/lib/api/error-handler', () => ({
           code: 'REGISTRATION_FAILED',
           message: message || 'Registration failed',
         },
+        timestamp: new Date().toISOString(),
       }),
     };
   }),
@@ -87,10 +88,13 @@ vi.mock('@/lib/api/utils', () => ({
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }),
-  validatePassword: vi.fn((password: string) => {
-    // Minimum 8 characters, at least one letter and one number
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/;
-    return passwordRegex.test(password);
+  validatePasswordStrength: vi.fn((password: string) => {
+    // Minimum 8 characters, at least one uppercase, one lowercase, and one number
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{8,}$/;
+    return {
+      isValid: passwordRegex.test(password),
+      errors: passwordRegex.test(password) ? [] : ['Password is too weak'],
+    };
   }),
   setAuthCookies: vi.fn(),
   createSuccessResponse: vi.fn((data: any, status?: number) => {
@@ -99,6 +103,7 @@ vi.mock('@/lib/api/utils', () => ({
       json: async () => ({
         success: true,
         data,
+        timestamp: new Date().toISOString(),
       }),
     };
   }),

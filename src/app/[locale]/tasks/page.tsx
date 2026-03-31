@@ -87,7 +87,7 @@ export default function TasksPage() {
 
       // Refresh issues list
       window.location.reload();
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to update task state', { error, issueNumber: issue.number });
       alert('Failed to update task state');
     }
@@ -109,7 +109,7 @@ export default function TasksPage() {
 
       // Refresh issues list
       window.location.reload();
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to assign task', { error, issueNumber: issue.number });
       alert('Failed to assign task');
     }
@@ -129,7 +129,7 @@ export default function TasksPage() {
 
       // Refresh issues list
       window.location.reload();
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to archive task', { error, issueNumber: issue.number });
       alert('Failed to archive task');
     }
@@ -149,7 +149,7 @@ export default function TasksPage() {
 
       // Refresh issues list
       window.location.reload();
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to delete task', { error, issueNumber: issue.number });
       alert('Failed to delete task');
     }

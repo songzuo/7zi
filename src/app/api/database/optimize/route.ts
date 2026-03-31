@@ -61,7 +61,6 @@
  *         description: Internal server error
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { getDatabaseHealth, optimizeDatabase, vacuumDatabase, getDatabaseStats } from '@/lib/db';
 import { getConnectionPool, type PoolConfig } from '@/lib/db/connection-pool';
 import { generatePerformanceReport } from '@/lib/db/performance-analyzer';
@@ -119,7 +118,7 @@ export async function GET(request: NextRequest) {
         timestamp: new Date().toISOString(),
       },
     });
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to get database health', error);
     return createErrorResponse(error instanceof Error ? error : new Error('Failed to get database health'));
   }
@@ -205,7 +204,7 @@ async function POSTHandler(
               error: `Unknown operation: ${operation}`,
             });
         }
-      } catch (error) {
+      } catch (_error) {
         logger.error(`Database operation failed: ${operation}`, error);
         results.push({
           operation,
@@ -227,13 +226,13 @@ async function POSTHandler(
         timestamp: new Date().toISOString(),
       },
     });
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to run database optimization', error);
     return createErrorResponse(error instanceof Error ? error : new Error('Failed to run database optimization'));
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   return withAdmin(request, POSTHandler);
 }
 
@@ -310,7 +309,7 @@ async function PUTHandler(
         timestamp: new Date().toISOString(),
       },
     });
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to update pool configuration', error);
     return createErrorResponse(error instanceof Error ? error : new Error('Failed to update pool configuration'));
   }

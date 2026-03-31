@@ -45,7 +45,7 @@ export function BackupList({ refreshTrigger }: BackupListProps) {
 
       const data = await response.json();
       setBackups(data.data.backups);
-    } catch (err) {
+    } catch (_err) {
       if (process.env.NODE_ENV === 'development') {
         console.error('Failed to fetch backups:', err);
       }
@@ -58,7 +58,7 @@ export function BackupList({ refreshTrigger }: BackupListProps) {
   const handleDownload = async (backupId: string, filename: string) => {
     try {
       await downloadFromUrl(`/api/backup/${backupId}`, filename);
-    } catch (err) {
+    } catch (_err) {
       if (process.env.NODE_ENV === 'development') {
         console.error('Failed to download backup:', err);
       }
@@ -84,7 +84,7 @@ export function BackupList({ refreshTrigger }: BackupListProps) {
 
       // Refresh the list
       await fetchBackups();
-    } catch (err) {
+    } catch (_err) {
       if (process.env.NODE_ENV === 'development') {
         console.error('Failed to delete backup:', err);
       }

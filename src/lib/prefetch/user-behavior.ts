@@ -412,7 +412,7 @@ export class UserBehaviorAnalyzer {
     try {
       const serialized = JSON.stringify(this.exportData());
       localStorage.setItem(this.storageKey, serialized);
-    } catch (error) {
+    } catch (_error) {
       console.error('Failed to save user behavior data:', error);
     }
   }
@@ -429,7 +429,7 @@ export class UserBehaviorAnalyzer {
         const data = JSON.parse(serialized);
         this.importData(data);
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Failed to load user behavior data:', error);
     }
   }

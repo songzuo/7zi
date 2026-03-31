@@ -114,7 +114,7 @@ export async function initializeUserTables(): Promise<void> {
   for (const statement of statements) {
     try {
       db.exec(statement);
-    } catch (error) {
+    } catch (_error) {
       if (!(error instanceof Error && error.message.includes('already exists'))) {
         throw error;
       }

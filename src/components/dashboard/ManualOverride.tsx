@@ -648,7 +648,7 @@ export const ManualOverride: FC<ManualOverrideProps> = ({
         deadline: undefined
       });
       
-    } catch (error) {
+    } catch (_error) {
       const message = error instanceof Error ? error.message : '任务创建失败';
       setErrors({ _form: message });
     } finally {

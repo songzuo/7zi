@@ -5,12 +5,9 @@ import Link from 'next/link';
 import { RefreshCw, WifiOff, Home } from 'lucide-react';
 
 export default function OfflinePage() {
-  const [isOnline, setIsOnline] = useState(true);
+  const [isOnline, setIsOnline] = useState(() => navigator.onLine);
 
   useEffect(() => {
-    // Check online status
-    setIsOnline(navigator.onLine);
-
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 

@@ -108,7 +108,7 @@ export class PagerDutyChannel {
       }
 
       console.log(`[PagerDutyChannel] Alert sent to PagerDuty: ${alert.id}`);
-    } catch (error) {
+    } catch (_error) {
       console.error('[PagerDutyChannel] Failed to send alert:', error);
       throw error;
     }
@@ -275,7 +275,7 @@ export class PagerDutyChannel {
 
       const result = await response.json();
       return result.status === 'success' || result.status === 'rate_limited';
-    } catch (error) {
+    } catch (_error) {
       console.error('[PagerDutyChannel] Test error:', error);
       return false;
     }

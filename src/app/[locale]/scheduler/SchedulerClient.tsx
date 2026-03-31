@@ -13,6 +13,6 @@ interface SchedulerClientProps {
   locale: Locale;
 }
 
-export default function SchedulerClient({ locale }: SchedulerClientProps) {
+export default function SchedulerClient({ locale: _locale }: SchedulerClientProps) {
   return <Dashboard />;
 }

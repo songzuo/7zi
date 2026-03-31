@@ -74,7 +74,7 @@ export class RedisAdapter {
       await this.client.ping();
       this.isConnected = true;
       this.reconnectAttempts = 0;
-    } catch (error) {
+    } catch (_error) {
       console.error('[RedisAdapter] Failed to connect to Redis:', error);
       throw error;
     }
@@ -108,7 +108,7 @@ export class RedisAdapter {
     setTimeout(async () => {
       try {
         await this.connect();
-      } catch (error) {
+      } catch (_error) {
         console.error('[RedisAdapter] Reconnection failed:', error);
         this.attemptReconnect();
       }
@@ -136,7 +136,7 @@ export class RedisAdapter {
 
     try {
       return await this.client.get(this.prefixedKey(key));
-    } catch (error) {
+    } catch (_error) {
       console.error('[RedisAdapter] Get failed:', error);
       throw error;
     }
@@ -160,7 +160,7 @@ export class RedisAdapter {
       } else {
         await this.client.setex(prefixedKey, this.defaultTTL, value);
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('[RedisAdapter] Set failed:', error);
       throw error;
     }
@@ -179,7 +179,7 @@ export class RedisAdapter {
     try {
       const result = await this.client.del(this.prefixedKey(key));
       return result > 0;
-    } catch (error) {
+    } catch (_error) {
       console.error('[RedisAdapter] Delete failed:', error);
       throw error;
     }
@@ -222,7 +222,7 @@ export class RedisAdapter {
       );
 
       return result as number;
-    } catch (error) {
+    } catch (_error) {
       console.error('[RedisAdapter] Incr failed:', error);
       throw error;
     }
@@ -268,7 +268,7 @@ export class RedisAdapter {
       );
 
       return result as number;
-    } catch (error) {
+    } catch (_error) {
       console.error('[RedisAdapter] Decr failed:', error);
       throw error;
     }
@@ -288,7 +288,7 @@ export class RedisAdapter {
     try {
       const result = await this.client.expire(this.prefixedKey(key), ttl);
       return result > 0;
-    } catch (error) {
+    } catch (_error) {
       console.error('[RedisAdapter] Expire failed:', error);
       throw error;
     }
@@ -306,7 +306,7 @@ export class RedisAdapter {
 
     try {
       return await this.client.ttl(this.prefixedKey(key));
-    } catch (error) {
+    } catch (_error) {
       console.error('[RedisAdapter] TTL failed:', error);
       throw error;
     }
@@ -328,7 +328,7 @@ export class RedisAdapter {
         return 0;
       }
       return await this.client.del(...keys);
-    } catch (error) {
+    } catch (_error) {
       console.error('[RedisAdapter] Delete pattern failed:', error);
       throw error;
     }

@@ -90,7 +90,7 @@ export function AudioUploader({
       } else {
         setError(result.error || t('transcriptionFailed'));
       }
-    } catch (err) {
+    } catch (_err) {
       setError(err instanceof Error ? err.message : t('transcriptionFailed'));
     } finally {
       setIsTranscribing(false);
@@ -124,7 +124,7 @@ export function AudioUploader({
       }, 1000);
 
       (recorder as MediaRecorderWithInterval).intervalId = interval;
-    } catch (err) {
+    } catch (_err) {
       setError(t('recordingError'));
     }
   }, [processFile, t]);

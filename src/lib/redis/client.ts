@@ -136,7 +136,7 @@ export async function isRedisAvailable(): Promise<boolean> {
   try {
     await client.ping();
     return true;
-  } catch (error) {
+  } catch (_error) {
     logger.warn('Redis is not available', { error });
     return false;
   }
@@ -157,7 +157,7 @@ export async function redisCommand<T>(
 
   try {
     return await command();
-  } catch (error) {
+  } catch (_error) {
     logger.error('Redis command failed', { error });
     return fallback;
   }

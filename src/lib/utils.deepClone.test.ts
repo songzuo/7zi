@@ -114,7 +114,7 @@ export function runDeepClonePerformanceTests(): void {
     const veryDeepObj = createDeepNestedObject(500, 2);
     benchmark('Depth 500 (stress test)', () => deepClone(veryDeepObj), 1);
     console.log('✓ Successfully cloned very deep object (no stack overflow!)');
-  } catch (error) {
+  } catch (_error) {
     console.error('✗ Failed to clone very deep object:', error);
   }
 

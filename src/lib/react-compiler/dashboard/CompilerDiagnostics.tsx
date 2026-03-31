@@ -441,7 +441,7 @@ export function CompilerDiagnostics() {
       });
 
       setIsLoading(false);
-    } catch (error) {
+    } catch (_error) {
       console.error('Failed to load data:', error);
       setIsLoading(false);
     }

@@ -181,7 +181,7 @@ export const useSyncManager = create<SyncManagerState>((set, get) => ({
                 });
               }
             }
-          } catch (error) {
+          } catch (_error) {
             result.failedCount++;
             result.errors.push({
               operationId: operation.id,
@@ -205,7 +205,7 @@ export const useSyncManager = create<SyncManagerState>((set, get) => ({
       await get().refreshPendingCount();
 
       return result;
-    } catch (error) {
+    } catch (_error) {
       result.errors.push({
         operationId: '',
         type: 'unknown',

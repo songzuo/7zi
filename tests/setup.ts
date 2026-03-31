@@ -4,6 +4,9 @@
  * 配置全局测试环境和工具
  */
 
+/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 
@@ -126,7 +129,7 @@ class MockWebSocket {
   send = vi.fn();
   close = vi.fn();
 
-  constructor(url: string) {
+  constructor() {
     setTimeout(() => {
       if (this.onopen) this.onopen();
     }, 0);
@@ -140,9 +143,28 @@ class MockIntersectionObserver {
   callback: IntersectionObserverCallback;
   targets: Set<Element>;
 
-  constructor(callback: IntersectionObserverCallback, _options?: IntersectionObserverInit) {
+  constructor(callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {
     this.callback = callback;
     this.targets = new Set();
+
+    // Trigger callback with default values
+    setTimeout(() => {
+      const entries: IntersectionObserverEntry[] = [];
+      for (const target of this.targets) {
+        entries.push({
+          target,
+          isIntersecting: true,
+          intersectionRatio: 1,
+          boundingClientRect: target.getBoundingClientRect(),
+          intersectionRect: new DOMRect(),
+          rootBounds: null,
+          time: performance.now(),
+        });
+      }
+      if (entries.length > 0) {
+        callback(entries, new IntersectionObserverMock(options));
+      }
+    }, 0);
   }
 
   observe(target: Element) {
@@ -158,7 +180,29 @@ class MockIntersectionObserver {
   }
 }
 
-global.IntersectionObserver = MockIntersectionObserver as any;
+class IntersectionObserverMock implements IntersectionObserver {
+  root = null;
+  rootMargin = '';
+  thresholds: number[] = [];
+
+  constructor(
+    _callback: IntersectionObserverCallback,
+    options?: IntersectionObserverInit
+  ) {
+    this.root = options?.root ?? null;
+    this.rootMargin = options?.rootMargin ?? '';
+    this.thresholds = Array.isArray(options?.threshold)
+      ? options.threshold
+      : [options?.threshold ?? 0];
+  }
+
+  observe(): void {}
+  unobserve(): void {}
+  disconnect(): void {}
+  takeRecords(): IntersectionObserverEntry[] { return []; }
+}
+
+global.IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver;
 
 // Mock ResizeObserver
 class MockResizeObserver {

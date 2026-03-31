@@ -167,7 +167,7 @@ export class RoutePrefetcher {
       }
 
       this.prefetchedRoutes.add(config.path);
-    } catch (error) {
+    } catch (_error) {
       console.error(`Failed to prefetch ${config.path}:`, error);
     }
   }

@@ -8,7 +8,7 @@
  * try {
  *   const result = await loginUser({ email, password });
  *   // result 直接是成功的用户数据
- * } catch (error) {
+ * } catch (_error) {
  *   if (isUnifiedError(error)) {
  *     // 处理统一错误
  *   }
@@ -85,7 +85,7 @@ async function generateJwtToken(user: User, expiresIn: number = 3600): Promise<s
       .sign(secret);
 
     return token;
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to generate JWT token', error, { category: 'auth' });
     throw UnifiedAppError.internal('Failed to generate authentication token');
   }
@@ -219,7 +219,7 @@ export async function loginUser(request: {
 export async function logoutUser(token: string): Promise<void> {
   try {
     await revokeUserToken(token);
-  } catch (error) {
+  } catch (_error) {
     logger.error('Logout failed', error, { category: 'auth' });
     throw UnifiedAppError.internal('Failed to logout');
   }
@@ -275,7 +275,7 @@ export async function refreshToken(refreshToken: string): Promise<{
       refreshToken: dbToken.refreshToken,
       expiresAt: dbToken.expiresAt,
     };
-  } catch (error) {
+  } catch (_error) {
     // 如果是我们自己抛出的 UnifiedAppError,直接抛出
     if (isUnifiedError(error)) {
       throw error;
@@ -320,7 +320,7 @@ export async function authenticateToken(token: string): Promise<{ user: User; co
       user: dbResult.user,
       context,
     };
-  } catch (error) {
+  } catch (_error) {
     logger.error('Token verification failed', error, { category: 'auth' });
     return null;
   }
@@ -374,7 +374,7 @@ export async function initiatePasswordReset(email: string): Promise<{ token?: st
     const token = await createPasswordResetToken(user.id, 1);
 
     return { token };
-  } catch (error) {
+  } catch (_error) {
     logger.error('Password reset failed', error, { category: 'auth' });
     throw UnifiedAppError.internal('Failed to initiate password reset');
   }

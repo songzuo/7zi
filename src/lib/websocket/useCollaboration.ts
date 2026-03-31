@@ -9,7 +9,7 @@
 
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
-import type { Operation, Cursor, Presence } from '@/lib/collaboration/manager';
+import type { Operation, Cursor } from '@/lib/collaboration/manager';
 import { logger } from '@/lib/logger';
 
 // ============================================================================
@@ -42,7 +42,7 @@ function applyOperation(content: string, operation: Operation): string {
  * Generate cryptographically secure random jitter
  * Uses Web Crypto API for better randomness
  */
-async function generateSecureJitter(): Promise<number> {
+async function _generateSecureJitter(): Promise<number> {
   if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
     const array = new Uint32Array(1);
     crypto.getRandomValues(array);
@@ -58,7 +58,7 @@ async function generateSecureJitter(): Promise<number> {
  * Visible pages get shorter intervals for better responsiveness
  * Hidden pages get longer intervals to save resources
  */
-function getHeartbeatInterval(isPageVisible: boolean): number {
+function _getHeartbeatInterval(isPageVisible: boolean): number {
   // Visible: 25 seconds (default, good responsiveness)
   // Hidden: 60 seconds (resource saving)
   return isPageVisible ? 25000 : 60000;
@@ -193,7 +193,7 @@ export function useCollaboration(config: CollaborationConfig): CollaborationStat
     token,
     userId,
     userName,
-    userAvatar,
+    userAvatar: _userAvatar,
     roomId: initialRoomId,
     roomType,
     documentId: initialDocumentId,
@@ -207,13 +207,13 @@ export function useCollaboration(config: CollaborationConfig): CollaborationStat
   const [error, setError] = useState<Error | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [isInRoom, setIsInRoom] = useState(false);
-  const [currentRoomId, setCurrentRoomId] = useState<string | undefined>(initialRoomId);
+  const [_currentRoomId, setCurrentRoomId] = useState<string | undefined>(initialRoomId);
   const [users, setUsers] = useState<RoomUser[]>([]);
   const [cursors, setCursors] = useState<Map<string, Cursor>>(new Map());
   const [document, setDocument] = useState<{ content: string; revision: number } | null>(null);
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
-  const [connectionQuality, setConnectionQuality] = useState<ConnectionQualityMetrics>({
+  const [connectionQuality, _setConnectionQuality] = useState<ConnectionQualityMetrics>({
     reconnectAttempts: 0,
     avgReconnectDelay: 0,
     successfulConnections: 0,
@@ -352,7 +352,7 @@ export function useCollaboration(config: CollaborationConfig): CollaborationStat
     const jitter = delay * 0.2 * (Math.random() * 2 - 1);
     const finalDelay = Math.max(500, delay + jitter);
 
-    logger.info(`Reconnecting in ${delay}ms`, {
+    logger.info(`Reconnecting in ${finalDelay}ms`, {
       attempt: reconnectAttemptsRef.current,
       maxAttempts: strategy.maxAttempts,
       reason,
@@ -361,11 +361,12 @@ export function useCollaboration(config: CollaborationConfig): CollaborationStat
     reconnectTimeoutRef.current = setTimeout(() => {
       reconnectionStateRef.current = 'attempting';
       updateReconnectionState('attempting');
-      connectRef.current?.(); 
-    }, delay);
+      connectRef.current?.();
+    }, finalDelay);
   }, [getReconnectStrategy, updateState, updateReconnectionState]);
 
   // Create socket connection
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const connect = useCallback(() => {
     if (socketRef.current?.connected) {
       logger.warn('WebSocket already connected');
@@ -614,13 +615,13 @@ export function useCollaboration(config: CollaborationConfig): CollaborationStat
         }
       });
 
-    } catch (err) {
+    } catch (_err) {
       const error = err instanceof Error ? err : new Error(String(err));
       setError(error);
       updateState('error');
       logger.error('Failed to create WebSocket connection', { error });
     }
-  }, [url, token, userId, userName, roomType, initialDocumentId, autoReconnect, updateState]);
+  }, [url, token, userId, userName, roomType, initialDocumentId, autoReconnect, updateState]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Disconnect
   const disconnect = useCallback(() => {

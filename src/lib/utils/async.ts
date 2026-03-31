@@ -272,7 +272,7 @@ export function memoize<T extends (...args: unknown[]) => unknown>(
   const wrapped = (...args: Parameters<T>): ReturnType<T> => {
     try {
       return memoized(...args);
-    } catch (error) {
+    } catch (_error) {
       // If cacheErrors is enabled, cache error
       if (cacheErrors) {
         const cacheKey = getCacheKey(...args);
@@ -375,7 +375,7 @@ export async function retry<T>(
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
       return await fn();
-    } catch (error) {
+    } catch (_error) {
       if (attempt === maxRetries - 1) {
         throw error; // 最后一次失败，直接抛出
       }

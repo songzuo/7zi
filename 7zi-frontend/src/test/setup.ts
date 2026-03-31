@@ -79,7 +79,7 @@ if (!cryptoInitialized) {
 }
 
 // Mock socket.io-client - 支持 named export 'io'
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+ 
 const createMockSocket = (): Record<string, any> => {
   const callbacks: Record<string, any> = {};
   const socket: Record<string, any> = {

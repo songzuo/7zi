@@ -92,7 +92,7 @@ export function RatingList({
         setTotal(resData.meta?.total || 0);
         setTotalPages(resData.meta?.total_pages || 0);
       }
-    } catch (err) {
+    } catch (_err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);

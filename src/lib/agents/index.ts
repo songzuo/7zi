@@ -3,17 +3,26 @@
  * @/lib/agents
  *
  * This module consolidates all agent-related functionality:
- * - agent: Core agent operations (auth, repository, wallet, middleware)
+ * - core: Core agent operations (auth, repository, wallet, middleware)
  * - scheduler: Task scheduling and load balancing
  * - a2a: Agent-to-Agent communication protocol
  * - tools: Utility functions for agents
+ * - communication: Agent communication utilities
+ *
+ * REFACTORED (2026-03-31):
+ * - agent/ → core/ (better naming)
+ * - agent/communication/ → communication/ (flattened structure)
  */
 
-// Re-export all submodules
-export * from './agent';
+// ===== 新的统一导出 =====
+
+// Core agent operations
+export * from './core';
+
+// Scheduler
 export * from './scheduler';
 
-// Re-export a2a types with explicit naming to avoid conflicts
+// A2A Protocol
 export {
   InMemoryAgentRegistry,
   FileAgentRegistry,
@@ -39,7 +48,6 @@ export type {
   Part,
   Message,
   Artifact,
-  // Rename a2a Task to avoid conflict with scheduler Task
   Task as A2ATask,
   Skill,
   AgentCapabilities,
@@ -70,3 +78,60 @@ export type {
 
 // Tools
 export * from './tools';
+
+// Communication
+export * from './communication';
+
+// ===== 向后兼容导出（已废弃） =====
+
+/**
+ * @deprecated 使用 @/lib/agents/core 代替
+ * 旧版本: export * from './agent'
+ */
+export {
+  generateApiKey,
+  hashApiKey,
+  validateApiKeyFormat,
+  registerAgent,
+  authenticateAgent,
+  generateAgentToken,
+  verifyAgentToken,
+  refreshAgentToken,
+  hasPermission,
+  hasAnyPermission,
+  hasAllPermissions,
+} from './core/auth-service';
+
+export {
+  initializeAgentTables,
+  createAgent,
+  getAgentById,
+  getAllAgents,
+  updateAgent,
+  updateAgentStatus,
+  deleteAgent,
+  updateAgentLastActive,
+  validateAgentApiKey,
+  mapRowToAgent,
+  getAgentDataAccessLog,
+  logDataAccess,
+} from './core/repository';
+
+export {
+  initializeWalletTables,
+  createWallet,
+  getWalletByAgentId,
+  getWalletBalance,
+  deposit,
+  withdraw,
+  transfer,
+  getTransactions,
+  getWalletStats,
+} from './core/wallet-repository';
+
+export {
+  withAgentAuth,
+  withPermissions,
+  withAnyPermission,
+  type AgentContext,
+} from './core/middleware';

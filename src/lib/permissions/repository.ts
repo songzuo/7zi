@@ -65,7 +65,7 @@ export async function initializeRbacTables(): Promise<void> {
   for (const statement of statements) {
     try {
       db.exec(statement);
-    } catch (error) {
+    } catch (_error) {
       if (!(error instanceof Error && error.message.includes('already exists'))) {
         throw error;
       }
@@ -202,7 +202,7 @@ export async function assignPermissionsToRole(
         VALUES (?, ?, ?, ?, ?)
       `);
       stmt.run(id, role, permission, now, assignedBy);
-    } catch (error) {
+    } catch (_error) {
       // Ignore duplicate entries
       if (!(error instanceof Error && error.message.includes('UNIQUE constraint'))) {
         throw error;
@@ -284,7 +284,7 @@ export async function addRolesToUser(
         VALUES (?, ?, ?, ?, ?)
       `);
       stmt.run(id, userId, role, now, assignedBy);
-    } catch (error) {
+    } catch (_error) {
       // Ignore duplicate entries
       if (!(error instanceof Error && error.message.includes('UNIQUE constraint'))) {
         throw error;

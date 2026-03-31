@@ -106,7 +106,7 @@ export const RealtimeDashboard = memo(({ locale = 'en', className = '' }: Realti
     dataLatency: 0,
     updateFrequency: 2000
   });
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   // 模拟实时数据更新
   useEffect(() => {
@@ -120,8 +120,6 @@ export const RealtimeDashboard = memo(({ locale = 'en', className = '' }: Realti
         dataLatency: Math.floor(Math.random() * 100) + 20
       }));
     }, stats.updateFrequency);
-
-    setIsLoading(false);
 
     return () => clearInterval(interval);
   }, [stats.updateFrequency]);

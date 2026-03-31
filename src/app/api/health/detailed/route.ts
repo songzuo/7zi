@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
     const health = await detailedHealthCheck();
     return healthResponse(health);
 
-  } catch (error) {
+  } catch (_error) {
     logger.error('Error in /api/health/detailed endpoint', {
       error: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined,

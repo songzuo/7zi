@@ -99,7 +99,7 @@ export interface PermissionContext {
   userId: string;
   roles: Role[];
   permissions: Permission[];
-  customPermissions?: Permission[];
+  customPermissions?: (Permission | string)[];
 }
 
 /**

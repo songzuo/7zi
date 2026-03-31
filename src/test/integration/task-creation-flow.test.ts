@@ -437,7 +437,7 @@ describe('Task Creation Flow Integration Test', () => {
       try {
         await fetch('/api/tasks')
         expect.fail('Should have thrown an error')
-      } catch (error) {
+      } catch (_error) {
         expect((error as Error).message).toBe('Network error')
       }
     })

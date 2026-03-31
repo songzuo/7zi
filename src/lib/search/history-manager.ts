@@ -257,7 +257,7 @@ export class SearchHistoryManager {
       this.saveToStorage();
 
       return { success: true, imported: importedCount };
-    } catch (error) {
+    } catch (_error) {
       return {
         success: false,
         imported: 0,
@@ -279,7 +279,7 @@ export class SearchHistoryManager {
         const storage: SearchHistoryStorage = JSON.parse(data);
         this.history = storage.entries || [];
       }
-    } catch (error) {
+    } catch (_error) {
       console.error('Failed to load search history:', error);
       this.history = [];
     }
@@ -298,7 +298,7 @@ export class SearchHistoryManager {
       };
 
       localStorage.setItem(STORAGE_KEY, JSON.stringify(storage));
-    } catch (error) {
+    } catch (_error) {
       console.error('Failed to save search history:', error);
     }
   }

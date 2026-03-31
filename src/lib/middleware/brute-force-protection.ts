@@ -404,7 +404,7 @@ export function withBruteForceProtection<T = unknown>(
         requireCaptcha: check.requireCaptcha,
       });
       isSuccess = response.status >= 200 && response.status < 400;
-    } catch (error) {
+    } catch (_error) {
       isSuccess = false;
       response = NextResponse.json(
         {

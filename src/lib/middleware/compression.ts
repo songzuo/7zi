@@ -282,7 +282,7 @@ export function withCompression<T extends any[]>(
       });
 
       return compressedResponse;
-    } catch (error) {
+    } catch (_error) {
       // If compression fails, return original response
       console.error('Compression failed:', error);
       statsCollector.record(contentLength, null, 'uncompressed');

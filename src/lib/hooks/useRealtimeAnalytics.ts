@@ -168,7 +168,7 @@ export function useRealtimeAnalytics(config?: Partial<RealtimeWebSocketConfig>) 
               }
               break;
           }
-        } catch (error) {
+        } catch (_error) {
           console.error('Failed to parse WebSocket message:', error);
         }
       };
@@ -194,7 +194,7 @@ export function useRealtimeAnalytics(config?: Partial<RealtimeWebSocketConfig>) 
           lastError: 'Connection error occurred'
         }));
       };
-    } catch (error) {
+    } catch (_error) {
       console.error('Failed to create WebSocket connection:', error);
       setConnection(prev => ({
         ...prev,

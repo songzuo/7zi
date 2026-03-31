@@ -83,7 +83,7 @@ export function ImageUploader({
       } else {
         setError(result.error || t('analysisFailed'));
       }
-    } catch (err) {
+    } catch (_err) {
       setError(err instanceof Error ? err.message : t('analysisFailed'));
     } finally {
       setIsAnalyzing(false);

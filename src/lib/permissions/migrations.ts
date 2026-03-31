@@ -76,7 +76,7 @@ export async function migrate(): Promise<void> {
     try {
       db.exec(statement);
       logger.debug(`Applied: ${statement.substring(0, 50)}...`, { category: 'db' });
-    } catch (error) {
+    } catch (_error) {
       if (!(error instanceof Error && error.message.includes('already exists'))) {
         logger.error('Migration failed', error, { category: 'db' });
         throw error;
@@ -119,7 +119,7 @@ export async function rollback(): Promise<void> {
     try {
       db.exec(statement);
       logger.debug(`Rolled back: ${statement}`, { category: 'db' });
-    } catch (error) {
+    } catch (_error) {
       logger.error('Rollback failed', error, { category: 'db' });
       throw error;
     }

@@ -3,9 +3,15 @@
  * Manage performance alert rules and active alerts
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { logger } from '@/lib/logger';
 import type { AlertRule, PerformanceAlert } from '../metrics/route';
+import {
+  createSuccessResponse,
+  createErrorResponse,
+  createBadRequestError,
+  createNotFoundError,
+} from '@/lib/api/error-handler';
 
 // ========================================
 // In-memory Storage (Production: use Database)
@@ -185,8 +191,7 @@ export async function GET(request: NextRequest) {
     },
   };
 
-  return NextResponse.json({
-    success: true,
+  return createSuccessResponse({
     alerts,
     rules: alertRules,
     summary,
@@ -205,10 +210,7 @@ export async function POST(request: NextRequest) {
     // Create new alert rule
     if (action === 'create-rule') {
       if (!rule || !rule.name || !rule.metric || !rule.condition || !rule.threshold) {
-        return NextResponse.json(
-          { error: 'Invalid rule data. Required: name, metric, condition, threshold' },
-          { status: 400 }
-        );
+        return await createBadRequestError('Invalid rule data. Required: name, metric, condition, threshold');
       }
 
       const newRule: AlertRule = {
@@ -231,27 +233,18 @@ export async function POST(request: NextRequest) {
         threshold: newRule.threshold,
       });
 
-      return NextResponse.json({
-        success: true,
-        rule: newRule,
-      });
+      return createSuccessResponse({ rule: newRule });
     }
 
     // Acknowledge alert
     if (action === 'acknowledge') {
       if (!alertId) {
-        return NextResponse.json(
-          { error: 'alertId is required' },
-          { status: 400 }
-        );
+        return await createBadRequestError('alertId is required');
       }
 
       const alert = activeAlerts.find(a => a.id === alertId);
       if (!alert) {
-        return NextResponse.json(
-          { error: 'Alert not found' },
-          { status: 404 }
-        );
+        return await createNotFoundError('Alert not found');
       }
 
       alert.acknowledged = true;
@@ -262,23 +255,14 @@ export async function POST(request: NextRequest) {
         severity: alert.severity,
       });
 
-      return NextResponse.json({
-        success: true,
-        alert,
-      });
+      return createSuccessResponse({ alert });
     }
 
-    return NextResponse.json(
-      { error: 'Invalid action. Use: create-rule or acknowledge' },
-      { status: 400 }
-    );
-  } catch (error) {
+    return await createBadRequestError('Invalid action. Use: create-rule or acknowledge');
+  } catch (_error) {
     logger.error('Failed to process alerts request', { error });
 
-    return NextResponse.json(
-      { error: 'Failed to process request', details: String(error) },
-      { status: 500 }
-    );
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }
 }
 
@@ -292,18 +276,12 @@ export async function PUT(request: NextRequest) {
     const { ruleId, updates } = body;
 
     if (!ruleId || !updates) {
-      return NextResponse.json(
-        { error: 'ruleId and updates are required' },
-        { status: 400 }
-      );
+      return await createBadRequestError('ruleId and updates are required');
     }
 
     const ruleIndex = alertRules.findIndex(r => r.id === ruleId);
     if (ruleIndex === -1) {
-      return NextResponse.json(
-        { error: 'Rule not found' },
-        { status: 404 }
-      );
+      return await createNotFoundError('Rule not found');
     }
 
     // Update rule
@@ -319,17 +297,11 @@ export async function PUT(request: NextRequest) {
       updates,
     });
 
-    return NextResponse.json({
-      success: true,
-      rule: alertRules[ruleIndex],
-    });
-  } catch (error) {
+    return createSuccessResponse({ rule: alertRules[ruleIndex] });
+  } catch (_error) {
     logger.error('Failed to update alert rule', { error });
 
-    return NextResponse.json(
-      { error: 'Failed to update rule', details: String(error) },
-      { status: 500 }
-    );
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
   }
 }
 
@@ -346,10 +318,7 @@ export async function DELETE(request: NextRequest) {
   if (ruleId) {
     const ruleIndex = alertRules.findIndex(r => r.id === ruleId);
     if (ruleIndex === -1) {
-      return NextResponse.json(
-        { error: 'Rule not found' },
-        { status: 404 }
-      );
+      return createNotFoundError('Rule not found');
     }
 
     const deletedRule = alertRules.splice(ruleIndex, 1)[0];
@@ -359,10 +328,7 @@ export async function DELETE(request: NextRequest) {
       ruleName: deletedRule.name,
     });
 
-    return NextResponse.json({
-      success: true,
-      deleted: deletedRule,
-    });
+    return createSuccessResponse({ deleted: deletedRule });
   }
 
   // Clear acknowledged alerts
@@ -376,17 +342,13 @@ export async function DELETE(request: NextRequest) {
       deleted: deletedCount,
     });
 
-    return NextResponse.json({
-      success: true,
+    return createSuccessResponse({
       deleted: deletedCount,
       remaining: activeAlerts.length,
     });
   }
 
-  return NextResponse.json(
-    { error: 'Specify ruleId or clearAcknowledged=true' },
-    { status: 400 }
-  );
+  return createBadRequestError('Specify ruleId or clearAcknowledged=true');
 }
 
 // ========================================

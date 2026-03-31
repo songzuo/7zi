@@ -63,7 +63,7 @@ export async function checkTokenBucket(
   if (!useMemory && redisAvailable) {
     try {
       return await checkTokenBucketRedis(key, capacity, refillRate, window, now);
-    } catch (error) {
+    } catch (_error) {
       logger.error('Redis token bucket check failed, falling back to memory', { error, key, capacity, refillRate });
       // Fall back to memory storage
       return checkTokenBucketMemory(key, capacity, refillRate, window, now);
@@ -189,7 +189,7 @@ export async function getTokenBucketStatus(
   if (!useMemory && redisAvailable) {
     try {
       return await getTokenBucketStatusRedis(key);
-    } catch (error) {
+    } catch (_error) {
       logger.error('Redis token bucket status check failed, falling back to memory', { error, key });
       // Fall back to memory storage
       return getTokenBucketStatusMemory(key);

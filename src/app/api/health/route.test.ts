@@ -3,7 +3,6 @@
  * GET /api/health
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { GET } from './route';
 import { getCacheManager } from '@/lib/cache/CacheManager';
 import { createErrorResponse } from '@/lib/api/error-handler';

@@ -237,7 +237,7 @@ describe('Contact Form Integration Tests', () => {
             message: 'Test message',
           }),
         })
-      } catch (error) {
+      } catch (_error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Network error')
       }

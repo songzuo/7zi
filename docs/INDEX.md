@@ -28,7 +28,7 @@
   - 安全架构和性能优化
 
 - **[ARCHITECTURE_DIAGRAMS.md](./ARCHITECTURE_DIAGRAMS.md)** - 架构图解
-- **[ARCHITECTURE_REVIEW.md](./ARCHITECTURE_REVIEW.md)** - 架构审查报告
+- **[ARCHITECTURE_SUMMARY.md](./ARCHITECTURE_SUMMARY.md)** - 架构总结
 - **[microservice-design.md](./microservice-design.md)** - 微服务设计
 - **[mcp-server-architecture.md](./mcp-server-architecture.md)** - MCP 服务器架构
 

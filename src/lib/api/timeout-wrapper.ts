@@ -81,7 +81,7 @@ export function withTimeout<T extends (...args: unknown[]) => Promise<unknown>>(
       }
 
       return result;
-    } catch (error) {
+    } catch (_error) {
       // Clear timeout on error
       const timeoutId = (timeoutPromise as { __timeoutId?: NodeJS.Timeout }).__timeoutId;
       if (timeoutId) {
@@ -118,7 +118,7 @@ export function withTimeout<T extends (...args: unknown[]) => Promise<unknown>>(
  *     fetch('/api/data'),
  *     5000
  *   );
- * } catch (error) {
+ * } catch (_error) {
  *   if (error instanceof ApiError) {
  *     // Handle timeout error
  *   }
@@ -162,7 +162,7 @@ export function withTimeoutApi<T extends (...args: unknown[]) => Promise<unknown
   return (async (...args: Parameters<T>) => {
     try {
       return await withTimeout(fn, timeoutMs, locale)(...args);
-    } catch (error) {
+    } catch (_error) {
       if (error instanceof TimeoutError) {
         return await createServiceUnavailableError(
           `请求超时，请稍后重试 (${timeoutMs}ms)`,
@@ -219,7 +219,7 @@ export async function withTimeoutDefault<T>(
 ): Promise<T> {
   try {
     return await withTimeout(fn, timeoutMs)();
-  } catch (error) {
+  } catch (_error) {
     if (error instanceof TimeoutError) {
       logger.warn('Operation timed out, returning default value');
       return defaultValue;
@@ -251,7 +251,7 @@ export async function withMeasurement<T>(
     const duration = Date.now() - startTime;
     logger.info(`Function ${name} completed`, { durationMs: duration });
     return result;
-  } catch (error) {
+  } catch (_error) {
     const duration = Date.now() - startTime;
     logger.error(`Function ${name} failed`, error, { durationMs: duration });
     throw error;

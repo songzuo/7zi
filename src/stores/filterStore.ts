@@ -454,17 +454,20 @@ export const useFilterStore = create<FilterStoreState>()(
             // 将 Map 转为数组存储
             const data = { ...value };
             if (data.state?.activeFilters instanceof Map) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               (data.state as any).activeFilters = Array.from(data.state.activeFilters.entries());
             }
             if (data.state?.activeSorts instanceof Map) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               (data.state as any).activeSorts = Array.from(data.state.activeSorts.entries());
             }
             if (data.state?.activePagination instanceof Map) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               (data.state as any).activePagination = Array.from(data.state.activePagination.entries());
             }
             try {
               localStorage.setItem(name, JSON.stringify(data));
-            } catch (error) {
+            } catch (_error) {
               console.error('Failed to save filter store:', error);
             }
           },

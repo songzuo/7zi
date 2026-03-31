@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const agentId = searchParams.get('agentId');
-    let allStats: any[] = agentId ? [adaptiveLearner.getAgentLearningStats(agentId)] as any[] : adaptiveLearner.getAgentLearningStats() as any[];
+    const allStats: any[] = agentId ? [adaptiveLearner.getAgentLearningStats(agentId)] as any[] : adaptiveLearner.getAgentLearningStats() as any[];
 
     const adjustmentInfo = allStats.map(s => ({
       agentId: s.agentId,

@@ -215,7 +215,7 @@ export function withRequestId<T = unknown>(
 
       // Add request ID to response headers
       response.headers.set('x-request-id', context.requestId);
-    } catch (err) {
+    } catch (_err) {
       error = err instanceof Error ? err : new Error(String(err));
 
       // Create error response

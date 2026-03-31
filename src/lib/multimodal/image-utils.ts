@@ -44,7 +44,7 @@ export async function validateImage(
     }
 
     return { valid: true };
-  } catch (error) {
+  } catch (_error) {
     return {
       valid: false,
       error: 'Invalid image file',

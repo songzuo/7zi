@@ -255,7 +255,7 @@ export async function withErrorHandling<T>(
 ): Promise<T | null> {
   try {
     return await fn();
-  } catch (error) {
+  } catch (_error) {
     handleError(error as Error, config);
     return null;
   }

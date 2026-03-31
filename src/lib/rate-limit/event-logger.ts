@@ -6,7 +6,22 @@
 
 import { getRedisClient, redisCommand } from '../redis/client';
 import { logger } from '@/lib/logger';
-import { RateLimitEvent } from './index';
+import { RateLimitResult } from './index';
+
+/**
+ * Rate limit event type for logging
+ */
+export interface RateLimitEvent {
+  timestamp: number;
+  identifier: string;
+  ip?: string;
+  userId?: string;
+  path: string;
+  exceeded: boolean;
+  algorithm: string;
+  ipAddress?: string;
+  result: RateLimitResult;
+}
 
 /**
  * Store rate limit event
@@ -71,7 +86,7 @@ export async function getRateLimitEvents(
         if (value) {
           try {
             events.push(JSON.parse(value) as RateLimitEvent);
-          } catch (error) {
+          } catch (_error) {
             logger.error('Failed to parse rate limit event', { error, key, value });
           }
         }

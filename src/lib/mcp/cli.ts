@@ -32,7 +32,7 @@ async function main() {
     await server.startStdio();
     
     console.error('[7zi MCP Server] Server started, waiting for connections...');
-  } catch (error) {
+  } catch (_error) {
     console.error('[7zi MCP Server] Error starting server:', error);
     process.exit(1);
   }

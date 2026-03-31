@@ -44,7 +44,7 @@ export function SearchHistory({
 
       const data = await response.json();
       setHistory(data.entries || []);
-    } catch (error) {
+    } catch (_error) {
       if (process.env.NODE_ENV === 'development') {
         console.error('Error fetching history:', error);
       }
@@ -64,7 +64,7 @@ export function SearchHistory({
 
       // Update local state
       setHistory(prev => prev.filter(entry => entry.query !== query));
-    } catch (error) {
+    } catch (_error) {
       if (process.env.NODE_ENV === 'development') {
         console.error('Error deleting history:', error);
       }
@@ -81,7 +81,7 @@ export function SearchHistory({
       await fetch('/api/search/history', { method: 'DELETE' });
 
       setHistory([]);
-    } catch (error) {
+    } catch (_error) {
       if (process.env.NODE_ENV === 'development') {
         console.error('Error clearing history:', error);
       }

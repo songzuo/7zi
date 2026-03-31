@@ -241,7 +241,7 @@ export class DataExporter<T extends Record<string, unknown>> {
       }
 
       return result;
-    } catch (error) {
+    } catch (_error) {
       return {
         success: false,
         error: error instanceof Error ? error.message : '导出失败',
@@ -854,7 +854,7 @@ export async function exportMultiSheet<T extends Record<string, unknown>>(
     });
 
     return { success: true, blob, filename: `${config.filename}.xlsx` };
-  } catch (error) {
+  } catch (_error) {
     return {
       success: false,
       error: error instanceof Error ? error.message : '多工作表导出失败',

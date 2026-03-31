@@ -57,7 +57,7 @@ export const useNotifications = (options: UseNotificationsOptions = {}) => {
         }));
         setNotifications(loaded);
       }
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to load notifications', error);
     } finally {
       setIsLoaded(true);
@@ -72,7 +72,7 @@ export const useNotifications = (options: UseNotificationsOptions = {}) => {
 
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to save notifications', error);
     }
   }, [notifications, persist, isLoaded]);

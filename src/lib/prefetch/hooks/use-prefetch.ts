@@ -93,7 +93,7 @@ export function usePrefetch(path: string, options: UsePrefetchOptions = {}) {
         timestamp: Date.now(),
         error: result.error,
       } as PrefetchResult;
-    } catch (error) {
+    } catch (_error) {
       const duration = performance.now() - startTime;
       const result: PrefetchResult = {
         path,
@@ -254,7 +254,7 @@ async function prefetchRouteData(path: string): Promise<void> {
     try {
       // 使用 fetch 触发预加载（不消费数据）
       await fetch(endpoint, { method: 'HEAD' });
-    } catch (error) {
+    } catch (_error) {
       // 忽略预加载错误
     }
   }

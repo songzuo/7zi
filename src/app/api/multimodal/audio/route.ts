@@ -90,7 +90,6 @@
  *         description: Internal server error
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { getMultimodalService } from '@/lib/multimodal/multimodal-service';
 import { audioToBuffer, validateAudio, formatDuration } from '@/lib/multimodal/audio-utils';
 import type {
@@ -294,10 +293,10 @@ function formatTranscriptionResult(
         model: result.data?.model || 'default',
       },
     };
-  } catch (error) {
+  } catch (_error) {
     try {
       logger.error('Failed to format transcription result', error instanceof Error ? error : new Error(String(error)));
-    } catch (err) {}
+    } catch (_err) {}
 
     // Return basic format on error
     return {
@@ -347,7 +346,7 @@ export async function POST(request: NextRequest) {
       logger.info('Audio transcription request received', {
         requestId,
       });
-    } catch (err) {
+    } catch (_err) {
       // Logger might not be available in test environment
     }
 
@@ -355,7 +354,7 @@ export async function POST(request: NextRequest) {
     let formData: FormData;
     try {
       formData = await request.formData();
-    } catch (error) {
+    } catch (_error) {
       logger.error('Failed to parse form data', error instanceof Error ? error : new Error(String(error)), {
         requestId,
       });
@@ -371,7 +370,7 @@ export async function POST(request: NextRequest) {
           requestId,
           error: validation.error,
         });
-      } catch (err) {}
+      } catch (_err) {}
       return createValidationError(validation.error);
     }
 
@@ -390,13 +389,13 @@ export async function POST(request: NextRequest) {
         timestamps,
         speakerDiarization,
       });
-    } catch (err) {}
+    } catch (_err) {}
 
     // Read audio buffer
     let buffer: Buffer;
     try {
       buffer = Buffer.from(await audio.arrayBuffer());
-    } catch (error) {
+    } catch (_error) {
       logAudioProcessingError('buffer-creation', error, {
         filename: audio.name,
         fileType: audio.type,
@@ -414,7 +413,7 @@ export async function POST(request: NextRequest) {
           error: contentValidation.error,
           filename: audio.name,
         });
-      } catch (err) {}
+      } catch (_err) {}
 
       return createValidationError(
         contentValidation.error || 'Audio validation failed',
@@ -426,13 +425,13 @@ export async function POST(request: NextRequest) {
     let service;
     try {
       service = getMultimodalService();
-    } catch (error) {
+    } catch (_error) {
       try {
         logger.error('Failed to get multimodal service', error instanceof Error ? error : new Error(String(error)), {
           requestId,
           provider,
         });
-      } catch (err) {}
+      } catch (_err) {}
       return createServiceUnavailableError('Audio transcription service temporarily unavailable');
     }
 
@@ -448,7 +447,7 @@ export async function POST(request: NextRequest) {
           timestamps,
           speakerDiarization,
         });
-      } catch (err) {}
+      } catch (_err) {}
 
       const options: AudioTranscriptionOptions = {
         language,
@@ -469,8 +468,8 @@ export async function POST(request: NextRequest) {
           success: result.success,
           duration: result.data?.duration || 0,
         });
-      } catch (err) {}
-    } catch (error) {
+      } catch (_err) {}
+    } catch (_error) {
       logAudioProcessingError('transcription', error, {
         filename: audio.name,
         provider,
@@ -543,7 +542,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-  } catch (error) {
+  } catch (_error) {
     logAudioProcessingError('unexpected', error, {});
     return createErrorResponse(error instanceof Error ? error : new Error('Internal server error'));
   }
@@ -567,10 +566,10 @@ export async function GET() {
     let health;
     try {
       health = await service.healthCheck();
-    } catch (error) {
+    } catch (_error) {
       try {
         logger.error('Failed to get provider health status', error instanceof Error ? error : new Error(String(error)));
-      } catch (err) {}
+      } catch (_err) {}
       // Continue with empty health status
       health = {};
     }
@@ -590,10 +589,10 @@ export async function GET() {
       maxSizeBytes: MAX_AUDIO_SIZE,
       maxSizeMB: (MAX_AUDIO_SIZE / (1024 * 1024)).toFixed(0),
     });
-  } catch (error) {
+  } catch (_error) {
     try {
       logger.error('Audio provider listing error', error instanceof Error ? error : new Error(String(error)));
-    } catch (err) {}
+    } catch (_err) {}
     return createErrorResponse(error instanceof Error ? error : new Error('Failed to list audio transcription providers'));
   }
 }

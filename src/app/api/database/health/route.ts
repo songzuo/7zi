@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server';
 import { getDatabaseAsync, getDatabaseStats } from '@/lib/db';
 import { getDatabaseHealth, type DatabaseHealthResult as DatabaseHealth } from '@/lib/db/migrations';
 import { generatePerformanceReport, type PerformanceReport } from '@/lib/db/performance-analyzer';
@@ -119,7 +118,7 @@ async function GETHandler(request: Request) {
         })),
       },
     });
-  } catch (error) {
+  } catch (_error) {
     const errorObj = error instanceof Error ? error : new Error('Failed to check database health');
     const duration = Date.now() - startTime;
 

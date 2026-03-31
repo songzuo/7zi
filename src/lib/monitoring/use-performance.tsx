@@ -207,7 +207,7 @@ export function useApiPerformance(options: UseApiPerformanceOptions) {
 
       try {
         return await request;
-      } catch (error) {
+      } catch (_error) {
         success = false;
         throw error;
       } finally {

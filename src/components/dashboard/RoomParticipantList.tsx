@@ -456,7 +456,11 @@ export const RoomParticipantList: React.FC<RoomParticipantListProps> = ({
           {hasMore && (
             <div className="text-center pt-2">
               <button
-                onClick={() => {/* TODO: 显示全部 */}}
+                onClick={() => {
+                  // 显示全部参与者
+                  onLoadMore?.();
+                  console.log('显示全部参与者, 当前:', displayedParticipants.length, '总计:', sortedParticipants.length);
+                }}
                 className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
               >
                 {t('showMore', { count: sortedParticipants.length - displayedParticipants.length })}

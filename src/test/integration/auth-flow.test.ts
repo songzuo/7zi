@@ -79,7 +79,7 @@ describe('Authentication Flow Integration Tests', () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: 'test@example.com', password: 'password123' }),
         })
-      } catch (error) {
+      } catch (_error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Network error')
       }

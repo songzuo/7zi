@@ -197,7 +197,7 @@ export const defaultActions: QuickAction[] = [
     descriptionEn: 'Get help and support',
     icon: HelpCircle,
     color: 'slate',
-    onClick: () => console.log('Help clicked'),
+    onClick: () => console.debug('QuickAction: Help'),
   },
 ];
 

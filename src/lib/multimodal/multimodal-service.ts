@@ -104,7 +104,7 @@ export class MultimodalService {
       }
 
       return result;
-    } catch (error) {
+    } catch (_error) {
       logger.error('Image processing error', error);
       return {
         success: false,
@@ -137,7 +137,7 @@ export class MultimodalService {
       }
 
       return result;
-    } catch (error) {
+    } catch (_error) {
       logger.error('Audio processing error', error);
       return {
         success: false,

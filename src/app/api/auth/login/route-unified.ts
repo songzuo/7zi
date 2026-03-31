@@ -5,7 +5,6 @@
  * 使用统一的错误处理系统
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { loginUser } from '@/lib/auth/service-unified';
 import { logger } from '@/lib/logger';
 import {
@@ -64,7 +63,7 @@ import { logRequestStart, logRequestComplete, logAuthError, sanitizeUrlForLoggin
 export const POST = withUnifiedErrorHandling(async (request: NextRequest) => {
   const startTime = Date.now();
   const metadata = logRequestStart(request);
-  const sanitizedUrl = sanitizeUrlForLogging(request.url);
+  const _sanitizedUrl = sanitizeUrlForLogging(request.url);
 
   try {
     const body = await request.json();
@@ -108,7 +107,7 @@ export const POST = withUnifiedErrorHandling(async (request: NextRequest) => {
 
     logRequestComplete(metadata, response, startTime);
     return response;
-  } catch (error) {
+  } catch (_error) {
     // 记录认证错误
     logAuthError(metadata, 'authentication', error instanceof Error ? error.message : 'Login failed');
 

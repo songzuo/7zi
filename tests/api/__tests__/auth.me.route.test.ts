@@ -70,7 +70,7 @@ vi.mock('@/lib/permissions/repository', () => ({
 vi.mock('@/lib/auth/middleware-rbac', () => ({
   withUserAuth: vi.fn(async (request: NextRequest, handler: (req: NextRequest, context: RBACUserContext) => Promise<NextResponse>) => {
     const authHeader = request.headers.get('authorization');
-    
+
     // Check for missing or invalid authorization header
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json({
@@ -81,9 +81,9 @@ vi.mock('@/lib/auth/middleware-rbac', () => ({
         },
       }, { status: 401 });
     }
-    
+
     const token = authHeader.substring(7);
-    
+
     // Check for empty token
     if (!token || token.length < 10) {
       return NextResponse.json({
@@ -94,29 +94,40 @@ vi.mock('@/lib/auth/middleware-rbac', () => ({
         },
       }, { status: 401 });
     }
-    
-    // Dynamically import and call authenticateToken
-    const { authenticateToken } = await import('@/lib/auth/service');
-    const authResult = await authenticateToken(token);
-    
-    if (!authResult) {
+
+    try {
+      // Dynamically import and call authenticateToken
+      const { authenticateToken } = await import('@/lib/auth/service');
+      const authResult = await authenticateToken(token);
+
+      if (!authResult) {
+        return NextResponse.json({
+          success: false,
+          error: {
+            code: 'INVALID_TOKEN',
+            message: 'Invalid or expired token',
+          },
+        }, { status: 401 });
+      }
+
+      // Build context
+      const context: RBACUserContext = {
+        ...authResult.context,
+        requestId: `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      };
+
+      // Call the handler
+      return handler(request, context);
+    } catch (error) {
+      // Handle token verification errors
       return NextResponse.json({
         success: false,
         error: {
           code: 'INVALID_TOKEN',
-          message: 'Invalid or expired token',
+          message: error instanceof Error ? error.message : 'Invalid or expired token',
         },
       }, { status: 401 });
     }
-    
-    // Build context
-    const context: RBACUserContext = {
-      ...authResult.context,
-      requestId: `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-    };
-    
-    // Call the handler
-    return handler(request, context);
   }),
 }));
 

@@ -21,7 +21,7 @@ async function ensureBackupDir(): Promise<void> {
   try {
     const backupsDir = path.join(process.cwd(), 'backups');
     await fs.mkdir(backupsDir, { recursive: true });
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to create backup directory', error);
     throw error;
   }
@@ -41,7 +41,7 @@ export async function getScheduledBackups(): Promise<BackupConfig[]> {
     } catch {
       return [];
     }
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to get scheduled backups', error);
     return [];
   }
@@ -59,7 +59,7 @@ async function getJobs(): Promise<BackupJob[]> {
     } catch {
       return [];
     }
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to get backup jobs', error);
     return [];
   }
@@ -105,7 +105,7 @@ async function recordEvent(event: BackupEvent): Promise<void> {
     }
 
     await fs.writeFile(EVENTS_FILE, JSON.stringify(events, null, 2), 'utf-8');
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to record backup event', error);
   }
 }
@@ -327,7 +327,7 @@ async function executeBackupSchedule(schedule: BackupConfig): Promise<BackupJob>
       backupId: backup.id,
     });
 
-  } catch (error) {
+  } catch (_error) {
     job.status = BackupStatus.FAILED;
     job.completedAt = new Date().toISOString();
     job.error = error instanceof Error ? error.message : String(error);

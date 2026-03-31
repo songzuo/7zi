@@ -51,7 +51,7 @@ export async function downloadFromUrl(
     const mimeType = response.headers.get('content-type') || 'text/plain';
 
     downloadFile(content, actualFilename, mimeType);
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to download file:', error);
     throw error;
   }
@@ -153,7 +153,7 @@ export async function downloadInChunks(
       filename,
       'application/octet-stream'
     );
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to download in chunks:', error);
     throw error;
   }

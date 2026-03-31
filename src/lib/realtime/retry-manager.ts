@@ -100,7 +100,7 @@ export class RetryTask<T = unknown> {
       this.state.isRetrying = false;
       this.options.onSuccess();
       return result;
-    } catch (error) {
+    } catch (_error) {
       this.state.isRetrying = false;
       const errorObj = error instanceof Error ? error : new Error(String(error));
       this.options.onFailure(errorObj);
@@ -124,7 +124,7 @@ export class RetryTask<T = unknown> {
       }
       this.reset();
       return result;
-    } catch (error) {
+    } catch (_error) {
       if (this.cancelled) {
         throw new Error('Task cancelled');
       }
@@ -279,7 +279,7 @@ export class RetryManager {
     try {
       const result = await task.execute(action);
       return result;
-    } catch (error) {
+    } catch (_error) {
       throw error;
     } finally {
       this.activeTasks.delete(id);

@@ -1000,7 +1000,7 @@ export async function warmupCache(): Promise<void> {
     globalCache.set(CacheKeyGenerator.agentsListKey({ status: 'active' }), activeAgents, 3 * 60 * 1000);
 
     logger.info('Cache warmed up successfully', { category: 'cache' });
-  } catch (error) {
+  } catch (_error) {
     logger.error('Failed to warm up cache', error, { category: 'cache' });
   }
 }

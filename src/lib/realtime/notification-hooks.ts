@@ -106,7 +106,7 @@ export function useNotificationPreferences() {
         const parsed = JSON.parse(saved);
         setPreferences(() => ({ ...DEFAULT_PREFERENCES, ...parsed }));
       }
-    } catch (error) {
+    } catch (_error) {
       // localStorage may be disabled - use defaults
     } finally {
       setLoaded(true);
@@ -117,7 +117,7 @@ export function useNotificationPreferences() {
   const savePreferences = useCallback((newPreferences: NotificationPreferences) => {
     try {
       localStorage.setItem(STORAGE_KEYS.PREFERENCES, JSON.stringify(newPreferences));
-    } catch (error) {
+    } catch (_error) {
       // localStorage may be disabled - silently fail
     }
   }, []);
@@ -243,7 +243,7 @@ export function useNotificationPreferences() {
       audio.play().catch(() => {
         // Audio may be blocked by browser autoplay policies
       });
-    } catch (error) {
+    } catch (_error) {
       // Audio not available in this environment
     }
   }, [preferences]);
@@ -285,7 +285,7 @@ export function useNotificationHistory(maxSize = 100) {
         // 只加载最新的 maxSize 条记录
         setHistory(parsed.slice(0, maxSize));
       }
-    } catch (error) {
+    } catch (_error) {
       // localStorage may be disabled - start with empty history
     } finally {
       setLoaded(true);
@@ -297,7 +297,7 @@ export function useNotificationHistory(maxSize = 100) {
     try {
       const toSave = newHistory.slice(0, maxSize);
       localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(toSave));
-    } catch (error) {
+    } catch (_error) {
       // localStorage may be disabled - silently fail
     }
   }, [maxSize]);

@@ -537,7 +537,7 @@ export const useUIStore = create<UIState>()(
             }
             try {
               localStorage.setItem(name, JSON.stringify(data));
-            } catch (error) {
+            } catch (_error) {
               console.error('Failed to save UI store:', error);
             }
           },

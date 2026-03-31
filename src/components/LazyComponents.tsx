@@ -429,7 +429,9 @@ export const createLoadingFallback = (
   size: 'sm' | 'md' | 'lg' = 'md',
   className: string = ''
 ): React.FC => {
-  return () => <LoadingFallback message={message} size={size} className={className} />;
+  const FallbackComponent = () => <LoadingFallback message={message} size={size} className={className} />;
+  FallbackComponent.displayName = `LoadingFallback(${message})`;
+  return FallbackComponent;
 };
 
 /**

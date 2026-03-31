@@ -22,7 +22,7 @@ export function CategoryFilterWrapper({ locale, activeCategory, onCategoryChange
   // 使用 useTransition 优化切换交互（React 19 优化）
   const [isPending, startTransition] = useTransition();
 
-  const handleCategoryChange = (category: string) => {
+  const _handleCategoryChange = (category: string) => {
     if (onCategoryChange) {
       startTransition(() => {
         onCategoryChange(category);

@@ -3,7 +3,6 @@
  * GET /api/metrics/performance
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { GET } from '@/app/api/metrics/performance/route';
 import {
   getApiPerformanceReport,

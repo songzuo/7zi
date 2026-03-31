@@ -140,7 +140,7 @@ export class BudgetChecker {
 
       this.lastLoaded = now;
       return this.budgetConfig;
-    } catch (error) {
+    } catch (_error) {
       console.error('[BudgetChecker] Failed to load budget config:', error);
       return null;
     }
@@ -170,7 +170,7 @@ export class BudgetChecker {
       } catch {
         return null;
       }
-    } catch (error) {
+    } catch (_error) {
       console.error(`[BudgetChecker] Error loading budget file from ${path}:`, error);
       return null;
     }
