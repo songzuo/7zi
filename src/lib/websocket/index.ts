@@ -14,22 +14,15 @@ export {
   broadcastTaskStatusUpdate,
   broadcastTaskStatusToUser,
   createServer as createWebSocketServer,
-} from './server';
+} from './server'
 
-export type {
-  AuthenticatedSocket,
-  TaskStatusUpdate,
-} from './server';
+export type { AuthenticatedSocket, TaskStatusUpdate } from './server'
 
 // Type system
-export type { WebSocketMessage } from './types';
+export type { WebSocketMessage } from './types'
 
 // Room management (NEW v1.4.0)
-export {
-  RoomManager,
-  getRoomManager,
-  resetRoomManager,
-} from './rooms';
+export { RoomManager, getRoomManager, resetRoomManager } from './rooms'
 export type {
   RoomType,
   RoomVisibility,
@@ -40,7 +33,7 @@ export type {
   CreateRoomOptions,
   JoinRoomOptions,
   RoomEventCallbacks,
-} from './rooms';
+} from './rooms'
 
 // Permission system (NEW v1.4.0)
 export {
@@ -50,7 +43,7 @@ export {
   createPermissionChecker,
   checkPermissions,
   DEFAULT_ROLE_PERMISSIONS,
-} from './permissions';
+} from './permissions'
 export type {
   RoomPermission,
   MessagePermission,
@@ -59,31 +52,45 @@ export type {
   UserRole,
   PermissionGrant,
   UserRoomPermissions,
-} from './permissions';
+} from './permissions'
 
 // Message store (NEW v1.4.0)
-export {
-  MessageStore,
-  getMessageStore,
-  resetMessageStore,
-} from './message-store';
+export { MessageStore, getMessageStore, resetMessageStore } from './message-store'
 export type {
   StoredMessage,
   MessageReaction,
   OfflineMessage,
   MessageHistoryOptions,
   MessageStoreStats,
-} from './message-store';
+} from './message-store'
+
+// Optimized Message Handling (v2.0)
+export {
+  compressMessage,
+  decompressMessage,
+  computeDelta,
+  applyDelta,
+  hashMessage,
+  MessageBatcher,
+  OptimizedMessageHandler,
+  createMessageBatcher,
+  createOptimizedMessageHandler,
+} from './optimized-message'
+export type {
+  OptimizedMessage,
+  MessageBatch,
+  CompressionConfig,
+} from './optimized-message'
 
 // React hooks
-export { default as useCollaboration } from './useCollaboration';
+export { default as useCollaboration } from './useCollaboration'
 export type {
   ConnectionState,
   RoomUser as CollaborationRoomUser,
   CollaborationConfig,
   CollaborationState,
   CollaborationActions,
-} from './useCollaboration';
+} from './useCollaboration'
 
 // Export comprehensive type system
-export * from './types';
+export * from './types'
