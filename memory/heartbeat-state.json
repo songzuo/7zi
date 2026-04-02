@@ -6,6 +6,6 @@
     "project": 1743383980,
     "xlsx_migration_verified": 1743383980
   },
-  "lastHeartbeat": 1743405300,
-  "notes": "Heartbeat 2026-03-31 07:15 Berlin. Git push pending (256+ files modified). System message: RoomMessage type error in marine-c session. 7zi-frontend has ~70 TypeScript errors. docs/ directory has many deleted API docs (cleaned up). Dashboard darkmode improvement docs in docs/DASHBOARD_DARKMODE_IMPROVEMENT_20260331.md."
+  "lastHeartbeat": 1775142968,
+  "notes": "Heartbeat 2026-04-02 17:14 Berlin. Git push pending (256+ files modified in 7zi-frontend e2e/, .storybook/, next.config.ts, etc.). System message: RoomMessage type error in marine-c session. 7zi-frontend TypeScript ✅ per HEARTBEAT.md."
 }
