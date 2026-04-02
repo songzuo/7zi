@@ -7,6 +7,78 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [v1.8.0] - 2026-04-02 🎨 Visual Workflow Orchestrator
+
+### 🎯 版本亮点
+
+v1.8.0 introduces the **Visual Workflow Orchestrator** - a complete visual workflow design and execution system.
+
+### ✨ 新功能
+
+#### **Visual Workflow Orchestrator Core** (`src/lib/workflow/VisualWorkflowOrchestrator.ts`)
+
+- ✅ Complete workflow execution engine with async/await support
+- ✅ Node types: start, end, task (agent), condition, parallel, wait
+- ✅ State management: pending, running, completed, failed, skipped
+- ✅ Event-driven architecture with listener support
+- ✅ Built-in validation for workflow definitions
+- ✅ Custom executor registration API
+- ✅ Workflow statistics and progress tracking
+- ✅ Instance lifecycle management (create, execute, cancel, pause, resume)
+
+#### **Workflow Canvas Component** (`src/components/workflow/WorkflowCanvas.tsx`)
+
+- ✅ React component with full TypeScript support
+- ✅ Node drag-and-drop placement
+- ✅ Edge/connection line drawing with Bezier curves
+- ✅ Zoom controls (zoom in, zoom out, fit to content, reset)
+- ✅ Grid snapping with toggle option
+- ✅ Keyboard shortcuts (Delete/Backspace for node deletion)
+- ✅ Node selection with visual highlighting
+- ✅ State indicators (pending, running, completed, failed)
+- ✅ Read-only mode support
+- ✅ Pure CSS styling (no external UI library)
+
+### 📊 节点类型
+
+| 节点类型 | 颜色 | 用途 |
+|---------|------|------|
+| `start` | 🟢 绿色 | 工作流入口 |
+| `end` | 🔴 红色 | 工作流终止 |
+| `task` / `agent` | 🔵 蓝色 | 任务执行节点 |
+| `condition` | 🟡 黄色 | 条件分支 |
+| `parallel` | 🟣 紫色 | 并行执行 |
+| `wait` | ⚪ 灰色 | 等待/延迟 |
+
+### 💻 API 示例
+
+```typescript
+// 创建编排器
+const orchestrator = new VisualWorkflowOrchestrator({
+  globalTimeout: 3600000,
+  maxRetries: 3,
+  enableLogs: true,
+});
+
+// 注册自定义执行器
+orchestrator.registerExecutor(NodeType.AGENT, {
+  execute: async (node, context) => {
+    return { success: true, nodeId: node.id, duration: 100, logs: [] };
+  },
+  validate: (node) => ({ valid: true, errors: [] }),
+});
+
+// 执行工作流
+const instance = await orchestrator.execute(workflowDefinition, { input: 'data' });
+
+// 监听事件
+orchestrator.addEventListener((event) => {
+  console.log(`${event.type}: ${event.nodeId}`);
+});
+```
+
+---
+
 ## [v1.5.0] - 2026-03-30 (开发中)
 
 ### 🎯 版本亮点
