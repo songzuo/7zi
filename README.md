@@ -3,7 +3,7 @@
 > **11 位 AI 成员 · 24/7 自主工作 · 实时协作**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.5.0-blue.svg)](https://github.com/songzuo/7zi)
+[![Version](https://img.shields.io/badge/version-1.6.1-blue.svg)](https://github.com/songzuo/7zi)
 [![CI Status](https://github.com/songzuo/7zi/workflows/CI%20-%20Pull%20Request%20Checks/badge.svg)](https://github.com/songzuo/7zi/actions/workflows/ci-pr.yml)
 [![Deploy Status](https://github.com/songzuo/7zi/workflows/Deploy%20-%20Main%20Branch/badge.svg)](https://github.com/songzuo/7zi/actions/workflows/deploy-main.yml)
 [![Next.js](https://img.shields.io/badge/Next.js-16.2.1-black?logo=next.js)](https://nextjs.org/)
@@ -28,7 +28,66 @@
 
 ---
 
-## 🔥 最新进展 (v1.5.0 - Released 2026-03-31 | v1.4.0 - Released 2026-03-29)
+## 🔥 最新进展 (v1.7.0 - 开发中 | v1.6.0 - Released 2026-04-01 | v1.5.0 - Released 2026-03-31)
+
+### 📊 v1.7.0 开发进度 (2026-04-02)
+
+| 功能模块 | 完成度 | 状态 |
+|---------|--------|------|
+| TypeScript 严格模式 P0-P2 | 100% | ✅ |
+| Learning System 审计 | 100% | ✅ |
+| UI Consistency Guide | 100% | ✅ |
+| Workflow Engine 优化 | 100% | ✅ |
+| APM/Observability 集成 | 80% | 🔄 |
+
+### 📊 v1.6.0 核心亮点
+
+| 功能 | 状态 | 说明 |
+|------|------|------|
+| 🤖 **Agent Registry 核心功能** | ✅ 已完成 | 智能体注册、发现、心跳监控 (30s超时) |
+| 🔗 **A2A Protocol v2.1** | ✅ 已完成 | 任务委派、8种聚合策略、错误传播恢复 |
+| ⚡ **持久化构建缓存** | ✅ 已完成 | Turbopack 缓存、CI/CD 缓存管理 |
+| 🚀 **API 性能优化** | ✅ 已完成 | MultiLevelCacheManager、请求去重 |
+| 📊 **分布式追踪系统** | ✅ 已完成 | Sentry APM 集成、跨 Agent 追踪 |
+
+### 📊 v1.6.0 核心改进
+
+#### 🤖 Agent Registry 核心功能 (100% 完成)
+
+- **HeartbeatMonitor** - 30 秒超时检测机制，自动下线处理
+- **Agent 注册/注销** - 完整生命周期管理
+- **Agent 发现** - 多维度查询和筛选，智能选择最佳智能体
+- **事件系统** - 完整审计追踪
+- **代码统计**: 77,000+ 行核心实现 + 28,000+ 行测试代码
+- **文档**: [docs/AGENT_REGISTRY.md](docs/AGENT_REGISTRY.md)
+
+#### 🔗 A2A Protocol v2.1 (100% 完成)
+
+- **标准化消息格式** - JSON-RPC 2.0 兼容
+- **任务委派机制** - 跨 Agent 任务分配，支持依赖管理
+- **8 种聚合策略** - first, last, all, majority, best, average, merge, custom
+- **错误传播和恢复** - 部分失败容错机制
+- **Zod Schema 验证** - 运行时消息验证
+- **代码统计**: 45,000+ 行核心实现
+- **文档**: [docs/A2A_PROTOCOL_V2.1.md](docs/A2A_PROTOCOL_V2.1.md)
+
+#### ⚡ API 性能优化 (100% 完成)
+
+- **MultiLevelCacheManager** - L1(内存) + L2(Redis) + L3(数据库) 三层缓存架构
+- **自动降级机制** - Redis 不可用时降级到内存缓存
+- **请求去重** - 100ms 去重窗口，防止并发重复请求
+- **性能提升**: L2 Cache Hit ~200ms → <15ms (92% ↓)
+- **文档**: [docs/V160_P0_IMPLEMENTATION_REPORT_20260331.md](docs/V160_P0_IMPLEMENTATION_REPORT_20260331.md)
+
+#### 📊 分布式追踪系统 (100% 完成)
+
+- **跨 Agent 请求追踪** - TraceContextManager
+- **A2A 消息传递追踪** - 上下文注入/提取
+- **Sentry APM 集成** - 事务和 Span 管理
+- **多格式支持** - W3C, B3, Sentry 格式
+- **文档**: [docs/APM_INTEGRATION.md](docs/APM_INTEGRATION.md)
+
+---
 
 ### 📊 v1.5.0 核心亮点
 
@@ -349,6 +408,7 @@
 
 | 版本 | 日期 | 主要更新 |
 |------|------|----------|
+| **v1.6.0** | 2026-04-01 | 🤖 Agent Registry 核心功能、🔗 A2A Protocol v2.1、⚡ 持久化构建缓存、🚀 API 性能优化、📊 分布式追踪系统 |
 | **v1.5.0** | 2026-03-31 | 🤖 AI Agent 调度 Dashboard UI、🏗️ lib/ 层重构、🔄 PermissionContext → Zustand、🧪 Agent Learning 测试系统 (96%)、🔌 WebSocket 房间系统 UI、🧹 技术债务清理 80% |
 | **v1.4.0** | 2026-03-29 | 🔄 WebSocket 高级功能(房间/权限/消息持久化)、🤖 AI Agent 智能调度、📊 性能监控升级、⚡ React Compiler 可选功能 |
 | **v1.3.0** | 2026-03-28 | 🌍 国际化完整实现、⚡ Server Actions 缓存 API、🚀 Turbopack 生产环境、🔄 WebSocket 重连优化、🔍 SEO 增强、📦 Docker 镜像优化、🎯 React Compiler 路线图、🧪 测试覆盖提升 |
@@ -952,6 +1012,28 @@ vercel --prod
 
 **Made with ❤️ by 11 AI Members & 🧑 宋琢环球旅行**
 
-**v1.5.0 - 2026-03-31**
+**v1.6.1 - 2026-04-01**
+
+</div>
+版本亮点**
+v1.6.1 是一个维护版本，包含 **Dashboard 组件增强** 和 **代码清理**。
+
+### ✨ 新增
+- 📊 MonitoringCharts 组件 - CPU/内存趋势、Agent状态分布、任务统计
+- 📁 数据导出功能 - CSV/JSON 格式
+
+### 🔄 改进
+- 删除 200+ 个过时文档和备份文件
+- 优化文档结构和 API 缓存中间件
+- TypeScript 错误从 100+ 降至 98 个
+
+### 📚 文档
+- 认证中间件修复文档
+- Dashboard UI 实现文档
+- WebSocket 测试修复文档
+
+---
+
+**v1.6.0 - 2026-04-01**
 
 </div>
