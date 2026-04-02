@@ -18,21 +18,58 @@
 
 ---
 
-## [1.8.0] - 2026-04-02 📧 Email Alerting 基础设施
+## [1.8.0] - 2026-04-02 🎨 Visual Workflow Orchestrator
 
 ### 🎯 版本主题
-**Email 告警系统** · **SMTP 集成** · **模板系统**
+**可视化工作流编排** · **Email 告警系统** · **SMTP 集成** · **模板系统**
 
 ### 📊 完成度总览
 
 | 功能模块 | 完成度 | 状态 |
 |---------|--------|------|
+| **Visual Workflow Orchestrator** | 100% | ✅ 已完成 |
+| **Workflow Canvas 组件** | 100% | ✅ 已完成 |
 | **Email 配置模块** | 100% | ✅ 已完成 |
 | **Email 服务** | 100% | ✅ 已完成 |
 | **告警模板** | 100% | ✅ 已完成 |
 | **Alerting 系统集成** | 100% | ✅ 已完成 |
 
 ### ✨ 新增 / Added
+
+#### **🎨 Visual Workflow Orchestrator Core** (`src/lib/workflow/VisualWorkflowOrchestrator.ts`)
+
+- ✅ 完整的工作流执行引擎 (async/await 支持)
+- ✅ 节点类型: start, end, task (agent), condition, parallel, wait
+- ✅ 状态管理: pending, running, completed, failed, skipped
+- ✅ 事件驱动架构，支持监听器
+- ✅ 工作流定义验证
+- ✅ 自定义执行器注册 API
+- ✅ 工作流统计和进度追踪
+- ✅ 实例生命周期管理 (create, execute, cancel, pause, resume)
+
+#### **Workflow Canvas 组件** (`src/components/workflow/WorkflowCanvas.tsx`)
+
+- ✅ React 组件，完整 TypeScript 支持
+- ✅ 节点拖拽放置
+- ✅ 边/连接线绘制 (Bezier 曲线)
+- ✅ 缩放控制 (放大、缩小、适应内容、重置)
+- ✅ 网格对齐 (可切换)
+- ✅ 键盘快捷键 (Delete/Backspace 删除节点)
+- ✅ 节点选择和高亮
+- ✅ 状态指示器 (pending, running, completed, failed)
+- ✅ 只读模式支持
+- ✅ 纯 CSS 样式 (无外部 UI 库依赖)
+
+#### 📊 节点类型
+
+| 节点类型 | 颜色 | 用途 |
+|---------|------|------|
+| `start` | 🟢 绿色 | 工作流入口 |
+| `end` | 🔴 红色 | 工作流终止 |
+| `task` / `agent` | 🔵 蓝色 | 任务执行节点 |
+| `condition` | 🟡 黄色 | 条件分支 |
+| `parallel` | 🟣 紫色 | 并行执行 |
+| `wait` | ⚪ 灰色 | 等待/延迟 |
 
 #### **📧 Email Alerting 基础设施**
 
